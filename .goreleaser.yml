@@ -1,0 +1,83 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+project_name: 'kclx'
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+
+builds:
+  - main: ./cmd/kclx
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - -s
+      - -w
+      - -X github.com/MacroPower/kclx/internal/version.Version={{.Version}}
+      - -X github.com/MacroPower/kclx/internal/version.Branch={{.Branch}}
+      - -X github.com/MacroPower/kclx/internal/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
+      - -X github.com/MacroPower/kclx/internal/version.BuildDate={{.Date}}
+
+dockers:
+  - goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
+    use: buildx
+    image_templates:
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-amd64'
+    build_flag_templates:
+      - '--platform=linux/amd64'
+      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
+      - '--label=org.opencontainers.image.version={{ .Tag }}'
+      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
+      - '--label=org.opencontainers.image.created={{ .Date }}'
+      - '--label=org.opencontainers.image.source={{ .GitURL }}'
+  - goos: linux
+    goarch: arm64
+    dockerfile: Dockerfile
+    use: buildx
+    image_templates:
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-arm64'
+    build_flag_templates:
+      - '--platform=linux/arm64'
+      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
+      - '--label=org.opencontainers.image.version={{ .Tag }}'
+      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
+      - '--label=org.opencontainers.image.created={{ .Date }}'
+      - '--label=org.opencontainers.image.source={{ .GitURL }}'
+
+docker_manifests:
+  - name_template: 'MacroPower/{{ .ProjectName }}:latest'
+    image_templates:
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: 'MacroPower/{{ .ProjectName }}:{{ .Tag }}'
+    image_templates:
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: 'MacroPower/{{ .ProjectName }}:v{{ .Major }}'
+    image_templates:
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: 'MacroPower/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}'
+    image_templates:
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - 'MacroPower/{{ .ProjectName }}:{{ .Tag }}-arm64'
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: '{{ incpatch .Version }}-next'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

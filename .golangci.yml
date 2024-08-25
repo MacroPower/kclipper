@@ -1,0 +1,47 @@
+# This file contains all available configuration options
+# with their default values.
+
+run:
+  # Timeout for analysis, e.g. 30s, 5m.
+  timeout: 5m
+
+output:
+  formats:
+    - format: colored-line-number
+
+linters:
+  enable-all: true
+  disable:
+    - cyclop # Disabled length/complexity linters.
+    - depguard # Enable with settings for required guards.
+    - err113 # No way to feasibly follow this in many cases.
+    - exhaustruct # Enable for certain files if needed.
+    - forbidigo # Enable with settings for required guards.
+    - funlen # Disabled length/complexity linters.
+    - gci # Using goimports instead.
+    - ginkgolinter # Enable if using Ginkgo.
+    - gochecknoglobals # Useful in some cases.
+    - gochecknoinits # Useful in some cases.
+    - gocognit # Disabled length/complexity linters.
+    - gocyclo # Disabled length/complexity linters.
+    - gofmt # Using gofumpt instead.
+    - tagliatelle # Enable if standards are known.
+    - varnamelen # Disabled length/complexity linters.
+    - wsl # Way too annoying to deal with.
+
+linters-settings:
+  misspell:
+    locale: US
+
+  exhaustive:
+    default-signifies-exhaustive: true
+
+  goimports:
+    local-prefixes: github.com/MacroPower/kclx
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - dupl
+        - promlinter
