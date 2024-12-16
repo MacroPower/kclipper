@@ -1,0 +1,140 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
+project_name: kclx
+
+env:
+  - DOCKER_REGISTRY=ghcr.io/macropower
+
+before:
+  hooks:
+    - go mod tidy
+
+# https://github.com/goreleaser/example-zig-cgo/
+builds:
+  - id: kclx
+    main: ./cmd/kclx
+    env:
+      - CGO_ENABLED=1
+      - >-
+        {{- if eq .Os "linux" }}
+          {{- if eq .Arch "amd64" }}CC=zig c -target x86_64-linux-musl{{- end }}
+          {{- if eq .Arch "arm64"}}CC=zig c -target aarch64-linux-musl{{- end }}
+        {{- end }}
+      - >-
+        {{- if eq .Os "linux" }}
+          {{- if eq .Arch "amd64" }}CC=zig c++ -target x86_64-linux-musl{{- end }}
+          {{- if eq .Arch "arm64"}}CC=zig c++ -target aarch64-linux-musl{{- end }}
+        {{- end }}
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s
+      - -w
+      - -X github.com/MacroPower/kclx/internal/version.Version={{.Version}}
+      - -X github.com/MacroPower/kclx/internal/version.Branch={{.Branch}}
+      - -X github.com/MacroPower/kclx/internal/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
+      - -X github.com/MacroPower/kclx/internal/version.BuildDate={{.Date}}
+    flags:
+      - -trimpath
+
+  - id: kclx-darwin
+    main: ./cmd/kclx
+    skip: '{{ envOrDefault "SKIP_DARWIN_BUILD" "false" }}'
+    env:
+      - CGO_ENABLED=1
+      - >-
+        {{- if eq .Os "darwin" }}
+          {{- if eq .Arch "amd64"}}CC=zig c -target x86_64-macos-none -F{{ .Env.SDK_PATH }}{{- end }}
+          {{- if eq .Arch "arm64"}}CC=zig c -target aarch64-macos-none -F{{ .Env.SDK_PATH }}{{- end }}
+        {{- end }}
+      - >-
+        {{- if eq .Os "darwin" }}
+          {{- if eq .Arch "amd64"}}CC=zig c++ -target x86_64-macos-none -F{{ .Env.SDK_PATH }}{{- end }}
+          {{- if eq .Arch "arm64"}}CC=zig c++ -target aarch64-macos-none -F{{ .Env.SDK_PATH }}{{- end }}
+        {{- end }}
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    ldflags:
+      - -s
+      - -w
+      - -X github.com/MacroPower/kclx/internal/version.Version={{.Version}}
+      - -X github.com/MacroPower/kclx/internal/version.Branch={{.Branch}}
+      - -X github.com/MacroPower/kclx/internal/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
+      - -X github.com/MacroPower/kclx/internal/version.BuildDate={{.Date}}
+    flags:
+      - -trimpath
+      - -buildmode=pie
+    tags:
+      - netgo
+
+dockers:
+  - goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
+    use: buildx
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+    build_flag_templates:
+      - '--platform=linux/amd64'
+      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
+      - '--label=org.opencontainers.image.version={{ .Tag }}'
+      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
+      - '--label=org.opencontainers.image.created={{ .Date }}'
+      - '--label=org.opencontainers.image.source={{ .GitURL }}'
+  - goos: linux
+    goarch: arm64
+    dockerfile: Dockerfile
+    use: buildx
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+    build_flag_templates:
+      - '--platform=linux/arm64'
+      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
+      - '--label=org.opencontainers.image.version={{ .Tag }}'
+      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
+      - '--label=org.opencontainers.image.created={{ .Date }}'
+      - '--label=org.opencontainers.image.source={{ .GitURL }}'
+
+docker_manifests:
+  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:latest'
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}'
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}'
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}'
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  version_template: '{{ incpatch .Version }}-next'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

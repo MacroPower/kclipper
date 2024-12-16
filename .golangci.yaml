@@ -16,6 +16,7 @@ linters:
     - depguard # Enable with settings for required guards.
     - err113 # No way to feasibly follow this in many cases.
     - exhaustruct # Enable for certain files if needed.
+    - exportloopref # Replaced by copyloopvar.
     - forbidigo # Enable with settings for required guards.
     - funlen # Disabled length/complexity linters.
     - gci # Using goimports instead.

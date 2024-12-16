@@ -1,0 +1,65 @@
+version: '3'
+
+vars:
+  FILES_TO_FMT:
+    sh: find . -path ./vendor -prune -o -name '*.go' -print
+  FILES_TO_TEST:
+    sh: go list ./... | grep -v /vendor/
+  FILES_TO_FMT_STR: >-
+    {{ splitList "\n" .FILES_TO_FMT | join " " }}
+  FILES_TO_TEST_STR: >-
+    {{ splitList "\n" .FILES_TO_TEST | join " " }}
+
+env:
+  HOSTNAME:
+    sh: hostname
+
+tasks:
+  default:
+    cmds:
+      - task: format
+      - task: lint
+      - task: test
+      - task: build
+
+  format:
+    desc: Runs all format targets
+    deps: [go-format]
+
+  lint:
+    desc: Runs all lint targets
+    deps: [go-lint]
+
+  test:
+    desc: Runs all test targets
+    deps: [go-test]
+
+  build:
+    desc: Runs all build targets
+    deps: [go-build]
+
+  go-format:
+    desc: Formats Go code including imports
+    cmds:
+      - 'gofumpt -w {{.FILES_TO_FMT_STR}}'
+      - 'goimports -w {{.FILES_TO_FMT_STR}}'
+
+  go-lint:
+    desc: Lints Go code
+    cmds:
+      - golangci-lint run
+
+  go-test:
+    desc: Tests Go code
+    cmds:
+      - go test -race {{.FILES_TO_TEST_STR}}
+
+  go-build:
+    desc: Builds Go binaries
+    cmds:
+      - goreleaser build --snapshot --clean
+
+  go-release:
+    desc: Releases Go binaries and Docker images
+    cmds:
+      - goreleaser release --snapshot --clean

@@ -1,9 +1,7 @@
-name: golangci-lint
+name: validate
 
 on:
   push:
-    tags:
-      - '*'
     branches:
       - 'main'
   pull_request:
@@ -12,7 +10,25 @@ permissions:
   contents: read
 
 jobs:
-  golangci:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+
+      - name: Run Go test
+        run: task test
+
+  lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -27,4 +43,4 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.60
+          version: v1.62
