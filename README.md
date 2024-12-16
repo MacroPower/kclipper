@@ -1,22 +1,26 @@
-# go_template
+# kclx
 
-A template for my Go projects.
+KCL with Extensions.
 
-## Features
+[KCL](https://github.com/kcl-lang/kcl) is a constraint-based record & functional domain language. Full documents of KCL can be found [here](https://kcl-lang.io/).
 
-- Configured linter (using [golangci][golangci]).
-- Development dependency handling (using [bingo][bingo]).
-- Build and release automation (using [goreleaser][goreleaser]).
-- Benchmarks (using [benchstat][benchstat] and [benchdiff][benchdiff]).
-- Command-line and environment variable parser (using [kong][kong]).
-- Leveled logger with logfmt and json support (using [go-kit/log][go-kit-log]).
-- Makefile with help, format, lint, test, bench, and build targets.
-- GitHub Actions for all of the above.
+This repo tracks upstream KCL releases and provides multi-architecture Docker images for x86 and arm64.
 
-[golangci]: https://golangci-lint.run
-[bingo]: https://github.com/bwplotka/bingo
-[goreleaser]: https://goreleaser.com
-[benchstat]: https://pkg.go.dev/golang.org/x/perf/cmd/benchstat
-[benchdiff]: https://github.com/WillAbides/benchdiff
-[kong]: https://github.com/alecthomas/kong
-[go-kit-log]: https://github.com/go-kit/log
+## Installation
+
+Binaries are posted in [releases](https://github.com/MacroPower/kclx/releases).
+
+Images are available [here](https://github.com/MacroPower/kclx/pkgs/container/kclx).
+
+e.g. `ghcr.io/macropower/kclx:latest`
+
+## Included Plugins
+
+- `os`
+  - `os.exec("command", ["arg"])`
+
+## Contributing
+
+[Tasks](https://taskfile.dev) are available (run `task help`).
+
+If you are using an arm64 Mac, you can use [Devbox](https://www.jetify.com/docs/devbox/) to create a Nix environment pre-configured with all the necessary tools and dependencies for Go, Zig, etc. Otherwise, you can still use the included Devbox, but CGO probably won't work.
