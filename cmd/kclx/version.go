@@ -10,7 +10,7 @@ import (
 )
 
 func GetVersionString() string {
-	return fmt.Sprintf("%s+%s", version.Revision, kclversion.GetVersionString())
+	return fmt.Sprintf("%s+%s", version.Version, kclversion.GetVersionString())
 }
 
 // NewVersionCmd returns the version command.
@@ -19,7 +19,7 @@ func NewVersionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Show version of the KCL CLI",
 		Run: func(*cobra.Command, []string) {
-			fmt.Printf(GetVersionString())
+			fmt.Println(GetVersionString())
 		},
 		SilenceUsage: true,
 	}
