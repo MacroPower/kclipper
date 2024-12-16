@@ -11,7 +11,6 @@ import (
 
 	"github.com/spf13/cobra"
 	cmd "kcl-lang.io/cli/cmd/kcl/commands"
-	"kcl-lang.io/cli/pkg/version"
 
 	_ "github.com/MacroPower/kclx/pkg/os"
 )
@@ -34,7 +33,7 @@ func main() {
 		Long:          longDesc,
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Version:       version.GetVersionString(),
+		Version:       GetVersionString(),
 	}
 	cmdx.AddCommand(cmd.NewRunCmd())
 	cmdx.AddCommand(cmd.NewLintCmd())
@@ -47,7 +46,6 @@ func main() {
 	cmdx.AddCommand(cmd.NewModCmd())
 	cmdx.AddCommand(cmd.NewRegistryCmd())
 	cmdx.AddCommand(cmd.NewServerCmd())
-	cmdx.AddCommand(cmd.NewVersionCmd())
 	cmdx.AddCommand(NewVersionCmd())
 
 	if err := cmdx.Execute(); err != nil {

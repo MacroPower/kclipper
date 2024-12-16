@@ -4,24 +4,22 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	kclversion "kcl-lang.io/cli/pkg/version"
 
 	"github.com/MacroPower/kclx/internal/version"
 )
 
+func GetVersionString() string {
+	return fmt.Sprintf("%s+%s", version.Revision, kclversion.GetVersionString())
+}
+
 // NewVersionCmd returns the version command.
 func NewVersionCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "versionx",
-		Short: "Show version of the KCL Extensions plugin",
+		Use:   "version",
+		Short: "Show version of the KCL CLI",
 		Run: func(*cobra.Command, []string) {
-			fmt.Println("Version:\t", version.Version)
-			fmt.Println("Branch:\t\t", version.Branch)
-			fmt.Println("BuildUser:\t", version.BuildUser)
-			fmt.Println("BuildDate:\t", version.BuildDate)
-			fmt.Println("Revision:\t", version.Revision)
-			fmt.Println("GoVersion:\t", version.GoVersion)
-			fmt.Println("GoOS:\t\t", version.GoOS)
-			fmt.Println("GoArch:\t\t", version.GoArch)
+			fmt.Printf(GetVersionString())
 		},
 		SilenceUsage: true,
 	}
