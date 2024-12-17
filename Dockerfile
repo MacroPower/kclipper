@@ -1,5 +1,5 @@
 FROM golang:1.23
 
-COPY kclx /usr/local/bin/
+COPY kcl /usr/local/bin/
 
-ENTRYPOINT ["kclx"]
+ENTRYPOINT ["kcl"]

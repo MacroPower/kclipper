@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	cmdName   = "kclx"
-	shortDesc = "The KCL Extensions Command Line Interface (CLI)."
-	longDesc  = `The KCL Command Line Interface (CLI).
+	cmdName   = "kcl"
+	shortDesc = "The KCL Extended Command Line Interface (CLI)."
+	longDesc  = `The KCL Extended Command Line Interface (CLI).
 
 KCL is an open-source, constraint-based record and functional language that
 enhances the writing of complex configurations, including those for cloud-native
