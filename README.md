@@ -2,24 +2,24 @@
 
 KCL Extended.
 
-[KCL](https://github.com/kcl-lang/kcl) is a constraint-based record & functional domain language. Full documents of KCL can be found [here](https://kcl-lang.io/).
+[KCL](https://github.com/kcl-lang/kcl) is an open-source, constraint-based record and functional language that enhances the writing of complex configurations, including those for cloud-native scenarios. The KCL website can be found [here](https://kcl-lang.io/).
 
-This repo tracks upstream KCL releases and provides multi-architecture Docker images for x86 and arm64.
+KCL Extended serves to wrap upstream KCL releases with additional features and [plugins](https://www.kcl-lang.io/docs/next/reference/plugin/overview), and provide up-to-date multi-architecture Docker images for x86 and arm64.
 
 ## Installation
 
 Binaries are posted in [releases](https://github.com/MacroPower/kclx/releases).
 
-Images are available [here](https://github.com/MacroPower/kclx/pkgs/container/kclx).
-
-e.g. `ghcr.io/macropower/kclx:latest`
+Images are available [here](https://github.com/MacroPower/kclx/pkgs/container/kclx). e.g. `ghcr.io/macropower/kclx:latest`
 
 The command and binary is still just `kcl`, so that it can be used as a drop-in replacement for official KCL binaries.
+
+Versions are tagged independently of upstream KCL, e.g. kclx `v0.1.0` maps to kcl `v0.10.10`, but kclx releases still follow semver with consideration for upstream KCL changes. e.g., bumping upstream KCL's major version will bump this project's major version as well. I considered using a version strategy like `v0.1.0-kcl0.10.0`, but decided against it for simplicity and compatibility with other tools (like goreleaser, your renovate config, etc.)
 
 ## Included Plugins
 
 - `os`
-  - `os.exec("command", ["arg"])`
+  - `os.exec("command", ["arg"])` -> `{"stdout": "x", "stderr": "y"}`
 
 ## Contributing
 
