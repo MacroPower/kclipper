@@ -12,8 +12,9 @@ type ExecOutput struct {
 	Stderr string
 }
 
-func Exec(name string, arg ...string) (ExecOutput, error) {
+func Exec(name string, arg []string, env []string) (ExecOutput, error) {
 	cmd := exec.Command(name, arg...)
+	cmd.Env = env
 
 	var outb, errb bytes.Buffer
 	cmd.Stdout = &outb

@@ -17,8 +17,14 @@ func init() {
 					for _, v := range args.ListArg(1) {
 						strArgs = append(strArgs, fmt.Sprint(v))
 					}
+					strEnvs := []string{}
+					if _, ok := args.KwArgs["env"]; ok {
+						for k, v := range args.MapKwArg("env") {
+							strEnvs = append(strEnvs, fmt.Sprintf("%s=%s", k, v))
+						}
+					}
 
-					exec, err := Exec(name, strArgs...)
+					exec, err := Exec(name, strArgs, strEnvs)
 
 					return &plugin.MethodResult{V: map[string]string{
 						"stdout": exec.Stdout,
