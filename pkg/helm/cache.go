@@ -9,9 +9,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Rather than storing a mapping of key->path in memory, uses very simply
-// bijective encoding/decoding functions to convert keys to paths.
-// This allows cache preservation across multiple KCL run invocations.
+// Rather than storing a mapping of key->path in memory, uses very simple
+// bijective encoding/decoding functions to convert keys to paths. This allows
+// cache preservation across multiple KCL run invocations.
 type TempPaths struct {
 	root string
 	lock sync.RWMutex
