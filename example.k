@@ -8,7 +8,7 @@ import kcl_plugin.helm
     chart="wakatime-exporter",
     target_revision="0.1.0",
     repo_url="https://jacobcolvin.com/helm-charts",
-    values_object={
+    values={
       service.main.enabled = False
     },
   )

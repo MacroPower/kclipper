@@ -39,7 +39,7 @@ helm.template(
   chart="example",
   target_revision="0.1.0",
   repo_url="https://example.com/charts",
-  valuesObject={
+  values={
     replicas: 3
   }
 ) | {

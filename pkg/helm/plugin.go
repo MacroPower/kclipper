@@ -24,11 +24,11 @@ func init() {
 						"release_name":     "str",
 						"namespace":        "str",
 						"project":          "str",
+						"helm_version":     "str",
 						"enable_oci":       "bool",
 						"skip_crds":        "bool",
-						"values_object":    "{str:any}",
-						"helm_version":     "str",
 						"pass_credentials": "bool",
+						"values":           "{str:any}",
 					},
 					ResultType: "{str:any}",
 				},
@@ -46,11 +46,11 @@ func init() {
 						ReleaseName:     safeArgs.StrKwArg("release_name", chartName),
 						Namespace:       safeArgs.StrKwArg("namespace", ""),
 						Project:         safeArgs.StrKwArg("project", ""),
+						HelmVersion:     safeArgs.StrKwArg("helm_version", "v3"),
 						EnableOCI:       safeArgs.BoolKwArg("enable_oci", false),
 						SkipCRDs:        safeArgs.BoolKwArg("skip_crds", false),
-						ValuesObject:    safeArgs.MapKwArg("values_object", map[string]any{}),
-						HelmVersion:     safeArgs.StrKwArg("helm_version", "v3"),
 						PassCredentials: safeArgs.BoolKwArg("pass_credentials", false),
+						ValuesObject:    safeArgs.MapKwArg("values", map[string]any{}),
 					})
 					if err != nil {
 						return nil, err

@@ -16,7 +16,7 @@ func TestPluginHelmTemplate(t *testing.T) {
 		"chart":           "wakatime-exporter",
 		"repo_url":        "https://jacobcolvin.com/helm-charts",
 		"target_revision": "0.1.0",
-		"values_object": map[string]interface{}{
+		"values": map[string]interface{}{
 			"service": map[string]interface{}{
 				"main": map[string]interface{}{
 					"enabled": false,
