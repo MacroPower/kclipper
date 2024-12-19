@@ -38,6 +38,16 @@ tasks:
     desc: Runs all build targets
     deps: [go-build]
 
+  release:
+    desc: Runs all release targets
+    deps: [go-release]
+
+  install:
+    desc: Builds and installs binaries
+    cmds:
+      - goreleaser build --snapshot --clean --single-target
+      - sudo cp ./dist/*/kcl /usr/local/bin
+
   go-format:
     desc: Formats Go code including imports
     cmds:

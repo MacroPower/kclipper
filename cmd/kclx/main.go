@@ -12,6 +12,8 @@ import (
 	"github.com/spf13/cobra"
 	cmd "kcl-lang.io/cli/cmd/kcl/commands"
 
+	_ "kcl-lang.io/kcl-plugin/http"
+
 	_ "github.com/MacroPower/kclx/pkg/helm"
 	_ "github.com/MacroPower/kclx/pkg/os"
 )

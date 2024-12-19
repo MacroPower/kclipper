@@ -58,6 +58,14 @@ The biggest difference:
 
 Both plugins mirror many aspects of Tanka and ArgoCD respectively, including in their overall style, argument usage, and so on. So, the interfaces will feel familiar to users of either tool. I recommend you choose the one that is more familiar to you, and/or best fits your use case.
 
+### HTTP
+
+Includes the HTTP plugin from [kcl-lang/kcl-plugin](https://github.com/kcl-lang/kcl-plugin), which can be used to GET external resources. E.g.:
+
+`http.get("https://example.com")` -> `{"body": "<...>", "status": 200}`
+
+You can parse the body using one of KCL's native functions e.g. `json.decode` or `yaml.decode`.
+
 ### OS
 
 Run a command on the host OS. This can be useful for integrating with other tools that do not have a native KCL plugin available, e.g. by installing them in your container. E.g.:
