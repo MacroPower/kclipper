@@ -26,6 +26,8 @@ linters:
     - gocognit # Disabled length/complexity linters.
     - gocyclo # Disabled length/complexity linters.
     - gofmt # Using gofumpt instead.
+    - mnd # Sometimes more readable.
+    - nlreturn # Sometimes more readable.
     - tagliatelle # Enable if standards are known.
     - varnamelen # Disabled length/complexity linters.
     - wsl # Way too annoying to deal with.
