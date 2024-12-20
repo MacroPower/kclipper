@@ -1,9 +1,9 @@
 package helm
 
 import (
+	"fmt"
 	"net/url"
 
-	"github.com/pkg/errors"
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
 	pluginutil "github.com/MacroPower/kclx/pkg/util/plugin"
@@ -40,7 +40,7 @@ func init() {
 
 					repoURL, err := url.Parse(repoURLStr)
 					if err != nil {
-						return nil, errors.Wrapf(err, "failed to parse repo_url: %s", repoURLStr)
+						return nil, fmt.Errorf("failed to parse repo_url %s: %w", repoURLStr, err)
 					}
 					if repoURL.Scheme == "" {
 						enableOCI = true

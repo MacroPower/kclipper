@@ -48,3 +48,6 @@ issues:
       linters:
         - dupl
         - promlinter
+    - source: "^// http(s)?://([^\\s]*)$"
+      linters:
+        - lll

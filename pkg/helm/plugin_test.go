@@ -119,6 +119,8 @@ patch = lambda resource: {str:} -> {str:} {
 `
 
 func TestExecProgramWithPlugin(t *testing.T) {
+	t.Parallel()
+
 	client := native.NewNativeServiceClient()
 	result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
 		KFilenameList: []string{"main.k"},
@@ -128,13 +130,22 @@ func TestExecProgramWithPlugin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.ErrMessage != "" {
-		t.Fatalf("error message must be empty, got: %s", result.ErrMessage)
+	if result.GetErrMessage() != "" {
+		t.Fatalf("error message must be empty, got: %s", result.GetErrMessage())
 	}
+
 	resultMap := map[string]any{}
-	json.Unmarshal([]byte(result.GetJsonResult()), &resultMap)
-	resultChart := resultMap["resources"].([]interface{})
-	obj0 := resultChart[0].(map[string]interface{})
+	if err := json.Unmarshal([]byte(result.GetJsonResult()), &resultMap); err != nil {
+		t.Fatal(err)
+	}
+	resultChart, ok := resultMap["resources"].([]interface{})
+	if !ok {
+		t.Fatalf("unexpected type in object: %v", resultMap)
+	}
+	obj0, ok := resultChart[0].(map[string]interface{})
+	if !ok {
+		t.Fatalf("unexpected type in object: %v", resultChart)
+	}
 	obj0md, err := json.Marshal(obj0["metadata"])
 	if err != nil {
 		t.Fatal(err)

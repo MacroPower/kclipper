@@ -1,10 +1,12 @@
 // Copyright 2017-2018 The Argo Authors. Licensed under the Apache License 2.0.
-// Source: https://github.com/argoproj/gitops-engine/blob/54992bf42431e71f71f11647e82105530e56305e/pkg/utils/kube/kube.go#L304-L346
+// Source:
+// https://github.com/argoproj/gitops-engine/blob/54992bf42431e71f71f11647e82105530e56305e/pkg/utils/kube/kube.go#L304-L346
 
 package helm
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 
@@ -17,7 +19,7 @@ import (
 // SplitYAML splits a YAML file into unstructured objects. Returns list of all unstructured objects
 // found in the yaml. If an error occurs, returns objects that have been parsed so far too.
 func SplitYAML(yamlData []byte) ([]*unstructured.Unstructured, error) {
-	var objs []*unstructured.Unstructured
+	objs := []*unstructured.Unstructured{}
 	ymls, err := SplitYAMLToString(yamlData)
 	if err != nil {
 		return nil, err
@@ -25,7 +27,7 @@ func SplitYAML(yamlData []byte) ([]*unstructured.Unstructured, error) {
 	for _, yml := range ymls {
 		u := &unstructured.Unstructured{}
 		if err := yaml.Unmarshal([]byte(yml), u); err != nil {
-			return objs, fmt.Errorf("failed to unmarshal manifest: %v", err)
+			return objs, fmt.Errorf("failed to unmarshal manifest: %w", err)
 		}
 		objs = append(objs, u)
 	}
@@ -44,10 +46,10 @@ func SplitYAMLToString(yamlData []byte) ([]string, error) {
 	for {
 		ext := runtime.RawExtension{}
 		if err := d.Decode(&ext); err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
-			return objs, fmt.Errorf("failed to unmarshal manifest: %v", err)
+			return objs, fmt.Errorf("failed to unmarshal manifest: %w", err)
 		}
 		ext.Raw = bytes.TrimSpace(ext.Raw)
 		if len(ext.Raw) == 0 || bytes.Equal(ext.Raw, []byte("null")) {

@@ -25,11 +25,14 @@ func init() {
 					}
 
 					exec, err := Exec(name, strArgs, strEnvs)
+					if err != nil {
+						return nil, err
+					}
 
 					return &plugin.MethodResult{V: map[string]string{
 						"stdout": exec.Stdout,
 						"stderr": exec.Stderr,
-					}}, err
+					}}, nil
 				},
 			},
 		},

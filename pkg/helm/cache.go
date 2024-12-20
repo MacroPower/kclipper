@@ -2,11 +2,10 @@ package helm
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
-
-	"github.com/pkg/errors"
 )
 
 // Rather than storing a mapping of key->path in memory, uses very simple
@@ -35,7 +34,7 @@ func (p *TempPaths) keyToPath(key string) string {
 func (p *TempPaths) pathToKey(path string) string {
 	key, err := decodeKey(filepath.Base(path))
 	if err != nil {
-		panic(errors.Wrapf(err, "failed to decode key for %s", path))
+		panic(fmt.Errorf("failed to decode key for %s: %w", path, err))
 	}
 	return key
 }

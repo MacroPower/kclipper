@@ -2,9 +2,8 @@ package os
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
-
-	"github.com/pkg/errors"
 )
 
 type ExecOutput struct {
@@ -12,7 +11,7 @@ type ExecOutput struct {
 	Stderr string
 }
 
-func Exec(name string, arg []string, env []string) (ExecOutput, error) {
+func Exec(name string, arg []string, env []string) (*ExecOutput, error) {
 	cmd := exec.Command(name, arg...)
 	cmd.Env = env
 
@@ -20,10 +19,13 @@ func Exec(name string, arg []string, env []string) (ExecOutput, error) {
 	cmd.Stdout = &outb
 	cmd.Stderr = &errb
 
-	err := errors.Wrapf(cmd.Run(), "failed to execute %s", name)
+	err := cmd.Run()
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute %s: %w", name, err)
+	}
 
-	return ExecOutput{
+	return &ExecOutput{
 		Stdout: outb.String(),
 		Stderr: errb.String(),
-	}, err
+	}, nil
 }

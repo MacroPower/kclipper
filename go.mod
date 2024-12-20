@@ -5,7 +5,6 @@ go 1.23.3
 require (
 	github.com/argoproj/argo-cd/v2 v2.13.2
 	github.com/google/uuid v1.6.0
-	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.8.1
 	k8s.io/apimachinery v0.32.0
 	kcl-lang.io/cli v0.10.10
@@ -143,6 +142,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.20.3 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
