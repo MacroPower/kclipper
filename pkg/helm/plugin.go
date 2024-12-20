@@ -2,9 +2,11 @@ package helm
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/argoproj/gitops-engine/pkg/utils/kube"
+	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
@@ -33,21 +35,30 @@ func init() {
 					ResultType: "{str:any}",
 				},
 				Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
+					safeArgs := pluginutil.SafeMethodArgs{Args: args}
+
 					chartName := args.StrKwArg("chart")
 					targetRevision := args.StrKwArg("target_revision")
-					repoURL := args.StrKwArg("repo_url")
+					repoURLStr := args.StrKwArg("repo_url")
+					enableOCI := safeArgs.BoolKwArg("enable_oci", false)
 
-					safeArgs := pluginutil.SafeMethodArgs{Args: args}
+					repoURL, err := url.Parse(repoURLStr)
+					if err != nil {
+						return nil, errors.Wrapf(err, "failed to parse repo_url: %s", repoURLStr)
+					}
+					if repoURL.Scheme == "" {
+						enableOCI = true
+					}
 
 					objs, err := DefaultHelm.Template(&TemplateOpts{
 						ChartName:       chartName,
 						TargetRevision:  targetRevision,
-						RepoURL:         repoURL,
+						RepoURL:         repoURL.String(),
 						ReleaseName:     safeArgs.StrKwArg("release_name", chartName),
 						Namespace:       safeArgs.StrKwArg("namespace", ""),
 						Project:         safeArgs.StrKwArg("project", ""),
 						HelmVersion:     safeArgs.StrKwArg("helm_version", "v3"),
-						EnableOCI:       safeArgs.BoolKwArg("enable_oci", false),
+						EnableOCI:       enableOCI,
 						SkipCRDs:        safeArgs.BoolKwArg("skip_crds", false),
 						PassCredentials: safeArgs.BoolKwArg("pass_credentials", false),
 						ValuesObject:    safeArgs.MapKwArg("values", map[string]any{}),
