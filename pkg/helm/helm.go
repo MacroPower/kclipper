@@ -9,7 +9,6 @@ import (
 	helmutil "github.com/argoproj/argo-cd/v2/util/helm"
 	ioutil "github.com/argoproj/argo-cd/v2/util/io"
 	pathutil "github.com/argoproj/argo-cd/v2/util/io/path"
-	kubeutil "github.com/argoproj/gitops-engine/pkg/utils/kube"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -129,7 +128,7 @@ func (h *Helm) Template(opts *TemplateOpts) ([]*unstructured.Unstructured, error
 		}
 	}
 
-	objs, err := kubeutil.SplitYAML([]byte(out))
+	objs, err := SplitYAML([]byte(out))
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing helm template output")
 	}

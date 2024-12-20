@@ -29,22 +29,37 @@ helm.template(
     chart="example",
     target_revision="0.1.0",
     repo_url="https://example.com/charts",
-)
+) # -> [{"group": "apps", "kind": "Deployment", ...}, ...]
 ```
 
-You can then use these resources in your KCL code (e.g., via merging in some changes, referencing the resources elsewhere, etc.). The resources are output as a `dict`, with the key being `({group}_)?{kind}_{name}`, lowercase and with special characters replaced with underscores. e.g., `Service/my-app` -> `service_my_app`, `apps/Deployment/my-app` -> `apps_deployment_my_app`.
+You can then use these resources in your KCL code (e.g., via merging in some changes, referencing the resources elsewhere, etc.). You can also very flexibly patch the templated resources with a lambda function. E.g.:
 
 ```py
-helm.template(
+import regex
+import kcl_plugin.helm
+
+_chart = helm.template(
   chart="example",
   target_revision="0.1.0",
   repo_url="https://example.com/charts",
   values={
     replicas: 3
   }
-) | {
-  apps_deployment_example.spec.strategy.type = RollingUpdate
+)
+
+patch = lambda resource: {str:} -> {str:} {
+  if resource.kind == "Deployment":
+    resource.spec.strategy.type = RollingUpdate
+
+  if regex.match(resource.metadata.name, "^example-.*$"):
+    resource.metadata.annotations: {
+      "example.com/added" = "by kcl patch"
+    }
+
+  resource
 }
+
+{"resources": [patch(r) for r in _chart]}
 ```
 
 This plugin is similar to [kcfoil](https://github.com/cakehappens/kcfoil)'s helm plugin. kcfoil's Helm plugin is based on Tanka's Helm implementation, whereas kclx's Helm plugin is based on ArgoCD's Helm source implementation. So they both expose a helm template function, but the exposed parameters and backend implementations are completely different.

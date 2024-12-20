@@ -1,13 +1,9 @@
 package helm
 
 import (
-	"fmt"
 	"net/url"
-	"strings"
 
-	"github.com/argoproj/gitops-engine/pkg/utils/kube"
 	"github.com/pkg/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
 	pluginutil "github.com/MacroPower/kclx/pkg/util/plugin"
@@ -67,18 +63,7 @@ func init() {
 						return nil, err
 					}
 
-					objMap := make(map[string]*unstructured.Unstructured, len(objs))
-					for _, obj := range objs {
-						rk := kube.GetResourceKey(obj)
-						key := fmt.Sprintf("%s_%s", rk.Kind, rk.Name)
-						if rk.Group != "" {
-							key = fmt.Sprintf("%s_%s", rk.Group, key)
-						}
-						key = strings.ToLower(strings.ReplaceAll(key, "-", "_"))
-						objMap[key] = obj
-					}
-
-					return &plugin.MethodResult{V: objMap}, nil
+					return &plugin.MethodResult{V: objs}, nil
 				},
 			},
 		},

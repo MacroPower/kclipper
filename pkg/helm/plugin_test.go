@@ -1,10 +1,13 @@
 package helm_test
 
 import (
+	"encoding/json"
 	"regexp"
 	"testing"
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
+	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
+	"kcl-lang.io/lib/go/native"
 
 	_ "github.com/MacroPower/kclx/pkg/helm"
 )
@@ -27,8 +30,8 @@ func TestPluginHelmTemplate(t *testing.T) {
 
 	re := regexp.MustCompile(`\s+`)
 	wantJSON := `
-{
-  "apps_deployment_wakatime_exporter": {
+[
+  {
     "apiVersion": "apps/v1",
     "kind": "Deployment",
     "metadata": {
@@ -85,10 +88,58 @@ func TestPluginHelmTemplate(t *testing.T) {
       }
     }
   }
-}
+]
 `
 
 	if resultJSON != re.ReplaceAllString(wantJSON, "") {
 		t.Fatal(resultJSON)
+	}
+}
+
+const code = `
+import kcl_plugin.helm
+
+_chart = helm.template(
+  chart="wakatime-exporter",
+  repo_url="https://jacobcolvin.com/helm-charts",
+  target_revision="0.1.0",
+)
+
+patch = lambda resource: {str:} -> {str:} {
+  if resource.kind == "Service":
+    resource.metadata.annotations = {
+      added = "by kcl"
+    }
+    resource.metadata.labels = {}
+
+  resource
+}
+
+{"resources": [patch(r) for r in _chart]}
+`
+
+func TestExecProgramWithPlugin(t *testing.T) {
+	client := native.NewNativeServiceClient()
+	result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
+		KFilenameList: []string{"main.k"},
+		KCodeList:     []string{code},
+		Args:          []*gpyrpc.Argument{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ErrMessage != "" {
+		t.Fatalf("error message must be empty, got: %s", result.ErrMessage)
+	}
+	resultMap := map[string]any{}
+	json.Unmarshal([]byte(result.GetJsonResult()), &resultMap)
+	resultChart := resultMap["resources"].([]interface{})
+	obj0 := resultChart[0].(map[string]interface{})
+	obj0md, err := json.Marshal(obj0["metadata"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(obj0md) != `{"annotations":{"added":"by kcl"},"labels":{},"name":"wakatime-exporter"}` {
+		t.Fatalf("result is not correct, %s", string(obj0md))
 	}
 }
