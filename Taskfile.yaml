@@ -72,4 +72,4 @@ tasks:
   go-release:
     desc: Releases Go binaries and Docker images
     cmds:
-      - goreleaser release --clean
+      - goreleaser release --snapshot --clean

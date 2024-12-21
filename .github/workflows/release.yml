@@ -24,6 +24,10 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Set Variables
+        run: |
+          echo "HOSTNAME=$(hostname)" >> $GITHUB_ENV
+
       - name: Build in devbox
         run: devbox run -- goreleaser release --clean --skip=docker
         env:
