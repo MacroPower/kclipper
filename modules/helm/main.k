@@ -1,5 +1,5 @@
 """
-This module provides an interface for the kclx Helm plugin.
+This module provides an interface for the macropower/kclx Helm plugin.
 """
 import regex
 import kcl_plugin.helm as helm_plugin
@@ -51,7 +51,7 @@ schema Chart:
         }, "Invalid helmVersion: ${helmVersion}. Must be one of: [v2, v3]"
 
 template = lambda chart: Chart -> [{str:}] {
-    """Render Helm chart templates using `kclx`'s `kcl_plugin.helm.template`.
+    """Render Helm chart templates using `macropower/kclx`'s `kcl_plugin.helm.template`.
 
     Examples
     --------
