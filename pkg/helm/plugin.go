@@ -28,7 +28,7 @@ func init() {
 						"pass_credentials": "bool",
 						"values":           "{str:any}",
 					},
-					ResultType: "{str:any}",
+					ResultType: "[{str:any}]",
 				},
 				Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
 					safeArgs := pluginutil.SafeMethodArgs{Args: args}
