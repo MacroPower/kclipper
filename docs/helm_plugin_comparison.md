@@ -15,8 +15,8 @@ The macropower/kclx Helm plugin is similar to [kcfoil](https://github.com/cakeha
 The biggest difference:
 
 - Tanka and ergo kcfoil's plugin expect Helm Charts to be found inside the bounds of a project. i.e., you must "vendor" your Charts, or in other words, you must put your Charts somewhere adjacent to your KCL codes so that it can be referred to using a relative path. This has many advantages but may be cumbersome in some cases.
-    - e.g., `helm.template("example", "./charts/example")`
+  - e.g., `helm.template("example", "./charts/example")`
 - Argo CD's Helm source implementation, and ergo this plugin as well, allows you to specify a URL to a Helm Chart index, which is useful for fetching Charts from the internet, and it is more heavily optimized for caching fetched results as well. Though, it will likely always be slower versus a vendoring implementation.
-    - e.g., `helm.template("example", "0.1.0", "https://example.com/charts")`
+  - e.g., `helm.template("example", "0.1.0", "https://example.com/charts")`
 
 Both plugins mirror many aspects of Tanka and Argo CD respectively, including in their overall style, argument usage, and so on. So, the interfaces will feel familiar to users of either tool. I recommend you choose the one that is more familiar to you, and/or best fits your use case.

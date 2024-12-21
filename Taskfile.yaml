@@ -1,14 +1,10 @@
-version: '3'
+version: "3"
 
 vars:
   FILES_TO_FMT:
     sh: find . -path ./vendor -prune -o -name '*.go' -print
-  FILES_TO_TEST:
-    sh: go list ./... | grep -v /vendor/
   FILES_TO_FMT_STR: >-
     {{ splitList "\n" .FILES_TO_FMT | join " " }}
-  FILES_TO_TEST_STR: >-
-    {{ splitList "\n" .FILES_TO_TEST | join " " }}
 
 env:
   HOSTNAME:
@@ -24,7 +20,7 @@ tasks:
 
   format:
     desc: Runs all format targets
-    deps: [go-format]
+    deps: [go-format, prettier-format]
 
   lint:
     desc: Runs all lint targets
@@ -51,8 +47,8 @@ tasks:
   go-format:
     desc: Formats Go code including imports
     cmds:
-      - 'gofumpt -w {{.FILES_TO_FMT_STR}}'
-      - 'goimports -w {{.FILES_TO_FMT_STR}}'
+      - "gofumpt -w {{.FILES_TO_FMT_STR}}"
+      - "goimports -w {{.FILES_TO_FMT_STR}}"
 
   go-lint:
     desc: Lints Go code
@@ -62,7 +58,7 @@ tasks:
   go-test:
     desc: Tests Go code
     cmds:
-      - go test -race -vet=all {{.FILES_TO_TEST_STR}}
+      - go test -race -vet=all ./...
 
   go-build:
     desc: Builds Go binaries
@@ -73,3 +69,8 @@ tasks:
     desc: Releases Go binaries and Docker images
     cmds:
       - goreleaser release --snapshot --clean
+
+  prettier-format:
+    desc: Formats YAML, JSON, and Markdown files
+    cmds:
+      - prettier --config ./.prettierrc.yaml -w *.{yaml,md,json} **/*
