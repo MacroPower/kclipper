@@ -62,7 +62,13 @@ patch = lambda resource: {str:} -> {str:} {
 {"resources": [patch(r) for r in _chart]}
 ```
 
-I have not been able to get native support for the `kcl_plugin` import in the kcl-language-server, but it is still possible to get very good integration in your editor of choice, just with a bit of extra work. For example, completion, validation, and docs (e.g. on hover) for plugin parameters. To accomplish this, I have created a KCL module which wraps the kclx helm plugin. Using this is completely optional, but is a significant quality of life improvement.
+For full support with kcl-language-server (for highlighting, completion, and definitions in your editor), you can use the `kclx/helm` wrapper module. This is completely optional, but is a significant quality of life improvement.
+
+```sh
+kcl mod add oci://ghcr.io/macropower/kclx/helm
+```
+
+Then, you can use the `helm` module to interface with the plugin:
 
 ```py
 import helm
@@ -77,58 +83,11 @@ helm.template(helm.Chart {
 })
 ```
 
-To install the module, run the following to add it to your kcl.mod file:
+> :warning: This must be completed AFTER installing `kclx`. Just adding the helm module will not provide you with the underlying plugin, and you will get an error when you call the template function.
 
-```sh
-kcl mod add oci://ghcr.io/macropower/kclx/helm
-```
+You can also use a schema for the `values` argument. This schema can be imported from a Helm Chart's `values.schema.json` file if one is available, or alternatively it can be generated from one or more `values.yaml` files. See the [Helm Module's README](modules/helm/README.md) for details.
 
-:warning: This must be completed AFTER installing kclx. Just adding the helm module will not provide you with the underlying plugin, and you will get an error when you call the template function.
-
-You can also generate a schema for the dict used in the `values` argument. If you do this, you should automate it in some way, so that you can keep the values schema up-to-date with the chart.
-
-```bash
-# Install the `helm schema` plugin.
-# This is a fork which has been modified to work better with `kcl import`.
-helm plugin install https://github.com/MacroPower/helm-values-schema-json.git
-
-# Add a configuration file for `helm schema`.
-# Specify one or more URLs pointing to example values.yaml files for the chart.
-cat <<EOF > .schema.yaml
-input:
-  - https://example.com/charts/example/values.yaml
-schemaRoot:
-  title: Values
-schema:
-  additionalProperties: true
-EOF
-
-# Generate the schema.
-helm schema
-kcl import -m jsonschema values.schema.json --force
-rm values.schema.json
-```
-
-This will generate a file `values.schema.k` with a root schema called `Values`. You can use this schema in your KCL code to get completion and validation for any data passed to the `values` argument.
-
-```py
-import helm
-
-helm.template(helm.Chart {
-  chart = "example"
-  targetRevision = "0.1.0"
-  repoURL = "https://example.com/charts"
-  values = Values { # <- Uses the Values schema from values.schema.k
-    replicas: 3
-  }
-})
-```
-
-This won't be perfect, since `helm schema` is just doing its best to infer the schema from the union of all inputs. Using `additionalProperties: true` will allow you to drift from the schema somewhat by allowing extra fields to be added to any schema. This is useful if some input you need to use was not present in the example values.yaml file, and thus was not added to the schema.
-
-If you happen to find a chart that does actually have a full values.schema.json file (or uses a common library which has one, like [bjw-s/common](https://github.com/bjw-s/helm-charts)), you can just pass that directly to `kcl import` rather than generating it with `helm schema`. This will produce much better results, but unfortunately I have found that not many charts include a jsonschema.
-
-#### Comparisons
+#### Comparison
 
 **To the [Helm KCL Plugin](https://github.com/kcl-lang/helm-kcl):**
 
