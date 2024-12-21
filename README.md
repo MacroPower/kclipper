@@ -77,7 +77,31 @@ helm.template(helm.Chart {
 
 > :warning: This must be completed AFTER installing `macropower/kclx`. Just adding the helm module will not provide you with the underlying plugin, and you will get an error when you call the template function.
 
-You can also use a schema for the `values` argument. This schema can be imported from a Helm Chart's `values.schema.json` file if one is available, or alternatively it can be generated from one or more `values.yaml` files. See [here](docs/helm_values_schema.md) for details.
+### Helm Schema Command
+
+You can also use a schema for the `values` argument. This schema can be imported from a Helm Chart's `values.schema.json` file if one is available, or alternatively it can be generated from one or more `values.yaml` files.
+
+**TODO**:
+
+```bash
+# Generate KCL models from chart values
+kcl import -m helmschema values.yaml
+```
+
+For now, a [workaround](docs/helm_values_schema.md) is available which requires a few manual steps. The end result is you'll have a `values.schema.k` file that you can use in your KCL code, which exports a root schema called `Values`. E.g.:
+
+```py
+import helm
+
+helm.template(helm.Chart {
+  chart = "example"
+  targetRevision = "0.1.0"
+  repoURL = "https://example.com/charts"
+  values = Values { # <- Uses the Values schema from values.schema.k
+    replicas: 3
+  }
+})
+```
 
 ### HTTP Plugin
 

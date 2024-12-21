@@ -2,7 +2,7 @@
 
 You can optionally use a schema for a `helm.Chart`'s `values`. This schema can be imported from a Helm Chart's `values.schema.json` file if one is available, or alternatively it can be generated from one or more `values.yaml` files.
 
-If you do this, you should automate it in some way, so that you can keep the values schema up-to-date with the chart.
+If you do this, you should automate it in some way, so that you can keep the values schema up-to-date with the chart. I am planning to eventually build something helpful for this inside this repository.
 
 ## Setup
 
