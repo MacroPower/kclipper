@@ -24,15 +24,11 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: "${{ github.actor }}"
-          password: "${{ secrets.GITHUB_TOKEN }}"
-
       - name: Release in devbox
-        run: devbox run -- task go-release
+        run: |
+          devbox run -- \
+            docker login ghcr.io -u ${{ github.actor }} -p $GITHUB_TOKEN && \
+            task go-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
