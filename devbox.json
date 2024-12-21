@@ -1,7 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
   "packages": {
-    "docker":        "latest",
+    "colima":        "0.8.0",
+    "docker":        "27.3.1",
     "go-task":       "latest",
     "goreleaser":    "2.4.8",
     "golangci-lint": "1.62.2",

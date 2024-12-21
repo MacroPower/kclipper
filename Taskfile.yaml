@@ -72,4 +72,6 @@ tasks:
   go-release:
     desc: Releases Go binaries and Docker images
     cmds:
+      - colima start
+      - defer: colima stop
       - goreleaser release --clean
