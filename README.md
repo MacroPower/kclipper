@@ -31,13 +31,13 @@ _chart = helm.template(
   target_revision="0.1.0",
   repo_url="https://example.com/charts",
   values={
-    replicas: 3
+    replicas = 3
   }
 )
 
 patch = lambda resource: {str:} -> {str:} {
   if resource.kind == "Deployment":
-    resource.spec.strategy.type = RollingUpdate
+    resource.spec.strategy.type = "RollingUpdate"
 
   if regex.match(resource.metadata.name, "^example-.*$"):
     resource.metadata.annotations: {
@@ -70,7 +70,7 @@ helm.template(helm.Chart {
   targetRevision = "0.1.0"
   repoURL = "https://example.com/charts"
   values = {
-    replicas: 3
+    replicas = 3
   }
 })
 ```
@@ -98,7 +98,7 @@ helm.template(helm.Chart {
   targetRevision = "0.1.0"
   repoURL = "https://example.com/charts"
   values = Values { # <- Uses the Values schema from values.schema.k
-    replicas: 3
+    replicas = 3
   }
 })
 ```
