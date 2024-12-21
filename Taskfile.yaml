@@ -62,7 +62,7 @@ tasks:
   go-test:
     desc: Tests Go code
     cmds:
-      - go test -race {{.FILES_TO_TEST_STR}}
+      - go test -race -vet=all {{.FILES_TO_TEST_STR}}
 
   go-build:
     desc: Builds Go binaries

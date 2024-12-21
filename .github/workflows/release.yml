@@ -38,18 +38,18 @@ jobs:
     name: kcl-mod
     runs-on: ubuntu-latest
     steps:
-      - name: Install kcl
-        run: wget -q https://kcl-lang.io/script/install-cli.sh -O - | /bin/bash
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Set up KCL
+        run: wget -q https://kcl-lang.io/script/install-cli.sh -O - | /bin/bash
+
       - name: Login to GitHub Container Registry
         run: kcl registry login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
 
-      - name: Publish to GitHub Container Registry
+      - name: Publish KCL packages
         run: |
           # Get the tag version without the 'v' prefix
           VERSION=${GITHUB_REF#refs/tags/v}

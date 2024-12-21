@@ -17,16 +17,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Go
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: stable
 
-      - name: Install Task
-        uses: arduino/setup-task@v2
-
       - name: Run Go test
-        run: task test
+        uses: robherley/go-test-action@v0
+        with:
+          testArguments: -race -vet=all ./...
+          omit: |
+            pie
+            untested
 
   lint:
     name: lint
