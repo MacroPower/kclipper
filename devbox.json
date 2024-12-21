@@ -17,7 +17,7 @@
   },
   "env": {
     "CGO_ENABLED": "1",
-    "SDK_PATH":    "./.devbox/nix/profile/default/Library/Frameworks"
+    "SDK_PATH":    "./.devbox/nix/profile/default"
   },
   "shell": {
     "init_hook": [
