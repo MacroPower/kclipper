@@ -17,42 +17,55 @@ builds:
     binary: kcl
     goos:
       - linux
-      - darwin
     goarch:
       - amd64
       - arm64
-    env:
+    env: &env
       - CGO_ENABLED=1
       - >-
         {{- if eq .Os "linux" }}
           {{- if eq .Arch "amd64" }}CC=zig c -target x86_64-linux-musl{{- end }}
-          {{- if eq .Arch "arm64"}}CC=zig c -target aarch64-linux-musl{{- end }}
+          {{- if eq .Arch "arm64" }}CC=zig c -target aarch64-linux-musl{{- end }}
         {{- end }}
         {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64"}}CC=zig c -target x86_64-macos-none -F{{ .Env.SDK_PATH }}/Library/Frameworks{{- end }}
-          {{- if eq .Arch "arm64"}}CC=zig c -target aarch64-macos-none -F{{ .Env.SDK_PATH }}/Library/Frameworks{{- end }}
+          {{- if eq .Arch "amd64" }}CC=zig c -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/Library/Frameworks{{- end }}
+          {{- if eq .Arch "arm64" }}CC=zig c -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/Library/Frameworks{{- end }}
         {{- end }}
       - >-
         {{- if eq .Os "linux" }}
           {{- if eq .Arch "amd64" }}CC=zig c++ -target x86_64-linux-musl{{- end }}
-          {{- if eq .Arch "arm64"}}CC=zig c++ -target aarch64-linux-musl{{- end }}
+          {{- if eq .Arch "arm64" }}CC=zig c++ -target aarch64-linux-musl{{- end }}
         {{- end }}
         {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64"}}CC=zig c++ -target x86_64-macos-none -F{{ .Env.SDK_PATH }}/Library/Frameworks{{- end }}
-          {{- if eq .Arch "arm64"}}CC=zig c++ -target aarch64-macos-none -F{{ .Env.SDK_PATH }}/Library/Frameworks{{- end }}
+          {{- if eq .Arch "amd64" }}CC=zig c++ -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/Library/Frameworks{{- end }}
+          {{- if eq .Arch "arm64" }}CC=zig c++ -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/Library/Frameworks{{- end }}
         {{- end }}
-    ldflags:
+    ldflags: &ldflags
       - -s
       - -w
       - -X github.com/MacroPower/kclx/internal/version.Version={{.Version}}
       - -X github.com/MacroPower/kclx/internal/version.Branch={{.Branch}}
       - -X github.com/MacroPower/kclx/internal/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
       - -X github.com/MacroPower/kclx/internal/version.BuildDate={{.Date}}
-    flags:
+    flags: &flags
       - -trimpath
       - -buildmode=pie
-    tags:
+    tags: &tags
       - netgo
+
+  - id: kclx-darwin
+    main: ./cmd/kclx
+    binary: kcl
+    skip: '{{ envOrDefault "SKIP_DARWIN_BUILD" "false" }}'
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env: *env
+    ldflags: *ldflags
+    flags: *flags
+    tags: *tags
 
 dockers:
   - goos: linux
