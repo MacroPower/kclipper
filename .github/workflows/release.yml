@@ -26,9 +26,8 @@ jobs:
 
       - name: Release in devbox
         run: |
-          devbox run -- \
-            docker login ghcr.io -u ${{ github.actor }} -p $GITHUB_TOKEN && \
-            task go-release
+          devbox run -- docker login ghcr.io -u ${{ github.actor }} -p $GITHUB_TOKEN
+          devbox run -- task go-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
