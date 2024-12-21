@@ -68,7 +68,7 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean --skip=archive,publish
+          args: release --clean --skip=archive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SKIP_DARWIN_BUILD: "true"
