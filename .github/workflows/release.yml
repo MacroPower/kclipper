@@ -33,6 +33,8 @@ jobs:
 
       - name: Release in devbox
         run: devbox run -- task go-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   kcl-mod:
     name: kcl-mod
