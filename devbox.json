@@ -8,17 +8,15 @@
     "gofumpt": "latest",
     "goimports": "latest",
     "zig": "0.10.1",
-    "darwin.apple_sdk.frameworks.Security": {
-      "platforms": ["x86_64-darwin", "aarch64-darwin"]
-    },
-    "darwin.apple_sdk.frameworks.CoreFoundation": {
-      "platforms": ["x86_64-darwin", "aarch64-darwin"]
-    },
-    "nodePackages.prettier": "latest"
+    "git": "latest",
+    "nodePackages.prettier": "latest",
+    "apple-sdk_15": {
+      "platforms": ["x86_64-darwin", "aarch64-darwin"],
+      "version": "latest"
+    }
   },
   "env": {
-    "CGO_ENABLED": "1",
-    "SDK_PATH": "./.devbox/nix/profile/default"
+    "CGO_ENABLED": "1"
   },
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"]
