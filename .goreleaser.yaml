@@ -24,33 +24,31 @@ builds:
       - CGO_ENABLED=1
       - >-
         {{- if eq .Os "linux" }}
-          {{- if eq .Arch "amd64" }}CC=zig c -target x86_64-linux-musl{{- end }}
-          {{- if eq .Arch "arm64" }}CC=zig c -target aarch64-linux-musl{{- end }}
+          {{- if eq .Arch "amd64" }}CC=zig cc -target x86_64-linux-gnu{{- end }}
+          {{- if eq .Arch "arm64" }}CC=zig cc -target aarch64-linux-gnu{{- end }}
         {{- end }}
         {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64" }}CC=zig c -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/Library/Frameworks{{- end }}
-          {{- if eq .Arch "arm64" }}CC=zig c -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/Library/Frameworks{{- end }}
+          {{- if eq .Arch "amd64" }}CC=zig cc -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks -L{{ envOrDefault "SDK_PATH" "" }}/usr/lib{{- end }}
+          {{- if eq .Arch "arm64" }}CC=zig cc -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks -L{{ envOrDefault "SDK_PATH" "" }}/usr/lib{{- end }}
         {{- end }}
       - >-
         {{- if eq .Os "linux" }}
-          {{- if eq .Arch "amd64" }}CC=zig c++ -target x86_64-linux-musl{{- end }}
-          {{- if eq .Arch "arm64" }}CC=zig c++ -target aarch64-linux-musl{{- end }}
+          {{- if eq .Arch "amd64" }}CXX=zig c++ -target x86_64-linux-gnu{{- end }}
+          {{- if eq .Arch "arm64" }}CXX=zig c++ -target aarch64-linux-gnu{{- end }}
         {{- end }}
         {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64" }}CC=zig c++ -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/Library/Frameworks{{- end }}
-          {{- if eq .Arch "arm64" }}CC=zig c++ -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/Library/Frameworks{{- end }}
+          {{- if eq .Arch "amd64" }}CXX=zig c++ -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks -L{{ envOrDefault "SDK_PATH" "" }}/usr/lib{{- end }}
+          {{- if eq .Arch "arm64" }}CXX=zig c++ -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks -L{{ envOrDefault "SDK_PATH" "" }}/usr/lib{{- end }}
         {{- end }}
     ldflags: &ldflags
-      - -s
-      - -w
+      - -s -w
       - -X github.com/MacroPower/kclx/internal/version.Version={{.Version}}
       - -X github.com/MacroPower/kclx/internal/version.Branch={{.Branch}}
       - -X github.com/MacroPower/kclx/internal/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
       - -X github.com/MacroPower/kclx/internal/version.BuildDate={{.Date}}
-    flags: &flags
+    flags:
       - -trimpath
-      - -buildmode=pie
-    tags: &tags
+    tags:
       - netgo
 
   - id: kclx-darwin
@@ -64,8 +62,11 @@ builds:
       - arm64
     env: *env
     ldflags: *ldflags
-    flags: *flags
-    tags: *tags
+    buildmode: pie
+    flags:
+      - -trimpath
+    tags:
+      - netgo
 
 dockers:
   - goos: linux
