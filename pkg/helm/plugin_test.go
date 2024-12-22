@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"testing"
 
-	"kcl-lang.io/kcl-go/pkg/plugin"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
@@ -15,21 +14,33 @@ import (
 func TestPluginHelmTemplate(t *testing.T) {
 	t.Parallel()
 
-	resultJSON := plugin.Invoke("kcl_plugin.helm.template", []interface{}{}, map[string]interface{}{
-		"chart":           "wakatime-exporter",
-		"repo_url":        "https://jacobcolvin.com/helm-charts",
-		"target_revision": "0.1.0",
-		"values": map[string]interface{}{
-			"service": map[string]interface{}{
-				"main": map[string]interface{}{
-					"enabled": false,
-				},
-			},
-		},
-	})
+	code := `
+import kcl_plugin.helm
 
-	re := regexp.MustCompile(`\s+`)
-	wantJSON := `
+_chart = helm.template(
+  chart="wakatime-exporter",
+  repo_url="https://jacobcolvin.com/helm-charts",
+  target_revision="0.1.0",
+  values={service.main.enabled = False},
+)
+
+{result = _chart}
+`
+
+	client := native.NewNativeServiceClient()
+	result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
+		KFilenameList: []string{"main.k"},
+		KCodeList:     []string{code},
+		Args:          []*gpyrpc.Argument{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.GetErrMessage() != "" {
+		t.Fatal(result.GetErrMessage())
+	}
+
+	wantJSON := `{"result":
 [
   {
     "apiVersion": "apps/v1",
@@ -88,15 +99,19 @@ func TestPluginHelmTemplate(t *testing.T) {
       }
     }
   }
-]
+]}
 `
 
-	if resultJSON != re.ReplaceAllString(wantJSON, "") {
-		t.Fatal(resultJSON)
+	re := regexp.MustCompile(`\s+`)
+	if re.ReplaceAllString(result.GetJsonResult(), "") != re.ReplaceAllString(wantJSON, "") {
+		t.Fatal(result.GetJsonResult())
 	}
 }
 
-const code = `
+func TestExecProgramWithPlugin(t *testing.T) {
+	t.Parallel()
+
+	code := `
 import kcl_plugin.helm
 
 _chart = helm.template(
@@ -117,9 +132,6 @@ patch = lambda resource: {str:} -> {str:} {
 
 {"resources": [patch(r) for r in _chart]}
 `
-
-func TestExecProgramWithPlugin(t *testing.T) {
-	t.Parallel()
 
 	client := native.NewNativeServiceClient()
 	result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
