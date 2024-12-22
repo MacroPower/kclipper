@@ -8,9 +8,12 @@ import (
 	"sync"
 )
 
-// Rather than storing a mapping of key->path in memory, uses very simple
-// bijective encoding/decoding functions to convert keys to paths. This allows
-// cache preservation across multiple KCL run invocations.
+// TempPaths provides a way to generate temporary paths for storing chart
+// archives, in a way that prevents cache poisoning between different Projects.
+// Rather than storing a mapping of key->path in memory (default Argo behavior),
+// this implementation uses very simple bijective encoding/decoding functions to
+// convert keys to paths. This allows cache preservation across multiple KCL run
+// invocations.
 type TempPaths struct {
 	root string
 	lock sync.RWMutex

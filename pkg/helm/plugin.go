@@ -21,7 +21,7 @@ func init() {
 						"repo_url":         "str",
 						"release_name":     "str",
 						"namespace":        "str",
-						"project":          "str",
+						"project":          "str", // TODO: Project should be set via a `kcl run` argument.
 						"helm_version":     "str",
 						"enable_oci":       "bool",
 						"skip_crds":        "bool",
