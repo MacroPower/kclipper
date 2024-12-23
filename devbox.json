@@ -9,11 +9,7 @@
     "goimports": "latest",
     "zig": "0.10.1",
     "git": "latest",
-    "nodePackages.prettier": "latest",
-    "apple-sdk_15": {
-      "platforms": ["x86_64-darwin", "aarch64-darwin"],
-      "version": "latest"
-    }
+    "nodePackages.prettier": "latest"
   },
   "env": {
     "CGO_ENABLED": "1"

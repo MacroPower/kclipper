@@ -63,5 +63,3 @@ jobs:
 
       - name: Build in devbox
         run: devbox run -- task go-release
-        env:
-          SKIP_DARWIN_BUILD: "true"
