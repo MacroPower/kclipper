@@ -1,0 +1,7 @@
+services:
+  kclx:
+    image: ghcr.io/macropower/kclx:latest
+    command: run /opt/example.k
+    volumes:
+      - ./tmp:/tmp
+      - ./src:/opt
