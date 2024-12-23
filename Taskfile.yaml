@@ -5,6 +5,7 @@ vars:
     sh: find . -path ./vendor -prune -o -name '*.go' -print
   FILES_TO_FMT_STR: >-
     {{ splitList "\n" .FILES_TO_FMT | join " " }}
+  SDK_PATH: ".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
 
 env:
   HOSTNAME:
@@ -65,12 +66,21 @@ tasks:
     cmds:
       - goreleaser build --snapshot --clean
 
+  go-build-images:
+    desc: Builds Go binaries and Docker images
+    cmds:
+      - |-
+        export HOSTNAME="{{ .HOSTNAME }}"
+        export SDK_PATH="{{ .SDK_PATH }}"
+        goreleaser release --snapshot --clean --skip=archive
+
   go-release:
     desc: Releases Go binaries and Docker images
     cmds:
-      - |
-        export SDK_PATH=".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk";
-        goreleaser release --snapshot --clean
+      - |-
+        export HOSTNAME="{{ .HOSTNAME }}"
+        export SDK_PATH="{{ .SDK_PATH }}"
+        goreleaser release --clean
 
   prettier-format:
     desc: Formats YAML, JSON, and Markdown files

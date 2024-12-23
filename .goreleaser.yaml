@@ -28,8 +28,8 @@ builds:
           {{- if eq .Arch "arm64" }}CC=zig cc -target aarch64-linux-gnu{{- end }}
         {{- end }}
         {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64" }}CC=zig cc -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks -L{{ envOrDefault "SDK_PATH" "" }}/usr/lib{{- end }}
-          {{- if eq .Arch "arm64" }}CC=zig cc -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks -L{{ envOrDefault "SDK_PATH" "" }}/usr/lib{{- end }}
+          {{- if eq .Arch "amd64" }}CC=zig cc -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks{{- end }}
+          {{- if eq .Arch "arm64" }}CC=zig cc -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks{{- end }}
         {{- end }}
       - >-
         {{- if eq .Os "linux" }}
@@ -37,8 +37,8 @@ builds:
           {{- if eq .Arch "arm64" }}CXX=zig c++ -target aarch64-linux-gnu{{- end }}
         {{- end }}
         {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64" }}CXX=zig c++ -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks -L{{ envOrDefault "SDK_PATH" "" }}/usr/lib{{- end }}
-          {{- if eq .Arch "arm64" }}CXX=zig c++ -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks -L{{ envOrDefault "SDK_PATH" "" }}/usr/lib{{- end }}
+          {{- if eq .Arch "amd64" }}CXX=zig c++ -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks{{- end }}
+          {{- if eq .Arch "arm64" }}CXX=zig c++ -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks{{- end }}
         {{- end }}
     ldflags: &ldflags
       - -s -w
