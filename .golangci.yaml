@@ -25,6 +25,7 @@ linters:
     - gochecknoinits # Useful in some cases.
     - gocognit # Disabled length/complexity linters.
     - gocyclo # Disabled length/complexity linters.
+    - godox # Prevents TODO/BUG/FIXME.
     - gofmt # Using gofumpt instead.
     - mnd # Sometimes more readable.
     - nlreturn # Sometimes more readable.
