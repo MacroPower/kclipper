@@ -6,6 +6,8 @@ kclx = KCL Extended. This repo includes an opinionated set of extensions for KCL
 
 To use macropower/kclx, you must [install](#installation) it as a KCL replacement. The macropower/kclx binary will wrap the upstream KCL release with its plugins. Up-to-date multi-architecture Docker images for x86 and arm64 are also available.
 
+> :warning: You should not currently use macropower/kclx in multi-tenant Argo CD environments. See [#2](https://github.com/MacroPower/kclx/issues/2).
+
 ## Extensions
 
 ### Helm Plugin
