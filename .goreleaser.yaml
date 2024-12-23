@@ -50,6 +50,15 @@ builds:
       - -trimpath
     tags:
       - netgo
+    hooks: &hooks
+      pre:
+        - cmd: >-
+            {{- if and (eq .Arch .Runtime.Goarch) (eq .Os .Runtime.Goos) }}
+            go test -c -vet=all -tags=netgo -ldflags=-s
+            -o ./dist/{{ .ProjectName }}.test/ ./pkg/...
+            {{- else }}
+            echo "Skipping test binary build for non-native platform"
+            {{- end }}
 
   - id: kclx-darwin
     main: ./cmd/kclx
@@ -67,6 +76,7 @@ builds:
       - -trimpath
     tags:
       - netgo
+    hooks: *hooks
 
 dockers:
   - goos: linux

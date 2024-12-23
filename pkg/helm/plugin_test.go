@@ -166,3 +166,47 @@ patch = lambda resource: {str:} -> {str:} {
 		t.Fatalf("result is not correct, %s", string(obj0md))
 	}
 }
+
+func BenchmarkPluginHelmTemplate(b *testing.B) {
+	code := `
+import kcl_plugin.helm
+
+_chart = helm.template(
+  chart="wakatime-exporter",
+  repo_url="https://jacobcolvin.com/helm-charts",
+  target_revision="0.1.0",
+  values={service.main.enabled = False},
+)
+
+{result = _chart}
+`
+
+	client := native.NewNativeServiceClient()
+	_, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
+		KFilenameList: []string{"main.k"},
+		KCodeList:     []string{code},
+		Args:          []*gpyrpc.Argument{},
+	})
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			client := native.NewNativeServiceClient()
+			result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
+				KFilenameList: []string{"main.k"},
+				KCodeList:     []string{code},
+				Args:          []*gpyrpc.Argument{},
+			})
+			if err != nil {
+				b.Fatal(err)
+			}
+			if result.GetErrMessage() != "" {
+				b.Fatal(result.GetErrMessage())
+			}
+		}
+	})
+}

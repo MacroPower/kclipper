@@ -64,7 +64,10 @@ tasks:
   go-build:
     desc: Builds Go binaries
     cmds:
-      - goreleaser build --snapshot --clean
+      - |-
+        export HOSTNAME="{{ .HOSTNAME }}"
+        export SDK_PATH="{{ .SDK_PATH }}"
+        goreleaser build --snapshot --clean --verbose
 
   go-build-images:
     desc: Builds Go binaries and Docker images
