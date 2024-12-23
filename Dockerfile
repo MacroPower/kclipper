@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} debian:11
+FROM debian:11
 ENV LANG=en_US.utf8
 
 ARG HELM_VERSION=3.16.4
