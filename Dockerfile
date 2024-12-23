@@ -13,7 +13,7 @@ RUN curl -Lq https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}
     tar -xzO ${TARGETOS}-${TARGETARCH}/helm > /usr/local/bin/helm && \
     chmod +x /usr/local/bin/helm
 
-# RUN helm version
+RUN helm version
 
 COPY kcl /usr/local/bin/
 
@@ -22,7 +22,7 @@ ENV KCL_LIB_HOME=/tmp \
     KCL_CACHE_PATH=/tmp \
     KCL_FAST_EVAL=1
 
-# RUN kcl version && \
-#     echo 'a=1' | kcl run -
+RUN kcl version && \
+    echo 'a=1' | kcl run -
 
 ENTRYPOINT ["kcl"]
