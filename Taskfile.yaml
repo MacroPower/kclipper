@@ -85,8 +85,10 @@ tasks:
 
   go-build:
     desc: Builds Go binaries
+    vars:
+      FLAGS: '{{.FLAGS | default ""}}'
     cmds:
-      - goreleaser build --snapshot --clean
+      - goreleaser build --snapshot --clean {{ .FLAGS }}
 
   go-build-images:
     desc: Builds Go binaries and Docker images
@@ -102,3 +104,63 @@ tasks:
     desc: Formats YAML, JSON, and Markdown files
     cmds:
       - prettier --config ./.prettierrc.yaml -w *.{yaml,md,json} **/*
+
+  pull-upstream:
+    desc: Pulls upstream KCL CLI
+    sources:
+      - .tmp/kcl
+    cmds:
+      - |
+        mkdir -p ./.tmp/bin
+        curl -Lq https://github.com/kcl-lang/cli/releases/download/v0.11.0/kcl-v0.11.0-{{OS}}-{{ARCH}}.tar.gz | \
+          tar -xzO kcl > ./.tmp/bin/kcl
+        chmod +x ./.tmp/bin/kcl
+
+  bench-diff:
+    desc: Compares benchmark results
+    deps:
+      - task: go-build
+        vars:
+          FLAGS: "--single-target"
+      - task: pull-upstream
+    vars:
+      KCLX_BIN: dist/kclx_{{OS}}_{{ARCH}}*/kcl
+      KCL_CODE: benchmarks/simple.k
+      KCL_HELM: benchmarks/simple-helm.k
+      KCL_HELM_VALUES: benchmarks/simple-helm-values.k
+    cmds:
+      - >-
+        hyperfine --warmup=10
+        --export-markdown ./benchmarks/README.md
+        --command-name "kclx ./{{.KCL_CODE}}"
+        --command-name "kclx ./{{.KCL_HELM}}"
+        --command-name "kclx ./{{.KCL_HELM_VALUES}}"
+        --reference ".tmp/bin/kcl ./{{.KCL_CODE}}"
+        "{{.KCLX_BIN}} ./{{.KCL_CODE}}"
+        "{{.KCLX_BIN}} ./{{.KCL_HELM}}"
+        "{{.KCLX_BIN}} ./{{.KCL_HELM_VALUES}}"
+
+  bench-diff-docker:
+    desc: Compares benchmark results
+    vars:
+      DOCKER_MOUNTS: "-v ./.tmp:/tmp -v ./benchmarks:/opt/benchmarks"
+      KCL_CODE: benchmarks/simple.k
+      KCL_HELM: benchmarks/simple-helm.k
+    cmds:
+      - >-
+        docker run --name=kcl -d --entrypoint=/usr/bin/bash {{.DOCKER_MOUNTS}}
+        kcllang/kcl-arm64:latest -c "sleep 300"
+      - defer: "docker rm kcl -f"
+      - docker exec kcl kcl version
+      - >-
+        docker run --name=kclx -d --entrypoint=/usr/bin/bash {{.DOCKER_MOUNTS}}
+        ghcr.io/macropower/kclx:v0.1.2-arm64 -c "sleep 300"
+      - defer: "docker rm kclx -f"
+      - docker exec kclx kcl version
+      - >-
+        hyperfine --warmup=1
+        --command-name "docker ../{{.KCL_CODE}}"
+        --command-name "docker ../{{.KCL_HELM}}"
+        --reference "docker exec kcl kcl run /opt/{{.KCL_CODE}}"
+        "docker exec kclx kcl run /opt/{{.KCL_CODE}}"
+        "docker exec kclx kcl run /opt/{{.KCL_HELM}}"

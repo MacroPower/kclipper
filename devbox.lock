@@ -73,7 +73,7 @@
         }
       }
     },
-    "go-task@latest": {
+    "go-task@3.40": {
       "last_modified": "2024-12-11T16:51:25Z",
       "resolved": "github:NixOS/nixpkgs/5a48e3c2e435e95103d56590188cfed7b70e108c#go-task",
       "source": "devbox-search",
@@ -234,7 +234,7 @@
         }
       }
     },
-    "golangci-lint@1.62.2": {
+    "golangci-lint@1.62": {
       "last_modified": "2024-11-28T07:51:56Z",
       "resolved": "github:NixOS/nixpkgs/226216574ada4c3ecefcbbec41f39ce4655f78ef#golangci-lint",
       "source": "devbox-search",
@@ -327,6 +327,54 @@
             }
           ],
           "store_path": "/nix/store/35nadfml57a8bkkkxh7fqxnw3mknh6mr-goreleaser-2.4.8"
+        }
+      }
+    },
+    "hyperfine@1.19": {
+      "last_modified": "2024-12-03T12:40:06Z",
+      "resolved": "github:NixOS/nixpkgs/566e53c2ad750c84f6d31f9ccb9d00f823165550#hyperfine",
+      "source": "devbox-search",
+      "version": "1.19.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/nbvfwqpfpn95ljigrcp809d5n2kpivn3-hyperfine-1.19.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/nbvfwqpfpn95ljigrcp809d5n2kpivn3-hyperfine-1.19.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/rhl45qwdnnzz8z3mwjcvm5iz9bkspf0r-hyperfine-1.19.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/rhl45qwdnnzz8z3mwjcvm5iz9bkspf0r-hyperfine-1.19.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/50mb8683wwv0r9z1wbrw4fxd3ls1byfy-hyperfine-1.19.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/50mb8683wwv0r9z1wbrw4fxd3ls1byfy-hyperfine-1.19.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/dihrj54fm4ng29lh9rz7jhgv9f48k0bl-hyperfine-1.19.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/dihrj54fm4ng29lh9rz7jhgv9f48k0bl-hyperfine-1.19.0"
         }
       }
     },

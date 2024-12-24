@@ -1,16 +1,17 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
   "packages": {
-    "go-task": "latest",
+    "go-task": "3.40",
     "goreleaser": "2.4.8",
-    "golangci-lint": "1.62.2",
+    "golangci-lint": "1.62",
     "go": "1.23.3",
     "gofumpt": "latest",
     "goimports": "latest",
     "zig": "0.10.1",
     "git": "latest",
-    "nodePackages.prettier": "latest",
-    "kubernetes-helm": "3.16.3"
+    "nodePackages.prettier": "3.3",
+    "kubernetes-helm": "3.16.3",
+    "hyperfine": "1.19"
   },
   "env": {
     "CGO_ENABLED": "1"
