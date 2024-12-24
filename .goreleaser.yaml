@@ -17,10 +17,11 @@ builds:
     binary: kcl
     goos:
       - linux
+      - darwin
     goarch:
       - amd64
       - arm64
-    env: &env
+    env:
       - CGO_ENABLED=1
       - |
         {{- if and (eq .Os "linux")  (eq .Arch "amd64") -}} CC={{ .Env.CC_LINUX_AMD64  }} {{- end -}}
@@ -32,7 +33,7 @@ builds:
         {{- if and (eq .Os "linux")  (eq .Arch "arm64") -}} CXX={{ .Env.CXX_LINUX_ARM64  }} {{- end -}}
         {{- if and (eq .Os "darwin") (eq .Arch "amd64") -}} CXX={{ .Env.CXX_DARWIN_AMD64 }} {{- end -}}
         {{- if and (eq .Os "darwin") (eq .Arch "arm64") -}} CXX={{ .Env.CXX_DARWIN_ARM64 }} {{- end -}}
-    ldflags: &ldflags
+    ldflags:
       - -s -w
       - -X github.com/MacroPower/kclx/internal/version.Version={{.Version}}
       - -X github.com/MacroPower/kclx/internal/version.Branch={{.Branch}}
@@ -40,25 +41,7 @@ builds:
       - -X github.com/MacroPower/kclx/internal/version.BuildDate={{.Date}}
     flags:
       - -trimpath
-    tags:
-      - netgo
-
-  - id: kclx-darwin
-    main: ./cmd/kclx
-    binary: kcl
-    skip: '{{ envOrDefault "SKIP_DARWIN_BUILD" "false" }}'
-    goos:
-      - darwin
-    goarch:
-      - amd64
-      - arm64
-    env: *env
-    ldflags: *ldflags
-    buildmode: pie
-    flags:
-      - -trimpath
-    tags:
-      - netgo
+      - -tags={{ .Env.BUILD_TAGS }}
 
 dockers:
   - goos: linux

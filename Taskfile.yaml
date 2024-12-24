@@ -22,7 +22,7 @@ env:
   CXX_LINUX_ARM64: zig c++ -target aarch64-linux-gnu
   CXX_DARWIN_AMD64: zig c++ -target x86_64-macos-none -F{{ .FRAMEWORK_PATH }}
   CXX_DARWIN_ARM64: zig c++ -target aarch64-macos-none -F{{ .FRAMEWORK_PATH }}
-  BUILD_TAGS: netgo
+  BUILD_TAGS: netgo,rpc
 
 tasks:
   default:
@@ -81,7 +81,7 @@ tasks:
     cmds:
       - |
         export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
-        go test -bench=. -tags={{.BUILD_TAGS}} ./...
+        go test -bench=. -benchmem -tags={{.BUILD_TAGS}} ./...
 
   go-build:
     desc: Builds Go binaries
