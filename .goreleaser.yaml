@@ -87,6 +87,7 @@ dockers:
       - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
     build_flag_templates:
       - '--platform=linux/amd64'
+      - '--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}'
       - '--label=org.opencontainers.image.title={{ .ProjectName }}'
       - '--label=org.opencontainers.image.version={{ .Tag }}'
       - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
@@ -100,6 +101,7 @@ dockers:
       - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
     build_flag_templates:
       - '--platform=linux/arm64'
+      - '--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}'
       - '--label=org.opencontainers.image.title={{ .ProjectName }}'
       - '--label=org.opencontainers.image.version={{ .Tag }}'
       - '--label=org.opencontainers.image.revision={{ .FullCommit }}'

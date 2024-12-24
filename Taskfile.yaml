@@ -5,11 +5,13 @@ vars:
     sh: find . -path ./vendor -prune -o -name '*.go' -print
   FILES_TO_FMT_STR: >-
     {{ splitList "\n" .FILES_TO_FMT | join " " }}
-  SDK_PATH: ".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
 
 env:
   HOSTNAME:
     sh: hostname
+  HELM_VERSION:
+    sh: helm version --template="{{ "{{.Version}}" }}"
+  SDK_PATH: ".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
 
 tasks:
   default:
@@ -64,26 +66,17 @@ tasks:
   go-build:
     desc: Builds Go binaries
     cmds:
-      - |-
-        export HOSTNAME="{{ .HOSTNAME }}"
-        export SDK_PATH="{{ .SDK_PATH }}"
-        goreleaser build --snapshot --clean --verbose
+      - goreleaser build --snapshot --clean --verbose
 
   go-build-images:
     desc: Builds Go binaries and Docker images
     cmds:
-      - |-
-        export HOSTNAME="{{ .HOSTNAME }}"
-        export SDK_PATH="{{ .SDK_PATH }}"
-        goreleaser release --snapshot --clean --skip=archive
+      - goreleaser release --snapshot --clean --skip=archive
 
   go-release:
     desc: Releases Go binaries and Docker images
     cmds:
-      - |-
-        export HOSTNAME="{{ .HOSTNAME }}"
-        export SDK_PATH="{{ .SDK_PATH }}"
-        goreleaser release --clean
+      - goreleaser release --clean
 
   prettier-format:
     desc: Formats YAML, JSON, and Markdown files

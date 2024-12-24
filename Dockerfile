@@ -1,7 +1,7 @@
 FROM debian:11
 ENV LANG=en_US.utf8
 
-ARG HELM_VERSION=3.16.4
+ARG HELM_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -9,7 +9,7 @@ RUN apt-get update && \
     apt-get install curl gpg apt-transport-https --yes && \
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -Lq https://get.helm.sh/helm-v${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz | \
+RUN curl -Lq https://get.helm.sh/helm-${HELM_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz | \
     tar -xzO ${TARGETOS}-${TARGETARCH}/helm > /usr/local/bin/helm && \
     chmod +x /usr/local/bin/helm
 
