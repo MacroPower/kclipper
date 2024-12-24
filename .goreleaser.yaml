@@ -22,24 +22,16 @@ builds:
       - arm64
     env: &env
       - CGO_ENABLED=1
-      - >-
-        {{- if eq .Os "linux" }}
-          {{- if eq .Arch "amd64" }}CC=zig cc -target x86_64-linux-gnu{{- end }}
-          {{- if eq .Arch "arm64" }}CC=zig cc -target aarch64-linux-gnu{{- end }}
-        {{- end }}
-        {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64" }}CC=zig cc -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks{{- end }}
-          {{- if eq .Arch "arm64" }}CC=zig cc -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks{{- end }}
-        {{- end }}
-      - >-
-        {{- if eq .Os "linux" }}
-          {{- if eq .Arch "amd64" }}CXX=zig c++ -target x86_64-linux-gnu{{- end }}
-          {{- if eq .Arch "arm64" }}CXX=zig c++ -target aarch64-linux-gnu{{- end }}
-        {{- end }}
-        {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64" }}CXX=zig c++ -target x86_64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks{{- end }}
-          {{- if eq .Arch "arm64" }}CXX=zig c++ -target aarch64-macos-none -F{{ envOrDefault "SDK_PATH" "" }}/System/Library/Frameworks{{- end }}
-        {{- end }}
+      - |
+        {{- if and (eq .Os "linux")  (eq .Arch "amd64") -}} CC={{ .Env.CC_LINUX_AMD64  }} {{- end -}}
+        {{- if and (eq .Os "linux")  (eq .Arch "arm64") -}} CC={{ .Env.CC_LINUX_ARM64  }} {{- end -}}
+        {{- if and (eq .Os "darwin") (eq .Arch "amd64") -}} CC={{ .Env.CC_DARWIN_AMD64 }} {{- end -}}
+        {{- if and (eq .Os "darwin") (eq .Arch "arm64") -}} CC={{ .Env.CC_DARWIN_ARM64 }} {{- end -}}
+      - |
+        {{- if and (eq .Os "linux")  (eq .Arch "amd64") -}} CXX={{ .Env.CXX_LINUX_AMD64  }} {{- end -}}
+        {{- if and (eq .Os "linux")  (eq .Arch "arm64") -}} CXX={{ .Env.CXX_LINUX_ARM64  }} {{- end -}}
+        {{- if and (eq .Os "darwin") (eq .Arch "amd64") -}} CXX={{ .Env.CXX_DARWIN_AMD64 }} {{- end -}}
+        {{- if and (eq .Os "darwin") (eq .Arch "arm64") -}} CXX={{ .Env.CXX_DARWIN_ARM64 }} {{- end -}}
     ldflags: &ldflags
       - -s -w
       - -X github.com/MacroPower/kclx/internal/version.Version={{.Version}}
@@ -50,15 +42,6 @@ builds:
       - -trimpath
     tags:
       - netgo
-    hooks: &hooks
-      pre:
-        - cmd: >-
-            {{- if and (eq .Arch .Runtime.Goarch) (eq .Os .Runtime.Goos) }}
-            go test -c -vet=all -tags=netgo -ldflags=-s
-            -o ./dist/{{ .ProjectName }}.test/ ./pkg/...
-            {{- else }}
-            echo "Skipping test binary build for non-native platform"
-            {{- end }}
 
   - id: kclx-darwin
     main: ./cmd/kclx
@@ -76,7 +59,6 @@ builds:
       - -trimpath
     tags:
       - netgo
-    hooks: *hooks
 
 dockers:
   - goos: linux

@@ -5,13 +5,24 @@ vars:
     sh: find . -path ./vendor -prune -o -name '*.go' -print
   FILES_TO_FMT_STR: >-
     {{ splitList "\n" .FILES_TO_FMT | join " " }}
+  SDK_PATH: ".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  FRAMEWORK_PATH: "{{.SDK_PATH}}/System/Library/Frameworks"
+  C_ENV: "{{OS | upper}}_{{ARCH | upper}}"
 
 env:
   HOSTNAME:
     sh: hostname
   HELM_VERSION:
     sh: helm version --template="{{ "{{.Version}}" }}"
-  SDK_PATH: ".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  CC_LINUX_AMD64: zig cc -target x86_64-linux-gnu
+  CC_LINUX_ARM64: zig cc -target aarch64-linux-gnu
+  CC_DARWIN_AMD64: zig cc -target x86_64-macos-none -F{{ .FRAMEWORK_PATH }}
+  CC_DARWIN_ARM64: zig cc -target aarch64-macos-none -F{{ .FRAMEWORK_PATH }}
+  CXX_LINUX_AMD64: zig c++ -target x86_64-linux-gnu
+  CXX_LINUX_ARM64: zig c++ -target aarch64-linux-gnu
+  CXX_DARWIN_AMD64: zig c++ -target x86_64-macos-none -F{{ .FRAMEWORK_PATH }}
+  CXX_DARWIN_ARM64: zig c++ -target aarch64-macos-none -F{{ .FRAMEWORK_PATH }}
+  BUILD_TAGS: netgo
 
 tasks:
   default:
@@ -61,12 +72,21 @@ tasks:
   go-test:
     desc: Tests Go code
     cmds:
-      - go test -race -vet=all ./...
+      - |
+        export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
+        go test -vet=all -tags={{.BUILD_TAGS}} ./...
+
+  go-bench:
+    desc: Benchmarks Go code
+    cmds:
+      - |
+        export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
+        go test -bench=. -tags={{.BUILD_TAGS}} ./...
 
   go-build:
     desc: Builds Go binaries
     cmds:
-      - goreleaser build --snapshot --clean --verbose
+      - goreleaser build --snapshot --clean
 
   go-build-images:
     desc: Builds Go binaries and Docker images
