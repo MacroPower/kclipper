@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	argocli "github.com/argoproj/argo-cd/v2/util/cli"
 	"github.com/spf13/cobra"
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 	"kcl-lang.io/cli/pkg/plugin"
@@ -18,6 +19,11 @@ import (
 	_ "github.com/MacroPower/kclx/pkg/helm"
 	_ "github.com/MacroPower/kclx/pkg/os"
 )
+
+func init() {
+	argocli.SetLogFormat("text")
+	argocli.SetLogLevel("warn")
+}
 
 const (
 	cmdName   = "kcl"

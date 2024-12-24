@@ -5,11 +5,16 @@ import (
 	"regexp"
 	"testing"
 
+	argocli "github.com/argoproj/argo-cd/v2/util/cli"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
 	_ "github.com/MacroPower/kclx/pkg/helm"
 )
+
+func init() {
+	argocli.SetLogLevel("warn")
+}
 
 func TestPluginHelmTemplate(t *testing.T) {
 	t.Parallel()
