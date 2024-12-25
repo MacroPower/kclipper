@@ -107,13 +107,17 @@ helm.template(helm.Chart {
 
 ### HTTP Plugin
 
+> If needed, this plugin can be disabled with `KCLX_HTTP_PLUGIN_DISABLED=true`.
+
 Alternative HTTP plugin to [kcl-lang/kcl-plugin](https://github.com/kcl-lang/kcl-plugin), which can be used to GET external resources. This one uses plain `net/http`. E.g.:
 
-`http.get("https://example.com")` -> `{"body": "<...>", "status": 200}`
+`http.get("https://example.com", timeout="10s")` -> `{"body": "<...>", "status": 200}`
 
 You can parse the body using one of KCL's native functions e.g. `json.decode` or `yaml.decode`.
 
 ### OS Plugin
+
+> If needed, this plugin can be disabled with `KCLX_OS_PLUGIN_DISABLED=true`.
 
 Run a command on the host OS. This can be useful for integrating with other tools that do not have a native KCL plugin available, e.g. by installing them in your container. E.g.:
 

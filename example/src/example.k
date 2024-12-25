@@ -5,7 +5,7 @@ import kcl_plugin.helm
 {
   "os.exec": os.exec("echo", ["Hello, World!"])
   "os.exec(env)": os.exec("bash", ["-c", 'echo "Hello, $LOCATION!"'], env={"LOCATION": "World"})
-  "http.get": http.get("https://example.com")
+  "http.get": http.get("https://example.com", timeout="10s")
   "helm.template": helm.template(
     chart="wakatime-exporter",
     target_revision="0.1.0",
