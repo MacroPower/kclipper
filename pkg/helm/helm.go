@@ -49,6 +49,8 @@ type TemplateOpts struct {
 	EnableOCI       bool
 	SkipCRDs        bool
 	PassCredentials bool
+	KubeVersion     string
+	APIVersions     []string
 }
 
 // pull will retrieve the chart from RepoURL, extract it, and return the path to
