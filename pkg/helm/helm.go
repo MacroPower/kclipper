@@ -5,14 +5,18 @@ import (
 	"io"
 	"os"
 	"path"
+	"regexp"
 
 	helmutil "github.com/argoproj/argo-cd/v2/util/helm"
 	ioutil "github.com/argoproj/argo-cd/v2/util/io"
 	pathutil "github.com/argoproj/argo-cd/v2/util/io/path"
+	helmschema "github.com/dadav/helm-schema/pkg/schema"
 	"github.com/google/uuid"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/yaml"
+
+	"github.com/MacroPower/kclx/pkg/helm/schema"
 )
 
 var DefaultHelm = NewHelm("10M")
@@ -86,6 +90,68 @@ func (h *Helm) writeValues(values map[string]any) (string, error) {
 		return "", fmt.Errorf("error writing helm values file: %w", err)
 	}
 	return p, nil
+}
+
+func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, findExistingSchemas bool) ([]byte, error) {
+	valuesSchemas := map[string]helmschema.Schema{}
+
+	chartPath, closer, err := h.pull(opts)
+	if err != nil {
+		return nil, err
+	}
+	defer ioutil.Close(closer)
+
+	// Read all yaml files in the chart directory
+	chartFiles, err := os.ReadDir(chartPath)
+	if err != nil {
+		return nil, fmt.Errorf("error reading helm chart directory: %w", err)
+	}
+
+	valuesRegex := regexp.MustCompile(`values.*\.ya?ml$`)
+	for _, f := range chartFiles {
+		if f.IsDir() {
+			continue
+		}
+		if findExistingSchemas && f.Name() == "values.schema.json" {
+			existingValuesSchema, err := os.ReadFile(path.Join(chartPath, f.Name()))
+			if err != nil {
+				return nil, fmt.Errorf("error reading existing values schema: %w", err)
+			}
+			es, err := schema.UnmarshalJSON(existingValuesSchema)
+			if err != nil {
+				return nil, fmt.Errorf("error unmarshaling existing values schema: %w", err)
+			}
+			esjs, err := es.ToJson()
+			if err != nil {
+				return nil, fmt.Errorf("error converting existing values schema to JSON: %w", err)
+			}
+			return esjs, nil
+		}
+		if valuesRegex.MatchString(f.Name()) {
+			vs, err := schema.DefaultGenerator.Create(path.Join(chartPath, f.Name()))
+			if err != nil {
+				return nil, fmt.Errorf("error getting schema for helm values file: %w", err)
+			}
+			valuesSchemas[f.Name()] = *vs
+		}
+	}
+
+	reDefaultValues := regexp.MustCompile(`^values\.ya?ml$`)
+	mergedValueSchema := &helmschema.Schema{}
+	for k, vs := range valuesSchemas {
+		mergedValueSchema = schema.Merge(mergedValueSchema, &vs, reDefaultValues.MatchString(k))
+	}
+
+	if err := mergedValueSchema.Validate(); err != nil {
+		return nil, fmt.Errorf("error validating values schema: %w", err)
+	}
+
+	jsonSchema, err := mergedValueSchema.ToJson()
+	if err != nil {
+		return nil, fmt.Errorf("error converting values schema to JSON schema: %w", err)
+	}
+
+	return jsonSchema, nil
 }
 
 func (h *Helm) Template(opts *TemplateOpts) ([]*unstructured.Unstructured, error) {
