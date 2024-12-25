@@ -14,9 +14,8 @@ import (
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 	"kcl-lang.io/cli/pkg/plugin"
 
-	_ "kcl-lang.io/kcl-plugin/http"
-
 	_ "github.com/MacroPower/kclx/pkg/helm"
+	_ "github.com/MacroPower/kclx/pkg/http"
 	_ "github.com/MacroPower/kclx/pkg/os"
 )
 

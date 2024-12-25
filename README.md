@@ -107,7 +107,7 @@ helm.template(helm.Chart {
 
 ### HTTP Plugin
 
-Includes the HTTP plugin from [kcl-lang/kcl-plugin](https://github.com/kcl-lang/kcl-plugin), which can be used to GET external resources. E.g.:
+Alternative HTTP plugin to [kcl-lang/kcl-plugin](https://github.com/kcl-lang/kcl-plugin), which can be used to GET external resources. This one uses plain `net/http`. E.g.:
 
 `http.get("https://example.com")` -> `{"body": "<...>", "status": 200}`
 
