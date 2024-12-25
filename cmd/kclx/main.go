@@ -56,6 +56,7 @@ func main() {
 	cmd.AddCommand(kclcmd.NewRegistryCmd())
 	cmd.AddCommand(kclcmd.NewServerCmd())
 	cmd.AddCommand(NewVersionCmd())
+	cmd.AddCommand(NewChartCmd())
 	bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
 
 	if err := cmd.Execute(); err != nil {
