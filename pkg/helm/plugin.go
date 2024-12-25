@@ -12,6 +12,10 @@ import (
 )
 
 func init() {
+	if strings.ToLower(os.Getenv("KCLX_HELM_PLUGIN_DISABLED")) == "true" {
+		return
+	}
+
 	plugin.RegisterPlugin(plugin.Plugin{
 		Name: "helm",
 		MethodMap: map[string]plugin.MethodSpec{

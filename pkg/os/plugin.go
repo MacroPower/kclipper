@@ -2,11 +2,17 @@ package os
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
 )
 
 func init() {
+	if strings.ToLower(os.Getenv("KCLX_OS_PLUGIN_DISABLED")) == "true" {
+		return
+	}
+
 	plugin.RegisterPlugin(plugin.Plugin{
 		Name: "os",
 		MethodMap: map[string]plugin.MethodSpec{

@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 	"time"
 
 	"kcl-lang.io/lib/go/plugin"
@@ -13,6 +15,10 @@ import (
 )
 
 func init() {
+	if strings.ToLower(os.Getenv("KCLX_HTTP_PLUGIN_DISABLED")) == "true" {
+		return
+	}
+
 	plugin.RegisterPlugin(plugin.Plugin{
 		Name: "http",
 		MethodMap: map[string]plugin.MethodSpec{
