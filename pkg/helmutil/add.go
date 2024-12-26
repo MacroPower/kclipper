@@ -16,6 +16,7 @@ import (
 
 	"github.com/MacroPower/kclx/pkg/helm"
 	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
+	genutil "github.com/MacroPower/kclx/pkg/util/gen"
 )
 
 var SchemaDefaultRegexp = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)(\s+=\s+\S+)`)
@@ -106,7 +107,7 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 	}
 
 	kclSchema := &bytes.Buffer{}
-	if err := gen.GenKcl(kclSchema, "values", jsBytes, &gen.GenKclOptions{
+	if err := genutil.Safe.GenKcl(kclSchema, "values", jsBytes, &gen.GenKclOptions{
 		Mode:                  gen.ModeJsonSchema,
 		CastingOption:         gen.OriginalName,
 		UseIntegersForNumbers: true,
