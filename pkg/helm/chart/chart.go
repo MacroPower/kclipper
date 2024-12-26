@@ -3,10 +3,11 @@ package helm
 import (
 	"bytes"
 	"fmt"
-	"sync"
 
 	"github.com/invopop/jsonschema"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
+
+	genutil "github.com/MacroPower/kclx/pkg/util/gen"
 )
 
 // Chart represents the KCL schema `helm.Chart`.
@@ -19,8 +20,6 @@ type Chart struct {
 	PassCredentials *bool   `json:"passCredentials,omitempty" jsonschema:"-,description=Pass credentials to all domains (--pass-credentials)."`
 	SchemaMode      *string `json:"schemaMode,omitempty" jsonschema:"-,description=The schema mode to use. Options are 'auto', 'values', or 'none'."`
 	SchemaURL       *string `json:"schemaURL,omitempty" jsonschema:"-,description=The URL of the schema to use. If set, it will override schemaMode."`
-
-	mu sync.Mutex
 }
 
 func (c *Chart) GenerateKcl(b *bytes.Buffer) error {
@@ -44,9 +43,7 @@ func (c *Chart) GenerateKcl(b *bytes.Buffer) error {
 		return fmt.Errorf("failed to marshal json schema: %w", err)
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if err := gen.GenKcl(b, "chart", jsBytes, &gen.GenKclOptions{
+	if err := genutil.Safe.GenKcl(b, "chart", jsBytes, &gen.GenKclOptions{
 		Mode:          gen.ModeJsonSchema,
 		CastingOption: gen.OriginalName,
 	}); err != nil {

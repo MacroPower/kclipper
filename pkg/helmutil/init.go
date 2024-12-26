@@ -1,6 +1,7 @@
 package helmutil
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -20,6 +21,14 @@ func ChartInit(path string) error {
 		chartPkgVersion = "0.1.2"
 	}
 
+	exists, err := kclpkg.ModFileExists(path)
+	if err != nil {
+		return fmt.Errorf("error checking for kcl.mod existence: %w", err)
+	}
+	if exists {
+		return errors.New("kcl.mod already exists")
+	}
+
 	pkg := kclpkg.NewKclPkg(&opt.InitOptions{
 		InitPath: path,
 		Name:     "charts",
@@ -36,8 +45,7 @@ func ChartInit(path string) error {
 			},
 		},
 	})
-	err := pkg.ModFile.StoreModFile()
-	if err != nil {
+	if err := pkg.ModFile.StoreModFile(); err != nil {
 		return fmt.Errorf("failed to store mod file: %w", err)
 	}
 	if err := pkg.UpdateModAndLockFile(); err != nil {
