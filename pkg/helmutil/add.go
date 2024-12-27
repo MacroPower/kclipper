@@ -27,6 +27,11 @@ var (
 	SchemaValuesRegexp  = regexp.MustCompile(`(\s+values\??\s*:\s+)(.*)`)
 )
 
+const initialMainContents = `import helm
+
+charts: helm.Charts = {}
+`
+
 func (c *ChartPkg) Add(chart, repoURL, targetRevision string) error {
 	return c.AddWithSchema(chart, repoURL, targetRevision, "", schemagen.AutoGenerator)
 }
@@ -35,32 +40,79 @@ func (c *ChartPkg) AddWithSchema(
 	chart, repoURL, targetRevision, schemaURL string,
 	schemaGenerator schemagen.Generator,
 ) error {
-	enableOCI := false
-	repoNetURL, err := url.Parse(repoURL)
+	enableOCI, repoNetURL, err := c.parseRepoURL(repoURL)
 	if err != nil {
-		return fmt.Errorf("failed to parse repo_url %s: %w", repoURL, err)
-	}
-	if repoNetURL.Scheme == "" {
-		enableOCI = true
+		return err
 	}
 
 	chartSnake := strcase.ToSnake(chart)
-
 	vendorDir := c.BasePath
 	chartsDir := path.Join(vendorDir, chartSnake)
+
+	if err := c.createChartsDir(chartsDir); err != nil {
+		return err
+	}
+
+	if err := c.generateAndWriteChartK(chart, repoNetURL.String(), targetRevision, chartsDir); err != nil {
+		return err
+	}
+
+	if schemaGenerator == schemagen.NoGenerator {
+		return nil
+	}
+
+	jsBytes, err := c.fetchOrInferSchema(chart, targetRevision, repoNetURL.String(),
+		enableOCI, schemaURL, schemaGenerator)
+	if err != nil {
+		return err
+	}
+
+	if err := c.writeSchemaFiles(chartsDir, jsBytes); err != nil {
+		return err
+	}
+
+	chartConfig := []string{
+		fmt.Sprintf(`chart="%s"`, chart),
+		fmt.Sprintf(`repoURL="%s"`, repoNetURL.String()),
+		fmt.Sprintf(`targetRevision="%s"`, targetRevision),
+		fmt.Sprintf(`schemaGenerator="%s"`, schemaGenerator),
+	}
+	if err := c.updateMainFile(vendorDir, chartSnake, chartConfig...); err != nil {
+		return err
+	}
+
+	_, err = kcl.FormatPath(vendorDir)
+	if err != nil {
+		return fmt.Errorf("failed to format kcl files: %w", err)
+	}
+
+	return nil
+}
+
+func (c *ChartPkg) parseRepoURL(repoURL string) (bool, *url.URL, error) {
+	repoNetURL, err := url.Parse(repoURL)
+	if err != nil {
+		return false, nil, fmt.Errorf("failed to parse repo_url %s: %w", repoURL, err)
+	}
+	enableOCI := repoNetURL.Scheme == ""
+	return enableOCI, repoNetURL, nil
+}
+
+func (c *ChartPkg) createChartsDir(chartsDir string) error {
 	if err := os.MkdirAll(chartsDir, 0o755); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
+	return nil
+}
 
-	// Add chart.k
+func (c *ChartPkg) generateAndWriteChartK(chart, repoURL, targetRevision, chartsDir string) error {
 	kclChart := &bytes.Buffer{}
-	hcs := helmchart.Chart{
+	hcc := helmchart.Chart{
 		Chart:          chart,
-		RepoURL:        repoNetURL.String(),
+		RepoURL:        repoURL,
 		TargetRevision: targetRevision,
 	}
-	err = hcs.GenerateKcl(kclChart)
-	if err != nil {
+	if err := hcc.GenerateKcl(kclChart); err != nil {
 		return fmt.Errorf("failed to generate chart.k: %w", err)
 	}
 
@@ -82,30 +134,33 @@ func (c *ChartPkg) AddWithSchema(
 	if err := os.WriteFile(path.Join(chartsDir, "chart.k"), kclChartFixed.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write chart.k: %w", err)
 	}
+	return nil
+}
 
-	if schemaGenerator == schemagen.NoGenerator && schemaURL == "" {
-		return nil
-	}
-
+func (c *ChartPkg) fetchOrInferSchema(chart, targetRevision, repoURL string, enableOCI bool, schemaURL string, schemaGenerator schemagen.Generator) ([]byte, error) {
 	var jsBytes []byte
+	var err error
 	if schemaURL != "" {
 		jsBytes, err = getSchemaFromURL(schemaURL)
 		if err != nil {
-			return fmt.Errorf("failed to fetch schema from %s: %w", schemaURL, err)
+			return nil, fmt.Errorf("failed to fetch schema from %s: %w", schemaURL, err)
 		}
 	} else {
 		jsBytes, err = helm.DefaultHelm.GetValuesJSONSchema(&helm.TemplateOpts{
 			ChartName:       chart,
 			TargetRevision:  targetRevision,
-			RepoURL:         repoNetURL.String(),
+			RepoURL:         repoURL,
 			EnableOCI:       enableOCI,
 			PassCredentials: false,
 		}, schemaGenerator == schemagen.AutoGenerator)
 		if err != nil {
-			return fmt.Errorf("failed to infer values schema: %w", err)
+			return nil, fmt.Errorf("failed to infer values schema: %w", err)
 		}
 	}
+	return jsBytes, nil
+}
 
+func (c *ChartPkg) writeSchemaFiles(chartsDir string, jsBytes []byte) error {
 	if err := os.WriteFile(path.Join(chartsDir, "values.schema.json"), jsBytes, 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.json: %w", err)
 	}
@@ -133,29 +188,27 @@ func (c *ChartPkg) AddWithSchema(
 	if err := os.WriteFile(path.Join(chartsDir, "values.schema.k"), kclSchemaFixed.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.k: %w", err)
 	}
+	return nil
+}
 
+func (c *ChartPkg) updateMainFile(vendorDir, chartSnake string, chartConfig ...string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	mainFile := path.Join(vendorDir, "main.k")
 	if !kclutil.FileExists(mainFile) {
-		if err := os.WriteFile(mainFile, []byte(""), 0o600); err != nil {
+		if err := os.WriteFile(mainFile, []byte(initialMainContents), 0o600); err != nil {
 			return fmt.Errorf("failed to write '%s': %w", mainFile, err)
 		}
 	}
-	_, err = kcl.OverrideFile(mainFile, []string{
-		fmt.Sprintf(`_%s=%s.Chart{values = %s.Values{}}`, chartSnake, chartSnake, chartSnake),
-	}, []string{
-		chartSnake,
-	})
+	imports := []string{"helm"}
+	specs := []string{}
+	for _, cc := range chartConfig {
+		specs = append(specs, fmt.Sprintf(`charts.%s.%s`, chartSnake, cc))
+	}
+	_, err := kcl.OverrideFile(mainFile, specs, imports)
 	if err != nil {
 		return fmt.Errorf("failed to update '%s': %w", mainFile, err)
 	}
-
-	_, err = kcl.FormatPath(vendorDir)
-	if err != nil {
-		return fmt.Errorf("failed to format kcl files: %w", err)
-	}
-
 	return nil
 }
 

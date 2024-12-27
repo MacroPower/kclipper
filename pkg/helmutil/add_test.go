@@ -30,7 +30,8 @@ func TestHelmChartAdd(t *testing.T) {
 	}
 
 	tcs := map[string]struct {
-		chart *helmchart.Chart
+		chart    *helmchart.Chart
+		settings *helmchart.Settings
 	}{
 		"podinfo": {
 			chart: &helmchart.Chart{
@@ -38,12 +39,17 @@ func TestHelmChartAdd(t *testing.T) {
 				RepoURL:        "https://stefanprodan.github.io/podinfo",
 				TargetRevision: "6.7.1",
 			},
+			settings: &helmchart.Settings{
+				SchemaGenerator: schemagen.AutoGenerator,
+			},
 		},
 		"app-template": {
 			chart: &helmchart.Chart{
-				Chart:           "app-template",
-				RepoURL:         "https://bjw-s.github.io/helm-charts/",
-				TargetRevision:  "3.6.0",
+				Chart:          "app-template",
+				RepoURL:        "https://bjw-s.github.io/helm-charts/",
+				TargetRevision: "3.6.0",
+			},
+			settings: &helmchart.Settings{
 				SchemaGenerator: schemagen.ValuesGenerator,
 			},
 		},
@@ -52,8 +58,8 @@ func TestHelmChartAdd(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			err := ca.AddWithSchema(tc.chart.Chart, tc.chart.RepoURL,
-				tc.chart.TargetRevision, tc.chart.SchemaURL, tc.chart.SchemaGenerator)
+			err := ca.AddWithSchema(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision,
+				tc.settings.SchemaURL, tc.settings.SchemaGenerator)
 			if err != nil {
 				t.Fatal(err)
 			}
