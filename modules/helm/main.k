@@ -4,8 +4,8 @@ This module provides an interface for the macropower/kclx Helm plugin.
 import regex
 import kcl_plugin.helm as helm_plugin
 
-schema Chart:
-    """Helm chart resource.
+schema ChartBase:
+    r"""Helm chart resource.
 
     Attributes
     ----------
@@ -19,9 +19,6 @@ schema Chart:
         The Helm release name to use. If omitted it will use the chart name.
     namespace: str, optional.
         Namespace is an optional namespace to template with.
-    project: str, optional.
-        Project is a reference to the project this chart's releases belong to,
-        e.g. the Argo AppProject. This is used to segregate Helm chart caches.
     helmVersion: str, default is "v3", optional.
         HelmVersion is the version of Helm to use. One of: [v2, v3].
     skipCRDs: bool, default is False, optional.
@@ -37,12 +34,25 @@ schema Chart:
     targetRevision: str
     releaseName?: str
     namespace?: str
-    project?: str
     helmVersion?: str = "v3"
     skipCRDs?: bool = False
     passCredentials?: bool = False
-    values?: any = {}
 
+    check:
+        not regex.match(repoURL, r"^oci://"), "Invalid repoURL: ${repoURL}. OCI registries must not include a scheme (e.g. `oci://`)"
+        any x in ["v2", "v3"] {
+            x == helmVersion
+        }, "Invalid helmVersion: ${helmVersion}. Must be one of: [v2, v3]"
+
+schema Chart(ChartBase):
+    """Helm chart resource.
+
+    Attributes
+    ----------
+    values: any, default is {}, optional.
+        Specifies Helm values to be passed to helm template.
+    """
+    values?: any = {}
     preRenderer: (Chart) -> Chart = lambda _chart: Chart -> Chart {
         _chart
     }
@@ -50,12 +60,24 @@ schema Chart:
         _resources
     }
 
-    check:
-        not regex.match(repoURL, r"^oci://"), \
-            "Invalid repoURL: ${repoURL}. OCI registries must not include a scheme (e.g. `oci://`)"
-        any x in ["v2", "v3"] {
-            x == helmVersion
-        }, "Invalid helmVersion: ${helmVersion}. Must be one of: [v2, v3]"
+schema ChartConfig(ChartBase):
+    r"""
+    Helm Chart Configuration
+
+    Attributes
+    ----------
+    schemaGenerator : "AUTO" | "VALUE-INFERENCE" | "URL" | "PATH" | "LOCAL-PATH" | "NONE", default is "AUTO"
+        The generator to use for the Values schema.
+    schemaURL : str, optional.
+        The URL of the JSONSchema to use when schemaGenerator = "URL".
+    schemaPath : str, optional.
+        The path to the JSONSchema to use when schemaGenerator = "PATH" or "LOCAL-PATH".
+    """
+    schemaGenerator: "AUTO" | "VALUE-INFERENCE" | "URL" | "PATH" | "LOCAL-PATH" | "NONE" = "AUTO"
+    schemaURL?: str
+    schemaPath?: str
+
+type Charts = {str:ChartConfig}
 
 template = lambda chart: Chart -> [{str:}] {
     """Render Helm chart templates using `macropower/kclx`'s `kcl_plugin.helm.template`.
@@ -76,18 +98,7 @@ template = lambda chart: Chart -> [{str:}] {
     """
     _chart = chart.preRenderer(chart)
 
-    _resources = helm_plugin.template(
-        chart=_chart.chart,
-        repo_url=_chart.repoURL,
-        target_revision=_chart.targetRevision,
-        release_name=_chart.releaseName,
-        namespace=_chart.namespace,
-        project=_chart.project,
-        helm_version=_chart.helmVersion,
-        skip_crds=_chart.skipCRDs,
-        pass_credentials=_chart.passCredentials,
-        values=_chart.values,
-    )
+    _resources = helm_plugin.template(chart=_chart.chart, repo_url=_chart.repoURL, target_revision=_chart.targetRevision, release_name=_chart.releaseName, namespace=_chart.namespace, project=_chart.project, helm_version=_chart.helmVersion, skip_crds=_chart.skipCRDs, pass_credentials=_chart.passCredentials, values=_chart.values)
 
     chart.postRenderer(_resources)
 }
