@@ -18,6 +18,7 @@ import (
 
 	"github.com/MacroPower/kclx/pkg/helm"
 	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
+	"github.com/MacroPower/kclx/pkg/helm/schemagen"
 	"github.com/MacroPower/kclx/pkg/util/safekcl"
 )
 
@@ -27,12 +28,12 @@ var (
 )
 
 func (c *ChartPkg) Add(chart, repoURL, targetRevision string) error {
-	return c.AddWithSchema(chart, repoURL, targetRevision, "", helmchart.SchemaAuto)
+	return c.AddWithSchema(chart, repoURL, targetRevision, "", schemagen.AutoGenerator)
 }
 
 func (c *ChartPkg) AddWithSchema(
 	chart, repoURL, targetRevision, schemaURL string,
-	schemaMode helmchart.SchemaMode,
+	schemaGenerator schemagen.Generator,
 ) error {
 	enableOCI := false
 	repoNetURL, err := url.Parse(repoURL)
@@ -82,7 +83,7 @@ func (c *ChartPkg) AddWithSchema(
 		return fmt.Errorf("failed to write chart.k: %w", err)
 	}
 
-	if schemaMode == helmchart.SchemaNone && schemaURL == "" {
+	if schemaGenerator == schemagen.NoGenerator && schemaURL == "" {
 		return nil
 	}
 
@@ -99,7 +100,7 @@ func (c *ChartPkg) AddWithSchema(
 			RepoURL:         repoNetURL.String(),
 			EnableOCI:       enableOCI,
 			PassCredentials: false,
-		}, schemaMode == helmchart.SchemaAuto)
+		}, schemaGenerator == schemagen.AutoGenerator)
 		if err != nil {
 			return fmt.Errorf("failed to infer values schema: %w", err)
 		}

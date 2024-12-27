@@ -7,15 +7,8 @@ import (
 	"github.com/invopop/jsonschema"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
+	"github.com/MacroPower/kclx/pkg/helm/schemagen"
 	"github.com/MacroPower/kclx/pkg/util/safekcl"
-)
-
-type SchemaMode string
-
-const (
-	SchemaAuto       SchemaMode = "auto"
-	SchemaFromValues SchemaMode = "values"
-	SchemaNone       SchemaMode = "none"
 )
 
 // Chart represents the KCL schema `helm.Chart`.
@@ -32,10 +25,10 @@ type Chart struct {
 	SkipCRDs bool `json:"skipCRDs,omitempty" jsonschema:"-,description=Skip the custom resource definition installation step."`
 	// PassCredentials will pass credentials to all domains (--pass-credentials).
 	PassCredentials bool `json:"passCredentials,omitempty" jsonschema:"-,description=Pass credentials to all domains."`
-	// SchemaMode is the mode to use for schema generation.
-	SchemaMode SchemaMode `json:"schemaMode,omitempty" jsonschema:"description=The mode to use for schema generation."`
-	// SchemaURL is the URL of the schema to use. If set, it will override schemaMode.
-	SchemaURL string `json:"schemaURL,omitempty" jsonschema:"-,description=The URL of the schema to use. If set, it will override schemaMode."`
+	// SchemaGenerator is the generator to use for the Values schema.
+	SchemaGenerator schemagen.Generator `json:"schemaGenerator" jsonschema:"description=The generator to use for the Values schema."`
+	// SchemaURL is the URL of the schema to use. Overrides SchemaGenerator.
+	SchemaURL string `json:"schemaURL,omitempty" jsonschema:"description=The URL of the JSONSchema to use when schemaGenerator = URL."`
 	// Values is the values to use for the chart.
 	Values any `json:"values,omitempty" jsonschema:"description=The values to use for the chart."`
 }
@@ -54,6 +47,17 @@ func (c *Chart) GenerateKcl(b *bytes.Buffer) error {
 	}
 	if cv, ok := js.Properties.Get("targetRevision"); ok {
 		cv.Default = c.TargetRevision
+	}
+	if cv, ok := js.Properties.Get("schemaURL"); ok {
+		cv.Default = c.SchemaURL
+	}
+	if cv, ok := js.Properties.Get("schemaGenerator"); ok {
+		if c.SchemaGenerator != "" {
+			cv.Default = c.SchemaGenerator
+		} else {
+			cv.Default = schemagen.AutoGenerator
+		}
+		cv.Enum = schemagen.GeneratorEnum
 	}
 
 	jsBytes, err := js.MarshalJSON()

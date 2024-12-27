@@ -1,4 +1,4 @@
-package schema
+package valuesgen
 
 import (
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
