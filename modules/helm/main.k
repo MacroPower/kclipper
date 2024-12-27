@@ -43,6 +43,13 @@ schema Chart:
     passCredentials?: bool = False
     values?: any = {}
 
+    preRenderer: (Chart) -> Chart = lambda _chart: Chart -> Chart {
+        _chart
+    }
+    postRenderer: ([{str:}]) -> [{str:}] = lambda _resources: [{str:}] -> [{str:}] {
+        _resources
+    }
+
     check:
         not regex.match(repoURL, r"^oci://"), \
             "Invalid repoURL: ${repoURL}. OCI registries must not include a scheme (e.g. `oci://`)"
@@ -67,16 +74,20 @@ template = lambda chart: Chart -> [{str:}] {
     })
     ```
     """
-    helm_plugin.template(
-        chart=chart.chart,
-        repo_url=chart.repoURL,
-        target_revision=chart.targetRevision,
-        release_name=chart.releaseName,
-        namespace=chart.namespace,
-        project=chart.project,
-        helm_version=chart.helmVersion,
-        skip_crds=chart.skipCRDs,
-        pass_credentials=chart.passCredentials,
-        values=chart.values,
+    _chart = chart.preRenderer(chart)
+
+    _resources = helm_plugin.template(
+        chart=_chart.chart,
+        repo_url=_chart.repoURL,
+        target_revision=_chart.targetRevision,
+        release_name=_chart.releaseName,
+        namespace=_chart.namespace,
+        project=_chart.project,
+        helm_version=_chart.helmVersion,
+        skip_crds=_chart.skipCRDs,
+        pass_credentials=_chart.passCredentials,
+        values=_chart.values,
     )
+
+    chart.postRenderer(_resources)
 }
