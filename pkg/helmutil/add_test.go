@@ -2,7 +2,6 @@ package helmutil_test
 
 import (
 	"os"
-	"path"
 	"regexp"
 	"testing"
 
@@ -13,20 +12,24 @@ import (
 	"github.com/MacroPower/kclx/pkg/helmutil"
 )
 
-const basePath = "testdata"
+const (
+	basePath  = "testdata"
+	chartPath = "testdata/charts"
+)
 
 func TestHelmChartAdd(t *testing.T) {
 	t.Parallel()
 
 	os.RemoveAll(basePath)
-	err := helmutil.ChartInit(basePath)
-	if err != nil {
+
+	ca := helmutil.NewChartPkg(chartPath)
+
+	if err := ca.Init(); err != nil {
 		t.Fatal(err)
 	}
 
 	tcs := map[string]struct {
-		chart      *helmchart.Chart
-		schemaMode helmutil.SchemaMode
+		chart *helmchart.Chart
 	}{
 		"podinfo": {
 			chart: &helmchart.Chart{
@@ -40,31 +43,27 @@ func TestHelmChartAdd(t *testing.T) {
 				Chart:          "app-template",
 				RepoURL:        "https://bjw-s.github.io/helm-charts/",
 				TargetRevision: "3.6.0",
+				SchemaMode:     helmchart.SchemaFromValues,
 			},
-			schemaMode: helmutil.SchemaFromValues,
 		},
 	}
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			ca := &helmutil.ChartAdd{
-				BasePath:   basePath,
-				SchemaMode: tc.schemaMode,
-			}
-
-			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision)
+			err := ca.AddWithSchema(tc.chart.Chart, tc.chart.RepoURL,
+				tc.chart.TargetRevision, tc.chart.SchemaURL, tc.chart.SchemaMode)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			depsOpt, err := options.LoadDepsFrom(path.Join(basePath, "charts"), true)
+			depsOpt, err := options.LoadDepsFrom(chartPath, true)
 			if err != nil {
 				t.Fatal(err)
 			}
 			results, err := kcl.Test(
 				&kcl.TestOptions{
-					PkgList:  []string{path.Join(basePath, "charts")},
+					PkgList:  []string{chartPath},
 					FailFast: true,
 				},
 				*depsOpt,
