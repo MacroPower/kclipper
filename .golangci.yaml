@@ -52,3 +52,6 @@ issues:
     - source: "^// http(s)?://([^\\s]*)$"
       linters:
         - lll
+    - source: "`$"
+      linters:
+        - lll

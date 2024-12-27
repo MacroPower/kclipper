@@ -4,15 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 
-	"github.com/MacroPower/kclx/internal/version"
 	"kcl-lang.io/kpm/pkg/downloader"
 	"kcl-lang.io/kpm/pkg/opt"
 	kclpkg "kcl-lang.io/kpm/pkg/package"
+
+	"github.com/MacroPower/kclx/internal/version"
 )
 
-func ChartInit(path string) error {
-	if err := os.MkdirAll(path, 0755); err != nil {
+func ChartInit(basePath string) error {
+	path := path.Join(basePath, "charts")
+	if err := os.MkdirAll(path, 0o755); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
 
