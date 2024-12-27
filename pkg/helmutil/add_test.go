@@ -3,15 +3,17 @@ package helmutil_test
 import (
 	"os"
 	"path"
+	"regexp"
 	"testing"
 
+	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
 	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
 	"github.com/MacroPower/kclx/pkg/helmutil"
 )
 
-const basePath = "./testdata"
+const basePath = "testdata"
 
 func TestHelmChartAdd(t *testing.T) {
 	t.Parallel()
@@ -46,10 +48,8 @@ func TestHelmChartAdd(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			testPath := path.Join(basePath, "charts", tc.chart.Chart)
-
 			ca := &helmutil.ChartAdd{
-				BasePath:   path.Join(basePath, "charts"),
+				BasePath:   basePath,
 				SchemaMode: tc.schemaMode,
 			}
 
@@ -58,13 +58,23 @@ func TestHelmChartAdd(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			results, err := kcl.LintPath([]string{testPath})
+			depsOpt, err := options.LoadDepsFrom(path.Join(basePath, "charts"), true)
+			if err != nil {
+				t.Fatal(err)
+			}
+			results, err := kcl.Test(
+				&kcl.TestOptions{
+					PkgList:  []string{path.Join(basePath, "charts")},
+					FailFast: true,
+				},
+				*depsOpt,
+			)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			if len(results) != 0 {
-				t.Fatalf("expected no lint errors, got %v", results)
+			if len(results.Info) != 0 {
+				t.Fatalf("expected no errors, got %d: %#v", len(results.Info), results)
 			}
 		})
 	}
@@ -76,24 +86,44 @@ func TestDefaultReplacement(t *testing.T) {
 	tcs := map[string]struct {
 		input string
 		want  string
+		re    *regexp.Regexp
+		repl  string
 	}{
 		"simple": {
 			input: `    key: str = "default"`,
 			want:  `    key: str`,
+			re:    helmutil.SchemaDefaultRegexp,
+			repl:  "$1",
 		},
 		"two types": {
 			input: `    key: str | int = 1`,
 			want:  `    key: str | int`,
+			re:    helmutil.SchemaDefaultRegexp,
+			repl:  "$1",
 		},
 		"many types": {
 			input: `    key: str | int | {str:any} = {}`,
 			want:  `    key: str | int | {str:any}`,
+			re:    helmutil.SchemaDefaultRegexp,
+			repl:  "$1",
+		},
+		"values": {
+			input: `    values?: any`,
+			want:  `    values?: x any`,
+			re:    helmutil.SchemaValuesRegexp,
+			repl:  "${1}x ${2}",
+		},
+		"values docs": {
+			input: `    values : any, foobar`,
+			want:  `    values : x any, foobar`,
+			re:    helmutil.SchemaValuesRegexp,
+			repl:  "${1}x ${2}",
 		},
 	}
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			got := helmutil.SchemaDefaultRegexp.ReplaceAllString(tc.input, "$1")
+			got := tc.re.ReplaceAllString(tc.input, tc.repl)
 			if got != tc.want {
 				t.Fatalf("expected %q, got %q", tc.want, got)
 			}

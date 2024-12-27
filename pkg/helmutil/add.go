@@ -10,16 +10,22 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sync"
 
+	"github.com/iancoleman/strcase"
 	"kcl-lang.io/kcl-go"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
+	kclutil "kcl-lang.io/kcl-go/pkg/utils"
 
 	"github.com/MacroPower/kclx/pkg/helm"
 	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
-	genutil "github.com/MacroPower/kclx/pkg/util/gen"
+	"github.com/MacroPower/kclx/pkg/util/safekcl"
 )
 
-var SchemaDefaultRegexp = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)(\s+=\s+\S+)`)
+var (
+	SchemaDefaultRegexp = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)(\s+=\s+\S+)`)
+	SchemaValuesRegexp  = regexp.MustCompile(`(\s+values\??\s*:\s+)(.*)`)
+)
 
 type SchemaMode int
 
@@ -33,6 +39,8 @@ type ChartAdd struct {
 	SchemaMode SchemaMode
 	SchemaURL  string
 	BasePath   string
+
+	mu sync.Mutex
 }
 
 func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
@@ -45,8 +53,11 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 		enableOCI = true
 	}
 
-	vendorDir := path.Join(ca.BasePath, chart)
-	if err := os.MkdirAll(vendorDir, 0o755); err != nil {
+	chartSnake := strcase.ToSnake(chart)
+
+	vendorDir := path.Join(ca.BasePath, "charts")
+	chartsDir := path.Join(vendorDir, chartSnake)
+	if err := os.MkdirAll(chartsDir, 0o755); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
 
@@ -68,6 +79,8 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 		line := kclChartScanner.Text()
 		if line == "schema Chart:" {
 			line = "import helm\n\nschema Chart(helm.Chart):"
+		} else if SchemaValuesRegexp.MatchString(line) {
+			line = SchemaValuesRegexp.ReplaceAllString(line, "${1}Values | ${2}")
 		}
 		kclChartFixed.WriteString(line + "\n")
 	}
@@ -75,7 +88,7 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 		return fmt.Errorf("failed to scan kcl schema: %w", err)
 	}
 
-	if err := os.WriteFile(path.Join(vendorDir, "chart.k"), kclChartFixed.Bytes(), 0o600); err != nil {
+	if err := os.WriteFile(path.Join(chartsDir, "chart.k"), kclChartFixed.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write chart.k: %w", err)
 	}
 
@@ -102,12 +115,12 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 		}
 	}
 
-	if err := os.WriteFile(path.Join(vendorDir, "values.schema.json"), jsBytes, 0o600); err != nil {
+	if err := os.WriteFile(path.Join(chartsDir, "values.schema.json"), jsBytes, 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.json: %w", err)
 	}
 
 	kclSchema := &bytes.Buffer{}
-	if err := genutil.Safe.GenKcl(kclSchema, "values", jsBytes, &gen.GenKclOptions{
+	if err := safekcl.Gen.GenKcl(kclSchema, "values", jsBytes, &gen.GenKclOptions{
 		Mode:                  gen.ModeJsonSchema,
 		CastingOption:         gen.OriginalName,
 		UseIntegersForNumbers: true,
@@ -126,8 +139,25 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 		return fmt.Errorf("failed to scan kcl schema: %w", err)
 	}
 
-	if err := os.WriteFile(path.Join(vendorDir, "values.schema.k"), kclSchemaFixed.Bytes(), 0o600); err != nil {
+	if err := os.WriteFile(path.Join(chartsDir, "values.schema.k"), kclSchemaFixed.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.k: %w", err)
+	}
+
+	ca.mu.Lock()
+	defer ca.mu.Unlock()
+	mainFile := path.Join(vendorDir, "main.k")
+	if !kclutil.FileExists(mainFile) {
+		if err := os.WriteFile(mainFile, []byte(""), 0o600); err != nil {
+			return fmt.Errorf("failed to write '%s': %w", mainFile, err)
+		}
+	}
+	_, err = kcl.OverrideFile(mainFile, []string{
+		fmt.Sprintf(`_%s=%s.Chart{values = %s.Values{}}`, chartSnake, chartSnake, chartSnake),
+	}, []string{
+		chartSnake,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update '%s': %w", mainFile, err)
 	}
 
 	_, err = kcl.FormatPath(vendorDir)
