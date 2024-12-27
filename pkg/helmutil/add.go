@@ -10,7 +10,6 @@ import (
 	"os"
 	"path"
 	"regexp"
-	"sync"
 
 	"github.com/iancoleman/strcase"
 	"kcl-lang.io/kcl-go"
@@ -27,23 +26,14 @@ var (
 	SchemaValuesRegexp  = regexp.MustCompile(`(\s+values\??\s*:\s+)(.*)`)
 )
 
-type SchemaMode int
-
-const (
-	SchemaAuto SchemaMode = iota
-	SchemaFromValues
-	SchemaNone
-)
-
-type ChartAdd struct {
-	SchemaMode SchemaMode
-	SchemaURL  string
-	BasePath   string
-
-	mu sync.Mutex
+func (c *ChartPkg) Add(chart, repoURL, targetRevision string) error {
+	return c.AddWithSchema(chart, repoURL, targetRevision, "", helmchart.SchemaAuto)
 }
 
-func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
+func (c *ChartPkg) AddWithSchema(
+	chart, repoURL, targetRevision, schemaURL string,
+	schemaMode helmchart.SchemaMode,
+) error {
 	enableOCI := false
 	repoNetURL, err := url.Parse(repoURL)
 	if err != nil {
@@ -55,7 +45,7 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 
 	chartSnake := strcase.ToSnake(chart)
 
-	vendorDir := path.Join(ca.BasePath, "charts")
+	vendorDir := c.BasePath
 	chartsDir := path.Join(vendorDir, chartSnake)
 	if err := os.MkdirAll(chartsDir, 0o755); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
@@ -92,15 +82,15 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 		return fmt.Errorf("failed to write chart.k: %w", err)
 	}
 
-	if ca.SchemaMode == SchemaNone && ca.SchemaURL == "" {
+	if schemaMode == helmchart.SchemaNone && schemaURL == "" {
 		return nil
 	}
 
 	var jsBytes []byte
-	if ca.SchemaURL != "" {
-		jsBytes, err = getSchemaFromURL(ca.SchemaURL)
+	if schemaURL != "" {
+		jsBytes, err = getSchemaFromURL(schemaURL)
 		if err != nil {
-			return fmt.Errorf("failed to fetch schema from %s: %w", ca.SchemaURL, err)
+			return fmt.Errorf("failed to fetch schema from %s: %w", schemaURL, err)
 		}
 	} else {
 		jsBytes, err = helm.DefaultHelm.GetValuesJSONSchema(&helm.TemplateOpts{
@@ -109,7 +99,7 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 			RepoURL:         repoNetURL.String(),
 			EnableOCI:       enableOCI,
 			PassCredentials: false,
-		}, ca.SchemaMode == SchemaAuto)
+		}, schemaMode == helmchart.SchemaAuto)
 		if err != nil {
 			return fmt.Errorf("failed to infer values schema: %w", err)
 		}
@@ -143,8 +133,8 @@ func (ca *ChartAdd) Add(chart, repoURL, targetRevision string) error {
 		return fmt.Errorf("failed to write values.schema.k: %w", err)
 	}
 
-	ca.mu.Lock()
-	defer ca.mu.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	mainFile := path.Join(vendorDir, "main.k")
 	if !kclutil.FileExists(mainFile) {
 		if err := os.WriteFile(mainFile, []byte(""), 0o600); err != nil {
