@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/yaml"
 
-	"github.com/MacroPower/kclx/pkg/helm/schema"
+	"github.com/MacroPower/kclx/pkg/helm/schemagen/valuesgen"
 )
 
 var DefaultHelm = NewHelm("10M")
@@ -117,7 +117,7 @@ func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, findExistingSchemas bool)
 			if err != nil {
 				return nil, fmt.Errorf("error reading existing values schema: %w", err)
 			}
-			es, err := schema.UnmarshalJSON(existingValuesSchema)
+			es, err := valuesgen.UnmarshalJSON(existingValuesSchema)
 			if err != nil {
 				return nil, fmt.Errorf("error unmarshaling existing values schema: %w", err)
 			}
@@ -128,7 +128,7 @@ func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, findExistingSchemas bool)
 			return esjs, nil
 		}
 		if valuesRegex.MatchString(f.Name()) {
-			vs, err := schema.DefaultGenerator.Create(path.Join(chartPath, f.Name()))
+			vs, err := valuesgen.DefaultGenerator.Create(path.Join(chartPath, f.Name()))
 			if err != nil {
 				return nil, fmt.Errorf("error getting schema for helm values file: %w", err)
 			}
@@ -139,7 +139,7 @@ func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, findExistingSchemas bool)
 	reDefaultValues := regexp.MustCompile(`^values\.ya?ml$`)
 	mergedValueSchema := &helmschema.Schema{}
 	for k, vs := range valuesSchemas {
-		mergedValueSchema = schema.Merge(mergedValueSchema, &vs, reDefaultValues.MatchString(k))
+		mergedValueSchema = valuesgen.Merge(mergedValueSchema, &vs, reDefaultValues.MatchString(k))
 	}
 
 	if err := mergedValueSchema.Validate(); err != nil {

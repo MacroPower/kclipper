@@ -9,6 +9,7 @@ import (
 	"kcl-lang.io/kcl-go"
 
 	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
+	"github.com/MacroPower/kclx/pkg/helm/schemagen"
 	"github.com/MacroPower/kclx/pkg/helmutil"
 )
 
@@ -40,10 +41,10 @@ func TestHelmChartAdd(t *testing.T) {
 		},
 		"app-template": {
 			chart: &helmchart.Chart{
-				Chart:          "app-template",
-				RepoURL:        "https://bjw-s.github.io/helm-charts/",
-				TargetRevision: "3.6.0",
-				SchemaMode:     helmchart.SchemaFromValues,
+				Chart:           "app-template",
+				RepoURL:         "https://bjw-s.github.io/helm-charts/",
+				TargetRevision:  "3.6.0",
+				SchemaGenerator: schemagen.ValuesGenerator,
 			},
 		},
 	}
@@ -52,7 +53,7 @@ func TestHelmChartAdd(t *testing.T) {
 			t.Parallel()
 
 			err := ca.AddWithSchema(tc.chart.Chart, tc.chart.RepoURL,
-				tc.chart.TargetRevision, tc.chart.SchemaURL, tc.chart.SchemaMode)
+				tc.chart.TargetRevision, tc.chart.SchemaURL, tc.chart.SchemaGenerator)
 			if err != nil {
 				t.Fatal(err)
 			}

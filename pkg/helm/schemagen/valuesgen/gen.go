@@ -1,6 +1,6 @@
 // Copyright (c) 2023 dadav. MIT License
 
-package schema
+package valuesgen
 
 import (
 	"bytes"
