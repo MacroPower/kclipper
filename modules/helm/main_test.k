@@ -18,4 +18,16 @@ test_Chart = lambda {
         targetRevision = "0.1.0"
         helmVersion = "v2"
     }
+
+    patchRenderer = Chart {
+        chart = "test-oci"
+        repoURL = "example.com"
+        targetRevision = "0.1.0"
+        preRenderer = lambda c: Chart {
+          c
+        }
+        postRenderer = lambda r: [{str:}] {
+          r
+        }
+    }
 }
