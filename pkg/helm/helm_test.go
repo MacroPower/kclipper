@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/MacroPower/kclx/pkg/helm"
+	"github.com/MacroPower/kclx/pkg/helm/schemagen"
 )
 
 // func TestGetHelmValuesSchema(t *testing.T) {
@@ -35,7 +36,7 @@ func TestGetHelmValuesJsonSchema(t *testing.T) {
 		ChartName:      "podinfo",
 		TargetRevision: "6.7.1",
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
-	}, true)
+	}, schemagen.NewPathFilter(schemagen.AutoGenerator, ""))
 	if err != nil {
 		t.Fatal(err)
 	}

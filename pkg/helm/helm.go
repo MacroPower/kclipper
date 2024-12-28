@@ -16,10 +16,13 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/yaml"
 
+	"github.com/MacroPower/kclx/pkg/helm/schemagen"
 	"github.com/MacroPower/kclx/pkg/helm/schemagen/valuesgen"
 )
 
 var DefaultHelm = NewHelm("10M")
+
+var DefaultValuesFileRegex = regexp.MustCompile(`^values\.ya?ml$`)
 
 type Helm struct {
 	chartPaths               ioutil.TempPaths
@@ -92,7 +95,7 @@ func (h *Helm) writeValues(values map[string]any) (string, error) {
 	return p, nil
 }
 
-func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, findExistingSchemas bool) ([]byte, error) {
+func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, filter func(string) bool) ([]byte, error) {
 	valuesSchemas := map[string]helmschema.Schema{}
 
 	chartPath, closer, err := h.pull(opts)
@@ -107,12 +110,15 @@ func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, findExistingSchemas bool)
 		return nil, fmt.Errorf("error reading helm chart directory: %w", err)
 	}
 
-	valuesRegex := regexp.MustCompile(`values.*\.ya?ml$`)
 	for _, f := range chartFiles {
 		if f.IsDir() {
 			continue
 		}
-		if findExistingSchemas && f.Name() == "values.schema.json" {
+		if !filter(f.Name()) {
+			continue
+		}
+		// If a JSONSchema file is matched, prefer it over all other files.
+		if schemagen.IsJSONFile(f.Name()) {
 			existingValuesSchema, err := os.ReadFile(path.Join(chartPath, f.Name()))
 			if err != nil {
 				return nil, fmt.Errorf("error reading existing values schema: %w", err)
@@ -127,7 +133,8 @@ func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, findExistingSchemas bool)
 			}
 			return esjs, nil
 		}
-		if valuesRegex.MatchString(f.Name()) {
+		// Otherwise, if a YAML file is matched, infer a schema from that.
+		if schemagen.IsYAMLFile(f.Name()) {
 			vs, err := valuesgen.DefaultGenerator.Create(path.Join(chartPath, f.Name()))
 			if err != nil {
 				return nil, fmt.Errorf("error getting schema for helm values file: %w", err)
@@ -136,10 +143,9 @@ func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, findExistingSchemas bool)
 		}
 	}
 
-	reDefaultValues := regexp.MustCompile(`^values\.ya?ml$`)
 	mergedValueSchema := &helmschema.Schema{}
 	for k, vs := range valuesSchemas {
-		mergedValueSchema = valuesgen.Merge(mergedValueSchema, &vs, reDefaultValues.MatchString(k))
+		mergedValueSchema = valuesgen.Merge(mergedValueSchema, &vs, DefaultValuesFileRegex.MatchString(k))
 	}
 
 	if err := mergedValueSchema.Validate(); err != nil {

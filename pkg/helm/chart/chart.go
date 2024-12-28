@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/iancoleman/strcase"
 	"github.com/invopop/jsonschema"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
@@ -27,6 +28,10 @@ type Chart struct {
 	PassCredentials bool `json:"passCredentials,omitempty" jsonschema:"-,description=Pass credentials to all domains."`
 	// Values is the values to use for the chart.
 	Values any `json:"values,omitempty" jsonschema:"description=The values to use for the chart."`
+}
+
+func (c *Chart) GetSnakeCaseName() string {
+	return strcase.ToSnake(c.Chart)
 }
 
 func (c *Chart) GenerateKcl(b *bytes.Buffer) error {

@@ -1,7 +1,6 @@
 package helmutil
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -31,7 +30,8 @@ func (c *ChartPkg) Init() error {
 		return fmt.Errorf("error checking for kcl.mod existence: %w", err)
 	}
 	if exists {
-		return errors.New("kcl.mod already exists")
+		// kcl.mod already exists, nothing to do
+		return nil
 	}
 
 	pkg := kclpkg.NewKclPkg(&opt.InitOptions{
