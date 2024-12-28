@@ -17,10 +17,6 @@ func TestNoGenerator(t *testing.T) {
 	_, err := generator.FromPaths("path")
 	require.Error(t, err)
 
-	// Test FromPath
-	_, err = generator.FromPath("path")
-	require.Error(t, err)
-
 	// Test FromData
 	_, err = generator.FromData([]byte("data"))
 	require.Error(t, err)

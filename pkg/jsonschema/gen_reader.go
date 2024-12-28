@@ -34,12 +34,12 @@ func (g *ReaderGenerator) FromPaths(paths ...string) ([]byte, error) {
 		return nil, errors.New("no paths provided")
 	}
 	if len(paths) == 1 {
-		return g.FromPath(paths[0])
+		return g.fromPath(paths[0])
 	}
 
 	pathErrs := map[string]error{}
 	for _, path := range paths {
-		jsBytes, err := g.FromPath(path)
+		jsBytes, err := g.fromPath(path)
 		if err == nil {
 			return jsBytes, nil
 		}
@@ -55,9 +55,9 @@ func (g *ReaderGenerator) FromPaths(paths ...string) ([]byte, error) {
 	return nil, fmt.Errorf("error generating JSON Schema: %w", multiErr)
 }
 
-// FromPaths reads a JSON Schema from the given file path or URL and returns
-// the corresponding []byte representation.
-func (g *ReaderGenerator) FromPath(path string) ([]byte, error) {
+// fromPath reads a JSON Schema from the given file path or URL and returns the
+// corresponding []byte representation.
+func (g *ReaderGenerator) fromPath(path string) ([]byte, error) {
 	schemaPath, err := url.Parse(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse path: %w", err)
