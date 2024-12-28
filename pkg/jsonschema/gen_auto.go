@@ -21,7 +21,7 @@ func (g *AutoGenerator) FromPaths(paths ...string) ([]byte, error) {
 		return nil, errors.New("no paths provided")
 	}
 	if len(paths) == 1 {
-		return g.FromPath(paths[0])
+		return g.fromPath(paths[0])
 	}
 
 	yamlPaths := []string{}
@@ -58,7 +58,7 @@ func (g *AutoGenerator) FromPaths(paths ...string) ([]byte, error) {
 	return nil, fmt.Errorf("failed to generate JSON Schema: %w, %w", readerGenErr, valueInferenceErr)
 }
 
-func (g *AutoGenerator) FromPath(path string) ([]byte, error) {
+func (g *AutoGenerator) fromPath(path string) ([]byte, error) {
 	if isYAMLFile(path) {
 		return DefaultValueInferenceGenerator.FromPaths(path)
 	}

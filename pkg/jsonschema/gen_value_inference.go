@@ -94,22 +94,16 @@ func (g *ValueInferenceGenerator) FromPaths(paths ...string) ([]byte, error) {
 	return marshalHelmSchema(mergedSchema)
 }
 
-func (g *ValueInferenceGenerator) FromPath(path string) ([]byte, error) {
-	schema, err := g.schemaFromFilePath(path)
-	if err != nil {
-		return nil, fmt.Errorf("error creating schema from file path: %w", err)
-	}
-
-	return marshalHelmSchema(schema)
-}
-
 func (g *ValueInferenceGenerator) FromData(data []byte) ([]byte, error) {
 	schema, err := g.schemaFromData(data)
 	if err != nil {
 		return nil, fmt.Errorf("error creating schema from datum: %w", err)
 	}
 
-	return marshalHelmSchema(schema)
+	mergedSchema := &helmschema.Schema{}
+	mergedSchema = mergeHelmSchemas(mergedSchema, schema, true)
+
+	return marshalHelmSchema(mergedSchema)
 }
 
 func (g *ValueInferenceGenerator) schemaFromFilePath(path string) (*helmschema.Schema, error) {

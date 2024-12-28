@@ -2,7 +2,6 @@ package jsonschema
 
 type Generator interface {
 	FromData(data []byte) ([]byte, error)
-	FromPath(paths string) ([]byte, error)
 	FromPaths(paths ...string) ([]byte, error)
 }
 
