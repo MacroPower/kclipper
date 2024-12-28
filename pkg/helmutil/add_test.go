@@ -58,8 +58,8 @@ func TestHelmChartAdd(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			err := ca.AddWithSchema(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision,
-				tc.settings.SchemaURL, tc.settings.SchemaGenerator)
+			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision,
+				tc.settings.SchemaURL, tc.settings.SchemaPath, tc.settings.SchemaGenerator)
 			if err != nil {
 				t.Fatal(err)
 			}
