@@ -1,0 +1,7 @@
+key: prodValue
+nested:
+  key: nestedProdValue
+array:
+  - prodItem1
+  - prodItem2
+foo: bar
