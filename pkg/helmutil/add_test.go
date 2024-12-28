@@ -2,6 +2,7 @@ package helmutil_test
 
 import (
 	"os"
+	"path"
 	"regexp"
 	"testing"
 
@@ -14,14 +15,14 @@ import (
 )
 
 const (
-	basePath  = "testdata"
-	chartPath = "testdata/charts"
+	addBasePath = "testdata/add"
 )
 
 func TestHelmChartAdd(t *testing.T) {
 	t.Parallel()
 
-	os.RemoveAll(basePath)
+	os.RemoveAll(addBasePath)
+	chartPath := path.Join(addBasePath, "charts")
 
 	ca := helmutil.NewChartPkg(chartPath)
 
