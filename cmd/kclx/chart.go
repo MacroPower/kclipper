@@ -1,24 +1,26 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+
+	"github.com/MacroPower/kclx/pkg/helmutil"
+	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
 
 const (
 	chartDesc = `This command manages kcl charts
 `
 	chartExample = `  kcl chart <command> [arguments]...
-	# Initialize the current module
-	kcl chart init
+  # Initialize the current module
+  kcl chart init
 
   # Add chart for the current module
-  kcl chart add podinfo --repoURL https://stefanprodan.github.io/podinfo --targetRevision 6.7.0
+  kcl chart add --chart podinfo --repo_url https://stefanprodan.github.io/podinfo --target_revision 6.7.0
 
   # Update chart schemas for the current module
-  kcl chart update
-
-  # Upgrade a chart and its values schema
-  kcl chart upgrade podinfo --targetRevision 6.7.1`
+  kcl chart update`
 )
 
 // NewChartCmd returns the chart command.
@@ -30,9 +32,11 @@ func NewChartCmd() *cobra.Command {
 		Example:      chartExample,
 		SilenceUsage: true,
 	}
+	cmd.PersistentFlags().StringP("path", "p", "charts", "Base path for the charts package")
+	cmd.MarkFlagDirname("path")
+	cmd.AddCommand(NewChartInitCmd())
 	cmd.AddCommand(NewChartAddCmd())
 	cmd.AddCommand(NewChartUpdateCmd())
-	cmd.AddCommand(NewChartUpgradeCmd())
 
 	return cmd
 }
@@ -41,37 +45,79 @@ func NewChartInitCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "init",
 		Short: "Initialize the current module",
-		Run: func(*cobra.Command, []string) {
+		RunE: func(cc *cobra.Command, _ []string) error {
+			flags := cc.Flags()
+			basePath, err := flags.GetString("path")
+			if err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			c := helmutil.NewChartPkg(basePath)
+			return c.Init()
 		},
 		SilenceUsage: true,
 	}
 }
 
 func NewChartAddCmd() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "add",
 		Short: "Add a new chart",
-		Run: func(*cobra.Command, []string) {
+		RunE: func(cc *cobra.Command, _ []string) error {
+			flags := cc.Flags()
+			basePath, err := flags.GetString("path")
+			if err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			chart, err := flags.GetString("chart")
+			if err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			repoURL, err := flags.GetString("repo_url")
+			if err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			targetRevision, err := flags.GetString("target_revision")
+			if err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			schemaGeneratorString, err := flags.GetString("schema_generator")
+			if err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			schemaGenerator := jsonschema.GetGeneratorType(schemaGeneratorString)
+			schemaPath, err := flags.GetString("schema_path")
+			if err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			c := helmutil.NewChartPkg(basePath)
+			return c.Add(chart, repoURL, targetRevision, schemaPath, schemaGenerator)
 		},
 		SilenceUsage: true,
 	}
+	cmd.Flags().StringP("chart", "c", "", "Helm chart name (required)")
+	cmd.Flags().StringP("repo_url", "r", "", "URL of the Helm chart repository (required)")
+	cmd.Flags().StringP("target_revision", "t", "", "Semver tag for the chart's version (required)")
+	cmd.Flags().StringP("schema_generator", "G", "AUTO", "Chart schema generator")
+	cmd.Flags().StringP("schema_path", "P", "", "Chart schema path")
+	cmd.MarkFlagRequired("chart")
+	cmd.MarkFlagRequired("repo_url")
+	cmd.MarkFlagRequired("target_revision")
+
+	return cmd
 }
 
 func NewChartUpdateCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "update",
 		Short: "Update charts",
-		Run: func(*cobra.Command, []string) {
-		},
-		SilenceUsage: true,
-	}
-}
-
-func NewChartUpgradeCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "upgrade",
-		Short: "Upgrade charts",
-		Run: func(*cobra.Command, []string) {
+		RunE: func(cc *cobra.Command, _ []string) error {
+			flags := cc.Flags()
+			basePath, err := flags.GetString("path")
+			if err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			c := helmutil.NewChartPkg(basePath)
+			return c.Update()
 		},
 		SilenceUsage: true,
 	}

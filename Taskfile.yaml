@@ -103,7 +103,7 @@ tasks:
   prettier-format:
     desc: Formats YAML, JSON, and Markdown files
     cmds:
-      - prettier --config ./.prettierrc.yaml -w *.{yaml,md,json} **/*
+      - prettier --config ./.prettierrc.yaml -w *.{yaml,md,json} **/*.{yaml,md,json}
 
   pull-upstream:
     desc: Pulls upstream KCL CLI
