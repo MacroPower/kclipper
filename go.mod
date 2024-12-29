@@ -6,13 +6,16 @@ require (
 	github.com/argoproj/argo-cd/v2 v2.13.2
 	github.com/dadav/helm-schema v0.0.0-20241223163207-39bcce75deb7
 	github.com/google/uuid v1.6.0
+	github.com/iancoleman/strcase v0.3.0
 	github.com/invopop/jsonschema v0.12.0
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.1
 	github.com/spf13/cobra v1.8.1
+	github.com/stretchr/testify v1.10.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.32.0
 	kcl-lang.io/cli v0.11.0
 	kcl-lang.io/kcl-go v0.11.0
+	kcl-lang.io/kpm v0.11.0
 	kcl-lang.io/lib v0.11.0
 	sigs.k8s.io/yaml v1.4.0
 )
@@ -118,7 +121,6 @@ require (
 	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
-	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/invopop/yaml v0.3.1 // indirect
@@ -165,6 +167,7 @@ require (
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.20.3 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.57.0 // indirect
@@ -236,7 +239,6 @@ require (
 	k8s.io/kubectl v0.31.2 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	kcl-lang.io/kcl-openapi v0.10.0 // indirect
-	kcl-lang.io/kpm v0.11.0 // indirect
 	oras.land/oras-go v1.2.6 // indirect
 	oras.land/oras-go/v2 v2.5.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect

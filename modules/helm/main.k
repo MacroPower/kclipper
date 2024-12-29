@@ -68,13 +68,10 @@ schema ChartConfig(ChartBase):
     ----------
     schemaGenerator : "AUTO" | "VALUE-INFERENCE" | "URL" | "PATH" | "LOCAL-PATH" | "NONE", default is "AUTO"
         The generator to use for the Values schema.
-    schemaURL : str, optional.
-        The URL of the JSONSchema to use when schemaGenerator = "URL".
     schemaPath : str, optional.
-        The path to the JSONSchema to use when schemaGenerator = "PATH" or "LOCAL-PATH".
+        The path to the JSON Schema to use when schemaGenerator is "URL", "PATH", or "LOCAL-PATH".
     """
     schemaGenerator: "AUTO" | "VALUE-INFERENCE" | "URL" | "PATH" | "LOCAL-PATH" | "NONE" = "AUTO"
-    schemaURL?: str
     schemaPath?: str
 
 type Charts = {str:ChartConfig}
