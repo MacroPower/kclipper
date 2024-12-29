@@ -14,7 +14,7 @@ import (
 
 	"github.com/MacroPower/kclx/pkg/helm"
 	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
-	"github.com/MacroPower/kclx/pkg/helm/schemagen"
+	"github.com/MacroPower/kclx/pkg/jsonschema"
 	"github.com/MacroPower/kclx/pkg/util/safekcl"
 )
 
@@ -28,10 +28,7 @@ const initialMainContents = `import helm
 charts: helm.Charts = {}
 `
 
-func (c *ChartPkg) Add(
-	chart, repoURL, targetRevision, schemaURL, schemaPath string,
-	schemaGenerator schemagen.Generator,
-) error {
+func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genType jsonschema.GeneratorType) error {
 	repoNetURL, err := url.Parse(repoURL)
 	if err != nil {
 		return fmt.Errorf("failed to parse repo_url %s: %w", repoURL, err)
@@ -58,27 +55,22 @@ func (c *ChartPkg) Add(
 	}
 
 	var jsonSchemaBytes []byte
-	switch schemaGenerator {
-	case schemagen.NoGenerator:
+	switch genType {
+	case jsonschema.NoGeneratorType:
 		break
-	case schemagen.URLGenerator:
-		jsonSchemaBytes, err = schemagen.GetSchemaFromURL(schemaURL)
-		if err != nil {
-			return fmt.Errorf("failed to fetch schema from %s: %w", schemaURL, err)
-		}
-	case schemagen.LocalPathGenerator:
-		jsonSchemaBytes, err = schemagen.GetSchemaFromFile(schemaPath)
+	case jsonschema.URLGeneratorType, jsonschema.LocalPathGeneratorType:
+		jsonSchemaBytes, err = jsonschema.DefaultReaderGenerator.FromPaths(schemaPath)
 		if err != nil {
 			return fmt.Errorf("failed to fetch schema from %s: %w", schemaPath, err)
 		}
-	case schemagen.ValuesGenerator, schemagen.PathGenerator, schemagen.AutoGenerator:
+	case jsonschema.AutoGeneratorType, jsonschema.ValueInferenceGeneratorType, jsonschema.PathGeneratorType:
 		jsonSchemaBytes, err = helm.DefaultHelm.GetValuesJSONSchema(&helm.TemplateOpts{
 			ChartName:       chart,
 			TargetRevision:  targetRevision,
 			RepoURL:         repoURL,
 			EnableOCI:       enableOCI,
 			PassCredentials: false,
-		}, schemagen.NewPathFilter(schemaGenerator, schemaPath))
+		}, jsonschema.GetGenerator(genType))
 		if err != nil {
 			return fmt.Errorf("failed to generate schema: %w", err)
 		}
@@ -94,7 +86,7 @@ func (c *ChartPkg) Add(
 		fmt.Sprintf(`chart="%s"`, chart),
 		fmt.Sprintf(`repoURL="%s"`, repoNetURL.String()),
 		fmt.Sprintf(`targetRevision="%s"`, targetRevision),
-		fmt.Sprintf(`schemaGenerator="%s"`, schemaGenerator),
+		fmt.Sprintf(`schemaGenerator="%s"`, genType),
 	}
 	if err := c.updateMainFile(c.BasePath, hc.GetSnakeCaseName(), chartConfig...); err != nil {
 		return err

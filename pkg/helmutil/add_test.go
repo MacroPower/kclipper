@@ -10,8 +10,8 @@ import (
 	"kcl-lang.io/kcl-go"
 
 	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
-	"github.com/MacroPower/kclx/pkg/helm/schemagen"
 	"github.com/MacroPower/kclx/pkg/helmutil"
+	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
 
 const (
@@ -41,7 +41,7 @@ func TestHelmChartAdd(t *testing.T) {
 				TargetRevision: "6.7.1",
 			},
 			settings: &helmchart.Settings{
-				SchemaGenerator: schemagen.AutoGenerator,
+				SchemaGenerator: jsonschema.AutoGeneratorType,
 			},
 		},
 		"app-template": {
@@ -51,7 +51,7 @@ func TestHelmChartAdd(t *testing.T) {
 				TargetRevision: "3.6.0",
 			},
 			settings: &helmchart.Settings{
-				SchemaGenerator: schemagen.ValuesGenerator,
+				SchemaGenerator: jsonschema.ValueInferenceGeneratorType,
 			},
 		},
 	}
@@ -60,7 +60,7 @@ func TestHelmChartAdd(t *testing.T) {
 			t.Parallel()
 
 			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision,
-				tc.settings.SchemaURL, tc.settings.SchemaPath, tc.settings.SchemaGenerator)
+				tc.settings.SchemaPath, tc.settings.SchemaGenerator)
 			if err != nil {
 				t.Fatal(err)
 			}

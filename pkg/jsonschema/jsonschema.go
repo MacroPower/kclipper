@@ -16,9 +16,18 @@ const (
 	NoGeneratorType             GeneratorType = "NONE"
 )
 
-// GetGenerator returns a new instance of the generator type.
+var GeneratorTypeEnum = []interface{}{
+	AutoGeneratorType,
+	ValueInferenceGeneratorType,
+	URLGeneratorType,
+	PathGeneratorType,
+	LocalPathGeneratorType,
+	NoGeneratorType,
+}
+
+// GetGenerator returns a [Generator] for the given [GeneratorType].
 //
-//nolint:ireturn // Maybe?
+//nolint:ireturn
 func GetGenerator(t GeneratorType) Generator {
 	switch t {
 	case AutoGeneratorType:

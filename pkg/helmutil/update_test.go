@@ -5,8 +5,8 @@ import (
 	"path"
 	"testing"
 
-	"github.com/MacroPower/kclx/pkg/helm/schemagen"
 	"github.com/MacroPower/kclx/pkg/helmutil"
+	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
 
 const (
@@ -25,7 +25,7 @@ func TestHelmChartUpdate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err := chartPkg.Add("podinfo", "https://stefanprodan.github.io/podinfo", "6.7.1", "", "", schemagen.AutoGenerator)
+	err := chartPkg.Add("podinfo", "https://stefanprodan.github.io/podinfo", "6.7.1", "", jsonschema.AutoGeneratorType)
 	if err != nil {
 		t.Fatal(err)
 	}

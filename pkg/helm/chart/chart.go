@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/iancoleman/strcase"
-	"github.com/invopop/jsonschema"
+	invopopjsonschema "github.com/invopop/jsonschema"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
-	"github.com/MacroPower/kclx/pkg/helm/schemagen"
+	"github.com/MacroPower/kclx/pkg/jsonschema"
 	"github.com/MacroPower/kclx/pkg/util/safekcl"
 )
 
@@ -35,7 +35,7 @@ func (c *Chart) GetSnakeCaseName() string {
 }
 
 func (c *Chart) GenerateKcl(b *bytes.Buffer) error {
-	r := &jsonschema.Reflector{
+	r := &invopopjsonschema.Reflector{
 		DoNotReference: true,
 		ExpandedStruct: true,
 	}
@@ -67,22 +67,17 @@ func (c *Chart) GenerateKcl(b *bytes.Buffer) error {
 
 type Settings struct {
 	// SchemaGenerator is the generator to use for the Values schema.
-	SchemaGenerator schemagen.Generator `json:"schemaGenerator" jsonschema:"description=The generator to use for the Values schema."`
-	// SchemaURL is the URL of the schema to use. Overrides SchemaGenerator.
-	SchemaURL string `json:"schemaURL,omitempty" jsonschema:"description=The URL of the JSONSchema to use when schemaGenerator = URL."`
-	// SchemaPath is the path to the schema to use. Overrides SchemaGenerator.
-	SchemaPath string `json:"schemaPath,omitempty" jsonschema:"description=The path to the JSONSchema to use when schemaGenerator = PATH or LOCAL-PATH."`
+	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator" jsonschema:"description=The generator to use for the Values schema."`
+	// SchemaPath is the path to the schema to use.
+	SchemaPath string `json:"schemaPath,omitempty" jsonschema:"description=The path to the JSONSchema to use when schemaGenerator = URL or PATH or LOCAL-PATH."`
 }
 
 func (s *Settings) GenerateKcl(b *bytes.Buffer) error {
-	r := &jsonschema.Reflector{
+	r := &invopopjsonschema.Reflector{
 		DoNotReference: true,
 		ExpandedStruct: true,
 	}
 	js := r.Reflect(&Settings{})
-	if cv, ok := js.Properties.Get("schemaURL"); ok {
-		cv.Default = s.SchemaURL
-	}
 	if cv, ok := js.Properties.Get("schemaPath"); ok {
 		cv.Default = s.SchemaPath
 	}
@@ -90,9 +85,9 @@ func (s *Settings) GenerateKcl(b *bytes.Buffer) error {
 		if s.SchemaGenerator != "" {
 			cv.Default = s.SchemaGenerator
 		} else {
-			cv.Default = schemagen.AutoGenerator
+			cv.Default = jsonschema.AutoGeneratorType
 		}
-		cv.Enum = schemagen.GeneratorEnum
+		cv.Enum = jsonschema.GeneratorTypeEnum
 	}
 
 	jsBytes, err := js.MarshalJSON()
