@@ -1,6 +1,7 @@
 package helmutil
 
 import (
+	"encoding/json"
 	"fmt"
 	"path"
 
@@ -23,19 +24,27 @@ func (c *ChartPkg) Update() error {
 	}
 
 	mainFile := path.Join(c.BasePath, "main.k")
-	options := []kcl.Option{
-		*depOpt,
-	}
-	mainOutput, err := kcl.Run(mainFile, options...)
+	mainOutput, err := kcl.Run(mainFile, *depOpt)
 	if err != nil {
 		return fmt.Errorf("failed to run '%s': %w", mainFile, err)
 	}
 
-	chartData := &ChartData{}
+	mainData := mainOutput.GetRawJsonResult()
 
-	err = mainOutput.ToType(chartData)
-	if err != nil {
-		return fmt.Errorf("failed to convert main.k output to struct: %w", err)
+	chartData := &ChartData{}
+	if err := json.Unmarshal([]byte(mainData), chartData); err != nil {
+		return fmt.Errorf("failed to unmarshal output from '%s': %w", mainFile, err)
+	}
+
+	for k, chart := range chartData.Charts {
+		if k != chart.GetSnakeCaseName() {
+			return fmt.Errorf("chart key '%s' does not match chart name '%s'", k, chart.GetSnakeCaseName())
+		}
+		err := c.Add(chart.Chart, chart.RepoURL, chart.TargetRevision,
+			chart.SchemaPath, chart.SchemaGenerator)
+		if err != nil {
+			return fmt.Errorf("failed to update chart '%s': %w", k, err)
+		}
 	}
 
 	return nil

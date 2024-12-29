@@ -16,8 +16,8 @@ const (
 func TestHelmChartUpdate(t *testing.T) {
 	t.Parallel()
 
-	// os.RemoveAll(updateBasePath)
 	chartPath := path.Join(updateBasePath, "charts")
+	os.RemoveAll(path.Join(chartPath, "podinfo"))
 
 	chartPkg := helmutil.NewChartPkg(chartPath)
 
