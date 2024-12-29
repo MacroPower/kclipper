@@ -12,8 +12,8 @@ import (
 	"github.com/MacroPower/kclx/pkg/util/safekcl"
 )
 
-// Chart represents the KCL schema `helm.Chart`.
-type Chart struct {
+// ChartBase represents the KCL schema `helm.ChartBase`.
+type ChartBase struct {
 	// Chart is the Helm chart name.
 	Chart string `json:"chart" jsonschema:"description=The Helm chart name."`
 	// RepoURL is the URL of the Helm chart repository.
@@ -26,6 +26,55 @@ type Chart struct {
 	SkipCRDs bool `json:"skipCRDs,omitempty" jsonschema:"-,description=Skip the custom resource definition installation step."`
 	// PassCredentials will pass credentials to all domains (--pass-credentials).
 	PassCredentials bool `json:"passCredentials,omitempty" jsonschema:"-,description=Pass credentials to all domains."`
+}
+
+type ChartConfig struct {
+	ChartBase
+	// SchemaGenerator is the generator to use for the Values schema.
+	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator" jsonschema:"description=The generator to use for the Values schema."`
+	// SchemaPath is the path to the schema to use.
+	SchemaPath string `json:"schemaPath,omitempty" jsonschema:"description=The path to the JSONSchema to use when schemaGenerator = URL or PATH or LOCAL-PATH."`
+}
+
+func (c *ChartConfig) GetSnakeCaseName() string {
+	return strcase.ToSnake(c.Chart)
+}
+
+func (c *ChartConfig) GenerateKCL(b *bytes.Buffer) error {
+	r := &invopopjsonschema.Reflector{
+		DoNotReference: true,
+		ExpandedStruct: true,
+	}
+	js := r.Reflect(&ChartConfig{})
+	if cv, ok := js.Properties.Get("schemaPath"); ok {
+		cv.Default = c.SchemaPath
+	}
+	if cv, ok := js.Properties.Get("schemaGenerator"); ok {
+		if c.SchemaGenerator != "" {
+			cv.Default = c.SchemaGenerator
+		} else {
+			cv.Default = jsonschema.AutoGeneratorType
+		}
+		cv.Enum = jsonschema.GeneratorTypeEnum
+	}
+
+	jsBytes, err := js.MarshalJSON()
+	if err != nil {
+		return fmt.Errorf("failed to marshal json schema: %w", err)
+	}
+
+	if err := safekcl.Gen.GenKcl(b, "settings", jsBytes, &gen.GenKclOptions{
+		Mode:          gen.ModeJsonSchema,
+		CastingOption: gen.OriginalName,
+	}); err != nil {
+		return fmt.Errorf("failed to generate kcl schema: %w", err)
+	}
+
+	return nil
+}
+
+type Chart struct {
+	ChartBase
 	// Values is the values to use for the chart.
 	Values any `json:"values,omitempty" jsonschema:"description=The values to use for the chart."`
 }
@@ -34,7 +83,7 @@ func (c *Chart) GetSnakeCaseName() string {
 	return strcase.ToSnake(c.Chart)
 }
 
-func (c *Chart) GenerateKcl(b *bytes.Buffer) error {
+func (c *Chart) GenerateKCL(b *bytes.Buffer) error {
 	r := &invopopjsonschema.Reflector{
 		DoNotReference: true,
 		ExpandedStruct: true,
@@ -56,46 +105,6 @@ func (c *Chart) GenerateKcl(b *bytes.Buffer) error {
 	}
 
 	if err := safekcl.Gen.GenKcl(b, "chart", jsBytes, &gen.GenKclOptions{
-		Mode:          gen.ModeJsonSchema,
-		CastingOption: gen.OriginalName,
-	}); err != nil {
-		return fmt.Errorf("failed to generate kcl schema: %w", err)
-	}
-
-	return nil
-}
-
-type Settings struct {
-	// SchemaGenerator is the generator to use for the Values schema.
-	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator" jsonschema:"description=The generator to use for the Values schema."`
-	// SchemaPath is the path to the schema to use.
-	SchemaPath string `json:"schemaPath,omitempty" jsonschema:"description=The path to the JSONSchema to use when schemaGenerator = URL or PATH or LOCAL-PATH."`
-}
-
-func (s *Settings) GenerateKcl(b *bytes.Buffer) error {
-	r := &invopopjsonschema.Reflector{
-		DoNotReference: true,
-		ExpandedStruct: true,
-	}
-	js := r.Reflect(&Settings{})
-	if cv, ok := js.Properties.Get("schemaPath"); ok {
-		cv.Default = s.SchemaPath
-	}
-	if cv, ok := js.Properties.Get("schemaGenerator"); ok {
-		if s.SchemaGenerator != "" {
-			cv.Default = s.SchemaGenerator
-		} else {
-			cv.Default = jsonschema.AutoGeneratorType
-		}
-		cv.Enum = jsonschema.GeneratorTypeEnum
-	}
-
-	jsBytes, err := js.MarshalJSON()
-	if err != nil {
-		return fmt.Errorf("failed to marshal json schema: %w", err)
-	}
-
-	if err := safekcl.Gen.GenKcl(b, "settings", jsBytes, &gen.GenKclOptions{
 		Mode:          gen.ModeJsonSchema,
 		CastingOption: gen.OriginalName,
 	}); err != nil {

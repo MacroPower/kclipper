@@ -13,7 +13,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
 	"github.com/MacroPower/kclx/pkg/helm"
-	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
+	helmchart "github.com/MacroPower/kclx/pkg/helm/models"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 	"github.com/MacroPower/kclx/pkg/util/safekcl"
 )
@@ -36,9 +36,11 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 	enableOCI := repoNetURL.Scheme == ""
 
 	hc := helmchart.Chart{
-		Chart:          chart,
-		RepoURL:        repoNetURL.String(),
-		TargetRevision: targetRevision,
+		ChartBase: helmchart.ChartBase{
+			Chart:          chart,
+			RepoURL:        repoNetURL.String(),
+			TargetRevision: targetRevision,
+		},
 	}
 
 	chartDir := path.Join(c.BasePath, hc.GetSnakeCaseName())
@@ -102,7 +104,7 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 
 func (c *ChartPkg) generateAndWriteChartKCL(hc helmchart.Chart, chartDir string) error {
 	kclChart := &bytes.Buffer{}
-	if err := hc.GenerateKcl(kclChart); err != nil {
+	if err := hc.GenerateKCL(kclChart); err != nil {
 		return fmt.Errorf("failed to generate chart.k: %w", err)
 	}
 
