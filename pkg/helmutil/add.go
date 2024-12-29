@@ -11,6 +11,7 @@ import (
 
 	"kcl-lang.io/kcl-go"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
+	kclutil "kcl-lang.io/kcl-go/pkg/utils"
 
 	"github.com/MacroPower/kclx/pkg/helm"
 	helmchart "github.com/MacroPower/kclx/pkg/helm/models"
@@ -90,7 +91,7 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 		fmt.Sprintf(`targetRevision="%s"`, targetRevision),
 		fmt.Sprintf(`schemaGenerator="%s"`, genType),
 	}
-	if err := c.updateMainFile(c.BasePath, hc.GetSnakeCaseName(), chartConfig...); err != nil {
+	if err := c.updateChartsFile(c.BasePath, hc.GetSnakeCaseName(), chartConfig...); err != nil {
 		return err
 	}
 
@@ -156,6 +157,27 @@ func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) er
 
 	if err := os.WriteFile(path.Join(chartDir, "values.schema.k"), kclSchemaFixed.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.k: %w", err)
+	}
+	return nil
+}
+
+func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig ...string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	mainFile := path.Join(vendorDir, "charts.k")
+	if !kclutil.FileExists(mainFile) {
+		if err := os.WriteFile(mainFile, []byte(initialMainContents), 0o600); err != nil {
+			return fmt.Errorf("failed to write '%s': %w", mainFile, err)
+		}
+	}
+	imports := []string{"helm"}
+	specs := []string{}
+	for _, cc := range chartConfig {
+		specs = append(specs, fmt.Sprintf(`charts.%s.%s`, chartKey, cc))
+	}
+	_, err := kcl.OverrideFile(mainFile, specs, imports)
+	if err != nil {
+		return fmt.Errorf("failed to update '%s': %w", mainFile, err)
 	}
 	return nil
 }
