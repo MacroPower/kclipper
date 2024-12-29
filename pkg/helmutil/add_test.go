@@ -9,7 +9,7 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
-	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
+	helmchart "github.com/MacroPower/kclx/pkg/helm/models"
 	"github.com/MacroPower/kclx/pkg/helmutil"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
@@ -31,26 +31,25 @@ func TestHelmChartAdd(t *testing.T) {
 	}
 
 	tcs := map[string]struct {
-		chart    *helmchart.Chart
-		settings *helmchart.Settings
+		chart *helmchart.ChartConfig
 	}{
 		"podinfo": {
-			chart: &helmchart.Chart{
-				Chart:          "podinfo",
-				RepoURL:        "https://stefanprodan.github.io/podinfo",
-				TargetRevision: "6.7.1",
-			},
-			settings: &helmchart.Settings{
+			chart: &helmchart.ChartConfig{
+				ChartBase: helmchart.ChartBase{
+					Chart:          "podinfo",
+					RepoURL:        "https://stefanprodan.github.io/podinfo",
+					TargetRevision: "6.7.1",
+				},
 				SchemaGenerator: jsonschema.AutoGeneratorType,
 			},
 		},
 		"app-template": {
-			chart: &helmchart.Chart{
-				Chart:          "app-template",
-				RepoURL:        "https://bjw-s.github.io/helm-charts/",
-				TargetRevision: "3.6.0",
-			},
-			settings: &helmchart.Settings{
+			chart: &helmchart.ChartConfig{
+				ChartBase: helmchart.ChartBase{
+					Chart:          "app-template",
+					RepoURL:        "https://bjw-s.github.io/helm-charts/",
+					TargetRevision: "3.6.0",
+				},
 				SchemaGenerator: jsonschema.ValueInferenceGeneratorType,
 			},
 		},
@@ -60,7 +59,7 @@ func TestHelmChartAdd(t *testing.T) {
 			t.Parallel()
 
 			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision,
-				tc.settings.SchemaPath, tc.settings.SchemaGenerator)
+				tc.chart.SchemaPath, tc.chart.SchemaGenerator)
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -7,11 +7,11 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go/pkg/kcl"
 
-	helmchart "github.com/MacroPower/kclx/pkg/helm/chart"
+	helmchart "github.com/MacroPower/kclx/pkg/helm/models"
 )
 
 type ChartData struct {
-	Charts map[string]helmchart.Chart
+	Charts map[string]helmchart.ChartConfig `json:"charts"`
 }
 
 // Update loads the chart configurations defined in main.k and calls Add to
