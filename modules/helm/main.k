@@ -2,6 +2,8 @@
 This module provides an interface for the macropower/kclx Helm plugin.
 """
 import regex
+import file
+import yaml
 import kcl_plugin.helm as helm_plugin
 
 schema ChartBase:
@@ -26,8 +28,6 @@ schema ChartBase:
         (Helm's `--skip-crds`).
     passCredentials: bool, default is False, optional.
         Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
-    values: any, default is {}, optional.
-        Specifies Helm values to be passed to helm template.
     """
     chart: str
     repoURL: str
@@ -39,7 +39,8 @@ schema ChartBase:
     passCredentials?: bool = False
 
     check:
-        not regex.match(repoURL, r"^oci://"), "Invalid repoURL: ${repoURL}. OCI registries must not include a scheme (e.g. `oci://`)"
+        not regex.match(repoURL, r"^oci://"), \
+          "Invalid repoURL: ${repoURL}. OCI registries must not include a scheme (e.g. `oci://`)"
         any x in ["v2", "v3"] {
             x == helmVersion
         }, "Invalid helmVersion: ${helmVersion}. Must be one of: [v2, v3]"
@@ -50,14 +51,21 @@ schema Chart(ChartBase):
     Attributes
     ----------
     values: any, default is {}, optional.
-        Specifies Helm values to be passed to helm template.
+        Specifies Helm values to be passed to Helm template. These take precedence over valueFiles.
+    valueFiles: [str], default is [], optional.
+        Specifies Helm value files to be passed to Helm template.
+    preRenderer: (Chart) -> Chart, optional.
+        Lambda function to modify Chart before rendering the Helm template.
+    postRenderer: ({str:}) -> {str:}, optional.
+        Lambda function to modify the Helm template output. Evaluated for each resource in the Helm template output.
     """
     values?: any = {}
+    valueFiles?: [str] = []
     preRenderer: (Chart) -> Chart = lambda _chart: Chart -> Chart {
         _chart
     }
-    postRenderer: ([{str:}]) -> [{str:}] = lambda _resources: [{str:}] -> [{str:}] {
-        _resources
+    postRenderer: ({str:}) -> {str:} = lambda _resource: {str:} -> {str:} {
+        _resource
     }
 
 schema ChartConfig(ChartBase):
@@ -94,8 +102,30 @@ template = lambda chart: Chart -> [{str:}] {
     ```
     """
     _chart = chart.preRenderer(chart)
+    _values: {str:} = {}
 
-    _resources = helm_plugin.template(chart=_chart.chart, repo_url=_chart.repoURL, target_revision=_chart.targetRevision, release_name=_chart.releaseName, namespace=_chart.namespace, project=_chart.project, helm_version=_chart.helmVersion, skip_crds=_chart.skipCRDs, pass_credentials=_chart.passCredentials, values=_chart.values)
+    if _chart.valueFiles and len(_chart.valueFiles) > 0:
+        _values = {
+            k: v
+            for filename in _chart.valueFiles
+            for k, v in merge(_values, yaml.decode(file.read(filename)))
+        }
 
-    chart.postRenderer(_resources)
+    _values |= _chart.values
+
+    _resources = helm_plugin.template(
+        chart=_chart.chart,
+        repo_url=_chart.repoURL,
+        target_revision=_chart.targetRevision,
+        release_name=_chart.releaseName,
+        namespace=_chart.namespace,
+        helm_version=_chart.helmVersion,
+        skip_crds=_chart.skipCRDs,
+        pass_credentials=_chart.passCredentials,
+        values=_values,
+    )
+
+    _resources = [chart.postRenderer(_resource) for _resource in _resources]
+
+    _resources
 }

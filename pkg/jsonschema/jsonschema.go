@@ -1,5 +1,7 @@
 package jsonschema
 
+import "strings"
+
 type Generator interface {
 	FromData(data []byte) ([]byte, error)
 	FromPaths(paths ...string) ([]byte, error)
@@ -40,5 +42,24 @@ func GetGenerator(t GeneratorType) Generator {
 		return DefaultNoGenerator
 	default:
 		return DefaultNoGenerator
+	}
+}
+
+func GetGeneratorType(t string) GeneratorType {
+	switch strings.TrimSpace(strings.ToUpper(t)) {
+	case string(AutoGeneratorType):
+		return AutoGeneratorType
+	case string(ValueInferenceGeneratorType):
+		return ValueInferenceGeneratorType
+	case string(URLGeneratorType):
+		return URLGeneratorType
+	case string(PathGeneratorType):
+		return PathGeneratorType
+	case string(LocalPathGeneratorType):
+		return LocalPathGeneratorType
+	case string(NoGeneratorType):
+		return NoGeneratorType
+	default:
+		return NoGeneratorType
 	}
 }

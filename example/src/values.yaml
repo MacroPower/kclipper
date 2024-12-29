@@ -1,0 +1,4 @@
+# yaml-language-server: $schema=./charts/podinfo/values.schema.json
+
+service:
+  enabled: false
