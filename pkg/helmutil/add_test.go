@@ -21,8 +21,8 @@ const (
 func TestHelmChartAdd(t *testing.T) {
 	t.Parallel()
 
-	os.RemoveAll(addBasePath)
 	chartPath := path.Join(addBasePath, "charts")
+	os.RemoveAll(chartPath)
 
 	ca := helmutil.NewChartPkg(chartPath)
 
