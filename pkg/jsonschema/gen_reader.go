@@ -8,12 +8,16 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
+
+	helmschema "github.com/dadav/helm-schema/pkg/schema"
+	"gopkg.in/yaml.v3"
 )
 
 // DefaultReaderGenerator is an opinionated [ReaderGenerator].
 var DefaultReaderGenerator = NewReaderGenerator()
 
-var _ Generator = DefaultReaderGenerator
+var _ FileGenerator = DefaultReaderGenerator
 
 // ReaderGenerator reads a JSON Schema from a given location and returns
 // corresponding []byte representations.
@@ -77,7 +81,9 @@ func (g *ReaderGenerator) FromFile(path string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
-	return g.FromReader(bytes.NewReader(jsBytes))
+	baseDir, _ := filepath.Abs(filepath.Dir(path))
+
+	return g.FromReader(bytes.NewReader(jsBytes), baseDir)
 }
 
 func (g *ReaderGenerator) FromURL(schemaURL *url.URL) ([]byte, error) {
@@ -90,23 +96,52 @@ func (g *ReaderGenerator) FromURL(schemaURL *url.URL) ([]byte, error) {
 	}
 	defer schema.Body.Close()
 
-	return g.FromReader(schema.Body)
+	return g.FromReader(schema.Body, "")
 }
 
-func (g *ReaderGenerator) FromReader(r io.Reader) ([]byte, error) {
+func (g *ReaderGenerator) FromReader(r io.Reader, refBasePath string) ([]byte, error) {
 	jsBytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read: %w", err)
 	}
 
-	return g.FromData(jsBytes)
+	return g.FromData(jsBytes, refBasePath)
 }
 
-func (g *ReaderGenerator) FromData(data []byte) ([]byte, error) {
-	_, err := Validate(data)
-	if err != nil {
-		return nil, err
+func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, error) {
+	// YAML is a superset of JSON, so this works and is simpler than re-writing
+	// the Unmarshaler for JSON.
+	var jsonNode yaml.Node
+	if err := yaml.Unmarshal(data, &jsonNode); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+	}
+	hs := &helmschema.Schema{}
+	if err := hs.UnmarshalYAML(&jsonNode); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
 
-	return data, nil
+	// Remove the ID to keep downstream KCL schema generation consistent.
+	hs.Id = ""
+
+	if err := hs.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid schema: %w", err)
+	}
+
+	if err := handleSchemaRefs(hs, refBasePath); err != nil {
+		return nil, fmt.Errorf("failed to handle schema refs: %w", err)
+	}
+
+	if err := hs.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid schema: %w", err)
+	}
+	if len(hs.Properties) == 0 {
+		return nil, errors.New("empty schema")
+	}
+
+	resolvedData, err := hs.ToJson()
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
+	}
+
+	return resolvedData, nil
 }

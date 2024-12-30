@@ -4,8 +4,10 @@ go 1.23.3
 
 require (
 	github.com/argoproj/argo-cd/v2 v2.13.2
-	github.com/dadav/helm-schema v0.0.0-20241223163207-39bcce75deb7
+	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
+	github.com/dadav/helm-schema v0.0.0-20241230184257-6f2eeb34f592
 	github.com/google/uuid v1.6.0
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/iancoleman/strcase v0.3.0
 	github.com/invopop/jsonschema v0.12.0
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.1
@@ -60,7 +62,6 @@ require (
 	github.com/containers/ocicrypt v1.2.0 // indirect
 	github.com/containers/storage v1.56.0 // indirect
 	github.com/cyphar/filepath-securejoin v0.3.4 // indirect
-	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dchest/siphash v1.2.3 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -115,6 +116,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.12.3 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-getter v1.7.6 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect

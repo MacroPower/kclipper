@@ -7,7 +7,7 @@ import (
 
 var DefaultAutoGenerator = NewAutoGenerator()
 
-var _ Generator = DefaultAutoGenerator
+var _ FileGenerator = DefaultAutoGenerator
 
 type AutoGenerator struct{}
 
@@ -69,8 +69,8 @@ func (g *AutoGenerator) fromPath(path string) ([]byte, error) {
 	return nil, fmt.Errorf("unsupported file type, must be json or yaml: %s", path)
 }
 
-func (g *AutoGenerator) FromData(data []byte) ([]byte, error) {
-	jsonSchema, readerGenErr := DefaultReaderGenerator.FromData(data)
+func (g *AutoGenerator) FromData(data []byte, refBasePath string) ([]byte, error) {
+	jsonSchema, readerGenErr := DefaultReaderGenerator.FromData(data, refBasePath)
 	if readerGenErr == nil {
 		return jsonSchema, nil
 	}

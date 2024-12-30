@@ -2,20 +2,15 @@ package jsonschema
 
 import (
 	"bytes"
-	"crypto/tls"
 	"fmt"
-	"net/http"
-	"net/url"
 	"path/filepath"
 	"regexp"
 	"strings"
-	"time"
 
 	jsv6 "github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-type Generator interface {
-	FromData(data []byte) ([]byte, error)
+type FileGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }
 
@@ -39,10 +34,10 @@ var GeneratorTypeEnum = []interface{}{
 	NoGeneratorType,
 }
 
-// GetGenerator returns a [Generator] for the given [GeneratorType].
+// GetGenerator returns a [FileGenerator] for the given [GeneratorType].
 //
 //nolint:ireturn
-func GetGenerator(t GeneratorType) Generator {
+func GetGenerator(t GeneratorType) FileGenerator {
 	switch t {
 	case AutoGeneratorType:
 		return DefaultAutoGenerator
@@ -92,6 +87,7 @@ func GetFileFilter(t GeneratorType) func(string) bool {
 			return yamlValuesRegex.MatchString(s)
 		}
 	default:
+		//nolint:gocritic
 		return func(s string) bool {
 			return isJSONFile(s)
 		}
@@ -116,7 +112,6 @@ func Validate(jsonData []byte) (bool, error) {
 	}
 
 	compiler := jsv6.NewCompiler()
-	compiler.UseLoader(DefaultSchemeURLLoader)
 	if err := compiler.AddResource("schema.json", schema); err != nil {
 		return false, fmt.Errorf("failed to add JSON Schema to validator: %w", err)
 	}
@@ -129,60 +124,4 @@ func Validate(jsonData []byte) (bool, error) {
 	}
 
 	return true, nil
-}
-
-var DefaultSchemeURLLoader = SchemeURLLoader{
-	"file":  jsv6.FileLoader{},
-	"http":  newHTTPURLLoader(false),
-	"https": newHTTPURLLoader(false),
-}
-
-type URLLoader interface {
-	// Load loads json from given absolute url.
-	Load(url string) (any, error)
-}
-
-type SchemeURLLoader map[string]URLLoader
-
-var _ URLLoader = DefaultSchemeURLLoader
-
-func (l SchemeURLLoader) Load(schemeURL string) (any, error) {
-	u, err := url.Parse(schemeURL)
-	if err != nil {
-		return nil, err
-	}
-	ll, ok := l[u.Scheme]
-	if !ok {
-		return nil, fmt.Errorf("unsupported scheme: %s", u.Scheme)
-	}
-	return ll.Load(schemeURL)
-}
-
-type HTTPURLLoader http.Client
-
-func (l *HTTPURLLoader) Load(url string) (any, error) {
-	client := (*http.Client)(l)
-	resp, err := client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode != http.StatusOK {
-		_ = resp.Body.Close()
-		return nil, fmt.Errorf("%s returned status code %d", url, resp.StatusCode)
-	}
-	defer resp.Body.Close()
-
-	return jsv6.UnmarshalJSON(resp.Body)
-}
-
-func newHTTPURLLoader(insecure bool) *HTTPURLLoader {
-	httpLoader := HTTPURLLoader(http.Client{
-		Timeout: 15 * time.Second,
-	})
-	if insecure {
-		httpLoader.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-	return &httpLoader
 }

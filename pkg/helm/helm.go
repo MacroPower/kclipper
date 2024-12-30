@@ -95,10 +95,10 @@ func (h *Helm) writeValues(values map[string]any) (string, error) {
 }
 
 // GetValuesJSONSchema pulls a Helm chart using the provided [TemplateOpts], and
-// then uses the [jsonschema.Generator] to generate a JSON Schema using one or
+// then uses the [jsonschema.FileGenerator] to generate a JSON Schema using one or
 // more files from the chart. The [match] function can be used to match a subset
 // of the pulled files in the chart directory for JSON Schema generation.
-func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, gen jsonschema.Generator, match func(string) bool) ([]byte, error) {
+func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, gen jsonschema.FileGenerator, match func(string) bool) ([]byte, error) {
 	chartPath, closer, err := h.pull(opts)
 	if err != nil {
 		return nil, err
@@ -108,13 +108,13 @@ func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, gen jsonschema.Generator,
 	unmatchedFiles := []string{}
 	matchedFiles := []string{}
 	err = filepath.Walk(chartPath,
-		func(path string, info os.FileInfo, err error) error {
+		func(path string, _ os.FileInfo, err error) error {
 			if err != nil {
-				return err
+				return fmt.Errorf("error walking helm chart directory: %w", err)
 			}
 			relPath, err := filepath.Rel(chartPath, path)
 			if err != nil {
-				return err
+				return fmt.Errorf("error getting relative path: %w", err)
 			}
 			// Use the relative path to match against the provided filter.
 			if match(relPath) {

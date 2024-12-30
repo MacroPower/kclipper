@@ -4,7 +4,7 @@ import "errors"
 
 var DefaultNoGenerator = NewNoGenerator()
 
-var _ Generator = DefaultNoGenerator
+var _ FileGenerator = DefaultNoGenerator
 
 type NoGenerator struct{}
 

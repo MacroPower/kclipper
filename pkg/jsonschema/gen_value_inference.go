@@ -24,7 +24,7 @@ var DefaultValueInferenceGenerator = NewValueInferenceGenerator(ValueInferenceCo
 	SkipAdditionalProperties: true,
 })
 
-var _ Generator = DefaultValueInferenceGenerator
+var _ FileGenerator = DefaultValueInferenceGenerator
 
 type ValueInferenceConfig struct {
 	// DefaultFileRegex matches files that set the `default` attribute in the JSON Schema.
@@ -148,8 +148,9 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 
 	keepFullComment := false
 	keepHelmDocsPrefix := false
+	removeGlobal := false
 	valuesSchema := helmschema.YamlToSchema("", &values, keepFullComment, g.helmDocsCompatibilityMode,
-		keepHelmDocsPrefix, g.skipAutoGenerationConfig, nil)
+		keepHelmDocsPrefix, removeGlobal, g.skipAutoGenerationConfig, nil)
 
 	if err := updateHelmSchema(valuesSchema, allowAdditionalProperties); err != nil {
 		return nil, fmt.Errorf("failed setting allowAdditionalProperties on schema: %w", err)
