@@ -1,6 +1,54 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "cobra-cli@1.3.0": {
+      "last_modified": "2024-11-28T07:51:56Z",
+      "resolved": "github:NixOS/nixpkgs/226216574ada4c3ecefcbbec41f39ce4655f78ef#cobra-cli",
+      "source": "devbox-search",
+      "version": "1.3.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/da03fy80xqv2qibp8x4f74s515aaff9y-cobra-cli-1.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/da03fy80xqv2qibp8x4f74s515aaff9y-cobra-cli-1.3.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/n030j7cb6dsksxbm6l1plkx5fv96cnh2-cobra-cli-1.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/n030j7cb6dsksxbm6l1plkx5fv96cnh2-cobra-cli-1.3.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ybyx6221y0cwd1qb4f7igdfrzignkrs6-cobra-cli-1.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ybyx6221y0cwd1qb4f7igdfrzignkrs6-cobra-cli-1.3.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/sap52vnmsxhinamkw9gbpli88f8pjjnm-cobra-cli-1.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/sap52vnmsxhinamkw9gbpli88f8pjjnm-cobra-cli-1.3.0"
+        }
+      }
+    },
     "git@latest": {
       "last_modified": "2024-11-28T07:51:56Z",
       "resolved": "github:NixOS/nixpkgs/226216574ada4c3ecefcbbec41f39ce4655f78ef#git",
@@ -426,7 +474,7 @@
         }
       }
     },
-    "nodePackages.prettier@latest": {
+    "nodePackages.prettier@3.3": {
       "last_modified": "2024-12-03T12:40:06Z",
       "resolved": "github:NixOS/nixpkgs/566e53c2ad750c84f6d31f9ccb9d00f823165550#nodePackages.prettier",
       "source": "devbox-search",
