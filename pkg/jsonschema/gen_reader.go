@@ -105,9 +105,21 @@ func (g *ReaderGenerator) FromReader(r io.Reader) ([]byte, error) {
 }
 
 func (g *ReaderGenerator) FromData(data []byte) ([]byte, error) {
+	schema, err := jsv6.UnmarshalJSON(bytes.NewReader(data))
+	if err != nil {
+		return nil, fmt.Errorf("failed unmarshaling JSON Schema: %w", err)
+	}
+
 	compiler := jsv6.NewCompiler()
-	if err := compiler.AddResource("schema.json", data); err != nil {
-		return nil, fmt.Errorf("invalid JSON Schema: %w", err)
+	if err := compiler.AddResource("schema.json", schema); err != nil {
+		return nil, fmt.Errorf("failed to add JSON Schema to validator: %w", err)
+	}
+	cSchema, err := compiler.Compile("schema.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to validate JSON Schema: %w", err)
+	}
+	if len(cSchema.Properties) == 0 {
+		return nil, fmt.Errorf("no properties found on JSON Schema: %#v", schema)
 	}
 
 	return data, nil

@@ -24,6 +24,10 @@ func TestReaderGenerator(t *testing.T) {
 			filePaths:    []string{"input/schema.json"},
 			expectedPath: "output/schema.json",
 		},
+		"MultiFile": {
+			filePaths:    []string{"input/nota.schema.json", "input/invalid.json", "input/schema.json"},
+			expectedPath: "output/schema.json",
+		},
 	}
 
 	for name, tc := range testCases {

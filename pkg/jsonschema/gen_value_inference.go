@@ -91,6 +91,10 @@ func (g *ValueInferenceGenerator) FromPaths(paths ...string) ([]byte, error) {
 		mergedSchema = mergeHelmSchemas(mergedSchema, vs, g.defaultFileRegex.MatchString(k))
 	}
 
+	if err := mergedSchema.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid schema: %w", err)
+	}
+
 	return marshalHelmSchema(mergedSchema)
 }
 
