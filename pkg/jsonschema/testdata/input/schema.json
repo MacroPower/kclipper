@@ -1,11 +1,13 @@
 {
-  "type": "object",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": true,
   "properties": {
-    "key": { "type": "string" },
-    "nested": {
-      "type": "object",
-      "properties": { "key": { "type": "string" } }
-    },
-    "array": { "type": "array", "items": { "type": "string" } }
-  }
+    "foo": {
+      "default": "bar",
+      "required": [],
+      "title": "foo",
+      "type": "string"
+    }
+  },
+  "required": []
 }
