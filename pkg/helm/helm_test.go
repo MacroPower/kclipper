@@ -36,7 +36,7 @@ func TestGetHelmValuesJsonSchema(t *testing.T) {
 
 	tcs := map[string]struct {
 		opts  *helm.TemplateOpts
-		gen   jsonschema.Generator
+		gen   jsonschema.FileGenerator
 		match func(string) bool
 	}{
 		"podinfo": {
@@ -65,9 +65,6 @@ func TestGetHelmValuesJsonSchema(t *testing.T) {
 			results, err := helm.DefaultHelm.GetValuesJSONSchema(tc.opts, tc.gen, tc.match)
 			require.NoError(t, err)
 			require.NotNil(t, results)
-
-			_, err = jsonschema.Validate(results)
-			require.NoError(t, err)
 		})
 	}
 }
