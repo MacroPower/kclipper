@@ -11,18 +11,18 @@ schema Chart(helm.Chart):
 
     Attributes
     ----------
-    chart : str, required, default is "podinfo"
+    chart : str, required, default is "app-template"
         The Helm chart name.
-    repoURL : str, required, default is "https://stefanprodan.github.io/podinfo"
+    repoURL : str, required, default is "https://bjw-s.github.io/helm-charts/"
         The URL of the Helm chart repository.
-    targetRevision : str, required, default is "6.7.1"
+    targetRevision : str, required, default is "3.6.0"
         The semver tag for the chart's version.
     values : Values | any, optional
         The values to use for the chart.
     """
 
-    chart: str = "podinfo"
-    repoURL: str = "https://stefanprodan.github.io/podinfo"
-    targetRevision: str = "6.7.1"
+    chart: str = "app-template"
+    repoURL: str = "https://bjw-s.github.io/helm-charts/"
+    targetRevision: str = "3.6.0"
     values?: Values | any
 

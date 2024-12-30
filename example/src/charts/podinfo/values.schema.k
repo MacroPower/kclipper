@@ -10,8 +10,6 @@ schema Values:
     Attributes
     ----------
     affinity : ValuesAffinity, optional
-    apiVersion : str, optional
-    appVersion : str, optional
     backend : any, optional, default is ""
     backends : [any], optional
     cache : str, optional, default is ""
@@ -20,7 +18,6 @@ schema Values:
         create a certificate manager certificate (cert-manager required)
     config : ValuesConfig, optional
         config file settings
-    description : str, optional
     extraArgs : [any], optional
         Additional command line arguments to pass to podinfo container
     extraEnvs : [any], optional
@@ -31,17 +28,13 @@ schema Values:
         Global values are values that can be accessed from any chart or subchart by exactly the same name.
     h2c : ValuesH2C, optional
         enable h2c protocol (non-TLS version of HTTP/2)
-    home : str, optional
     host : any, optional, default is ""
     hpa : ValuesHpa, optional
         metrics-server add-on required
     image : ValuesImage, optional
     ingress : ValuesIngress, optional
-    kubeVersion : str, optional
     linkerd : ValuesLinkerd, optional
     logLevel : str, optional, default is "info"
-    maintainers : [ValuesMaintainersItems0], optional
-    name : str, optional
     nodeSelector : ValuesNodeSelector, optional
     podAnnotations : ValuesPodAnnotations, optional
     podDisruptionBudget : ValuesPodDisruptionBudget, optional
@@ -59,40 +52,31 @@ schema Values:
     serviceAccount : ValuesServiceAccount, optional
     serviceMonitor : ValuesServiceMonitor, optional
         create Prometheus Operator monitor
-    sources : [str], optional
     tls : ValuesTls, optional
         enable tls on the podinfo service
     tolerations : [any], optional
     topologySpreadConstraints : [any], optional
         https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     ui : ValuesUi, optional
-    version : str, optional
     """
 
     affinity?: ValuesAffinity
-    apiVersion?: str
-    appVersion?: str
     backend?: any
     backends?: [any]
     cache?: str
     certificate?: ValuesCertificate
     config?: ValuesConfig
-    description?: str
     extraArgs?: [any]
     extraEnvs?: [any]
     faults?: ValuesFaults
     global?: ValuesGlobal
     h2c?: ValuesH2C
-    home?: str
     host?: any
     hpa?: ValuesHpa
     image?: ValuesImage
     ingress?: ValuesIngress
-    kubeVersion?: str
     linkerd?: ValuesLinkerd
     logLevel?: str
-    maintainers?: [ValuesMaintainersItems0]
-    name?: str
     nodeSelector?: ValuesNodeSelector
     podAnnotations?: ValuesPodAnnotations
     podDisruptionBudget?: ValuesPodDisruptionBudget
@@ -104,12 +88,10 @@ schema Values:
     service?: ValuesService
     serviceAccount?: ValuesServiceAccount
     serviceMonitor?: ValuesServiceMonitor
-    sources?: [str]
     tls?: ValuesTls
     tolerations?: [any]
     topologySpreadConstraints?: [any]
     ui?: ValuesUi
-    version?: str
     [...str]: any
 
 schema ValuesAffinity:
@@ -238,7 +220,7 @@ schema ValuesImage:
     ----------
     pullPolicy : str, optional, default is "IfNotPresent"
     repository : str, optional, default is "ghcr.io/stefanprodan/podinfo"
-    tag : str, optional, default is "6.7.0"
+    tag : str, optional, default is "6.7.1"
     """
 
     pullPolicy?: str
@@ -332,19 +314,6 @@ schema ValuesLinkerdProfile:
     """
 
     enabled?: bool
-
-schema ValuesMaintainersItems0:
-    r"""
-    ValuesMaintainersItems0
-
-    Attributes
-    ----------
-    email : str, optional
-    name : str, optional
-    """
-
-    email?: str
-    name?: str
 
 schema ValuesNodeSelector:
     r"""
