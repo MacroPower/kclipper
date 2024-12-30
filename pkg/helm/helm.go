@@ -94,39 +94,58 @@ func (h *Helm) writeValues(values map[string]any) (string, error) {
 	return p, nil
 }
 
-func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, gen jsonschema.Generator) ([]byte, error) {
+// GetValuesJSONSchema pulls a Helm chart using the provided [TemplateOpts], and
+// then uses the [jsonschema.Generator] to generate a JSON Schema using one or
+// more files from the chart. The [match] function can be used to match a subset
+// of the pulled files in the chart directory for JSON Schema generation.
+func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, gen jsonschema.Generator, match func(string) bool) ([]byte, error) {
 	chartPath, closer, err := h.pull(opts)
 	if err != nil {
 		return nil, err
 	}
 	defer ioutil.Close(closer)
 
-	// Read all yaml files in the chart directory
-	chartFiles, err := os.ReadDir(chartPath)
+	unmatchedFiles := []string{}
+	matchedFiles := []string{}
+	err = filepath.Walk(chartPath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			relPath, err := filepath.Rel(chartPath, path)
+			if err != nil {
+				return err
+			}
+			// Use the relative path to match against the provided filter.
+			if match(relPath) {
+				// Append the unmodified/absolute path to the matched files.
+				matchedFiles = append(matchedFiles, path)
+			} else {
+				// Append the relative path to the unmatched files, for use in error messages.
+				unmatchedFiles = append(unmatchedFiles, relPath)
+			}
+			return nil
+		})
 	if err != nil {
 		return nil, fmt.Errorf("error reading helm chart directory: %w", err)
 	}
 
-	jsonAndYamlFiles := []string{}
-	for _, f := range chartFiles {
-		if f.IsDir() {
-			continue
+	if len(matchedFiles) == 0 {
+		unmatchedFileStr := []string{}
+		for _, f := range unmatchedFiles {
+			unmatchedFileStr = append(unmatchedFileStr, fmt.Sprintf("\t%s\n", f))
 		}
-		if isJSONOrYAML(f.Name()) {
-			jsonAndYamlFiles = append(jsonAndYamlFiles, path.Join(chartPath, f.Name()))
-		}
+		errMsg := "successfully pulled '%s', but failed to find any input files for the provided JSON Schema generator; " +
+			"the following paths were searched:\n%s"
+		return nil, fmt.Errorf(errMsg, opts.ChartName, unmatchedFileStr)
 	}
 
-	jsonSchema, err := gen.FromPaths(jsonAndYamlFiles...)
+	jsonSchema, err := gen.FromPaths(matchedFiles...)
 	if err != nil {
-		return nil, fmt.Errorf("error converting values schema to JSON schema: %w", err)
+		return nil, fmt.Errorf("error converting values schema to JSON Schema: %w", err)
 	}
 
 	return jsonSchema, nil
-}
-
-func isJSONOrYAML(f string) bool {
-	return filepath.Ext(f) == ".json" || filepath.Ext(f) == ".yaml" || filepath.Ext(f) == ".yml"
 }
 
 func (h *Helm) Template(opts *TemplateOpts) ([]*unstructured.Unstructured, error) {

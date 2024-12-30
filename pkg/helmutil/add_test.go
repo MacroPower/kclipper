@@ -50,7 +50,8 @@ func TestHelmChartAdd(t *testing.T) {
 					RepoURL:        "https://bjw-s.github.io/helm-charts/",
 					TargetRevision: "3.6.0",
 				},
-				SchemaGenerator: jsonschema.ValueInferenceGeneratorType,
+				SchemaGenerator: jsonschema.PathGeneratorType,
+				SchemaPath:      "charts/common/values.schema.json",
 			},
 		},
 	}

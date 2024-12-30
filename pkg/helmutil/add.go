@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 
 	"kcl-lang.io/kcl-go"
@@ -67,13 +68,19 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 			return fmt.Errorf("failed to fetch schema from %s: %w", schemaPath, err)
 		}
 	case jsonschema.AutoGeneratorType, jsonschema.ValueInferenceGeneratorType, jsonschema.PathGeneratorType:
+		fileMatcher := jsonschema.GetFileFilter(genType)
+		if schemaPath != "" {
+			fileMatcher = func(f string) bool {
+				return filePathsEqual(f, schemaPath)
+			}
+		}
 		jsonSchemaBytes, err = helm.DefaultHelm.GetValuesJSONSchema(&helm.TemplateOpts{
 			ChartName:       chart,
 			TargetRevision:  targetRevision,
 			RepoURL:         repoURL,
 			EnableOCI:       enableOCI,
 			PassCredentials: false,
-		}, jsonschema.GetGenerator(genType))
+		}, jsonschema.GetGenerator(genType), fileMatcher)
 		if err != nil {
 			return fmt.Errorf("failed to generate schema: %w", err)
 		}
@@ -180,4 +187,8 @@ func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig ...s
 		return fmt.Errorf("failed to update '%s': %w", mainFile, err)
 	}
 	return nil
+}
+
+func filePathsEqual(f1, f2 string) bool {
+	return filepath.Clean(f1) == filepath.Clean(f2)
 }

@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-
-	jsv6 "github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 // DefaultReaderGenerator is an opinionated [ReaderGenerator].
@@ -50,7 +48,7 @@ func (g *ReaderGenerator) FromPaths(paths ...string) ([]byte, error) {
 	for path, err := range pathErrs {
 		pathErrMsgs = append(pathErrMsgs, fmt.Sprintf("\t%s: %s\n", path, err))
 	}
-	multiErr := fmt.Errorf("could not read JSON Schema from any of the provided paths: [\n%s]", pathErrMsgs)
+	multiErr := fmt.Errorf("could not read JSON Schema from any of the provided paths:\n%s", pathErrMsgs)
 
 	return nil, fmt.Errorf("error generating JSON Schema: %w", multiErr)
 }
@@ -105,21 +103,9 @@ func (g *ReaderGenerator) FromReader(r io.Reader) ([]byte, error) {
 }
 
 func (g *ReaderGenerator) FromData(data []byte) ([]byte, error) {
-	schema, err := jsv6.UnmarshalJSON(bytes.NewReader(data))
+	_, err := Validate(data)
 	if err != nil {
-		return nil, fmt.Errorf("failed unmarshaling JSON Schema: %w", err)
-	}
-
-	compiler := jsv6.NewCompiler()
-	if err := compiler.AddResource("schema.json", schema); err != nil {
-		return nil, fmt.Errorf("failed to add JSON Schema to validator: %w", err)
-	}
-	cSchema, err := compiler.Compile("schema.json")
-	if err != nil {
-		return nil, fmt.Errorf("failed to validate JSON Schema: %w", err)
-	}
-	if len(cSchema.Properties) == 0 {
-		return nil, fmt.Errorf("no properties found on JSON Schema: %#v", schema)
+		return nil, err
 	}
 
 	return data, nil

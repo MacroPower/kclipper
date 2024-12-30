@@ -3,7 +3,6 @@ package jsonschema
 import (
 	"errors"
 	"fmt"
-	"strings"
 )
 
 var DefaultAutoGenerator = NewAutoGenerator()
@@ -84,12 +83,4 @@ func (g *AutoGenerator) FromData(data []byte) ([]byte, error) {
 	valueInferenceErr = fmt.Errorf("failed to infer JSON Schema: %w", valueInferenceErr)
 
 	return nil, fmt.Errorf("failed to generate JSON Schema: %w, %w", readerGenErr, valueInferenceErr)
-}
-
-func isYAMLFile(f string) bool {
-	return strings.HasSuffix(f, ".yaml") || strings.HasSuffix(f, ".yml")
-}
-
-func isJSONFile(f string) bool {
-	return strings.HasSuffix(f, ".json")
 }
