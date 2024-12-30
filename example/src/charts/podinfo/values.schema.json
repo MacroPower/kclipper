@@ -8,16 +8,6 @@
       "title": "affinity",
       "type": "object"
     },
-    "apiVersion": {
-      "required": [],
-      "title": "apiVersion",
-      "type": "string"
-    },
-    "appVersion": {
-      "required": [],
-      "title": "appVersion",
-      "type": "string"
-    },
     "backend": {
       "default": "",
       "required": [],
@@ -107,11 +97,6 @@
       "title": "config",
       "type": "object"
     },
-    "description": {
-      "required": [],
-      "title": "description",
-      "type": "string"
-    },
     "extraArgs": {
       "description": "Additional command line arguments to pass to podinfo container",
       "items": {
@@ -197,11 +182,6 @@
       "title": "h2c",
       "type": "object"
     },
-    "home": {
-      "required": [],
-      "title": "home",
-      "type": "string"
-    },
     "host": {
       "default": "",
       "required": [],
@@ -266,7 +246,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "6.7.0",
+          "default": "6.7.1",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -355,11 +335,6 @@
       "title": "ingress",
       "type": "object"
     },
-    "kubeVersion": {
-      "required": [],
-      "title": "kubeVersion",
-      "type": "string"
-    },
     "linkerd": {
       "additionalProperties": true,
       "properties": {
@@ -385,32 +360,6 @@
       "default": "info",
       "required": [],
       "title": "logLevel",
-      "type": "string"
-    },
-    "maintainers": {
-      "items": {
-        "properties": {
-          "email": {
-            "required": [],
-            "title": "email",
-            "type": "string"
-          },
-          "name": {
-            "required": [],
-            "title": "name",
-            "type": "string"
-          }
-        },
-        "required": [],
-        "type": "object"
-      },
-      "required": [],
-      "title": "maintainers",
-      "type": "array"
-    },
-    "name": {
-      "required": [],
-      "title": "name",
       "type": "string"
     },
     "nodeSelector": {
@@ -764,15 +713,6 @@
       "title": "serviceMonitor",
       "type": "object"
     },
-    "sources": {
-      "items": {
-        "required": [],
-        "type": "string"
-      },
-      "required": [],
-      "title": "sources",
-      "type": "array"
-    },
     "tls": {
       "additionalProperties": true,
       "description": "enable tls on the podinfo service",
@@ -858,11 +798,6 @@
       "required": [],
       "title": "ui",
       "type": "object"
-    },
-    "version": {
-      "required": [],
-      "title": "version",
-      "type": "string"
     }
   },
   "required": [],

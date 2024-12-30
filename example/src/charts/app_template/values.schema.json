@@ -1,0 +1,2780 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "configMaps": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "data"
+            ]
+          },
+          {
+            "required": [
+              "binaryData"
+            ]
+          }
+        ],
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "binaryData": {
+            "additionalProperties": {
+              "required": [],
+              "type": "string"
+            },
+            "required": [],
+            "type": "object"
+          },
+          "data": {
+            "additionalProperties": {
+              "required": [],
+              "type": "string"
+            },
+            "required": [],
+            "type": "object"
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "includeInChecksum": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    },
+    "controllers": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "deployment",
+                  "required": []
+                }
+              },
+              "required": []
+            },
+            "required": [],
+            "then": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "statefulset"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "cronjob"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "job"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "daemonset"
+                    ]
+                  }
+                ],
+                "required": []
+              },
+              "required": []
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "statefulset",
+                  "required": []
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "required": [],
+            "then": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "cronjob"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "job"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "daemonset"
+                    ]
+                  }
+                ],
+                "required": []
+              },
+              "required": []
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "cronjob",
+                  "required": []
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "required": [],
+            "then": {
+              "allOf": [
+                {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "statefulset"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "job"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "daemonset"
+                        ]
+                      }
+                    ],
+                    "required": []
+                  },
+                  "required": []
+                },
+                {
+                  "required": [
+                    "cronjob"
+                  ]
+                }
+              ],
+              "required": []
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "job",
+                  "required": []
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "required": [],
+            "then": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "statefulset"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "cronjob"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "daemonset"
+                    ]
+                  }
+                ],
+                "required": []
+              },
+              "required": []
+            }
+          }
+        ],
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "applyDefaultContainerOptionsToInitContainers": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "containers": {
+            "additionalProperties": {
+              "additionalProperties": false,
+              "properties": {
+                "args": {
+                  "required": []
+                },
+                "command": {
+                  "required": []
+                },
+                "dependsOn": {
+                  "oneOf": [
+                    {
+                      "items": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "required": [],
+                      "type": "array"
+                    },
+                    {
+                      "required": [],
+                      "type": "string"
+                    }
+                  ],
+                  "required": []
+                },
+                "enabled": {
+                  "default": true,
+                  "required": [],
+                  "type": "boolean"
+                },
+                "env": {
+                  "required": []
+                },
+                "envFrom": {
+                  "required": []
+                },
+                "image": {
+                  "required": []
+                },
+                "lifecycle": {
+                  "description": "Lifecycle describes actions that the management system should take in response to container lifecycle events. For the PostStart and PreStop lifecycle handlers, management of the container blocks until the action is complete, unless the container process fails, in which case the handler is aborted.",
+                  "properties": {
+                    "postStart": {
+                      "description": "PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks",
+                      "required": []
+                    },
+                    "preStop": {
+                      "description": "PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks",
+                      "required": []
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "nameOverride": {
+                  "required": [],
+                  "type": "string"
+                },
+                "ports": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "containerPort": {
+                        "description": "Number of port to expose on the pod's IP address. This must be a valid port number, 0 \u003c x \u003c 65536.",
+                        "format": "int32",
+                        "required": [],
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "hostIP": {
+                        "description": "What host IP to bind the external port to.",
+                        "required": [],
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "hostPort": {
+                        "description": "Number of port to expose on the host. If specified, this must be a valid port number, 0 \u003c x \u003c 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this.",
+                        "format": "int32",
+                        "required": [],
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "name": {
+                        "description": "If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.",
+                        "required": [],
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "protocol": {
+                        "description": "Protocol for port. Must be UDP, TCP, or SCTP. Defaults to \"TCP\".",
+                        "required": [],
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "containerPort"
+                    ],
+                    "type": "object"
+                  },
+                  "required": [],
+                  "type": "array"
+                },
+                "probes": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "liveness": {
+                      "required": []
+                    },
+                    "readiness": {
+                      "required": []
+                    },
+                    "startup": {
+                      "required": []
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "resources": {
+                  "additionalProperties": false,
+                  "description": "ResourceRequirements describes the compute resource requirements.",
+                  "properties": {
+                    "claims": {
+                      "description": "Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.\n\nThis is an alpha field and requires enabling the DynamicResourceAllocation feature gate.\n\nThis field is immutable. It can only be set for containers.",
+                      "items": {
+                        "properties": {
+                          "name": {
+                            "description": "Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container.",
+                            "required": [],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      },
+                      "required": [],
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "limits": {
+                      "additionalProperties": {
+                        "required": []
+                      },
+                      "description": "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+                      "required": [],
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    },
+                    "requests": {
+                      "additionalProperties": {
+                        "required": []
+                      },
+                      "description": "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+                      "required": [],
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "restartPolicy": {
+                  "required": [],
+                  "type": "string"
+                },
+                "securityContext": {
+                  "required": []
+                },
+                "stdin": {
+                  "default": false,
+                  "required": [],
+                  "type": "boolean"
+                },
+                "terminationMessagePath": {
+                  "required": [],
+                  "type": "string"
+                },
+                "terminationMessagePolicy": {
+                  "enum": [
+                    "File",
+                    "FallbackToLogsOnError"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "tty": {
+                  "default": false,
+                  "required": [],
+                  "type": "boolean"
+                },
+                "workingDir": {
+                  "required": [],
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "required": [],
+            "type": "object"
+          },
+          "cronjob": {
+            "required": []
+          },
+          "defaultContainerOptions": {
+            "additionalProperties": false,
+            "properties": {
+              "args": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "required": [],
+                    "type": "array"
+                  },
+                  {
+                    "required": [],
+                    "type": "string"
+                  }
+                ],
+                "required": []
+              },
+              "command": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "required": [],
+                    "type": "array"
+                  },
+                  {
+                    "required": [],
+                    "type": "string"
+                  }
+                ],
+                "required": []
+              },
+              "env": {
+                "oneOf": [
+                  {
+                    "items": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": false,
+                          "properties": {
+                            "name": {
+                              "required": [],
+                              "type": "string"
+                            },
+                            "value": {
+                              "required": []
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "oneOf": [
+                            {
+                              "required": []
+                            },
+                            {
+                              "required": []
+                            }
+                          ],
+                          "required": []
+                        }
+                      ],
+                      "required": []
+                    },
+                    "required": [],
+                    "type": "array"
+                  },
+                  {
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "required": [],
+                          "type": [
+                            "string",
+                            "number",
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        {
+                          "additionalProperties": false,
+                          "properties": {
+                            "dependsOn": {
+                              "required": []
+                            },
+                            "value": {
+                              "required": []
+                            }
+                          },
+                          "required": [
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "oneOf": [
+                            {
+                              "required": []
+                            },
+                            {
+                              "required": []
+                            }
+                          ],
+                          "required": []
+                        }
+                      ],
+                      "required": []
+                    },
+                    "required": [],
+                    "type": "object"
+                  }
+                ],
+                "required": []
+              },
+              "envFrom": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "configMap": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "configMapRef": {
+                      "additionalProperties": false,
+                      "oneOf": [
+                        {
+                          "required": [
+                            "name"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "identifier"
+                          ]
+                        }
+                      ],
+                      "properties": {
+                        "identifier": {
+                          "required": [],
+                          "type": "string"
+                        },
+                        "name": {
+                          "required": [],
+                          "type": "string"
+                        },
+                        "optional": {
+                          "required": [],
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [],
+                      "type": "object"
+                    },
+                    "prefix": {
+                      "required": [],
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "secret": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "secretRef": {
+                      "additionalProperties": false,
+                      "oneOf": [
+                        {
+                          "required": [
+                            "name"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "identifier"
+                          ]
+                        }
+                      ],
+                      "properties": {
+                        "identifier": {
+                          "required": [],
+                          "type": "string"
+                        },
+                        "name": {
+                          "required": [],
+                          "type": "string"
+                        },
+                        "optional": {
+                          "required": [],
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [],
+                      "type": "object"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "image": {
+                "additionalProperties": false,
+                "properties": {
+                  "pullPolicy": {
+                    "enum": [
+                      "Always",
+                      "IfNotPresent"
+                    ],
+                    "required": [],
+                    "type": "string"
+                  },
+                  "repository": {
+                    "required": [],
+                    "type": "string"
+                  },
+                  "tag": {
+                    "required": [],
+                    "type": [
+                      "string",
+                      "number"
+                    ]
+                  }
+                },
+                "required": [],
+                "type": "object"
+              },
+              "resources": {
+                "additionalProperties": false,
+                "description": "ResourceRequirements describes the compute resource requirements.",
+                "properties": {
+                  "claims": {
+                    "description": "Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.\n\nThis is an alpha field and requires enabling the DynamicResourceAllocation feature gate.\n\nThis field is immutable. It can only be set for containers.",
+                    "items": {
+                      "properties": {
+                        "name": {
+                          "description": "Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container.",
+                          "required": [],
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    "required": [],
+                    "type": [
+                      "array",
+                      "null"
+                    ]
+                  },
+                  "limits": {
+                    "additionalProperties": {
+                      "required": []
+                    },
+                    "description": "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+                    "required": [],
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  },
+                  "requests": {
+                    "additionalProperties": {
+                      "required": []
+                    },
+                    "description": "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+                    "required": [],
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [],
+                "type": "object"
+              },
+              "securityContext": {
+                "required": []
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "defaultContainerOptionsStrategy": {
+            "default": "overwrite",
+            "enum": [
+              "overwrite",
+              "merge"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "initContainers": {
+            "additionalProperties": {
+              "additionalProperties": false,
+              "properties": {
+                "args": {
+                  "required": []
+                },
+                "command": {
+                  "required": []
+                },
+                "dependsOn": {
+                  "oneOf": [
+                    {
+                      "items": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "required": [],
+                      "type": "array"
+                    },
+                    {
+                      "required": [],
+                      "type": "string"
+                    }
+                  ],
+                  "required": []
+                },
+                "enabled": {
+                  "default": true,
+                  "required": [],
+                  "type": "boolean"
+                },
+                "env": {
+                  "required": []
+                },
+                "envFrom": {
+                  "required": []
+                },
+                "image": {
+                  "required": []
+                },
+                "lifecycle": {
+                  "description": "Lifecycle describes actions that the management system should take in response to container lifecycle events. For the PostStart and PreStop lifecycle handlers, management of the container blocks until the action is complete, unless the container process fails, in which case the handler is aborted.",
+                  "properties": {
+                    "postStart": {
+                      "description": "PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks",
+                      "required": []
+                    },
+                    "preStop": {
+                      "description": "PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks",
+                      "required": []
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "nameOverride": {
+                  "required": [],
+                  "type": "string"
+                },
+                "ports": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "containerPort": {
+                        "description": "Number of port to expose on the pod's IP address. This must be a valid port number, 0 \u003c x \u003c 65536.",
+                        "format": "int32",
+                        "required": [],
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "hostIP": {
+                        "description": "What host IP to bind the external port to.",
+                        "required": [],
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "hostPort": {
+                        "description": "Number of port to expose on the host. If specified, this must be a valid port number, 0 \u003c x \u003c 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this.",
+                        "format": "int32",
+                        "required": [],
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "name": {
+                        "description": "If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.",
+                        "required": [],
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "protocol": {
+                        "description": "Protocol for port. Must be UDP, TCP, or SCTP. Defaults to \"TCP\".",
+                        "required": [],
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "containerPort"
+                    ],
+                    "type": "object"
+                  },
+                  "required": [],
+                  "type": "array"
+                },
+                "probes": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "liveness": {
+                      "required": []
+                    },
+                    "readiness": {
+                      "required": []
+                    },
+                    "startup": {
+                      "required": []
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "resources": {
+                  "additionalProperties": false,
+                  "description": "ResourceRequirements describes the compute resource requirements.",
+                  "properties": {
+                    "claims": {
+                      "description": "Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.\n\nThis is an alpha field and requires enabling the DynamicResourceAllocation feature gate.\n\nThis field is immutable. It can only be set for containers.",
+                      "items": {
+                        "properties": {
+                          "name": {
+                            "description": "Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container.",
+                            "required": [],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      },
+                      "required": [],
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "limits": {
+                      "additionalProperties": {
+                        "required": []
+                      },
+                      "description": "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+                      "required": [],
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    },
+                    "requests": {
+                      "additionalProperties": {
+                        "required": []
+                      },
+                      "description": "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+                      "required": [],
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "restartPolicy": {
+                  "required": [],
+                  "type": "string"
+                },
+                "securityContext": {
+                  "required": []
+                },
+                "stdin": {
+                  "default": false,
+                  "required": [],
+                  "type": "boolean"
+                },
+                "terminationMessagePath": {
+                  "required": [],
+                  "type": "string"
+                },
+                "terminationMessagePolicy": {
+                  "enum": [
+                    "File",
+                    "FallbackToLogsOnError"
+                  ],
+                  "required": [],
+                  "type": "string"
+                },
+                "tty": {
+                  "default": false,
+                  "required": [],
+                  "type": "boolean"
+                },
+                "workingDir": {
+                  "required": [],
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "required": [],
+            "type": "object"
+          },
+          "job": {
+            "required": []
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          },
+          "pod": {
+            "additionalProperties": false,
+            "properties": {
+              "affinity": {
+                "additionalProperties": false,
+                "description": "Affinity is a group of affinity scheduling rules.",
+                "properties": {
+                  "nodeAffinity": {
+                    "description": "Describes node affinity scheduling rules for the pod.",
+                    "required": []
+                  },
+                  "podAffinity": {
+                    "description": "Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).",
+                    "required": []
+                  },
+                  "podAntiAffinity": {
+                    "description": "Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).",
+                    "required": []
+                  }
+                },
+                "required": [],
+                "type": "object"
+              },
+              "annotations": {
+                "additionalProperties": {
+                  "required": [],
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "required": [],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "automountServiceAccountToken": {
+                "default": true,
+                "required": [],
+                "type": "boolean"
+              },
+              "dnsConfig": {
+                "additionalProperties": false,
+                "description": "PodDNSConfig defines the DNS parameters of a pod in addition to those generated from DNSPolicy.",
+                "properties": {
+                  "nameservers": {
+                    "description": "A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed.",
+                    "items": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "required": [],
+                    "type": "array"
+                  },
+                  "options": {
+                    "description": "A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.",
+                    "items": {
+                      "required": []
+                    },
+                    "required": [],
+                    "type": "array"
+                  },
+                  "searches": {
+                    "description": "A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.",
+                    "items": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "required": [],
+                    "type": "array"
+                  }
+                },
+                "required": [],
+                "type": "object"
+              },
+              "dnsPolicy": {
+                "required": [],
+                "type": "string"
+              },
+              "enableServiceLinks": {
+                "default": false,
+                "required": [],
+                "type": "boolean"
+              },
+              "hostAliases": {
+                "items": {
+                  "additionalProperties": false,
+                  "description": "HostAlias holds the mapping between IP and hostnames that will be injected as an entry in the pod's hosts file.",
+                  "properties": {
+                    "hostnames": {
+                      "description": "Hostnames for the above IP address.",
+                      "items": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "required": [],
+                      "type": "array"
+                    },
+                    "ip": {
+                      "description": "IP address of the host file entry.",
+                      "required": [],
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "hostIPC": {
+                "default": false,
+                "required": [],
+                "type": "boolean"
+              },
+              "hostNetwork": {
+                "default": "false",
+                "required": [],
+                "type": "boolean"
+              },
+              "hostPID": {
+                "default": false,
+                "required": [],
+                "type": "boolean"
+              },
+              "hostUsers": {
+                "default": false,
+                "required": [],
+                "type": "boolean"
+              },
+              "hostname": {
+                "required": [],
+                "type": "string"
+              },
+              "imagePullSecrets": {
+                "items": {
+                  "description": "LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.",
+                  "properties": {
+                    "name": {
+                      "description": "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names",
+                      "required": [],
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "labels": {
+                "additionalProperties": {
+                  "required": [],
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "required": [],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "nodeSelector": {
+                "additionalProperties": {
+                  "required": [],
+                  "type": "string"
+                },
+                "required": [],
+                "type": "object"
+              },
+              "priorityClassName": {
+                "required": [],
+                "type": "string"
+              },
+              "restartPolicy": {
+                "required": [],
+                "type": "string"
+              },
+              "runtimeClassName": {
+                "required": [],
+                "type": "string"
+              },
+              "schedulerName": {
+                "required": [],
+                "type": "string"
+              },
+              "securityContext": {
+                "additionalProperties": false,
+                "description": "PodSecurityContext holds pod-level security attributes and common container settings. Some fields are also present in container.securityContext.  Field values of container.securityContext take precedence over field values of PodSecurityContext.",
+                "properties": {
+                  "fsGroup": {
+                    "description": "A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:\n\n1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----\n\nIf unset, the Kubelet will not modify the ownership and permissions of any volume. Note that this field cannot be set when spec.os.name is windows.",
+                    "format": "int64",
+                    "required": [],
+                    "type": "integer"
+                  },
+                  "fsGroupChangePolicy": {
+                    "description": "fsGroupChangePolicy defines behavior of changing ownership and permission of the volume before being exposed inside Pod. This field will only apply to volume types which support fsGroup based ownership(and permissions). It will have no effect on ephemeral volume types such as: secret, configmaps and emptydir. Valid values are \"OnRootMismatch\" and \"Always\". If not specified, \"Always\" is used. Note that this field cannot be set when spec.os.name is windows.",
+                    "required": [],
+                    "type": "string"
+                  },
+                  "runAsGroup": {
+                    "description": "The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.",
+                    "format": "int64",
+                    "required": [],
+                    "type": "integer"
+                  },
+                  "runAsNonRoot": {
+                    "description": "Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.",
+                    "required": [],
+                    "type": "boolean"
+                  },
+                  "runAsUser": {
+                    "description": "The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.",
+                    "format": "int64",
+                    "required": [],
+                    "type": "integer"
+                  },
+                  "seLinuxOptions": {
+                    "description": "The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.",
+                    "required": []
+                  },
+                  "seccompProfile": {
+                    "description": "The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows.",
+                    "required": []
+                  },
+                  "supplementalGroups": {
+                    "description": "A list of groups applied to the first process run in each container, in addition to the container's primary GID, the fsGroup (if specified), and group memberships defined in the container image for the uid of the container process. If unspecified, no additional groups are added to any container. Note that group memberships defined in the container image for the uid of the container process are still effective, even if they are not included in this list. Note that this field cannot be set when spec.os.name is windows.",
+                    "items": {
+                      "format": "int64",
+                      "required": [],
+                      "type": "integer"
+                    },
+                    "required": [],
+                    "type": "array"
+                  },
+                  "sysctls": {
+                    "description": "Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch. Note that this field cannot be set when spec.os.name is windows.",
+                    "items": {
+                      "required": []
+                    },
+                    "required": [],
+                    "type": "array"
+                  }
+                },
+                "required": [],
+                "type": "object"
+              },
+              "terminationGracePeriodSeconds": {
+                "required": [],
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "tolerations": {
+                "items": {
+                  "additionalProperties": false,
+                  "description": "The pod this Toleration is attached to tolerates any taint that matches the triple \u003ckey,value,effect\u003e using the matching operator \u003coperator\u003e.",
+                  "properties": {
+                    "effect": {
+                      "description": "Effect indicates the taint effect to match. Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.",
+                      "required": [],
+                      "type": "string"
+                    },
+                    "key": {
+                      "description": "Key is the taint key that the toleration applies to. Empty means match all taint keys. If the key is empty, operator must be Exists; this combination means to match all values and all keys.",
+                      "required": [],
+                      "type": "string"
+                    },
+                    "operator": {
+                      "description": "Operator represents a key's relationship to the value. Valid operators are Exists and Equal. Defaults to Equal. Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category.",
+                      "required": [],
+                      "type": "string"
+                    },
+                    "tolerationSeconds": {
+                      "description": "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system.",
+                      "format": "int64",
+                      "required": [],
+                      "type": "integer"
+                    },
+                    "value": {
+                      "description": "Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string.",
+                      "required": [],
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "topologySpreadConstraints": {
+                "items": {
+                  "additionalProperties": false,
+                  "description": "TopologySpreadConstraint specifies how to spread matching pods among the given topology.",
+                  "properties": {
+                    "labelSelector": {
+                      "description": "LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.",
+                      "required": []
+                    },
+                    "matchLabelKeys": {
+                      "description": "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.\n\nThis is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).",
+                      "items": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "required": [],
+                      "type": "array"
+                    },
+                    "maxSkew": {
+                      "description": "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed.",
+                      "format": "int32",
+                      "required": [],
+                      "type": "integer"
+                    },
+                    "minDomains": {
+                      "description": "MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.\n\nFor example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.\n\nThis is a beta field and requires the MinDomainsInPodTopologySpread feature gate to be enabled (enabled by default).",
+                      "format": "int32",
+                      "required": [],
+                      "type": "integer"
+                    },
+                    "nodeAffinityPolicy": {
+                      "description": "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod topology spread skew. Options are: - Honor: only nodes matching nodeAffinity/nodeSelector are included in the calculations. - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.\n\nIf this value is nil, the behavior is equivalent to the Honor policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.",
+                      "required": [],
+                      "type": "string"
+                    },
+                    "nodeTaintsPolicy": {
+                      "description": "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew. Options are: - Honor: nodes without taints, along with tainted nodes for which the incoming pod has a toleration, are included. - Ignore: node taints are ignored. All nodes are included.\n\nIf this value is nil, the behavior is equivalent to the Ignore policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.",
+                      "required": [],
+                      "type": "string"
+                    },
+                    "topologyKey": {
+                      "description": "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each \u003ckey, value\u003e as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes meet the requirements of nodeAffinityPolicy and nodeTaintsPolicy. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field.",
+                      "required": [],
+                      "type": "string"
+                    },
+                    "whenUnsatisfiable": {
+                      "description": "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,\n  but giving higher precedence to topologies that would help reduce the\n  skew.\nA constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.",
+                      "required": [],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "maxSkew",
+                    "topologyKey",
+                    "whenUnsatisfiable"
+                  ],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "replicas": {
+            "default": 1,
+            "required": [],
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "revisionHistoryLimit": {
+            "required": [],
+            "type": "integer"
+          },
+          "rollingUpdate": {
+            "required": [],
+            "type": "object"
+          },
+          "serviceAccount": {
+            "properties": {
+              "identifier": {
+                "required": [],
+                "type": "string"
+              },
+              "name": {
+                "required": [],
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "statefulset": {
+            "required": []
+          },
+          "strategy": {
+            "required": [],
+            "type": "string"
+          },
+          "type": {
+            "default": "deployment",
+            "enum": [
+              "deployment",
+              "statefulset",
+              "daemonset",
+              "cronjob",
+              "job"
+            ],
+            "required": [],
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    },
+    "defaultPodOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "affinity": {
+          "additionalProperties": false,
+          "description": "Affinity is a group of affinity scheduling rules.",
+          "properties": {
+            "nodeAffinity": {
+              "description": "Describes node affinity scheduling rules for the pod.",
+              "required": []
+            },
+            "podAffinity": {
+              "description": "Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).",
+              "required": []
+            },
+            "podAntiAffinity": {
+              "description": "Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).",
+              "required": []
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "annotations": {
+          "additionalProperties": {
+            "required": [],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": [],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "automountServiceAccountToken": {
+          "default": true,
+          "required": [],
+          "type": "boolean"
+        },
+        "dnsConfig": {
+          "additionalProperties": false,
+          "description": "PodDNSConfig defines the DNS parameters of a pod in addition to those generated from DNSPolicy.",
+          "properties": {
+            "nameservers": {
+              "description": "A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed.",
+              "items": {
+                "required": [],
+                "type": "string"
+              },
+              "required": [],
+              "type": "array"
+            },
+            "options": {
+              "description": "A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "type": "array"
+            },
+            "searches": {
+              "description": "A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.",
+              "items": {
+                "required": [],
+                "type": "string"
+              },
+              "required": [],
+              "type": "array"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "dnsPolicy": {
+          "required": [],
+          "type": "string"
+        },
+        "enableServiceLinks": {
+          "default": false,
+          "required": [],
+          "type": "boolean"
+        },
+        "hostAliases": {
+          "items": {
+            "additionalProperties": false,
+            "description": "HostAlias holds the mapping between IP and hostnames that will be injected as an entry in the pod's hosts file.",
+            "properties": {
+              "hostnames": {
+                "description": "Hostnames for the above IP address.",
+                "items": {
+                  "required": [],
+                  "type": "string"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "ip": {
+                "description": "IP address of the host file entry.",
+                "required": [],
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "required": [],
+          "type": "array"
+        },
+        "hostIPC": {
+          "default": false,
+          "required": [],
+          "type": "boolean"
+        },
+        "hostNetwork": {
+          "default": "false",
+          "required": [],
+          "type": "boolean"
+        },
+        "hostPID": {
+          "default": false,
+          "required": [],
+          "type": "boolean"
+        },
+        "hostUsers": {
+          "default": false,
+          "required": [],
+          "type": "boolean"
+        },
+        "hostname": {
+          "required": [],
+          "type": "string"
+        },
+        "imagePullSecrets": {
+          "items": {
+            "description": "LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.",
+            "properties": {
+              "name": {
+                "description": "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names",
+                "required": [],
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "required": [],
+          "type": "array"
+        },
+        "labels": {
+          "additionalProperties": {
+            "required": [],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": [],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "nodeSelector": {
+          "additionalProperties": {
+            "required": [],
+            "type": "string"
+          },
+          "required": [],
+          "type": "object"
+        },
+        "priorityClassName": {
+          "required": [],
+          "type": "string"
+        },
+        "restartPolicy": {
+          "required": [],
+          "type": "string"
+        },
+        "runtimeClassName": {
+          "required": [],
+          "type": "string"
+        },
+        "schedulerName": {
+          "required": [],
+          "type": "string"
+        },
+        "securityContext": {
+          "additionalProperties": false,
+          "description": "PodSecurityContext holds pod-level security attributes and common container settings. Some fields are also present in container.securityContext.  Field values of container.securityContext take precedence over field values of PodSecurityContext.",
+          "properties": {
+            "fsGroup": {
+              "description": "A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:\n\n1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----\n\nIf unset, the Kubelet will not modify the ownership and permissions of any volume. Note that this field cannot be set when spec.os.name is windows.",
+              "format": "int64",
+              "required": [],
+              "type": "integer"
+            },
+            "fsGroupChangePolicy": {
+              "description": "fsGroupChangePolicy defines behavior of changing ownership and permission of the volume before being exposed inside Pod. This field will only apply to volume types which support fsGroup based ownership(and permissions). It will have no effect on ephemeral volume types such as: secret, configmaps and emptydir. Valid values are \"OnRootMismatch\" and \"Always\". If not specified, \"Always\" is used. Note that this field cannot be set when spec.os.name is windows.",
+              "required": [],
+              "type": "string"
+            },
+            "runAsGroup": {
+              "description": "The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.",
+              "format": "int64",
+              "required": [],
+              "type": "integer"
+            },
+            "runAsNonRoot": {
+              "description": "Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.",
+              "required": [],
+              "type": "boolean"
+            },
+            "runAsUser": {
+              "description": "The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.",
+              "format": "int64",
+              "required": [],
+              "type": "integer"
+            },
+            "seLinuxOptions": {
+              "description": "The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.",
+              "required": []
+            },
+            "seccompProfile": {
+              "description": "The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows.",
+              "required": []
+            },
+            "supplementalGroups": {
+              "description": "A list of groups applied to the first process run in each container, in addition to the container's primary GID, the fsGroup (if specified), and group memberships defined in the container image for the uid of the container process. If unspecified, no additional groups are added to any container. Note that group memberships defined in the container image for the uid of the container process are still effective, even if they are not included in this list. Note that this field cannot be set when spec.os.name is windows.",
+              "items": {
+                "format": "int64",
+                "required": [],
+                "type": "integer"
+              },
+              "required": [],
+              "type": "array"
+            },
+            "sysctls": {
+              "description": "Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch. Note that this field cannot be set when spec.os.name is windows.",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "type": "array"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "terminationGracePeriodSeconds": {
+          "required": [],
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "tolerations": {
+          "items": {
+            "additionalProperties": false,
+            "description": "The pod this Toleration is attached to tolerates any taint that matches the triple \u003ckey,value,effect\u003e using the matching operator \u003coperator\u003e.",
+            "properties": {
+              "effect": {
+                "description": "Effect indicates the taint effect to match. Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.",
+                "required": [],
+                "type": "string"
+              },
+              "key": {
+                "description": "Key is the taint key that the toleration applies to. Empty means match all taint keys. If the key is empty, operator must be Exists; this combination means to match all values and all keys.",
+                "required": [],
+                "type": "string"
+              },
+              "operator": {
+                "description": "Operator represents a key's relationship to the value. Valid operators are Exists and Equal. Defaults to Equal. Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category.",
+                "required": [],
+                "type": "string"
+              },
+              "tolerationSeconds": {
+                "description": "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system.",
+                "format": "int64",
+                "required": [],
+                "type": "integer"
+              },
+              "value": {
+                "description": "Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string.",
+                "required": [],
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "required": [],
+          "type": "array"
+        },
+        "topologySpreadConstraints": {
+          "items": {
+            "additionalProperties": false,
+            "description": "TopologySpreadConstraint specifies how to spread matching pods among the given topology.",
+            "properties": {
+              "labelSelector": {
+                "description": "LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.",
+                "required": []
+              },
+              "matchLabelKeys": {
+                "description": "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.\n\nThis is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).",
+                "items": {
+                  "required": [],
+                  "type": "string"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "maxSkew": {
+                "description": "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed.",
+                "format": "int32",
+                "required": [],
+                "type": "integer"
+              },
+              "minDomains": {
+                "description": "MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.\n\nFor example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.\n\nThis is a beta field and requires the MinDomainsInPodTopologySpread feature gate to be enabled (enabled by default).",
+                "format": "int32",
+                "required": [],
+                "type": "integer"
+              },
+              "nodeAffinityPolicy": {
+                "description": "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod topology spread skew. Options are: - Honor: only nodes matching nodeAffinity/nodeSelector are included in the calculations. - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.\n\nIf this value is nil, the behavior is equivalent to the Honor policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.",
+                "required": [],
+                "type": "string"
+              },
+              "nodeTaintsPolicy": {
+                "description": "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew. Options are: - Honor: nodes without taints, along with tainted nodes for which the incoming pod has a toleration, are included. - Ignore: node taints are ignored. All nodes are included.\n\nIf this value is nil, the behavior is equivalent to the Ignore policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.",
+                "required": [],
+                "type": "string"
+              },
+              "topologyKey": {
+                "description": "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each \u003ckey, value\u003e as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes meet the requirements of nodeAffinityPolicy and nodeTaintsPolicy. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field.",
+                "required": [],
+                "type": "string"
+              },
+              "whenUnsatisfiable": {
+                "description": "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,\n  but giving higher precedence to topologies that would help reduce the\n  skew.\nA constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.",
+                "required": [],
+                "type": "string"
+              }
+            },
+            "required": [
+              "maxSkew",
+              "topologyKey",
+              "whenUnsatisfiable"
+            ],
+            "type": "object"
+          },
+          "required": [],
+          "type": "array"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "enforceServiceAccountCreation": {
+      "required": [],
+      "type": "boolean"
+    },
+    "global": {
+      "properties": {
+        "annotations": {
+          "additionalProperties": {
+            "required": [],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": [],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "fullnameOverride": {
+          "required": [],
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "labels": {
+          "additionalProperties": {
+            "required": [],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": [],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "nameOverride": {
+          "required": [],
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "propagateGlobalMetadataToPods": {
+          "default": false,
+          "required": [],
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "ingress": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "className": {
+            "required": [],
+            "type": "string"
+          },
+          "defaultBackend": {
+            "required": [],
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "hosts": {
+            "items": {
+              "required": []
+            },
+            "required": [],
+            "type": "array"
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          },
+          "tls": {
+            "items": {
+              "required": []
+            },
+            "required": [],
+            "type": "array"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    },
+    "networkpolicies": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "controller": {
+            "required": [],
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          },
+          "podSelector": {
+            "required": []
+          },
+          "policyTypes": {
+            "items": {
+              "required": [],
+              "type": "string"
+            },
+            "required": [],
+            "type": "array"
+          },
+          "rules": {
+            "additionalProperties": false,
+            "properties": {
+              "egress": {
+                "items": {
+                  "description": "NetworkPolicyEgressRule describes a particular set of traffic that is allowed out of pods matched by a NetworkPolicySpec's podSelector. The traffic must match both ports and to. This type is beta-level in 1.8",
+                  "properties": {
+                    "ports": {
+                      "description": "ports is a list of destination ports for outgoing traffic. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.",
+                      "items": {
+                        "required": []
+                      },
+                      "required": [],
+                      "type": "array"
+                    },
+                    "to": {
+                      "description": "to is a list of destinations for outgoing traffic of pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all destinations (traffic not restricted by destination). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the to list.",
+                      "items": {
+                        "required": []
+                      },
+                      "required": [],
+                      "type": "array"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "ingress": {
+                "items": {
+                  "description": "NetworkPolicyIngressRule describes a particular set of traffic that is allowed to the pods matched by a NetworkPolicySpec's podSelector. The traffic must match both ports and from.",
+                  "properties": {
+                    "from": {
+                      "description": "from is a list of sources which should be able to access the pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all sources (traffic not restricted by source). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the from list.",
+                      "items": {
+                        "required": []
+                      },
+                      "required": [],
+                      "type": "array"
+                    },
+                    "ports": {
+                      "description": "ports is a list of ports which should be made accessible on the pods selected for this rule. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.",
+                      "items": {
+                        "required": []
+                      },
+                      "required": [],
+                      "type": "array"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              }
+            },
+            "required": [],
+            "type": "object"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    },
+    "persistence": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "required": []
+          },
+          {
+            "required": []
+          },
+          {
+            "required": []
+          },
+          {
+            "required": []
+          },
+          {
+            "required": []
+          },
+          {
+            "required": []
+          },
+          {
+            "required": []
+          },
+          {
+            "required": []
+          }
+        ],
+        "required": []
+      },
+      "required": []
+    },
+    "rawResources": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "apiVersion": {
+            "required": [],
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "kind": {
+            "required": [],
+            "type": "string"
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          },
+          "spec": {
+            "required": []
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    },
+    "route": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "hostnames": {
+            "items": {
+              "required": [],
+              "type": "string"
+            },
+            "required": [],
+            "type": "array"
+          },
+          "kind": {
+            "enum": [
+              "GRPCRoute",
+              "HTTPRoute",
+              "TCPRoute",
+              "TLSRoute",
+              "UDPRoute"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          },
+          "parentRefs": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "group": {
+                  "required": [],
+                  "type": "string"
+                },
+                "kind": {
+                  "required": [],
+                  "type": "string"
+                },
+                "name": {
+                  "required": [],
+                  "type": "string"
+                },
+                "namespace": {
+                  "required": [],
+                  "type": "string"
+                },
+                "sectionName": {
+                  "required": [],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "type": "object"
+            },
+            "required": [],
+            "type": "array"
+          },
+          "rules": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "backendRefs": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "group": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "kind": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "name": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "namespace": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "port": {
+                        "required": [],
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "weight": {
+                        "required": [],
+                        "type": "integer"
+                      }
+                    },
+                    "required": [],
+                    "type": "object"
+                  },
+                  "required": [],
+                  "type": "array"
+                },
+                "filters": {
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "type": "array"
+                },
+                "matches": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "path": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "type": {
+                            "required": [],
+                            "type": "string"
+                          },
+                          "value": {
+                            "required": [],
+                            "type": "string"
+                          }
+                        },
+                        "required": [],
+                        "type": "object"
+                      }
+                    },
+                    "required": [],
+                    "type": "object"
+                  },
+                  "required": [],
+                  "type": "array"
+                },
+                "timeouts": {
+                  "required": [],
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "required": [],
+            "type": "array"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    },
+    "secrets": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "includeInChecksum": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          },
+          "stringData": {
+            "additionalProperties": {
+              "required": [],
+              "type": "string"
+            },
+            "required": [],
+            "type": "object"
+          },
+          "type": {
+            "required": [],
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    },
+    "service": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "allocateLoadBalancerNodePorts": {
+            "required": [],
+            "type": "boolean"
+          },
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "clusterIP": {
+            "required": [],
+            "type": "string"
+          },
+          "controller": {
+            "required": [],
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "externalIPs": {
+            "items": {
+              "required": [],
+              "type": "string"
+            },
+            "required": [],
+            "type": "array"
+          },
+          "externalName": {
+            "required": [],
+            "type": "string"
+          },
+          "externalTrafficPolicy": {
+            "enum": [
+              "Cluster",
+              "Local"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "extraSelectorLabels": {
+            "required": []
+          },
+          "internalTrafficPolicy": {
+            "enum": [
+              "Cluster",
+              "Local"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "ipFamilies": {
+            "items": {
+              "enum": [
+                "IPv4",
+                "IPv6"
+              ],
+              "required": [],
+              "type": "string"
+            },
+            "required": [],
+            "type": "array"
+          },
+          "ipFamilyPolicy": {
+            "enum": [
+              "SingleStack",
+              "PreferDualStack",
+              "RequireDualStack"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "loadBalancerClass": {
+            "required": [],
+            "type": "string"
+          },
+          "loadBalancerIP": {
+            "required": [],
+            "type": "string"
+          },
+          "loadBalancerSourceRanges": {
+            "items": {
+              "required": [],
+              "type": "string"
+            },
+            "required": [],
+            "type": "array"
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          },
+          "ports": {
+            "additionalProperties": {
+              "required": []
+            },
+            "required": [],
+            "type": "object"
+          },
+          "primary": {
+            "default": false,
+            "required": [],
+            "type": "boolean"
+          },
+          "publishNotReadyAddresses": {
+            "required": [],
+            "type": "boolean"
+          },
+          "sessionAffinity": {
+            "enum": [
+              "None",
+              "ClientIP"
+            ],
+            "required": [],
+            "type": "string"
+          },
+          "sessionAffinityConfig": {
+            "required": [],
+            "type": "object"
+          },
+          "type": {
+            "required": [],
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    },
+    "serviceAccount": {
+      "additionalProperties": false,
+      "properties": {
+        "annotations": {
+          "additionalProperties": {
+            "required": [],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": [],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "create": {
+          "default": false,
+          "required": [],
+          "type": "boolean"
+        },
+        "extraServiceAccounts": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "annotations": {
+                "additionalProperties": {
+                  "required": [],
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "required": [],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "create": {
+                "default": false,
+                "required": [],
+                "type": "boolean"
+              },
+              "labels": {
+                "additionalProperties": {
+                  "required": [],
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "required": [],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "name": {
+                "required": [],
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "required": [],
+          "type": "object"
+        },
+        "labels": {
+          "additionalProperties": {
+            "required": [],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": [],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "name": {
+          "required": [],
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "serviceMonitor": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "serviceName"
+            ]
+          },
+          {
+            "required": [
+              "selector"
+            ]
+          }
+        ],
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "enabled": {
+            "default": true,
+            "required": [],
+            "type": "boolean"
+          },
+          "endpoints": {
+            "items": {
+              "required": [],
+              "type": "object"
+            },
+            "required": [],
+            "type": "array"
+          },
+          "labels": {
+            "additionalProperties": {
+              "required": [],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "required": [],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "nameOverride": {
+            "required": [],
+            "type": "string"
+          },
+          "selector": {
+            "additionalProperties": false,
+            "properties": {
+              "matchExpressions": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "operator": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "values": {
+                      "items": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "required": [],
+                      "type": "array"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "type": "array"
+              },
+              "matchLabels": {
+                "additionalProperties": {
+                  "required": [],
+                  "type": "string"
+                },
+                "required": [],
+                "type": "object"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "serviceName": {
+            "required": [],
+            "type": "string"
+          },
+          "targetLabels": {
+            "required": [],
+            "type": "array"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "required": []
+    }
+  },
+  "required": [],
+  "type": "object"
+}
