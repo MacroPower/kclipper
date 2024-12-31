@@ -33,7 +33,7 @@ func NewChartCmd() *cobra.Command {
 		SilenceUsage: true,
 	}
 	cmd.PersistentFlags().StringP("path", "p", "charts", "Base path for the charts package")
-	cmd.MarkFlagDirname("path")
+	_ = cmd.MarkFlagDirname("path")
 	cmd.AddCommand(NewChartInitCmd())
 	cmd.AddCommand(NewChartAddCmd())
 	cmd.AddCommand(NewChartUpdateCmd())
@@ -63,6 +63,16 @@ func NewChartAddCmd() *cobra.Command {
 		Use:   "add",
 		Short: "Add a new chart",
 		RunE: func(cc *cobra.Command, _ []string) error {
+			if err := cc.MarkFlagRequired("chart"); err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			if err := cc.MarkFlagRequired("repo_url"); err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+			if err := cc.MarkFlagRequired("target_revision"); err != nil {
+				return fmt.Errorf("argument error: %w", err)
+			}
+
 			flags := cc.Flags()
 			basePath, err := flags.GetString("path")
 			if err != nil {
@@ -99,9 +109,6 @@ func NewChartAddCmd() *cobra.Command {
 	cmd.Flags().StringP("target_revision", "t", "", "Semver tag for the chart's version (required)")
 	cmd.Flags().StringP("schema_generator", "G", "AUTO", "Chart schema generator")
 	cmd.Flags().StringP("schema_path", "P", "", "Chart schema path")
-	cmd.MarkFlagRequired("chart")
-	cmd.MarkFlagRequired("repo_url")
-	cmd.MarkFlagRequired("target_revision")
 
 	return cmd
 }

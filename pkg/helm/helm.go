@@ -98,7 +98,9 @@ func (h *Helm) writeValues(values map[string]any) (string, error) {
 // then uses the [jsonschema.FileGenerator] to generate a JSON Schema using one or
 // more files from the chart. The [match] function can be used to match a subset
 // of the pulled files in the chart directory for JSON Schema generation.
-func (h *Helm) GetValuesJSONSchema(opts *TemplateOpts, gen jsonschema.FileGenerator, match func(string) bool) ([]byte, error) {
+func (h *Helm) GetValuesJSONSchema(
+	opts *TemplateOpts, gen jsonschema.FileGenerator, match func(string) bool,
+) ([]byte, error) {
 	chartPath, closer, err := h.pull(opts)
 	if err != nil {
 		return nil, err
