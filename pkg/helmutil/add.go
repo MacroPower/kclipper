@@ -12,12 +12,11 @@ import (
 
 	"kcl-lang.io/kcl-go"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
-	kclutil "kcl-lang.io/kcl-go/pkg/utils"
 
 	"github.com/MacroPower/kclx/pkg/helm"
 	helmchart "github.com/MacroPower/kclx/pkg/helm/models"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
-	"github.com/MacroPower/kclx/pkg/util/safekcl"
+	"github.com/MacroPower/kclx/pkg/kclutil"
 )
 
 var (
@@ -143,7 +142,7 @@ func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) er
 	}
 
 	kclSchema := &bytes.Buffer{}
-	if err := safekcl.Gen.GenKcl(kclSchema, "values", jsonSchema, &gen.GenKclOptions{
+	if err := kclutil.Gen.GenKcl(kclSchema, "values", jsonSchema, &gen.GenKclOptions{
 		Mode:                  gen.ModeJsonSchema,
 		CastingOption:         gen.OriginalName,
 		UseIntegersForNumbers: true,
@@ -172,7 +171,7 @@ func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig ...s
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	mainFile := path.Join(vendorDir, "charts.k")
-	if !kclutil.FileExists(mainFile) {
+	if !fileExists(mainFile) {
 		if err := os.WriteFile(mainFile, []byte(initialMainContents), 0o600); err != nil {
 			return fmt.Errorf("failed to write '%s': %w", mainFile, err)
 		}

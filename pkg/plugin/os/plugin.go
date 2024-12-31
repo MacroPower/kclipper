@@ -2,14 +2,16 @@ package os
 
 import (
 	"fmt"
-	"os"
+	goos "os"
 	"strings"
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
+
+	"github.com/MacroPower/kclx/pkg/os"
 )
 
 func init() {
-	if strings.ToLower(os.Getenv("KCLX_OS_PLUGIN_DISABLED")) == "true" {
+	if strings.ToLower(goos.Getenv("KCLX_OS_PLUGIN_DISABLED")) == "true" {
 		return
 	}
 
@@ -30,9 +32,9 @@ func init() {
 						}
 					}
 
-					exec, err := Exec(name, strArgs, strEnvs)
+					exec, err := os.Exec(name, strArgs, strEnvs)
 					if err != nil {
-						return nil, err
+						return nil, fmt.Errorf("failed to exec %s: %w", name, err)
 					}
 
 					return &plugin.MethodResult{V: map[string]string{

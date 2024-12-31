@@ -8,7 +8,8 @@ import (
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
-	pluginutil "github.com/MacroPower/kclx/pkg/util/plugin"
+	"github.com/MacroPower/kclx/pkg/helm"
+	kclutil "github.com/MacroPower/kclx/pkg/kclutil"
 )
 
 func init() {
@@ -36,7 +37,7 @@ func init() {
 					ResultType: "[{str:any}]",
 				},
 				Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
-					safeArgs := pluginutil.SafeMethodArgs{Args: args}
+					safeArgs := kclutil.SafeMethodArgs{Args: args}
 
 					chartName := args.StrKwArg("chart")
 					targetRevision := args.StrKwArg("target_revision")
@@ -52,13 +53,13 @@ func init() {
 
 					repoURL, err := url.Parse(repoURLStr)
 					if err != nil {
-						return nil, fmt.Errorf("failed to parse repo_url %s: %w", repoURLStr, err)
+						return nil, fmt.Errorf("failed to parse repo_url '%s': %w", repoURLStr, err)
 					}
 					if repoURL.Scheme == "" {
 						enableOCI = true
 					}
 
-					objs, err := DefaultHelm.Template(&TemplateOpts{
+					objs, err := helm.DefaultHelm.Template(&helm.TemplateOpts{
 						ChartName:       chartName,
 						TargetRevision:  targetRevision,
 						RepoURL:         repoURL.String(),
@@ -74,7 +75,7 @@ func init() {
 						APIVersions:     strings.Split(kubeAPIVersions, ","),
 					})
 					if err != nil {
-						return nil, err
+						return nil, fmt.Errorf("failed to template '%s': %w", chartName, err)
 					}
 
 					return &plugin.MethodResult{V: objs}, nil

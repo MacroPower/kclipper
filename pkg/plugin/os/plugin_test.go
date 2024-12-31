@@ -6,7 +6,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
-	_ "github.com/MacroPower/kclx/pkg/os"
+	_ "github.com/MacroPower/kclx/pkg/plugin/os"
 )
 
 func TestPluginExecStdout(t *testing.T) {

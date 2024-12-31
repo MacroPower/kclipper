@@ -14,9 +14,9 @@ import (
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 	"kcl-lang.io/cli/pkg/plugin"
 
-	_ "github.com/MacroPower/kclx/pkg/helm"
-	_ "github.com/MacroPower/kclx/pkg/http"
-	_ "github.com/MacroPower/kclx/pkg/os"
+	_ "github.com/MacroPower/kclx/pkg/plugin/helm"
+	_ "github.com/MacroPower/kclx/pkg/plugin/http"
+	_ "github.com/MacroPower/kclx/pkg/plugin/os"
 )
 
 func init() {
