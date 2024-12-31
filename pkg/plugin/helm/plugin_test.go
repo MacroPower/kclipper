@@ -9,7 +9,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
-	_ "github.com/MacroPower/kclx/pkg/helm"
+	_ "github.com/MacroPower/kclx/pkg/plugin/helm"
 )
 
 func init() {

@@ -21,7 +21,7 @@ func Exec(name string, arg []string, env []string) (*ExecOutput, error) {
 
 	err := cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute %s: %w", name, err)
+		return nil, fmt.Errorf("run error: %w", err)
 	}
 
 	return &ExecOutput{

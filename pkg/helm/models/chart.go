@@ -9,7 +9,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
 	"github.com/MacroPower/kclx/pkg/jsonschema"
-	"github.com/MacroPower/kclx/pkg/util/safekcl"
+	"github.com/MacroPower/kclx/pkg/kclutil"
 )
 
 // ChartBase represents the KCL schema `helm.ChartBase`.
@@ -63,7 +63,7 @@ func (c *ChartConfig) GenerateKCL(b *bytes.Buffer) error {
 		return fmt.Errorf("failed to marshal json schema: %w", err)
 	}
 
-	if err := safekcl.Gen.GenKcl(b, "settings", jsBytes, &gen.GenKclOptions{
+	if err := kclutil.Gen.GenKcl(b, "settings", jsBytes, &gen.GenKclOptions{
 		Mode:          gen.ModeJsonSchema,
 		CastingOption: gen.OriginalName,
 	}); err != nil {
@@ -104,7 +104,7 @@ func (c *Chart) GenerateKCL(b *bytes.Buffer) error {
 		return fmt.Errorf("failed to marshal json schema: %w", err)
 	}
 
-	if err := safekcl.Gen.GenKcl(b, "chart", jsBytes, &gen.GenKclOptions{
+	if err := kclutil.Gen.GenKcl(b, "chart", jsBytes, &gen.GenKclOptions{
 		Mode:          gen.ModeJsonSchema,
 		CastingOption: gen.OriginalName,
 	}); err != nil {

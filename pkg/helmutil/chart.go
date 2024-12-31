@@ -1,6 +1,7 @@
 package helmutil
 
 import (
+	"os"
 	"sync"
 )
 
@@ -14,4 +15,12 @@ func NewChartPkg(basePath string) *ChartPkg {
 	return &ChartPkg{
 		BasePath: basePath,
 	}
+}
+
+func fileExists(path string) bool {
+	fi, err := os.Lstat(path)
+	if err != nil || fi.IsDir() {
+		return false
+	}
+	return true
 }

@@ -1,4 +1,4 @@
-package safekcl
+package kclutil
 
 import (
 	"fmt"

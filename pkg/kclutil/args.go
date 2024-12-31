@@ -1,4 +1,4 @@
-package plugin
+package kclutil
 
 import "kcl-lang.io/lib/go/plugin"
 
