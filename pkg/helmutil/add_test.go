@@ -11,6 +11,7 @@ import (
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclx/pkg/helmmodels"
+	"github.com/MacroPower/kclx/pkg/helmtest"
 	"github.com/MacroPower/kclx/pkg/helmutil"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
@@ -25,7 +26,7 @@ func TestHelmChartAdd(t *testing.T) {
 	chartPath := path.Join(addBasePath, "charts")
 	os.RemoveAll(chartPath)
 
-	ca := helmutil.NewChartPkg(chartPath)
+	ca := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
 
 	err := ca.Init()
 	require.NoError(t, err)

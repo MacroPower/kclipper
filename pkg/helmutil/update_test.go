@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/MacroPower/kclx/pkg/helmtest"
 	"github.com/MacroPower/kclx/pkg/helmutil"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
@@ -21,7 +22,7 @@ func TestHelmChartUpdate(t *testing.T) {
 	chartPath := path.Join(updateBasePath, "charts")
 	os.RemoveAll(path.Join(chartPath, "podinfo"))
 
-	chartPkg := helmutil.NewChartPkg(chartPath)
+	chartPkg := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
 
 	err := chartPkg.Init()
 	require.NoError(t, err)

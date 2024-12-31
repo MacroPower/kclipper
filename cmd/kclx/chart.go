@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/MacroPower/kclx/pkg/helm"
 	"github.com/MacroPower/kclx/pkg/helmutil"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
@@ -51,7 +52,7 @@ func NewChartInitCmd() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("argument error: %w", err)
 			}
-			c := helmutil.NewChartPkg(basePath)
+			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
 			return c.Init()
 		},
 		SilenceUsage: true,
@@ -96,7 +97,7 @@ func NewChartAddCmd() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("argument error: %w", err)
 			}
-			c := helmutil.NewChartPkg(basePath)
+			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
 			return c.Add(chart, repoURL, targetRevision, schemaPath, schemaGenerator)
 		},
 		SilenceUsage: true,
@@ -120,7 +121,7 @@ func NewChartUpdateCmd() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("argument error: %w", err)
 			}
-			c := helmutil.NewChartPkg(basePath)
+			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
 			return c.Update()
 		},
 		SilenceUsage: true,

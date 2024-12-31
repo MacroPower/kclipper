@@ -68,7 +68,7 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 				return filePathsEqual(f, schemaPath)
 			}
 		}
-		helmChart := helm.NewChart(helm.DefaultClient, helm.TemplateOpts{
+		helmChart := helm.NewChart(c.Client, helm.TemplateOpts{
 			ChartName:      chart,
 			TargetRevision: targetRevision,
 			RepoURL:        repoURL,

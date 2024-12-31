@@ -12,9 +12,13 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-var DefaultClient = MustNewClient(NewTempPaths(os.TempDir()), os.Getenv("ARGOCD_APP_PROJECT_NAME"), "10M")
+var DefaultClient = MustNewClient(
+	NewTempPaths(os.TempDir(), NewBase64PathEncoder()),
+	os.Getenv("ARGOCD_APP_PROJECT_NAME"),
+	"10M",
+)
 
-type TempPaths interface {
+type PathCacher interface {
 	Add(key string, value string)
 	GetPath(key string) (string, error)
 	GetPathIfExists(key string) string
@@ -31,14 +35,14 @@ type Creds struct {
 }
 
 type Client struct {
-	Paths          TempPaths
+	Paths          PathCacher
 	MaxExtractSize resource.Quantity
 	Project        string
 	Proxy          string
 	NoProxy        string
 }
 
-func NewClient(paths TempPaths, project, maxExtractSize string) (*Client, error) {
+func NewClient(paths PathCacher, project, maxExtractSize string) (*Client, error) {
 	maxExtractSizeResource, err := resource.ParseQuantity(maxExtractSize)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse quantity '%s': %w", maxExtractSize, err)
@@ -52,7 +56,7 @@ func NewClient(paths TempPaths, project, maxExtractSize string) (*Client, error)
 }
 
 // MustNewClient runs [NewClient] and panics on any errors.
-func MustNewClient(paths TempPaths, project, maxExtractSize string) *Client {
+func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 	c, err := NewClient(paths, project, maxExtractSize)
 	if err != nil {
 		panic(err)
@@ -62,8 +66,8 @@ func MustNewClient(paths TempPaths, project, maxExtractSize string) *Client {
 
 // Pull will retrieve the chart, extract it, and return the path to the
 // extracted chart. An io.Closer is also returned, calling Close() will clean up
-// the extracted chart. Pulled charts will be stored in the injected [TempPaths]
-// in .tar.gz format, and subsequent requests will try to use [TempPaths] rather
+// the extracted chart. Pulled charts will be stored in the injected [PathCacher]
+// in .tar.gz format, and subsequent requests will try to use [PathCacher] rather
 // than re-pulling the chart.
 func (c *Client) Pull(chart, repoURL, targetRevision string) (string, io.Closer, error) {
 	return c.PullWithCreds(chart, repoURL, targetRevision, Creds{}, false)

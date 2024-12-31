@@ -166,7 +166,7 @@ func (c *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) 
 	return jsonSchema, nil
 }
 
-func (h *Chart) writeValues(values map[string]any) (string, error) {
+func (c *Chart) writeValues(values map[string]any) (string, error) {
 	valuesYAML, err := yaml.Marshal(values)
 	if err != nil {
 		return "", fmt.Errorf("error marshaling values to YAML: %w", err)

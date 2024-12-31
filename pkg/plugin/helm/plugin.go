@@ -48,7 +48,7 @@ func init() {
 					kubeVersion := os.Getenv("KUBE_VERSION")
 					kubeAPIVersions := os.Getenv("KUBE_API_VERSIONS")
 
-					helmClient, err := helm.NewClient(helm.NewTempPaths(os.TempDir()), project, "10M")
+					helmClient, err := helm.NewClient(helm.NewTempPaths(os.TempDir(), helm.NewBase64PathEncoder()), project, "10M")
 					if err != nil {
 						return nil, fmt.Errorf("failed to create helm client: %w", err)
 					}

@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/MacroPower/kclx/pkg/helm"
+	"github.com/MacroPower/kclx/pkg/helmtest"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
 
@@ -66,7 +67,7 @@ func TestHelmChart(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c := helm.NewChart(helm.DefaultClient, tc.opts)
+			c := helm.NewChart(helmtest.DefaultTestClient, tc.opts)
 
 			results, err := c.Template()
 			require.NoError(t, err)

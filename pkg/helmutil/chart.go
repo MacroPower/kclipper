@@ -3,17 +3,21 @@ package helmutil
 import (
 	"os"
 	"sync"
+
+	"github.com/MacroPower/kclx/pkg/helm"
 )
 
 type ChartPkg struct {
 	BasePath string
+	Client   helm.ChartClient
 
 	mu sync.RWMutex
 }
 
-func NewChartPkg(basePath string) *ChartPkg {
+func NewChartPkg(basePath string, client helm.ChartClient) *ChartPkg {
 	return &ChartPkg{
 		BasePath: basePath,
+		Client:   client,
 	}
 }
 
