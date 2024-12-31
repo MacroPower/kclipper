@@ -180,6 +180,8 @@ charts: helm.Charts = {
 }
 ```
 
+> Note that keys and folder/package names will be valid KCL identifiers, whereas the chart argument is the name of the Helm chart. Typically these will be the same, but for example an `app-template` chart will have a key and folder/package named `app_template`.
+
 The `charts.podinfo` package will contain the schemas `podinfo.Chart` and `podinfo.Values`, as well as a `values.schema.json` file for use with your `values.yaml` files, should you choose to use them. You can now use these objects in your `main.k` file:
 
 ```py
