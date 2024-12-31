@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -14,7 +13,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
 	"github.com/MacroPower/kclx/pkg/helm"
-	helmchart "github.com/MacroPower/kclx/pkg/helm/models"
+	"github.com/MacroPower/kclx/pkg/helmmodels"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 	"github.com/MacroPower/kclx/pkg/kclutil"
 )
@@ -30,16 +29,10 @@ charts: helm.Charts = {}
 `
 
 func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genType jsonschema.GeneratorType) error {
-	repoNetURL, err := url.Parse(repoURL)
-	if err != nil {
-		return fmt.Errorf("failed to parse repo_url %s: %w", repoURL, err)
-	}
-	enableOCI := repoNetURL.Scheme == ""
-
-	hc := helmchart.Chart{
-		ChartBase: helmchart.ChartBase{
+	hc := helmmodels.Chart{
+		ChartBase: helmmodels.ChartBase{
 			Chart:          chart,
-			RepoURL:        repoNetURL.String(),
+			RepoURL:        repoURL,
 			TargetRevision: targetRevision,
 		},
 	}
@@ -58,6 +51,8 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 	}
 
 	var jsonSchemaBytes []byte
+	var err error
+
 	switch genType {
 	case jsonschema.NoGeneratorType:
 		break
@@ -73,13 +68,12 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 				return filePathsEqual(f, schemaPath)
 			}
 		}
-		jsonSchemaBytes, err = helm.DefaultHelm.GetValuesJSONSchema(&helm.TemplateOpts{
-			ChartName:       chart,
-			TargetRevision:  targetRevision,
-			RepoURL:         repoURL,
-			EnableOCI:       enableOCI,
-			PassCredentials: false,
-		}, jsonschema.GetGenerator(genType), fileMatcher)
+		helmChart := helm.NewChart(helm.DefaultClient, helm.TemplateOpts{
+			ChartName:      chart,
+			TargetRevision: targetRevision,
+			RepoURL:        repoURL,
+		})
+		jsonSchemaBytes, err = helmChart.GetValuesJSONSchema(jsonschema.GetGenerator(genType), fileMatcher)
 		if err != nil {
 			return fmt.Errorf("failed to generate schema: %w", err)
 		}
@@ -93,7 +87,7 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 
 	chartConfig := []string{
 		fmt.Sprintf(`chart="%s"`, chart),
-		fmt.Sprintf(`repoURL="%s"`, repoNetURL.String()),
+		fmt.Sprintf(`repoURL="%s"`, repoURL),
 		fmt.Sprintf(`targetRevision="%s"`, targetRevision),
 		fmt.Sprintf(`schemaGenerator="%s"`, genType),
 	}
@@ -109,7 +103,7 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 	return nil
 }
 
-func (c *ChartPkg) generateAndWriteChartKCL(hc helmchart.Chart, chartDir string) error {
+func (c *ChartPkg) generateAndWriteChartKCL(hc helmmodels.Chart, chartDir string) error {
 	kclChart := &bytes.Buffer{}
 	if err := hc.GenerateKCL(kclChart); err != nil {
 		return fmt.Errorf("failed to generate chart.k: %w", err)

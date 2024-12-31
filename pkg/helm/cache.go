@@ -8,33 +8,33 @@ import (
 	"sync"
 )
 
-// TempPaths provides a way to generate temporary paths for storing chart
+// LocalTempPaths provides a way to generate temporary paths for storing chart
 // archives, in a way that prevents cache poisoning between different Projects.
 // Rather than storing a mapping of key->path in memory (default Argo behavior),
 // this implementation uses very simple bijective encoding/decoding functions to
 // convert keys to paths. This allows cache preservation across multiple KCL run
 // invocations.
-type TempPaths struct {
+type LocalTempPaths struct {
 	root string
 	lock sync.RWMutex
 }
 
-func NewTempPaths(root string) *TempPaths {
+func NewTempPaths(root string) *LocalTempPaths {
 	chartPaths := filepath.Join(root, "charts")
 	err := os.MkdirAll(chartPaths, 0o700)
 	if err != nil {
 		panic(err)
 	}
-	return &TempPaths{
+	return &LocalTempPaths{
 		root: filepath.Join(root, "charts"),
 	}
 }
 
-func (p *TempPaths) keyToPath(key string) string {
+func (p *LocalTempPaths) keyToPath(key string) string {
 	return filepath.Join(p.root, encodeKey(key))
 }
 
-func (p *TempPaths) pathToKey(path string) string {
+func (p *LocalTempPaths) pathToKey(path string) string {
 	key, err := decodeKey(filepath.Base(path))
 	if err != nil {
 		panic(fmt.Errorf("failed to decode key for %s: %w", path, err))
@@ -42,16 +42,16 @@ func (p *TempPaths) pathToKey(path string) string {
 	return key
 }
 
-func (p *TempPaths) Add(_ string, _ string) {
+func (p *LocalTempPaths) Add(_ string, _ string) {
 }
 
 // GetPath generates a path for the given key or returns previously generated one.
-func (p *TempPaths) GetPath(key string) (string, error) {
+func (p *LocalTempPaths) GetPath(key string) (string, error) {
 	return p.keyToPath(key), nil
 }
 
 // GetPathIfExists gets a path for the given key if it exists. Otherwise, returns an empty string.
-func (p *TempPaths) GetPathIfExists(key string) string {
+func (p *LocalTempPaths) GetPathIfExists(key string) string {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 
@@ -62,7 +62,7 @@ func (p *TempPaths) GetPathIfExists(key string) string {
 }
 
 // GetPaths gets a copy of the map of paths.
-func (p *TempPaths) GetPaths() map[string]string {
+func (p *LocalTempPaths) GetPaths() map[string]string {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 

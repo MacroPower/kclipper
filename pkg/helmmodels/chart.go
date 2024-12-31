@@ -1,16 +1,19 @@
-package helm
+package helmmodels
 
 import (
 	"bytes"
 	"fmt"
 
 	"github.com/iancoleman/strcase"
-	invopopjsonschema "github.com/invopop/jsonschema"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 	"github.com/MacroPower/kclx/pkg/kclutil"
 )
+
+type ChartData struct {
+	Charts map[string]ChartConfig `json:"charts"`
+}
 
 // ChartBase represents the KCL schema `helm.ChartBase`.
 type ChartBase struct {
@@ -41,10 +44,7 @@ func (c *ChartConfig) GetSnakeCaseName() string {
 }
 
 func (c *ChartConfig) GenerateKCL(b *bytes.Buffer) error {
-	r := &invopopjsonschema.Reflector{
-		DoNotReference: true,
-		ExpandedStruct: true,
-	}
+	r := jsonschema.NewReflector()
 	js := r.Reflect(&ChartConfig{})
 	if cv, ok := js.Properties.Get("schemaPath"); ok {
 		cv.Default = c.SchemaPath
@@ -84,10 +84,7 @@ func (c *Chart) GetSnakeCaseName() string {
 }
 
 func (c *Chart) GenerateKCL(b *bytes.Buffer) error {
-	r := &invopopjsonschema.Reflector{
-		DoNotReference: true,
-		ExpandedStruct: true,
-	}
+	r := jsonschema.NewReflector()
 	js := r.Reflect(&Chart{})
 	if cv, ok := js.Properties.Get("chart"); ok {
 		cv.Default = c.Chart

@@ -10,7 +10,7 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
-	helmchart "github.com/MacroPower/kclx/pkg/helm/models"
+	"github.com/MacroPower/kclx/pkg/helmmodels"
 	"github.com/MacroPower/kclx/pkg/helmutil"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
@@ -31,11 +31,11 @@ func TestHelmChartAdd(t *testing.T) {
 	require.NoError(t, err)
 
 	tcs := map[string]struct {
-		chart *helmchart.ChartConfig
+		chart *helmmodels.ChartConfig
 	}{
 		"podinfo": {
-			chart: &helmchart.ChartConfig{
-				ChartBase: helmchart.ChartBase{
+			chart: &helmmodels.ChartConfig{
+				ChartBase: helmmodels.ChartBase{
 					Chart:          "podinfo",
 					RepoURL:        "https://stefanprodan.github.io/podinfo",
 					TargetRevision: "6.7.1",
@@ -44,8 +44,8 @@ func TestHelmChartAdd(t *testing.T) {
 			},
 		},
 		"app-template": {
-			chart: &helmchart.ChartConfig{
-				ChartBase: helmchart.ChartBase{
+			chart: &helmmodels.ChartConfig{
+				ChartBase: helmmodels.ChartBase{
 					Chart:          "app-template",
 					RepoURL:        "https://bjw-s.github.io/helm-charts/",
 					TargetRevision: "3.6.0",

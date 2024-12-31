@@ -2,7 +2,6 @@ package helm
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 	"strings"
 
@@ -29,7 +28,6 @@ func init() {
 						"release_name":     "str",
 						"namespace":        "str",
 						"helm_version":     "str",
-						"enable_oci":       "bool",
 						"skip_crds":        "bool",
 						"pass_credentials": "bool",
 						"values":           "{str:any}",
@@ -41,8 +39,7 @@ func init() {
 
 					chartName := args.StrKwArg("chart")
 					targetRevision := args.StrKwArg("target_revision")
-					repoURLStr := args.StrKwArg("repo_url")
-					enableOCI := safeArgs.BoolKwArg("enable_oci", false)
+					repoURL := args.StrKwArg("repo_url")
 
 					// https://argo-cd.readthedocs.io/en/stable/user-guide/build-environment/
 					// https://github.com/argoproj/argo-cd/pull/15186
@@ -51,29 +48,26 @@ func init() {
 					kubeVersion := os.Getenv("KUBE_VERSION")
 					kubeAPIVersions := os.Getenv("KUBE_API_VERSIONS")
 
-					repoURL, err := url.Parse(repoURLStr)
+					helmClient, err := helm.NewClient(helm.NewTempPaths(os.TempDir()), project, "10M")
 					if err != nil {
-						return nil, fmt.Errorf("failed to parse repo_url '%s': %w", repoURLStr, err)
-					}
-					if repoURL.Scheme == "" {
-						enableOCI = true
+						return nil, fmt.Errorf("failed to create helm client: %w", err)
 					}
 
-					objs, err := helm.DefaultHelm.Template(&helm.TemplateOpts{
+					helmChart := helm.NewChart(helmClient, helm.TemplateOpts{
 						ChartName:       chartName,
 						TargetRevision:  targetRevision,
-						RepoURL:         repoURL.String(),
+						RepoURL:         repoURL,
 						ReleaseName:     safeArgs.StrKwArg("release_name", chartName),
 						Namespace:       namespace,
-						Project:         project,
 						HelmVersion:     safeArgs.StrKwArg("helm_version", "v3"),
-						EnableOCI:       enableOCI,
 						SkipCRDs:        safeArgs.BoolKwArg("skip_crds", false),
 						PassCredentials: safeArgs.BoolKwArg("pass_credentials", false),
 						ValuesObject:    safeArgs.MapKwArg("values", map[string]any{}),
 						KubeVersion:     kubeVersion,
 						APIVersions:     strings.Split(kubeAPIVersions, ","),
 					})
+
+					objs, err := helmChart.Template()
 					if err != nil {
 						return nil, fmt.Errorf("failed to template '%s': %w", chartName, err)
 					}

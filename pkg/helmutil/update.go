@@ -8,12 +8,8 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go/pkg/kcl"
 
-	helmchart "github.com/MacroPower/kclx/pkg/helm/models"
+	"github.com/MacroPower/kclx/pkg/helmmodels"
 )
-
-type ChartData struct {
-	Charts map[string]helmchart.ChartConfig `json:"charts"`
-}
 
 // Update loads the chart configurations defined in charts.k and calls Add to
 // generate all required chart packages.
@@ -31,7 +27,7 @@ func (c *ChartPkg) Update() error {
 
 	mainData := mainOutput.GetRawJsonResult()
 
-	chartData := &ChartData{}
+	chartData := &helmmodels.ChartData{}
 	if err := json.Unmarshal([]byte(mainData), chartData); err != nil {
 		return fmt.Errorf("failed to unmarshal output from '%s': %w", mainFile, err)
 	}

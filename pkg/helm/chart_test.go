@@ -13,12 +13,12 @@ func TestGetHelmValuesJsonSchema(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		opts  *helm.TemplateOpts
+		opts  helm.TemplateOpts
 		gen   jsonschema.FileGenerator
 		match func(string) bool
 	}{
 		"podinfo": {
-			opts: &helm.TemplateOpts{
+			opts: helm.TemplateOpts{
 				ChartName:      "podinfo",
 				TargetRevision: "6.7.1",
 				RepoURL:        "https://stefanprodan.github.io/podinfo",
@@ -27,7 +27,7 @@ func TestGetHelmValuesJsonSchema(t *testing.T) {
 			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
 		},
 		"app-template": {
-			opts: &helm.TemplateOpts{
+			opts: helm.TemplateOpts{
 				ChartName:      "app-template",
 				TargetRevision: "3.6.0",
 				RepoURL:        "https://bjw-s.github.io/helm-charts/",
@@ -40,7 +40,9 @@ func TestGetHelmValuesJsonSchema(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			results, err := helm.DefaultHelm.GetValuesJSONSchema(tc.opts, tc.gen, tc.match)
+			c := helm.NewChart(helm.DefaultClient, tc.opts)
+
+			results, err := c.GetValuesJSONSchema(tc.gen, tc.match)
 			require.NoError(t, err)
 			require.NotNil(t, results)
 		})
