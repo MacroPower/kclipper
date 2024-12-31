@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
@@ -27,24 +28,14 @@ _http
 		KCodeList:     []string{code},
 		Args:          []*gpyrpc.Argument{},
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if result.GetErrMessage() != "" {
-		t.Fatal(result.GetErrMessage())
-	}
+	require.NoError(t, err)
+	require.Empty(t, result.GetErrMessage())
 
 	resultMap := map[string]any{}
-	if err := json.Unmarshal([]byte(result.GetJsonResult()), &resultMap); err != nil {
-		t.Fatal(err)
-	}
+	err = json.Unmarshal([]byte(result.GetJsonResult()), &resultMap)
+	require.NoError(t, err)
 
 	status, ok := resultMap["status"].(float64)
-	if !ok {
-		t.Fatalf("unexpected status type: %T", resultMap["status"])
-	}
-
-	if status != 200 {
-		t.Fatalf("unexpected status: %v", resultMap["status"])
-	}
+	require.True(t, ok, "unexpected status type: %T", resultMap["status"])
+	require.InDeltaf(t, 200.0, status, 0.1, "unexpected status: %v", resultMap["status"])
 }

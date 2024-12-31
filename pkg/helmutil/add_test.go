@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
@@ -26,9 +27,8 @@ func TestHelmChartAdd(t *testing.T) {
 
 	ca := helmutil.NewChartPkg(chartPath)
 
-	if err := ca.Init(); err != nil {
-		t.Fatal(err)
-	}
+	err := ca.Init()
+	require.NoError(t, err)
 
 	tcs := map[string]struct {
 		chart *helmchart.ChartConfig
@@ -61,14 +61,10 @@ func TestHelmChartAdd(t *testing.T) {
 
 			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision,
 				tc.chart.SchemaPath, tc.chart.SchemaGenerator)
-			if err != nil {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 
 			depsOpt, err := options.LoadDepsFrom(chartPath, true)
-			if err != nil {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 			results, err := kcl.Test(
 				&kcl.TestOptions{
 					PkgList:  []string{chartPath},
@@ -76,13 +72,9 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 				*depsOpt,
 			)
-			if err != nil {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 
-			if len(results.Info) != 0 {
-				t.Fatalf("expected no errors, got %d: %#v", len(results.Info), results)
-			}
+			require.Emptyf(t, results.Info, "expected no errors, got %d: %#v", len(results.Info), results)
 		})
 	}
 }
@@ -131,9 +123,7 @@ func TestDefaultReplacement(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			got := tc.re.ReplaceAllString(tc.input, tc.repl)
-			if got != tc.want {
-				t.Fatalf("expected %q, got %q", tc.want, got)
-			}
+			require.Equalf(t, tc.want, got, "expected %q, got %q", tc.want, got)
 		})
 	}
 }
