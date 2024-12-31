@@ -13,7 +13,6 @@ import (
 
 	"github.com/dadav/go-jsonpointer"
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
-	"github.com/hashicorp/go-multierror"
 	"gopkg.in/yaml.v3"
 )
 
@@ -107,96 +106,106 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 		if err != nil {
 			return fmt.Errorf("invalid $ref value '%s': %w", schema.Ref, err)
 		}
-		var relSchema helmschema.Schema
-		file, err := os.Open(relFilePath)
-		if err != nil {
-			return fmt.Errorf("error opening file '%s' for $ref '%s': %w", relFilePath, schema.Ref, err)
+		if err := resolveFilePath(schema, relFilePath, jsPointer); err != nil {
+			return fmt.Errorf("invalid $ref value '%s': %w", schema.Ref, err)
 		}
-		defer file.Close()
-		byteValue, err := io.ReadAll(file)
-		if err != nil {
-			return fmt.Errorf("error reading file '%s' for $ref '%s': %w", relFilePath, schema.Ref, err)
-		}
-
-		if jsPointer != "" {
-			// Found json-pointer
-			var obj interface{}
-			var merr error
-			err := json.Unmarshal(byteValue, &obj)
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			jsonPointerResultRaw, err := jsonpointer.Get(obj, jsPointer)
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			jsonPointerResultMarshaled, err := json.Marshal(jsonPointerResultRaw)
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			err = json.Unmarshal(jsonPointerResultMarshaled, &relSchema)
-			if err != nil {
-				merr = multierror.Append(merr, err)
-				return fmt.Errorf("failed to resolve JSON pointer in $ref '%s': %w", schema.Ref, merr)
-			}
-		} else {
-			// No json-pointer
-			err = json.Unmarshal(byteValue, &relSchema)
-			if err != nil {
-				return fmt.Errorf("failed to unmarshal JSON Schema for $ref '%s': %w", schema.Ref, err)
-			}
-		}
-
-		if err := relSchema.Validate(); err != nil {
-			return fmt.Errorf("encountered invalid schema while resolving $ref '%s': %w", schema.Ref, err)
-		}
-
-		if err := handleSchemaRefs(&relSchema, path.Dir(relFilePath)); err != nil {
-			return err
-		}
-
-		*schema = relSchema
-		schema.HasData = true
 	}
 
 	if jsFilePath == "" && jsPointer != "" {
-		var merr error
-		relData, err := json.Marshal(schema)
-		if err != nil {
-			merr = multierror.Append(merr, err)
-		}
-		jsonPointerResultRaw, err := jsonpointer.Get(relData, jsPointer)
-		if err != nil {
-			merr = multierror.Append(merr, err)
-		}
-		jsonPointerResultMarshaled, err := json.Marshal(jsonPointerResultRaw)
-		if err != nil {
-			merr = multierror.Append(merr, err)
-		}
-		var relSchema helmschema.Schema
-		err = json.Unmarshal(jsonPointerResultMarshaled, &relSchema)
-		if err != nil {
-			merr = multierror.Append(merr, err)
-		}
-		if err := relSchema.Validate(); err != nil {
-			merr = multierror.Append(merr, err)
-		}
+		relSchema, err := resolveLocalRef(schema, jsPointer)
 
 		// Sometimes this will error due to a partial import, where references
 		// don't exist in the current document.
-		if merr != nil {
+		if err != nil {
 			schema.Ref = ""
 		} else {
-			*schema = relSchema
+			*schema = *relSchema
 			schema.HasData = true
 		}
 	}
 
-	// if err := schema.Validate(); err != nil {
-	// 	return fmt.Errorf("invalid schema: %w", err)
-	// }
+	if err := schema.Validate(); err != nil {
+		return fmt.Errorf("invalid schema: %w", err)
+	}
 
 	return nil
+}
+
+func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helmschema.Schema, error) {
+	relData, err := json.Marshal(schema)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal schema for json pointer: %w", err)
+	}
+	relSchema, err := unmarshalSchemaRef(relData, jsonSchemaPointer)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal schema for json pointer: %w", err)
+	}
+	return relSchema, nil
+}
+
+func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer string) error {
+	file, err := os.Open(relPath)
+	if err != nil {
+		return fmt.Errorf("error opening file '%s': %w", relPath, err)
+	}
+	defer file.Close()
+	byteValue, err := io.ReadAll(file)
+	if err != nil {
+		return fmt.Errorf("error reading file '%s': %w", relPath, err)
+	}
+
+	relSchema, err := unmarshalSchemaRef(byteValue, jsonSchemaPointer)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal schema: %w", err)
+	}
+
+	if err := handleSchemaRefs(relSchema, path.Dir(relPath)); err != nil {
+		return err
+	}
+
+	*schema = *relSchema
+	schema.HasData = true
+
+	return nil
+}
+
+func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Schema, error) {
+	relSchema := &helmschema.Schema{}
+
+	if jsonSchemaPointer == "" {
+		err := json.Unmarshal(data, &relSchema)
+		if err != nil {
+			return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+		}
+		if err := relSchema.Validate(); err != nil {
+			return nil, fmt.Errorf("invalid schema: %w", err)
+		}
+		return relSchema, nil
+	}
+
+	var obj interface{}
+	err := json.Unmarshal(data, &obj)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+	}
+	jsonPointerResultRaw, err := jsonpointer.Get(obj, jsonSchemaPointer)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve JSON pointer: %w", err)
+	}
+	jsonPointerResultMarshaled, err := json.Marshal(jsonPointerResultRaw)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal JSON pointer result: %w", err)
+	}
+	err = json.Unmarshal(jsonPointerResultMarshaled, relSchema)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON pointer result: %w", err)
+	}
+
+	if err := relSchema.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid schema: %w", err)
+	}
+
+	return relSchema, nil
 }
 
 func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error {
