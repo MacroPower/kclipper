@@ -5,6 +5,8 @@ import (
 	"path"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/MacroPower/kclx/pkg/helmutil"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
@@ -21,18 +23,13 @@ func TestHelmChartUpdate(t *testing.T) {
 
 	chartPkg := helmutil.NewChartPkg(chartPath)
 
-	if err := chartPkg.Init(); err != nil {
-		t.Fatal(err)
-	}
+	err := chartPkg.Init()
+	require.NoError(t, err)
 
-	err := chartPkg.Add("podinfo", "https://stefanprodan.github.io/podinfo", "6.7.1", "", jsonschema.AutoGeneratorType)
-	if err != nil {
-		t.Fatal(err)
-	}
+	err = chartPkg.Add("podinfo", "https://stefanprodan.github.io/podinfo", "6.7.1", "", jsonschema.AutoGeneratorType)
+	require.NoError(t, err)
 	os.RemoveAll(path.Join(chartPath, "podinfo"))
 
 	err = chartPkg.Update()
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 }
