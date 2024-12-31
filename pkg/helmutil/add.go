@@ -85,13 +85,14 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 		}
 	}
 
-	chartConfig := []string{
-		fmt.Sprintf(`chart="%s"`, chart),
-		fmt.Sprintf(`repoURL="%s"`, repoURL),
-		fmt.Sprintf(`targetRevision="%s"`, targetRevision),
-		fmt.Sprintf(`schemaGenerator="%s"`, genType),
+	chartConfig := map[string]string{
+		"chart":           chart,
+		"repoURL":         repoURL,
+		"targetRevision":  targetRevision,
+		"schemaGenerator": string(genType),
+		"schemaPath":      schemaPath,
 	}
-	if err := c.updateChartsFile(c.BasePath, hc.GetSnakeCaseName(), chartConfig...); err != nil {
+	if err := c.updateChartsFile(c.BasePath, hc.GetSnakeCaseName(), chartConfig); err != nil {
 		return err
 	}
 
@@ -161,7 +162,7 @@ func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) er
 	return nil
 }
 
-func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig ...string) error {
+func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig map[string]string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	mainFile := path.Join(vendorDir, "charts.k")
@@ -172,8 +173,14 @@ func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig ...s
 	}
 	imports := []string{"helm"}
 	specs := []string{}
-	for _, cc := range chartConfig {
-		specs = append(specs, fmt.Sprintf(`charts.%s.%s`, chartKey, cc))
+	for k, v := range chartConfig {
+		if k == "" {
+			return fmt.Errorf("invalid key in chart config: %#v", chartConfig)
+		}
+		if v == "" {
+			continue
+		}
+		specs = append(specs, fmt.Sprintf(`charts.%s.%s="%s"`, chartKey, k, v))
 	}
 	_, err := kcl.OverrideFile(mainFile, specs, imports)
 	if err != nil {

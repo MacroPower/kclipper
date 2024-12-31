@@ -69,9 +69,6 @@ func NewChartAddCmd() *cobra.Command {
 			if err := cc.MarkFlagRequired("repo_url"); err != nil {
 				return fmt.Errorf("argument error: %w", err)
 			}
-			if err := cc.MarkFlagRequired("target_revision"); err != nil {
-				return fmt.Errorf("argument error: %w", err)
-			}
 
 			flags := cc.Flags()
 			basePath, err := flags.GetString("path")
@@ -106,7 +103,7 @@ func NewChartAddCmd() *cobra.Command {
 	}
 	cmd.Flags().StringP("chart", "c", "", "Helm chart name (required)")
 	cmd.Flags().StringP("repo_url", "r", "", "URL of the Helm chart repository (required)")
-	cmd.Flags().StringP("target_revision", "t", "", "Semver tag for the chart's version (required)")
+	cmd.Flags().StringP("target_revision", "t", "", "Semver tag for the chart's version")
 	cmd.Flags().StringP("schema_generator", "G", "AUTO", "Chart schema generator")
 	cmd.Flags().StringP("schema_path", "P", "", "Chart schema path")
 

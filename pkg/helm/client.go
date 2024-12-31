@@ -1,10 +1,12 @@
 package helm
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 
 	argohelm "github.com/argoproj/argo-cd/v2/util/helm"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -29,9 +31,9 @@ type Creds struct {
 }
 
 type Client struct {
-	paths          TempPaths
-	maxExtractSize resource.Quantity
-	project        string
+	Paths          TempPaths
+	MaxExtractSize resource.Quantity
+	Project        string
 }
 
 func NewClient(paths TempPaths, project, maxExtractSize string) (*Client, error) {
@@ -41,9 +43,9 @@ func NewClient(paths TempPaths, project, maxExtractSize string) (*Client, error)
 	}
 
 	return &Client{
-		paths:          paths,
-		maxExtractSize: maxExtractSizeResource,
-		project:        project,
+		Paths:          paths,
+		MaxExtractSize: maxExtractSizeResource,
+		Project:        project,
 	}, nil
 }
 
@@ -73,6 +75,19 @@ func (c *Client) PullWithCreds(
 		return "", nil, fmt.Errorf("failed to parse repoURL '%s': %w", repoURL, err)
 	}
 
+	isLocal := repoNetURL.Hostname() == ""
+	if isLocal {
+		chartDir, err := filepath.Abs(repoURL)
+		if err != nil {
+			return "", nil, fmt.Errorf("failed to get absolute path: %w", err)
+		}
+		chartPath := filepath.Join(chartDir, chart)
+		if !dirExists(chartPath) {
+			return "", nil, fmt.Errorf("chart directory does not exist: %s", chartPath)
+		}
+		return chartPath, io.NopCloser(bytes.NewReader(nil)), nil
+	}
+
 	enableOCI := repoNetURL.Scheme == ""
 
 	argoCreds := argohelm.Creds{
@@ -85,13 +100,21 @@ func (c *Client) PullWithCreds(
 	}
 
 	hcl := argohelm.NewClient(repoNetURL.String(), argoCreds, enableOCI, "", "",
-		argohelm.WithChartPaths(c.paths))
+		argohelm.WithChartPaths(c.Paths))
 
-	chartPath, closer, err := hcl.ExtractChart(chart, targetRevision, c.project, passCredentials,
-		c.maxExtractSize.Value(), c.maxExtractSize.IsZero())
+	chartPath, closer, err := hcl.ExtractChart(chart, targetRevision, c.Project, passCredentials,
+		c.MaxExtractSize.Value(), c.MaxExtractSize.IsZero())
 	if err != nil {
 		return "", closer, fmt.Errorf("error extracting helm chart: %w", err)
 	}
 
 	return chartPath, closer, nil
+}
+
+func dirExists(path string) bool {
+	fi, err := os.Lstat(path)
+	if err != nil || !fi.IsDir() {
+		return false
+	}
+	return true
 }

@@ -11,6 +11,7 @@ dist/
 
 # Test output directory
 .test/
+**/testdata/got/
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
