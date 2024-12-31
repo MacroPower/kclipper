@@ -20,7 +20,7 @@ const (
 	AutoGeneratorType           GeneratorType = "AUTO"
 	ValueInferenceGeneratorType GeneratorType = "VALUE-INFERENCE"
 	URLGeneratorType            GeneratorType = "URL"
-	PathGeneratorType           GeneratorType = "PATH"
+	PathGeneratorType           GeneratorType = "CHART-PATH"
 	LocalPathGeneratorType      GeneratorType = "LOCAL-PATH"
 	NoGeneratorType             GeneratorType = "NONE"
 )
