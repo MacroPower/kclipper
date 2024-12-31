@@ -1,13 +1,9 @@
 package jsonschema
 
 import (
-	"bytes"
-	"fmt"
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	jsv6 "github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 type FileGenerator interface {
@@ -100,28 +96,4 @@ func isYAMLFile(f string) bool {
 
 func isJSONFile(f string) bool {
 	return filepath.Ext(f) == ".json"
-}
-
-// Validate ensures that the given JSON data is a valid JSON Schema. It returns
-// true if the JSON data is a valid JSON Schema, otherwise it returns false
-// as well as an error describing the validation failure.
-func Validate(jsonData []byte) (bool, error) {
-	schema, err := jsv6.UnmarshalJSON(bytes.NewReader(jsonData))
-	if err != nil {
-		return false, fmt.Errorf("failed unmarshaling JSON Schema: %w", err)
-	}
-
-	compiler := jsv6.NewCompiler()
-	if err := compiler.AddResource("schema.json", schema); err != nil {
-		return false, fmt.Errorf("failed to add JSON Schema to validator: %w", err)
-	}
-	cSchema, err := compiler.Compile("schema.json")
-	if err != nil {
-		return false, fmt.Errorf("failed to validate JSON Schema: %w", err)
-	}
-	if len(cSchema.Properties) == 0 {
-		return false, fmt.Errorf("no properties found on JSON Schema: %#v", schema)
-	}
-
-	return true, nil
 }
