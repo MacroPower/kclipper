@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	argohelm "github.com/argoproj/argo-cd/v2/util/helm"
-	ioutil "github.com/argoproj/argo-cd/v2/util/io"
 	pathutil "github.com/argoproj/argo-cd/v2/util/io/path"
 	"github.com/google/uuid"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -58,12 +57,28 @@ func NewChart(client ChartClient, opts TemplateOpts) *Chart {
 // split into individual Kubernetes objects and returned as a slice of
 // [unstructured.Unstructured] objects.
 func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
+	out, err := c.template()
+	if err != nil {
+		return nil, err
+	}
+
+	objs, err := SplitYAML(out)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing helm template output: %w", err)
+	}
+
+	return objs, nil
+}
+
+func (c *Chart) template() ([]byte, error) {
 	chartPath, closer, err := c.Client.PullWithCreds(c.TemplateOpts.ChartName, c.TemplateOpts.RepoURL,
 		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, c.TemplateOpts.PassCredentials)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
-	defer ioutil.Close(closer)
+	defer func() {
+		_ = closer.Close()
+	}()
 
 	// isLocal controls helm temp dirs, does not seem to impact pull/template behavior.
 	isLocal := false
@@ -80,7 +95,7 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 		return nil, err
 	}
 	defer func() {
-		_ = os.RemoveAll(p)
+		_ = os.Remove(p)
 	}()
 
 	argoTemplateOpts := &argohelm.TemplateOpts{
@@ -102,13 +117,7 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 			return nil, fmt.Errorf("error templating helm chart: %w", err)
 		}
 	}
-
-	objs, err := SplitYAML([]byte(out))
-	if err != nil {
-		return nil, fmt.Errorf("error parsing helm template output: %w", err)
-	}
-
-	return objs, nil
+	return []byte(out), nil
 }
 
 // GetValuesJSONSchema pulls a Helm chart using the provided [TemplateOpts], and
@@ -121,7 +130,9 @@ func (c *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) 
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
-	defer ioutil.Close(closer)
+	defer func() {
+		_ = closer.Close()
+	}()
 
 	unmatchedFiles := []string{}
 	matchedFiles := []string{}

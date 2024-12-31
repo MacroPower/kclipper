@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 )
 
 type PathEncoder interface {
@@ -22,7 +21,6 @@ type PathEncoder interface {
 type TempPaths struct {
 	root string
 	pe   PathEncoder
-	lock sync.RWMutex
 }
 
 func NewTempPaths(root string, pe PathEncoder) *TempPaths {
@@ -32,7 +30,7 @@ func NewTempPaths(root string, pe PathEncoder) *TempPaths {
 		panic(err)
 	}
 	return &TempPaths{
-		root: filepath.Join(root, "charts"),
+		root: chartPaths,
 		pe:   pe,
 	}
 }
@@ -59,20 +57,15 @@ func (p *TempPaths) GetPath(key string) (string, error) {
 
 // GetPathIfExists gets a path for the given key if it exists. Otherwise, returns an empty string.
 func (p *TempPaths) GetPathIfExists(key string) string {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
-
-	if _, err := os.Stat(p.keyToPath(key)); err == nil {
-		return p.keyToPath(key)
+	path := p.keyToPath(key)
+	if _, err := os.Stat(path); err != nil {
+		return ""
 	}
-	return ""
+	return path
 }
 
 // GetPaths gets a copy of the map of paths.
 func (p *TempPaths) GetPaths() map[string]string {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
-
 	ds, err := os.ReadDir(p.root)
 	if err != nil {
 		panic(err)

@@ -65,32 +65,3 @@ func TestPluginHelmTemplate(t *testing.T) {
 		})
 	}
 }
-
-func BenchmarkPluginHelmTemplate(b *testing.B) {
-	inputKCLFile := filepath.Join(testDataDir, "input/simple.k")
-	inputKCL, err := os.ReadFile(inputKCLFile)
-	require.NoError(b, err)
-
-	client := native.NewNativeServiceClient()
-	_, err = client.ExecProgram(&gpyrpc.ExecProgram_Args{
-		KFilenameList: []string{"main.k"},
-		KCodeList:     []string{string(inputKCL)},
-		Args:          []*gpyrpc.Argument{},
-	})
-	require.NoError(b, err)
-
-	b.ResetTimer()
-
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			client := native.NewNativeServiceClient()
-			result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
-				KFilenameList: []string{"main.k"},
-				KCodeList:     []string{string(inputKCL)},
-				Args:          []*gpyrpc.Argument{},
-			})
-			require.NoError(b, err)
-			require.Empty(b, result.GetErrMessage())
-		}
-	})
-}

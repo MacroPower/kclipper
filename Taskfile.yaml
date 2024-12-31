@@ -77,11 +77,23 @@ tasks:
         go test -vet=all -tags={{.BUILD_TAGS}} ./...
 
   go-bench:
-    desc: Benchmarks Go code
+    desc: Run Go benchmarks
+    summary: |
+      Run Go benchmarks
+
+      Args:
+        PKG: Go package to test (default: ./...)
+        FLAGS: Additional flags to pass to `go test` (default: "")
+
+      Examples:
+        task go-bench PKG=./pkg/helm FLAGS="-cpuprofile profile.out -run=^\$"
+    vars:
+      PKG: '{{.PKG | default "./..."}}'
+      FLAGS: '{{.FLAGS | default ""}}'
     cmds:
       - |
         export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
-        go test -bench=. -benchmem -tags={{.BUILD_TAGS}} ./...
+        go test -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
 
   go-build:
     desc: Builds Go binaries

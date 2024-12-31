@@ -78,10 +78,6 @@ import kcl_plugin.os
 
 > See the extension docs for [OS](./docs/os_extensions.md), [HTTP](./docs/http_extensions.md), and [Helm](./docs/helm_extensions.md).
 
-**Quickly render resources at runtime**, if you want to. KCL itself is incredibly fast, and by utilizing the Helm source implementation from Argo CD, macropower/kclx benches ~2x faster than the Helm Go SDK. Additionally, the same caching patterns are followed, meaning that normal Helm caching is handled with namespace and, [eventually](https://github.com/MacroPower/kclx/issues/2), project awareness.
-
-> See [Benchmarks](./benchmarks/).
-
 ## Installation
 
 Binaries are posted in [releases](https://github.com/MacroPower/kclx/releases). Images and OCI artifacts are available under [packages](https://github.com/MacroPower/kclx/pkgs/container/kclx).

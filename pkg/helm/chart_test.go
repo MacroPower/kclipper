@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	argocli "github.com/argoproj/argo-cd/v2/util/cli"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
@@ -12,6 +13,10 @@ import (
 	"github.com/MacroPower/kclx/pkg/helmtest"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
 )
+
+func init() {
+	argocli.SetLogLevel("warn")
+}
 
 func TestHelmChart(t *testing.T) {
 	t.Parallel()
@@ -94,4 +99,22 @@ func TestHelmChart(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+}
+
+func BenchmarkHelmChart(b *testing.B) {
+	c := helm.NewChart(helmtest.DefaultTestClient, helm.TemplateOpts{
+		ChartName:      "podinfo",
+		TargetRevision: "6.7.1",
+		RepoURL:        "https://stefanprodan.github.io/podinfo",
+	})
+	_, err := c.Template()
+	require.NoError(b, err)
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_, err := c.Template()
+			require.NoError(b, err)
+		}
+	})
 }

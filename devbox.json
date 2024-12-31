@@ -12,7 +12,9 @@
     "nodePackages.prettier": "3.3",
     "kubernetes-helm": "3.16.3",
     "hyperfine": "1.19",
-    "cobra-cli": "1.3.0"
+    "cobra-cli": "1.3.0",
+    "graphviz": "12.2",
+    "pprof": "2024-02-27"
   },
   "env": {
     "CGO_ENABLED": "1"
