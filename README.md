@@ -231,10 +231,10 @@ Likewise, the same applies to any other changes you may want to make to your Hel
 
 The following schema generators are currently available:
 
-| Name            | Description                                                                           | Parameters        |
+| Name            | Description                                                                           |        Parameters |
 | :-------------- | :------------------------------------------------------------------------------------ | ----------------: |
-| AUTO            | Try to automatically select the best schema generator for the chart.                  | ``                |
-| VALUE-INFERENCE | Infer the schema from one or more values.yaml files (uses [helm-schema][helm-schema]) | ``                |
+| AUTO            | Try to automatically select the best schema generator for the chart.                  |                `` |
+| VALUE-INFERENCE | Infer the schema from one or more values.yaml files (uses [helm-schema][helm-schema]) |                `` |
 | URL             | Use a JSON Schema file located at a specified URL.                                    | `schemaPath: str` |
 | CHART-PATH      | Use a JSON Schema file located at a specified path within the chart files.            | `schemaPath: str` |
 | LOCAL-PATH      | Use a JSON Schema file located at a specified path within the project.                | `schemaPath: str` |

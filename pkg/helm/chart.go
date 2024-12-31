@@ -53,13 +53,71 @@ func NewChart(client ChartClient, opts TemplateOpts) *Chart {
 	}
 }
 
+// Template pulls a Helm chart using the provided [TemplateOpts], and then
+// executes `helm template` to render the chart. The rendered output is then
+// split into individual Kubernetes objects and returned as a slice of
+// [unstructured.Unstructured] objects.
+func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
+	chartPath, closer, err := c.Client.PullWithCreds(c.TemplateOpts.ChartName, c.TemplateOpts.RepoURL,
+		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, c.TemplateOpts.PassCredentials)
+	if err != nil {
+		return nil, fmt.Errorf("error pulling helm chart: %w", err)
+	}
+	defer ioutil.Close(closer)
+
+	// isLocal controls helm temp dirs, does not seem to impact pull/template behavior.
+	isLocal := false
+
+	ha, err := argohelm.NewHelmApp(chartPath, c.TemplateOpts.Repositories, isLocal, c.TemplateOpts.HelmVersion,
+		c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy, c.TemplateOpts.PassCredentials)
+	if err != nil {
+		return nil, fmt.Errorf("error initializing helm app object: %w", err)
+	}
+	defer ha.Dispose()
+
+	p, err := c.writeValues(c.TemplateOpts.ValuesObject)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = os.RemoveAll(p)
+	}()
+
+	argoTemplateOpts := &argohelm.TemplateOpts{
+		Name:        c.TemplateOpts.ReleaseName,
+		Namespace:   c.TemplateOpts.Namespace,
+		ExtraValues: pathutil.ResolvedFilePath(p),
+		SkipCrds:    c.TemplateOpts.SkipCRDs,
+	}
+	out, _, err := ha.Template(argoTemplateOpts)
+	if err != nil {
+		if !argohelm.IsMissingDependencyErr(err) {
+			return nil, fmt.Errorf("error templating helm chart: %w", err)
+		}
+		if err = ha.DependencyBuild(); err != nil {
+			return nil, fmt.Errorf("error building helm dependencies: %w", err)
+		}
+		out, _, err = ha.Template(argoTemplateOpts)
+		if err != nil {
+			return nil, fmt.Errorf("error templating helm chart: %w", err)
+		}
+	}
+
+	objs, err := SplitYAML([]byte(out))
+	if err != nil {
+		return nil, fmt.Errorf("error parsing helm template output: %w", err)
+	}
+
+	return objs, nil
+}
+
 // GetValuesJSONSchema pulls a Helm chart using the provided [TemplateOpts], and
 // then uses the [JSONSchemaGenerator] to generate a JSON Schema using one or
 // more files from the chart. The [match] function can be used to match a subset
 // of the pulled files in the chart directory for JSON Schema generation.
-func (h *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) bool) ([]byte, error) {
-	chartPath, closer, err := h.Client.PullWithCreds(h.TemplateOpts.ChartName, h.TemplateOpts.RepoURL,
-		h.TemplateOpts.TargetRevision, h.TemplateOpts.Credentials, h.TemplateOpts.PassCredentials)
+func (c *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) bool) ([]byte, error) {
+	chartPath, closer, err := c.Client.PullWithCreds(c.TemplateOpts.ChartName, c.TemplateOpts.RepoURL,
+		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, c.TemplateOpts.PassCredentials)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
@@ -97,7 +155,7 @@ func (h *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) 
 		}
 		errMsg := "successfully pulled '%s', but failed to find any input files for the provided JSON Schema generator; " +
 			"the following paths were searched:\n%s"
-		return nil, fmt.Errorf(errMsg, h.TemplateOpts.ChartName, unmatchedFileStr)
+		return nil, fmt.Errorf(errMsg, c.TemplateOpts.ChartName, unmatchedFileStr)
 	}
 
 	jsonSchema, err := gen.FromPaths(matchedFiles...)
@@ -106,58 +164,6 @@ func (h *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) 
 	}
 
 	return jsonSchema, nil
-}
-
-func (h *Chart) Template() ([]*unstructured.Unstructured, error) {
-	chartPath, closer, err := h.Client.PullWithCreds(h.TemplateOpts.ChartName, h.TemplateOpts.RepoURL,
-		h.TemplateOpts.TargetRevision, h.TemplateOpts.Credentials, h.TemplateOpts.PassCredentials)
-	if err != nil {
-		return nil, fmt.Errorf("error pulling helm chart: %w", err)
-	}
-	defer ioutil.Close(closer)
-
-	isLocal := false
-	ha, err := argohelm.NewHelmApp(chartPath, h.TemplateOpts.Repositories, isLocal, h.TemplateOpts.HelmVersion,
-		h.TemplateOpts.Proxy, h.TemplateOpts.NoProxy, h.TemplateOpts.PassCredentials)
-	if err != nil {
-		return nil, fmt.Errorf("error initializing helm app object: %w", err)
-	}
-	defer ha.Dispose()
-
-	p, err := h.writeValues(h.TemplateOpts.ValuesObject)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = os.RemoveAll(p)
-	}()
-
-	argoTemplateOpts := &argohelm.TemplateOpts{
-		Name:        h.TemplateOpts.ReleaseName,
-		Namespace:   h.TemplateOpts.Namespace,
-		ExtraValues: pathutil.ResolvedFilePath(p),
-		SkipCrds:    h.TemplateOpts.SkipCRDs,
-	}
-	out, _, err := ha.Template(argoTemplateOpts)
-	if err != nil {
-		if !argohelm.IsMissingDependencyErr(err) {
-			return nil, fmt.Errorf("error templating helm chart: %w", err)
-		}
-		if err = ha.DependencyBuild(); err != nil {
-			return nil, fmt.Errorf("error building helm dependencies: %w", err)
-		}
-		out, _, err = ha.Template(argoTemplateOpts)
-		if err != nil {
-			return nil, fmt.Errorf("error templating helm chart: %w", err)
-		}
-	}
-
-	objs, err := SplitYAML([]byte(out))
-	if err != nil {
-		return nil, fmt.Errorf("error parsing helm template output: %w", err)
-	}
-
-	return objs, nil
 }
 
 func (h *Chart) writeValues(values map[string]any) (string, error) {

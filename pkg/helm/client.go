@@ -34,6 +34,8 @@ type Client struct {
 	Paths          TempPaths
 	MaxExtractSize resource.Quantity
 	Project        string
+	Proxy          string
+	NoProxy        string
 }
 
 func NewClient(paths TempPaths, project, maxExtractSize string) (*Client, error) {
@@ -99,10 +101,10 @@ func (c *Client) PullWithCreds(
 		InsecureSkipVerify: creds.InsecureSkipVerify,
 	}
 
-	hcl := argohelm.NewClient(repoNetURL.String(), argoCreds, enableOCI, "", "",
+	ahc := argohelm.NewClient(repoNetURL.String(), argoCreds, enableOCI, c.Proxy, c.NoProxy,
 		argohelm.WithChartPaths(c.Paths))
 
-	chartPath, closer, err := hcl.ExtractChart(chart, targetRevision, c.Project, passCredentials,
+	chartPath, closer, err := ahc.ExtractChart(chart, targetRevision, c.Project, passCredentials,
 		c.MaxExtractSize.Value(), c.MaxExtractSize.IsZero())
 	if err != nil {
 		return "", closer, fmt.Errorf("error extracting helm chart: %w", err)
