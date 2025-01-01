@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
@@ -23,7 +22,6 @@ import (
 	"oras.land/oras-go/v2/registry/remote"
 	"oras.land/oras-go/v2/registry/remote/auth"
 
-	"github.com/MacroPower/kclx/pkg/argoutil/executil"
 	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
 	"github.com/MacroPower/kclx/pkg/argoutil/io/files"
 	"github.com/MacroPower/kclx/pkg/argoutil/proxy"
@@ -118,13 +116,7 @@ func (c *nativeHelmChart) CleanChartCache(chart string, version string, project 
 
 func untarChart(tempDir string, cachedChartPath string, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) error {
 	if disableManifestMaxExtractedSize {
-		cmd := exec.Command("tar", "-zxvf", cachedChartPath)
-		cmd.Dir = tempDir
-		_, err := executil.Run(cmd)
-		if err != nil {
-			return fmt.Errorf("error executing tar command: %w", err)
-		}
-		return nil
+		manifestMaxExtractedSize = 0
 	}
 	reader, err := os.Open(cachedChartPath)
 	if err != nil {

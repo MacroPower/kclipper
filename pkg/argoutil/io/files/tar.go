@@ -3,12 +3,13 @@ package files
 import (
 	"archive/tar"
 	"bufio"
-	"compress/gzip"
 	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
+
+	"github.com/klauspost/compress/gzip"
 )
 
 type tgz struct {
@@ -67,8 +68,13 @@ func Untgz(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) er
 	}
 	defer gzr.Close()
 
-	lr := io.LimitReader(gzr, maxSize)
-	tr := tar.NewReader(lr)
+	var tr *tar.Reader
+	if maxSize != 0 {
+		lr := io.LimitReader(gzr, maxSize)
+		tr = tar.NewReader(lr)
+	} else {
+		tr = tar.NewReader(gzr)
+	}
 
 	for {
 		header, err := tr.Next()
