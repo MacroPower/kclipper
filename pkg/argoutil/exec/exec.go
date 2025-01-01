@@ -9,10 +9,10 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/argoproj/gitops-engine/pkg/utils/tracing"
 	argoexec "github.com/argoproj/pkg/exec"
 
 	"github.com/MacroPower/kclx/pkg/argoutil/log"
+	"github.com/MacroPower/kclx/pkg/tracing"
 )
 
 var timeout time.Duration

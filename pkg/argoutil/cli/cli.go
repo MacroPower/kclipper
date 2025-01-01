@@ -4,7 +4,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/argoproj/gitops-engine/pkg/utils/text"
 	log "github.com/sirupsen/logrus"
 
 	utillog "github.com/MacroPower/kclx/pkg/argoutil/log"
@@ -26,11 +25,20 @@ func SetLogFormat(logFormat string) {
 
 // SetLogLevel parses and sets a logrus log level
 func SetLogLevel(logLevel string) {
-	level, err := log.ParseLevel(text.FirstNonEmpty(logLevel, log.InfoLevel.String()))
+	level, err := log.ParseLevel(firstNonEmpty(logLevel, log.InfoLevel.String()))
 	// errors.CheckError(err)
 	if err != nil {
 		panic(err)
 	}
 	os.Setenv("ARGOCD_LOG_LEVEL", level.String())
 	log.SetLevel(level)
+}
+
+func firstNonEmpty(args ...string) string {
+	for _, value := range args {
+		if len(value) > 0 {
+			return value
+		}
+	}
+	return ""
 }
