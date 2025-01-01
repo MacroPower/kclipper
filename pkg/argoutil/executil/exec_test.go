@@ -7,9 +7,10 @@ import (
 	"testing"
 	"time"
 
-	argoexec "github.com/MacroPower/kclx/pkg/argoutil/exec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	argoexec "github.com/MacroPower/kclx/pkg/argoutil/exec"
 )
 
 func Test_timeout(t *testing.T) {
