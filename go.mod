@@ -4,7 +4,6 @@ go 1.23.3
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
-	github.com/argoproj/pkg v0.13.7-0.20230626144333-d56162821bd1
 	github.com/bombsimon/logrusr/v2 v2.0.1
 	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
 	github.com/dadav/helm-schema v0.0.0-20241230184257-6f2eeb34f592

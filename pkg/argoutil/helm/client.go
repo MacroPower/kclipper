@@ -18,9 +18,9 @@ import (
 	"strings"
 	"time"
 
-	executil "github.com/MacroPower/kclx/pkg/argoutil/exec"
+	"github.com/MacroPower/kclx/pkg/argoutil/executil"
 
-	"github.com/argoproj/pkg/sync"
+	"github.com/MacroPower/kclx/pkg/argoutil/sync"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"oras.land/oras-go/v2/registry/remote"
