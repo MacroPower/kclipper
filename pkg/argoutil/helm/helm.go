@@ -3,7 +3,9 @@ package helm
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -12,7 +14,6 @@ import (
 
 	"sigs.k8s.io/yaml"
 
-	"github.com/MacroPower/kclx/pkg/argoutil/config"
 	"github.com/MacroPower/kclx/pkg/argoutil/executil"
 	pathutil "github.com/MacroPower/kclx/pkg/argoutil/io/path"
 )
@@ -148,7 +149,7 @@ func (h *helm) GetParameters(valuesFiles []pathutil.ResolvedFilePath, appPath, r
 		var fileValues []byte
 		parsedURL, err := url.ParseRequestURI(file)
 		if err == nil && (parsedURL.Scheme == "http" || parsedURL.Scheme == "https") {
-			fileValues, err = config.ReadRemoteFile(file)
+			fileValues, err = readRemoteFile(file)
 		} else {
 			_, fileReadErr := os.Stat(file)
 			if os.IsNotExist(fileReadErr) {
@@ -193,4 +194,18 @@ func flatVals(input interface{}, output map[string]string, prefixes ...string) {
 	default:
 		output[strings.Join(prefixes, ".")] = fmt.Sprintf("%v", i)
 	}
+}
+
+// readRemoteFile issues a GET request to retrieve the contents of the specified URL as a byte array.
+// The caller is responsible for checking error return values.
+func readRemoteFile(url string) ([]byte, error) {
+	var data []byte
+	resp, err := http.Get(url)
+	if err == nil {
+		defer func() {
+			_ = resp.Body.Close()
+		}()
+		data, err = io.ReadAll(resp.Body)
+	}
+	return data, err
 }

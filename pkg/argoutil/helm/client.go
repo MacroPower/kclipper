@@ -46,11 +46,6 @@ type Creds struct {
 	InsecureSkipVerify bool
 }
 
-type indexCache interface {
-	SetHelmIndex(repo string, indexData []byte) error
-	GetHelmIndex(repo string, indexData *[]byte) error
-}
-
 type Client interface {
 	CleanChartCache(chart string, version string, project string) error
 	ExtractChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, argoio.Closer, error)
@@ -60,12 +55,6 @@ type Client interface {
 }
 
 type ClientOpts func(c *nativeHelmChart)
-
-func WithIndexCache(indexCache indexCache) ClientOpts {
-	return func(c *nativeHelmChart) {
-		c.indexCache = indexCache
-	}
-}
 
 func WithChartPaths(chartPaths argoio.TempPaths) ClientOpts {
 	return func(c *nativeHelmChart) {
@@ -101,7 +90,6 @@ type nativeHelmChart struct {
 	creds           Creds
 	repoLock        sync.KeyLock
 	enableOci       bool
-	indexCache      indexCache
 	proxy           string
 	noProxy         string
 }
@@ -237,11 +225,6 @@ func (c *nativeHelmChart) GetIndex(noCache bool, maxIndexSize int64) (*Index, er
 	defer indexLock.Unlock(c.repoURL)
 
 	var data []byte
-	// if !noCache && c.indexCache != nil {
-	// 	if err := c.indexCache.GetHelmIndex(c.repoURL, &data); err != nil && !errors.Is(err, cache.ErrCacheMiss) {
-	// 		log.Warnf("Failed to load index cache for repo: %s: %v", c.repoURL, err)
-	// 	}
-	// }
 
 	if len(data) == 0 {
 		start := time.Now()
@@ -251,12 +234,6 @@ func (c *nativeHelmChart) GetIndex(noCache bool, maxIndexSize int64) (*Index, er
 			return nil, fmt.Errorf("error loading repo index: %w", err)
 		}
 		slog.Info("got index data", "seconds", time.Since(start).Seconds())
-
-		// if c.indexCache != nil {
-		// 	if err := c.indexCache.SetHelmIndex(c.repoURL, data); err != nil {
-		// 		log.Warnf("Failed to store index cache for repo: %s: %v", c.repoURL, err)
-		// 	}
-		// }
 	}
 
 	index := &Index{}
@@ -415,11 +392,6 @@ func (c *nativeHelmChart) GetTags(chart string, noCache bool) (*TagsList, error)
 	defer indexLock.Unlock(tagsURL)
 
 	var data []byte
-	// if !noCache && c.indexCache != nil {
-	// 	if err := c.indexCache.GetHelmIndex(tagsURL, &data); err != nil && !errors.Is(err, cache.ErrCacheMiss) {
-	// 		log.Warnf("Failed to load index cache for repo: %s: %v", tagsURL, err)
-	// 	}
-	// }
 
 	tags := &TagsList{}
 	if len(data) == 0 {
@@ -462,12 +434,6 @@ func (c *nativeHelmChart) GetTags(chart string, noCache bool) (*TagsList, error)
 			return nil, fmt.Errorf("failed to get tags: %w", err)
 		}
 		slog.Info("got tags", "seconds", time.Since(start).Seconds(), "chart", chart, "repo", c.repoURL)
-
-		// if c.indexCache != nil {
-		// 	if err := c.indexCache.SetHelmIndex(tagsURL, data); err != nil {
-		// 		log.Warnf("Failed to store tags list cache for repo: %s: %v", tagsURL, err)
-		// 	}
-		// }
 	} else {
 		err := json.Unmarshal(data, tags)
 		if err != nil {
