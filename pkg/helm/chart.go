@@ -7,11 +7,12 @@ import (
 	"path"
 	"path/filepath"
 
-	argohelm "github.com/argoproj/argo-cd/v2/util/helm"
-	pathutil "github.com/argoproj/argo-cd/v2/util/io/path"
 	"github.com/google/uuid"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/yaml"
+
+	argohelm "github.com/MacroPower/kclx/pkg/argoutil/helm"
+	pathutil "github.com/MacroPower/kclx/pkg/argoutil/io/path"
 )
 
 type Chart struct {

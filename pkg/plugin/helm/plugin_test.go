@@ -6,11 +6,11 @@ import (
 	"runtime"
 	"testing"
 
-	argocli "github.com/argoproj/argo-cd/v2/util/cli"
 	"github.com/stretchr/testify/require"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
+	argocli "github.com/MacroPower/kclx/pkg/argoutil/cli"
 	_ "github.com/MacroPower/kclx/pkg/plugin/helm"
 )
 
