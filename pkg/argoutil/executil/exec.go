@@ -10,7 +10,6 @@ import (
 	"unicode"
 
 	argoexec "github.com/MacroPower/kclx/pkg/argoutil/exec"
-
 	"github.com/MacroPower/kclx/pkg/argoutil/log"
 	"github.com/MacroPower/kclx/pkg/tracing"
 )
