@@ -3,12 +3,11 @@ package path
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // ResolvedFilePath represents a resolved file path and is intended to prevent unintentional use of an unverified file
@@ -69,7 +68,7 @@ func isURLSchemeAllowed(scheme string, allowed []string) bool {
 // returned to the user and could be used for information gathering.
 // Instead, we log the concrete error details.
 func resolveFailure(path string, err error) error {
-	log.Errorf("failed to resolve path '%s': %v", path, err)
+	slog.Error("failed to resolve path", "path", path, "err", err)
 	return fmt.Errorf("internal error: failed to resolve path. Check logs for more details")
 }
 

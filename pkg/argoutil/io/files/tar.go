@@ -6,10 +6,9 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type tgz struct {
@@ -222,7 +221,7 @@ func (t *tgz) tgzFile(path string, fi os.FileInfo, err error) error {
 		defer func() {
 			err := f.Close()
 			if err != nil {
-				log.Errorf("error closing file %q: %v", fi.Name(), err)
+				slog.Error("error closing file", "file", fi.Name(), "err", err)
 			}
 		}()
 

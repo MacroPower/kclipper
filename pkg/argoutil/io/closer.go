@@ -1,6 +1,6 @@
 package io
 
-import log "github.com/sirupsen/logrus"
+import "log/slog"
 
 var NopCloser = NewCloser(func() error {
 	return nil
@@ -26,6 +26,6 @@ func NewCloser(close func() error) Closer {
 // Used to satisfy errcheck lint
 func Close(c Closer) {
 	if err := c.Close(); err != nil {
-		log.Warnf("failed to close %v: %v", c, err)
+		slog.Warn("failed to close", "closer", c, "err", err)
 	}
 }

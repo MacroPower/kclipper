@@ -3,9 +3,8 @@ package helm
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/Masterminds/semver/v3"
 )
@@ -36,7 +35,7 @@ func (e Entries) MaxVersion(constraints *semver.Constraints) (*semver.Version, e
 
 		// Invalid semantic version ignored
 		if errors.Is(err, semver.ErrInvalidSemVer) {
-			log.Debugf("Invalid sementic version: %s", entry.Version)
+			slog.Debug("invalid semantic version", "tag", entry.Version)
 			continue
 		}
 		if err != nil {

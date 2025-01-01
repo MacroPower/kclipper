@@ -1,15 +1,15 @@
 package cli
 
 import (
+	"fmt"
+	"log/slog"
 	"os"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 
 	utillog "github.com/MacroPower/kclx/pkg/argoutil/log"
 )
 
-// SetLogFormat sets a logrus log format
+// SetLogFormat sets a log/slog format
 func SetLogFormat(logFormat string) {
 	switch strings.ToLower(logFormat) {
 	case utillog.JsonFormat:
@@ -17,28 +17,15 @@ func SetLogFormat(logFormat string) {
 	case utillog.TextFormat, "":
 		os.Setenv("ARGOCD_LOG_FORMAT", utillog.TextFormat)
 	default:
-		log.Fatalf("Unknown log format '%s'", logFormat)
+		panic(fmt.Errorf("unknown log format '%s'", logFormat))
 	}
 
-	log.SetFormatter(utillog.CreateFormatter(logFormat))
+	slog.SetDefault(utillog.NewWithCurrentConfig())
 }
 
-// SetLogLevel parses and sets a logrus log level
+// SetLogLevel parses and sets a log/slog level
 func SetLogLevel(logLevel string) {
-	level, err := log.ParseLevel(firstNonEmpty(logLevel, log.InfoLevel.String()))
-	// errors.CheckError(err)
-	if err != nil {
-		panic(err)
-	}
+	level := utillog.GetLevel(logLevel)
 	os.Setenv("ARGOCD_LOG_LEVEL", level.String())
-	log.SetLevel(level)
-}
-
-func firstNonEmpty(args ...string) string {
-	for _, value := range args {
-		if len(value) > 0 {
-			return value
-		}
-	}
-	return ""
+	slog.SetLogLoggerLevel(level)
 }

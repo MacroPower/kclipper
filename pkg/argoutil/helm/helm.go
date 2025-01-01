@@ -3,13 +3,13 @@ package helm
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"sigs.k8s.io/yaml"
 
 	"github.com/MacroPower/kclx/pkg/argoutil/config"
@@ -141,7 +141,7 @@ func (h *helm) GetParameters(valuesFiles []pathutil.ResolvedFilePath, appPath, r
 		}
 		values = append(values, out)
 	} else {
-		log.Warnf("Values file %s is not allowed: %v", filepath.Join(appPath, "values.yaml"), err)
+		slog.Warn("values file is not allowed", "file", filepath.Join(appPath, "values.yaml"), "err", err)
 	}
 	for i := range valuesFiles {
 		file := string(valuesFiles[i])
@@ -152,11 +152,11 @@ func (h *helm) GetParameters(valuesFiles []pathutil.ResolvedFilePath, appPath, r
 		} else {
 			_, fileReadErr := os.Stat(file)
 			if os.IsNotExist(fileReadErr) {
-				log.Debugf("File not found %s", file)
+				slog.Debug("file not found", "file", file)
 				continue
 			}
 			if errors.Is(fileReadErr, os.ErrPermission) {
-				log.Debugf("File does not have permissions %s", file)
+				slog.Debug("file does not have permissions", "file", file)
 				continue
 			}
 			fileValues, err = os.ReadFile(file)
