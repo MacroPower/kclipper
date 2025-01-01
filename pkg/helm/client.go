@@ -8,8 +8,9 @@ import (
 	"os"
 	"path/filepath"
 
-	argohelm "github.com/argoproj/argo-cd/v2/util/helm"
 	"k8s.io/apimachinery/pkg/api/resource"
+
+	argohelm "github.com/MacroPower/kclx/pkg/argoutil/helm"
 )
 
 var DefaultClient = MustNewClient(

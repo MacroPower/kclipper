@@ -5,10 +5,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	argocli "github.com/argoproj/argo-cd/v2/util/cli"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
+	argocli "github.com/MacroPower/kclx/pkg/argoutil/cli"
 	"github.com/MacroPower/kclx/pkg/helm"
 	"github.com/MacroPower/kclx/pkg/helmtest"
 	"github.com/MacroPower/kclx/pkg/jsonschema"

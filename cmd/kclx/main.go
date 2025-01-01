@@ -9,11 +9,11 @@ import (
 	"os"
 	"strings"
 
-	argocli "github.com/argoproj/argo-cd/v2/util/cli"
 	"github.com/spf13/cobra"
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 	"kcl-lang.io/cli/pkg/plugin"
 
+	argocli "github.com/MacroPower/kclx/pkg/argoutil/cli"
 	_ "github.com/MacroPower/kclx/pkg/plugin/helm"
 	_ "github.com/MacroPower/kclx/pkg/plugin/http"
 	_ "github.com/MacroPower/kclx/pkg/plugin/os"
