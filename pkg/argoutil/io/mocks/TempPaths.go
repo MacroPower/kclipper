@@ -85,7 +85,8 @@ func (_m *TempPaths) GetPaths() map[string]string {
 func NewTempPaths(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *TempPaths {
+},
+) *TempPaths {
 	mock := &TempPaths{}
 	mock.Mock.Test(t)
 
