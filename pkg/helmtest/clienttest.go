@@ -12,9 +12,12 @@ import (
 var DefaultTestClient helm.ChartClient
 
 func init() {
-	pkg, _ := build.Default.Import("github.com/MacroPower/kclx/pkg/helmtest", ".", build.FindOnly)
-	testDataDir := filepath.Join(pkg.Dir, "testdata")
+	pkg, err := build.Default.Import("github.com/MacroPower/kclx/pkg/helmtest", ".", build.FindOnly)
+	if err != nil {
+		panic(fmt.Errorf("failed to find package: %w", err))
+	}
 
+	testDataDir := filepath.Join(pkg.Dir, "testdata")
 	DefaultTestClient = &TestClient{
 		BaseClient: helm.MustNewClient(helm.NewTempPaths(testDataDir, &TestPathEncoder{}), "test", "10M"),
 	}
