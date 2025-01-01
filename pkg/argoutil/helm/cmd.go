@@ -12,7 +12,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	executil "github.com/MacroPower/kclx/pkg/argoutil/exec"
+	"github.com/MacroPower/kclx/pkg/argoutil/executil"
 	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
 	pathutil "github.com/MacroPower/kclx/pkg/argoutil/io/path"
 	"github.com/MacroPower/kclx/pkg/argoutil/proxy"

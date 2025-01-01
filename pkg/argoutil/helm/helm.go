@@ -13,7 +13,7 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/MacroPower/kclx/pkg/argoutil/config"
-	executil "github.com/MacroPower/kclx/pkg/argoutil/exec"
+	"github.com/MacroPower/kclx/pkg/argoutil/executil"
 	pathutil "github.com/MacroPower/kclx/pkg/argoutil/io/path"
 )
 
