@@ -18,17 +18,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MacroPower/kclx/pkg/argoutil/executil"
-
-	"github.com/MacroPower/kclx/pkg/argoutil/sync"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"oras.land/oras-go/v2/registry/remote"
 	"oras.land/oras-go/v2/registry/remote/auth"
 
+	"github.com/MacroPower/kclx/pkg/argoutil/executil"
 	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
 	"github.com/MacroPower/kclx/pkg/argoutil/io/files"
 	"github.com/MacroPower/kclx/pkg/argoutil/proxy"
+	"github.com/MacroPower/kclx/pkg/argoutil/sync"
 )
 
 var (
