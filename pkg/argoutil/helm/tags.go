@@ -3,8 +3,7 @@ package helm
 import (
 	"errors"
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
+	"log/slog"
 
 	"github.com/Masterminds/semver/v3"
 )
@@ -20,7 +19,7 @@ func (t TagsList) MaxVersion(constraints *semver.Constraints) (*semver.Version, 
 
 		// Invalid semantic version ignored
 		if errors.Is(err, semver.ErrInvalidSemVer) {
-			log.Debugf("Invalid semantic version: %s", tag)
+			slog.Debug("invalid semantic version", "tag", tag)
 			continue
 		}
 		if err != nil {

@@ -1,13 +1,9 @@
 package log
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"strings"
-
-	adapter "github.com/bombsimon/logrusr/v2"
-	"github.com/go-logr/logr"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -15,52 +11,43 @@ const (
 	TextFormat = "text"
 )
 
-func NewLogrusLogger(fieldLogger logrus.FieldLogger) logr.Logger {
-	return adapter.New(fieldLogger, adapter.WithFormatter(func(val interface{}) string {
-		return fmt.Sprintf("%v", val)
-	}))
+// NewWithCurrentConfig creates a [slog.Logger] by using current configuration.
+func NewWithCurrentConfig() *slog.Logger {
+	h := CreateHandler(os.Getenv("ARGOCD_LOG_LEVEL"), os.Getenv("ARGOCD_LOG_FORMAT"))
+	return slog.New(h)
 }
 
-// NewWithCurrentConfig create logrus logger by using current configuration
-func NewWithCurrentConfig() *logrus.Logger {
-	l := logrus.New()
-	l.SetFormatter(CreateFormatter(os.Getenv("ARGOCD_LOG_FORMAT"))) // common.EnvLogFormat
-	l.SetLevel(createLogLevel())
-	return l
-}
+// CreateHandler creates a [slog.Handler] by strings.
+func CreateHandler(logLevel, logFormat string) slog.Handler {
+	level := GetLevel(logLevel)
 
-// CreateFormatter create logrus formatter by string
-func CreateFormatter(logFormat string) logrus.Formatter {
-	var formatType logrus.Formatter
 	switch strings.ToLower(logFormat) {
 	case JsonFormat:
-		formatType = &logrus.JSONFormatter{}
+		return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: level})
 	case TextFormat:
-		formatType = &logrus.TextFormatter{
-			ForceColors:   checkForceLogColors(),
-			FullTimestamp: checkEnableFullTimestamp(),
-		}
+		return slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})
 	default:
-		formatType = &logrus.TextFormatter{
-			FullTimestamp: checkEnableFullTimestamp(),
-		}
+		return slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})
 	}
-
-	return formatType
 }
 
-func createLogLevel() logrus.Level {
-	level, err := logrus.ParseLevel(os.Getenv("ARGOCD_LOG_LEVEL")) // common.EnvLogLevel
-	if err != nil {
-		level = logrus.InfoLevel
+func GetLevel(level string) slog.Level {
+	switch strings.ToLower(level) {
+	case "panic":
+		return slog.LevelError
+	case "fatal":
+		return slog.LevelError
+	case "error":
+		return slog.LevelError
+	case "warn", "warning":
+		return slog.LevelWarn
+	case "info":
+		return slog.LevelInfo
+	case "debug":
+		return slog.LevelDebug
+	case "trace":
+		return slog.LevelDebug
+	default:
+		return slog.LevelInfo
 	}
-	return level
-}
-
-func checkForceLogColors() bool {
-	return strings.ToLower(os.Getenv("FORCE_LOG_COLORS")) == "1"
-}
-
-func checkEnableFullTimestamp() bool {
-	return strings.ToLower(os.Getenv("ARGOCD_LOG_FORMAT_ENABLE_FULL_TIMESTAMP")) == "1" // common.EnvLogFormatEnableFullTimestamp
 }

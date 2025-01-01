@@ -1,9 +1,9 @@
 package tracing
 
 import (
+	"context"
+	"log/slog"
 	"time"
-
-	"github.com/go-logr/logr"
 )
 
 var (
@@ -12,10 +12,10 @@ var (
 )
 
 type LoggingTracer struct {
-	logger logr.Logger
+	logger *slog.Logger
 }
 
-func NewLoggingTracer(logger logr.Logger) *LoggingTracer {
+func NewLoggingTracer(logger *slog.Logger) *LoggingTracer {
 	return &LoggingTracer{
 		logger: logger,
 	}
@@ -31,16 +31,17 @@ func (l LoggingTracer) StartSpan(operationName string) Span {
 }
 
 type loggingSpan struct {
-	logger        logr.Logger
+	logger        *slog.Logger
 	operationName string
 	baggage       map[string]interface{}
 	start         time.Time
 }
 
 func (s loggingSpan) Finish() {
-	s.logger.WithValues(baggageToVals(s.baggage)...).
-		WithValues("operation_name", s.operationName, "time_ms", time.Since(s.start).Seconds()*1e3).
-		Info("Trace")
+	attrs := []any{}
+	attrs = append(attrs, baggageToVals(s.baggage)...)
+	attrs = append(attrs, "operation_name", s.operationName, "time_ms", time.Since(s.start).Seconds()*1e3)
+	s.logger.Log(context.Background(), slog.LevelDebug, "trace", attrs...)
 }
 
 func (s loggingSpan) SetBaggageItem(key string, value interface{}) {

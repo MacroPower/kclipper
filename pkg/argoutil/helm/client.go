@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,7 +19,6 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"oras.land/oras-go/v2/registry/remote"
 	"oras.land/oras-go/v2/registry/remote/auth"
@@ -250,7 +250,7 @@ func (c *nativeHelmChart) GetIndex(noCache bool, maxIndexSize int64) (*Index, er
 		if err != nil {
 			return nil, fmt.Errorf("error loading repo index: %w", err)
 		}
-		log.WithFields(log.Fields{"seconds": time.Since(start).Seconds()}).Info("took to get index")
+		slog.Info("got index data", "seconds", time.Since(start).Seconds())
 
 		// if c.indexCache != nil {
 		// 	if err := c.indexCache.SetHelmIndex(c.repoURL, data); err != nil {
@@ -294,7 +294,7 @@ func (c *nativeHelmChart) TestHelmOCI() (bool, error) {
 			_, _ = helmCmd.RegistryLogout(c.repoURL, c.creds)
 		}()
 
-		log.WithFields(log.Fields{"seconds": time.Since(start).Seconds()}).Info("took to test helm oci repository")
+		slog.Info("tested helm oci repository", "seconds", time.Since(start).Seconds())
 	}
 	return true, nil
 }
@@ -461,9 +461,7 @@ func (c *nativeHelmChart) GetTags(chart string, noCache bool) (*TagsList, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get tags: %w", err)
 		}
-		log.WithFields(
-			log.Fields{"seconds": time.Since(start).Seconds(), "chart": chart, "repo": c.repoURL},
-		).Info("took to get tags")
+		slog.Info("got tags", "seconds", time.Since(start).Seconds(), "chart", chart, "repo", c.repoURL)
 
 		// if c.indexCache != nil {
 		// 	if err := c.indexCache.SetHelmIndex(tagsURL, data); err != nil {

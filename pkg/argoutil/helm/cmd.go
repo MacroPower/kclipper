@@ -3,14 +3,13 @@ package helm
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/MacroPower/kclx/pkg/argoutil/executil"
 	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
@@ -205,10 +204,7 @@ func writeToTmp(data []byte) (string, argoio.Closer, error) {
 	}
 	defer func() {
 		if err = file.Close(); err != nil {
-			log.WithFields(log.Fields{
-				"security": 2,   // common.SecurityField: common.SecurityMedium,
-				"CWE":      755, // common.SecurityCWEField: common.SecurityCWEMissingReleaseOfFileDescriptor,
-			}).Errorf("error closing file %q: %v", file.Name(), err)
+			slog.Error("error closing file", "file", file.Name(), "security", 2, "CWE", 755, "err", err)
 		}
 	}()
 	return file.Name(), argoio.NewCloser(func() error {
@@ -395,7 +391,7 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 	if err != nil {
 		msg := err.Error()
 		if strings.Contains(msg, "--api-versions") {
-			log.Debug(msg)
+			slog.Debug(msg)
 			msg = apiVersionsRemover.ReplaceAllString(msg, "<api versions removed> ")
 		}
 		return "", command, errors.New(msg)

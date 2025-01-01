@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"runtime"
@@ -11,13 +12,11 @@ import (
 	"syscall"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/MacroPower/kclx/pkg/argoutil/rand"
 )
 
 var (
-	ErrWaitPIDTimeout = fmt.Errorf("Timed out waiting for PID to complete")
+	ErrWaitPIDTimeout = errors.New("timed out waiting for PID to complete")
 	Unredacted        = Redact(nil)
 )
 
@@ -89,7 +88,7 @@ func RunCommandExt(cmd *exec.Cmd, opts CmdOpts) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	logCtx := log.WithFields(log.Fields{"execID": execId})
+	logCtx := slog.With("execID", execId)
 
 	redactor := DefaultCmdOpts.Redactor
 	if opts.Redactor != nil {
@@ -98,7 +97,7 @@ func RunCommandExt(cmd *exec.Cmd, opts CmdOpts) (string, error) {
 
 	// log in a way we can copy-and-paste into a terminal
 	args := strings.Join(cmd.Args, " ")
-	logCtx.WithFields(log.Fields{"dir": cmd.Dir}).Info(redactor(args))
+	logCtx.Info(redactor(args), "dir", cmd.Dir)
 
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
@@ -142,7 +141,7 @@ func RunCommandExt(cmd *exec.Cmd, opts CmdOpts) (string, error) {
 		if opts.CaptureStderr {
 			output += stderr.String()
 		}
-		logCtx.WithFields(log.Fields{"duration": time.Since(start)}).Debug(redactor(output))
+		logCtx.Debug(redactor(output), "duration", time.Since(start))
 		err = newCmdError(redactor(args), fmt.Errorf("timeout after %v", timeout), "")
 		logCtx.Error(err.Error())
 		return strings.TrimSuffix(output, "\n"), err
@@ -152,7 +151,7 @@ func RunCommandExt(cmd *exec.Cmd, opts CmdOpts) (string, error) {
 			if opts.CaptureStderr {
 				output += stderr.String()
 			}
-			logCtx.WithFields(log.Fields{"duration": time.Since(start)}).Debug(redactor(output))
+			logCtx.Debug(redactor(output), "duration", time.Since(start))
 			err := newCmdError(redactor(args), errors.New(redactor(err.Error())), strings.TrimSpace(redactor(stderr.String())))
 			if !opts.SkipErrorLogging {
 				logCtx.Error(err.Error())
@@ -165,7 +164,7 @@ func RunCommandExt(cmd *exec.Cmd, opts CmdOpts) (string, error) {
 	if opts.CaptureStderr {
 		output += stderr.String()
 	}
-	logCtx.WithFields(log.Fields{"duration": time.Since(start)}).Debug(redactor(output))
+	logCtx.Debug(redactor(output), "duration", time.Since(start))
 
 	return strings.TrimSuffix(output, "\n"), nil
 }
@@ -183,7 +182,7 @@ type WaitPIDOpts struct {
 // WaitPID waits for a non-child process id to exit
 func WaitPID(pid int, opts ...WaitPIDOpts) error {
 	if runtime.GOOS != "linux" {
-		return fmt.Errorf("Platform '%s' unsupported", runtime.GOOS)
+		return fmt.Errorf("platform '%s' unsupported", runtime.GOOS)
 	}
 	var timeout time.Duration
 	pollInterval := time.Second
