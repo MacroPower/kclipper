@@ -12,7 +12,6 @@ import (
 	"sigs.k8s.io/yaml"
 
 	argohelm "github.com/MacroPower/kclx/pkg/argoutil/helm"
-	pathutil "github.com/MacroPower/kclx/pkg/argoutil/io/path"
 )
 
 type Chart struct {
@@ -91,18 +90,10 @@ func (c *Chart) template() ([]byte, error) {
 	}
 	defer ha.Dispose()
 
-	p, err := c.writeValues(c.TemplateOpts.ValuesObject)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = os.Remove(p)
-	}()
-
 	argoTemplateOpts := &argohelm.TemplateOpts{
 		Name:        c.TemplateOpts.ChartName,
 		Namespace:   c.TemplateOpts.Namespace,
-		ExtraValues: pathutil.ResolvedFilePath(p),
+		Values:      c.TemplateOpts.ValuesObject,
 		SkipCrds:    c.TemplateOpts.SkipCRDs,
 		KubeVersion: c.TemplateOpts.KubeVersion,
 		APIVersions: c.TemplateOpts.APIVersions,
