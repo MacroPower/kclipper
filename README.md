@@ -38,6 +38,8 @@ _podinfo = helm.template(podinfo.Chart {
 manifests.yaml_stream(_podinfo)
 ```
 
+---
+
 **Declaratively manage all of your Helm charts and their schemas.** Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more, for both Chart and Value objects, as well as values.yaml files (if you prefer YAML over KCL for values, or want to use both!) Optionally, use the `kcl chart` command to make quick edits from the command line:
 
 ```py
@@ -62,21 +64,15 @@ charts: helm.Charts = {
 }
 ```
 
+---
+
 **Automate updates to all KCL and JSON Schemas**, for both Helm charts and their values, in response to your declarations:
 
 ```bash
 kcl chart update
 ```
 
-**Use just what you need, when you need it.** All extensions are intentionally unopinionated, so that you can easily take advantage of them in whichever operational patterns you prefer. For maximum flexibility, individual plugins are available for all KCL functionality:
-
-```py
-import kcl_plugin.helm
-import kcl_plugin.http
-import kcl_plugin.os
-```
-
-> See the extension docs for [OS](./docs/os_extensions.md), [HTTP](./docs/http_extensions.md), and [Helm](./docs/helm_extensions.md).
+---
 
 **Enjoy blazing fast reconciliation times.** macropower/kclx is built with performance in mind, and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using validation=KCL disables Helm's value validation, and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g. remote refs, chart dependencies, or both).
 
