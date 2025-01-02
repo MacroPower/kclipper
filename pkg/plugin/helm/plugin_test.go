@@ -10,14 +10,14 @@ import (
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
-	argocli "github.com/MacroPower/kclx/pkg/argoutil/cli"
+	"github.com/MacroPower/kclx/pkg/log"
 	_ "github.com/MacroPower/kclx/pkg/plugin/helm"
 )
 
 var testDataDir string
 
 func init() {
-	argocli.SetLogLevel("warn")
+	log.SetLogLevel("warn")
 
 	//nolint:dogsled
 	_, filename, _, _ := runtime.Caller(0)

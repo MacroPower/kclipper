@@ -13,15 +13,15 @@ import (
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 	"kcl-lang.io/cli/pkg/plugin"
 
-	argocli "github.com/MacroPower/kclx/pkg/argoutil/cli"
+	"github.com/MacroPower/kclx/pkg/log"
 	_ "github.com/MacroPower/kclx/pkg/plugin/helm"
 	_ "github.com/MacroPower/kclx/pkg/plugin/http"
 	_ "github.com/MacroPower/kclx/pkg/plugin/os"
 )
 
 func init() {
-	argocli.SetLogFormat("text")
-	argocli.SetLogLevel("warn")
+	log.SetLogFormat("text")
+	log.SetLogLevel("warn")
 }
 
 const (

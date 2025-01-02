@@ -8,14 +8,14 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	argocli "github.com/MacroPower/kclx/pkg/argoutil/cli"
 	"github.com/MacroPower/kclx/pkg/helm"
 	"github.com/MacroPower/kclx/pkg/helmtest"
 	"github.com/MacroPower/kclx/pkg/jsonschema"
+	"github.com/MacroPower/kclx/pkg/log"
 )
 
 func init() {
-	argocli.SetLogLevel("warn")
+	log.SetLogLevel("warn")
 }
 
 func TestHelmChart(t *testing.T) {
