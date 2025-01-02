@@ -284,7 +284,9 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 	// dependencies. This can be a massive and random-feeling performance hit,
 	// and is largely unnecessary since KCL will be using the same, or a similar
 	// schema to validate the values.
-	removeSchemasFromObject(chart)
+	if opts.SkipSchemaValidation {
+		removeSchemasFromObject(chart)
+	}
 
 	ta := action.NewInstall(&action.Configuration{
 		KubeClient:     kube.New(genericclioptions.NewConfigFlags(false)),
@@ -356,6 +358,8 @@ type TemplateOpts struct {
 	APIVersions []string
 	Values      map[string]any
 	SkipCrds    bool
+
+	SkipSchemaValidation bool
 }
 
 var (

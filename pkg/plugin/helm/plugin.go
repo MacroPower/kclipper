@@ -22,15 +22,16 @@ func init() {
 			"template": {
 				Type: &plugin.MethodType{
 					KwArgsType: map[string]string{
-						"chart":            "str",
-						"target_revision":  "str",
-						"repo_url":         "str",
-						"release_name":     "str",
-						"namespace":        "str",
-						"helm_version":     "str",
-						"skip_crds":        "bool",
-						"pass_credentials": "bool",
-						"values":           "{str:any}",
+						"chart":                  "str",
+						"target_revision":        "str",
+						"repo_url":               "str",
+						"release_name":           "str",
+						"namespace":              "str",
+						"helm_version":           "str",
+						"skip_crds":              "bool",
+						"skip_schema_validation": "bool",
+						"pass_credentials":       "bool",
+						"values":                 "{str:any}",
 					},
 					ResultType: "[{str:any}]",
 				},
@@ -54,17 +55,18 @@ func init() {
 					}
 
 					helmChart := helm.NewChart(helmClient, helm.TemplateOpts{
-						ChartName:       chartName,
-						TargetRevision:  targetRevision,
-						RepoURL:         repoURL,
-						ReleaseName:     safeArgs.StrKwArg("release_name", chartName),
-						Namespace:       namespace,
-						HelmVersion:     safeArgs.StrKwArg("helm_version", "v3"),
-						SkipCRDs:        safeArgs.BoolKwArg("skip_crds", false),
-						PassCredentials: safeArgs.BoolKwArg("pass_credentials", false),
-						ValuesObject:    safeArgs.MapKwArg("values", map[string]any{}),
-						KubeVersion:     kubeVersion,
-						APIVersions:     strings.Split(kubeAPIVersions, ","),
+						ChartName:            chartName,
+						TargetRevision:       targetRevision,
+						RepoURL:              repoURL,
+						ReleaseName:          safeArgs.StrKwArg("release_name", chartName),
+						Namespace:            namespace,
+						HelmVersion:          safeArgs.StrKwArg("helm_version", "v3"),
+						SkipCRDs:             safeArgs.BoolKwArg("skip_crds", false),
+						SkipSchemaValidation: safeArgs.BoolKwArg("skip_schema_validation", true),
+						PassCredentials:      safeArgs.BoolKwArg("pass_credentials", false),
+						ValuesObject:         safeArgs.MapKwArg("values", map[string]any{}),
+						KubeVersion:          kubeVersion,
+						APIVersions:          strings.Split(kubeAPIVersions, ","),
 					})
 
 					objs, err := helmChart.Template()

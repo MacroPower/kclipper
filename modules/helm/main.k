@@ -28,6 +28,8 @@ schema ChartBase:
         (Helm's `--skip-crds`).
     passCredentials: bool, default is False, optional.
         Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
+    schemaValidator : "KCL" | "HELM", default is "KCL", optional.
+        The schema validator to use.
     """
     chart: str
     repoURL: str
@@ -37,6 +39,7 @@ schema ChartBase:
     helmVersion?: str = "v3"
     skipCRDs?: bool = False
     passCredentials?: bool = False
+    schemaValidator?: "KCL" | "HELM" = "KCL"
 
     check:
         not regex.match(repoURL, r"^oci://"), \
@@ -113,6 +116,8 @@ template = lambda chart: Chart -> [{str:}] {
 
     _values |= _chart.values
 
+    _skipSchemaValidation = _chart.schemaValidator == "HELM"
+
     _resources = helm_plugin.template(
         chart=_chart.chart,
         repo_url=_chart.repoURL,
@@ -121,6 +126,7 @@ template = lambda chart: Chart -> [{str:}] {
         namespace=_chart.namespace,
         helm_version=_chart.helmVersion,
         skip_crds=_chart.skipCRDs,
+        skip_schema_validation=_skipSchemaValidation,
         pass_credentials=_chart.passCredentials,
         values=_values,
     )

@@ -37,9 +37,10 @@ func TestHelmChartAdd(t *testing.T) {
 		"podinfo": {
 			chart: &helmmodels.ChartConfig{
 				ChartBase: helmmodels.ChartBase{
-					Chart:          "podinfo",
-					RepoURL:        "https://stefanprodan.github.io/podinfo",
-					TargetRevision: "6.7.1",
+					Chart:           "podinfo",
+					RepoURL:         "https://stefanprodan.github.io/podinfo",
+					TargetRevision:  "6.7.1",
+					SchemaValidator: jsonschema.HelmValidatorType,
 				},
 				SchemaGenerator: jsonschema.AutoGeneratorType,
 			},
@@ -61,7 +62,7 @@ func TestHelmChartAdd(t *testing.T) {
 			t.Parallel()
 
 			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision,
-				tc.chart.SchemaPath, tc.chart.SchemaGenerator)
+				tc.chart.SchemaPath, tc.chart.SchemaGenerator, tc.chart.SchemaValidator)
 			require.NoError(t, err)
 
 			depsOpt, err := options.LoadDepsFrom(chartPath, true)

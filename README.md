@@ -58,6 +58,7 @@ charts: helm.Charts = {
         chart = "app-template"
         repoURL = "https://bjw-s.github.io/helm-charts/"
         targetRevision = "3.6.0"
+        schemaValidator = "KCL"
         schemaGenerator = "CHART-PATH"
         schemaPath = "charts/common/values.schema.json"
     }
@@ -76,10 +77,10 @@ kcl chart update
 
 **Enjoy blazing fast reconciliation times.** macropower/kclx is built with performance in mind, and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using validation=KCL disables Helm's value validation, and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g. remote refs, chart dependencies, or both).
 
-| Chart        | Vanilla Argo CD | macropower/kclx | macropower/kclx (validation=KCL) |
-| :----------- | :-------------- | :-------------- | :------------------------------- |
-| podinfo      | 9.1 ms/op       | 0.78 ms/op      | 0.76 ms/op (~12x)                |
-| app-template | 159 ms/op       | 143 ms/op       | 1.48 ms/op (~107x)               |
+| Chart        | Vanilla Argo CD | macropower/kclx | macropower/kclx (schemaValidator=KCL) |
+| :----------- | :-------------- | :-------------- | :------------------------------------ |
+| podinfo      | 9.1 ms/op       | 0.78 ms/op      | 0.76 ms/op (~12x)                     |
+| app-template | 159 ms/op       | 143 ms/op       | 1.48 ms/op (~107x)                    |
 
 > Approximate values from my Mac Mini M1.
 
@@ -273,6 +274,8 @@ manifests.yaml_stream(_podinfo)
 ```
 
 You can also combine both the `values` and `valueFiles` arguments. If the same value is defined in both locations, values defined in the `values` argument will take precedence over values defined in `valueFiles`.
+
+Please note that if you use `valueFiles` and `schemaValidator=KCL`, the valueFiles' contents will not be validated against any chart JSON Schemas during KCL runs. So, it might be a good idea to validate against `values.schema.json` in a pre-commit hook or similar.
 
 ## Contributing
 
