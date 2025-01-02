@@ -1,20 +1,10 @@
 package helm
 
 import (
-	"errors"
 	"fmt"
-	"io"
-	"log/slog"
-	"net/http"
-	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"helm.sh/helm/v3/pkg/chartutil"
-	"sigs.k8s.io/yaml"
-
-	pathutil "github.com/MacroPower/kclx/pkg/argoutil/io/path"
 )
 
 const (
@@ -33,8 +23,6 @@ type HelmRepository struct {
 type Helm interface {
 	// Template returns a list of unstructured objects from a `helm template` command
 	Template(opts *TemplateOpts) (string, string, error)
-	// GetParameters returns a list of chart parameters taking into account values in provided YAML files.
-	GetParameters(valuesFiles []pathutil.ResolvedFilePath, appPath, repoRoot string) (map[string]string, error)
 	// DependencyBuild runs `helm dependency build` to download a chart's dependencies
 	DependencyBuild() error
 	// Dispose deletes temp resources
@@ -120,82 +108,4 @@ func Version(shortForm bool) (string, error) {
 		return hv.Version, nil
 	}
 	return fmt.Sprintf("%#v", hv), nil
-}
-
-func (h *helm) GetParameters(valuesFiles []pathutil.ResolvedFilePath, appPath, repoRoot string) (map[string]string, error) {
-	var values []string
-	// Don't load values.yaml if it's an out-of-bounds link.
-	if _, _, err := pathutil.ResolveValueFilePathOrUrl(appPath, repoRoot, "values.yaml", []string{}); err == nil {
-		out, err := h.cmd.inspectValues(".")
-		if err != nil {
-			return nil, fmt.Errorf("failed to execute helm inspect values command: %w", err)
-		}
-		values = append(values, out)
-	} else {
-		slog.Warn("values file is not allowed", "file", filepath.Join(appPath, "values.yaml"), "err", err)
-	}
-	for i := range valuesFiles {
-		file := string(valuesFiles[i])
-		var fileValues []byte
-		parsedURL, err := url.ParseRequestURI(file)
-		if err == nil && (parsedURL.Scheme == "http" || parsedURL.Scheme == "https") {
-			fileValues, err = readRemoteFile(file)
-		} else {
-			_, fileReadErr := os.Stat(file)
-			if os.IsNotExist(fileReadErr) {
-				slog.Debug("file not found", "file", file)
-				continue
-			}
-			if errors.Is(fileReadErr, os.ErrPermission) {
-				slog.Debug("file does not have permissions", "file", file)
-				continue
-			}
-			fileValues, err = os.ReadFile(file)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("failed to read value file %s: %w", file, err)
-		}
-		values = append(values, string(fileValues))
-	}
-
-	output := map[string]string{}
-	for _, file := range values {
-		values := map[string]interface{}{}
-		if err := yaml.Unmarshal([]byte(file), &values); err != nil {
-			return nil, fmt.Errorf("failed to parse values: %w", err)
-		}
-		flatVals(values, output)
-	}
-
-	return output, nil
-}
-
-func flatVals(input interface{}, output map[string]string, prefixes ...string) {
-	switch i := input.(type) {
-	case map[string]interface{}:
-		for k, v := range i {
-			flatVals(v, output, append(prefixes, k)...)
-		}
-	case []interface{}:
-		p := append([]string(nil), prefixes...)
-		for j, v := range i {
-			flatVals(v, output, append(p[0:len(p)-1], fmt.Sprintf("%s[%v]", prefixes[len(p)-1], j))...)
-		}
-	default:
-		output[strings.Join(prefixes, ".")] = fmt.Sprintf("%v", i)
-	}
-}
-
-// readRemoteFile issues a GET request to retrieve the contents of the specified URL as a byte array.
-// The caller is responsible for checking error return values.
-func readRemoteFile(url string) ([]byte, error) {
-	var data []byte
-	resp, err := http.Get(url)
-	if err == nil {
-		defer func() {
-			_ = resp.Body.Close()
-		}()
-		data, err = io.ReadAll(resp.Body)
-	}
-	return data, err
 }

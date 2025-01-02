@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclx/pkg/argoutil/io"
+	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
 )
 
 type fakeIndexCache struct {
@@ -78,7 +78,7 @@ func Test_nativeHelmChart_ExtractChart(t *testing.T) {
 	client := NewClient("https://argoproj.github.io/argo-helm", Creds{}, false, "", "")
 	path, closer, err := client.ExtractChart("argo-cd", "0.7.1", "", false, math.MaxInt64, true)
 	require.NoError(t, err)
-	defer io.Close(closer)
+	defer argoio.Close(closer)
 	info, err := os.Stat(path)
 	require.NoError(t, err)
 	assert.True(t, info.IsDir())
@@ -94,7 +94,7 @@ func Test_nativeHelmChart_ExtractChart_insecure(t *testing.T) {
 	client := NewClient("https://argoproj.github.io/argo-helm", Creds{InsecureSkipVerify: true}, false, "", "")
 	path, closer, err := client.ExtractChart("argo-cd", "0.7.1", "", false, math.MaxInt64, true)
 	require.NoError(t, err)
-	defer io.Close(closer)
+	defer argoio.Close(closer)
 	info, err := os.Stat(path)
 	require.NoError(t, err)
 	assert.True(t, info.IsDir())

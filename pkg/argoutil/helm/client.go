@@ -24,7 +24,6 @@ import (
 	"oras.land/oras-go/v2/registry/remote/auth"
 
 	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
-	"github.com/MacroPower/kclx/pkg/argoutil/io/files"
 	"github.com/MacroPower/kclx/pkg/argoutil/sync"
 )
 
@@ -123,7 +122,7 @@ func untarChart(tempDir string, cachedChartPath string, manifestMaxExtractedSize
 	if err != nil {
 		return fmt.Errorf("error opening cached chart path %s: %w", cachedChartPath, err)
 	}
-	return files.Untgz(tempDir, reader, manifestMaxExtractedSize, false)
+	return gunzip(tempDir, reader, manifestMaxExtractedSize, false)
 }
 
 func (c *nativeHelmChart) PullChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, error) {
@@ -150,7 +149,7 @@ func (c *nativeHelmChart) PullChart(chart string, version string, project string
 
 	if !exists {
 		// create empty temp directory to extract chart from the registry
-		tempDest, err := files.CreateTempDir(os.TempDir())
+		tempDest, err := createTempDir(os.TempDir())
 		if err != nil {
 			return "", fmt.Errorf("error creating temporary destination directory: %w", err)
 		}
@@ -202,7 +201,7 @@ func (c *nativeHelmChart) PullChart(chart string, version string, project string
 
 func (c *nativeHelmChart) ExtractChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, io.Closer, error) {
 	// throw away temp directory that stores extracted chart and should be deleted as soon as no longer needed by returned closer
-	tempDir, err := files.CreateTempDir(os.TempDir())
+	tempDir, err := createTempDir(os.TempDir())
 	if err != nil {
 		return "", nil, fmt.Errorf("error creating temporary directory: %w", err)
 	}

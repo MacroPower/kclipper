@@ -1,4 +1,8 @@
-package path
+// Copyright 2017-2018 The Argo Authors
+// Modifications Copyright 2025 MacroPower
+// Licensed under the Apache License, Version 2.0
+
+package pathutil
 
 import (
 	"errors"
