@@ -70,12 +70,12 @@ func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 // the extracted chart. Pulled charts will be stored in the injected [PathCacher]
 // in .tar.gz format, and subsequent requests will try to use [PathCacher] rather
 // than re-pulling the chart.
-func (c *Client) Pull(chart, repoURL, targetRevision string) (string, io.Closer, error) {
-	return c.PullWithCreds(chart, repoURL, targetRevision, Creds{}, false)
+func (c *Client) Pull(chart, repoURL, targetRevision string, extract bool) (string, io.Closer, error) {
+	return c.PullWithCreds(chart, repoURL, targetRevision, Creds{}, extract, false)
 }
 
 func (c *Client) PullWithCreds(
-	chart, repoURL, targetRevision string, creds Creds, passCredentials bool,
+	chart, repoURL, targetRevision string, creds Creds, extract, passCredentials bool,
 ) (string, io.Closer, error) {
 	repoNetURL, err := url.Parse(repoURL)
 	if err != nil {
@@ -109,12 +109,22 @@ func (c *Client) PullWithCreds(
 	ahc := argohelm.NewClient(repoNetURL.String(), argoCreds, enableOCI, c.Proxy, c.NoProxy,
 		argohelm.WithChartPaths(c.Paths))
 
+	var chartPath string
+	if !extract {
+		closer := io.NopCloser(bytes.NewReader(nil))
+		chartPath, err = ahc.PullChart(chart, targetRevision, c.Project, passCredentials,
+			c.MaxExtractSize.Value(), c.MaxExtractSize.IsZero())
+		if err != nil {
+			return "", closer, fmt.Errorf("error extracting helm chart: %w", err)
+		}
+		return chartPath, closer, nil
+	}
+
 	chartPath, closer, err := ahc.ExtractChart(chart, targetRevision, c.Project, passCredentials,
 		c.MaxExtractSize.Value(), c.MaxExtractSize.IsZero())
 	if err != nil {
 		return "", closer, fmt.Errorf("error extracting helm chart: %w", err)
 	}
-
 	return chartPath, closer, nil
 }
 

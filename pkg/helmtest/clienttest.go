@@ -24,21 +24,21 @@ func init() {
 }
 
 type ChartClient interface {
-	Pull(chart, repoURL, targetRevision string) (string, io.Closer, error)
+	Pull(chart, repoURL, targetRevision string, extract bool) (string, io.Closer, error)
 }
 
 type TestClient struct {
 	BaseClient ChartClient
 }
 
-func (c *TestClient) Pull(chart, repoURL, targetRevision string) (string, io.Closer, error) {
-	return c.PullWithCreds(chart, repoURL, targetRevision, helm.Creds{}, false)
+func (c *TestClient) Pull(chart, repoURL, targetRevision string, extract bool) (string, io.Closer, error) {
+	return c.PullWithCreds(chart, repoURL, targetRevision, helm.Creds{}, extract, false)
 }
 
 func (c *TestClient) PullWithCreds(
-	chart, repoURL, targetRevision string, _ helm.Creds, _ bool,
+	chart, repoURL, targetRevision string, _ helm.Creds, extract, _ bool,
 ) (string, io.Closer, error) {
-	chartPath, closer, err := c.BaseClient.Pull(chart, repoURL, targetRevision)
+	chartPath, closer, err := c.BaseClient.Pull(chart, repoURL, targetRevision, extract)
 	if err != nil {
 		return "", closer, fmt.Errorf("error pulling helm chart: %w", err)
 	}

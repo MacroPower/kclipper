@@ -46,7 +46,8 @@ type Creds struct {
 
 type Client interface {
 	CleanChartCache(chart string, version string, project string) error
-	ExtractChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, argoio.Closer, error)
+	PullChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, error)
+	ExtractChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, io.Closer, error)
 	GetIndex(noCache bool, maxIndexSize int64) (*Index, error)
 	GetTags(chart string, noCache bool) (*TagsList, error)
 	TestHelmOCI() (bool, error)
@@ -125,23 +126,17 @@ func untarChart(tempDir string, cachedChartPath string, manifestMaxExtractedSize
 	return files.Untgz(tempDir, reader, manifestMaxExtractedSize, false)
 }
 
-func (c *nativeHelmChart) ExtractChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, argoio.Closer, error) {
+func (c *nativeHelmChart) PullChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, error) {
 	// always use Helm V3 since we don't have chart content to determine correct Helm version
 	helmCmd, err := NewCmdWithVersion("", c.enableOci, c.proxy, c.noProxy)
 	if err != nil {
-		return "", nil, fmt.Errorf("error creating Helm command: %w", err)
+		return "", fmt.Errorf("error creating Helm command: %w", err)
 	}
 	defer helmCmd.Close()
 
-	// throw away temp directory that stores extracted chart and should be deleted as soon as no longer needed by returned closer
-	tempDir, err := files.CreateTempDir(os.TempDir())
-	if err != nil {
-		return "", nil, fmt.Errorf("error creating temporary directory: %w", err)
-	}
-
 	cachedChartPath, err := c.getCachedChartPath(chart, version, project)
 	if err != nil {
-		return "", nil, fmt.Errorf("error getting cached chart path: %w", err)
+		return "", fmt.Errorf("error getting cached chart path: %w", err)
 	}
 
 	c.repoLock.Lock(cachedChartPath)
@@ -150,14 +145,14 @@ func (c *nativeHelmChart) ExtractChart(chart string, version string, project str
 	// check if chart tar is already downloaded
 	exists, err := fileExist(cachedChartPath)
 	if err != nil {
-		return "", nil, fmt.Errorf("error checking existence of cached chart path: %w", err)
+		return "", fmt.Errorf("error checking existence of cached chart path: %w", err)
 	}
 
 	if !exists {
 		// create empty temp directory to extract chart from the registry
 		tempDest, err := files.CreateTempDir(os.TempDir())
 		if err != nil {
-			return "", nil, fmt.Errorf("error creating temporary destination directory: %w", err)
+			return "", fmt.Errorf("error creating temporary destination directory: %w", err)
 		}
 		defer func() { _ = os.RemoveAll(tempDest) }()
 
@@ -165,7 +160,7 @@ func (c *nativeHelmChart) ExtractChart(chart string, version string, project str
 			if c.creds.Password != "" && c.creds.Username != "" {
 				_, err = helmCmd.RegistryLogin(c.repoURL, c.creds)
 				if err != nil {
-					return "", nil, fmt.Errorf("error logging into OCI registry: %w", err)
+					return "", fmt.Errorf("error logging into OCI registry: %w", err)
 				}
 
 				defer func() {
@@ -176,30 +171,45 @@ func (c *nativeHelmChart) ExtractChart(chart string, version string, project str
 			// 'helm pull' ensures that chart is downloaded into temp directory
 			_, err = helmCmd.PullOCI(c.repoURL, chart, version, tempDest, c.creds)
 			if err != nil {
-				return "", nil, fmt.Errorf("error pulling OCI chart: %w", err)
+				return "", fmt.Errorf("error pulling OCI chart: %w", err)
 			}
 		} else {
 			_, err = helmCmd.Fetch(c.repoURL, chart, version, tempDest, c.creds, passCredentials)
 			if err != nil {
-				return "", nil, fmt.Errorf("error fetching chart: %w", err)
+				return "", fmt.Errorf("error fetching chart: %w", err)
 			}
 		}
 
 		// 'helm pull/fetch' file downloads chart into the tgz file and we move that to where we want it
 		infos, err := os.ReadDir(tempDest)
 		if err != nil {
-			return "", nil, fmt.Errorf("error reading directory %s: %w", tempDest, err)
+			return "", fmt.Errorf("error reading directory %s: %w", tempDest, err)
 		}
 		if len(infos) != 1 {
-			return "", nil, fmt.Errorf("expected 1 file, found %v", len(infos))
+			return "", fmt.Errorf("expected 1 file, found %v", len(infos))
 		}
 
 		chartFilePath := filepath.Join(tempDest, infos[0].Name())
 
 		err = os.Rename(chartFilePath, cachedChartPath)
 		if err != nil {
-			return "", nil, fmt.Errorf("error renaming file from %s to %s: %w", chartFilePath, cachedChartPath, err)
+			return "", fmt.Errorf("error renaming file from %s to %s: %w", chartFilePath, cachedChartPath, err)
 		}
+	}
+
+	return cachedChartPath, nil
+}
+
+func (c *nativeHelmChart) ExtractChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, io.Closer, error) {
+	// throw away temp directory that stores extracted chart and should be deleted as soon as no longer needed by returned closer
+	tempDir, err := files.CreateTempDir(os.TempDir())
+	if err != nil {
+		return "", nil, fmt.Errorf("error creating temporary directory: %w", err)
+	}
+
+	cachedChartPath, err := c.PullChart(chart, version, project, passCredentials, manifestMaxExtractedSize, disableManifestMaxExtractedSize)
+	if err != nil {
+		return "", nil, fmt.Errorf("error extracting chart: %w", err)
 	}
 
 	err = untarChart(tempDir, cachedChartPath, manifestMaxExtractedSize, disableManifestMaxExtractedSize)
@@ -207,6 +217,7 @@ func (c *nativeHelmChart) ExtractChart(chart string, version string, project str
 		_ = os.RemoveAll(tempDir)
 		return "", nil, fmt.Errorf("error untarring chart: %w", err)
 	}
+
 	return path.Join(tempDir, normalizeChartName(chart)), argoio.NewCloser(func() error {
 		return os.RemoveAll(tempDir)
 	}), nil

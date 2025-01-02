@@ -38,7 +38,7 @@ type TemplateOpts struct {
 }
 
 type ChartClient interface {
-	PullWithCreds(chart, repoURL, targetRevision string, creds Creds, passCredentials bool) (string, io.Closer, error)
+	PullWithCreds(chart, repoURL, targetRevision string, creds Creds, extract, passCredentials bool) (string, io.Closer, error)
 }
 
 type JSONSchemaGenerator interface {
@@ -72,7 +72,7 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 
 func (c *Chart) template() ([]byte, error) {
 	chartPath, closer, err := c.Client.PullWithCreds(c.TemplateOpts.ChartName, c.TemplateOpts.RepoURL,
-		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, c.TemplateOpts.PassCredentials)
+		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, false, c.TemplateOpts.PassCredentials)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
@@ -120,7 +120,7 @@ func (c *Chart) template() ([]byte, error) {
 // of the pulled files in the chart directory for JSON Schema generation.
 func (c *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) bool) ([]byte, error) {
 	chartPath, closer, err := c.Client.PullWithCreds(c.TemplateOpts.ChartName, c.TemplateOpts.RepoURL,
-		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, c.TemplateOpts.PassCredentials)
+		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, true, c.TemplateOpts.PassCredentials)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
