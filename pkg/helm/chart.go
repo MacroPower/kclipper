@@ -100,10 +100,12 @@ func (c *Chart) template() ([]byte, error) {
 	}()
 
 	argoTemplateOpts := &argohelm.TemplateOpts{
-		Name:        c.TemplateOpts.ReleaseName,
+		Name:        c.TemplateOpts.ChartName,
 		Namespace:   c.TemplateOpts.Namespace,
 		ExtraValues: pathutil.ResolvedFilePath(p),
 		SkipCrds:    c.TemplateOpts.SkipCRDs,
+		KubeVersion: c.TemplateOpts.KubeVersion,
+		APIVersions: c.TemplateOpts.APIVersions,
 	}
 	out, _, err := ha.Template(argoTemplateOpts)
 	if err != nil {

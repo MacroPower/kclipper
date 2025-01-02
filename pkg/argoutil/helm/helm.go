@@ -44,7 +44,7 @@ type Helm interface {
 
 // NewHelmApp create a new wrapper to run commands on the `helm` command-line tool.
 func NewHelmApp(workDir string, repos []HelmRepository, isLocal bool, version string, proxy string, noProxy string, passCredentials bool) (Helm, error) {
-	cmd, err := NewCmd(workDir, version, proxy, noProxy)
+	cmd, err := NewCmdV(workDir, version, proxy, noProxy)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new helm command: %w", err)
 	}
@@ -54,7 +54,7 @@ func NewHelmApp(workDir string, repos []HelmRepository, isLocal bool, version st
 }
 
 type helm struct {
-	cmd             Cmd
+	cmd             CmdV
 	repos           []HelmRepository
 	passCredentials bool
 }
