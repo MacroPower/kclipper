@@ -8,13 +8,12 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"helm.sh/helm/v3/pkg/chartutil"
 	"sigs.k8s.io/yaml"
 
-	"github.com/MacroPower/kclx/pkg/argoutil/executil"
 	pathutil "github.com/MacroPower/kclx/pkg/argoutil/io/path"
 )
 
@@ -44,7 +43,7 @@ type Helm interface {
 
 // NewHelmApp create a new wrapper to run commands on the `helm` command-line tool.
 func NewHelmApp(workDir string, repos []HelmRepository, isLocal bool, version string, proxy string, noProxy string, passCredentials bool) (Helm, error) {
-	cmd, err := NewCmdV(workDir, version, proxy, noProxy)
+	cmd, err := NewCmd(workDir, version, proxy, noProxy)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new helm command: %w", err)
 	}
@@ -54,7 +53,7 @@ func NewHelmApp(workDir string, repos []HelmRepository, isLocal bool, version st
 }
 
 type helm struct {
-	cmd             CmdV
+	cmd             Cmd
 	repos           []HelmRepository
 	passCredentials bool
 }
@@ -116,20 +115,11 @@ func (h *helm) Dispose() {
 }
 
 func Version(shortForm bool) (string, error) {
-	executable := "helm"
-	cmdArgs := []string{"version", "--client"}
+	hv := chartutil.DefaultCapabilities.HelmVersion
 	if shortForm {
-		cmdArgs = append(cmdArgs, "--short")
+		return hv.Version, nil
 	}
-	cmd := exec.Command(executable, cmdArgs...)
-	// example version output:
-	// long: "version.BuildInfo{Version:\"v3.3.1\", GitCommit:\"249e5215cde0c3fa72e27eb7a30e8d55c9696144\", GitTreeState:\"clean\", GoVersion:\"go1.14.7\"}"
-	// short: "v3.3.1+g249e521"
-	version, err := executil.RunWithRedactor(cmd, redactor)
-	if err != nil {
-		return "", fmt.Errorf("could not get helm version: %w", err)
-	}
-	return strings.TrimSpace(version), nil
+	return fmt.Sprintf("%#v", hv), nil
 }
 
 func (h *helm) GetParameters(valuesFiles []pathutil.ResolvedFilePath, appPath, repoRoot string) (map[string]string, error) {
