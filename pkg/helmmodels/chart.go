@@ -29,6 +29,8 @@ type ChartBase struct {
 	SkipCRDs bool `json:"skipCRDs,omitempty" jsonschema:"-,description=Skip the custom resource definition installation step."`
 	// PassCredentials will pass credentials to all domains (--pass-credentials).
 	PassCredentials bool `json:"passCredentials,omitempty" jsonschema:"-,description=Pass credentials to all domains."`
+	// SchemaValidator is the validator to use for the Values schema.
+	SchemaValidator jsonschema.ValidatorType `json:"schemaValidator,omitempty" jsonschema:"description=The validator to use for the Values schema."`
 }
 
 type ChartConfig struct {
@@ -56,6 +58,14 @@ func (c *ChartConfig) GenerateKCL(b *bytes.Buffer) error {
 			cv.Default = jsonschema.AutoGeneratorType
 		}
 		cv.Enum = jsonschema.GeneratorTypeEnum
+	}
+	if cv, ok := js.Properties.Get("schemaValidator"); ok {
+		if c.SchemaValidator != "" {
+			cv.Default = c.SchemaValidator
+		} else {
+			cv.Default = jsonschema.KCLValidatorType
+		}
+		cv.Enum = jsonschema.ValidatorTypeEnum
 	}
 
 	jsBytes, err := js.MarshalJSON()
@@ -94,6 +104,14 @@ func (c *Chart) GenerateKCL(b *bytes.Buffer) error {
 	}
 	if cv, ok := js.Properties.Get("targetRevision"); ok {
 		cv.Default = c.TargetRevision
+	}
+	if cv, ok := js.Properties.Get("schemaValidator"); ok {
+		if c.SchemaValidator != "" {
+			cv.Default = c.SchemaValidator
+		} else {
+			cv.Default = jsonschema.KCLValidatorType
+		}
+		cv.Enum = jsonschema.ValidatorTypeEnum
 	}
 
 	jsBytes, err := js.MarshalJSON()

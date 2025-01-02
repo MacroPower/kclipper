@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 
 	"github.com/MacroPower/kclx/pkg/helm"
@@ -22,6 +24,10 @@ const (
 
   # Update chart schemas for the current module
   kcl chart update`
+)
+
+var (
+	ErrInvalidArgument = errors.New("invalid argument")
 )
 
 // NewChartCmd returns the chart command.
@@ -50,7 +56,7 @@ func NewChartInitCmd() *cobra.Command {
 			flags := cc.Flags()
 			basePath, err := flags.GetString("path")
 			if err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				return fmt.Errorf("%w: %w", ErrInvalidArgument, err)
 			}
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
 			return c.Init()
@@ -64,41 +70,52 @@ func NewChartAddCmd() *cobra.Command {
 		Use:   "add",
 		Short: "Add a new chart",
 		RunE: func(cc *cobra.Command, _ []string) error {
+			var merr error
 			if err := cc.MarkFlagRequired("chart"); err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				merr = multierror.Append(merr, err)
 			}
 			if err := cc.MarkFlagRequired("repo_url"); err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				merr = multierror.Append(merr, err)
 			}
 
 			flags := cc.Flags()
 			basePath, err := flags.GetString("path")
 			if err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				merr = multierror.Append(merr, err)
 			}
 			chart, err := flags.GetString("chart")
 			if err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				merr = multierror.Append(merr, err)
 			}
 			repoURL, err := flags.GetString("repo_url")
 			if err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				merr = multierror.Append(merr, err)
 			}
 			targetRevision, err := flags.GetString("target_revision")
 			if err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				merr = multierror.Append(merr, err)
 			}
 			schemaGeneratorString, err := flags.GetString("schema_generator")
 			if err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				merr = multierror.Append(merr, err)
 			}
 			schemaGenerator := jsonschema.GetGeneratorType(schemaGeneratorString)
+			schemaValidatorString, err := flags.GetString("schema_validator")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			schemaValidator := jsonschema.GetValidatorType(schemaValidatorString)
 			schemaPath, err := flags.GetString("schema_path")
 			if err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				merr = multierror.Append(merr, err)
 			}
+
+			if merr != nil {
+				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
+			}
+
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-			return c.Add(chart, repoURL, targetRevision, schemaPath, schemaGenerator)
+			return c.Add(chart, repoURL, targetRevision, schemaPath, schemaGenerator, schemaValidator)
 		},
 		SilenceUsage: true,
 	}
@@ -106,6 +123,7 @@ func NewChartAddCmd() *cobra.Command {
 	cmd.Flags().StringP("repo_url", "r", "", "URL of the Helm chart repository (required)")
 	cmd.Flags().StringP("target_revision", "t", "", "Semver tag for the chart's version")
 	cmd.Flags().StringP("schema_generator", "G", "AUTO", "Chart schema generator")
+	cmd.Flags().StringP("schema_validator", "V", "KCL", "Chart schema validator")
 	cmd.Flags().StringP("schema_path", "P", "", "Chart schema path")
 
 	return cmd
@@ -119,7 +137,7 @@ func NewChartUpdateCmd() *cobra.Command {
 			flags := cc.Flags()
 			basePath, err := flags.GetString("path")
 			if err != nil {
-				return fmt.Errorf("argument error: %w", err)
+				return fmt.Errorf("%w: %w", ErrInvalidArgument, err)
 			}
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
 			return c.Update()

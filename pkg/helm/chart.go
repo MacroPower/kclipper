@@ -20,21 +20,22 @@ type Chart struct {
 }
 
 type TemplateOpts struct {
-	ChartName       string
-	TargetRevision  string
-	RepoURL         string
-	ReleaseName     string
-	Namespace       string
-	HelmVersion     string
-	ValuesObject    map[string]any
-	Repositories    []argohelm.HelmRepository
-	Credentials     Creds
-	SkipCRDs        bool
-	KubeVersion     string
-	APIVersions     []string
-	PassCredentials bool
-	Proxy           string
-	NoProxy         string
+	ChartName            string
+	TargetRevision       string
+	RepoURL              string
+	ReleaseName          string
+	Namespace            string
+	HelmVersion          string
+	ValuesObject         map[string]any
+	Repositories         []argohelm.HelmRepository
+	Credentials          Creds
+	SkipCRDs             bool
+	KubeVersion          string
+	APIVersions          []string
+	PassCredentials      bool
+	Proxy                string
+	NoProxy              string
+	SkipSchemaValidation bool
 }
 
 type ChartClient interface {
@@ -91,12 +92,13 @@ func (c *Chart) template() ([]byte, error) {
 	defer ha.Dispose()
 
 	argoTemplateOpts := &argohelm.TemplateOpts{
-		Name:        c.TemplateOpts.ChartName,
-		Namespace:   c.TemplateOpts.Namespace,
-		Values:      c.TemplateOpts.ValuesObject,
-		SkipCrds:    c.TemplateOpts.SkipCRDs,
-		KubeVersion: c.TemplateOpts.KubeVersion,
-		APIVersions: c.TemplateOpts.APIVersions,
+		Name:                 c.TemplateOpts.ChartName,
+		Namespace:            c.TemplateOpts.Namespace,
+		Values:               c.TemplateOpts.ValuesObject,
+		SkipCrds:             c.TemplateOpts.SkipCRDs,
+		KubeVersion:          c.TemplateOpts.KubeVersion,
+		APIVersions:          c.TemplateOpts.APIVersions,
+		SkipSchemaValidation: c.TemplateOpts.SkipSchemaValidation,
 	}
 	out, _, err := ha.Template(argoTemplateOpts)
 	if err != nil {

@@ -28,12 +28,17 @@ const initialMainContents = `import helm
 charts: helm.Charts = {}
 `
 
-func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genType jsonschema.GeneratorType) error {
+func (c *ChartPkg) Add(
+	chart, repoURL, targetRevision, schemaPath string,
+	genType jsonschema.GeneratorType,
+	validateType jsonschema.ValidatorType,
+) error {
 	hc := helmmodels.Chart{
 		ChartBase: helmmodels.ChartBase{
-			Chart:          chart,
-			RepoURL:        repoURL,
-			TargetRevision: targetRevision,
+			Chart:           chart,
+			RepoURL:         repoURL,
+			TargetRevision:  targetRevision,
+			SchemaValidator: validateType,
 		},
 	}
 
@@ -91,6 +96,7 @@ func (c *ChartPkg) Add(chart, repoURL, targetRevision, schemaPath string, genTyp
 		"targetRevision":  targetRevision,
 		"schemaGenerator": string(genType),
 		"schemaPath":      schemaPath,
+		"schemaValidator": string(validateType),
 	}
 	if err := c.updateChartsFile(c.BasePath, hc.GetSnakeCaseName(), chartConfig); err != nil {
 		return err

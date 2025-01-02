@@ -30,6 +30,18 @@ var GeneratorTypeEnum = []interface{}{
 	NoGeneratorType,
 }
 
+type ValidatorType string
+
+const (
+	KCLValidatorType  ValidatorType = "KCL"
+	HelmValidatorType ValidatorType = "HELM"
+)
+
+var ValidatorTypeEnum = []interface{}{
+	KCLValidatorType,
+	HelmValidatorType,
+}
+
 // GetGenerator returns a [FileGenerator] for the given [GeneratorType].
 //
 //nolint:ireturn
@@ -64,6 +76,17 @@ func GetGeneratorType(t string) GeneratorType {
 		return NoGeneratorType
 	default:
 		return NoGeneratorType
+	}
+}
+
+func GetValidatorType(t string) ValidatorType {
+	switch strings.TrimSpace(strings.ToUpper(t)) {
+	case string(KCLValidatorType):
+		return KCLValidatorType
+	case string(HelmValidatorType):
+		return HelmValidatorType
+	default:
+		return KCLValidatorType
 	}
 }
 
