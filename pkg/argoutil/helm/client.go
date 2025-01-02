@@ -18,13 +18,13 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/net/http/httpproxy"
 	"gopkg.in/yaml.v3"
 	"oras.land/oras-go/v2/registry/remote"
 	"oras.land/oras-go/v2/registry/remote/auth"
 
 	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
 	"github.com/MacroPower/kclx/pkg/argoutil/io/files"
-	"github.com/MacroPower/kclx/pkg/argoutil/proxy"
 	"github.com/MacroPower/kclx/pkg/argoutil/sync"
 )
 
@@ -300,7 +300,7 @@ func (c *nativeHelmChart) loadRepoIndex(maxIndexSize int64) ([]byte, error) {
 	}
 
 	tr := &http.Transport{
-		Proxy:             proxy.GetCallback(c.proxy, c.noProxy),
+		Proxy:             getCallback(c.proxy, c.noProxy),
 		TLSClientConfig:   tlsConf,
 		DisableKeepAlives: true,
 	}
@@ -408,7 +408,7 @@ func (c *nativeHelmChart) GetTags(chart string, noCache bool) (*TagsList, error)
 			return nil, fmt.Errorf("failed setup tlsConfig: %w", err)
 		}
 		client := &http.Client{Transport: &http.Transport{
-			Proxy:             proxy.GetCallback(c.proxy, c.noProxy),
+			Proxy:             getCallback(c.proxy, c.noProxy),
 			TLSClientConfig:   tlsConf,
 			DisableKeepAlives: true,
 		}}
@@ -445,4 +445,23 @@ func (c *nativeHelmChart) GetTags(chart string, noCache bool) (*TagsList, error)
 	}
 
 	return tags, nil
+}
+
+// getCallback returns the proxy callback function
+func getCallback(proxy string, noProxy string) func(*http.Request) (*url.URL, error) {
+	if proxy != "" {
+		c := httpproxy.Config{
+			HTTPProxy:  proxy,
+			HTTPSProxy: proxy,
+			NoProxy:    noProxy,
+		}
+		return func(r *http.Request) (*url.URL, error) {
+			if r != nil {
+				return c.ProxyFunc()(r.URL)
+			}
+			return url.Parse(c.HTTPProxy)
+		}
+	}
+	// read proxy from env variable if custom proxy is missing
+	return http.ProxyFromEnvironment
 }
