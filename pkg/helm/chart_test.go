@@ -118,3 +118,21 @@ func BenchmarkHelmChart(b *testing.B) {
 		}
 	})
 }
+
+func BenchmarkAppTemplateHelmChart(b *testing.B) {
+	c := helm.NewChart(helmtest.DefaultTestClient, helm.TemplateOpts{
+		ChartName:      "app-template",
+		TargetRevision: "3.6.0",
+		RepoURL:        "https://bjw-s.github.io/helm-charts/",
+	})
+	_, err := c.Template()
+	require.NoError(b, err)
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_, err := c.Template()
+			require.NoError(b, err)
+		}
+	})
+}

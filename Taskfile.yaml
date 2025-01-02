@@ -93,7 +93,7 @@ tasks:
     cmds:
       - |
         export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
-        go test -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
+        go test -ldflags="-s -w" -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
 
   go-build:
     desc: Builds Go binaries
@@ -166,7 +166,7 @@ tasks:
       - docker exec kcl kcl version
       - >-
         docker run --name=kclx -d --entrypoint=/usr/bin/bash {{.DOCKER_MOUNTS}}
-        ghcr.io/macropower/kclx:v0.1.2-arm64 -c "sleep 300"
+        ghcr.io/macropower/kclx:v0.2.0-arm64 -c "sleep 300"
       - defer: "docker rm kclx -f"
       - docker exec kclx kcl version
       - >-

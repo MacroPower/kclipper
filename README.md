@@ -78,6 +78,17 @@ import kcl_plugin.os
 
 > See the extension docs for [OS](./docs/os_extensions.md), [HTTP](./docs/http_extensions.md), and [Helm](./docs/helm_extensions.md).
 
+**Enjoy blazing fast reconciliation times.** macropower/kclx is built with performance in mind, and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using validation=KCL disables Helm's value validation, and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g. remote refs, chart dependencies, or both).
+
+| Chart        | Vanilla Argo CD | macropower/kclx | macropower/kclx (validation=KCL) |
+| :----------- | :-------------- | :-------------- | :------------------------------- |
+| podinfo      | 9.1 ms/op       | 0.78 ms/op      | 0.76 ms/op (~12x)                |
+| app-template | 159 ms/op       | 143 ms/op       | 1.48 ms/op (~107x)               |
+
+> Approximate values from my Mac Mini M1.
+
+There is a bit of a trade-off. The binary size is larger, and KCL run performance will be worse by an small, absolute amount of time (in my case ~8ms). Meaning, KCL runs with no Helm templates will be slightly slower compared to upstream KCL.
+
 ## Installation
 
 Binaries are posted in [releases](https://github.com/MacroPower/kclx/releases). Images and OCI artifacts are available under [packages](https://github.com/MacroPower/kclx/pkgs/container/kclx).
