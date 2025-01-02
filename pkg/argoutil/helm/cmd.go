@@ -255,11 +255,11 @@ func (c *Cmd) inspectValues(values string) (string, error) {
 }
 
 func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, error) {
-	if callback, err := cleanupChartLockFile(filepath.Clean(path.Join(c.WorkDir, chartPath))); err == nil {
-		defer callback()
-	} else {
-		return "", "", fmt.Errorf("failed to clean up chart lock file: %w", err)
-	}
+	// if callback, err := cleanupChartLockFile(filepath.Clean(path.Join(c.WorkDir, chartPath))); err == nil {
+	// 	defer callback()
+	// } else {
+	// 	return "", "", fmt.Errorf("failed to clean up chart lock file: %w", err)
+	// }
 
 	// Fail open instead of blocking the template.
 	kv := &chartutil.KubeVersion{
