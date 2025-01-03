@@ -75,14 +75,14 @@ kcl chart update
 
 ---
 
-**Enjoy blazing fast reconciliation times.** Kclipper is built with performance in mind, and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using validation=KCL disables Helm's value validation, and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g. remote refs, chart dependencies, or both).
+**Enjoy blazing fast reconciliation times.** Kclipper is built with performance in mind, and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using schemaValidator="KCL" disables Helm's value validation, and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g. remote refs, chart dependencies, or both).
 
 | Chart        | Vanilla Argo CD | kclipper   | kclipper (schemaValidator=KCL) |
 | :----------- | :-------------- | :--------- | :----------------------------- |
 | podinfo      | 9.1 ms/op       | 0.78 ms/op | 0.76 ms/op (~12x)              |
 | app-template | 159 ms/op       | 143 ms/op  | 1.48 ms/op (~107x)             |
 
-> Approximate values from my Mac Mini M1.
+> Approximate values from my Mac Mini M2.
 
 There is a bit of a trade-off. The binary size is larger, and KCL run performance will be worse by an small, absolute amount of time (in my case ~8ms). Meaning, KCL runs with no Helm templates will be slightly slower compared to upstream KCL.
 
@@ -237,13 +237,13 @@ Likewise, the same applies to any other changes you may want to make to your Hel
 
 The following schema generators are currently available:
 
-| Name            | Description                                                                           |        Parameters |
-| :-------------- | :------------------------------------------------------------------------------------ | ----------------: |
-| AUTO            | Try to automatically select the best schema generator for the chart.                  |                `` |
-| VALUE-INFERENCE | Infer the schema from one or more values.yaml files (uses [helm-schema][helm-schema]) |                `` |
-| URL             | Use a JSON Schema file located at a specified URL.                                    | `schemaPath: str` |
-| CHART-PATH      | Use a JSON Schema file located at a specified path within the chart files.            | `schemaPath: str` |
-| LOCAL-PATH      | Use a JSON Schema file located at a specified path within the project.                | `schemaPath: str` |
+| Name            | Description                                                                           |   Parameters |
+| :-------------- | :------------------------------------------------------------------------------------ | -----------: |
+| AUTO            | Try to automatically select the best schema generator for the chart.                  |              |
+| VALUE-INFERENCE | Infer the schema from one or more values.yaml files (uses [helm-schema][helm-schema]) |              |
+| URL             | Use a JSON Schema file located at a specified URL.                                    | `schemaPath` |
+| CHART-PATH      | Use a JSON Schema file located at a specified path within the chart files.            | `schemaPath` |
+| LOCAL-PATH      | Use a JSON Schema file located at a specified path within the project.                | `schemaPath` |
 
 `AUTO` is generally the best option. It currently looks for `values.schema.json` files in the chart directory (i.e. `CHART-PATH` with `schemaPath: "values.schema.json"`), and falls back `VALUE-INFERENCE` if none are found.
 
