@@ -6,6 +6,7 @@ charts: helm.Charts = {
         repoURL = "https://stefanprodan.github.io/podinfo"
         targetRevision = "6.7.1"
         schemaGenerator = "AUTO"
+        schemaValidator = "KCL"
     }
     app_template: {
         chart = "app-template"
@@ -13,5 +14,6 @@ charts: helm.Charts = {
         targetRevision = "3.6.0"
         schemaGenerator = "CHART-PATH"
         schemaPath = "charts/common/values.schema.json"
+        schemaValidator = "KCL"
     }
 }

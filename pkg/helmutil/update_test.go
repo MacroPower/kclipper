@@ -28,7 +28,7 @@ func TestHelmChartUpdate(t *testing.T) {
 	require.NoError(t, err)
 
 	err = chartPkg.Add("podinfo", "https://stefanprodan.github.io/podinfo", "6.7.1", "",
-		jsonschema.AutoGeneratorType, jsonschema.KCLValidatorType)
+		jsonschema.DefaultGeneratorType, jsonschema.DefaultValidatorType)
 	require.NoError(t, err)
 	os.RemoveAll(path.Join(chartPath, "podinfo"))
 
