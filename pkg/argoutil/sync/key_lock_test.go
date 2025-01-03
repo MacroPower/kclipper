@@ -8,6 +8,8 @@ import (
 )
 
 func TestLockLock(t *testing.T) {
+	t.Parallel()
+
 	l := NewKeyLock()
 
 	l.Lock("my-key")
@@ -34,6 +36,8 @@ func TestLockLock(t *testing.T) {
 }
 
 func TestLockRLock(t *testing.T) {
+	t.Parallel()
+
 	l := NewKeyLock()
 
 	l.Lock("my-key")
@@ -60,6 +64,8 @@ func TestLockRLock(t *testing.T) {
 }
 
 func TestRLockLock(t *testing.T) {
+	t.Parallel()
+
 	l := NewKeyLock()
 
 	l.RLock("my-key")
@@ -86,6 +92,8 @@ func TestRLockLock(t *testing.T) {
 }
 
 func TestRLockRLock(t *testing.T) {
+	t.Parallel()
+
 	l := NewKeyLock()
 
 	l.RLock("my-key")

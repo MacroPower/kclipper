@@ -1,4 +1,9 @@
-package io
+// Copyright 2017-2018 The Argo Authors
+// Modifications Copyright 2025 MacroPower
+// Licensed under the Apache License, Version 2.0
+
+//nolint:testpackage
+package pathutil
 
 import (
 	"os"
@@ -9,6 +14,8 @@ import (
 )
 
 func TestGetPath_SameURLs(t *testing.T) {
+	t.Parallel()
+
 	paths := NewRandomizedTempPaths(os.TempDir())
 	res1, err := paths.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
@@ -18,6 +25,8 @@ func TestGetPath_SameURLs(t *testing.T) {
 }
 
 func TestGetPath_DifferentURLs(t *testing.T) {
+	t.Parallel()
+
 	paths := NewRandomizedTempPaths(os.TempDir())
 	res1, err := paths.GetPath("https://localhost/test1.txt")
 	require.NoError(t, err)
@@ -27,6 +36,8 @@ func TestGetPath_DifferentURLs(t *testing.T) {
 }
 
 func TestGetPath_SameURLsDifferentInstances(t *testing.T) {
+	t.Parallel()
+
 	paths1 := NewRandomizedTempPaths(os.TempDir())
 	res1, err := paths1.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
@@ -37,12 +48,16 @@ func TestGetPath_SameURLsDifferentInstances(t *testing.T) {
 }
 
 func TestGetPathIfExists(t *testing.T) {
+	t.Parallel()
+
 	paths := NewRandomizedTempPaths(os.TempDir())
 	t.Run("does not exist", func(t *testing.T) {
+		t.Parallel()
 		path := paths.GetPathIfExists("https://localhost/test.txt")
 		assert.Empty(t, path)
 	})
 	t.Run("does exist", func(t *testing.T) {
+		t.Parallel()
 		_, err := paths.GetPath("https://localhost/test.txt")
 		require.NoError(t, err)
 		path := paths.GetPathIfExists("https://localhost/test.txt")
@@ -51,10 +66,12 @@ func TestGetPathIfExists(t *testing.T) {
 }
 
 func TestGetPaths_no_race(t *testing.T) {
+	t.Parallel()
+
 	paths := NewRandomizedTempPaths(os.TempDir())
 	go func() {
 		path, err := paths.GetPath("https://localhost/test.txt")
-		require.NoError(t, err)
+		assert.NoError(t, err)
 		assert.NotEmpty(t, path)
 	}()
 	go func() {

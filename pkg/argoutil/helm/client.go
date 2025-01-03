@@ -23,15 +23,15 @@ import (
 	"oras.land/oras-go/v2/registry/remote"
 	"oras.land/oras-go/v2/registry/remote/auth"
 
-	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
 	"github.com/MacroPower/kclx/pkg/argoutil/sync"
+	"github.com/MacroPower/kclx/pkg/pathutil"
 )
 
 var (
 	globalLock = sync.NewKeyLock()
 	indexLock  = sync.NewKeyLock()
 
-	OCINotEnabledErr = errors.New("could not perform the action when oci is not enabled")
+	ErrOCINotEnabled = errors.New("could not perform the action when oci is not enabled")
 )
 
 type Creds struct {
@@ -54,7 +54,7 @@ type Client interface {
 
 type ClientOpts func(c *nativeHelmChart)
 
-func WithChartPaths(chartPaths argoio.TempPaths) ClientOpts {
+func WithChartPaths(chartPaths pathutil.TempPaths) ClientOpts {
 	return func(c *nativeHelmChart) {
 		c.chartCachePaths = chartPaths
 	}
@@ -72,7 +72,7 @@ func NewClientWithLock(repoURL string, creds Creds, repoLock sync.KeyLock, enabl
 		enableOci:       enableOci,
 		proxy:           proxy,
 		noProxy:         noProxy,
-		chartCachePaths: argoio.NewRandomizedTempPaths(os.TempDir()),
+		chartCachePaths: pathutil.NewRandomizedTempPaths(os.TempDir()),
 	}
 	for i := range opts {
 		opts[i](c)
@@ -83,7 +83,7 @@ func NewClientWithLock(repoURL string, creds Creds, repoLock sync.KeyLock, enabl
 var _ Client = &nativeHelmChart{}
 
 type nativeHelmChart struct {
-	chartCachePaths argoio.TempPaths
+	chartCachePaths pathutil.TempPaths
 	repoURL         string
 	creds           Creds
 	repoLock        sync.KeyLock
@@ -96,9 +96,8 @@ func fileExist(filePath string) (bool, error) {
 	if _, err := os.Stat(filePath); err != nil {
 		if os.IsNotExist(err) {
 			return false, nil
-		} else {
-			return false, fmt.Errorf("error checking file existence for %s: %w", filePath, err)
 		}
+		return false, fmt.Errorf("error checking file existence for %s: %w", filePath, err)
 	}
 	return true, nil
 }
@@ -217,7 +216,7 @@ func (c *nativeHelmChart) ExtractChart(chart string, version string, project str
 		return "", nil, fmt.Errorf("error untarring chart: %w", err)
 	}
 
-	return path.Join(tempDir, normalizeChartName(chart)), argoio.NewCloser(func() error {
+	return path.Join(tempDir, normalizeChartName(chart)), newInlineCloser(func() error {
 		return os.RemoveAll(tempDir)
 	}), nil
 }
@@ -284,7 +283,7 @@ func (c *nativeHelmChart) loadRepoIndex(maxIndexSize int64) ([]byte, error) {
 		return nil, fmt.Errorf("error getting index URL: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodGet, indexURL, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, indexURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating HTTP request: %w", err)
 	}
@@ -313,10 +312,17 @@ func (c *nativeHelmChart) loadRepoIndex(maxIndexSize int64) ([]byte, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to get index: " + resp.Status)
 	}
-	return io.ReadAll(io.LimitReader(resp.Body, maxIndexSize))
+
+	data, err := io.ReadAll(io.LimitReader(resp.Body, maxIndexSize))
+	if err != nil {
+		return nil, fmt.Errorf("error reading index response body: %w", err)
+	}
+
+	return data, nil
 }
 
 func newTLSConfig(creds Creds) (*tls.Config, error) {
+	//nolint:gosec
 	tlsConfig := &tls.Config{InsecureSkipVerify: creds.InsecureSkipVerify}
 
 	if creds.CAPath != "" {
@@ -337,7 +343,7 @@ func newTLSConfig(creds Creds) (*tls.Config, error) {
 		}
 		tlsConfig.Certificates = []tls.Certificate{cert}
 	}
-	// nolint:staticcheck
+	//nolint:staticcheck
 	tlsConfig.BuildNameToCertificate()
 
 	return tlsConfig, nil
@@ -360,10 +366,14 @@ func (c *nativeHelmChart) getCachedChartPath(chart string, version string, proje
 	if err != nil {
 		return "", fmt.Errorf("error marshaling cache key data: %w", err)
 	}
-	return c.chartCachePaths.GetPath(string(keyData))
+	chartPath, err := c.chartCachePaths.GetPath(string(keyData))
+	if err != nil {
+		return "", fmt.Errorf("error getting chart cache path: %w", err)
+	}
+	return chartPath, nil
 }
 
-// Ensures that given OCI registries URL does not have protocol
+// Ensures that given OCI registries URL does not have protocol.
 func IsHelmOciRepo(repoURL string) bool {
 	if repoURL == "" {
 		return false
@@ -386,7 +396,7 @@ func getIndexURL(rawURL string) (string, error) {
 
 func (c *nativeHelmChart) GetTags(chart string, noCache bool) (*TagsList, error) {
 	if !c.enableOci {
-		return nil, OCINotEnabledErr
+		return nil, ErrOCINotEnabled
 	}
 
 	tagsURL := strings.Replace(fmt.Sprintf("%s/%s", c.repoURL, chart), "https://", "", 1)
@@ -446,7 +456,7 @@ func (c *nativeHelmChart) GetTags(chart string, noCache bool) (*TagsList, error)
 	return tags, nil
 }
 
-// getCallback returns the proxy callback function
+// getCallback returns the proxy callback function.
 func getCallback(proxy string, noProxy string) func(*http.Request) (*url.URL, error) {
 	if proxy != "" {
 		c := httpproxy.Config{

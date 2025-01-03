@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path"
 	"path/filepath"
@@ -50,6 +51,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 			continue
 		}
 
+		//nolint:gosec // G305 checked by [inbound].
 		target := filepath.Join(dstPath, header.Name)
 		// Sanity check to protect against zip-slip
 		if !inbound(target, dstPath) {
@@ -60,7 +62,10 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 		case tar.TypeDir:
 			var mode os.FileMode = 0o755
 			if preserveFileMode {
-				mode = os.FileMode(header.Mode)
+				if header.Mode < 0 || header.Mode > math.MaxUint32 {
+					return fmt.Errorf("invalid mode in tar header: %d", header.Mode)
+				}
+				mode = os.FileMode(uint32(header.Mode))
 			}
 			err := os.MkdirAll(target, mode)
 			if err != nil {
@@ -68,6 +73,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 			}
 		case tar.TypeSymlink:
 			// Sanity check to protect against symlink exploit
+			//nolint:gosec // G305 checked by [inbound].
 			linkTarget := filepath.Join(filepath.Dir(target), header.Linkname)
 			realPath, err := filepath.EvalSymlinks(linkTarget)
 			if os.IsNotExist(err) {
@@ -85,6 +91,9 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 		case tar.TypeReg:
 			var mode os.FileMode = 0o644
 			if preserveFileMode {
+				if header.Mode < 0 || header.Mode > math.MaxUint32 {
+					return fmt.Errorf("invalid mode in tar header: %d", header.Mode)
+				}
 				mode = os.FileMode(header.Mode)
 			}
 
@@ -98,6 +107,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 				return fmt.Errorf("error creating file %q: %w", target, err)
 			}
 			w := bufio.NewWriter(f)
+			//nolint:gosec // G115 mitigated by [io.LimitReader].
 			if _, err := io.Copy(w, tr); err != nil {
 				f.Close()
 				return fmt.Errorf("error writing tgz file: %w", err)
@@ -112,10 +122,10 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 // baseDir. This is useful to make sure that malicious candidates
 // are not targeting a file outside of baseDir boundaries.
 // Considerations:
-// - baseDir must be absolute path. Will return false otherwise
-// - candidate can be absolute or relative path
-// - candidate should not be symlink as only syntatic validation is
-// applied by this function
+//   - baseDir must be absolute path. Will return false otherwise.
+//   - candidate can be absolute or relative path.
+//   - candidate should not be symlink as only syntactic validation is applied
+//     by this function.
 func inbound(candidate, baseDir string) bool {
 	if !filepath.IsAbs(baseDir) {
 		return false

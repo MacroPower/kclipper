@@ -22,7 +22,7 @@ func (c *ChartPkg) Init() error {
 
 	chartPkgVersion := version.Version
 	if chartPkgVersion == "" {
-		chartPkgVersion = "0.1.2"
+		chartPkgVersion = "0.2.0"
 	}
 
 	exists, err := kclpkg.ModFileExists(path)

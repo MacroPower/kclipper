@@ -55,3 +55,10 @@ issues:
     - source: "`$"
       linters:
         - lll
+    - path: pkg/argoutil/.*\.go
+      linters:
+        - lll
+        - testpackage
+        - ireturn
+        - revive
+        - nestif

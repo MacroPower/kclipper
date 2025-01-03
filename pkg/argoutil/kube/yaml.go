@@ -2,7 +2,7 @@
 // Source:
 // https://github.com/argoproj/gitops-engine/blob/54992bf42431e71f71f11647e82105530e56305e/pkg/utils/kube/kube.go#L304-L346
 
-package helm
+package kube
 
 import (
 	"bytes"

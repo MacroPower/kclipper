@@ -44,7 +44,7 @@ var ValidatorTypeEnum = []interface{}{
 
 // GetGenerator returns a [FileGenerator] for the given [GeneratorType].
 //
-//nolint:ireturn
+//nolint:ireturn,nolintlint
 func GetGenerator(t GeneratorType) FileGenerator {
 	switch t {
 	case AutoGeneratorType:

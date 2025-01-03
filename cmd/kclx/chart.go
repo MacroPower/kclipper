@@ -26,9 +26,7 @@ const (
   kcl chart update`
 )
 
-var (
-	ErrInvalidArgument = errors.New("invalid argument")
-)
+var ErrInvalidArgument = errors.New("invalid argument")
 
 // NewChartCmd returns the chart command.
 func NewChartCmd() *cobra.Command {

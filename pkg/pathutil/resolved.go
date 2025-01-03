@@ -34,11 +34,11 @@ func resolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 			return path, nil
 		}
 		// Other error has occurred
-		return "", err
+		return "", fmt.Errorf("failed to read link for path '%s': %w", path, err)
 	}
 
 	if maxDepth == 0 {
-		return "", fmt.Errorf("maximum nesting level reached")
+		return "", errors.New("maximum nesting level reached")
 	}
 
 	// If we resolved to a relative symlink, make sure we use the absolute
@@ -73,7 +73,7 @@ func isURLSchemeAllowed(scheme string, allowed []string) bool {
 // Instead, we log the concrete error details.
 func resolveFailure(path string, err error) error {
 	slog.Error("failed to resolve path", "path", path, "err", err)
-	return fmt.Errorf("internal error: failed to resolve path. Check logs for more details")
+	return errors.New("internal error: failed to resolve path. Check logs for more details")
 }
 
 func ResolveFileOrDirectoryPath(appPath, repoRoot, dir string) (ResolvedFileOrDirectoryPath, error) {
@@ -85,8 +85,9 @@ func ResolveFileOrDirectoryPath(appPath, repoRoot, dir string) (ResolvedFileOrDi
 	return ResolvedFileOrDirectoryPath(path), nil
 }
 
-// ResolveValueFilePathOrUrl will inspect and resolve given file, and make sure that its final path is within the boundaries of
-// the path specified in repoRoot.
+// ResolveValueFilePathOrURL will inspect and resolve given file, and make sure
+// that its final path is within the boundaries of the path specified in
+// repoRoot.
 //
 // appPath is the path we're operating in, e.g. where a Helm chart was unpacked
 // to. repoRoot is the path to the root of the repository.
@@ -113,7 +114,9 @@ func ResolveFileOrDirectoryPath(appPath, repoRoot, dir string) (ResolvedFileOrDi
 //
 // isRemote will be set to true if valueFile is an URL using an allowed
 // protocol scheme, or to false if it resolved to a local file.
-func ResolveValueFilePathOrUrl(appPath, repoRoot, valueFile string, allowedURLSchemes []string) (resolvedPath ResolvedFilePath, isRemote bool, err error) {
+func ResolveValueFilePathOrURL(
+	appPath, repoRoot, valueFile string, allowedURLSchemes []string,
+) (ResolvedFilePath, bool, error) {
 	// A value file can be specified as an URL to a remote resource.
 	// We only allow certain URL schemes for remote value files.
 	url, err := url.Parse(valueFile)
@@ -122,9 +125,8 @@ func ResolveValueFilePathOrUrl(appPath, repoRoot, valueFile string, allowedURLSc
 		if url.Scheme != "" {
 			if isURLSchemeAllowed(url.Scheme, allowedURLSchemes) {
 				return ResolvedFilePath(valueFile), true, nil
-			} else {
-				return "", false, fmt.Errorf("the URL scheme '%s' is not allowed", url.Scheme)
 			}
+			return "", false, fmt.Errorf("the URL scheme '%s' is not allowed", url.Scheme)
 		}
 	}
 
@@ -136,7 +138,9 @@ func ResolveValueFilePathOrUrl(appPath, repoRoot, valueFile string, allowedURLSc
 	return ResolvedFilePath(path), false, nil
 }
 
-func resolveFileOrDirectory(appPath string, repoRoot string, fileOrDirectory string, allowResolveToRoot bool) (string, error) {
+func resolveFileOrDirectory(
+	appPath string, repoRoot string, fileOrDirectory string, allowResolveToRoot bool,
+) (string, error) {
 	// Ensure that our repository root is absolute
 	absRepoPath, err := filepath.Abs(repoRoot)
 	if err != nil {
@@ -179,7 +183,7 @@ func resolveFileOrDirectory(appPath string, repoRoot string, fileOrDirectory str
 	resolvedToRoot := path+string(os.PathSeparator) == requiredRootPath
 	if resolvedToRoot {
 		if !allowResolveToRoot {
-			return "", resolveFailure(path, fmt.Errorf("path resolved to repository root, which is not allowed"))
+			return "", resolveFailure(path, errors.New("path resolved to repository root, which is not allowed"))
 		}
 	} else {
 		// Make sure that the resolved path to file is within the repository's root path

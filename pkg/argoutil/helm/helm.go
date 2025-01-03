@@ -48,7 +48,7 @@ type helm struct {
 
 var _ Helm = &helm{}
 
-// IsMissingDependencyErr tests if the error is related to a missing chart dependency
+// IsMissingDependencyErr tests if the error is related to a missing chart dependency.
 func IsMissingDependencyErr(err error) bool {
 	return strings.Contains(err.Error(), "found in requirements.yaml, but missing in charts") ||
 		strings.Contains(err.Error(), "found in Chart.yaml, but missing in charts/ directory")

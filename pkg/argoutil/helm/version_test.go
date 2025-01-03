@@ -7,6 +7,8 @@ import (
 )
 
 func TestIsVersion(t *testing.T) {
+	t.Parallel()
+
 	assert.False(t, IsVersion("*"))
 	assert.False(t, IsVersion("1.*"))
 	assert.False(t, IsVersion("1.0.*"))

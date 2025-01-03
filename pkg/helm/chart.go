@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 
-	"github.com/google/uuid"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"sigs.k8s.io/yaml"
 
 	argohelm "github.com/MacroPower/kclx/pkg/argoutil/helm"
+	"github.com/MacroPower/kclx/pkg/argoutil/kube"
 )
 
 type Chart struct {
@@ -39,7 +37,11 @@ type TemplateOpts struct {
 }
 
 type ChartClient interface {
-	PullWithCreds(chart, repoURL, targetRevision string, creds Creds, extract, passCredentials bool) (string, io.Closer, error)
+	PullWithCreds(
+		chart, repoURL, targetRevision string,
+		creds Creds,
+		extract, passCredentials bool,
+	) (string, io.Closer, error)
 }
 
 type JSONSchemaGenerator interface {
@@ -63,7 +65,7 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 		return nil, err
 	}
 
-	objs, err := SplitYAML(out)
+	objs, err := kube.SplitYAML(out)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing helm template output: %w", err)
 	}
@@ -171,21 +173,4 @@ func (c *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) 
 	}
 
 	return jsonSchema, nil
-}
-
-func (c *Chart) writeValues(values map[string]any) (string, error) {
-	valuesYAML, err := yaml.Marshal(values)
-	if err != nil {
-		return "", fmt.Errorf("error marshaling values to YAML: %w", err)
-	}
-	rand, err := uuid.NewRandom()
-	if err != nil {
-		return "", fmt.Errorf("error generating random filename for Helm values file: %w", err)
-	}
-	p := path.Join(os.TempDir(), rand.String())
-	err = os.WriteFile(p, valuesYAML, 0o600)
-	if err != nil {
-		return "", fmt.Errorf("error writing helm values file: %w", err)
-	}
-	return p, nil
 }
