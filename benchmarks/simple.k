@@ -1,4 +1,6 @@
-[{
+import manifests
+
+_notAChart = [{
     apiVersion = "apps/v1"
     kind = "Deployment"
     metadata = {
@@ -34,3 +36,5 @@
         }
     }
 } for x in range(0, 5)]
+
+manifests.yaml_stream(_notAChart, {})

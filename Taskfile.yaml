@@ -142,7 +142,7 @@ tasks:
       KCL_HELM_VALUES: benchmarks/simple-helm-values.k
     cmds:
       - >-
-        hyperfine --warmup=10
+        hyperfine --warmup=50 --min-runs=1000
         --export-markdown ./benchmarks/README.md
         --command-name "kclipper ./{{.KCL_CODE}}"
         --command-name "kclipper ./{{.KCL_HELM}}"
