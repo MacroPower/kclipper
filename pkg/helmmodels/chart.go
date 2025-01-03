@@ -7,8 +7,8 @@ import (
 	"github.com/iancoleman/strcase"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
-	"github.com/MacroPower/kclx/pkg/jsonschema"
-	"github.com/MacroPower/kclx/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 type ChartData struct {

@@ -10,8 +10,8 @@ import (
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
-	"github.com/MacroPower/kclx/pkg/log"
-	helmplugin "github.com/MacroPower/kclx/pkg/plugin/helm"
+	"github.com/MacroPower/kclipper/pkg/log"
+	helmplugin "github.com/MacroPower/kclipper/pkg/plugin/helm"
 )
 
 var testDataDir string

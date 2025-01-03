@@ -10,10 +10,10 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclx/pkg/helmmodels"
-	"github.com/MacroPower/kclx/pkg/helmtest"
-	"github.com/MacroPower/kclx/pkg/helmutil"
-	"github.com/MacroPower/kclx/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/helmmodels"
+	"github.com/MacroPower/kclipper/pkg/helmtest"
+	"github.com/MacroPower/kclipper/pkg/helmutil"
+	"github.com/MacroPower/kclipper/pkg/jsonschema"
 )
 
 const (

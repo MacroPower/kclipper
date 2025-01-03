@@ -8,7 +8,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
-	httpplugin "github.com/MacroPower/kclx/pkg/plugin/http"
+	httpplugin "github.com/MacroPower/kclipper/pkg/plugin/http"
 )
 
 func TestPluginHttp(t *testing.T) {

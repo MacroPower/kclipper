@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclx/pkg/helmtest"
-	"github.com/MacroPower/kclx/pkg/helmutil"
-	"github.com/MacroPower/kclx/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/helmtest"
+	"github.com/MacroPower/kclipper/pkg/helmutil"
+	"github.com/MacroPower/kclipper/pkg/jsonschema"
 )
 
 const (

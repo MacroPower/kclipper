@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	helm "github.com/MacroPower/kclx/pkg/argoutil/helm"
+	helm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 
 	mock "github.com/stretchr/testify/mock"
 )

@@ -12,10 +12,10 @@ import (
 	"kcl-lang.io/kcl-go"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
-	"github.com/MacroPower/kclx/pkg/helm"
-	"github.com/MacroPower/kclx/pkg/helmmodels"
-	"github.com/MacroPower/kclx/pkg/jsonschema"
-	"github.com/MacroPower/kclx/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helmmodels"
+	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 var (

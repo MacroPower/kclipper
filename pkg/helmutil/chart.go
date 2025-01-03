@@ -4,7 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/MacroPower/kclx/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helm"
 )
 
 type ChartPkg struct {

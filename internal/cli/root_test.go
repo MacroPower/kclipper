@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclx/internal/cli"
+	"github.com/MacroPower/kclipper/internal/cli"
 )
 
 var testDataDir string

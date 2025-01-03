@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclx/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/jsonschema"
 )
 
 var testDataDir string

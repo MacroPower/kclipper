@@ -41,7 +41,7 @@ linters-settings:
     default-signifies-exhaustive: true
 
   goimports:
-    local-prefixes: github.com/MacroPower/kclx
+    local-prefixes: github.com/MacroPower/kclipper
 
 issues:
   exclude-rules:

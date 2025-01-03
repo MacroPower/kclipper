@@ -1,7 +1,7 @@
-# kclx/helm
+# kclipper/helm
 
 ```sh
-kcl mod add oci://ghcr.io/macropower/kclx/helm
+kcl mod add oci://ghcr.io/macropower/kclipper/helm
 ```
 
 ## Index

@@ -10,7 +10,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	argohelm "github.com/MacroPower/kclx/pkg/argoutil/helm"
+	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 )
 
 var DefaultClient = MustNewClient(
