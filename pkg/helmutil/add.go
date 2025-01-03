@@ -67,7 +67,7 @@ func (c *ChartPkg) Add(
 			return fmt.Errorf("failed to fetch schema from %s: %w", schemaPath, err)
 		}
 	case jsonschema.DefaultGeneratorType, jsonschema.AutoGeneratorType,
-		jsonschema.ValueInferenceGeneratorType, jsonschema.PathGeneratorType:
+		jsonschema.ValueInferenceGeneratorType, jsonschema.ChartPathGeneratorType:
 		fileMatcher := jsonschema.GetFileFilter(genType)
 		if schemaPath != "" {
 			fileMatcher = func(f string) bool {

@@ -17,7 +17,7 @@ const (
 	AutoGeneratorType           GeneratorType = "AUTO"
 	ValueInferenceGeneratorType GeneratorType = "VALUE-INFERENCE"
 	URLGeneratorType            GeneratorType = "URL"
-	PathGeneratorType           GeneratorType = "CHART-PATH"
+	ChartPathGeneratorType      GeneratorType = "CHART-PATH"
 	LocalPathGeneratorType      GeneratorType = "LOCAL-PATH"
 	NoGeneratorType             GeneratorType = "NONE"
 )
@@ -26,7 +26,7 @@ var GeneratorTypeEnum = []interface{}{
 	AutoGeneratorType,
 	ValueInferenceGeneratorType,
 	URLGeneratorType,
-	PathGeneratorType,
+	ChartPathGeneratorType,
 	LocalPathGeneratorType,
 	NoGeneratorType,
 }
@@ -53,7 +53,7 @@ func GetGenerator(t GeneratorType) FileGenerator {
 		return DefaultAutoGenerator
 	case ValueInferenceGeneratorType:
 		return DefaultValueInferenceGenerator
-	case URLGeneratorType, PathGeneratorType, LocalPathGeneratorType:
+	case URLGeneratorType, ChartPathGeneratorType, LocalPathGeneratorType:
 		return DefaultReaderGenerator
 	case NoGeneratorType:
 		return DefaultNoGenerator
@@ -70,8 +70,8 @@ func GetGeneratorType(t string) GeneratorType {
 		return ValueInferenceGeneratorType
 	case string(URLGeneratorType):
 		return URLGeneratorType
-	case string(PathGeneratorType):
-		return PathGeneratorType
+	case string(ChartPathGeneratorType):
+		return ChartPathGeneratorType
 	case string(LocalPathGeneratorType):
 		return LocalPathGeneratorType
 	case string(NoGeneratorType):
@@ -108,10 +108,7 @@ func GetFileFilter(t GeneratorType) func(string) bool {
 			return yamlValuesRegex.MatchString(s)
 		}
 	default:
-		//nolint:gocritic
-		return func(s string) bool {
-			return isJSONFile(s)
-		}
+		return isJSONFile
 	}
 }
 
