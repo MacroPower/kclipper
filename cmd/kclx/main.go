@@ -13,10 +13,11 @@ import (
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 	"kcl-lang.io/cli/pkg/plugin"
 
+	"github.com/MacroPower/kclx/internal/cli"
 	"github.com/MacroPower/kclx/pkg/log"
-	_ "github.com/MacroPower/kclx/pkg/plugin/helm"
-	_ "github.com/MacroPower/kclx/pkg/plugin/http"
-	_ "github.com/MacroPower/kclx/pkg/plugin/os"
+	helmplugin "github.com/MacroPower/kclx/pkg/plugin/helm"
+	httpplugin "github.com/MacroPower/kclx/pkg/plugin/http"
+	osplugin "github.com/MacroPower/kclx/pkg/plugin/os"
 )
 
 func init() {
@@ -25,7 +26,8 @@ func init() {
 }
 
 const (
-	cmdName   = "kcl"
+	cmdName = "kcl"
+
 	shortDesc = "The KCL Extended Command Line Interface (CLI)."
 	longDesc  = `The KCL Extended Command Line Interface (CLI).
 
@@ -36,33 +38,26 @@ scenarios. The KCL website: https://kcl-lang.io
 )
 
 func main() {
-	cmd := &cobra.Command{
-		Use:           cmdName,
-		Short:         shortDesc,
-		Long:          longDesc,
-		SilenceUsage:  true,
-		SilenceErrors: true,
-		Version:       GetVersionString(),
+	if !envTrue("KCLX_HELM_PLUGIN_DISABLED") {
+		helmplugin.Register()
 	}
-	cmd.AddCommand(kclcmd.NewRunCmd())
-	cmd.AddCommand(kclcmd.NewLintCmd())
-	cmd.AddCommand(kclcmd.NewDocCmd())
-	cmd.AddCommand(kclcmd.NewFmtCmd())
-	cmd.AddCommand(kclcmd.NewTestCmd())
-	cmd.AddCommand(kclcmd.NewVetCmd())
-	cmd.AddCommand(kclcmd.NewCleanCmd())
-	cmd.AddCommand(kclcmd.NewImportCmd())
-	cmd.AddCommand(kclcmd.NewModCmd())
-	cmd.AddCommand(kclcmd.NewRegistryCmd())
-	cmd.AddCommand(kclcmd.NewServerCmd())
-	cmd.AddCommand(NewVersionCmd())
-	cmd.AddCommand(NewChartCmd())
-	bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
+	if !envTrue("KCLX_HTTP_PLUGIN_DISABLED") {
+		httpplugin.Register()
+	}
+	if !envTrue("KCLX_OS_PLUGIN_DISABLED") {
+		osplugin.Register()
+	}
 
+	cmd := cli.NewRootCmd(cmdName, shortDesc, longDesc)
+	bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
 		os.Exit(1)
 	}
+}
+
+func envTrue(key string) bool {
+	return strings.ToLower(os.Getenv(key)) == "true"
 }
 
 // executeRunCmd the run command for the root command.

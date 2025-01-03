@@ -11,7 +11,7 @@ import (
 	"kcl-lang.io/lib/go/native"
 
 	"github.com/MacroPower/kclx/pkg/log"
-	_ "github.com/MacroPower/kclx/pkg/plugin/helm"
+	helmplugin "github.com/MacroPower/kclx/pkg/plugin/helm"
 )
 
 var testDataDir string
@@ -27,6 +27,8 @@ func init() {
 
 func TestPluginHelmTemplate(t *testing.T) {
 	t.Parallel()
+
+	helmplugin.Register()
 
 	tcs := map[string]struct {
 		kclFile     string

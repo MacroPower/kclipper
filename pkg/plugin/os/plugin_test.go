@@ -7,11 +7,13 @@ import (
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
 
-	_ "github.com/MacroPower/kclx/pkg/plugin/os"
+	osplugin "github.com/MacroPower/kclx/pkg/plugin/os"
 )
 
 func TestPluginExecStdout(t *testing.T) {
 	t.Parallel()
+
+	osplugin.Register()
 
 	code := `
 import kcl_plugin.os
