@@ -21,6 +21,7 @@ func NewLoggingTracer(logger *slog.Logger) *LoggingTracer {
 	}
 }
 
+//nolint:ireturn
 func (l LoggingTracer) StartSpan(operationName string) Span {
 	return loggingSpan{
 		logger:        l.logger,

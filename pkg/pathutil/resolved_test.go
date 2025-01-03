@@ -2,6 +2,7 @@
 // Modifications Copyright 2025 MacroPower
 // Licensed under the Apache License, Version 2.0
 
+//nolint:testpackage
 package pathutil
 
 import (
@@ -14,34 +15,41 @@ import (
 )
 
 func Test_resolveSymlinkRecursive(t *testing.T) {
+	t.Parallel()
+
 	testsDir, err := filepath.Abs("./testdata")
 	if err != nil {
 		panic(err)
 	}
 	t.Run("Resolve non-symlink", func(t *testing.T) {
+		t.Parallel()
 		r, err := resolveSymbolicLinkRecursive(testsDir+"/foo", 2)
 		require.NoError(t, err)
 		assert.Equal(t, testsDir+"/foo", r)
 	})
 	t.Run("Successfully resolve symlink", func(t *testing.T) {
+		t.Parallel()
 		t.Skip("TODO: Fix this test")
 		r, err := resolveSymbolicLinkRecursive(testsDir+"/bar", 2)
 		require.NoError(t, err)
 		assert.Equal(t, testsDir+"/foo", r)
 	})
 	t.Run("Do not allow symlink at all", func(t *testing.T) {
+		t.Parallel()
 		t.Skip("TODO: Fix this test")
 		r, err := resolveSymbolicLinkRecursive(testsDir+"/bar", 0)
 		require.Error(t, err)
 		assert.Equal(t, "", r)
 	})
 	t.Run("Error because too nested symlink", func(t *testing.T) {
+		t.Parallel()
 		t.Skip("TODO: Fix this test")
 		r, err := resolveSymbolicLinkRecursive(testsDir+"/bam", 2)
 		require.Error(t, err)
 		assert.Equal(t, "", r)
 	})
 	t.Run("No such file or directory", func(t *testing.T) {
+		t.Parallel()
 		r, err := resolveSymbolicLinkRecursive(testsDir+"/foobar", 2)
 		require.NoError(t, err)
 		assert.Equal(t, testsDir+"/foobar", r)
@@ -49,13 +57,15 @@ func Test_resolveSymlinkRecursive(t *testing.T) {
 }
 
 func Test_isURLSchemeAllowed(t *testing.T) {
+	t.Parallel()
+
 	type testdata struct {
 		name     string
 		scheme   string
 		allowed  []string
 		expected bool
 	}
-	var tts []testdata = []testdata{
+	tts := []testdata{
 		{
 			name:     "Allowed scheme matches",
 			scheme:   "http",
@@ -95,6 +105,8 @@ func Test_isURLSchemeAllowed(t *testing.T) {
 	}
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			r := isURLSchemeAllowed(tt.scheme, tt.allowed)
 			assert.Equal(t, tt.expected, r)
 		})
@@ -104,88 +116,104 @@ func Test_isURLSchemeAllowed(t *testing.T) {
 var allowedRemoteProtocols = []string{"http", "https"}
 
 func Test_resolveFilePath(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Resolve normal relative path into absolute path", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl("/foo/bar", "/foo", "baz/bim.yaml", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL("/foo/bar", "/foo", "baz/bim.yaml", allowedRemoteProtocols)
 		require.NoError(t, err)
 		assert.False(t, remote)
 		assert.Equal(t, "/foo/bar/baz/bim.yaml", string(p))
 	})
 	t.Run("Resolve normal relative path into absolute path", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl("/foo/bar", "/foo", "baz/../../bim.yaml", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL("/foo/bar", "/foo", "baz/../../bim.yaml", allowedRemoteProtocols)
 		require.NoError(t, err)
 		assert.False(t, remote)
 		assert.Equal(t, "/foo/bim.yaml", string(p))
 	})
 	t.Run("Error on path resolving outside repository root", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl("/foo/bar", "/foo", "baz/../../../bim.yaml", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL("/foo/bar", "/foo", "baz/../../../bim.yaml", allowedRemoteProtocols)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "outside repository root")
 		assert.False(t, remote)
 		assert.Equal(t, "", string(p))
 	})
 	t.Run("Return verbatim URL", func(t *testing.T) {
+		t.Parallel()
 		url := "https://some.where/foo,yaml"
-		p, remote, err := ResolveValueFilePathOrUrl("/foo/bar", "/foo", url, allowedRemoteProtocols)
+		p, remote, err := ResolveValueFilePathOrURL("/foo/bar", "/foo", url, allowedRemoteProtocols)
 		require.NoError(t, err)
 		assert.True(t, remote)
 		assert.Equal(t, url, string(p))
 	})
 	t.Run("URL scheme not allowed", func(t *testing.T) {
+		t.Parallel()
 		url := "file:///some.where/foo,yaml"
-		p, remote, err := ResolveValueFilePathOrUrl("/foo/bar", "/foo", url, allowedRemoteProtocols)
+		p, remote, err := ResolveValueFilePathOrURL("/foo/bar", "/foo", url, allowedRemoteProtocols)
 		require.Error(t, err)
 		assert.False(t, remote)
 		assert.Equal(t, "", string(p))
 	})
 	t.Run("Implicit URL by absolute path", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl("/foo/bar", "/foo", "/baz.yaml", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL("/foo/bar", "/foo", "/baz.yaml", allowedRemoteProtocols)
 		require.NoError(t, err)
 		assert.False(t, remote)
 		assert.Equal(t, "/foo/baz.yaml", string(p))
 	})
 	t.Run("Relative app path", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl(".", "/foo", "/baz.yaml", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL(".", "/foo", "/baz.yaml", allowedRemoteProtocols)
 		require.NoError(t, err)
 		assert.False(t, remote)
 		assert.Equal(t, "/foo/baz.yaml", string(p))
 	})
 	t.Run("Relative repo path", func(t *testing.T) {
+		t.Parallel()
 		c, err := os.Getwd()
 		require.NoError(t, err)
-		p, remote, err := ResolveValueFilePathOrUrl(".", ".", "baz.yaml", allowedRemoteProtocols)
+		p, remote, err := ResolveValueFilePathOrURL(".", ".", "baz.yaml", allowedRemoteProtocols)
 		require.NoError(t, err)
 		assert.False(t, remote)
 		assert.Equal(t, c+"/baz.yaml", string(p))
 	})
 	t.Run("Overlapping root prefix without trailing slash", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl(".", "/foo", "../foo2/baz.yaml", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL(".", "/foo", "../foo2/baz.yaml", allowedRemoteProtocols)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "outside repository root")
 		assert.False(t, remote)
 		assert.Equal(t, "", string(p))
 	})
 	t.Run("Overlapping root prefix with trailing slash", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl(".", "/foo/", "../foo2/baz.yaml", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL(".", "/foo/", "../foo2/baz.yaml", allowedRemoteProtocols)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "outside repository root")
 		assert.False(t, remote)
 		assert.Equal(t, "", string(p))
 	})
 	t.Run("Garbage input as values file", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl(".", "/foo/", "kfdj\\ks&&&321209.,---e32908923%$§!\"", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL(
+			".", "/foo/", "kfdj\\ks&&&321209.,---e32908923%$§!\"", allowedRemoteProtocols)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "outside repository root")
 		assert.False(t, remote)
 		assert.Equal(t, "", string(p))
 	})
 	t.Run("NUL-byte path input as values file", func(t *testing.T) {
-		p, remote, err := ResolveValueFilePathOrUrl(".", "/foo/", "\000", allowedRemoteProtocols)
+		t.Parallel()
+		p, remote, err := ResolveValueFilePathOrURL(".", "/foo/", "\000", allowedRemoteProtocols)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "outside repository root")
 		assert.False(t, remote)
 		assert.Equal(t, "", string(p))
 	})
 	t.Run("Resolve root path into absolute path - jsonnet library path", func(t *testing.T) {
+		t.Parallel()
 		p, err := ResolveFileOrDirectoryPath("/foo", "/foo", "./")
 		require.NoError(t, err)
 		assert.Equal(t, "/foo", string(p))

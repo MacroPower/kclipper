@@ -1,6 +1,11 @@
-package io
+// Copyright 2017-2018 The Argo Authors
+// Modifications Copyright 2025 MacroPower
+// Licensed under the Apache License, Version 2.0
+
+package pathutil
 
 import (
+	"fmt"
 	"path/filepath"
 	"sync"
 
@@ -41,11 +46,11 @@ func (p *RandomizedTempPaths) GetPath(key string) (string, error) {
 	if val, ok := p.paths[key]; ok {
 		return val, nil
 	}
-	uniqueId, err := uuid.NewRandom()
+	uniqueID, err := uuid.NewRandom()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to generate uuid: %w", err)
 	}
-	repoPath := filepath.Join(p.root, uniqueId.String())
+	repoPath := filepath.Join(p.root, uniqueID.String())
 	p.paths[key] = repoPath
 	return repoPath, nil
 }

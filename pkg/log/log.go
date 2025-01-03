@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	JsonFormat = "json"
+	JSONFormat = "json"
 	TextFormat = "text"
 )
 
@@ -23,7 +23,7 @@ func CreateHandler(logLevel, logFormat string) slog.Handler {
 	level := GetLevel(logLevel)
 
 	switch strings.ToLower(logFormat) {
-	case JsonFormat:
+	case JSONFormat:
 		return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: level})
 	case TextFormat:
 		return slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})
@@ -53,11 +53,11 @@ func GetLevel(level string) slog.Level {
 	}
 }
 
-// SetLogFormat sets a log/slog format
+// SetLogFormat sets a log/slog format.
 func SetLogFormat(logFormat string) {
 	switch strings.ToLower(logFormat) {
-	case JsonFormat:
-		os.Setenv("ARGOCD_LOG_FORMAT", JsonFormat)
+	case JSONFormat:
+		os.Setenv("ARGOCD_LOG_FORMAT", JSONFormat)
 	case TextFormat, "":
 		os.Setenv("ARGOCD_LOG_FORMAT", TextFormat)
 	default:
@@ -67,7 +67,7 @@ func SetLogFormat(logFormat string) {
 	slog.SetDefault(NewWithCurrentConfig())
 }
 
-// SetLogLevel parses and sets a log/slog level
+// SetLogLevel parses and sets a log/slog level.
 func SetLogLevel(logLevel string) {
 	level := GetLevel(logLevel)
 	os.Setenv("ARGOCD_LOG_LEVEL", level.String())

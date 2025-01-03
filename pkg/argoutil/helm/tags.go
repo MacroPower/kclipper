@@ -9,7 +9,7 @@ import (
 )
 
 type TagsList struct {
-	Tags []string
+	Tags []string `json:"tags"`
 }
 
 func (t TagsList) MaxVersion(constraints *semver.Constraints) (*semver.Version, error) {

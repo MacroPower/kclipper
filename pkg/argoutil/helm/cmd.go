@@ -6,10 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
-	"strings"
 
-	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -20,8 +17,6 @@ import (
 	"helm.sh/helm/v3/pkg/registry"
 	"helm.sh/helm/v3/pkg/repo"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-
-	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
 )
 
 // A thin wrapper around helm.sh/helm, adding logging and error translation.
@@ -49,6 +44,9 @@ func NewCmd(workDir string, version string, proxy string, noProxy string) (*Cmd,
 
 func NewCmdWithVersion(workDir string, isHelmOci bool, proxy string, noProxy string) (*Cmd, error) {
 	rc, err := registry.NewClient(registry.ClientOptEnableCache(true))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create registry client: %w", err)
+	}
 
 	tmpDir, err := os.MkdirTemp("", "helm")
 	if err != nil {
@@ -62,7 +60,7 @@ func NewCmdWithVersion(workDir string, isHelmOci bool, proxy string, noProxy str
 		noProxy:   noProxy,
 		rc:        rc,
 		settings:  cli.New(),
-	}, err
+	}, nil
 }
 
 func (c *Cmd) RegistryLogin(repo string, creds Creds) (string, error) {
@@ -77,13 +75,13 @@ func (c *Cmd) RegistryLogin(repo string, creds Creds) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("failed to write certificate data to temporary file: %w", err)
 		}
-		defer argoio.Close(closer)
+		defer tryClose(closer)
 
 		keyPath, closer, err := writeToTmp(creds.KeyData)
 		if err != nil {
 			return "", fmt.Errorf("failed to write key data to temporary file: %w", err)
 		}
-		defer argoio.Close(closer)
+		defer tryClose(closer)
 
 		opts = append(opts, registry.LoginOptTLSClientConfig(certPath, keyPath, creds.CAPath))
 	}
@@ -125,13 +123,13 @@ func (c *Cmd) RepoAdd(name string, url string, creds Creds, passCredentials bool
 		if err != nil {
 			return "", fmt.Errorf("failed to write certificate data to temporary file: %w", err)
 		}
-		defer argoio.Close(closer)
+		defer tryClose(closer)
 
 		keyPath, closer, err := writeToTmp(creds.KeyData)
 		if err != nil {
 			return "", fmt.Errorf("failed to write key data to temporary file: %w", err)
 		}
-		defer argoio.Close(closer)
+		defer tryClose(closer)
 
 		gopts = append(gopts, getter.WithTLSClientConfig(certPath, keyPath, creds.CAPath))
 	}
@@ -151,7 +149,8 @@ func (c *Cmd) RepoAdd(name string, url string, creds Creds, passCredentials bool
 	}, getter.Providers{
 		getter.Provider{
 			Schemes: []string{"http", "https"},
-			New: func(options ...getter.Option) (getter.Getter, error) {
+			//nolint:gocritic
+			New: func(_ ...getter.Option) (getter.Getter, error) {
 				return getter.NewHTTPGetter(gopts...)
 			},
 		},
@@ -201,7 +200,7 @@ func (c *Cmd) Fetch(repo, chartName, version, destination string, creds Creds, p
 		if err != nil {
 			return "", fmt.Errorf("failed to write certificate data to temporary file: %w", err)
 		}
-		defer argoio.Close(closer)
+		defer tryClose(closer)
 		ap.CertFile = filePath
 	}
 	if len(creds.KeyData) > 0 {
@@ -209,7 +208,7 @@ func (c *Cmd) Fetch(repo, chartName, version, destination string, creds Creds, p
 		if err != nil {
 			return "", fmt.Errorf("failed to write key data to temporary file: %w", err)
 		}
-		defer argoio.Close(closer)
+		defer tryClose(closer)
 		ap.KeyFile = filePath
 	}
 	if passCredentials {
@@ -240,20 +239,6 @@ func (c *Cmd) dependencyBuild() (string, error) {
 	return "ok", nil
 }
 
-func (c *Cmd) inspectValues(values string) (string, error) {
-	av := action.NewGetValues(&action.Configuration{})
-	vals, err := av.Run(values)
-	if err != nil {
-		return "", fmt.Errorf("failed to inspect values: %w", err)
-	}
-	out, err := yaml.Marshal(vals)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal values: %w", err)
-	}
-
-	return string(out), nil
-}
-
 func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, error) {
 	// if callback, err := cleanupChartLockFile(filepath.Clean(path.Join(c.WorkDir, chartPath))); err == nil {
 	// 	defer callback()
@@ -274,6 +259,10 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 			return "", "", fmt.Errorf("failed to parse kube version: %w", err)
 		}
 	}
+	av := chartutil.DefaultVersionSet
+	if len(opts.APIVersions) > 0 {
+		av = opts.APIVersions
+	}
 
 	chart, err := loader.Load(filepath.Clean(path.Join(c.WorkDir, chartPath)))
 	if err != nil {
@@ -293,7 +282,7 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 		RegistryClient: c.rc,
 		Capabilities: &chartutil.Capabilities{
 			KubeVersion: *kv,
-			APIVersions: chartutil.DefaultVersionSet,
+			APIVersions: av,
 			HelmVersion: chartutil.DefaultCapabilities.HelmVersion,
 		},
 	})
@@ -305,7 +294,10 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 	ta.Namespace = opts.Namespace
 	ta.NameTemplate = opts.Name
 	ta.KubeVersion = kv
-	ta.APIVersions = chartutil.DefaultVersionSet
+	ta.APIVersions = av
+
+	// Set both, otherwise the defaults make things weird.
+	ta.IncludeCRDs = !opts.SkipCrds
 	ta.SkipCRDs = opts.SkipCrds
 
 	if opts.Values == nil {
@@ -331,12 +323,12 @@ func removeSchemasFromObject(chart *chart.Chart) {
 	}
 }
 
-func writeToTmp(data []byte) (string, argoio.Closer, error) {
+func writeToTmp(data []byte) (string, *InlineCloser, error) {
 	file, err := os.CreateTemp("", "")
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create temporary file: %w", err)
 	}
-	err = os.WriteFile(file.Name(), data, 0o644)
+	err = os.WriteFile(file.Name(), data, 0o600)
 	if err != nil {
 		_ = os.RemoveAll(file.Name())
 		return "", nil, fmt.Errorf("failed to write data to temporary file: %w", err)
@@ -346,7 +338,7 @@ func writeToTmp(data []byte) (string, argoio.Closer, error) {
 			slog.Error("error closing file", "file", file.Name(), "security", 2, "CWE", 755, "err", err)
 		}
 	}()
-	return file.Name(), argoio.NewCloser(func() error {
+	return file.Name(), newInlineCloser(func() error {
 		return os.RemoveAll(file.Name())
 	}), nil
 }
@@ -362,35 +354,22 @@ type TemplateOpts struct {
 	SkipSchemaValidation bool
 }
 
-var (
-	re                 = regexp.MustCompile(`([^\\]),`)
-	apiVersionsRemover = regexp.MustCompile(`(--api-versions [^ ]+ )+`)
-)
-
-func cleanSetParameters(val string) string {
-	// `{}` equal helm list parameters format, so don't escape `,`.
-	if strings.HasPrefix(val, `{`) && strings.HasSuffix(val, `}`) {
-		return val
-	}
-	return re.ReplaceAllString(val, `$1\,`)
-}
-
-// Workaround for Helm3 behavior (see https://github.com/helm/helm/issues/6870).
-// The `helm template` command generates Chart.lock after which `helm dependency build` does not work
-// As workaround removing lock file unless it exists before running helm template
-func cleanupChartLockFile(chartPath string) (func(), error) {
-	exists := true
-	lockPath := path.Join(chartPath, "Chart.lock")
-	if _, err := os.Stat(lockPath); err != nil {
-		if os.IsNotExist(err) {
-			exists = false
-		} else {
-			return nil, fmt.Errorf("failed to check lock file status: %w", err)
-		}
-	}
-	return func() {
-		if !exists {
-			_ = os.Remove(lockPath)
-		}
-	}, nil
-}
+// // Workaround for Helm3 behavior (see https://github.com/helm/helm/issues/6870).
+// // The `helm template` command generates Chart.lock after which `helm dependency build` does not work.
+// // As workaround removing lock file unless it exists before running helm template.
+// func cleanupChartLockFile(chartPath string) (func(), error) {
+// 	exists := true
+// 	lockPath := path.Join(chartPath, "Chart.lock")
+// 	if _, err := os.Stat(lockPath); err != nil {
+// 		if os.IsNotExist(err) {
+// 			exists = false
+// 		} else {
+// 			return nil, fmt.Errorf("failed to check lock file status: %w", err)
+// 		}
+// 	}
+// 	return func() {
+// 		if !exists {
+// 			_ = os.Remove(lockPath)
+// 		}
+// 	}, nil
+// }

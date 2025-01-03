@@ -15,7 +15,7 @@ type Entry struct {
 }
 
 type Index struct {
-	Entries map[string]Entries
+	Entries map[string]Entries `yaml:"entries"`
 }
 
 func (i *Index) GetEntries(chart string) (Entries, error) {
@@ -46,7 +46,7 @@ func (e Entries) MaxVersion(constraints *semver.Constraints) (*semver.Version, e
 		}
 	}
 	if len(versions) == 0 {
-		return nil, fmt.Errorf("constraint not found in index")
+		return nil, errors.New("constraint not found in index")
 	}
 	maxVersion := versions[0]
 	for _, v := range versions {

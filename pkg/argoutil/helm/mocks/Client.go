@@ -4,7 +4,6 @@ package mocks
 
 import (
 	helm "github.com/MacroPower/kclx/pkg/argoutil/helm"
-	io "github.com/MacroPower/kclx/pkg/argoutil/io"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -33,7 +32,7 @@ func (_m *Client) CleanChartCache(chart string, version string, project string) 
 }
 
 // ExtractChart provides a mock function with given fields: chart, version, project, passCredentials, manifestMaxExtractedSize, disableManifestMaxExtractedSize
-func (_m *Client) ExtractChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, io.Closer, error) {
+func (_m *Client) ExtractChart(chart string, version string, project string, passCredentials bool, manifestMaxExtractedSize int64, disableManifestMaxExtractedSize bool) (string, *helm.InlineCloser, error) {
 	ret := _m.Called(chart, version, project, passCredentials, manifestMaxExtractedSize, disableManifestMaxExtractedSize)
 
 	if len(ret) == 0 {
@@ -41,9 +40,9 @@ func (_m *Client) ExtractChart(chart string, version string, project string, pas
 	}
 
 	var r0 string
-	var r1 io.Closer
+	var r1 *helm.InlineCloser
 	var r2 error
-	if rf, ok := ret.Get(0).(func(string, string, string, bool, int64, bool) (string, io.Closer, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, string, bool, int64, bool) (string, *helm.InlineCloser, error)); ok {
 		return rf(chart, version, project, passCredentials, manifestMaxExtractedSize, disableManifestMaxExtractedSize)
 	}
 	if rf, ok := ret.Get(0).(func(string, string, string, bool, int64, bool) string); ok {
@@ -52,11 +51,11 @@ func (_m *Client) ExtractChart(chart string, version string, project string, pas
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, string, bool, int64, bool) io.Closer); ok {
+	if rf, ok := ret.Get(1).(func(string, string, string, bool, int64, bool) *helm.InlineCloser); ok {
 		r1 = rf(chart, version, project, passCredentials, manifestMaxExtractedSize, disableManifestMaxExtractedSize)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(io.Closer)
+			r1 = ret.Get(1).(*helm.InlineCloser)
 		}
 	}
 

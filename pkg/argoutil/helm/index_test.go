@@ -25,11 +25,15 @@ var index = Index{
 }
 
 func TestIndex_GetEntries(t *testing.T) {
+	t.Parallel()
+
 	t.Run("NotFound", func(t *testing.T) {
+		t.Parallel()
 		_, err := index.GetEntries("foo")
 		require.EqualError(t, err, "chart 'foo' not found in index")
 	})
 	t.Run("Found", func(t *testing.T) {
+		t.Parallel()
 		entries, err := index.GetEntries("argo-cd")
 		require.NoError(t, err)
 		assert.Len(t, entries, 9)
@@ -37,43 +41,52 @@ func TestIndex_GetEntries(t *testing.T) {
 }
 
 func TestEntries_MaxVersion(t *testing.T) {
+	t.Parallel()
+
 	entries, _ := index.GetEntries("argo-cd")
 	t.Run("NotFound", func(t *testing.T) {
+		t.Parallel()
 		constraints, _ := semver.NewConstraint("0.8.1")
 		_, err := entries.MaxVersion(constraints)
 		require.EqualError(t, err, "constraint not found in index")
 	})
 	t.Run("Exact", func(t *testing.T) {
+		t.Parallel()
 		constraints, _ := semver.NewConstraint("0.5.3")
 		version, err := entries.MaxVersion(constraints)
 		require.NoError(t, err)
 		assert.Equal(t, semver.MustParse("0.5.3"), version)
 	})
 	t.Run("Constraint", func(t *testing.T) {
+		t.Parallel()
 		constraints, _ := semver.NewConstraint("> 0.5.3")
 		version, err := entries.MaxVersion(constraints)
 		require.NoError(t, err)
 		assert.Equal(t, semver.MustParse("0.7.2"), version)
 	})
 	t.Run("Constraint", func(t *testing.T) {
+		t.Parallel()
 		constraints, _ := semver.NewConstraint("> 0.0.0")
 		version, err := entries.MaxVersion(constraints)
 		require.NoError(t, err)
 		assert.Equal(t, semver.MustParse("0.7.2"), version)
 	})
 	t.Run("Constraint", func(t *testing.T) {
+		t.Parallel()
 		constraints, _ := semver.NewConstraint(">0.5.0,<0.7.0")
 		version, err := entries.MaxVersion(constraints)
 		require.NoError(t, err)
 		assert.Equal(t, semver.MustParse("0.5.4"), version)
 	})
 	t.Run("Constraint", func(t *testing.T) {
+		t.Parallel()
 		constraints, _ := semver.NewConstraint("0.7.*")
 		version, err := entries.MaxVersion(constraints)
 		require.NoError(t, err)
 		assert.Equal(t, semver.MustParse("0.7.2"), version)
 	})
 	t.Run("Constraint", func(t *testing.T) {
+		t.Parallel()
 		constraints, _ := semver.NewConstraint("*")
 		version, err := entries.MaxVersion(constraints)
 		require.NoError(t, err)

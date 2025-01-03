@@ -13,37 +13,40 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	argoio "github.com/MacroPower/kclx/pkg/argoutil/io"
 )
 
-type fakeIndexCache struct {
-	data []byte
-}
+// type fakeIndexCache struct {
+// 	data []byte
+// }
 
-func (f *fakeIndexCache) SetHelmIndex(_ string, indexData []byte) error {
-	f.data = indexData
-	return nil
-}
+// func (f *fakeIndexCache) SetHelmIndex(_ string, indexData []byte) error {
+// 	f.data = indexData
+// 	return nil
+// }
 
-func (f *fakeIndexCache) GetHelmIndex(_ string, indexData *[]byte) error {
-	*indexData = f.data
-	return nil
-}
+// func (f *fakeIndexCache) GetHelmIndex(_ string, indexData *[]byte) error {
+// 	*indexData = f.data
+// 	return nil
+// }
 
 func TestIndex(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Invalid", func(t *testing.T) {
+		t.Parallel()
 		client := NewClient("", Creds{}, false, "", "")
 		_, err := client.GetIndex(false, 10000)
 		require.Error(t, err)
 	})
 	t.Run("Stable", func(t *testing.T) {
+		t.Parallel()
 		client := NewClient("https://argoproj.github.io/argo-helm", Creds{}, false, "", "")
 		index, err := client.GetIndex(false, 10000)
 		require.NoError(t, err)
 		assert.NotNil(t, index)
 	})
 	t.Run("BasicAuth", func(t *testing.T) {
+		t.Parallel()
 		client := NewClient("https://argoproj.github.io/argo-helm", Creds{
 			Username: "my-password",
 			Password: "my-username",
@@ -67,6 +70,8 @@ func TestIndex(t *testing.T) {
 	// })
 
 	t.Run("Limited", func(t *testing.T) {
+		t.Parallel()
+
 		client := NewClient("https://argoproj.github.io/argo-helm", Creds{}, false, "", "")
 		_, err := client.GetIndex(false, 100)
 
@@ -75,63 +80,80 @@ func TestIndex(t *testing.T) {
 }
 
 func Test_nativeHelmChart_ExtractChart(t *testing.T) {
+	t.Parallel()
+
 	client := NewClient("https://argoproj.github.io/argo-helm", Creds{}, false, "", "")
 	path, closer, err := client.ExtractChart("argo-cd", "0.7.1", "", false, math.MaxInt64, true)
 	require.NoError(t, err)
-	defer argoio.Close(closer)
+	defer tryClose(closer)
 	info, err := os.Stat(path)
 	require.NoError(t, err)
 	assert.True(t, info.IsDir())
 }
 
 func Test_nativeHelmChart_ExtractChartWithLimiter(t *testing.T) {
+	t.Parallel()
+
 	client := NewClient("https://argoproj.github.io/argo-helm", Creds{}, false, "", "")
 	_, _, err := client.ExtractChart("argo-cd", "0.7.1", "", false, 100, false)
 	require.Error(t, err, "error while iterating on tar reader: unexpected EOF")
 }
 
 func Test_nativeHelmChart_ExtractChart_insecure(t *testing.T) {
+	t.Parallel()
+
 	client := NewClient("https://argoproj.github.io/argo-helm", Creds{InsecureSkipVerify: true}, false, "", "")
 	path, closer, err := client.ExtractChart("argo-cd", "0.7.1", "", false, math.MaxInt64, true)
 	require.NoError(t, err)
-	defer argoio.Close(closer)
+	defer tryClose(closer)
 	info, err := os.Stat(path)
 	require.NoError(t, err)
 	assert.True(t, info.IsDir())
 }
 
 func Test_normalizeChartName(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Test non-slashed name", func(t *testing.T) {
+		t.Parallel()
 		n := normalizeChartName("mychart")
 		assert.Equal(t, "mychart", n)
 	})
 	t.Run("Test single-slashed name", func(t *testing.T) {
+		t.Parallel()
 		n := normalizeChartName("myorg/mychart")
 		assert.Equal(t, "mychart", n)
 	})
 	t.Run("Test chart name with suborg", func(t *testing.T) {
+		t.Parallel()
 		n := normalizeChartName("myorg/mysuborg/mychart")
 		assert.Equal(t, "mychart", n)
 	})
 	t.Run("Test double-slashed name", func(t *testing.T) {
+		t.Parallel()
 		n := normalizeChartName("myorg//mychart")
 		assert.Equal(t, "mychart", n)
 	})
 	t.Run("Test invalid chart name - ends with slash", func(t *testing.T) {
+		t.Parallel()
 		n := normalizeChartName("myorg/")
 		assert.Equal(t, "myorg/", n)
 	})
 	t.Run("Test invalid chart name - is dot", func(t *testing.T) {
+		t.Parallel()
 		n := normalizeChartName("myorg/.")
 		assert.Equal(t, "myorg/.", n)
 	})
 	t.Run("Test invalid chart name - is two dots", func(t *testing.T) {
+		t.Parallel()
 		n := normalizeChartName("myorg/..")
 		assert.Equal(t, "myorg/..", n)
 	})
 }
 
 func TestIsHelmOciRepo(t *testing.T) {
+	t.Parallel()
+
 	assert.True(t, IsHelmOciRepo("demo.goharbor.io"))
 	assert.True(t, IsHelmOciRepo("demo.goharbor.io:8080"))
 	assert.False(t, IsHelmOciRepo("https://demo.goharbor.io"))
@@ -139,8 +161,11 @@ func TestIsHelmOciRepo(t *testing.T) {
 }
 
 func TestGetIndexURL(t *testing.T) {
+	t.Parallel()
+
 	urlTemplate := `https://gitlab.com/projects/%s/packages/helm/stable`
 	t.Run("URL without escaped characters", func(t *testing.T) {
+		t.Parallel()
 		rawURL := fmt.Sprintf(urlTemplate, "232323982")
 		want := rawURL + "/index.yaml"
 		got, err := getIndexURL(rawURL)
@@ -148,6 +173,7 @@ func TestGetIndexURL(t *testing.T) {
 		require.NoError(t, err)
 	})
 	t.Run("URL with escaped characters", func(t *testing.T) {
+		t.Parallel()
 		rawURL := fmt.Sprintf(urlTemplate, "mygroup%2Fmyproject")
 		want := rawURL + "/index.yaml"
 		got, err := getIndexURL(rawURL)
@@ -155,6 +181,7 @@ func TestGetIndexURL(t *testing.T) {
 		require.NoError(t, err)
 	})
 	t.Run("URL with invalid escaped characters", func(t *testing.T) {
+		t.Parallel()
 		rawURL := fmt.Sprintf(urlTemplate, "mygroup%**myproject")
 		got, err := getIndexURL(rawURL)
 		assert.Equal(t, "", got)
@@ -163,7 +190,10 @@ func TestGetIndexURL(t *testing.T) {
 }
 
 func TestGetTagsFromUrl(t *testing.T) {
+	t.Parallel()
+
 	t.Run("should return tags correctly while following the link header", func(t *testing.T) {
+		t.Parallel()
 		server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			t.Logf("called %s", r.URL.Path)
 			responseTags := TagsList{}
@@ -204,14 +234,18 @@ func TestGetTagsFromUrl(t *testing.T) {
 	})
 
 	t.Run("should return an error not when oci is not enabled", func(t *testing.T) {
+		t.Parallel()
+
 		client := NewClient("example.com", Creds{}, false, "", "")
 
 		_, err := client.GetTags("my-chart", true)
-		assert.ErrorIs(t, OCINotEnabledErr, err)
+		assert.ErrorIs(t, ErrOCINotEnabled, err)
 	})
 }
 
 func TestGetTagsFromURLPrivateRepoAuthentication(t *testing.T) {
+	t.Parallel()
+
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t.Logf("called %s", r.URL.Path)
 
@@ -256,7 +290,7 @@ func TestGetTagsFromURLPrivateRepoAuthentication(t *testing.T) {
 		},
 		{
 			name:    "should login correctly when the repo path is not in the server root with http scheme",
-			repoURL: fmt.Sprintf("%s/my-repo", server.URL),
+			repoURL: server.URL + "/my-repo",
 		},
 		{
 			name:    "should login correctly when the repo path is in the server root without http scheme",
@@ -264,12 +298,14 @@ func TestGetTagsFromURLPrivateRepoAuthentication(t *testing.T) {
 		},
 		{
 			name:    "should login correctly when the repo path is not in the server root without http scheme",
-			repoURL: fmt.Sprintf("%s/my-repo", serverURL.Host),
+			repoURL: serverURL.Host + "/my-repo",
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
 			client := NewClient(testCase.repoURL, Creds{
 				InsecureSkipVerify: true,
 				Username:           "my-username",
