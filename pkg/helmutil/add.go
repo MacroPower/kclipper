@@ -19,8 +19,9 @@ import (
 )
 
 var (
-	SchemaDefaultRegexp = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)(\s+=.+)`)
-	SchemaValuesRegexp  = regexp.MustCompile(`(\s+values\??\s*:\s+)(.*)`)
+	SchemaInvalidDocRegexp = regexp.MustCompile(`(\s+\S.*)r"""(.*)"""(.*)`)
+	SchemaDefaultRegexp    = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)(\s+=.+)`)
+	SchemaValuesRegexp     = regexp.MustCompile(`(\s+values\??\s*:\s+)(.*)`)
 )
 
 const initialMainContents = `import helm
@@ -157,6 +158,7 @@ func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) er
 	for scanner.Scan() {
 		line := scanner.Text()
 		line = SchemaDefaultRegexp.ReplaceAllString(line, "$1")
+		line = SchemaInvalidDocRegexp.ReplaceAllString(line, `${1}"${2}"${3}`)
 		kclSchemaFixed.WriteString(line + "\n")
 	}
 	if err := scanner.Err(); err != nil {

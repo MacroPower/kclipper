@@ -114,6 +114,12 @@ func TestDefaultReplacement(t *testing.T) {
 			re:    helmutil.SchemaDefaultRegexp,
 			repl:  "$1",
 		},
+		"block string default": {
+			input: `    default is r"""{{ include "bjw-s.common.lib.chart.names.fullname" $ }}"""`,
+			want:  `    default is "{{ include "bjw-s.common.lib.chart.names.fullname" $ }}"`,
+			re:    helmutil.SchemaInvalidDocRegexp,
+			repl:  `${1}"${2}"${3}`,
+		},
 		"values": {
 			input: `    values?: any`,
 			want:  `    values?: x any`,
