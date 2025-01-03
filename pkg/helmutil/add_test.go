@@ -108,6 +108,12 @@ func TestDefaultReplacement(t *testing.T) {
 			re:    helmutil.SchemaDefaultRegexp,
 			repl:  "$1",
 		},
+		"strange default": {
+			input: `    key: str = "*/20 * * * *"`,
+			want:  `    key: str`,
+			re:    helmutil.SchemaDefaultRegexp,
+			repl:  "$1",
+		},
 		"values": {
 			input: `    values?: any`,
 			want:  `    values?: x any`,
