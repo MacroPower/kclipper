@@ -18,7 +18,7 @@ test_Chart = lambda {
         preRenderer = lambda c: Chart {
           c
         }
-        postRenderer = lambda r: [{str:}] {
+        postRenderer = lambda r: {str:} {
           r
         }
     }

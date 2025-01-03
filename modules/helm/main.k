@@ -58,12 +58,8 @@ schema Chart(ChartBase):
     """
     values?: any = {}
     valueFiles?: [str] = []
-    preRenderer: (Chart) -> Chart = lambda _chart: Chart -> Chart {
-        _chart
-    }
-    postRenderer: ({str:}) -> {str:} = lambda _resource: {str:} -> {str:} {
-        _resource
-    }
+    preRenderer?: (Chart) -> Chart
+    postRenderer?: ({str:}) -> {str:}
 
 schema ChartConfig(ChartBase):
     r"""
@@ -98,8 +94,11 @@ template = lambda chart: Chart -> [{str:}] {
     })
     ```
     """
-    _chart = chart.preRenderer(chart)
+    _chart = chart
     _values: {str:} = {}
+
+    if chart.preRenderer:
+      _chart = chart.preRenderer(_chart)
 
     if _chart.valueFiles and len(_chart.valueFiles) > 0:
         _values = {
@@ -126,7 +125,8 @@ template = lambda chart: Chart -> [{str:}] {
         values=_values,
     )
 
-    _resources = [chart.postRenderer(_resource) for _resource in _resources]
+    if chart.postRenderer:
+        _resources = [chart.postRenderer(_resource) for _resource in _resources]
 
     _resources
 }

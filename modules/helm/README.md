@@ -7,6 +7,7 @@ kcl mod add oci://ghcr.io/macropower/kclipper/helm
 ## Index
 
 - [Chart](#chart)
+- [ChartConfig](#chartconfig)
 
 ## Schemas
 
@@ -16,16 +17,36 @@ Helm chart resource.
 
 #### Attributes
 
-| name                          | type | description                                                                                                                                        | default value |
-| ----------------------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| **chart** `required`          | str  | The Helm chart name.                                                                                                                               |               |
-| **namespace**                 | str  | Namespace is an optional namespace to template with.                                                                                               |               |
-| **passCredentials**           | bool | Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).                                                                    | False         |
-| **project**                   | str  | Project is a reference to the project this chart's releases belong to,<br />e.g. the Argo AppProject. This is used to segregate Helm chart caches. |               |
-| **releaseName**               | str  | The Helm release name to use. If omitted it will use the chart name.                                                                               |               |
-| **repoURL** `required`        | str  | The URL of the Helm chart repository.                                                                                                              |               |
-| **skipCRDs**                  | bool | Set to `True` to skip the custom resource definition installation step<br />(Helm's `--skip-crds`).                                                | False         |
-| **targetRevision** `required` | str  | TargetRevision defines the semver tag for the chart's version.                                                                                     |               |
-| **values**                    | any  | Specifies Helm values to be passed to helm template.                                                                                               | {}            |
+| name                          | type  | description                                                                                         | default value |
+| ----------------------------- | ----- | --------------------------------------------------------------------------------------------------- | ------------- |
+| **chart** `required`          | str   | The Helm chart name.                                                                                |               |
+| **namespace**                 | str   | Namespace is an optional namespace to template with.                                                |               |
+| **passCredentials**           | bool  | Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).                     | False         |
+| **releaseName**               | str   | The Helm release name to use. If omitted it will use the chart name.                                |               |
+| **repoURL** `required`        | str   | The URL of the Helm chart repository.                                                               |               |
+| **schemaValidator**           | enum  | The schema validator to use. One of "KCL" "HELM"                                                    | KCL           |
+| **skipCRDs**                  | bool  | Set to `True` to skip the custom resource definition installation step<br />(Helm's `--skip-crds`). | False         |
+| **targetRevision** `required` | str   | TargetRevision defines the semver tag for the chart's version.                                      |               |
+| **valueFiles**                | [str] | Specifies Helm value files to be passed to Helm template.                                           | []            |
+| **values**                    | any   | Specifies Helm values to be passed to Helm template. These take precedence over valueFiles.         | {}            |
+
+### ChartConfig
+
+Helm Chart Configuration
+
+#### Attributes
+
+| name                          | type | description                                                                                                        | default value |
+| ----------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------ | ------------- |
+| **chart** `required`          | str  | The Helm chart name.                                                                                               |               |
+| **namespace**                 | str  | Namespace is an optional namespace to template with.                                                               |               |
+| **passCredentials**           | bool | Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).                                    | False         |
+| **releaseName**               | str  | The Helm release name to use. If omitted it will use the chart name.                                               |               |
+| **repoURL** `required`        | str  | The URL of the Helm chart repository.                                                                              |               |
+| **schemaGenerator**           | enum | The generator to use for the Values schema. One of "AUTO" "VALUE-INFERENCE" "URL" "CHART-PATH" "LOCAL-PATH" "NONE" | AUTO          |
+| **schemaPath**                | str  | The path to the JSON Schema to use when schemaGenerator is "URL", "CHART-PATH", or "LOCAL-PATH".                   |               |
+| **schemaValidator**           | enum | The schema validator to use. One of "KCL" "HELM"                                                                   | KCL           |
+| **skipCRDs**                  | bool | Set to `True` to skip the custom resource definition installation step<br />(Helm's `--skip-crds`).                | False         |
+| **targetRevision** `required` | str  | TargetRevision defines the semver tag for the chart's version.                                                     |               |
 
 <!-- Auto generated by kcl-doc tool, please do not edit. -->
