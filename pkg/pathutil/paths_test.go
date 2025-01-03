@@ -50,14 +50,15 @@ func TestGetPath_SameURLsDifferentInstances(t *testing.T) {
 func TestGetPathIfExists(t *testing.T) {
 	t.Parallel()
 
-	paths := NewRandomizedTempPaths(os.TempDir())
 	t.Run("does not exist", func(t *testing.T) {
 		t.Parallel()
+		paths := NewRandomizedTempPaths(os.TempDir())
 		path := paths.GetPathIfExists("https://localhost/test.txt")
 		assert.Empty(t, path)
 	})
 	t.Run("does exist", func(t *testing.T) {
 		t.Parallel()
+		paths := NewRandomizedTempPaths(os.TempDir())
 		_, err := paths.GetPath("https://localhost/test.txt")
 		require.NoError(t, err)
 		path := paths.GetPathIfExists("https://localhost/test.txt")
