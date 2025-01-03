@@ -5,7 +5,7 @@ import (
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
-	"github.com/MacroPower/kclx/pkg/os"
+	"github.com/MacroPower/kclipper/pkg/os"
 )
 
 func Register() {

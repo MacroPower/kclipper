@@ -13,11 +13,11 @@ import (
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 	"kcl-lang.io/cli/pkg/plugin"
 
-	"github.com/MacroPower/kclx/internal/cli"
-	"github.com/MacroPower/kclx/pkg/log"
-	helmplugin "github.com/MacroPower/kclx/pkg/plugin/helm"
-	httpplugin "github.com/MacroPower/kclx/pkg/plugin/http"
-	osplugin "github.com/MacroPower/kclx/pkg/plugin/os"
+	"github.com/MacroPower/kclipper/internal/cli"
+	"github.com/MacroPower/kclipper/pkg/log"
+	helmplugin "github.com/MacroPower/kclipper/pkg/plugin/helm"
+	httpplugin "github.com/MacroPower/kclipper/pkg/plugin/http"
+	osplugin "github.com/MacroPower/kclipper/pkg/plugin/os"
 )
 
 func init() {
@@ -28,12 +28,18 @@ func init() {
 const (
 	cmdName = "kcl"
 
-	shortDesc = "The KCL Extended Command Line Interface (CLI)."
-	longDesc  = `The KCL Extended Command Line Interface (CLI).
+	shortDesc = "The Kclipper Command Line Interface (CLI)."
+	longDesc  = `The Kclipper (KCL + Helm) Command Line Interface (CLI).
 
 KCL is an open-source, constraint-based record and functional language that
 enhances the writing of complex configurations, including those for cloud-native
-scenarios. The KCL website: https://kcl-lang.io
+scenarios.
+
+Kclipper combines KCL and Helm. It provides KCL plugins, packages, and
+additional commands, which collectively allow you to manage Helm charts and
+their schemas declaratively, and render Helm charts directly within KCL.
+
+The KCL website: https://kcl-lang.io
 `
 )
 

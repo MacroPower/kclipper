@@ -23,8 +23,8 @@ import (
 	"oras.land/oras-go/v2/registry/remote"
 	"oras.land/oras-go/v2/registry/remote/auth"
 
-	"github.com/MacroPower/kclx/pkg/argoutil/sync"
-	"github.com/MacroPower/kclx/pkg/pathutil"
+	"github.com/MacroPower/kclipper/pkg/argoutil/sync"
+	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
 var (

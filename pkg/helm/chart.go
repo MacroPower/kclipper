@@ -8,8 +8,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	argohelm "github.com/MacroPower/kclx/pkg/argoutil/helm"
-	"github.com/MacroPower/kclx/pkg/argoutil/kube"
+	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
+	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
 )
 
 type Chart struct {

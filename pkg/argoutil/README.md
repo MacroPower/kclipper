@@ -2,13 +2,13 @@
 
 `argoutil` is a collection of packages originally taken from [argoproj/argo-cd/util][1].
 
-These packages have been modified for use in macropower/kclx.
+These packages have been modified for use in kclipper.
 
 ## License
 
 Copyright 2017-2018 The Argo Authors
 
-Modifications Copyright 2025 MacroPower
+Modifications Copyright 2024-2025 Jacob Colvin
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

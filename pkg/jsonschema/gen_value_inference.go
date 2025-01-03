@@ -1,5 +1,6 @@
 // Copyright (c) 2023 dadav, Licensed under the MIT License.
-// Modifications Copyright (c) 2024 MacroPower, Licensed under the Apache License, Version 2.0.
+// Modifications Copyright (c) 2024-2025 Jacob Colvin
+// Licensed under the Apache License, Version 2.0
 
 package jsonschema
 

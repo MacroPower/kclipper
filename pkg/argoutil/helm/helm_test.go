@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/MacroPower/kclx/pkg/argoutil/kube"
+	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
 )
 
 func template(h Helm, opts *TemplateOpts) ([]*unstructured.Unstructured, error) {

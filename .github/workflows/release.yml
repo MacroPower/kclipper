@@ -84,7 +84,7 @@ jobs:
                 echo "Publishing module: $PKG_NAME"
                 cat kcl.mod
 
-                kcl mod push oci://ghcr.io/macropower/kclx/$PKG_NAME
+                kcl mod push oci://ghcr.io/macropower/kclipper/$PKG_NAME
               fi
               cd -
             fi

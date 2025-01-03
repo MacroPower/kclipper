@@ -38,14 +38,14 @@ manifests.yaml_stream(
 )
 ```
 
-To read more about how the macropower/kclx Helm plugin compares to other KCL Helm plugins like [kcfoil](https://github.com/cakehappens/kcfoil), see the [Helm plugin comparison](docs/helm_plugin_comparison.md).
+To read more about how the kclipper Helm plugin compares to other KCL Helm plugins like [kcfoil](https://github.com/cakehappens/kcfoil), see the [Helm plugin comparison](docs/helm_plugin_comparison.md).
 
 ## Helm Package
 
-To gain full support for the Helm plugin with kcl-language-server (for highlighting, completion, and definitions in your editor), you can use the `macropower/kclx/helm` wrapper package. This is completely optional, but is a significant quality of life improvement.
+To gain full support for the Helm plugin with kcl-language-server (for highlighting, completion, and definitions in your editor), you can use the `macropower/kclipper/helm` wrapper package. This is completely optional, but is a significant quality of life improvement.
 
 ```sh
-kcl mod add oci://ghcr.io/macropower/kclx/helm
+kcl mod add oci://ghcr.io/macropower/kclipper/helm
 ```
 
 Then, you can use the `helm` package to interface with the Helm plugin, rather than calling it directly:
@@ -76,7 +76,7 @@ _podinfo = helm.template(helm.Chart {
 manifests.yaml_stream(_podinfo)
 ```
 
-> :warning: This must be completed AFTER installing `macropower/kclx`. Just adding the helm module will not provide you with the underlying plugin, and you will get an error when you call the template function.
+> :warning: This must be completed AFTER installing kclipper. Just adding the helm module will not provide you with the underlying plugin, and you will get an error when you call the template function.
 
 ## `kcl chart` Command
 

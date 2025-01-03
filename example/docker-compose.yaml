@@ -1,6 +1,6 @@
 services:
-  kclx:
-    image: ghcr.io/macropower/kclx:latest
+  kclipper:
+    image: ghcr.io/macropower/kclipper:latest
     command: run /opt/example.k
     volumes:
       - ./tmp:/tmp

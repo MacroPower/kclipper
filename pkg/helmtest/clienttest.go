@@ -6,13 +6,13 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/MacroPower/kclx/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helm"
 )
 
 var DefaultTestClient helm.ChartClient
 
 func init() {
-	pkg, err := build.Default.Import("github.com/MacroPower/kclx/pkg/helmtest", ".", build.FindOnly)
+	pkg, err := build.Default.Import("github.com/MacroPower/kclipper/pkg/helmtest", ".", build.FindOnly)
 	if err != nil {
 		panic(fmt.Errorf("failed to find package: %w", err))
 	}

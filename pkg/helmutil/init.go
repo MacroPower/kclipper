@@ -8,7 +8,7 @@ import (
 	"kcl-lang.io/kpm/pkg/opt"
 	kclpkg "kcl-lang.io/kpm/pkg/package"
 
-	"github.com/MacroPower/kclx/internal/version"
+	"github.com/MacroPower/kclipper/internal/version"
 )
 
 func (c *ChartPkg) Init() error {
@@ -20,9 +20,21 @@ func (c *ChartPkg) Init() error {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
 
+	source := downloader.Source{
+		Local: &downloader.Local{
+			Path: "../modules/helm",
+		},
+	}
+
 	chartPkgVersion := version.Version
-	if chartPkgVersion == "" {
-		chartPkgVersion = "0.2.0"
+	if chartPkgVersion != "" {
+		source = downloader.Source{
+			Oci: &downloader.Oci{
+				Reg:  "ghcr.io",
+				Repo: "macropower/kclipper/helm",
+				Tag:  chartPkgVersion,
+			},
+		}
 	}
 
 	exists, err := kclpkg.ModFileExists(path)
@@ -42,13 +54,7 @@ func (c *ChartPkg) Init() error {
 	pkg.ModFile.Dependencies.Deps.Set("helm", kclpkg.Dependency{
 		Name:    "helm",
 		Version: chartPkgVersion,
-		Source: downloader.Source{
-			Oci: &downloader.Oci{
-				Reg:  "ghcr.io",
-				Repo: "macropower/kclx/helm",
-				Tag:  chartPkgVersion,
-			},
-		},
+		Source:  source,
 	})
 	if err := pkg.ModFile.StoreModFile(); err != nil {
 		return fmt.Errorf("failed to store mod file: %w", err)

@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 version: 2
 
-project_name: kclx
+project_name: kclipper
 
 env:
   - DOCKER_REGISTRY=ghcr.io/macropower
@@ -12,8 +12,8 @@ before:
 
 # https://github.com/goreleaser/example-zig-cgo/
 builds:
-  - id: kclx
-    main: ./cmd/kclx
+  - id: kclipper
+    main: ./cmd/kclipper
     binary: kcl
     goos:
       - linux
@@ -35,10 +35,10 @@ builds:
         {{- if and (eq .Os "darwin") (eq .Arch "arm64") -}} CXX={{ .Env.CXX_DARWIN_ARM64 }} {{- end -}}
     ldflags:
       - -s -w
-      - -X github.com/MacroPower/kclx/internal/version.Version={{.Version}}
-      - -X github.com/MacroPower/kclx/internal/version.Branch={{.Branch}}
-      - -X github.com/MacroPower/kclx/internal/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
-      - -X github.com/MacroPower/kclx/internal/version.BuildDate={{.Date}}
+      - -X github.com/MacroPower/kclipper/internal/version.Version={{.Version}}
+      - -X github.com/MacroPower/kclipper/internal/version.Branch={{.Branch}}
+      - -X github.com/MacroPower/kclipper/internal/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
+      - -X github.com/MacroPower/kclipper/internal/version.BuildDate={{.Date}}
     flags:
       - -trimpath
       - -tags={{ .Env.BUILD_TAGS }}

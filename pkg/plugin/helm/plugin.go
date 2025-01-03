@@ -7,8 +7,8 @@ import (
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
-	"github.com/MacroPower/kclx/pkg/helm"
-	kclutil "github.com/MacroPower/kclx/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/helm"
+	kclutil "github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 func Register() {

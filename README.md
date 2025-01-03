@@ -1,12 +1,12 @@
-# macropower/kclx
+# kclipper
+
+> KCL + Helm = kclipper
 
 [KCL](https://github.com/kcl-lang/kcl) is a constraint-based record & functional language mainly used in cloud-native configuration and policy scenarios. It is hosted by the Cloud Native Computing Foundation (CNCF) as a Sandbox Project. The KCL website can be found [here](https://kcl-lang.io/).
 
-kclx = KCL Extended. This repo includes an opinionated set of extensions for KCL (thus macropower/kclx, other flavors are available). The included extensions are primarily centered upon improving the experience of using KCL with [Argo CD](https://argoproj.github.io/cd/), though they are not necessarily limited to that. In the context of this repo, "extensions" is meant to refer to a set of both KCL [plugins](https://www.kcl-lang.io/docs/next/reference/plugin/overview) and [packages](https://www.kcl-lang.io/docs/next/user_docs/concepts/package-and-module).
+Kclipper combines [KCL](https://github.com/kcl-lang/kcl) and [Helm](https://helm.sh/) by wrapping KCL with additional [plugins](https://www.kcl-lang.io/docs/next/reference/plugin/overview) and commands, and by providing [packages](https://www.kcl-lang.io/docs/next/user_docs/concepts/package-and-module) which act as friendly plugin interfaces.
 
-To use macropower/kclx, you must [install](#installation) it as a KCL replacement. The macropower/kclx binary will wrap the upstream KCL release with its plugins. Up-to-date multi-architecture Docker images for x86 and arm64 are also available.
-
-> :warning: You should not currently use macropower/kclx in multi-tenant Argo CD environments. See [#2](https://github.com/MacroPower/kclx/issues/2).
+To use kclipper, you must [install](#installation) it as a KCL replacement. Kclipper is a superset of KCL; all upstream KCL commands, packages, etc., are preserved. Docker images for x86 and arm64 are also available, which allow kclipper to be used as an [Argo CD](https://argoproj.github.io/cd/) Config Management Plugin.
 
 ## Features
 
@@ -75,12 +75,12 @@ kcl chart update
 
 ---
 
-**Enjoy blazing fast reconciliation times.** macropower/kclx is built with performance in mind, and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using validation=KCL disables Helm's value validation, and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g. remote refs, chart dependencies, or both).
+**Enjoy blazing fast reconciliation times.** Kclipper is built with performance in mind, and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using validation=KCL disables Helm's value validation, and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g. remote refs, chart dependencies, or both).
 
-| Chart        | Vanilla Argo CD | macropower/kclx | macropower/kclx (schemaValidator=KCL) |
-| :----------- | :-------------- | :-------------- | :------------------------------------ |
-| podinfo      | 9.1 ms/op       | 0.78 ms/op      | 0.76 ms/op (~12x)                     |
-| app-template | 159 ms/op       | 143 ms/op       | 1.48 ms/op (~107x)                    |
+| Chart        | Vanilla Argo CD | kclipper   | kclipper (schemaValidator=KCL) |
+| :----------- | :-------------- | :--------- | :----------------------------- |
+| podinfo      | 9.1 ms/op       | 0.78 ms/op | 0.76 ms/op (~12x)              |
+| app-template | 159 ms/op       | 143 ms/op  | 1.48 ms/op (~107x)             |
 
 > Approximate values from my Mac Mini M1.
 
@@ -88,11 +88,13 @@ There is a bit of a trade-off. The binary size is larger, and KCL run performanc
 
 ## Installation
 
-Binaries are posted in [releases](https://github.com/MacroPower/kclx/releases). Images and OCI artifacts are available under [packages](https://github.com/MacroPower/kclx/pkgs/container/kclx).
+> :warning: You should not currently use kclipper in multi-tenant Argo CD environments. See [#2](https://github.com/MacroPower/kclipper/issues/2).
 
-The binary name for macropower/kclx is always still just `kcl`, so that it can be used as a drop-in replacement for official KCL binaries. Versions are tagged independently of upstream KCL, e.g. macropower/kclx `v0.1.0` maps to kcl `v0.11.0`, but macropower/kclx releases still follow semver with consideration for upstream KCL changes.
+Binaries are posted in [releases](https://github.com/MacroPower/kclipper/releases). Images and OCI artifacts are available under [packages](https://github.com/MacroPower/kclipper/pkgs/container/kclipper).
 
-To use macropower/kclx with Argo CD, you can follow [this guide](https://www.kcl-lang.io/docs/user_docs/guides/gitops/gitops-quick-start) to set up the KCL ConfigManagementPlugin. You just need to substitute the official kcl image with a macropower/kclx image.
+The binary name for kclipper is still just `kcl`, so it can be used as a drop-in replacement for official KCL binaries. Versions are tagged independently of upstream KCL, e.g. kclipper `v0.1.0` maps to kcl `v0.11.0`, but kclipper releases still follow semver with consideration for upstream KCL changes.
+
+To use kclipper with Argo CD, you can follow [this guide](https://www.kcl-lang.io/docs/user_docs/guides/gitops/gitops-quick-start) to set up the KCL ConfigManagementPlugin. You just need to substitute the official kcl image with a kclipper image.
 
 ## Usage
 
@@ -203,7 +205,7 @@ manifests.yaml_stream(_podinfo)
 
 Here, `_podinfo` is a list of Kubernetes resources that were rendered by Helm. You can use the `manifests` package to render these resources to a stream of YAML, which can be piped to `kubectl apply -f -`, be used in a GitOps workflow e.g. via an Argo CMP, etc.
 
-In a real project, you might want to abstract away rendering of the output, package charts with other resources, and so on. For an example, I am using macropower/kclx in my [homelab](https://github.com/MacroPower/homelab/tree/main/konfig), using the [konfig](https://github.com/kcl-lang/konfig) pattern. In this case, a frontend package defines inputs for charts, a mixin processes those inputs, and a backend package renders the resources.
+In a real project, you might want to abstract away rendering of the output, package charts with other resources, and so on. For an example, I am using kclipper in my [homelab](https://github.com/MacroPower/homelab/tree/main/konfig), using the [konfig](https://github.com/kcl-lang/konfig) pattern. In this case, a frontend package defines inputs for charts, a mixin processes those inputs, and a backend package renders the resources.
 
 ### Chart Updates
 

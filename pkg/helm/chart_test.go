@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	"github.com/MacroPower/kclx/pkg/helm"
-	"github.com/MacroPower/kclx/pkg/helmtest"
-	"github.com/MacroPower/kclx/pkg/jsonschema"
-	"github.com/MacroPower/kclx/pkg/log"
+	"github.com/MacroPower/kclipper/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helmtest"
+	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/log"
 )
 
 func init() {

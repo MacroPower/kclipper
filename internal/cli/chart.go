@@ -7,9 +7,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 
-	"github.com/MacroPower/kclx/pkg/helm"
-	"github.com/MacroPower/kclx/pkg/helmutil"
-	"github.com/MacroPower/kclx/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helmutil"
+	"github.com/MacroPower/kclipper/pkg/jsonschema"
 )
 
 const (
@@ -32,7 +32,7 @@ var ErrInvalidArgument = errors.New("invalid argument")
 func NewChartCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "chart",
-		Short:        "KCL chart management",
+		Short:        "Helm chart management",
 		Long:         chartDesc,
 		Example:      chartExample,
 		SilenceUsage: true,
