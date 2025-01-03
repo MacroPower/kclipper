@@ -36,6 +36,10 @@ func TestAutoGenerator(t *testing.T) {
 			filePaths:    []string{"input/values.yaml", "input/schema.json"},
 			expectedPath: "output/schema.json",
 		},
+		"DeepSchema": {
+			filePaths:    []string{"input/values.yaml", "input/deep.schema.json"},
+			expectedPath: "output/deep.schema.json",
+		},
 	}
 
 	for name, tc := range testCases {

@@ -32,6 +32,10 @@ func TestReaderGenerator(t *testing.T) {
 			filePaths:    []string{"input/refs.schema.json"},
 			expectedPath: "output/schema.json",
 		},
+		"DeepSchema": {
+			filePaths:    []string{"input/deep.schema.json"},
+			expectedPath: "output/deep.schema.json",
+		},
 	}
 
 	for name, tc := range testCases {

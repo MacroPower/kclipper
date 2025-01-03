@@ -6,10 +6,12 @@ package jsonschema
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
@@ -301,15 +303,17 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 	if src.ReadOnly {
 		dest.ReadOnly = src.ReadOnly
 	}
-	if src.AdditionalProperties != nil {
-		dest.AdditionalProperties = src.AdditionalProperties
-	}
 	if src.Id != "" {
 		dest.Id = src.Id
 	}
 
 	// Merge 'enum' field (assuming that maintaining order doesn't matter)
-	dest.Enum = append(dest.Enum, src.Enum...)
+	dest.Enum = slices.Compact(append(dest.Enum, src.Enum...))
+
+	dest.Required = helmschema.BoolOrArrayOfString{
+		Bool:    dest.Required.Bool || src.Required.Bool,
+		Strings: intersectStringSlices(dest.Required.Strings, src.Required.Strings),
+	}
 
 	// Recursive calls for nested structures
 	if src.Properties != nil {
@@ -322,6 +326,13 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 			} else {
 				dest.Properties[propName] = mergeHelmSchemas(&helmschema.Schema{}, srcPropSchema, setDefaults)
 			}
+		}
+	}
+
+	if src.AdditionalProperties != nil {
+		err := mergeSchemaAdditionalProperties(dest, src, setDefaults)
+		if err != nil {
+			dest.AdditionalProperties = true
 		}
 	}
 
@@ -348,17 +359,69 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 	}
 
 	if src.If != nil {
-		dest.If = mergeHelmSchemas(dest.If, src.If, setDefaults)
+		dest = mergeHelmSchemas(dest, src.If, setDefaults)
 	}
 	if src.Else != nil {
-		dest.Else = mergeHelmSchemas(dest.Else, src.Else, setDefaults)
+		dest = mergeHelmSchemas(dest, src.Else, setDefaults)
 	}
 	if src.Then != nil {
-		dest.Then = mergeHelmSchemas(dest.Then, src.Then, setDefaults)
+		dest = mergeHelmSchemas(dest, src.Then, setDefaults)
 	}
 	if src.Not != nil {
-		dest.Not = mergeHelmSchemas(dest.Not, src.Not, setDefaults)
+		dest = mergeHelmSchemas(dest, src.Not, setDefaults)
 	}
 
 	return dest
+}
+
+func intersectStringSlices(a, b []string) []string {
+	intersection := []string{}
+	for _, x := range a {
+		if slices.Contains(b, x) {
+			intersection = append(intersection, x)
+		}
+	}
+	return intersection
+}
+
+func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults bool) error {
+	if src.AdditionalProperties == true || src.AdditionalProperties == false {
+		dest.AdditionalProperties = src.AdditionalProperties
+		return nil
+	}
+
+	srcData, err := json.Marshal(src.AdditionalProperties)
+	if err != nil {
+		return err //nolint:wrapcheck
+	}
+	destData, err := json.Marshal(dest.AdditionalProperties)
+	if err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	srcSubSchema := &helmschema.Schema{}
+	var jsonSrcNode yaml.Node
+	if err := yaml.Unmarshal(srcData, &jsonSrcNode); err != nil {
+		return err //nolint:wrapcheck
+	}
+	if err := srcSubSchema.UnmarshalYAML(&jsonSrcNode); err != nil {
+		return err //nolint:wrapcheck
+	}
+	destSubSchema := &helmschema.Schema{}
+	var jsonDestNode yaml.Node
+	if err := yaml.Unmarshal(destData, &jsonDestNode); err != nil {
+		return err //nolint:wrapcheck
+	}
+	if err := destSubSchema.UnmarshalYAML(&jsonDestNode); err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	subSchema := mergeHelmSchemas(destSubSchema, srcSubSchema, setDefaults)
+	if err := subSchema.Validate(); err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	dest.AdditionalProperties = subSchema
+
+	return nil
 }

@@ -120,25 +120,28 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
 
-	// Remove the ID to keep downstream KCL schema generation consistent.
-	hs.Id = ""
-
 	if err := hs.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
 	}
+
+	// Remove the ID to keep downstream KCL schema generation consistent.
+	hs.Id = ""
 
 	if err := handleSchemaRefs(hs, refBasePath); err != nil {
 		return nil, fmt.Errorf("failed to handle schema refs: %w", err)
 	}
 
-	if err := hs.Validate(); err != nil {
+	mhs := &helmschema.Schema{}
+	mhs = mergeHelmSchemas(mhs, hs, true)
+
+	if err := mhs.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
 	}
-	if len(hs.Properties) == 0 {
+	if len(mhs.Properties) == 0 {
 		return nil, errors.New("empty schema")
 	}
 
-	resolvedData, err := hs.ToJson()
+	resolvedData, err := mhs.ToJson()
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
 	}
