@@ -23,7 +23,6 @@ type TemplateOpts struct {
 	RepoURL              string
 	ReleaseName          string
 	Namespace            string
-	HelmVersion          string
 	ValuesObject         map[string]any
 	Repositories         []argohelm.HelmRepository
 	Credentials          Creds
@@ -86,7 +85,7 @@ func (c *Chart) template() ([]byte, error) {
 	// isLocal controls helm temp dirs, does not seem to impact pull/template behavior.
 	isLocal := false
 
-	ha, err := argohelm.NewHelmApp(chartPath, c.TemplateOpts.Repositories, isLocal, c.TemplateOpts.HelmVersion,
+	ha, err := argohelm.NewHelmApp(chartPath, c.TemplateOpts.Repositories, isLocal, "v3",
 		c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy, c.TemplateOpts.PassCredentials)
 	if err != nil {
 		return nil, fmt.Errorf("error initializing helm app object: %w", err)

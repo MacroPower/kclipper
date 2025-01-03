@@ -19,7 +19,6 @@ Helm chart resource.
 | name                          | type | description                                                                                                                                        | default value |
 | ----------------------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | **chart** `required`          | str  | The Helm chart name.                                                                                                                               |               |
-| **helmVersion**               | str  | HelmVersion is the version of Helm to use. One of: [v2, v3].                                                                                       | "v3"          |
 | **namespace**                 | str  | Namespace is an optional namespace to template with.                                                                                               |               |
 | **passCredentials**           | bool | Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).                                                                    | False         |
 | **project**                   | str  | Project is a reference to the project this chart's releases belong to,<br />e.g. the Argo AppProject. This is used to segregate Helm chart caches. |               |

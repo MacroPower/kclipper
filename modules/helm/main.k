@@ -21,8 +21,6 @@ schema ChartBase:
         The Helm release name to use. If omitted it will use the chart name.
     namespace: str, optional.
         Namespace is an optional namespace to template with.
-    helmVersion: str, default is "v3", optional.
-        HelmVersion is the version of Helm to use. One of: [v2, v3].
     skipCRDs: bool, default is False, optional.
         Set to `True` to skip the custom resource definition installation step
         (Helm's `--skip-crds`).
@@ -36,7 +34,6 @@ schema ChartBase:
     targetRevision: str
     releaseName?: str
     namespace?: str
-    helmVersion?: str = "v3"
     skipCRDs?: bool = False
     passCredentials?: bool = False
     schemaValidator?: "KCL" | "HELM"
@@ -44,9 +41,6 @@ schema ChartBase:
     check:
         not regex.match(repoURL, r"^oci://"), \
           "Invalid repoURL: ${repoURL}. OCI registries must not include a scheme (e.g. `oci://`)"
-        any x in ["v2", "v3"] {
-            x == helmVersion
-        }, "Invalid helmVersion: ${helmVersion}. Must be one of: [v2, v3]"
 
 schema Chart(ChartBase):
     """Helm chart resource.
@@ -126,7 +120,6 @@ template = lambda chart: Chart -> [{str:}] {
         target_revision=_chart.targetRevision,
         release_name=_chart.releaseName,
         namespace=_chart.namespace,
-        helm_version=_chart.helmVersion,
         skip_crds=_chart.skipCRDs,
         skip_schema_validation=_skipSchemaValidation,
         pass_credentials=_chart.passCredentials,
