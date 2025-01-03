@@ -39,7 +39,7 @@ schema ChartBase:
     helmVersion?: str = "v3"
     skipCRDs?: bool = False
     passCredentials?: bool = False
-    schemaValidator?: "KCL" | "HELM" = "KCL"
+    schemaValidator?: "KCL" | "HELM"
 
     check:
         not regex.match(repoURL, r"^oci://"), \
@@ -77,12 +77,12 @@ schema ChartConfig(ChartBase):
 
     Attributes
     ----------
-    schemaGenerator : "AUTO" | "VALUE-INFERENCE" | "URL" | "CHART-PATH" | "LOCAL-PATH" | "NONE", default is "AUTO"
+    schemaGenerator : "AUTO" | "VALUE-INFERENCE" | "URL" | "CHART-PATH" | "LOCAL-PATH" | "NONE", optional, default is "AUTO"
         The generator to use for the Values schema.
     schemaPath : str, optional.
         The path to the JSON Schema to use when schemaGenerator is "URL", "CHART-PATH", or "LOCAL-PATH".
     """
-    schemaGenerator: "AUTO" | "VALUE-INFERENCE" | "URL" | "CHART-PATH" | "LOCAL-PATH" | "NONE" = "AUTO"
+    schemaGenerator?: "AUTO" | "VALUE-INFERENCE" | "URL" | "CHART-PATH" | "LOCAL-PATH" | "NONE"
     schemaPath?: str
 
 type Charts = {str:ChartConfig}
@@ -116,7 +116,9 @@ template = lambda chart: Chart -> [{str:}] {
 
     _values |= _chart.values
 
-    _skipSchemaValidation = _chart.schemaValidator == "HELM"
+    _skipSchemaValidation = True
+    if _chart.schemaValidator:
+      _skipSchemaValidation = _chart.schemaValidator == "HELM"
 
     _resources = helm_plugin.template(
         chart=_chart.chart,

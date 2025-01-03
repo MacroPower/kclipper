@@ -17,6 +17,8 @@ schema Chart(helm.Chart):
         The URL of the Helm chart repository.
     targetRevision : str, required, default is "6.7.1"
         The semver tag for the chart's version.
+    schemaValidator : "KCL" | "HELM", optional, default is "KCL"
+        The validator to use for the Values schema.
     values : Values | any, optional
         The values to use for the chart.
     """
@@ -24,5 +26,6 @@ schema Chart(helm.Chart):
     chart: str = "podinfo"
     repoURL: str = "https://stefanprodan.github.io/podinfo"
     targetRevision: str = "6.7.1"
+    schemaValidator?: "KCL" | "HELM" = "KCL"
     values?: Values | any
 

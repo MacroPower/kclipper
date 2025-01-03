@@ -13,6 +13,7 @@ type FileGenerator interface {
 type GeneratorType string
 
 const (
+	DefaultGeneratorType        GeneratorType = ""
 	AutoGeneratorType           GeneratorType = "AUTO"
 	ValueInferenceGeneratorType GeneratorType = "VALUE-INFERENCE"
 	URLGeneratorType            GeneratorType = "URL"
@@ -33,8 +34,9 @@ var GeneratorTypeEnum = []interface{}{
 type ValidatorType string
 
 const (
-	KCLValidatorType  ValidatorType = "KCL"
-	HelmValidatorType ValidatorType = "HELM"
+	DefaultValidatorType ValidatorType = ""
+	KCLValidatorType     ValidatorType = "KCL"
+	HelmValidatorType    ValidatorType = "HELM"
 )
 
 var ValidatorTypeEnum = []interface{}{
@@ -47,7 +49,7 @@ var ValidatorTypeEnum = []interface{}{
 //nolint:ireturn,nolintlint
 func GetGenerator(t GeneratorType) FileGenerator {
 	switch t {
-	case AutoGeneratorType:
+	case DefaultGeneratorType, AutoGeneratorType:
 		return DefaultAutoGenerator
 	case ValueInferenceGeneratorType:
 		return DefaultValueInferenceGenerator
@@ -75,7 +77,7 @@ func GetGeneratorType(t string) GeneratorType {
 	case string(NoGeneratorType):
 		return NoGeneratorType
 	default:
-		return NoGeneratorType
+		return DefaultGeneratorType
 	}
 }
 
@@ -86,7 +88,7 @@ func GetValidatorType(t string) ValidatorType {
 	case string(HelmValidatorType):
 		return HelmValidatorType
 	default:
-		return KCLValidatorType
+		return DefaultValidatorType
 	}
 }
 
@@ -97,7 +99,7 @@ var (
 
 func GetFileFilter(t GeneratorType) func(string) bool {
 	switch t {
-	case AutoGeneratorType:
+	case DefaultGeneratorType, AutoGeneratorType:
 		return func(s string) bool {
 			return jsonOrYAMLValuesRegex.MatchString(s)
 		}

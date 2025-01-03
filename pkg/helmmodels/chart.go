@@ -30,13 +30,13 @@ type ChartBase struct {
 	// PassCredentials will pass credentials to all domains (--pass-credentials).
 	PassCredentials bool `json:"passCredentials,omitempty" jsonschema:"-,description=Pass credentials to all domains."`
 	// SchemaValidator is the validator to use for the Values schema.
-	SchemaValidator jsonschema.ValidatorType `json:"schemaValidator,omitempty" jsonschema:"description=The validator to use for the Values schema."`
+	SchemaValidator jsonschema.ValidatorType `json:"schemaValidator,omitempty" jsonschema:"-,description=The validator to use for the Values schema."`
 }
 
 type ChartConfig struct {
 	ChartBase
 	// SchemaGenerator is the generator to use for the Values schema.
-	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator" jsonschema:"description=The generator to use for the Values schema."`
+	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator,omitempty" jsonschema:"-,description=The generator to use for the Values schema."`
 	// SchemaPath is the path to the schema to use.
 	SchemaPath string `json:"schemaPath,omitempty" jsonschema:"description=The path to the JSONSchema to use when schemaGenerator = URL or PATH or LOCAL-PATH."`
 }
@@ -54,16 +54,12 @@ func (c *ChartConfig) GenerateKCL(b *bytes.Buffer) error {
 	if cv, ok := js.Properties.Get("schemaGenerator"); ok {
 		if c.SchemaGenerator != "" {
 			cv.Default = c.SchemaGenerator
-		} else {
-			cv.Default = jsonschema.AutoGeneratorType
 		}
 		cv.Enum = jsonschema.GeneratorTypeEnum
 	}
 	if cv, ok := js.Properties.Get("schemaValidator"); ok {
 		if c.SchemaValidator != "" {
 			cv.Default = c.SchemaValidator
-		} else {
-			cv.Default = jsonschema.KCLValidatorType
 		}
 		cv.Enum = jsonschema.ValidatorTypeEnum
 	}
@@ -108,8 +104,6 @@ func (c *Chart) GenerateKCL(b *bytes.Buffer) error {
 	if cv, ok := js.Properties.Get("schemaValidator"); ok {
 		if c.SchemaValidator != "" {
 			cv.Default = c.SchemaValidator
-		} else {
-			cv.Default = jsonschema.KCLValidatorType
 		}
 		cv.Enum = jsonschema.ValidatorTypeEnum
 	}

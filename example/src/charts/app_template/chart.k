@@ -17,6 +17,8 @@ schema Chart(helm.Chart):
         The URL of the Helm chart repository.
     targetRevision : str, required, default is "3.6.0"
         The semver tag for the chart's version.
+    schemaValidator : "KCL" | "HELM", optional, default is "KCL"
+        The validator to use for the Values schema.
     values : Values | any, optional
         The values to use for the chart.
     """
@@ -24,5 +26,6 @@ schema Chart(helm.Chart):
     chart: str = "app-template"
     repoURL: str = "https://bjw-s.github.io/helm-charts/"
     targetRevision: str = "3.6.0"
+    schemaValidator?: "KCL" | "HELM" = "KCL"
     values?: Values | any
 
