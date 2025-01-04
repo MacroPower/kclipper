@@ -38,7 +38,7 @@ manifests.yaml_stream(
 )
 ```
 
-To read more about how the kclipper Helm plugin compares to other KCL Helm plugins like [kcfoil](https://github.com/cakehappens/kcfoil), see the [Helm plugin comparison](docs/helm_plugin_comparison.md).
+To read more about how the kclipper Helm plugin compares to other KCL Helm plugins like [kcfoil](https://github.com/cakehappens/kcfoil), see the [Helm plugin comparison](docs/comparison.md).
 
 ## Helm Package
 

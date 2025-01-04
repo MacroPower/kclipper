@@ -6,6 +6,8 @@
 
 Kclipper combines [KCL](https://github.com/kcl-lang/kcl) and [Helm](https://helm.sh/) by wrapping KCL with additional [plugins](https://www.kcl-lang.io/docs/next/reference/plugin/overview) and commands, and by providing [packages](https://www.kcl-lang.io/docs/next/user_docs/concepts/package-and-module) which act as friendly plugin interfaces.
 
+Learn how kclipper compares to Holos and other KCL Helm plugins [here](docs/comparison.md).
+
 To use kclipper, you must [install](#installation) it as a KCL replacement. Kclipper is a superset of KCL; all upstream KCL commands, packages, etc., are preserved. Docker images for x86 and arm64 are also available, which allow kclipper to be used as an [Argo CD](https://argoproj.github.io/cd/) Config Management Plugin.
 
 ## Features
