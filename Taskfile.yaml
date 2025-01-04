@@ -1,10 +1,8 @@
 version: "3"
 
 vars:
-  FILES_TO_FMT:
-    sh: find . -path ./vendor -prune -o -name '*.go' -print
-  FILES_TO_FMT_STR: >-
-    {{ splitList "\n" .FILES_TO_FMT | join " " }}
+  GO_FILES_CMD: >-
+    go list -f {{"{{.Dir}}"}} ./... | xargs -I {} find {} -name "*.go"
   SDK_PATH: ".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
   FRAMEWORK_PATH: "{{.SDK_PATH}}/System/Library/Frameworks"
   C_ENV: "{{OS | upper}}_{{ARCH | upper}}"
@@ -61,8 +59,8 @@ tasks:
   go-format:
     desc: Formats Go code including imports
     cmds:
-      - "gofumpt -w {{.FILES_TO_FMT_STR}}"
-      - "goimports -w {{.FILES_TO_FMT_STR}}"
+      - gofumpt -w $({{.GO_FILES_CMD}})
+      - goimports -w $({{.GO_FILES_CMD}})
 
   go-lint:
     desc: Lints Go code
@@ -176,3 +174,39 @@ tasks:
         --reference "docker exec kcl kcl run /opt/{{.KCL_CODE}}"
         "docker exec kclipper kcl run /opt/{{.KCL_CODE}}"
         "docker exec kclipper kcl run /opt/{{.KCL_HELM}}"
+
+  kcl-doc:
+    desc: Generates KCL documentation
+    summary: |
+      Generates KCL documentation from a KCL module.
+
+      Args:
+        MODULE: KCL module to document
+
+      Examples:
+        task kcl-doc MODULE=helm
+    requires:
+      vars: [MODULE]
+    cmds:
+      - kcl doc generate --file-path=./modules/{{.MODULE}} --target=./modules/{{.MODULE}}
+      - cat ./modules/{{.MODULE}}/docs/README.md >> ./modules/{{.MODULE}}/README.md
+      - rm -rf ./modules/{{.MODULE}}/docs
+      - task: prettier-format
+
+  go-deadcode:
+    desc: Finds dead code in Go
+    summary: |
+      Finds dead code in Go.
+
+      Args:
+        PKG: Go package(s) to evaluate (default: ./...)
+        FLAGS: Additional flags to pass to `deadcode` (default: "")
+
+      Examples:
+        task go-deadcode FLAGS="-test -generated"
+    vars:
+      PKG: '{{.PKG | default "./..."}}'
+      FLAGS: '{{.FLAGS | default ""}}'
+    cmds:
+      - go install golang.org/x/tools/cmd/deadcode@latest
+      - deadcode {{.FLAGS}} {{.PKG}}
