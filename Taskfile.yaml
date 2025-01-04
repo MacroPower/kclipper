@@ -135,9 +135,9 @@ tasks:
       - task: pull-upstream
     vars:
       KCLX_BIN: dist/kclipper_{{OS}}_{{ARCH}}*/kcl
-      KCL_CODE: benchmarks/simple.k
-      KCL_HELM: benchmarks/simple-helm.k
-      KCL_HELM_VALUES: benchmarks/simple-helm-values.k
+      KCL_CODE: benchmarks/no-charts.k
+      KCL_HELM: benchmarks/10-charts.k
+      KCL_HELM_VALUES: benchmarks/10-charts-with-values.k
     cmds:
       - >-
         hyperfine --warmup=50 --min-runs=1000
@@ -154,8 +154,8 @@ tasks:
     desc: Compares benchmark results
     vars:
       DOCKER_MOUNTS: "-v ./.tmp:/tmp -v ./benchmarks:/opt/benchmarks"
-      KCL_CODE: benchmarks/simple.k
-      KCL_HELM: benchmarks/simple-helm.k
+      KCL_CODE: benchmarks/no-charts.k
+      KCL_HELM: benchmarks/10-charts.k
     cmds:
       - >-
         docker run --name=kcl -d --entrypoint=/usr/bin/bash {{.DOCKER_MOUNTS}}
@@ -210,3 +210,22 @@ tasks:
     cmds:
       - go install golang.org/x/tools/cmd/deadcode@latest
       - deadcode {{.FLAGS}} {{.PKG}}
+
+  go-bench-init:
+    desc: Run Go benchmarks with init tracing
+    cmds:
+      - |
+        echo "a=1" | GODEBUG=inittrace=1 kcl run - 2>&1 | awk '
+        BEGIN {
+            printf "%-100s %-15s %-15s %-10s %-10s\n", "Module", "Init Time (ms)", "Clock Time (ms)", "Bytes", "Allocs";
+            printf "%-100s %-15s %-15s %-10s %-10s\n", "------", "--------------", "---------------", "-----", "------";
+        }
+        $1 == "init" {
+            # Extract the relevant fields and format them into a table
+            module = $2;
+            init_time = substr($3, 2);  # Remove the "@" prefix
+            clock_time = $5;
+            bytes = $8;
+            allocs = $10;
+            printf "%-100s %-15s %-15s %-10s %-10s\n", module, init_time, clock_time, bytes, allocs;
+        }' | tail -n +3 | sort -k3,3n

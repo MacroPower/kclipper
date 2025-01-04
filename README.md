@@ -84,7 +84,7 @@ kcl chart update
 
 > Approximate values from my Mac Mini M2.
 
-There is a bit of a trade-off. The binary size is larger, and KCL run performance will be worse by an small, absolute amount of time (in my case ~8ms). Meaning, KCL runs with no Helm templates will be slightly slower compared to upstream KCL.
+There is a bit of a trade-off. The binary size is larger, and KCL initialization will be slower by an small, absolute amount of time. Meaning, KCL runs with no Helm templates will be slightly slower compared to upstream KCL. See [benchmarks](./benchmarks) for more details.
 
 ## Installation
 

@@ -1,6 +1,6 @@
-| Command                                      |  Mean [ms] | Min [ms] | Max [ms] |    Relative |
-| :------------------------------------------- | ---------: | -------: | -------: | ----------: |
-| `.tmp/bin/kcl ./benchmarks/simple.k`         | 24.6 ± 3.0 |     22.5 |     51.9 |        1.00 |
-| `kclipper ./benchmarks/simple.k`             | 36.8 ± 0.7 |     34.7 |     38.5 | 1.50 ± 0.18 |
-| `kclipper ./benchmarks/simple-helm.k`        | 40.8 ± 3.1 |     37.7 |     63.9 | 1.66 ± 0.24 |
-| `kclipper ./benchmarks/simple-helm-values.k` | 42.7 ± 0.9 |     40.2 |     45.0 | 1.73 ± 0.21 |
+| Command                                         |  Mean [ms] | Min [ms] | Max [ms] |    Relative |
+| :---------------------------------------------- | ---------: | -------: | -------: | ----------: |
+| `.tmp/bin/kcl ./benchmarks/no-charts.k`         | 46.0 ± 2.4 |     43.5 |     82.7 |        1.00 |
+| `kclipper ./benchmarks/no-charts.k`             | 58.5 ± 2.6 |     56.2 |     94.5 | 1.27 ± 0.09 |
+| `kclipper ./benchmarks/10-charts.k`             | 80.4 ± 2.9 |     77.3 |    116.3 | 1.75 ± 0.11 |
+| `kclipper ./benchmarks/10-charts-with-values.k` | 87.8 ± 3.5 |     84.0 |    126.6 | 1.91 ± 0.12 |

@@ -35,6 +35,6 @@ _notAChart = [{
             serviceAccountName = "default"
         }
     }
-} for x in range(0, 5)]
+} for x in range(0, 50)]
 
 manifests.yaml_stream(_notAChart, {})
