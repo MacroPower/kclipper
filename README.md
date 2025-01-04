@@ -71,9 +71,7 @@ charts: helm.Charts = {
 
 **Automate updates to all KCL and JSON Schemas**, for both Helm charts and their values, in response to your declarations:
 
-```bash
-kcl chart update
-```
+![kcl chart update](./docs/demos/chart-update.gif)
 
 ---
 
