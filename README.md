@@ -88,6 +88,60 @@ kcl chart update
 
 There is a bit of a trade-off. The binary size is larger, and KCL initialization will be slower by an small, absolute amount of time. Meaning, KCL runs with no Helm templates will be slightly slower compared to upstream KCL. See [benchmarks](./benchmarks) for more details.
 
+---
+
+**Pairs excellently with [konfig](https://github.com/kcl-lang/konfig)**. Mix and match your Helm chart definitions with other resources like NetworkPolicies, ExternalSecrets, and more. Manage your entire application with a simple, fully-typed frontend interface, and intelligently share configuration between resources:
+
+```py
+import tenant
+import konfig.models.frontend
+import konfig.models.templates.networkpolicy
+import konfig.models.utils
+import charts.grafana_operator
+import grafana_operator.v1beta1 as grafanav1beta1
+
+appConfiguration: frontend.App {
+    name = "grafana"
+    charts.grafanaOperator = grafana_operator.Chart {
+        values = grafana_operator.Values {
+            resources.requests = {
+                cpu = "10m"
+                memory = "50Mi"
+            }
+        }
+    }
+    secretStore = tenant.secretStores.default.name
+    externalSecrets.grafana = frontend.ExternalSecret {
+        name = "grafana-credentials"
+        data.GRAFANA_ADMIN_USER = {
+            ref: "grafana-admin-username"
+        }
+        data.GRAFANA_ADMIN_PASS = {
+            ref: "grafana-admin-password"
+        }
+    }
+    extraResources.grafanaFoo = grafanav1beta1.Grafana {
+        metadata.name = "grafana-foo"
+        spec.config = utils.GrafanaConfigBuilder(domainName, "foo")
+    }
+    extraResources.grafanaBar = grafanav1beta1.Grafana {
+        metadata.name = "grafana-bar"
+        spec.config = utils.GrafanaConfigBuilder(domainName, "bar")
+    }
+    networkPolicies = {
+        denyDefault = networkpolicy.denyDefault
+        kubeDNSEgress = networkpolicy.kubeDNSEgress
+        kubeAPIServerEgress = networkpolicy.kubeAPIServerEgress | {
+            endpointSelector.matchExpressions = [{
+                key = "app.kubernetes.io/name"
+                operator = "In"
+                values = ["grafana-operator"]
+            }]
+        }
+    }
+}
+```
+
 ## Installation
 
 > :warning: You should not currently use kclipper in multi-tenant Argo CD environments. See [#2](https://github.com/MacroPower/kclipper/issues/2).
