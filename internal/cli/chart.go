@@ -23,7 +23,11 @@ const (
   kcl chart add --chart podinfo --repo_url https://stefanprodan.github.io/podinfo --target_revision 6.7.0
 
   # Update chart schemas for the current module
-  kcl chart update`
+  kcl chart update
+
+  # Set chart configuration attributes
+  kcl chart set --chart podinfo --overrides "targetRevision=6.7.1"
+`
 )
 
 var ErrInvalidArgument = errors.New("invalid argument")
@@ -42,6 +46,7 @@ func NewChartCmd() *cobra.Command {
 	cmd.AddCommand(NewChartInitCmd())
 	cmd.AddCommand(NewChartAddCmd())
 	cmd.AddCommand(NewChartUpdateCmd())
+	cmd.AddCommand(NewChartSetCmd())
 
 	return cmd
 }
@@ -142,4 +147,46 @@ func NewChartUpdateCmd() *cobra.Command {
 		},
 		SilenceUsage: true,
 	}
+}
+
+func NewChartSetCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set",
+		Short: "Set chart configuration",
+		RunE: func(cc *cobra.Command, _ []string) error {
+			var merr error
+
+			flags := cc.Flags()
+			basePath, err := flags.GetString("path")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			chart, err := flags.GetString("chart")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			overrides, err := flags.GetString("overrides")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+
+			if merr != nil {
+				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
+			}
+
+			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
+			return c.Set(chart, overrides)
+		},
+		SilenceUsage: true,
+	}
+	cmd.Flags().StringP("chart", "c", "", "Specify the Helm chart name (required)")
+	cmd.Flags().StringP("overrides", "O", "", "Specify the configuration override path and value (required)")
+	if err := cmd.MarkFlagRequired("chart"); err != nil {
+		panic(err)
+	}
+	if err := cmd.MarkFlagRequired("overrides"); err != nil {
+		panic(err)
+	}
+
+	return cmd
 }

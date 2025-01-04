@@ -225,6 +225,12 @@ When you want to update a chart, you can edit the `charts.k` file like so:
  }
 ```
 
+Or, alternatively, you can run the following command (wraps KCL automation):
+
+```bash
+kcl chart set -c podinfo -O targetRevision=6.7.1
+```
+
 Then run re-generate the `charts.podinfo` package to update the schemas:
 
 ```bash
