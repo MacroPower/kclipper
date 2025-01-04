@@ -1,6 +1,4 @@
 // Copyright The KCL Authors. All rights reserved.
-//go:build cgo
-// +build cgo
 
 package main
 
@@ -15,9 +13,6 @@ import (
 
 	"github.com/MacroPower/kclipper/internal/cli"
 	"github.com/MacroPower/kclipper/pkg/log"
-	helmplugin "github.com/MacroPower/kclipper/pkg/plugin/helm"
-	httpplugin "github.com/MacroPower/kclipper/pkg/plugin/http"
-	osplugin "github.com/MacroPower/kclipper/pkg/plugin/os"
 )
 
 func init() {
@@ -44,26 +39,15 @@ The KCL website: https://kcl-lang.io
 )
 
 func main() {
-	if !envTrue("KCLX_HELM_PLUGIN_DISABLED") {
-		helmplugin.Register()
-	}
-	if !envTrue("KCLX_HTTP_PLUGIN_DISABLED") {
-		httpplugin.Register()
-	}
-	if !envTrue("KCLX_OS_PLUGIN_DISABLED") {
-		osplugin.Register()
-	}
+	cli.RegisterEnabledPlugins()
 
 	cmd := cli.NewRootCmd(cmdName, shortDesc, longDesc)
 	bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
+
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
 		os.Exit(1)
 	}
-}
-
-func envTrue(key string) bool {
-	return strings.ToLower(os.Getenv(key)) == "true"
 }
 
 // executeRunCmd the run command for the root command.
