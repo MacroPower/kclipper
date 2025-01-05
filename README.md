@@ -1,6 +1,11 @@
-# kclipper
+<p align="center">
+  <a href="#"><img src="docs/img/logo.svg" width="150px"></a>
+  <h1 align="center">kclipper</h1>
+</p>
 
-> KCL + Helm = kclipper
+<p align="center"><i>KCL + Helm = kclipper</i></p>
+
+## Overview
 
 [KCL](https://github.com/kcl-lang/kcl) is a constraint-based record & functional language mainly used in cloud-native configuration and policy scenarios. It is hosted by the Cloud Native Computing Foundation (CNCF) as a Sandbox Project. The KCL website can be found [here](https://kcl-lang.io/).
 
