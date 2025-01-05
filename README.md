@@ -355,3 +355,14 @@ You can use the included [Devbox](https://www.jetify.com/docs/devbox/) to create
 KCL and this project are both licensed under the Apache 2.0 License. See [LICENSE](LICENSE) for details.
 
 KCL is copyright The KCL Authors, all rights reserved.
+
+## Acknowledgements
+
+This project would not be possible without the hard work of the KCL authors, the Helm authors, and the Argo authors.
+
+Also, thanks all of the contributors to other KCL packages and plugins. Notably, [@ghostsquad](https://github.com/ghostsquad), [@tvandinther](https://github.com/tvandinther), and [@suin](https://github.com/suin). Your work has consistently given me inspiration and new ideas for this project.
+
+Also, special thanks to:
+
+- [@dadav](https://github.com/dadav) for maintaining [helm-schema](https://github.com/dadav/helm-schema) and [go-jsonpointer](https://github.com/dadav/go-jsonpointer), which are both heavily used in klipper's schema generators.
+- [@carinacolvin_art](https://www.instagram.com/carinacolvin_art/) for creating the kclipper logo.
