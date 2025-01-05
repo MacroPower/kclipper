@@ -12,7 +12,7 @@ To use kclipper, you must [install](#installation) it as a KCL replacement. Kcli
 
 ## Features
 
-**Render Helm charts directly within KCL**; take full control of all resources both pre and post-rendering. Use KCL to its full potential within the Helm ecosystem for incredibly powerful and flexible templating, especially in multi-cluster scenarios where ApplicationSets and/or abstract interfaces similar to [konfig](https://github.com/kcl-lang/konfig) are being heavily utilized:
+**Render Helm charts directly within KCL**; take full control of all resources both pre- and post-rendering. Use KCL to its full potential within the Helm ecosystem for powerful and flexible templating, especially in multi-cluster scenarios where ApplicationSets and/or abstract interfaces similar to [konfig](https://github.com/kcl-lang/konfig) are heavily utilized:
 
 ```py
 import helm
@@ -42,7 +42,7 @@ manifests.yaml_stream(_podinfo)
 
 ---
 
-**Declaratively manage all of your Helm charts and their schemas.** Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more, for both Chart and Value objects, as well as values.yaml files (if you prefer YAML over KCL for values, or want to use both!) Optionally, use the `kcl chart` command to make quick edits from the command line:
+**Declaratively manage all of your Helm charts and their schemas.** Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more for both Chart and Value objects, as well as `values.yaml` files (if you prefer YAML over KCL for values, or want to use both). Optionally, use the `kcl chart` command to make quick edits from the command line:
 
 ```py
 import helm
@@ -69,13 +69,13 @@ charts: helm.Charts = {
 
 ---
 
-**Automate updates to all KCL and JSON Schemas**, for both Helm charts and their values, in response to your declarations:
+**Automate updates to all KCL and JSON Schemas**, in accordance with your declarations:
 
 ![kcl chart update](./docs/demos/chart-update.gif)
 
 ---
 
-**Enjoy blazing fast reconciliation times.** Kclipper is built with performance in mind, and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using schemaValidator="KCL" disables Helm's value validation, and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g. remote refs, chart dependencies, or both).
+**Enjoy blazing-fast reconciliation times.** Kclipper is built with performance in mind and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using schemaValidator="KCL" disables Helm's value validation and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g., remote refs, chart dependencies, or both).
 
 | Chart        | Vanilla Argo CD | kclipper   | kclipper (schemaValidator=KCL) |
 | :----------- | :-------------- | :--------- | :----------------------------- |
@@ -88,7 +88,7 @@ There is a bit of a trade-off. The binary size is larger, and KCL initialization
 
 ---
 
-**Pairs excellently with [konfig](https://github.com/kcl-lang/konfig)**. Mix and match your Helm chart definitions with other resources like NetworkPolicies, ExternalSecrets, and more. Manage your entire application with a simple, fully-typed frontend interface, and intelligently share configuration between resources:
+**Pairs excellently with [konfig](https://github.com/kcl-lang/konfig)**. Mix and match your Helm chart definitions with other resources like NetworkPolicies, ExternalSecrets, and more. Manage your entire application with a simple, fully-typed frontend interface and intelligently share configuration between resources:
 
 ```py
 import tenant
