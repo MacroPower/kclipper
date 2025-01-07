@@ -10,12 +10,10 @@ import (
 	"regexp"
 
 	"kcl-lang.io/kcl-go"
-	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmmodels"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
-	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 var (
@@ -144,17 +142,13 @@ func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) er
 		return fmt.Errorf("failed to write values.schema.json: %w", err)
 	}
 
-	kclSchema := &bytes.Buffer{}
-	if err := kclutil.Gen.GenKcl(kclSchema, "values", jsonSchema, &gen.GenKclOptions{
-		Mode:                  gen.ModeJsonSchema,
-		CastingOption:         gen.OriginalName,
-		UseIntegersForNumbers: true,
-	}); err != nil {
-		return fmt.Errorf("failed to generate kcl schema: %w", err)
+	kclSchema, err := jsonschema.ConvertToKCLSchema(jsonSchema)
+	if err != nil {
+		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
 
 	kclSchemaFixed := &bytes.Buffer{}
-	scanner := bufio.NewScanner(kclSchema)
+	scanner := bufio.NewScanner(bytes.NewReader(kclSchema))
 	for scanner.Scan() {
 		line := scanner.Text()
 		line = SchemaDefaultRegexp.ReplaceAllString(line, "$1")

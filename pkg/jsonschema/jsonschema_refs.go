@@ -234,7 +234,12 @@ func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error
 		return err //nolint:wrapcheck
 	}
 
-	subSchema.Required = helmschema.BoolOrArrayOfString{}
+	// No idea why, but Required isn't marshaled correctly without recreating the struct.
+	subSchema.Required = helmschema.BoolOrArrayOfString{
+		Bool:    subSchema.Required.Bool,
+		Strings: subSchema.Required.Strings,
+	}
+
 	schema.AdditionalProperties = subSchema
 
 	return nil

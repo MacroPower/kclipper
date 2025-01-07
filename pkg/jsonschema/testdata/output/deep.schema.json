@@ -4,6 +4,18 @@
     "configMaps": {
       "additionalProperties": {
         "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "data"
+            ]
+          },
+          {
+            "required": [
+              "binaryData"
+            ]
+          }
+        ],
         "properties": {
           "annotations": {
             "additionalProperties": {
