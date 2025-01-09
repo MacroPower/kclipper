@@ -32,12 +32,16 @@ func (r *Reflector) AddGoComments(pkg, path string) error {
 	return nil
 }
 
-func (r *Reflector) Reflect(t reflect.Type) *invopopjsonschema.Schema {
-	return r.Reflector.ReflectFromType(t)
+func (r *Reflector) Reflect(t reflect.Type) *Reflected {
+	return &Reflected{Schema: r.Reflector.ReflectFromType(t)}
 }
 
-func ReflectedSchemaToKCL(r *invopopjsonschema.Schema, w io.Writer) error {
-	jsBytes, err := r.MarshalJSON()
+type Reflected struct {
+	Schema *invopopjsonschema.Schema
+}
+
+func (r *Reflected) GenerateKCL(w io.Writer) error {
+	jsBytes, err := r.Schema.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("failed to marshal json schema: %w", err)
 	}
@@ -50,4 +54,50 @@ func ReflectedSchemaToKCL(r *invopopjsonschema.Schema, w io.Writer) error {
 	}
 
 	return nil
+}
+
+func (r *Reflected) SetProperty(key string, opts ...PropertyOpt) {
+	if cv, ok := r.Schema.Properties.Get(key); ok {
+		for _, opt := range opts {
+			opt(cv)
+		}
+	}
+}
+
+func (r *Reflected) SetOrRemoveProperty(key string, setProperty bool, opts ...PropertyOpt) {
+	if cv, ok := r.Schema.Properties.Get(key); ok {
+		if setProperty {
+			for _, opt := range opts {
+				opt(cv)
+			}
+		} else {
+			r.Schema.Properties.Delete(key)
+		}
+	}
+}
+
+func (r *Reflected) RemoveProperty(key string) {
+	if _, ok := r.Schema.Properties.Get(key); ok {
+		r.Schema.Properties.Delete(key)
+	}
+}
+
+type PropertyOpt func(*invopopjsonschema.Schema)
+
+func WithEnum(enum []interface{}) PropertyOpt {
+	return func(s *invopopjsonschema.Schema) {
+		s.Enum = enum
+	}
+}
+
+func WithDefault(defaultValue interface{}) PropertyOpt {
+	return func(s *invopopjsonschema.Schema) {
+		s.Default = defaultValue
+	}
+}
+
+func WithType(t string) PropertyOpt {
+	return func(s *invopopjsonschema.Schema) {
+		s.Type = t
+	}
 }

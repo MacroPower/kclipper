@@ -46,68 +46,43 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 	js := r.Reflect(reflect.TypeOf(ChartConfig{}))
-	if cv, ok := js.Properties.Get("chart"); ok {
-		cv.Default = c.ChartBase.Chart
-	}
-	if cv, ok := js.Properties.Get("repoURL"); ok {
-		cv.Default = c.ChartBase.RepoURL
-	}
-	if cv, ok := js.Properties.Get("targetRevision"); ok {
-		cv.Default = c.ChartBase.TargetRevision
-	}
-	if cv, ok := js.Properties.Get("namespace"); ok {
-		if c.Namespace != "" {
-			cv.Default = c.ChartBase.Namespace
-		} else {
-			js.Properties.Delete("namespace")
-		}
-	}
-	if cv, ok := js.Properties.Get("releaseName"); ok {
-		if c.ReleaseName != "" {
-			cv.Default = c.ChartBase.ReleaseName
-		} else {
-			js.Properties.Delete("releaseName")
-		}
-	}
-	if cv, ok := js.Properties.Get("skipCRDs"); ok {
-		if c.SkipCRDs {
-			cv.Default = c.ChartBase.SkipCRDs
-		} else {
-			js.Properties.Delete("skipCRDs")
-		}
-	}
-	if cv, ok := js.Properties.Get("passCredentials"); ok {
-		if c.PassCredentials {
-			cv.Default = c.ChartBase.PassCredentials
-		} else {
-			js.Properties.Delete("passCredentials")
-		}
-	}
-	if cv, ok := js.Properties.Get("schemaValidator"); ok {
-		if c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType {
-			cv.Default = c.ChartBase.SchemaValidator
-			cv.Enum = jsonschema.ValidatorTypeEnum
-		} else {
-			js.Properties.Delete("schemaValidator")
-		}
-	}
-	if cv, ok := js.Properties.Get("schemaPath"); ok {
-		if c.HelmChartConfig.SchemaPath != "" {
-			cv.Default = c.HelmChartConfig.SchemaPath
-		} else {
-			js.Properties.Delete("schemaPath")
-		}
-	}
-	if cv, ok := js.Properties.Get("schemaGenerator"); ok {
-		if c.HelmChartConfig.SchemaGenerator != jsonschema.DefaultGeneratorType {
-			cv.Default = c.HelmChartConfig.SchemaGenerator
-			cv.Enum = jsonschema.GeneratorTypeEnum
-		} else {
-			js.Properties.Delete("schemaGenerator")
-		}
-	}
 
-	err = jsonschema.ReflectedSchemaToKCL(js, w)
+	js.SetProperty("chart", jsonschema.WithDefault(c.ChartBase.Chart))
+	js.SetProperty("repoURL", jsonschema.WithDefault(c.ChartBase.RepoURL))
+	js.SetProperty("targetRevision", jsonschema.WithDefault(c.ChartBase.TargetRevision))
+
+	js.SetOrRemoveProperty(
+		"namespace", c.ChartBase.Namespace != "",
+		jsonschema.WithDefault(c.ChartBase.Namespace),
+	)
+	js.SetOrRemoveProperty(
+		"releaseName", c.ChartBase.ReleaseName != "",
+		jsonschema.WithDefault(c.ChartBase.ReleaseName),
+	)
+	js.SetOrRemoveProperty(
+		"skipCRDs", c.ChartBase.SkipCRDs,
+		jsonschema.WithDefault(c.ChartBase.SkipCRDs),
+	)
+	js.SetOrRemoveProperty(
+		"passCredentials", c.ChartBase.PassCredentials,
+		jsonschema.WithDefault(c.ChartBase.PassCredentials),
+	)
+	js.SetOrRemoveProperty(
+		"schemaPath", c.HelmChartConfig.SchemaPath != "",
+		jsonschema.WithDefault(c.HelmChartConfig.SchemaPath),
+	)
+	js.SetOrRemoveProperty(
+		"schemaValidator", c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType,
+		jsonschema.WithDefault(c.ChartBase.SchemaValidator),
+		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),
+	)
+	js.SetOrRemoveProperty(
+		"schemaGenerator", c.HelmChartConfig.SchemaGenerator != jsonschema.DefaultGeneratorType,
+		jsonschema.WithDefault(c.HelmChartConfig.SchemaGenerator),
+		jsonschema.WithEnum(jsonschema.GeneratorTypeEnum),
+	)
+
+	err = js.GenerateKCL(w)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
@@ -131,64 +106,40 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 	js := r.Reflect(reflect.TypeOf(Chart{}))
-	js.Description = "All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`."
-	if cv, ok := js.Properties.Get("chart"); ok {
-		cv.Default = c.ChartBase.Chart
-	}
-	if cv, ok := js.Properties.Get("repoURL"); ok {
-		cv.Default = c.ChartBase.RepoURL
-	}
-	if cv, ok := js.Properties.Get("targetRevision"); ok {
-		cv.Default = c.ChartBase.TargetRevision
-	}
-	if cv, ok := js.Properties.Get("namespace"); ok {
-		if c.Namespace != "" {
-			cv.Default = c.ChartBase.Namespace
-		} else {
-			js.Properties.Delete("namespace")
-		}
-	}
-	if cv, ok := js.Properties.Get("releaseName"); ok {
-		if c.ReleaseName != "" {
-			cv.Default = c.ChartBase.ReleaseName
-		} else {
-			js.Properties.Delete("releaseName")
-		}
-	}
-	if cv, ok := js.Properties.Get("skipCRDs"); ok {
-		if c.SkipCRDs {
-			cv.Default = c.ChartBase.SkipCRDs
-		} else {
-			js.Properties.Delete("skipCRDs")
-		}
-	}
-	if cv, ok := js.Properties.Get("passCredentials"); ok {
-		if c.PassCredentials {
-			cv.Default = c.ChartBase.PassCredentials
-		} else {
-			js.Properties.Delete("passCredentials")
-		}
-	}
-	if cv, ok := js.Properties.Get("schemaValidator"); ok {
-		if c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType {
-			cv.Default = c.ChartBase.SchemaValidator
-			cv.Enum = jsonschema.ValidatorTypeEnum
-		} else {
-			js.Properties.Delete("schemaValidator")
-		}
-	}
-	if cv, ok := js.Properties.Get("values"); ok {
-		cv.Type = "null"
-	}
-	if _, ok := js.Properties.Get("valueFiles"); ok {
-		js.Properties.Delete("valueFiles")
-	}
-	if _, ok := js.Properties.Get("postRenderer"); ok {
-		js.Properties.Delete("postRenderer")
-	}
+	js.Schema.Description = "All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`."
+
+	js.SetProperty("chart", jsonschema.WithDefault(c.ChartBase.Chart))
+	js.SetProperty("repoURL", jsonschema.WithDefault(c.ChartBase.RepoURL))
+	js.SetProperty("targetRevision", jsonschema.WithDefault(c.ChartBase.TargetRevision))
+	js.SetProperty("values", jsonschema.WithType("null"))
+
+	js.SetOrRemoveProperty(
+		"namespace", c.ChartBase.Namespace != "",
+		jsonschema.WithDefault(c.ChartBase.Namespace),
+	)
+	js.SetOrRemoveProperty(
+		"releaseName", c.ChartBase.ReleaseName != "",
+		jsonschema.WithDefault(c.ChartBase.ReleaseName),
+	)
+	js.SetOrRemoveProperty(
+		"skipCRDs", c.ChartBase.SkipCRDs,
+		jsonschema.WithDefault(c.ChartBase.SkipCRDs),
+	)
+	js.SetOrRemoveProperty(
+		"passCredentials", c.ChartBase.PassCredentials,
+		jsonschema.WithDefault(c.ChartBase.PassCredentials),
+	)
+	js.SetOrRemoveProperty(
+		"schemaValidator", c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType,
+		jsonschema.WithDefault(c.ChartBase.SchemaValidator),
+		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),
+	)
+
+	js.RemoveProperty("valueFiles")
+	js.RemoveProperty("postRenderer")
 
 	b := &bytes.Buffer{}
-	err = jsonschema.ReflectedSchemaToKCL(js, b)
+	err = js.GenerateKCL(b)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}

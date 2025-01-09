@@ -39,11 +39,10 @@ func (c *ChartBase) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 	js := r.Reflect(reflect.TypeOf(ChartBase{}))
-	if cv, ok := js.Properties.Get("schemaValidator"); ok {
-		cv.Enum = jsonschema.ValidatorTypeEnum
-	}
 
-	err = jsonschema.ReflectedSchemaToKCL(js, w)
+	js.SetProperty("schemaValidator", jsonschema.WithEnum(jsonschema.ValidatorTypeEnum))
+
+	err = js.GenerateKCL(w)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
@@ -71,15 +70,13 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 	js := r.Reflect(reflect.TypeOf(Chart{}))
-	// if cv, ok := js.Properties.Get("values"); ok {
-	// 	cv.Default = struct{}{}
-	// }
 
 	b := &bytes.Buffer{}
-	err = jsonschema.ReflectedSchemaToKCL(js, b)
+	err = js.GenerateKCL(b)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
+
 	nb := &bytes.Buffer{}
 	scanner := bufio.NewScanner(b)
 	for scanner.Scan() {
@@ -115,15 +112,15 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 	js := r.Reflect(reflect.TypeOf(ChartConfig{}))
-	if cv, ok := js.Properties.Get("schemaGenerator"); ok {
-		cv.Enum = jsonschema.GeneratorTypeEnum
-	}
+
+	js.SetProperty("schemaGenerator", jsonschema.WithEnum(jsonschema.GeneratorTypeEnum))
 
 	b := &bytes.Buffer{}
-	err = jsonschema.ReflectedSchemaToKCL(js, b)
+	err = js.GenerateKCL(b)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
+
 	nb := &bytes.Buffer{}
 	scanner := bufio.NewScanner(b)
 	for scanner.Scan() {
