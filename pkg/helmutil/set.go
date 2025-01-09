@@ -8,7 +8,7 @@ import (
 
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels"
+	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
 )
 
 func (c *ChartPkg) Set(chart string, keyValueOverrides string) error {

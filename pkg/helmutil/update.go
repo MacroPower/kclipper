@@ -8,7 +8,7 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go/pkg/kcl"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels"
+	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
 )
 
 // Update loads the chart configurations defined in charts.k and calls Add to

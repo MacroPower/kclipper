@@ -93,6 +93,13 @@ tasks:
         export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
         go test -ldflags="-s -w" -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
 
+  go-gen:
+    desc: Generates Go code
+    cmds:
+      - |
+        export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
+        go generate ./...
+
   go-build:
     desc: Builds Go binaries
     vars:

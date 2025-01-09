@@ -10,7 +10,7 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels"
+	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
 	"github.com/MacroPower/kclipper/pkg/helmtest"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
@@ -42,7 +42,9 @@ func TestHelmChartAdd(t *testing.T) {
 					TargetRevision:  "6.7.1",
 					SchemaValidator: jsonschema.HelmValidatorType,
 				},
-				SchemaGenerator: jsonschema.AutoGeneratorType,
+				HelmChartConfig: helmmodels.HelmChartConfig{
+					SchemaGenerator: jsonschema.AutoGeneratorType,
+				},
 			},
 		},
 		"app-template": {
@@ -52,8 +54,10 @@ func TestHelmChartAdd(t *testing.T) {
 					RepoURL:        "https://bjw-s.github.io/helm-charts/",
 					TargetRevision: "3.6.0",
 				},
-				SchemaGenerator: jsonschema.ChartPathGeneratorType,
-				SchemaPath:      "charts/common/values.schema.json",
+				HelmChartConfig: helmmodels.HelmChartConfig{
+					SchemaGenerator: jsonschema.ChartPathGeneratorType,
+					SchemaPath:      "charts/common/values.schema.json",
+				},
 			},
 		},
 	}
@@ -120,18 +124,18 @@ func TestDefaultReplacement(t *testing.T) {
 			re:    helmutil.SchemaInvalidDocRegexp,
 			repl:  `${1}"${2}"${3}`,
 		},
-		"values": {
-			input: `    values?: any`,
-			want:  `    values?: x any`,
-			re:    helmutil.SchemaValuesRegexp,
-			repl:  "${1}x ${2}",
-		},
-		"values docs": {
-			input: `    values : any, foobar`,
-			want:  `    values : x any, foobar`,
-			re:    helmutil.SchemaValuesRegexp,
-			repl:  "${1}x ${2}",
-		},
+		// "values": {
+		// 	input: `    values?: any`,
+		// 	want:  `    values?: x any`,
+		// 	re:    helmutil.SchemaValuesRegexp,
+		// 	repl:  "${1}x ${2}",
+		// },
+		// "values docs": {
+		// 	input: `    values : any, foobar`,
+		// 	want:  `    values : x any, foobar`,
+		// 	re:    helmutil.SchemaValuesRegexp,
+		// 	repl:  "${1}x ${2}",
+		// },
 	}
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {

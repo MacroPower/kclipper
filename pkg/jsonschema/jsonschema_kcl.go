@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"fmt"
 
+	helmschema "github.com/dadav/helm-schema/pkg/schema"
 	"gopkg.in/yaml.v3"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
 	"github.com/MacroPower/kclipper/pkg/kclutil"
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
 )
 
 // ConvertToKCLSchema converts a JSON schema to a KCL schema.

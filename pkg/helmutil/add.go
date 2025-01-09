@@ -12,14 +12,13 @@ import (
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/helmmodels"
+	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 )
 
 var (
 	SchemaInvalidDocRegexp = regexp.MustCompile(`(\s+\S.*)r"""(.*)"""(.*)`)
 	SchemaDefaultRegexp    = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)(\s+=.+)`)
-	SchemaValuesRegexp     = regexp.MustCompile(`(\s+values\??\s*:\s+)(.*)`)
 )
 
 const initialMainContents = `import helm
@@ -115,23 +114,7 @@ func (c *ChartPkg) generateAndWriteChartKCL(hc helmmodels.Chart, chartDir string
 	if err := hc.GenerateKCL(kclChart); err != nil {
 		return fmt.Errorf("failed to generate chart.k: %w", err)
 	}
-
-	kclChartFixed := &bytes.Buffer{}
-	kclChartScanner := bufio.NewScanner(kclChart)
-	for kclChartScanner.Scan() {
-		line := kclChartScanner.Text()
-		if line == "schema Chart:" {
-			line = "import helm\n\nschema Chart(helm.Chart):"
-		} else if SchemaValuesRegexp.MatchString(line) {
-			line = SchemaValuesRegexp.ReplaceAllString(line, "${1}Values | ${2}")
-		}
-		kclChartFixed.WriteString(line + "\n")
-	}
-	if err := kclChartScanner.Err(); err != nil {
-		return fmt.Errorf("failed to scan kcl schema: %w", err)
-	}
-
-	if err := os.WriteFile(path.Join(chartDir, "chart.k"), kclChartFixed.Bytes(), 0o600); err != nil {
+	if err := os.WriteFile(path.Join(chartDir, "chart.k"), kclChart.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write chart.k: %w", err)
 	}
 	return nil
