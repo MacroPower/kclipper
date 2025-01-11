@@ -24,6 +24,7 @@ import helm
 import manifests
 import regex
 import charts.podinfo
+import charts.kube_prometheus_stack.crds as prometheus_crds
 
 env = option("env")
 
@@ -42,12 +43,19 @@ _podinfo = helm.template(podinfo.Chart {
     }
 })
 
-manifests.yaml_stream(_podinfo)
+_serviceMonitor = prometheus_crds.ServiceMonitor {
+    metadata.name = "podinfo"
+    spec.selector.matchLabels = {
+        app = "podinfo"
+    }
+}
+
+manifests.yaml_stream([*_podinfo, _serviceMonitor])
 ```
 
 ---
 
-**Declaratively manage all of your Helm charts and their schemas.** Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more for both Chart and Value objects, as well as `values.yaml` files (if you prefer YAML over KCL for values, or want to use both). Optionally, use the `kcl chart` command to make quick edits from the command line:
+**Declaratively manage all of your Helm charts and their schemas.** Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more for Chart, CRD, and Value objects, as well as `values.yaml` files (if you prefer YAML over KCL for values, or want to use both). Optionally, use the `kcl chart` command to make quick edits from the command line:
 
 ```py
 import helm
@@ -68,6 +76,14 @@ charts: helm.Charts = {
         schemaValidator = "KCL"
         schemaGenerator = "CHART-PATH"
         schemaPath = "charts/common/values.schema.json"
+    }
+    # kcl chart add -c kube-prometheus-stack -r https://prometheus-community.github.io/helm-charts -t "67.9.0"
+    kube_prometheus_stack: {
+        chart = "kube-prometheus-stack"
+        repoURL = "https://prometheus-community.github.io/helm-charts"
+        targetRevision = "67.9.0"
+        schemaGenerator = "AUTO"
+        crdPath = "**/crds/crds/*.yaml"
     }
 }
 ```
@@ -101,7 +117,7 @@ import konfig.models.frontend
 import konfig.models.templates.networkpolicy
 import konfig.models.utils
 import charts.grafana_operator
-import grafana_operator.v1beta1 as grafanav1beta1
+import charts.grafana_operator.crds as grafana
 
 appConfiguration: frontend.App {
     name = "grafana"
@@ -123,11 +139,11 @@ appConfiguration: frontend.App {
             ref: "grafana-admin-password"
         }
     }
-    extraResources.grafanaFoo = grafanav1beta1.Grafana {
+    extraResources.grafanaFoo = grafana.Grafana {
         metadata.name = "grafana-foo"
         spec.config = utils.GrafanaConfigBuilder(domainName, "foo")
     }
-    extraResources.grafanaBar = grafanav1beta1.Grafana {
+    extraResources.grafanaBar = grafana.Grafana {
         metadata.name = "grafana-bar"
         spec.config = utils.GrafanaConfigBuilder(domainName, "bar")
     }

@@ -101,7 +101,7 @@ schema ValuesControllersAdditionalProperties:
     serviceAccount : ValuesControllersAdditionalPropertiesServiceAccount, optional
     statefulset : any, optional
     strategy : str, optional
-    $type : "deployment" | "statefulset" | "daemonset" | "cronjob" | "job", optional, default is "deployment"
+    $type : "deployment" | "statefulset" | "daemonset" | "cronjob" | "job", optional
     """
 
     annotations?: any
@@ -139,7 +139,7 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalProperties:
     ----------
     args : any, optional
     command : any, optional
-    dependsOn : [str] | str, optional
+    dependsOn : str | str, optional
     enabled : bool, optional, default is True
     env : any, optional
     envFrom : any, optional
@@ -162,7 +162,7 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalProperties:
 
     args?: any
     command?: any
-    dependsOn?: [str] | str
+    dependsOn?: str | str
     enabled?: bool
     env?: any
     envFrom?: any
@@ -201,7 +201,7 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesPortsI
 
     Attributes
     ----------
-    containerPort : int, required
+    containerPort : int, optional
         Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536.
     hostIP : str, optional
         What host IP to bind the external port to.
@@ -213,7 +213,7 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesPortsI
         Protocol for port. Must be UDP, TCP, or SCTP. Defaults to "TCP".
     """
 
-    containerPort: int
+    containerPort?: int
     hostIP?: str
     hostPort?: int
     name?: str
@@ -262,11 +262,11 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesResour
 
     Attributes
     ----------
-    name : str, required
+    name : str, optional
         Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container.
     """
 
-    name: str
+    name?: str
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptions:
     r"""
@@ -274,9 +274,9 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptions:
 
     Attributes
     ----------
-    args : [str] | str, optional
-    command : [str] | str, optional
-    env : [any] | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvOneOf1, optional
+    args : str | str, optional
+    command : str | str, optional
+    env : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0 | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnv, optional
     envFrom : [ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0], optional
     image : ValuesControllersAdditionalPropertiesDefaultContainerOptionsImage, optional
     resources : ValuesControllersAdditionalPropertiesDefaultContainerOptionsResources, optional
@@ -284,13 +284,33 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptions:
     securityContext : any, optional
     """
 
-    args?: [str] | str
-    command?: [str] | str
-    env?: [any] | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvOneOf1
+    args?: str | str
+    command?: str | str
+    env?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0 | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnv
     envFrom?: [ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0]
     image?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsImage
     resources?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsResources
     securityContext?: any
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnv:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnv
+    """
+
+    [...str]: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalProperties
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalProperties:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalProperties
+
+    Attributes
+    ----------
+    dependsOn : any, optional
+    value : any, optional
+    """
+
+    dependsOn?: any
+    value?: any
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0:
     r"""
@@ -299,17 +319,17 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0
     Attributes
     ----------
     configMap : str, optional
-    configMapRef : any | any | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0ConfigMapRef, optional
+    configMapRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0ConfigMapRef, optional
     prefix : str, optional
     secret : str, optional
-    secretRef : any | any | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0SecretRef, optional
+    secretRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0SecretRef, optional
     """
 
     configMap?: str
-    configMapRef?: any | any | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0ConfigMapRef
+    configMapRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0ConfigMapRef
     prefix?: str
     secret?: str
-    secretRef?: any | any | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0SecretRef
+    secretRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0SecretRef
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0ConfigMapRef:
     r"""
@@ -341,12 +361,18 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0
     name?: str
     optional?: bool
 
-schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvOneOf1:
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0:
     r"""
-    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvOneOf1
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0
+
+    Attributes
+    ----------
+    name : str, optional
+    value : any, optional
     """
 
-    [...str]: any
+    name?: str
+    value?: any
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsImage:
     r"""
@@ -391,11 +417,11 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsResourcesClai
 
     Attributes
     ----------
-    name : str, required
+    name : str, optional
         Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container.
     """
 
-    name: str
+    name?: str
 
 schema ValuesControllersAdditionalPropertiesInitContainers:
     r"""
@@ -412,7 +438,7 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalProperties:
     ----------
     args : any, optional
     command : any, optional
-    dependsOn : [str] | str, optional
+    dependsOn : str | str, optional
     enabled : bool, optional, default is True
     env : any, optional
     envFrom : any, optional
@@ -435,7 +461,7 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalProperties:
 
     args?: any
     command?: any
-    dependsOn?: [str] | str
+    dependsOn?: str | str
     enabled?: bool
     env?: any
     envFrom?: any
@@ -474,7 +500,7 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesPo
 
     Attributes
     ----------
-    containerPort : int, required
+    containerPort : int, optional
         Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536.
     hostIP : str, optional
         What host IP to bind the external port to.
@@ -486,7 +512,7 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesPo
         Protocol for port. Must be UDP, TCP, or SCTP. Defaults to "TCP".
     """
 
-    containerPort: int
+    containerPort?: int
     hostIP?: str
     hostPort?: int
     name?: str
@@ -535,11 +561,11 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesRe
 
     Attributes
     ----------
-    name : str, required
+    name : str, optional
         Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container.
     """
 
-    name: str
+    name?: str
 
 schema ValuesControllersAdditionalPropertiesPod:
     r"""
@@ -745,7 +771,7 @@ schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0:
         MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
 
         This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
-    maxSkew : int, required
+    maxSkew : int, optional
         MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed.
     minDomains : int, optional
         MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats "global minimum" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
@@ -761,9 +787,9 @@ schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0:
         NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew. Options are: - Honor: nodes without taints, along with tainted nodes for which the incoming pod has a toleration, are included. - Ignore: node taints are ignored. All nodes are included.
 
         If this value is nil, the behavior is equivalent to the Ignore policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
-    topologyKey : str, required
+    topologyKey : str, optional
         TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a "bucket", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes meet the requirements of nodeAffinityPolicy and nodeTaintsPolicy. e.g. If TopologyKey is "kubernetes.io/hostname", each Node is a domain of that topology. And, if TopologyKey is "topology.kubernetes.io/zone", each zone is a domain of that topology. It's a required field.
-    whenUnsatisfiable : str, required
+    whenUnsatisfiable : str, optional
         WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,
           but giving higher precedence to topologies that would help reduce the
           skew.
@@ -772,12 +798,12 @@ schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0:
 
     labelSelector?: any
     matchLabelKeys?: [str]
-    maxSkew: int
+    maxSkew?: int
     minDomains?: int
     nodeAffinityPolicy?: str
     nodeTaintsPolicy?: str
-    topologyKey: str
-    whenUnsatisfiable: str
+    topologyKey?: str
+    whenUnsatisfiable?: str
 
 schema ValuesControllersAdditionalPropertiesRollingUpdate:
     r"""
@@ -1003,7 +1029,7 @@ schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0:
         MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
 
         This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
-    maxSkew : int, required
+    maxSkew : int, optional
         MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed.
     minDomains : int, optional
         MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats "global minimum" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
@@ -1019,9 +1045,9 @@ schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0:
         NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew. Options are: - Honor: nodes without taints, along with tainted nodes for which the incoming pod has a toleration, are included. - Ignore: node taints are ignored. All nodes are included.
 
         If this value is nil, the behavior is equivalent to the Ignore policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
-    topologyKey : str, required
+    topologyKey : str, optional
         TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a "bucket", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes meet the requirements of nodeAffinityPolicy and nodeTaintsPolicy. e.g. If TopologyKey is "kubernetes.io/hostname", each Node is a domain of that topology. And, if TopologyKey is "topology.kubernetes.io/zone", each zone is a domain of that topology. It's a required field.
-    whenUnsatisfiable : str, required
+    whenUnsatisfiable : str, optional
         WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,
           but giving higher precedence to topologies that would help reduce the
           skew.
@@ -1030,12 +1056,12 @@ schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0:
 
     labelSelector?: any
     matchLabelKeys?: [str]
-    maxSkew: int
+    maxSkew?: int
     minDomains?: int
     nodeAffinityPolicy?: str
     nodeTaintsPolicy?: str
-    topologyKey: str
-    whenUnsatisfiable: str
+    topologyKey?: str
+    whenUnsatisfiable?: str
 
 schema ValuesGlobal:
     r"""
@@ -1205,14 +1231,14 @@ schema ValuesRouteAdditionalPropertiesParentRefsItems0:
     ----------
     group : str, optional
     kind : str, optional
-    name : str, required
+    name : str, optional
     namespace : str, optional
     sectionName : str, optional
     """
 
     group?: str
     kind?: str
-    name: str
+    name?: str
     namespace?: str
     sectionName?: str
 

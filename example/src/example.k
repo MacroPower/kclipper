@@ -2,6 +2,7 @@ import kcl_plugin.os
 import kcl_plugin.http
 import helm
 import charts.podinfo
+import charts.kube_prometheus_stack.crds as prometheus_crds
 import regex
 
 {
@@ -21,4 +22,9 @@ import regex
             resource
         }
     })
+    "helm.crd": prometheus_crds.Alertmanager{
+      spec: prometheus_crds.MonitoringCoreosComV1AlertmanagerSpec{
+        replicas: 2
+      }
+    }
 }

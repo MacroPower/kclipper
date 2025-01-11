@@ -1,4 +1,5 @@
 {
+  "$id": "https://raw.githubusercontent.com/bjw-s/helm-charts/common-3.6.0/charts/library/common/values.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema",
   "properties": {
     "configMaps": {
@@ -1939,7 +1940,9 @@
             "type": "array"
           }
         },
-        "required": [],
+        "required": [
+          "hosts"
+        ],
         "type": "object"
       },
       "required": []
@@ -2062,7 +2065,9 @@
             "type": "object"
           }
         },
-        "required": [],
+        "required": [
+          "rules"
+        ],
         "type": "object"
       },
       "required": []
@@ -2152,7 +2157,11 @@
             "required": []
           }
         },
-        "required": [],
+        "required": [
+          "apiVersion",
+          "kind",
+          "spec"
+        ],
         "type": "object"
       },
       "required": []
@@ -2401,7 +2410,9 @@
             "type": "string"
           }
         },
-        "required": [],
+        "required": [
+          "stringData"
+        ],
         "type": "object"
       },
       "required": []
@@ -2560,7 +2571,9 @@
             "type": "string"
           }
         },
-        "required": [],
+        "required": [
+          "controller"
+        ],
         "type": "object"
       },
       "required": []

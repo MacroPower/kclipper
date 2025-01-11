@@ -7,20 +7,15 @@ import helm
 
 schema Chart(helm.Chart):
     r"""
-    Chart
+    All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`.
 
     Attributes
     ----------
     chart : str, required, default is "podinfo"
-        The Helm chart name.
     repoURL : str, required, default is "https://stefanprodan.github.io/podinfo"
-        The URL of the Helm chart repository.
     targetRevision : str, required, default is "6.7.1"
-        The semver tag for the chart's version.
     schemaValidator : "KCL" | "HELM", optional, default is "KCL"
-        The validator to use for the Values schema.
     values : Values | any, optional
-        The values to use for the chart.
     """
 
     chart: str = "podinfo"
