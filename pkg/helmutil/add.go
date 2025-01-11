@@ -174,28 +174,8 @@ func (c *ChartPkg) writeCRDFiles(crds [][]byte, chartDir string) error {
 	}
 	defer f.Close()
 
-	tmpDir := os.TempDir()
-
 	for _, crd := range crds {
-		// Generator only accepts files, so just doing this for now to avoid
-		// importing and re-writing a bunch of code.
-		f, err := os.CreateTemp(tmpDir, "helm-crd-")
-		if err != nil {
-			return fmt.Errorf("failed to create temp file for CRDs: %w", err)
-		}
-		_, err = f.Write(crd)
-		if err != nil {
-			return fmt.Errorf("failed to write CRD to temp file: %w", err)
-		}
-		err = f.Close()
-		if err != nil {
-			return fmt.Errorf("failed to close temp file: %w", err)
-		}
-		defer func() {
-			_ = os.Remove(f.Name())
-		}()
-
-		err = CRDToKCL(f.Name(), chartDir)
+		err = GenerateKCLFromCRD(crd, chartDir)
 		if err != nil {
 			return fmt.Errorf("failed to generate KCL from CRD: %w", err)
 		}
