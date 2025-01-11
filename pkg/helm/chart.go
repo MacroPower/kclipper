@@ -12,11 +12,6 @@ import (
 	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
 )
 
-type Chart struct {
-	Client       ChartClient
-	TemplateOpts TemplateOpts
-}
-
 type TemplateOpts struct {
 	ChartName            string
 	TargetRevision       string
@@ -36,22 +31,31 @@ type TemplateOpts struct {
 }
 
 type ChartClient interface {
-	PullWithCreds(
-		chart, repoURL, targetRevision string,
-		creds Creds,
-		extract, passCredentials bool,
-	) (string, io.Closer, error)
+	Pull(chart, repoURL, targetRevision string, creds Creds) (string, error)
 }
 
 type JSONSchemaGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }
 
-func NewChart(client ChartClient, opts TemplateOpts) *Chart {
+type Chart struct {
+	Client       ChartClient
+	TemplateOpts TemplateOpts
+
+	path string
+}
+
+func NewChart(client ChartClient, opts TemplateOpts) (*Chart, error) {
+	chartPath, err := client.Pull(opts.ChartName, opts.RepoURL, opts.TargetRevision, opts.Credentials)
+	if err != nil {
+		return nil, fmt.Errorf("error pulling helm chart: %w", err)
+	}
+
 	return &Chart{
 		Client:       client,
 		TemplateOpts: opts,
-	}
+		path:         chartPath,
+	}, nil
 }
 
 // Template pulls a Helm chart using the provided [TemplateOpts], and then
@@ -73,19 +77,10 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 }
 
 func (c *Chart) template() ([]byte, error) {
-	chartPath, closer, err := c.Client.PullWithCreds(c.TemplateOpts.ChartName, c.TemplateOpts.RepoURL,
-		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, false, c.TemplateOpts.PassCredentials)
-	if err != nil {
-		return nil, fmt.Errorf("error pulling helm chart: %w", err)
-	}
-	defer func() {
-		_ = closer.Close()
-	}()
-
 	// isLocal controls helm temp dirs, does not seem to impact pull/template behavior.
 	isLocal := false
 
-	ha, err := argohelm.NewHelmApp(chartPath, c.TemplateOpts.Repositories, isLocal, "v3",
+	ha, err := argohelm.NewHelmApp(c.path, c.TemplateOpts.Repositories, isLocal, "v3",
 		c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy, c.TemplateOpts.PassCredentials)
 	if err != nil {
 		return nil, fmt.Errorf("error initializing helm app object: %w", err)
@@ -117,28 +112,45 @@ func (c *Chart) template() ([]byte, error) {
 	return []byte(out), nil
 }
 
+type ChartFileClient interface {
+	PullAndExtract(chart, repoURL, targetRevision string, creds Creds) (string, io.Closer, error)
+}
+
+type ChartFiles struct {
+	Client       ChartFileClient
+	TemplateOpts TemplateOpts
+
+	path   string
+	closer io.Closer
+}
+
+func NewChartFiles(client ChartFileClient, opts TemplateOpts) (*ChartFiles, error) {
+	chartPath, closer, err := client.PullAndExtract(opts.ChartName, opts.RepoURL, opts.TargetRevision, opts.Credentials)
+	if err != nil {
+		return nil, fmt.Errorf("error pulling helm chart: %w", err)
+	}
+
+	return &ChartFiles{
+		Client:       client,
+		TemplateOpts: opts,
+		path:         chartPath,
+		closer:       closer,
+	}, nil
+}
+
 // GetValuesJSONSchema pulls a Helm chart using the provided [TemplateOpts], and
 // then uses the [JSONSchemaGenerator] to generate a JSON Schema using one or
 // more files from the chart. The [match] function can be used to match a subset
 // of the pulled files in the chart directory for JSON Schema generation.
-func (c *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) bool) ([]byte, error) {
-	chartPath, closer, err := c.Client.PullWithCreds(c.TemplateOpts.ChartName, c.TemplateOpts.RepoURL,
-		c.TemplateOpts.TargetRevision, c.TemplateOpts.Credentials, true, c.TemplateOpts.PassCredentials)
-	if err != nil {
-		return nil, fmt.Errorf("error pulling helm chart: %w", err)
-	}
-	defer func() {
-		_ = closer.Close()
-	}()
-
+func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) bool) ([]byte, error) {
 	unmatchedFiles := []string{}
 	matchedFiles := []string{}
-	err = filepath.Walk(chartPath,
+	err := filepath.Walk(c.path,
 		func(path string, _ os.FileInfo, err error) error {
 			if err != nil {
 				return fmt.Errorf("error walking helm chart directory: %w", err)
 			}
-			relPath, err := filepath.Rel(chartPath, path)
+			relPath, err := filepath.Rel(c.path, path)
 			if err != nil {
 				return fmt.Errorf("error getting relative path: %w", err)
 			}
@@ -161,9 +173,9 @@ func (c *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) 
 		for _, f := range unmatchedFiles {
 			unmatchedFileStr = append(unmatchedFileStr, fmt.Sprintf("\t%s\n", f))
 		}
-		errMsg := "successfully pulled '%s', but failed to find any input files for the provided JSON Schema generator; " +
-			"the following paths were searched:\n%s"
-		return nil, fmt.Errorf(errMsg, c.TemplateOpts.ChartName, unmatchedFileStr)
+		errMsg := "successfully pulled '%s' into '%s', but failed to find any input files" +
+			"for the provided JSON Schema generator; the following paths were searched:\n%s"
+		return nil, fmt.Errorf(errMsg, c.TemplateOpts.ChartName, c.path, unmatchedFileStr)
 	}
 
 	jsonSchema, err := gen.FromPaths(matchedFiles...)
@@ -172,4 +184,56 @@ func (c *Chart) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) 
 	}
 
 	return jsonSchema, nil
+}
+
+func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
+	unmatchedFiles := []string{}
+	matchedFiles := []string{}
+	err := filepath.Walk(c.path,
+		func(path string, _ os.FileInfo, err error) error {
+			if err != nil {
+				return fmt.Errorf("error walking helm chart directory: %w", err)
+			}
+			relPath, err := filepath.Rel(c.path, path)
+			if err != nil {
+				return fmt.Errorf("error getting relative path: %w", err)
+			}
+			// Use the relative path to match against the provided filter.
+			if match(relPath) {
+				// Append the unmodified/absolute path to the matched files.
+				matchedFiles = append(matchedFiles, path)
+			} else {
+				// Append the relative path to the unmatched files, for use in error messages.
+				unmatchedFiles = append(unmatchedFiles, relPath)
+			}
+			return nil
+		})
+	if err != nil {
+		return nil, fmt.Errorf("error reading helm chart directory: %w", err)
+	}
+
+	if len(matchedFiles) == 0 {
+		unmatchedFileStr := []string{}
+		for _, f := range unmatchedFiles {
+			unmatchedFileStr = append(unmatchedFileStr, fmt.Sprintf("\t%s\n", f))
+		}
+		errMsg := "successfully pulled '%s' into '%s', but failed to find any CRDs; " +
+			"the following paths were searched:\n%s"
+		return nil, fmt.Errorf(errMsg, c.TemplateOpts.ChartName, c.path, unmatchedFileStr)
+	}
+
+	crdBytes := [][]byte{}
+	for _, f := range matchedFiles {
+		b, err := os.ReadFile(f)
+		if err != nil {
+			return nil, fmt.Errorf("error reading CRD file: %w", err)
+		}
+		crdBytes = append(crdBytes, b)
+	}
+
+	return crdBytes, nil
+}
+
+func (c *ChartFiles) Dispose() {
+	_ = c.closer.Close()
 }

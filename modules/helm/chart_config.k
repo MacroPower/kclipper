@@ -5,7 +5,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 
 schema ChartConfig(ChartBase):
     r"""
-    Configuration that can be defined in `charts.k`, in addition to those specified in `helm.ChartBase`.
+    Configuration that can be defined in `charts.k`, in addition to those
+    specified in `helm.ChartBase`.
 
     Attributes
     ----------
@@ -13,8 +14,11 @@ schema ChartConfig(ChartBase):
         Schema generator to use for the Values schema.
     schemaPath : str, optional
         Path to the schema to use, when relevant for the selected schemaGenerator.
+    crdPath : str, optional
+        Path to any CRDs to import as schemas. Glob patterns are supported.
     """
 
     schemaGenerator?: "AUTO" | "VALUE-INFERENCE" | "URL" | "CHART-PATH" | "LOCAL-PATH" | "NONE"
     schemaPath?: str
+    crdPath?: str
 

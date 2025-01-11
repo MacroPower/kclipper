@@ -25,6 +25,7 @@ func TestHelmChart(t *testing.T) {
 		opts  helm.TemplateOpts
 		gen   jsonschema.FileGenerator
 		match func(string) bool
+		crds  bool
 	}{
 		"podinfo": {
 			opts: helm.TemplateOpts{
@@ -34,6 +35,16 @@ func TestHelmChart(t *testing.T) {
 			},
 			gen:   jsonschema.DefaultAutoGenerator,
 			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+		},
+		"prometheus": {
+			opts: helm.TemplateOpts{
+				ChartName:      "kube-prometheus-stack",
+				TargetRevision: "67.9.0",
+				RepoURL:        "https://prometheus-community.github.io/helm-charts",
+			},
+			gen:   jsonschema.DefaultAutoGenerator,
+			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			crds:  true,
 		},
 		"app-template": {
 			opts: helm.TemplateOpts{
@@ -72,7 +83,8 @@ func TestHelmChart(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c := helm.NewChart(helmtest.DefaultTestClient, tc.opts)
+			c, err := helm.NewChart(helmtest.DefaultTestClient, tc.opts)
+			require.NoError(t, err)
 
 			results, err := c.Template()
 			require.NoError(t, err)
@@ -81,9 +93,24 @@ func TestHelmChart(t *testing.T) {
 			require.NoError(t, err)
 			require.NotEmpty(t, resultYAMLs)
 
-			schema, err := c.GetValuesJSONSchema(tc.gen, tc.match)
+			cf, err := helm.NewChartFiles(helmtest.DefaultTestClient, tc.opts)
+			require.NoError(t, err)
+			defer cf.Dispose()
+
+			schema, err := cf.GetValuesJSONSchema(tc.gen, tc.match)
 			require.NoError(t, err)
 			require.NotEmpty(t, schema)
+
+			if tc.crds {
+				crds, err := cf.GetCRDs(func(s string) bool {
+					return filepath.Base(filepath.Dir(s)) == "crds" && filepath.Base(s) != "Chart.yaml" && filepath.Ext(s) == ".yaml"
+				})
+				require.NoError(t, err)
+				require.NotEmpty(t, crds)
+				for _, crd := range crds {
+					require.NotEmpty(t, crd)
+				}
+			}
 
 			// Write the results to testdata/got for debugging.
 			gotDir := filepath.Join("testdata/got", tc.opts.ChartName)
@@ -102,12 +129,13 @@ func TestHelmChart(t *testing.T) {
 }
 
 func BenchmarkHelmChart(b *testing.B) {
-	c := helm.NewChart(helmtest.DefaultTestClient, helm.TemplateOpts{
+	c, err := helm.NewChart(helmtest.DefaultTestClient, helm.TemplateOpts{
 		ChartName:      "podinfo",
 		TargetRevision: "6.7.1",
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
 	})
-	_, err := c.Template()
+	require.NoError(b, err)
+	_, err = c.Template()
 	require.NoError(b, err)
 
 	b.ResetTimer()
@@ -120,12 +148,13 @@ func BenchmarkHelmChart(b *testing.B) {
 }
 
 func BenchmarkAppTemplateHelmChart(b *testing.B) {
-	c := helm.NewChart(helmtest.DefaultTestClient, helm.TemplateOpts{
+	c, err := helm.NewChart(helmtest.DefaultTestClient, helm.TemplateOpts{
 		ChartName:      "app-template",
 		TargetRevision: "3.6.0",
 		RepoURL:        "https://bjw-s.github.io/helm-charts/",
 	})
-	_, err := c.Template()
+	require.NoError(b, err)
+	_, err = c.Template()
 	require.NoError(b, err)
 
 	b.ResetTimer()

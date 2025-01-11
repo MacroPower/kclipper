@@ -9,12 +9,12 @@ import (
 
 type ChartPkg struct {
 	BasePath string
-	Client   helm.ChartClient
+	Client   helm.ChartFileClient
 
 	mu sync.RWMutex
 }
 
-func NewChartPkg(basePath string, client helm.ChartClient) *ChartPkg {
+func NewChartPkg(basePath string, client helm.ChartFileClient) *ChartPkg {
 	return &ChartPkg{
 		BasePath: basePath,
 		Client:   client,

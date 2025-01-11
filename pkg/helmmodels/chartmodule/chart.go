@@ -72,6 +72,10 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		jsonschema.WithDefault(c.HelmChartConfig.SchemaPath),
 	)
 	js.SetOrRemoveProperty(
+		"crdPath", c.HelmChartConfig.CRDPath != "",
+		jsonschema.WithDefault(c.HelmChartConfig.CRDPath),
+	)
+	js.SetOrRemoveProperty(
 		"schemaValidator", c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType,
 		jsonschema.WithDefault(c.ChartBase.SchemaValidator),
 		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),

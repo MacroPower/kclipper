@@ -112,13 +112,17 @@ func NewChartAddCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			crdPath, err := flags.GetString("crd_path")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 
 			if merr != nil {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-			return c.Add(chart, repoURL, targetRevision, schemaPath, schemaGenerator, schemaValidator)
+			return c.Add(chart, repoURL, targetRevision, schemaPath, crdPath, schemaGenerator, schemaValidator)
 		},
 		SilenceUsage: true,
 	}
@@ -128,6 +132,7 @@ func NewChartAddCmd() *cobra.Command {
 	cmd.Flags().StringP("schema_generator", "G", "AUTO", "Chart schema generator")
 	cmd.Flags().StringP("schema_validator", "V", "KCL", "Chart schema validator")
 	cmd.Flags().StringP("schema_path", "P", "", "Chart schema path")
+	cmd.Flags().StringP("crd_path", "C", "", "CRD path")
 
 	return cmd
 }

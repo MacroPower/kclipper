@@ -60,13 +60,26 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 			},
 		},
+		"prometheus": {
+			chart: &helmmodels.ChartConfig{
+				ChartBase: helmmodels.ChartBase{
+					Chart:          "kube-prometheus-stack",
+					RepoURL:        "https://prometheus-community.github.io/helm-charts",
+					TargetRevision: "67.9.0",
+				},
+				HelmChartConfig: helmmodels.HelmChartConfig{
+					SchemaGenerator: jsonschema.AutoGeneratorType,
+					CRDPath:         "**/crds/crds/*.yaml",
+				},
+			},
+		},
 	}
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision,
-				tc.chart.SchemaPath, tc.chart.SchemaGenerator, tc.chart.SchemaValidator)
+			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision, tc.chart.SchemaPath,
+				tc.chart.CRDPath, tc.chart.SchemaGenerator, tc.chart.SchemaValidator)
 			require.NoError(t, err)
 
 			depsOpt, err := options.LoadDepsFrom(chartPath, true)

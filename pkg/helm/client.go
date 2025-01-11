@@ -33,6 +33,7 @@ type Creds struct {
 	CertData           []byte
 	KeyData            []byte
 	InsecureSkipVerify bool
+	PassCredentials    bool
 }
 
 type Client struct {
@@ -65,17 +66,25 @@ func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 	return c
 }
 
-// Pull will retrieve the chart, extract it, and return the path to the
-// extracted chart. An io.Closer is also returned, calling Close() will clean up
+// Pull will retrieve the chart, and return the path to the chart .tar.gz file.
+// Pulled charts will be stored in the injected [PathCacher], and subsequent
+// requests will try to use [PathCacher] rather than re-pulling the chart.
+func (c *Client) Pull(chart, repoURL, targetRevision string, creds Creds) (string, error) {
+	p, _, err := c.PullWithCreds(chart, repoURL, targetRevision, creds, false)
+	return p, err
+}
+
+// PullAndExtract will retrieve the chart, extract it, and return the path to the
+// extracted chart. An [io.Closer] is also returned, calling Close() will clean up
 // the extracted chart. Pulled charts will be stored in the injected [PathCacher]
 // in .tar.gz format, and subsequent requests will try to use [PathCacher] rather
 // than re-pulling the chart.
-func (c *Client) Pull(chart, repoURL, targetRevision string, extract bool) (string, io.Closer, error) {
-	return c.PullWithCreds(chart, repoURL, targetRevision, Creds{}, extract, false)
+func (c *Client) PullAndExtract(chart, repoURL, targetRevision string, creds Creds) (string, io.Closer, error) {
+	return c.PullWithCreds(chart, repoURL, targetRevision, creds, true)
 }
 
 func (c *Client) PullWithCreds(
-	chart, repoURL, targetRevision string, creds Creds, extract, passCredentials bool,
+	chart, repoURL, targetRevision string, creds Creds, extract bool,
 ) (string, io.Closer, error) {
 	repoNetURL, err := url.Parse(repoURL)
 	if err != nil {
@@ -111,16 +120,15 @@ func (c *Client) PullWithCreds(
 
 	var chartPath string
 	if !extract {
-		closer := io.NopCloser(bytes.NewReader(nil))
-		chartPath, err = ahc.PullChart(chart, targetRevision, c.Project, passCredentials,
+		chartPath, err = ahc.PullChart(chart, targetRevision, c.Project, creds.PassCredentials,
 			c.MaxExtractSize.Value(), c.MaxExtractSize.IsZero())
 		if err != nil {
-			return "", closer, fmt.Errorf("error extracting helm chart: %w", err)
+			return "", nil, fmt.Errorf("error extracting helm chart: %w", err)
 		}
-		return chartPath, closer, nil
+		return chartPath, nil, nil
 	}
 
-	chartPath, closer, err := ahc.ExtractChart(chart, targetRevision, c.Project, passCredentials,
+	chartPath, closer, err := ahc.ExtractChart(chart, targetRevision, c.Project, creds.PassCredentials,
 		c.MaxExtractSize.Value(), c.MaxExtractSize.IsZero())
 	if err != nil {
 		return "", closer, fmt.Errorf("error extracting helm chart: %w", err)

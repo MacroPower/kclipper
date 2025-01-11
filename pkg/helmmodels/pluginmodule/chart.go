@@ -104,6 +104,8 @@ type ChartConfig struct {
 	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator,omitempty"`
 	// Path to the schema to use, when relevant for the selected schemaGenerator.
 	SchemaPath string `json:"schemaPath,omitempty"`
+	// Path to any CRDs to import as schemas. Glob patterns are supported.
+	CRDPath string `json:"crdPath,omitempty"`
 }
 
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {

@@ -27,7 +27,7 @@ charts: helm.Charts = {}
 `
 
 func (c *ChartPkg) Add(
-	chart, repoURL, targetRevision, schemaPath string,
+	chart, repoURL, targetRevision, schemaPath, crdPath string,
 	genType jsonschema.GeneratorType,
 	validateType jsonschema.ValidatorType,
 ) error {
@@ -49,13 +49,21 @@ func (c *ChartPkg) Add(
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
 
+	helmChart, err := helm.NewChartFiles(c.Client, helm.TemplateOpts{
+		ChartName:      chart,
+		TargetRevision: targetRevision,
+		RepoURL:        repoURL,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create chart handler for '%s': %w", chart, err)
+	}
+	defer helmChart.Dispose()
+
 	if err := c.generateAndWriteChartKCL(hc, chartDir); err != nil {
 		return err
 	}
 
 	var jsonSchemaBytes []byte
-	var err error
-
 	switch genType {
 	case jsonschema.NoGeneratorType:
 		break
@@ -72,11 +80,6 @@ func (c *ChartPkg) Add(
 				return filePathsEqual(f, schemaPath)
 			}
 		}
-		helmChart := helm.NewChart(c.Client, helm.TemplateOpts{
-			ChartName:      chart,
-			TargetRevision: targetRevision,
-			RepoURL:        repoURL,
-		})
 		jsonSchemaBytes, err = helmChart.GetValuesJSONSchema(jsonschema.GetGenerator(genType), fileMatcher)
 		if err != nil {
 			return fmt.Errorf("failed to generate schema: %w", err)
@@ -89,12 +92,27 @@ func (c *ChartPkg) Add(
 		}
 	}
 
+	if crdPath != "" {
+		crds, err := helmChart.GetCRDs(func(s string) bool {
+			match, _ := filepath.Match(crdPath, s)
+			return match
+		})
+		if err != nil {
+			return fmt.Errorf("failed to get CRDs: %w", err)
+		}
+
+		if err := c.writeCRDFiles(crds, chartDir); err != nil {
+			return err
+		}
+	}
+
 	chartConfig := map[string]string{
 		"chart":           chart,
 		"repoURL":         repoURL,
 		"targetRevision":  targetRevision,
 		"schemaGenerator": string(genType),
 		"schemaPath":      schemaPath,
+		"crdPath":         crdPath,
 		"schemaValidator": string(validateType),
 	}
 	if err := c.updateChartsFile(c.BasePath, hc.GetSnakeCaseName(), chartConfig); err != nil {
@@ -144,6 +162,42 @@ func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) er
 
 	if err := os.WriteFile(path.Join(chartDir, "values.schema.k"), kclSchemaFixed.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.k: %w", err)
+	}
+	return nil
+}
+
+func (c *ChartPkg) writeCRDFiles(crds [][]byte, chartDir string) error {
+	f, err := os.Create(path.Join(chartDir, "crds.schema.k"))
+	if err != nil {
+		return fmt.Errorf("failed to create crd.k: %w", err)
+	}
+	defer f.Close()
+
+	tmpDir := os.TempDir()
+
+	for _, crd := range crds {
+		// Generator only accepts files, so just doing this for now to avoid
+		// importing and re-writing a bunch of code.
+		f, err := os.CreateTemp(tmpDir, "helm-crd-")
+		if err != nil {
+			return fmt.Errorf("failed to create temp file for CRDs: %w", err)
+		}
+		_, err = f.Write(crd)
+		if err != nil {
+			return fmt.Errorf("failed to write CRD to temp file: %w", err)
+		}
+		err = f.Close()
+		if err != nil {
+			return fmt.Errorf("failed to close temp file: %w", err)
+		}
+		defer func() {
+			_ = os.Remove(f.Name())
+		}()
+
+		err = CRDToKCL(f.Name(), chartDir)
+		if err != nil {
+			return fmt.Errorf("failed to generate KCL from CRD: %w", err)
+		}
 	}
 	return nil
 }
