@@ -8,6 +8,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 
 	"kcl-lang.io/kcl-go"
 
@@ -212,7 +213,7 @@ func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig map[
 		}
 	}
 	imports := []string{"helm"}
-	specs := []string{}
+	specs := sort.StringSlice{}
 	for k, v := range chartConfig {
 		if k == "" {
 			return fmt.Errorf("invalid key in chart config: %#v", chartConfig)
@@ -222,6 +223,7 @@ func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig map[
 		}
 		specs = append(specs, fmt.Sprintf(`charts.%s.%s="%s"`, chartKey, k, v))
 	}
+	specs.Sort()
 	_, err := kcl.OverrideFile(mainFile, specs, imports)
 	if err != nil {
 		return fmt.Errorf("failed to update '%s': %w", mainFile, err)

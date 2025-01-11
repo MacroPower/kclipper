@@ -32,7 +32,8 @@ func (c *ChartPkg) Update() error {
 		return fmt.Errorf("failed to unmarshal output from '%s': %w", mainFile, err)
 	}
 
-	for k, chart := range chartData.Charts {
+	for _, k := range chartData.GetSortedKeys() {
+		chart := chartData.Charts[k]
 		if k != chart.GetSnakeCaseName() {
 			return fmt.Errorf("chart key '%s' does not match chart name '%s'", k, chart.GetSnakeCaseName())
 		}

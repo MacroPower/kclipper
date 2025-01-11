@@ -7,6 +7,7 @@ import (
 	"io"
 	"reflect"
 	"regexp"
+	"sort"
 
 	"github.com/iancoleman/strcase"
 
@@ -21,6 +22,16 @@ var (
 
 type ChartData struct {
 	Charts map[string]ChartConfig `json:"charts"`
+}
+
+// GetSortedKeys returns the chart keys in alphabetical order.
+func (cd *ChartData) GetSortedKeys() []string {
+	names := make([]string, 0, len(cd.Charts))
+	for name := range cd.Charts {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 type (
