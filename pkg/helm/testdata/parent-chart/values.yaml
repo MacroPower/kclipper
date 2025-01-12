@@ -1,0 +1,3 @@
+simple-chart:
+  enabled: true
+  replicaCount: 2

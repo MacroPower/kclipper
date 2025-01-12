@@ -236,3 +236,17 @@ tasks:
             allocs = $10;
             printf "%-100s %-15s %-15s %-10s %-10s\n", module, init_time, clock_time, bytes, allocs;
         }' | tail -n +3 | sort -k3,3n
+
+  run-chartmuseum:
+    cmd: |-
+      docker run --rm -it \
+        -p 8080:8080 \
+        -e DEBUG=1 \
+        -e STORAGE=local \
+        -e STORAGE_LOCAL_ROOTDIR=/charts \
+        -e BASIC_AUTH_USER=user \
+        -e BASIC_AUTH_PASS=hunter2 \
+        -v $(pwd)/charts:/charts \
+        ghcr.io/helm/chartmuseum:v0.16.2
+    # helm package .
+    # curl -u user:hunter2 --data-binary "@simple-chart-0.1.0.tgz" http://localhost:8080/api/charts

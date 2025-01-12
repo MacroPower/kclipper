@@ -11,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
+	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
 
 var DefaultClient = MustNewClient(
@@ -24,16 +25,6 @@ type PathCacher interface {
 	GetPath(key string) (string, error)
 	GetPathIfExists(key string) string
 	GetPaths() map[string]string
-}
-
-type Creds struct {
-	Username           string
-	Password           string
-	CAPath             string
-	CertData           []byte
-	KeyData            []byte
-	InsecureSkipVerify bool
-	PassCredentials    bool
 }
 
 type Client struct {
@@ -69,7 +60,7 @@ func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 // Pull will retrieve the chart, and return the path to the chart .tar.gz file.
 // Pulled charts will be stored in the injected [PathCacher], and subsequent
 // requests will try to use [PathCacher] rather than re-pulling the chart.
-func (c *Client) Pull(chart, repoURL, targetRevision string, creds Creds) (string, error) {
+func (c *Client) Pull(chart, repoURL, targetRevision string, creds helmrepo.Creds) (string, error) {
 	p, _, err := c.PullWithCreds(chart, repoURL, targetRevision, creds, false)
 	return p, err
 }
@@ -79,12 +70,14 @@ func (c *Client) Pull(chart, repoURL, targetRevision string, creds Creds) (strin
 // the extracted chart. Pulled charts will be stored in the injected [PathCacher]
 // in .tar.gz format, and subsequent requests will try to use [PathCacher] rather
 // than re-pulling the chart.
-func (c *Client) PullAndExtract(chart, repoURL, targetRevision string, creds Creds) (string, io.Closer, error) {
+func (c *Client) PullAndExtract(
+	chart, repoURL, targetRevision string, creds helmrepo.Creds,
+) (string, io.Closer, error) {
 	return c.PullWithCreds(chart, repoURL, targetRevision, creds, true)
 }
 
 func (c *Client) PullWithCreds(
-	chart, repoURL, targetRevision string, creds Creds, extract bool,
+	chart, repoURL, targetRevision string, creds helmrepo.Creds, extract bool,
 ) (string, io.Closer, error) {
 	repoNetURL, err := url.Parse(repoURL)
 	if err != nil {
