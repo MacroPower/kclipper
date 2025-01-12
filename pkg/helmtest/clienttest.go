@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
 
 var (
@@ -28,27 +29,27 @@ func init() {
 }
 
 type ChartClient interface {
-	Pull(chart, repoURL, targetRevision string, creds helm.Creds) (string, error)
-	PullAndExtract(chart, repoURL, targetRevision string, creds helm.Creds) (string, io.Closer, error)
+	Pull(chart, repoURL, targetRevision string, creds helmrepo.Creds) (string, error)
+	PullAndExtract(chart, repoURL, targetRevision string, creds helmrepo.Creds) (string, io.Closer, error)
 }
 
 type TestClient struct {
 	BaseClient ChartClient
 }
 
-func (c *TestClient) Pull(chart, repoURL, targetRevision string, creds helm.Creds) (string, error) {
+func (c *TestClient) Pull(chart, repoURL, targetRevision string, creds helmrepo.Creds) (string, error) {
 	p, _, err := c.PullWithCreds(chart, repoURL, targetRevision, creds, false)
 	return p, err
 }
 
 func (c *TestClient) PullAndExtract(
-	chart, repoURL, targetRevision string, creds helm.Creds,
+	chart, repoURL, targetRevision string, creds helmrepo.Creds,
 ) (string, io.Closer, error) {
 	return c.PullWithCreds(chart, repoURL, targetRevision, creds, true)
 }
 
 func (c *TestClient) PullWithCreds(
-	chart, repoURL, targetRevision string, creds helm.Creds, extract bool,
+	chart, repoURL, targetRevision string, creds helmrepo.Creds, extract bool,
 ) (string, io.Closer, error) {
 	if extract {
 		chartPath, closer, err := c.BaseClient.PullAndExtract(chart, repoURL, targetRevision, creds)

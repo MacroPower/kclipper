@@ -6,16 +6,15 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/chartutil"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/registry"
-	"helm.sh/helm/v3/pkg/repo"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
@@ -28,9 +27,17 @@ type Cmd struct {
 	proxy     string
 	noProxy   string
 
-	cr       []*repo.ChartRepository
 	rc       *registry.Client
 	settings *cli.EnvSettings
+
+	reposByName map[string]Repo
+	reposByURL  map[string]Repo
+}
+
+type Repo struct {
+	Name  string
+	URL   string
+	Creds Creds
 }
 
 func NewCmd(workDir string, version string, proxy string, noProxy string) (*Cmd, error) {
@@ -53,13 +60,15 @@ func NewCmdWithVersion(workDir string, isHelmOci bool, proxy string, noProxy str
 		return nil, fmt.Errorf("failed to create temporary directory for helm: %w", err)
 	}
 	return &Cmd{
-		WorkDir:   workDir,
-		helmHome:  tmpDir,
-		IsHelmOci: isHelmOci,
-		proxy:     proxy,
-		noProxy:   noProxy,
-		rc:        rc,
-		settings:  cli.New(),
+		WorkDir:     workDir,
+		helmHome:    tmpDir,
+		IsHelmOci:   isHelmOci,
+		proxy:       proxy,
+		noProxy:     noProxy,
+		rc:          rc,
+		settings:    cli.New(),
+		reposByName: map[string]Repo{},
+		reposByURL:  map[string]Repo{},
 	}, nil
 }
 
@@ -106,64 +115,13 @@ func (c *Cmd) RegistryLogout(repo string, creds Creds) (string, error) {
 }
 
 func (c *Cmd) RepoAdd(name string, url string, creds Creds, passCredentials bool) (string, error) {
-	gopts := []getter.Option{}
-
-	tmp, err := os.MkdirTemp("", "helm")
-	if err != nil {
-		return "", fmt.Errorf("failed to create temporary directory for repo: %w", err)
+	r := Repo{
+		Name:  name,
+		URL:   url,
+		Creds: creds,
 	}
-	defer func() { _ = os.RemoveAll(tmp) }()
-
-	if creds.Username != "" && creds.Password != "" {
-		gopts = append(gopts, getter.WithBasicAuth(creds.Username, creds.Password))
-	}
-
-	if creds.CAPath != "" && len(creds.CertData) > 0 && len(creds.KeyData) > 0 {
-		certPath, closer, err := writeToTmp(creds.CertData)
-		if err != nil {
-			return "", fmt.Errorf("failed to write certificate data to temporary file: %w", err)
-		}
-		defer tryClose(closer)
-
-		keyPath, closer, err := writeToTmp(creds.KeyData)
-		if err != nil {
-			return "", fmt.Errorf("failed to write key data to temporary file: %w", err)
-		}
-		defer tryClose(closer)
-
-		gopts = append(gopts, getter.WithTLSClientConfig(certPath, keyPath, creds.CAPath))
-	}
-
-	if creds.InsecureSkipVerify {
-		gopts = append(gopts, getter.WithInsecureSkipVerifyTLS(true))
-	}
-
-	if passCredentials {
-		gopts = append(gopts, getter.WithPassCredentialsAll(true))
-	}
-
-	cr, err := repo.NewChartRepository(&repo.Entry{
-		Name:               name,
-		URL:                url,
-		PassCredentialsAll: passCredentials,
-	}, getter.Providers{
-		getter.Provider{
-			Schemes: []string{"http", "https"},
-			//nolint:gocritic
-			New: func(_ ...getter.Option) (getter.Getter, error) {
-				return getter.NewHTTPGetter(gopts...)
-			},
-		},
-		getter.Provider{
-			Schemes: []string{registry.OCIScheme},
-			New:     getter.NewOCIGetter,
-		},
-	})
-	if err != nil {
-		return "", fmt.Errorf("failed to add repository: %w", err)
-	}
-
-	c.cr = append(c.cr, cr)
+	c.reposByName[name] = r
+	c.reposByURL[url] = r
 
 	return "ok", nil
 }
@@ -264,7 +222,7 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 		av = opts.APIVersions
 	}
 
-	chart, err := loader.Load(filepath.Clean(path.Join(c.WorkDir, chartPath)))
+	loadedChart, err := loader.Load(filepath.Clean(path.Join(c.WorkDir, chartPath)))
 	if err != nil {
 		return "", "", fmt.Errorf("failed to load chart: %w", err)
 	}
@@ -274,8 +232,59 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 	// and is largely unnecessary since KCL will be using the same, or a similar
 	// schema to validate the values.
 	if opts.SkipSchemaValidation {
-		removeSchemasFromObject(chart)
+		removeSchemasFromObject(loadedChart)
 	}
+
+	loadedDeps := []*chart.Chart{}
+	for _, chartDep := range loadedChart.Metadata.Dependencies {
+		isLoaded := false
+		for _, includedDeps := range loadedChart.Dependencies() {
+			if includedDeps.Name() == chartDep.Name {
+				loadedDeps = append(loadedDeps, includedDeps)
+				isLoaded = true
+				break
+			}
+		}
+		if isLoaded {
+			continue
+		}
+
+		if chartDep.Repository == "" {
+			return "", "", fmt.Errorf("dependency has no repository: %#v", chartDep)
+		}
+
+		depRepo := Repo{
+			URL: chartDep.Repository,
+		}
+		if strings.HasPrefix(chartDep.Repository, "@") {
+			if dr, ok := c.reposByName[chartDep.Repository]; ok {
+				depRepo = dr
+			}
+		} else {
+			if dr, ok := c.reposByURL[chartDep.Repository]; ok {
+				depRepo = dr
+			}
+		}
+
+		if depRepo.URL == "" {
+			return "", "", fmt.Errorf("dependency has no repository: %#v", chartDep)
+		}
+
+		depClient := NewClient(depRepo.URL, depRepo.Creds, false, "", "")
+		depPath, err := depClient.PullChart(chartDep.Name, chartDep.Version, "", false, 0, true)
+		if err != nil {
+			return "", "", fmt.Errorf("failed to pull chart dependency: %w", err)
+		}
+		dep, err := loader.Load(depPath)
+		if err != nil {
+			return "", "", fmt.Errorf("failed to load dependency: %w", err)
+		}
+		if opts.SkipSchemaValidation {
+			removeSchemasFromObject(dep)
+		}
+		loadedDeps = append(loadedDeps, dep)
+	}
+	loadedChart.SetDependencies(loadedDeps...)
 
 	ta := action.NewInstall(&action.Configuration{
 		KubeClient:     kube.New(genericclioptions.NewConfigFlags(false)),
@@ -304,7 +313,7 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 		opts.Values = make(map[string]any)
 	}
 
-	release, err := ta.Run(chart, opts.Values)
+	release, err := ta.Run(loadedChart, opts.Values)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to run install action: %w", err)
 	}

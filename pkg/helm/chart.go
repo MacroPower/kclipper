@@ -10,6 +10,7 @@ import (
 
 	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
+	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
 
 type TemplateOpts struct {
@@ -20,7 +21,7 @@ type TemplateOpts struct {
 	Namespace            string
 	ValuesObject         map[string]any
 	Repositories         []argohelm.HelmRepository
-	Credentials          Creds
+	Credentials          helmrepo.Creds
 	SkipCRDs             bool
 	KubeVersion          string
 	APIVersions          []string
@@ -31,7 +32,7 @@ type TemplateOpts struct {
 }
 
 type ChartClient interface {
-	Pull(chart, repoURL, targetRevision string, creds Creds) (string, error)
+	Pull(chart, repoURL, targetRevision string, creds helmrepo.Creds) (string, error)
 }
 
 type JSONSchemaGenerator interface {
@@ -87,6 +88,10 @@ func (c *Chart) template() ([]byte, error) {
 	}
 	defer ha.Dispose()
 
+	if err = ha.DependencyBuild(); err != nil {
+		return nil, fmt.Errorf("error building helm dependencies: %w", err)
+	}
+
 	argoTemplateOpts := &argohelm.TemplateOpts{
 		Name:                 c.TemplateOpts.ChartName,
 		Namespace:            c.TemplateOpts.Namespace,
@@ -98,22 +103,14 @@ func (c *Chart) template() ([]byte, error) {
 	}
 	out, _, err := ha.Template(argoTemplateOpts)
 	if err != nil {
-		if !argohelm.IsMissingDependencyErr(err) {
-			return nil, fmt.Errorf("error templating helm chart: %w", err)
-		}
-		if err = ha.DependencyBuild(); err != nil {
-			return nil, fmt.Errorf("error building helm dependencies: %w", err)
-		}
-		out, _, err = ha.Template(argoTemplateOpts)
-		if err != nil {
-			return nil, fmt.Errorf("error templating helm chart: %w", err)
-		}
+		return nil, fmt.Errorf("error templating helm chart: %w", err)
 	}
+
 	return []byte(out), nil
 }
 
 type ChartFileClient interface {
-	PullAndExtract(chart, repoURL, targetRevision string, creds Creds) (string, io.Closer, error)
+	PullAndExtract(chart, repoURL, targetRevision string, creds helmrepo.Creds) (string, io.Closer, error)
 }
 
 type ChartFiles struct {
