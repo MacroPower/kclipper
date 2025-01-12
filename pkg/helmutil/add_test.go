@@ -3,7 +3,6 @@ package helmutil_test
 import (
 	"os"
 	"path"
-	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -94,67 +93,6 @@ func TestHelmChartAdd(t *testing.T) {
 			require.NoError(t, err)
 
 			require.Emptyf(t, results.Info, "expected no errors, got %d: %#v", len(results.Info), results)
-		})
-	}
-}
-
-func TestDefaultReplacement(t *testing.T) {
-	t.Parallel()
-
-	tcs := map[string]struct {
-		input string
-		want  string
-		re    *regexp.Regexp
-		repl  string
-	}{
-		"simple": {
-			input: `    key: str = "default"`,
-			want:  `    key: str`,
-			re:    helmutil.SchemaDefaultRegexp,
-			repl:  "$1",
-		},
-		"two types": {
-			input: `    key: str | int = 1`,
-			want:  `    key: str | int`,
-			re:    helmutil.SchemaDefaultRegexp,
-			repl:  "$1",
-		},
-		"many types": {
-			input: `    key: str | int | {str:any} = {}`,
-			want:  `    key: str | int | {str:any}`,
-			re:    helmutil.SchemaDefaultRegexp,
-			repl:  "$1",
-		},
-		"strange default": {
-			input: `    key: str = "*/20 * * * *"`,
-			want:  `    key: str`,
-			re:    helmutil.SchemaDefaultRegexp,
-			repl:  "$1",
-		},
-		"block string default": {
-			input: `    default is r"""{{ include "bjw-s.common.lib.chart.names.fullname" $ }}"""`,
-			want:  `    default is "{{ include "bjw-s.common.lib.chart.names.fullname" $ }}"`,
-			re:    helmutil.SchemaInvalidDocRegexp,
-			repl:  `${1}"${2}"${3}`,
-		},
-		// "values": {
-		// 	input: `    values?: any`,
-		// 	want:  `    values?: x any`,
-		// 	re:    helmutil.SchemaValuesRegexp,
-		// 	repl:  "${1}x ${2}",
-		// },
-		// "values docs": {
-		// 	input: `    values : any, foobar`,
-		// 	want:  `    values : x any, foobar`,
-		// 	re:    helmutil.SchemaValuesRegexp,
-		// 	repl:  "${1}x ${2}",
-		// },
-	}
-	for name, tc := range tcs {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			got := tc.re.ReplaceAllString(tc.input, tc.repl)
-			require.Equalf(t, tc.want, got, "expected %q, got %q", tc.want, got)
 		})
 	}
 }

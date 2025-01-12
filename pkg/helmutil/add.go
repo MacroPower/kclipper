@@ -1,13 +1,11 @@
 package helmutil
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"sort"
 
 	"kcl-lang.io/kcl-go"
@@ -15,11 +13,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/helm"
 	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
-)
-
-var (
-	SchemaInvalidDocRegexp = regexp.MustCompile(`(\s+\S.*)r"""(.*)"""(.*)`)
-	SchemaDefaultRegexp    = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)(\s+=.+)`)
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 const initialMainContents = `import helm
@@ -144,38 +138,20 @@ func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) er
 		return fmt.Errorf("failed to write values.schema.json: %w", err)
 	}
 
-	kclSchema, err := jsonschema.ConvertToKCLSchema(jsonSchema)
+	kclSchema, err := jsonschema.ConvertToKCLSchema(jsonSchema, true)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
 
-	kclSchemaFixed := &bytes.Buffer{}
-	scanner := bufio.NewScanner(bytes.NewReader(kclSchema))
-	for scanner.Scan() {
-		line := scanner.Text()
-		line = SchemaDefaultRegexp.ReplaceAllString(line, "$1")
-		line = SchemaInvalidDocRegexp.ReplaceAllString(line, `${1}"${2}"${3}`)
-		kclSchemaFixed.WriteString(line + "\n")
-	}
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("failed to scan kcl schema: %w", err)
-	}
-
-	if err := os.WriteFile(path.Join(chartDir, "values.schema.k"), kclSchemaFixed.Bytes(), 0o600); err != nil {
+	if err := os.WriteFile(path.Join(chartDir, "values.schema.k"), kclSchema, 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.k: %w", err)
 	}
 	return nil
 }
 
 func (c *ChartPkg) writeCRDFiles(crds [][]byte, chartDir string) error {
-	f, err := os.Create(path.Join(chartDir, "crds.schema.k"))
-	if err != nil {
-		return fmt.Errorf("failed to create crd.k: %w", err)
-	}
-	defer f.Close()
-
 	for _, crd := range crds {
-		err = GenerateKCLFromCRD(crd, chartDir)
+		err := kclutil.GenerateKCLFromCRD(crd, chartDir)
 		if err != nil {
 			return fmt.Errorf("failed to generate KCL from CRD: %w", err)
 		}

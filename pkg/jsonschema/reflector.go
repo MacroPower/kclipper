@@ -46,7 +46,7 @@ func (r *Reflected) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to marshal json schema: %w", err)
 	}
 
-	if err := kclutil.Gen.GenKcl(w, "chart", jsBytes, &gen.GenKclOptions{
+	if err := kclutil.Gen.GenKcl(w, "chart", jsBytes, &kclutil.GenKclOptions{
 		Mode:          gen.ModeJsonSchema,
 		CastingOption: gen.OriginalName,
 	}); err != nil {

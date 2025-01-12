@@ -57,8 +57,12 @@ schema Values:
     commonLabels : ValuesCommonLabels, optional
         # Labels to apply to all resources
         #
-    config : str, optional, default is r"""collectors:
-  enabled: '[defaults],memory,container'"""
+    config : str, optional,
+        default is
+        ```
+        collectors:
+          enabled: '[defaults],memory,container'
+        ```
     configmaps : [any], optional
         # Additional configmaps to be mounted.
         #
@@ -476,7 +480,6 @@ schema Values:
     collectors?: [str]
     commonLabels?: ValuesCommonLabels
     config?: str
-  enabled: '[defaults],memory,container'"""
     configmaps?: [any]
     containerSecurityContext?: ValuesContainerSecurityContext
     containers?: [any]
@@ -3036,7 +3039,11 @@ schema ValuesDefaultRulesNode:
 
     Attributes
     ----------
-    fsSelector : str, optional, default is "fstype!="" "
+    fsSelector : str, optional,
+        default is
+        ```
+        fstype!="" 
+        ```
     """
 
     fsSelector?: str
@@ -10473,8 +10480,12 @@ schema ValuesPrometheusWindowsExporter:
 
     Attributes
     ----------
-    config : str, optional, default is r"""collectors:
-  enabled: '[defaults],memory,container'"""
+    config : str, optional,
+        default is
+        ```
+        collectors:
+          enabled: '[defaults],memory,container'
+        ```
         # Enable memory and container metrics as required by the default Prometheus rules and Grafana dashboards
         #
     podLabels : ValuesPrometheusWindowsExporterPodLabels, optional
@@ -10487,7 +10498,6 @@ schema ValuesPrometheusWindowsExporter:
     """
 
     config?: str
-  enabled: '[defaults],memory,container'"""
     podLabels?: ValuesPrometheusWindowsExporterPodLabels
     prometheus?: ValuesPrometheusWindowsExporterPrometheus
     releaseLabel?: bool
@@ -10873,7 +10883,11 @@ schema ValuesSecurityContextWindowsOptions:
     Attributes
     ----------
     hostProcess : bool, optional, default is True
-    runAsUserName : str, optional, default is "NT AUTHORITY\system"
+    runAsUserName : str, optional,
+        default is
+        ```
+        NT AUTHORITY\system
+        ```
     """
 
     hostProcess?: bool

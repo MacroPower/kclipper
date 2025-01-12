@@ -12,17 +12,18 @@ import (
 )
 
 // ConvertToKCLSchema converts a JSON schema to a KCL schema.
-func ConvertToKCLSchema(jsonSchemaData []byte) ([]byte, error) {
+func ConvertToKCLSchema(jsonSchemaData []byte, removeDefaults bool) ([]byte, error) {
 	fixedJSONSchema, err := ConvertToKCLCompatibleJSONSchema(jsonSchemaData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert to KCL compatible JSON schema: %w", err)
 	}
 
 	kclSchema := &bytes.Buffer{}
-	if err := kclutil.Gen.GenKcl(kclSchema, "values", fixedJSONSchema, &gen.GenKclOptions{
+	if err := kclutil.Gen.GenKcl(kclSchema, "values", fixedJSONSchema, &kclutil.GenKclOptions{
 		Mode:                  gen.ModeJsonSchema,
 		CastingOption:         gen.OriginalName,
 		UseIntegersForNumbers: true,
+		RemoveDefaults:        removeDefaults,
 	}); err != nil {
 		return nil, fmt.Errorf("failed to generate kcl schema: %w", err)
 	}
