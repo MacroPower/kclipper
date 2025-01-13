@@ -3,6 +3,7 @@ package os
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -28,4 +29,12 @@ func Exec(name string, arg []string, env []string) (*ExecOutput, error) {
 		Stdout: outb.String(),
 		Stderr: errb.String(),
 	}, nil
+}
+
+func GetEnv(key string) (string, error) {
+	v, ok := os.LookupEnv(key)
+	if !ok {
+		return "", fmt.Errorf("env var '%s' not found", key)
+	}
+	return v, nil
 }

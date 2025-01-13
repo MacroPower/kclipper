@@ -10,7 +10,6 @@ import (
 
 	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
 
 type TemplateOpts struct {
@@ -20,8 +19,6 @@ type TemplateOpts struct {
 	ReleaseName          string
 	Namespace            string
 	ValuesObject         map[string]any
-	Repositories         []argohelm.HelmRepository
-	Credentials          helmrepo.Creds
 	SkipCRDs             bool
 	KubeVersion          string
 	APIVersions          []string
@@ -32,7 +29,7 @@ type TemplateOpts struct {
 }
 
 type ChartClient interface {
-	Pull(chart, repoURL, targetRevision string, creds helmrepo.Creds) (string, error)
+	Pull(chart, repoURL, targetRevision string) (string, error)
 }
 
 type JSONSchemaGenerator interface {
@@ -47,7 +44,7 @@ type Chart struct {
 }
 
 func NewChart(client ChartClient, opts TemplateOpts) (*Chart, error) {
-	chartPath, err := client.Pull(opts.ChartName, opts.RepoURL, opts.TargetRevision, opts.Credentials)
+	chartPath, err := client.Pull(opts.ChartName, opts.RepoURL, opts.TargetRevision)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
@@ -81,8 +78,8 @@ func (c *Chart) template() ([]byte, error) {
 	// isLocal controls helm temp dirs, does not seem to impact pull/template behavior.
 	isLocal := false
 
-	ha, err := argohelm.NewHelmApp(c.path, c.TemplateOpts.Repositories, isLocal, "v3",
-		c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy, c.TemplateOpts.PassCredentials)
+	ha, err := argohelm.NewHelmApp(c.path, nil, isLocal, "v3", c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy,
+		c.TemplateOpts.PassCredentials)
 	if err != nil {
 		return nil, fmt.Errorf("error initializing helm app object: %w", err)
 	}
@@ -110,7 +107,7 @@ func (c *Chart) template() ([]byte, error) {
 }
 
 type ChartFileClient interface {
-	PullAndExtract(chart, repoURL, targetRevision string, creds helmrepo.Creds) (string, io.Closer, error)
+	PullAndExtract(chart, repoURL, targetRevision string) (string, io.Closer, error)
 }
 
 type ChartFiles struct {
@@ -122,7 +119,7 @@ type ChartFiles struct {
 }
 
 func NewChartFiles(client ChartFileClient, opts TemplateOpts) (*ChartFiles, error) {
-	chartPath, closer, err := client.PullAndExtract(opts.ChartName, opts.RepoURL, opts.TargetRevision, opts.Credentials)
+	chartPath, closer, err := client.PullAndExtract(opts.ChartName, opts.RepoURL, opts.TargetRevision)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}

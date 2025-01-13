@@ -5,6 +5,7 @@ import (
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 	"github.com/MacroPower/kclipper/pkg/os"
 )
 
@@ -38,6 +39,24 @@ var Plugin = plugin.Plugin{
 					"stdout": exec.Stdout,
 					"stderr": exec.Stderr,
 				}}, nil
+			},
+		},
+		"get_env": {
+			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
+				safeArgs := kclutil.SafeMethodArgs{Args: args}
+
+				key := args.StrArg(0)
+
+				v, err := os.GetEnv(key)
+				if err != nil {
+					if safeArgs.Exists("default") {
+						v = args.StrKwArg("default")
+					} else {
+						return nil, fmt.Errorf("failed to get env var: %w", err)
+					}
+				}
+
+				return &plugin.MethodResult{V: v}, nil
 			},
 		},
 	},

@@ -39,6 +39,16 @@ func generate(path string) error {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
 
+	fcr, err := os.Create(filepath.Join(modPath, "chart_repo.k"))
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer fcr.Close()
+	pcr := &pluginmodule.ChartRepo{}
+	if err = pcr.GenerateKCL(fcr); err != nil {
+		return fmt.Errorf("failed to generate KCL: %w", err)
+	}
+
 	fc, err := os.Create(filepath.Join(modPath, "chart.k"))
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)

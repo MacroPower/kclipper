@@ -24,6 +24,10 @@ type ChartData struct {
 	Charts map[string]ChartConfig `json:"charts"`
 }
 
+type ChartRepoData struct {
+	Repos map[string]pluginmodule.ChartRepo `json:"repos"`
+}
+
 // GetSortedKeys returns the chart keys in alphabetical order.
 func (cd *ChartData) GetSortedKeys() []string {
 	names := make([]string, 0, len(cd.Charts))
@@ -38,6 +42,7 @@ type (
 	ChartBase       pluginmodule.ChartBase
 	HelmChartConfig pluginmodule.ChartConfig
 	HelmChart       pluginmodule.Chart
+	HelmChartRepo   pluginmodule.ChartRepo
 )
 
 // All possible chart configuration that can be defined in `charts.k`,
@@ -103,6 +108,15 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	}
 
 	return nil
+}
+
+// All possible repository configuration that can be defined in `repos.k`.
+type RepoConfig struct {
+	HelmChartRepo `json:",inline"`
+}
+
+func (r *RepoConfig) GetSnakeCaseName() string {
+	return strcase.ToSnake(r.HelmChartRepo.Name)
 }
 
 // All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`.

@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/helmtest"
@@ -18,6 +17,17 @@ import (
 
 func init() {
 	log.SetLogLevel("warn")
+
+	err := helmrepo.DefaultManager.Add(&helmrepo.Repo{
+		Name:            "chartmuseum",
+		URL:             "http://localhost:8080",
+		Username:        "user",
+		Password:        "hunter2",
+		PassCredentials: true,
+	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TestHelmChart(t *testing.T) {
@@ -85,10 +95,6 @@ func TestHelmChart(t *testing.T) {
 				ChartName:      "simple-chart",
 				TargetRevision: "0.1.0",
 				RepoURL:        "http://localhost:8080",
-				Credentials: helmrepo.Creds{
-					Username: "user",
-					Password: "hunter2",
-				},
 			},
 			gen:   jsonschema.DefaultAutoGenerator,
 			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
@@ -97,16 +103,6 @@ func TestHelmChart(t *testing.T) {
 			opts: helm.TemplateOpts{
 				ChartName: "parent-chart",
 				RepoURL:   "./testdata",
-				Repositories: []argohelm.HelmRepository{
-					{
-						Name: "@chartmuseum",
-						Repo: "http://localhost:8080",
-						Creds: argohelm.Creds{
-							Username: "user",
-							Password: "hunter2",
-						},
-					},
-				},
 			},
 			gen:   jsonschema.DefaultAutoGenerator,
 			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
