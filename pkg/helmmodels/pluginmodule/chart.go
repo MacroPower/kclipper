@@ -31,6 +31,8 @@ type ChartBase struct {
 	PassCredentials bool `json:"passCredentials,omitempty"`
 	// Validator to use for the Values schema.
 	SchemaValidator jsonschema.ValidatorType `json:"schemaValidator,omitempty"`
+	// Helm chart repositories.
+	Repositories map[string]ChartRepo `json:"repositories,omitempty"`
 }
 
 func (c *ChartBase) GenerateKCL(w io.Writer) error {
@@ -135,6 +137,47 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	}
 	if _, err := nb.WriteTo(w); err != nil {
 		return fmt.Errorf("failed to write to KCL schema: %w", err)
+	}
+
+	return nil
+}
+
+// Defines a Helm chart repository.
+type ChartRepo struct {
+	// Helm chart repository name for reference by `@name`.
+	Name string `json:"name"`
+	// Helm chart repository URL.
+	URL string `json:"url"`
+
+	// Username for basic authentication.
+	Username string `json:"username,omitempty"`
+	// Password for basic authentication.
+	Password string `json:"password,omitempty"`
+
+	// Path to the CA file.
+	CAPath string `json:"caPath,omitempty"`
+	// TLS client certificate data.
+	TLSClientCertData string `json:"tlsClientCertData,omitempty"`
+	// TLS client certificate key.
+	TLSClientCertKey string `json:"tlsClientCertKey,omitempty"`
+
+	// Set to `True` to skip SSL certificate verification.
+	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
+	// Set to `True` to allow credentials to be used in chart dependencies defined
+	// by charts in this repository.
+	PassCredentials bool `json:"passCredentials,omitempty"`
+}
+
+func (c *ChartRepo) GenerateKCL(w io.Writer) error {
+	r, err := newSchemaReflector()
+	if err != nil {
+		return fmt.Errorf("failed to create schema reflector: %w", err)
+	}
+	js := r.Reflect(reflect.TypeOf(ChartRepo{}))
+
+	err = js.GenerateKCL(w)
+	if err != nil {
+		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
 
 	return nil
