@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
@@ -16,6 +15,8 @@ import (
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/registry"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+
+	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
 
 // A thin wrapper around helm.sh/helm, adding logging and error translation.
@@ -29,27 +30,9 @@ type Cmd struct {
 
 	rc       *registry.Client
 	settings *cli.EnvSettings
-
-	reposByName map[string]Repo
-	reposByURL  map[string]Repo
 }
 
-type Repo struct {
-	Name  string
-	URL   string
-	Creds Creds
-}
-
-func NewCmd(workDir string, version string, proxy string, noProxy string) (*Cmd, error) {
-	switch version {
-	// If v3 is specified (or by default, if no value is specified) then use v3
-	case "", "v3":
-		return NewCmdWithVersion(workDir, false, proxy, noProxy)
-	}
-	return nil, fmt.Errorf("helm chart version '%s' is not supported", version)
-}
-
-func NewCmdWithVersion(workDir string, isHelmOci bool, proxy string, noProxy string) (*Cmd, error) {
+func NewCmdWithVersion(workDir string, proxy string, noProxy string) (*Cmd, error) {
 	rc, err := registry.NewClient(registry.ClientOptEnableCache(true))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create registry client: %w", err)
@@ -60,73 +43,16 @@ func NewCmdWithVersion(workDir string, isHelmOci bool, proxy string, noProxy str
 		return nil, fmt.Errorf("failed to create temporary directory for helm: %w", err)
 	}
 	return &Cmd{
-		WorkDir:     workDir,
-		helmHome:    tmpDir,
-		IsHelmOci:   isHelmOci,
-		proxy:       proxy,
-		noProxy:     noProxy,
-		rc:          rc,
-		settings:    cli.New(),
-		reposByName: map[string]Repo{},
-		reposByURL:  map[string]Repo{},
+		WorkDir:  workDir,
+		helmHome: tmpDir,
+		proxy:    proxy,
+		noProxy:  noProxy,
+		rc:       rc,
+		settings: cli.New(),
 	}, nil
 }
 
-func (c *Cmd) RegistryLogin(repo string, creds Creds) (string, error) {
-	opts := []registry.LoginOption{}
-
-	if creds.Username != "" && creds.Password != "" {
-		opts = append(opts, registry.LoginOptBasicAuth(creds.Username, creds.Password))
-	}
-
-	if creds.CAPath != "" && len(creds.CertData) > 0 && len(creds.KeyData) > 0 {
-		certPath, closer, err := writeToTmp(creds.CertData)
-		if err != nil {
-			return "", fmt.Errorf("failed to write certificate data to temporary file: %w", err)
-		}
-		defer tryClose(closer)
-
-		keyPath, closer, err := writeToTmp(creds.KeyData)
-		if err != nil {
-			return "", fmt.Errorf("failed to write key data to temporary file: %w", err)
-		}
-		defer tryClose(closer)
-
-		opts = append(opts, registry.LoginOptTLSClientConfig(certPath, keyPath, creds.CAPath))
-	}
-
-	if creds.InsecureSkipVerify {
-		opts = append(opts, registry.LoginOptInsecure(true))
-	}
-
-	err := c.rc.Login(repo, opts...)
-	if err != nil {
-		return "", fmt.Errorf("failed to login to registry: %w", err)
-	}
-	return "ok", nil
-}
-
-func (c *Cmd) RegistryLogout(repo string, creds Creds) (string, error) {
-	err := c.rc.Logout(repo)
-	if err != nil {
-		return "", fmt.Errorf("failed to logout from registry: %w", err)
-	}
-	return "ok", nil
-}
-
-func (c *Cmd) RepoAdd(name string, url string, creds Creds, passCredentials bool) (string, error) {
-	r := Repo{
-		Name:  name,
-		URL:   url,
-		Creds: creds,
-	}
-	c.reposByName[name] = r
-	c.reposByURL[url] = r
-
-	return "ok", nil
-}
-
-func (c *Cmd) Fetch(repo, chartName, version, destination string, creds Creds, passCredentials bool) (string, error) {
+func (c *Cmd) Fetch(chart, version, destination string, repo *helmrepo.Repo) (string, error) {
 	ap := action.NewPullWithOpts(action.WithConfig(&action.Configuration{
 		RegistryClient: c.rc,
 	}))
@@ -138,72 +64,52 @@ func (c *Cmd) Fetch(repo, chartName, version, destination string, creds Creds, p
 	if version != "" {
 		ap.Version = version
 	}
-	if creds.Username != "" {
-		ap.Username = creds.Username
-	}
-	if creds.Password != "" {
-		ap.Password = creds.Password
-	}
-	if creds.InsecureSkipVerify {
-		ap.InsecureSkipTLSverify = true
-	}
-
-	ap.RepoURL = repo
-
-	if creds.CAPath != "" {
-		ap.CaFile = creds.CAPath
-	}
-	if len(creds.CertData) > 0 {
-		filePath, closer, err := writeToTmp(creds.CertData)
-		if err != nil {
-			return "", fmt.Errorf("failed to write certificate data to temporary file: %w", err)
+	if repo != nil {
+		creds := repo
+		if creds.Username != "" {
+			ap.Username = creds.Username
 		}
-		defer tryClose(closer)
-		ap.CertFile = filePath
-	}
-	if len(creds.KeyData) > 0 {
-		filePath, closer, err := writeToTmp(creds.KeyData)
-		if err != nil {
-			return "", fmt.Errorf("failed to write key data to temporary file: %w", err)
+		if creds.Password != "" {
+			ap.Password = creds.Password
 		}
-		defer tryClose(closer)
-		ap.KeyFile = filePath
-	}
-	if passCredentials {
-		ap.PassCredentialsAll = true
+		if creds.InsecureSkipVerify {
+			ap.InsecureSkipTLSverify = true
+		}
+
+		ap.RepoURL = repo.URL
+
+		if creds.CAPath != "" {
+			ap.CaFile = creds.CAPath
+		}
+		if len(creds.TLSClientCertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.TLSClientCertData)
+			if err != nil {
+				return "", fmt.Errorf("failed to write certificate data to temporary file: %w", err)
+			}
+			defer tryClose(closer)
+			ap.CertFile = filePath
+		}
+		if len(creds.TLSClientCertKey) > 0 {
+			filePath, closer, err := writeToTmp(creds.TLSClientCertKey)
+			if err != nil {
+				return "", fmt.Errorf("failed to write key data to temporary file: %w", err)
+			}
+			defer tryClose(closer)
+			ap.KeyFile = filePath
+		}
+		if repo.PassCredentials {
+			ap.PassCredentialsAll = true
+		}
 	}
 
-	out, err := ap.Run(chartName)
+	out, err := ap.Run(chart)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch chart: %w", err)
 	}
 	return out, nil
 }
 
-func (c *Cmd) PullOCI(repo string, chart string, version string, destination string, creds Creds) (string, error) {
-	repoURL := fmt.Sprintf("oci://%s/%s", repo, chart)
-	out, err := c.Fetch(repoURL, chart, version, destination, creds, false)
-	if err != nil {
-		return "", fmt.Errorf("failed to pull OCI chart: %w", err)
-	}
-	return out, nil
-}
-
-func (c *Cmd) dependencyBuild() (string, error) {
-	// out, _, err := c.run("dependency", "build")
-	// if err != nil {
-	// 	return "", fmt.Errorf("failed to build dependencies: %w", err)
-	// }
-	return "ok", nil
-}
-
-func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, error) {
-	// if callback, err := cleanupChartLockFile(filepath.Clean(path.Join(c.WorkDir, chartPath))); err == nil {
-	// 	defer callback()
-	// } else {
-	// 	return "", "", fmt.Errorf("failed to clean up chart lock file: %w", err)
-	// }
-
+func (c *Cmd) Template(chartPath string, opts *TemplateOpts) (string, string, error) {
 	// Fail open instead of blocking the template.
 	kv := &chartutil.KubeVersion{
 		Major:   "999",
@@ -253,28 +159,11 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 			return "", "", fmt.Errorf("dependency has no repository: %#v", chartDep)
 		}
 
-		depRepo := Repo{
-			URL: chartDep.Repository,
-		}
-		if strings.HasPrefix(chartDep.Repository, "@") {
-			if dr, ok := c.reposByName[chartDep.Repository]; ok {
-				depRepo = dr
-			}
-		} else {
-			if dr, ok := c.reposByURL[chartDep.Repository]; ok {
-				depRepo = dr
-			}
-		}
-
-		if depRepo.URL == "" {
-			return "", "", fmt.Errorf("dependency has no repository: %#v", chartDep)
-		}
-
-		depClient := NewClient(depRepo.URL, depRepo.Creds, false, "", "")
-		depPath, err := depClient.PullChart(chartDep.Name, chartDep.Version, "", false, 0, true)
+		depPath, err := opts.DependencyPuller.Pull(chartDep.Name, chartDep.Repository, chartDep.Version)
 		if err != nil {
-			return "", "", fmt.Errorf("failed to pull chart dependency: %w", err)
+			return "", "", fmt.Errorf("failed to pull dependency: %w", err)
 		}
+
 		dep, err := loader.Load(depPath)
 		if err != nil {
 			return "", "", fmt.Errorf("failed to load dependency: %w", err)
@@ -321,10 +210,6 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, string, er
 	return release.Manifest, release.Name, nil
 }
 
-func (c *Cmd) Close() {
-	_ = os.RemoveAll(c.helmHome)
-}
-
 func removeSchemasFromObject(chart *chart.Chart) {
 	chart.Schema = nil
 	for _, d := range chart.Dependencies() {
@@ -352,33 +237,18 @@ func writeToTmp(data []byte) (string, *InlineCloser, error) {
 	}), nil
 }
 
-type TemplateOpts struct {
-	Name        string
-	Namespace   string
-	KubeVersion string
-	APIVersions []string
-	Values      map[string]any
-	SkipCrds    bool
-
-	SkipSchemaValidation bool
+type ChartPuller interface {
+	Pull(chart, repo, version string) (string, error)
 }
 
-// // Workaround for Helm3 behavior (see https://github.com/helm/helm/issues/6870).
-// // The `helm template` command generates Chart.lock after which `helm dependency build` does not work.
-// // As workaround removing lock file unless it exists before running helm template.
-// func cleanupChartLockFile(chartPath string) (func(), error) {
-// 	exists := true
-// 	lockPath := path.Join(chartPath, "Chart.lock")
-// 	if _, err := os.Stat(lockPath); err != nil {
-// 		if os.IsNotExist(err) {
-// 			exists = false
-// 		} else {
-// 			return nil, fmt.Errorf("failed to check lock file status: %w", err)
-// 		}
-// 	}
-// 	return func() {
-// 		if !exists {
-// 			_ = os.Remove(lockPath)
-// 		}
-// 	}, nil
-// }
+type TemplateOpts struct {
+	Name                 string
+	Namespace            string
+	KubeVersion          string
+	APIVersions          []string
+	Values               map[string]any
+	SkipCrds             bool
+	SkipSchemaValidation bool
+
+	DependencyPuller ChartPuller
+}

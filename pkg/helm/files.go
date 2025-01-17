@@ -160,3 +160,21 @@ func createTempDir(baseDir string) (string, error) {
 	}
 	return tempDir, nil
 }
+
+func fileExists(filePath string) (bool, error) {
+	if _, err := os.Stat(filePath); err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, fmt.Errorf("error checking file existence for %s: %w", filePath, err)
+	}
+	return true, nil
+}
+
+func dirExists(path string) bool {
+	fi, err := os.Lstat(path)
+	if err != nil || !fi.IsDir() {
+		return false
+	}
+	return true
+}
