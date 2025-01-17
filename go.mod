@@ -3,7 +3,6 @@ module github.com/MacroPower/kclipper
 go 1.23.4
 
 require (
-	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
 	github.com/dadav/helm-schema v0.0.0-20241230184257-6f2eeb34f592
 	github.com/google/uuid v1.6.0
@@ -13,7 +12,6 @@ require (
 	github.com/klauspost/compress v1.17.11
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/net v0.31.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.16.4
 	k8s.io/api v0.32.0
@@ -24,7 +22,6 @@ require (
 	kcl-lang.io/kcl-openapi v0.10.0
 	kcl-lang.io/kpm v0.11.0
 	kcl-lang.io/lib v0.11.0
-	oras.land/oras-go/v2 v2.5.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -39,6 +36,7 @@ require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
@@ -236,6 +234,7 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
 	golang.org/x/mod v0.22.0 // indirect
+	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
@@ -263,6 +262,7 @@ require (
 	k8s.io/kubectl v0.31.3 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	oras.land/oras-go v1.2.6 // indirect
+	oras.land/oras-go/v2 v2.5.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
 	sigs.k8s.io/kustomize/api v0.18.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.18.1 // indirect

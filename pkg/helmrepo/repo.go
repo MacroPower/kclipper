@@ -2,6 +2,7 @@ package helmrepo
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 )
 
@@ -11,15 +12,20 @@ type Repo struct {
 	// Helm chart repository name for reference by `@name`.
 	Name string `json:"name"`
 	URL  string `json:"url"`
+	url  *url.URL
 
 	Username          string `json:"username,omitempty"`
 	Password          string `json:"password,omitempty"`
 	CAPath            string
-	TLSClientCertData string
-	TLSClientCertKey  string
+	TLSClientCertData []byte
+	TLSClientCertKey  []byte
 
 	InsecureSkipVerify bool
 	PassCredentials    bool
+}
+
+func (r *Repo) IsLocal() bool {
+	return r.url.Host == ""
 }
 
 type Manager struct {
@@ -39,12 +45,19 @@ func (m *Manager) Add(repo *Repo) error {
 		return fmt.Errorf("repo with name %s already exists", repo.Name)
 	}
 
-	if _, ok := m.reposByURL[repo.URL]; ok {
+	u, err := url.Parse(repo.URL)
+	if err != nil {
+		return fmt.Errorf("failed to parse URL %s: %w", repo.URL, err)
+	}
+	repoURL := u.String()
+
+	if _, ok := m.reposByURL[repoURL]; ok {
 		return fmt.Errorf("repo with URL %s already exists", repo.URL)
 	}
 
+	repo.url = u
 	m.reposByName[repo.Name] = repo
-	m.reposByURL[repo.URL] = repo
+	m.reposByURL[repoURL] = repo
 
 	return nil
 }
@@ -65,10 +78,20 @@ func (m *Manager) GetByName(name string) (*Repo, error) {
 	return repo, nil
 }
 
-func (m *Manager) GetByURL(url string) (*Repo, error) {
-	repo, ok := m.reposByURL[url]
+func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
+	u, err := url.Parse(repoURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse URL %s: %w", repoURL, err)
+	}
+	repoURL = u.String()
+
+	repo, ok := m.reposByURL[repoURL]
 	if !ok {
-		return nil, fmt.Errorf("repo with URL %s not found", url)
+		repo = &Repo{Name: repoURL, URL: repoURL}
+		err = m.Add(repo)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return repo, nil
 }

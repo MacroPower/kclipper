@@ -32,6 +32,11 @@ type ChartClient interface {
 	Pull(chart, repoURL, targetRevision string) (string, error)
 }
 
+type Commander interface {
+	Fetch()
+	Template()
+}
+
 type JSONSchemaGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }
@@ -75,21 +80,12 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 }
 
 func (c *Chart) template() ([]byte, error) {
-	// isLocal controls helm temp dirs, does not seem to impact pull/template behavior.
-	isLocal := false
-
-	ha, err := argohelm.NewHelmApp(c.path, nil, isLocal, "v3", c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy,
-		c.TemplateOpts.PassCredentials)
+	cmd, err := argohelm.NewCmdWithVersion(c.path, c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy)
 	if err != nil {
-		return nil, fmt.Errorf("error initializing helm app object: %w", err)
-	}
-	defer ha.Dispose()
-
-	if err = ha.DependencyBuild(); err != nil {
-		return nil, fmt.Errorf("error building helm dependencies: %w", err)
+		return nil, fmt.Errorf("error creating helm command: %w", err)
 	}
 
-	argoTemplateOpts := &argohelm.TemplateOpts{
+	out, _, err := cmd.Template(".", &argohelm.TemplateOpts{
 		Name:                 c.TemplateOpts.ChartName,
 		Namespace:            c.TemplateOpts.Namespace,
 		Values:               c.TemplateOpts.ValuesObject,
@@ -97,8 +93,8 @@ func (c *Chart) template() ([]byte, error) {
 		KubeVersion:          c.TemplateOpts.KubeVersion,
 		APIVersions:          c.TemplateOpts.APIVersions,
 		SkipSchemaValidation: c.TemplateOpts.SkipSchemaValidation,
-	}
-	out, _, err := ha.Template(argoTemplateOpts)
+		DependencyPuller:     c.Client,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("error templating helm chart: %w", err)
 	}
@@ -229,5 +225,7 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 }
 
 func (c *ChartFiles) Dispose() {
-	_ = c.closer.Close()
+	if c.closer != nil {
+		tryClose(c.closer)
+	}
 }
