@@ -8,6 +8,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	kclutil "github.com/MacroPower/kclipper/pkg/kclutil"
 )
@@ -40,6 +41,7 @@ var Plugin = plugin.Plugin{
 				chartName := args.StrKwArg("chart")
 				targetRevision := args.StrKwArg("target_revision")
 				repoURL := args.StrKwArg("repo_url")
+				repos := safeArgs.ListKwArg("repositories", []any{})
 
 				// https://argo-cd.readthedocs.io/en/stable/user-guide/build-environment/
 				// https://github.com/argoproj/argo-cd/pull/15186
@@ -49,17 +51,33 @@ var Plugin = plugin.Plugin{
 				kubeAPIVersions := os.Getenv("KUBE_API_VERSIONS")
 
 				repoMgr := helmrepo.NewManager()
+				for _, repo := range repos {
+					var pcr pluginmodule.ChartRepo
+					repoMap, ok := repo.(map[string]any)
+					if !ok {
+						return nil, fmt.Errorf("invalid repository: %#v", repo)
+					}
+					err := pcr.FromMap(repoMap)
+					if err != nil {
+						return nil, fmt.Errorf("invalid repository: %w", err)
+					}
+					hr, err := pcr.GetHelmRepo()
+					if err != nil {
+						return nil, fmt.Errorf("failed to add Helm repository: %w", err)
+					}
+					if err := repoMgr.Add(hr); err != nil {
+						return nil, fmt.Errorf("failed to add Helm repository: %w", err)
+					}
+				}
 
 				helmClient, err := helm.NewClient(
-					helm.NewTempPaths(os.TempDir(), helm.NewBase64PathEncoder()),
-					repoMgr,
-					project, "10M",
+					helm.NewTempPaths(os.TempDir(), helm.NewBase64PathEncoder()), project, "10M",
 				)
 				if err != nil {
 					return nil, fmt.Errorf("failed to create helm client: %w", err)
 				}
 
-				helmChart, err := helm.NewChart(helmClient, helm.TemplateOpts{
+				helmChart, err := helm.NewChart(helmClient, repoMgr, helm.TemplateOpts{
 					ChartName:            chartName,
 					TargetRevision:       targetRevision,
 					RepoURL:              repoURL,

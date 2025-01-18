@@ -20,7 +20,6 @@ var globalLock = sync.NewKeyLock()
 
 var DefaultClient = MustNewClient(
 	NewTempPaths(os.TempDir(), NewBase64PathEncoder()),
-	helmrepo.DefaultManager,
 	os.Getenv("ARGOCD_APP_PROJECT_NAME"),
 	"10M",
 )
@@ -32,13 +31,8 @@ type PathCacher interface {
 	GetPaths() map[string]string
 }
 
-type RepoGetter interface {
-	Get(repo string) (*helmrepo.Repo, error)
-}
-
 type Client struct {
 	Paths          PathCacher
-	Repos          RepoGetter
 	MaxExtractSize resource.Quantity
 	Project        string
 	Proxy          string
@@ -47,7 +41,7 @@ type Client struct {
 	repoLock sync.KeyLock
 }
 
-func NewClient(paths PathCacher, repos RepoGetter, project, maxExtractSize string) (*Client, error) {
+func NewClient(paths PathCacher, project, maxExtractSize string) (*Client, error) {
 	maxExtractSizeResource, err := resource.ParseQuantity(maxExtractSize)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse quantity '%s': %w", maxExtractSize, err)
@@ -55,7 +49,6 @@ func NewClient(paths PathCacher, repos RepoGetter, project, maxExtractSize strin
 
 	return &Client{
 		Paths:          paths,
-		Repos:          repos,
 		MaxExtractSize: maxExtractSizeResource,
 		Project:        project,
 		repoLock:       globalLock,
@@ -63,8 +56,8 @@ func NewClient(paths PathCacher, repos RepoGetter, project, maxExtractSize strin
 }
 
 // MustNewClient runs [NewClient] and panics on any errors.
-func MustNewClient(paths PathCacher, repos RepoGetter, project, maxExtractSize string) *Client {
-	c, err := NewClient(paths, repos, project, maxExtractSize)
+func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
+	c, err := NewClient(paths, project, maxExtractSize)
 	if err != nil {
 		panic(err)
 	}
@@ -74,8 +67,8 @@ func MustNewClient(paths PathCacher, repos RepoGetter, project, maxExtractSize s
 // Pull will retrieve the chart, and return the path to the chart .tar.gz file.
 // Pulled charts will be stored in the injected [PathCacher], and subsequent
 // requests will try to use [PathCacher] rather than re-pulling the chart.
-func (c *Client) Pull(chart, repoURL, targetRevision string) (string, error) {
-	p, _, err := c.pull(chart, repoURL, targetRevision, false)
+func (c *Client) Pull(chart, repo, version string, repos helmrepo.Getter) (string, error) {
+	p, _, err := c.pull(chart, repo, version, false, repos)
 	return p, err
 }
 
@@ -84,12 +77,12 @@ func (c *Client) Pull(chart, repoURL, targetRevision string) (string, error) {
 // the extracted chart. Pulled charts will be stored in the injected [PathCacher]
 // in .tar.gz format, and subsequent requests will try to use [PathCacher] rather
 // than re-pulling the chart.
-func (c *Client) PullAndExtract(chart, repoURL, targetRevision string) (string, io.Closer, error) {
-	return c.pull(chart, repoURL, targetRevision, true)
+func (c *Client) PullAndExtract(chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
+	return c.pull(chart, repo, version, true, repos)
 }
 
-func (c *Client) pull(chart, repo, version string, extract bool) (string, io.Closer, error) {
-	hr, err := c.Repos.Get(repo)
+func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
+	hr, err := repos.Get(repo)
 	if err != nil {
 		return "", nil, fmt.Errorf("error getting repo %s: %w", repo, err)
 	}

@@ -25,38 +25,38 @@ func init() {
 	testDataDir := filepath.Join(pkg.Dir, "testdata")
 	DefaultTestClient = &TestClient{
 		BaseClient: helm.MustNewClient(
-			helm.NewTempPaths(testDataDir, &TestPathEncoder{}), helmrepo.DefaultManager, "test", "10M",
+			helm.NewTempPaths(testDataDir, &TestPathEncoder{}), "test", "10M",
 		),
 	}
 }
 
 type ChartClient interface {
-	Pull(chart, repoURL, targetRevision string) (string, error)
-	PullAndExtract(chart, repoURL, targetRevision string) (string, io.Closer, error)
+	Pull(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
+	PullAndExtract(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
 }
 
 type TestClient struct {
 	BaseClient ChartClient
 }
 
-func (c *TestClient) Pull(chart, repoURL, targetRevision string) (string, error) {
-	p, _, err := c.pull(chart, repoURL, targetRevision, false)
+func (c *TestClient) Pull(chart, repo, version string, repos helmrepo.Getter) (string, error) {
+	p, _, err := c.pull(chart, repo, version, false, repos)
 	return p, err
 }
 
-func (c *TestClient) PullAndExtract(chart, repoURL, targetRevision string) (string, io.Closer, error) {
-	return c.pull(chart, repoURL, targetRevision, true)
+func (c *TestClient) PullAndExtract(chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
+	return c.pull(chart, repo, version, true, repos)
 }
 
-func (c *TestClient) pull(chart, repoURL, targetRevision string, extract bool) (string, io.Closer, error) {
+func (c *TestClient) pull(chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
 	if extract {
-		chartPath, closer, err := c.BaseClient.PullAndExtract(chart, repoURL, targetRevision)
+		chartPath, closer, err := c.BaseClient.PullAndExtract(chart, repo, version, repos)
 		if err != nil {
 			return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
 		}
 		return chartPath, closer, nil
 	}
-	chartPath, err := c.BaseClient.Pull(chart, repoURL, targetRevision)
+	chartPath, err := c.BaseClient.Pull(chart, repo, version, repos)
 	if err != nil {
 		return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
 	}

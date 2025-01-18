@@ -78,7 +78,7 @@ func TestHelmChartAdd(t *testing.T) {
 			t.Parallel()
 
 			err := ca.Add(tc.chart.Chart, tc.chart.RepoURL, tc.chart.TargetRevision, tc.chart.SchemaPath,
-				tc.chart.CRDPath, tc.chart.SchemaGenerator, tc.chart.SchemaValidator)
+				tc.chart.CRDPath, tc.chart.SchemaGenerator, tc.chart.SchemaValidator, tc.chart.Repositories)
 			require.NoError(t, err)
 
 			depsOpt, err := options.LoadDepsFrom(chartPath, true)

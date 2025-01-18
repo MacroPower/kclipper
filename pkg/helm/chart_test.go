@@ -112,7 +112,7 @@ func TestHelmChart(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := helm.NewChart(helmtest.DefaultTestClient, tc.opts)
+			c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
 			require.NoError(t, err)
 
 			results, err := c.Template()
@@ -122,7 +122,7 @@ func TestHelmChart(t *testing.T) {
 			require.NoError(t, err)
 			require.NotEmpty(t, resultYAMLs)
 
-			cf, err := helm.NewChartFiles(helmtest.DefaultTestClient, tc.opts)
+			cf, err := helm.NewChartFiles(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
 			require.NoError(t, err)
 			defer cf.Dispose()
 
@@ -158,7 +158,7 @@ func TestHelmChart(t *testing.T) {
 }
 
 func BenchmarkHelmChart(b *testing.B) {
-	c, err := helm.NewChart(helmtest.DefaultTestClient, helm.TemplateOpts{
+	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
 		ChartName:      "podinfo",
 		TargetRevision: "6.7.1",
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
@@ -177,7 +177,7 @@ func BenchmarkHelmChart(b *testing.B) {
 }
 
 func BenchmarkAppTemplateHelmChart(b *testing.B) {
-	c, err := helm.NewChart(helmtest.DefaultTestClient, helm.TemplateOpts{
+	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
 		ChartName:      "app-template",
 		TargetRevision: "3.6.0",
 		RepoURL:        "https://bjw-s.github.io/helm-charts/",

@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 )
@@ -47,6 +48,7 @@ func NewChartCmd() *cobra.Command {
 	cmd.AddCommand(NewChartAddCmd())
 	cmd.AddCommand(NewChartUpdateCmd())
 	cmd.AddCommand(NewChartSetCmd())
+	cmd.AddCommand(NewChartRepoCmd())
 
 	return cmd
 }
@@ -122,7 +124,7 @@ func NewChartAddCmd() *cobra.Command {
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-			return c.Add(chart, repoURL, targetRevision, schemaPath, crdPath, schemaGenerator, schemaValidator)
+			return c.Add(chart, repoURL, targetRevision, schemaPath, crdPath, schemaGenerator, schemaValidator, nil)
 		},
 		SilenceUsage: true,
 	}
@@ -192,6 +194,103 @@ func NewChartSetCmd() *cobra.Command {
 	if err := cmd.MarkFlagRequired("overrides"); err != nil {
 		panic(err)
 	}
+
+	return cmd
+}
+
+func NewChartRepoCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "repo",
+		Short: "Helm chart repository management",
+	}
+	cmd.AddCommand(NewChartRepoAddCmd())
+
+	return cmd
+}
+
+func NewChartRepoAddCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add",
+		Short: "Add a new chart repository",
+		RunE: func(cc *cobra.Command, _ []string) error {
+			var merr error
+			if err := cc.MarkFlagRequired("name"); err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			if err := cc.MarkFlagRequired("url"); err != nil {
+				merr = multierror.Append(merr, err)
+			}
+
+			flags := cc.Flags()
+			basePath, err := flags.GetString("path")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			name, err := flags.GetString("name")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			url, err := flags.GetString("url")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			usernameEnv, err := flags.GetString("username_env")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			passwordEnv, err := flags.GetString("password_env")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			caPath, err := flags.GetString("ca_path")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			tlsClientCertDataPath, err := flags.GetString("tls_client_cert_data_path")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			tlsClientCertKeyPath, err := flags.GetString("tls_client_cert_key_path")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			insecureSkipVerify, err := flags.GetBool("insecure_skip_verify")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			passCredentials, err := flags.GetBool("pass_credentials")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+
+			if merr != nil {
+				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
+			}
+
+			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
+			return c.AddRepo(&pluginmodule.ChartRepo{
+				Name:                  name,
+				URL:                   url,
+				UsernameEnv:           usernameEnv,
+				PasswordEnv:           passwordEnv,
+				CAPath:                caPath,
+				TLSClientCertDataPath: tlsClientCertDataPath,
+				TLSClientCertKeyPath:  tlsClientCertKeyPath,
+				InsecureSkipVerify:    insecureSkipVerify,
+				PassCredentials:       passCredentials,
+			})
+		},
+		SilenceUsage: true,
+	}
+	cmd.Flags().StringP("name", "n", "", "Helm chart repository name (required)")
+	cmd.Flags().StringP("url", "u", "", "URL of the Helm chart repository (required)")
+	cmd.Flags().StringP("username_env", "U", "", "Basic authentication username environment variable")
+	cmd.Flags().StringP("password_env", "P", "", "Basic authentication password environment variable")
+	cmd.Flags().String("ca_path", "", "CA file path")
+	cmd.Flags().String("tls_client_cert_data_path", "", "TLS client certificate data path")
+	cmd.Flags().String("tls_client_cert_key_path", "", "TLS client certificate key path")
+	cmd.Flags().Bool("insecure_skip_verify", false, "Skip SSL certificate verification")
+	cmd.Flags().Bool("pass_credentials", false, "Pass credentials to the Helm chart repository")
 
 	return cmd
 }

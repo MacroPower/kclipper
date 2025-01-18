@@ -10,6 +10,7 @@ import (
 
 	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
+	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
 
 type TemplateOpts struct {
@@ -29,7 +30,7 @@ type TemplateOpts struct {
 }
 
 type ChartClient interface {
-	Pull(chart, repoURL, targetRevision string) (string, error)
+	Pull(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
 }
 
 type Commander interface {
@@ -43,19 +44,21 @@ type JSONSchemaGenerator interface {
 
 type Chart struct {
 	Client       ChartClient
+	Repos        helmrepo.Getter
 	TemplateOpts TemplateOpts
 
 	path string
 }
 
-func NewChart(client ChartClient, opts TemplateOpts) (*Chart, error) {
-	chartPath, err := client.Pull(opts.ChartName, opts.RepoURL, opts.TargetRevision)
+func NewChart(client ChartClient, repos helmrepo.Getter, opts TemplateOpts) (*Chart, error) {
+	chartPath, err := client.Pull(opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
 
 	return &Chart{
 		Client:       client,
+		Repos:        repos,
 		TemplateOpts: opts,
 		path:         chartPath,
 	}, nil
@@ -93,6 +96,7 @@ func (c *Chart) template() ([]byte, error) {
 		KubeVersion:          c.TemplateOpts.KubeVersion,
 		APIVersions:          c.TemplateOpts.APIVersions,
 		SkipSchemaValidation: c.TemplateOpts.SkipSchemaValidation,
+		RepoGetter:           c.Repos,
 		DependencyPuller:     c.Client,
 	})
 	if err != nil {
@@ -103,7 +107,7 @@ func (c *Chart) template() ([]byte, error) {
 }
 
 type ChartFileClient interface {
-	PullAndExtract(chart, repoURL, targetRevision string) (string, io.Closer, error)
+	PullAndExtract(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
 }
 
 type ChartFiles struct {
@@ -114,8 +118,8 @@ type ChartFiles struct {
 	closer io.Closer
 }
 
-func NewChartFiles(client ChartFileClient, opts TemplateOpts) (*ChartFiles, error) {
-	chartPath, closer, err := client.PullAndExtract(opts.ChartName, opts.RepoURL, opts.TargetRevision)
+func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts TemplateOpts) (*ChartFiles, error) {
+	chartPath, closer, err := client.PullAndExtract(opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
