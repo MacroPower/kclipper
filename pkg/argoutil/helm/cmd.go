@@ -159,7 +159,7 @@ func (c *Cmd) Template(chartPath string, opts *TemplateOpts) (string, string, er
 			return "", "", fmt.Errorf("dependency has no repository: %#v", chartDep)
 		}
 
-		depPath, err := opts.DependencyPuller.Pull(chartDep.Name, chartDep.Repository, chartDep.Version)
+		depPath, err := opts.DependencyPuller.Pull(chartDep.Name, chartDep.Repository, chartDep.Version, opts.RepoGetter)
 		if err != nil {
 			return "", "", fmt.Errorf("failed to pull dependency: %w", err)
 		}
@@ -238,7 +238,7 @@ func writeToTmp(data []byte) (string, *InlineCloser, error) {
 }
 
 type ChartPuller interface {
-	Pull(chart, repo, version string) (string, error)
+	Pull(chart, repo, version string, repos helmrepo.Getter) (string, error)
 }
 
 type TemplateOpts struct {
@@ -250,5 +250,6 @@ type TemplateOpts struct {
 	SkipCrds             bool
 	SkipSchemaValidation bool
 
+	RepoGetter       helmrepo.Getter
 	DependencyPuller ChartPuller
 }

@@ -1,7 +1,6 @@
 package chartmodule
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -16,8 +15,13 @@ import (
 )
 
 var (
-	SchemaDefinitionRegexp = regexp.MustCompile(`schema\s+(\S+):\s*`)
-	SchemaValuesRegexp     = regexp.MustCompile(`(\s+values\??\s*:\s+)(.*)`)
+	SchemaDefinitionRegexp   = regexp.MustCompile(`schema\s+(\S+):(.*)`)
+	SchemaValuesRegexp       = regexp.MustCompile(`(\s+values\??\s*:\s+)(.*)`)
+	SchemaRepositoriesRegexp = regexp.MustCompile(`(\s+repositories\??\s*:\s+)any(.*)`)
+)
+
+const (
+	RepositoriesKCLType string = "[helm.ChartRepo]"
 )
 
 type ChartData struct {
@@ -42,7 +46,6 @@ type (
 	ChartBase       pluginmodule.ChartBase
 	HelmChartConfig pluginmodule.ChartConfig
 	HelmChart       pluginmodule.Chart
-	HelmChartRepo   pluginmodule.ChartRepo
 )
 
 // All possible chart configuration that can be defined in `charts.k`,
@@ -101,22 +104,21 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		jsonschema.WithDefault(c.HelmChartConfig.SchemaGenerator),
 		jsonschema.WithEnum(jsonschema.GeneratorTypeEnum),
 	)
+	js.SetOrRemoveProperty(
+		"repositories", len(c.ChartBase.Repositories) > 0,
+		jsonschema.WithDefault(c.ChartBase.Repositories),
+		jsonschema.WithType("null"),
+		jsonschema.WithNoItems(),
+	)
 
-	err = js.GenerateKCL(w)
+	err = js.GenerateKCL(w,
+		jsonschema.Replace(SchemaRepositoriesRegexp, "${1}"+RepositoriesKCLType+"${2}"),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
 
 	return nil
-}
-
-// All possible repository configuration that can be defined in `repos.k`.
-type RepoConfig struct {
-	HelmChartRepo `json:",inline"`
-}
-
-func (r *RepoConfig) GetSnakeCaseName() string {
-	return strcase.ToSnake(r.HelmChartRepo.Name)
 }
 
 // All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`.
@@ -163,29 +165,26 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		jsonschema.WithDefault(c.ChartBase.SchemaValidator),
 		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),
 	)
+	js.SetOrRemoveProperty(
+		"repositories", len(c.ChartBase.Repositories) > 0,
+		jsonschema.WithDefault(c.ChartBase.Repositories),
+		jsonschema.WithType("null"),
+		jsonschema.WithNoItems(),
+	)
 
 	js.RemoveProperty("valueFiles")
 	js.RemoveProperty("postRenderer")
 
 	b := &bytes.Buffer{}
-	err = js.GenerateKCL(b)
+	err = js.GenerateKCL(b,
+		jsonschema.Replace(SchemaDefinitionRegexp, "import helm\n\nschema ${1}(helm.Chart):${2}"),
+		jsonschema.Replace(SchemaValuesRegexp, "${1}Values | ${2}"),
+		jsonschema.Replace(SchemaRepositoriesRegexp, "${1}"+RepositoriesKCLType+"${2}"),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
-	nb := &bytes.Buffer{}
-	scanner := bufio.NewScanner(b)
-	for scanner.Scan() {
-		line := scanner.Text()
-		line = inheritHelmChart(line)
-		if SchemaValuesRegexp.MatchString(line) {
-			line = SchemaValuesRegexp.ReplaceAllString(line, "${1}Values | ${2}")
-		}
-		nb.WriteString(line + "\n")
-	}
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("failed to scan kcl schema: %w", err)
-	}
-	if _, err := nb.WriteTo(w); err != nil {
+	if _, err := b.WriteTo(w); err != nil {
 		return fmt.Errorf("failed to write to KCL schema: %w", err)
 	}
 
@@ -197,11 +196,4 @@ func newSchemaReflector() (*jsonschema.Reflector, error) {
 	r := jsonschema.NewReflector()
 
 	return r, nil
-}
-
-func inheritHelmChart(line string) string {
-	if SchemaDefinitionRegexp.MatchString(line) {
-		return SchemaDefinitionRegexp.ReplaceAllString(line, "import helm\n\nschema ${1}(helm.Chart):")
-	}
-	return line
 }

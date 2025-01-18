@@ -25,6 +25,8 @@ schema ChartBase:
         Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
     schemaValidator : "KCL" | "HELM", optional
         Validator to use for the Values schema.
+    repositories : [ChartRepo], optional
+        Helm chart repositories.
     """
 
     chart: str
@@ -35,4 +37,5 @@ schema ChartBase:
     skipCRDs?: bool
     passCredentials?: bool
     schemaValidator?: "KCL" | "HELM"
+    repositories?: [ChartRepo]
 

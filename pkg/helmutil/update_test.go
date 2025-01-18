@@ -30,7 +30,7 @@ func TestHelmChartUpdate(t *testing.T) {
 	schemaPath := ""
 	crdPath := ""
 	err = chartPkg.Add("podinfo", "https://stefanprodan.github.io/podinfo", "6.7.1", schemaPath, crdPath,
-		jsonschema.DefaultGeneratorType, jsonschema.DefaultValidatorType)
+		jsonschema.DefaultGeneratorType, jsonschema.DefaultValidatorType, nil)
 	require.NoError(t, err)
 	os.RemoveAll(path.Join(chartPath, "podinfo"))
 

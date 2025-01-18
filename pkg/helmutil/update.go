@@ -3,7 +3,6 @@ package helmutil
 import (
 	"encoding/json"
 	"fmt"
-	"path"
 
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go/pkg/kcl"
@@ -19,17 +18,16 @@ func (c *ChartPkg) Update() error {
 		return fmt.Errorf("failed to load KCL dependencies: %w", err)
 	}
 
-	mainFile := path.Join(c.BasePath, "charts.k")
-	mainOutput, err := kcl.Run(mainFile, *depOpt)
+	mainOutput, err := kcl.Run(c.BasePath, *depOpt)
 	if err != nil {
-		return fmt.Errorf("failed to run '%s': %w", mainFile, err)
+		return fmt.Errorf("failed to run '%s': %w", c.BasePath, err)
 	}
 
 	mainData := mainOutput.GetRawJsonResult()
 
 	chartData := &helmmodels.ChartData{}
 	if err := json.Unmarshal([]byte(mainData), chartData); err != nil {
-		return fmt.Errorf("failed to unmarshal output from '%s': %w", mainFile, err)
+		return fmt.Errorf("failed to unmarshal output from '%s': %w", c.BasePath, err)
 	}
 
 	for _, k := range chartData.GetSortedKeys() {
@@ -38,7 +36,7 @@ func (c *ChartPkg) Update() error {
 			return fmt.Errorf("chart key '%s' does not match chart name '%s'", k, chart.GetSnakeCaseName())
 		}
 		err := c.Add(chart.Chart, chart.RepoURL, chart.TargetRevision, chart.SchemaPath,
-			chart.CRDPath, chart.SchemaGenerator, chart.SchemaValidator)
+			chart.CRDPath, chart.SchemaGenerator, chart.SchemaValidator, chart.Repositories)
 		if err != nil {
 			return fmt.Errorf("failed to update chart '%s': %w", k, err)
 		}

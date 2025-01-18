@@ -1,9 +1,11 @@
 package jsonschema
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"reflect"
+	"regexp"
 
 	invopopjsonschema "github.com/invopop/jsonschema"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
@@ -36,21 +38,44 @@ func (r *Reflector) Reflect(t reflect.Type) *Reflected {
 	return &Reflected{Schema: r.Reflector.ReflectFromType(t)}
 }
 
-type Reflected struct {
-	Schema *invopopjsonschema.Schema
+type replacement struct {
+	re   *regexp.Regexp
+	repl string
 }
 
-func (r *Reflected) GenerateKCL(w io.Writer) error {
+type Reflected struct {
+	Schema *invopopjsonschema.Schema
+
+	replacements []replacement
+}
+
+func (r *Reflected) GenerateKCL(w io.Writer, opts ...GenOpt) error {
+	for _, opt := range opts {
+		opt(r)
+	}
+
 	jsBytes, err := r.Schema.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("failed to marshal json schema: %w", err)
 	}
 
-	if err := kclutil.Gen.GenKcl(w, "chart", jsBytes, &kclutil.GenKclOptions{
+	b := &bytes.Buffer{}
+	if err := kclutil.Gen.GenKcl(b, "chart", jsBytes, &kclutil.GenKclOptions{
 		Mode:          gen.ModeJsonSchema,
 		CastingOption: gen.OriginalName,
 	}); err != nil {
 		return fmt.Errorf("failed to generate kcl schema: %w", err)
+	}
+
+	for _, v := range r.replacements {
+		kclData := b.Bytes()
+		b.Reset()
+		b.Write(v.re.ReplaceAll(kclData, []byte(v.repl)))
+	}
+
+	_, err = b.WriteTo(w)
+	if err != nil {
+		return fmt.Errorf("failed to write KCL schema: %w", err)
 	}
 
 	return nil
@@ -82,6 +107,14 @@ func (r *Reflected) RemoveProperty(key string) {
 	}
 }
 
+type GenOpt func(*Reflected)
+
+func Replace(re *regexp.Regexp, repl string) GenOpt {
+	return func(r *Reflected) {
+		r.replacements = append(r.replacements, replacement{re: re, repl: repl})
+	}
+}
+
 type PropertyOpt func(*invopopjsonschema.Schema)
 
 func WithEnum(enum []interface{}) PropertyOpt {
@@ -99,5 +132,11 @@ func WithDefault(defaultValue interface{}) PropertyOpt {
 func WithType(t string) PropertyOpt {
 	return func(s *invopopjsonschema.Schema) {
 		s.Type = t
+	}
+}
+
+func WithNoItems() PropertyOpt {
+	return func(s *invopopjsonschema.Schema) {
+		s.Items = nil
 	}
 }

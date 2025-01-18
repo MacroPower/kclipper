@@ -360,6 +360,46 @@ You can also combine both the `values` and `valueFiles` arguments. If the same v
 
 Please note that if you use `valueFiles` and `schemaValidator=KCL`, the valueFiles' contents will not be validated against any chart JSON Schemas during KCL runs. So, it might be a good idea to validate against `values.schema.json` in a pre-commit hook or similar.
 
+### Helm Repositories
+
+You can add Helm repositories to your project by running the following command:
+
+```bash
+kcl chart repo add -n chartmuseum -u http://localhost:8080 -U BASIC_AUTH_USER -P BASIC_AUTH_PASS
+```
+
+This will add a new entry to your `repos.k` file:
+
+```py
+import helm
+
+repos: helm.ChartRepos = {
+    chartmuseum: {
+        name = "chartmuseum"
+        url = "http://localhost:8080"
+        usernameEnv = "BASIC_AUTH_USER"
+        passwordEnv = "BASIC_AUTH_PASS"
+    }
+}
+```
+
+You can then use these repositories in your `charts.k` file:
+
+```py
+import helm
+
+charts: helm.Charts = {
+    private_chart: {
+        chart = "private-chart"
+        repoURL = "@chartmuseum"
+        targetRevision = "0.1.0"
+        repositories = [repos.chartmuseum]
+    }
+}
+```
+
+Subcharts can also use any repositories you add to `repositories`. If you have multiple subcharts that use different repositories, add all required repositories to the `repositories` list.
+
 ## Contributing
 
 [Tasks](https://taskfile.dev) are available (run `task help`).

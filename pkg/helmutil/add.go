@@ -12,6 +12,8 @@ import (
 
 	"github.com/MacroPower/kclipper/pkg/helm"
 	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
+	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
+	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
@@ -25,6 +27,7 @@ func (c *ChartPkg) Add(
 	chart, repoURL, targetRevision, schemaPath, crdPath string,
 	genType jsonschema.GeneratorType,
 	validateType jsonschema.ValidatorType,
+	helmRepos []pluginmodule.ChartRepo,
 ) error {
 	hc := helmmodels.Chart{
 		ChartBase: helmmodels.ChartBase{
@@ -32,6 +35,7 @@ func (c *ChartPkg) Add(
 			RepoURL:         repoURL,
 			TargetRevision:  targetRevision,
 			SchemaValidator: validateType,
+			Repositories:    helmRepos,
 		},
 	}
 
@@ -44,7 +48,18 @@ func (c *ChartPkg) Add(
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
 
-	helmChart, err := helm.NewChartFiles(c.Client, helm.TemplateOpts{
+	repoMgr := helmrepo.NewManager()
+	for _, repo := range helmRepos {
+		hr, err := repo.GetHelmRepo()
+		if err != nil {
+			return fmt.Errorf("failed to add Helm repository: %w", err)
+		}
+		if err := repoMgr.Add(hr); err != nil {
+			return fmt.Errorf("failed to add Helm repository: %w", err)
+		}
+	}
+
+	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, helm.TemplateOpts{
 		ChartName:      chart,
 		TargetRevision: targetRevision,
 		RepoURL:        repoURL,
@@ -162,10 +177,10 @@ func (c *ChartPkg) writeCRDFiles(crds [][]byte, chartDir string) error {
 func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig map[string]string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	mainFile := path.Join(vendorDir, "charts.k")
-	if !fileExists(mainFile) {
-		if err := os.WriteFile(mainFile, []byte(initialMainContents), 0o600); err != nil {
-			return fmt.Errorf("failed to write '%s': %w", mainFile, err)
+	chartsFile := path.Join(vendorDir, "charts.k")
+	if !fileExists(chartsFile) {
+		if err := os.WriteFile(chartsFile, []byte(initialMainContents), 0o600); err != nil {
+			return fmt.Errorf("failed to write '%s': %w", chartsFile, err)
 		}
 	}
 	imports := []string{"helm"}
@@ -180,9 +195,9 @@ func (c *ChartPkg) updateChartsFile(vendorDir, chartKey string, chartConfig map[
 		specs = append(specs, fmt.Sprintf(`charts.%s.%s="%s"`, chartKey, k, v))
 	}
 	specs.Sort()
-	_, err := kcl.OverrideFile(mainFile, specs, imports)
+	_, err := kcl.OverrideFile(chartsFile, specs, imports)
 	if err != nil {
-		return fmt.Errorf("failed to update '%s': %w", mainFile, err)
+		return fmt.Errorf("failed to update '%s': %w", chartsFile, err)
 	}
 	return nil
 }

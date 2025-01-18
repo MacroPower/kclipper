@@ -7,6 +7,8 @@ import kcl_plugin.helm as helm_plugin
 
 type Charts = {str:ChartConfig}
 
+type ChartRepos = {str:ChartRepo}
+
 template = lambda chart: Chart -> [{str:}] {
     """Render Helm chart templates using kclipper's `kcl_plugin.helm.template`.
 
@@ -49,6 +51,7 @@ template = lambda chart: Chart -> [{str:}] {
         skip_crds=_chart.skipCRDs,
         skip_schema_validation=_skipSchemaValidation,
         pass_credentials=_chart.passCredentials,
+        repositories=_chart.repositories,
         values=_values,
     )
 

@@ -23,4 +23,10 @@ charts: helm.Charts = {
         schemaGenerator = "AUTO"
         targetRevision = "67.9.0"
     }
+    # private: {
+    #     chart = "private"
+    #     repoURL = "@chartmuseum"
+    #     targetRevision = "0.1.0"
+    #     repositories = [repos.chartmuseum]
+    # }
 }

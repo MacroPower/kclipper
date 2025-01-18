@@ -1,17 +1,29 @@
 package pluginmodule
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"reflect"
 	"regexp"
 
+	"github.com/iancoleman/strcase"
+
+	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 )
 
-var SchemaDefinitionRegexp = regexp.MustCompile(`schema\s+(\S+):\s*`)
+var (
+	SchemaDefinitionRegexp   = regexp.MustCompile(`schema\s+(\S+):(.*)`)
+	SchemaRepositoriesRegexp = regexp.MustCompile(`(\s+repositories\??\s*:\s+)any(.*)`)
+	SchemaPostRendererRegexp = regexp.MustCompile(`(\s+postRenderer\??\s*:\s+)any(.*)`)
+)
+
+const (
+	PostRendererKCLType string = "({str:}) -> {str:}"
+	RepositoriesKCLType string = "[ChartRepo]"
+)
 
 // Represents attributes common in `helm.Chart` and `helm.ChartConfig`.
 type ChartBase struct {
@@ -32,7 +44,7 @@ type ChartBase struct {
 	// Validator to use for the Values schema.
 	SchemaValidator jsonschema.ValidatorType `json:"schemaValidator,omitempty"`
 	// Helm chart repositories.
-	Repositories map[string]ChartRepo `json:"repositories,omitempty"`
+	Repositories []ChartRepo `json:"repositories,omitempty"`
 }
 
 func (c *ChartBase) GenerateKCL(w io.Writer) error {
@@ -43,8 +55,11 @@ func (c *ChartBase) GenerateKCL(w io.Writer) error {
 	js := r.Reflect(reflect.TypeOf(ChartBase{}))
 
 	js.SetProperty("schemaValidator", jsonschema.WithEnum(jsonschema.ValidatorTypeEnum))
+	js.SetProperty("repositories", jsonschema.WithType("null"), jsonschema.WithNoItems())
 
-	err = js.GenerateKCL(w)
+	err = js.GenerateKCL(w,
+		jsonschema.Replace(SchemaRepositoriesRegexp, "${1}"+RepositoriesKCLType+"${2}"),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
@@ -62,10 +77,6 @@ type Chart struct {
 	PostRenderer any `json:"postRenderer,omitempty"`
 }
 
-var SchemaPostRendererRegexp = regexp.MustCompile(`(\s+postRenderer\??\s*:\s+)any(.*)`)
-
-const PostRendererKCLType string = "({str:}) -> {str:}"
-
 func (c *Chart) GenerateKCL(w io.Writer) error {
 	r, err := newSchemaReflector()
 	if err != nil {
@@ -74,25 +85,15 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 	js := r.Reflect(reflect.TypeOf(Chart{}))
 
 	b := &bytes.Buffer{}
-	err = js.GenerateKCL(b)
+	err = js.GenerateKCL(b,
+		jsonschema.Replace(SchemaDefinitionRegexp, "schema ${1}(ChartBase):${2}"),
+		jsonschema.Replace(SchemaPostRendererRegexp, "${1}"+PostRendererKCLType+"${2}"),
+		jsonschema.Replace(SchemaRepositoriesRegexp, "${1}"+RepositoriesKCLType+"${2}"),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
-
-	nb := &bytes.Buffer{}
-	scanner := bufio.NewScanner(b)
-	for scanner.Scan() {
-		line := scanner.Text()
-		line = inheritChartBase(line)
-		if SchemaPostRendererRegexp.MatchString(line) {
-			line = SchemaPostRendererRegexp.ReplaceAllString(line, "${1}"+PostRendererKCLType+"${2}")
-		}
-		nb.WriteString(line + "\n")
-	}
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("failed to scan kcl schema: %w", err)
-	}
-	if _, err := nb.WriteTo(w); err != nil {
+	if _, err := b.WriteTo(w); err != nil {
 		return fmt.Errorf("failed to write to KCL schema: %w", err)
 	}
 
@@ -120,22 +121,12 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	js.SetProperty("schemaGenerator", jsonschema.WithEnum(jsonschema.GeneratorTypeEnum))
 
 	b := &bytes.Buffer{}
-	err = js.GenerateKCL(b)
+	err = js.GenerateKCL(b, jsonschema.Replace(SchemaDefinitionRegexp, "schema ${1}(ChartBase):${2}"))
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
 
-	nb := &bytes.Buffer{}
-	scanner := bufio.NewScanner(b)
-	for scanner.Scan() {
-		line := scanner.Text()
-		line = inheritChartBase(line)
-		nb.WriteString(line + "\n")
-	}
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("failed to scan kcl schema: %w", err)
-	}
-	if _, err := nb.WriteTo(w); err != nil {
+	if _, err := b.WriteTo(w); err != nil {
 		return fmt.Errorf("failed to write to KCL schema: %w", err)
 	}
 
@@ -149,23 +140,111 @@ type ChartRepo struct {
 	// Helm chart repository URL.
 	URL string `json:"url"`
 
-	// Username for basic authentication.
-	Username string `json:"username,omitempty"`
-	// Password for basic authentication.
-	Password string `json:"password,omitempty"`
+	// Basic authentication username environment variable.
+	UsernameEnv string `json:"usernameEnv,omitempty"`
+	// Basic authentication password environment variable.
+	PasswordEnv string `json:"passwordEnv,omitempty"`
 
-	// Path to the CA file.
+	// CA file path.
 	CAPath string `json:"caPath,omitempty"`
-	// TLS client certificate data.
-	TLSClientCertData string `json:"tlsClientCertData,omitempty"`
-	// TLS client certificate key.
-	TLSClientCertKey string `json:"tlsClientCertKey,omitempty"`
+	// TLS client certificate data path.
+	TLSClientCertDataPath string `json:"tlsClientCertDataPath,omitempty"`
+	// TLS client certificate key path.
+	TLSClientCertKeyPath string `json:"tlsClientCertKeyPath,omitempty"`
 
 	// Set to `True` to skip SSL certificate verification.
 	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
 	// Set to `True` to allow credentials to be used in chart dependencies defined
 	// by charts in this repository.
 	PassCredentials bool `json:"passCredentials,omitempty"`
+}
+
+func (c *ChartRepo) GetSnakeCaseName() string {
+	return strcase.ToSnake(c.Name)
+}
+
+func (c *ChartRepo) FromMap(m map[string]any) error {
+	if name, ok := m["name"].(string); ok {
+		c.Name = name
+		delete(m, "name")
+	}
+	if url, ok := m["url"].(string); ok {
+		c.URL = url
+		delete(m, "url")
+	}
+	if usernameEnv, ok := m["usernameEnv"].(string); ok {
+		c.UsernameEnv = usernameEnv
+		delete(m, "usernameEnv")
+	}
+	if passwordEnv, ok := m["passwordEnv"].(string); ok {
+		c.PasswordEnv = passwordEnv
+		delete(m, "passwordEnv")
+	}
+	if caPath, ok := m["caPath"].(string); ok {
+		c.CAPath = caPath
+		delete(m, "caPath")
+	}
+	if tlsClientCertDataPath, ok := m["tlsClientCertDataPath"].(string); ok {
+		c.TLSClientCertDataPath = tlsClientCertDataPath
+		delete(m, "tlsClientCertDataPath")
+	}
+	if tlsClientCertKeyPath, ok := m["tlsClientCertKeyPath"].(string); ok {
+		c.TLSClientCertKeyPath = tlsClientCertKeyPath
+		delete(m, "tlsClientCertKeyPath")
+	}
+	if insecureSkipVerify, ok := m["insecureSkipVerify"].(bool); ok {
+		c.InsecureSkipVerify = insecureSkipVerify
+		delete(m, "insecureSkipVerify")
+	}
+	if passCredentials, ok := m["passCredentials"].(bool); ok {
+		c.PassCredentials = passCredentials
+		delete(m, "passCredentials")
+	}
+	if len(m) > 0 {
+		return fmt.Errorf("unexpected keys in input data: %#v", m)
+	}
+	return nil
+}
+
+func (c *ChartRepo) GetHelmRepo() (*helmrepo.Repo, error) {
+	repo := &helmrepo.Repo{
+		Name:               c.Name,
+		URL:                c.URL,
+		CAPath:             c.CAPath,
+		InsecureSkipVerify: c.InsecureSkipVerify,
+		PassCredentials:    c.PassCredentials,
+	}
+
+	if c.UsernameEnv != "" {
+		username, ok := os.LookupEnv(c.UsernameEnv)
+		if !ok {
+			return nil, fmt.Errorf("failed to get username, environment variable '%s' is unset", c.UsernameEnv)
+		}
+		repo.Username = username
+	}
+	if c.PasswordEnv != "" {
+		password, ok := os.LookupEnv(c.PasswordEnv)
+		if !ok {
+			return nil, fmt.Errorf("failed to get password, environment variable '%s' is unset", c.PasswordEnv)
+		}
+		repo.Password = password
+	}
+	if c.TLSClientCertDataPath != "" {
+		tlsClientCertData, err := os.ReadFile(c.TLSClientCertDataPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read TLS client certificate data from '%s': %w", c.TLSClientCertDataPath, err)
+		}
+		repo.TLSClientCertData = tlsClientCertData
+	}
+	if c.TLSClientCertKeyPath != "" {
+		tlsClientCertKey, err := os.ReadFile(c.TLSClientCertKeyPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read TLS client certificate key from '%s': %w", c.TLSClientCertKeyPath, err)
+		}
+		repo.TLSClientCertKey = tlsClientCertKey
+	}
+
+	return repo, nil
 }
 
 func (c *ChartRepo) GenerateKCL(w io.Writer) error {
@@ -191,11 +270,4 @@ func newSchemaReflector() (*jsonschema.Reflector, error) {
 	}
 
 	return r, nil
-}
-
-func inheritChartBase(line string) string {
-	if SchemaDefinitionRegexp.MatchString(line) {
-		return SchemaDefinitionRegexp.ReplaceAllString(line, "schema ${1}(ChartBase):")
-	}
-	return line
 }

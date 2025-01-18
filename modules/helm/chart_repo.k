@@ -13,16 +13,16 @@ schema ChartRepo:
         Helm chart repository name for reference by `@name`.
     url : str, required
         Helm chart repository URL.
-    username : str, optional
-        Username for basic authentication.
-    password : str, optional
-        Password for basic authentication.
+    usernameEnv : str, optional
+        Basic authentication username environment variable.
+    passwordEnv : str, optional
+        Basic authentication password environment variable.
     caPath : str, optional
-        Path to the CA file.
-    tlsClientCertData : str, optional
-        TLS client certificate data.
-    tlsClientCertKey : str, optional
-        TLS client certificate key.
+        CA file path.
+    tlsClientCertDataPath : str, optional
+        TLS client certificate data path.
+    tlsClientCertKeyPath : str, optional
+        TLS client certificate key path.
     insecureSkipVerify : bool, optional
         Set to `True` to skip SSL certificate verification.
     passCredentials : bool, optional
@@ -32,11 +32,11 @@ schema ChartRepo:
 
     name: str
     url: str
-    username?: str
-    password?: str
+    usernameEnv?: str
+    passwordEnv?: str
     caPath?: str
-    tlsClientCertData?: str
-    tlsClientCertKey?: str
+    tlsClientCertDataPath?: str
+    tlsClientCertKeyPath?: str
     insecureSkipVerify?: bool
     passCredentials?: bool
 
