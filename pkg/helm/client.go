@@ -14,12 +14,13 @@ import (
 	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 	"github.com/MacroPower/kclipper/pkg/argoutil/sync"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
+	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
 var globalLock = sync.NewKeyLock()
 
 var DefaultClient = MustNewClient(
-	NewTempPaths(os.TempDir(), NewBase64PathEncoder()),
+	pathutil.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), pathutil.NewBase64PathEncoder()),
 	os.Getenv("ARGOCD_APP_PROJECT_NAME"),
 	"10M",
 )

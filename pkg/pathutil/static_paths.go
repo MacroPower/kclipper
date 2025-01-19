@@ -1,4 +1,4 @@
-package helm
+package pathutil
 
 import (
 	"encoding/base64"
@@ -12,34 +12,33 @@ type PathEncoder interface {
 	Decode(key string) (string, error)
 }
 
-// TempPaths provides a way to generate temporary paths for storing chart
+// StaticTempPaths provides a way to generate temporary paths for storing chart
 // archives, in a way that prevents cache poisoning between different Projects.
 // Rather than storing a mapping of key->path in memory (default Argo behavior),
 // this implementation uses very simple bijective encoding/decoding functions to
 // convert keys to paths. This allows cache preservation across multiple KCL run
 // invocations.
-type TempPaths struct {
+type StaticTempPaths struct {
 	root string
 	pe   PathEncoder
 }
 
-func NewTempPaths(root string, pe PathEncoder) *TempPaths {
-	chartPaths := filepath.Join(root, "charts")
-	err := os.MkdirAll(chartPaths, 0o700)
+func NewStaticTempPaths(root string, pe PathEncoder) *StaticTempPaths {
+	err := os.MkdirAll(root, 0o700)
 	if err != nil {
 		panic(err)
 	}
-	return &TempPaths{
-		root: chartPaths,
+	return &StaticTempPaths{
+		root: root,
 		pe:   pe,
 	}
 }
 
-func (p *TempPaths) keyToPath(key string) string {
+func (p *StaticTempPaths) keyToPath(key string) string {
 	return filepath.Join(p.root, p.pe.Encode(key))
 }
 
-func (p *TempPaths) pathToKey(path string) string {
+func (p *StaticTempPaths) pathToKey(path string) string {
 	key, err := p.pe.Decode(filepath.Base(path))
 	if err != nil {
 		panic(fmt.Errorf("failed to decode key for %s: %w", path, err))
@@ -47,16 +46,20 @@ func (p *TempPaths) pathToKey(path string) string {
 	return key
 }
 
-func (p *TempPaths) Add(_ string, _ string) {
+func (p *StaticTempPaths) Add(_ string, _ string) {
 }
 
 // GetPath generates a path for the given key or returns previously generated one.
-func (p *TempPaths) GetPath(key string) (string, error) {
+func (p *StaticTempPaths) GetPath(key string) (string, error) {
 	return p.keyToPath(key), nil
 }
 
+func (p *StaticTempPaths) GetKey(path string) (string, error) {
+	return p.pathToKey(path), nil
+}
+
 // GetPathIfExists gets a path for the given key if it exists. Otherwise, returns an empty string.
-func (p *TempPaths) GetPathIfExists(key string) string {
+func (p *StaticTempPaths) GetPathIfExists(key string) string {
 	path := p.keyToPath(key)
 	if _, err := os.Stat(path); err != nil {
 		return ""
@@ -65,7 +68,7 @@ func (p *TempPaths) GetPathIfExists(key string) string {
 }
 
 // GetPaths gets a copy of the map of paths.
-func (p *TempPaths) GetPaths() map[string]string {
+func (p *StaticTempPaths) GetPaths() map[string]string {
 	ds, err := os.ReadDir(p.root)
 	if err != nil {
 		panic(err)

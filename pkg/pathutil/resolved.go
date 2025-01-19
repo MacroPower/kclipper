@@ -22,10 +22,10 @@ type ResolvedFilePath string
 // of an unverified file or directory path. It is an absolute path.
 type ResolvedFileOrDirectoryPath string
 
-// resolveSymbolicLinkRecursive resolves the symlink path recursively to its
+// ResolveSymbolicLinkRecursive resolves the symlink path recursively to its
 // canonical path on the file system, with a maximum nesting level of maxDepth.
 // If path is not a symlink, returns the verbatim copy of path and err of nil.
-func resolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
+func ResolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 	resolved, err := os.Readlink(path)
 	if err != nil {
 		// path is not a symbolic link
@@ -48,7 +48,7 @@ func resolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 		resolved = filepath.Join(basePath, resolved)
 	}
 
-	return resolveSymbolicLinkRecursive(resolved, maxDepth-1)
+	return ResolveSymbolicLinkRecursive(resolved, maxDepth-1)
 }
 
 // isURLSchemeAllowed returns true if the protocol scheme is in the list of
@@ -161,7 +161,7 @@ func resolveFileOrDirectory(
 	}
 
 	// Ensure any symbolic link is resolved before we evaluate the path
-	delinkedPath, err := resolveSymbolicLinkRecursive(path, 10)
+	delinkedPath, err := ResolveSymbolicLinkRecursive(path, 10)
 	if err != nil {
 		return "", resolveFailure(repoRoot, err)
 	}

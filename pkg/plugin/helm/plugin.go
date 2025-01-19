@@ -3,6 +3,7 @@ package helm
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
@@ -11,6 +12,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/kclhelm"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
 func Register() {
@@ -70,9 +72,8 @@ var Plugin = plugin.Plugin{
 					}
 				}
 
-				helmClient, err := helm.NewClient(
-					helm.NewTempPaths(os.TempDir(), helm.NewBase64PathEncoder()), project, "10M",
-				)
+				tempPaths := pathutil.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), pathutil.NewBase64PathEncoder())
+				helmClient, err := helm.NewClient(tempPaths, project, "10M")
 				if err != nil {
 					return nil, fmt.Errorf("failed to create helm client: %w", err)
 				}

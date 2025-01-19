@@ -9,6 +9,7 @@ import (
 
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
+	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
 var (
@@ -25,7 +26,7 @@ func init() {
 	testDataDir := filepath.Join(pkg.Dir, "testdata")
 	DefaultTestClient = &TestClient{
 		BaseClient: helm.MustNewClient(
-			helm.NewTempPaths(testDataDir, &TestPathEncoder{}), "test", "10M",
+			pathutil.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}), "test", "10M",
 		),
 	}
 }

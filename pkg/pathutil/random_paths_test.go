@@ -2,8 +2,7 @@
 // Modifications Copyright 2024-2025 Jacob Colvin
 // Licensed under the Apache License, Version 2.0
 
-//nolint:testpackage
-package pathutil
+package pathutil_test
 
 import (
 	"os"
@@ -11,12 +10,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
-func TestGetPath_SameURLs(t *testing.T) {
+func TestGetRandomizedPath_SameURLs(t *testing.T) {
 	t.Parallel()
 
-	paths := NewRandomizedTempPaths(os.TempDir())
+	paths := pathutil.NewRandomizedTempPaths(os.TempDir())
 	res1, err := paths.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
 	res2, err := paths.GetPath("https://localhost/test.txt")
@@ -24,10 +25,10 @@ func TestGetPath_SameURLs(t *testing.T) {
 	assert.Equal(t, res1, res2)
 }
 
-func TestGetPath_DifferentURLs(t *testing.T) {
+func TestGetRandomizedPath_DifferentURLs(t *testing.T) {
 	t.Parallel()
 
-	paths := NewRandomizedTempPaths(os.TempDir())
+	paths := pathutil.NewRandomizedTempPaths(os.TempDir())
 	res1, err := paths.GetPath("https://localhost/test1.txt")
 	require.NoError(t, err)
 	res2, err := paths.GetPath("https://localhost/test2.txt")
@@ -35,30 +36,30 @@ func TestGetPath_DifferentURLs(t *testing.T) {
 	assert.NotEqual(t, res1, res2)
 }
 
-func TestGetPath_SameURLsDifferentInstances(t *testing.T) {
+func TestGetRandomizedPath_SameURLsDifferentInstances(t *testing.T) {
 	t.Parallel()
 
-	paths1 := NewRandomizedTempPaths(os.TempDir())
+	paths1 := pathutil.NewRandomizedTempPaths(os.TempDir())
 	res1, err := paths1.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
-	paths2 := NewRandomizedTempPaths(os.TempDir())
+	paths2 := pathutil.NewRandomizedTempPaths(os.TempDir())
 	res2, err := paths2.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
 	assert.NotEqual(t, res1, res2)
 }
 
-func TestGetPathIfExists(t *testing.T) {
+func TestGetRandomizedPathIfExists(t *testing.T) {
 	t.Parallel()
 
 	t.Run("does not exist", func(t *testing.T) {
 		t.Parallel()
-		paths := NewRandomizedTempPaths(os.TempDir())
+		paths := pathutil.NewRandomizedTempPaths(os.TempDir())
 		path := paths.GetPathIfExists("https://localhost/test.txt")
 		assert.Empty(t, path)
 	})
 	t.Run("does exist", func(t *testing.T) {
 		t.Parallel()
-		paths := NewRandomizedTempPaths(os.TempDir())
+		paths := pathutil.NewRandomizedTempPaths(os.TempDir())
 		_, err := paths.GetPath("https://localhost/test.txt")
 		require.NoError(t, err)
 		path := paths.GetPathIfExists("https://localhost/test.txt")
@@ -66,10 +67,10 @@ func TestGetPathIfExists(t *testing.T) {
 	})
 }
 
-func TestGetPaths_no_race(t *testing.T) {
+func TestGetRandomizedPaths_no_race(t *testing.T) {
 	t.Parallel()
 
-	paths := NewRandomizedTempPaths(os.TempDir())
+	paths := pathutil.NewRandomizedTempPaths(os.TempDir())
 	go func() {
 		path, err := paths.GetPath("https://localhost/test.txt")
 		assert.NoError(t, err)
