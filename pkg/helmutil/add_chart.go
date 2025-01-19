@@ -21,12 +21,12 @@ const initialChartContents = `import helm
 charts: helm.Charts = {}
 `
 
-func (c *ChartPkg) Add(chart *kclchart.ChartConfig) error {
-	chartDir := path.Join(c.BasePath, chart.GetSnakeCaseName())
-
+func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 	if err := c.Init(); err != nil {
 		return fmt.Errorf("failed to init before add: %w", err)
 	}
+
+	chartDir := path.Join(c.BasePath, chart.GetSnakeCaseName())
 	if err := os.MkdirAll(chartDir, 0o755); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
@@ -54,11 +54,57 @@ func (c *ChartPkg) Add(chart *kclchart.ChartConfig) error {
 	}
 	defer helmChart.Dispose()
 
-	if err := c.generateAndWriteChartKCL(&kclchart.Chart{ChartBase: chart.ChartBase}, chartDir); err != nil {
+	if err := generateAndWriteChartKCL(&kclchart.Chart{ChartBase: chart.ChartBase}, chartDir); err != nil {
 		return err
 	}
 
+	if err := generateAndWriteValuesSchemaFiles(chart, helmChart, chartDir); err != nil {
+		return err
+	}
+
+	if chart.CRDPath != "" {
+		crds, err := helmChart.GetCRDs(func(s string) bool {
+			match, _ := filepath.Match(chart.CRDPath, s)
+			return match
+		})
+		if err != nil {
+			return fmt.Errorf("failed to get CRDs: %w", err)
+		}
+		if err := writeCRDFiles(crds, chartDir); err != nil {
+			return err
+		}
+	}
+
+	chartsFile := filepath.Join(c.BasePath, "charts.k")
+	chartsSpec := kclutil.SpecPathJoin("charts", chart.GetSnakeCaseName())
+	if err := c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec); err != nil {
+		return fmt.Errorf("failed to update '%s': %w", chartsFile, err)
+	}
+
+	if _, err := kcl.FormatPath(c.BasePath); err != nil {
+		return fmt.Errorf("failed to format kcl files: %w", err)
+	}
+
+	return nil
+}
+
+func generateAndWriteChartKCL(hc *kclchart.Chart, chartDir string) error {
+	kclChart := &bytes.Buffer{}
+	if err := hc.GenerateKCL(kclChart); err != nil {
+		return fmt.Errorf("failed to generate chart.k: %w", err)
+	}
+	if err := os.WriteFile(path.Join(chartDir, "chart.k"), kclChart.Bytes(), 0o600); err != nil {
+		return fmt.Errorf("failed to write chart.k: %w", err)
+	}
+	return nil
+}
+
+func generateAndWriteValuesSchemaFiles(
+	chart *kclchart.ChartConfig, chartFiles *helm.ChartFiles, chartDir string,
+) error {
 	var jsonSchemaBytes []byte
+	var err error
+
 	switch chart.SchemaGenerator {
 	case jsonschema.NoGeneratorType:
 		break
@@ -75,59 +121,22 @@ func (c *ChartPkg) Add(chart *kclchart.ChartConfig) error {
 				return filePathsEqual(f, chart.SchemaPath)
 			}
 		}
-		jsonSchemaBytes, err = helmChart.GetValuesJSONSchema(jsonschema.GetGenerator(chart.SchemaGenerator), fileMatcher)
+		jsonSchemaBytes, err = chartFiles.GetValuesJSONSchema(jsonschema.GetGenerator(chart.SchemaGenerator), fileMatcher)
 		if err != nil {
 			return fmt.Errorf("failed to generate schema: %w", err)
 		}
 	}
 
 	if len(jsonSchemaBytes) != 0 {
-		if err := c.writeValuesSchemaFiles(jsonSchemaBytes, chartDir); err != nil {
+		if err := writeValuesSchemaFiles(jsonSchemaBytes, chartDir); err != nil {
 			return err
 		}
-	}
-
-	if chart.CRDPath != "" {
-		crds, err := helmChart.GetCRDs(func(s string) bool {
-			match, _ := filepath.Match(chart.CRDPath, s)
-			return match
-		})
-		if err != nil {
-			return fmt.Errorf("failed to get CRDs: %w", err)
-		}
-
-		if err := c.writeCRDFiles(crds, chartDir); err != nil {
-			return err
-		}
-	}
-
-	chartsFile := filepath.Join(c.BasePath, "charts.k")
-	chartsSpec := kclutil.SpecPathJoin("charts", chart.GetSnakeCaseName())
-	err = c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec)
-	if err != nil {
-		return fmt.Errorf("failed to update '%s': %w", chartsFile, err)
-	}
-
-	_, err = kcl.FormatPath(c.BasePath)
-	if err != nil {
-		return fmt.Errorf("failed to format kcl files: %w", err)
 	}
 
 	return nil
 }
 
-func (c *ChartPkg) generateAndWriteChartKCL(hc *kclchart.Chart, chartDir string) error {
-	kclChart := &bytes.Buffer{}
-	if err := hc.GenerateKCL(kclChart); err != nil {
-		return fmt.Errorf("failed to generate chart.k: %w", err)
-	}
-	if err := os.WriteFile(path.Join(chartDir, "chart.k"), kclChart.Bytes(), 0o600); err != nil {
-		return fmt.Errorf("failed to write chart.k: %w", err)
-	}
-	return nil
-}
-
-func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
+func writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
 	if err := os.WriteFile(path.Join(chartDir, "values.schema.json"), jsonSchema, 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.json: %w", err)
 	}
@@ -143,7 +152,7 @@ func (c *ChartPkg) writeValuesSchemaFiles(jsonSchema []byte, chartDir string) er
 	return nil
 }
 
-func (c *ChartPkg) writeCRDFiles(crds [][]byte, chartDir string) error {
+func writeCRDFiles(crds [][]byte, chartDir string) error {
 	for _, crd := range crds {
 		err := kclutil.GenerateKCLFromCRD(crd, chartDir)
 		if err != nil {

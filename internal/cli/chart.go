@@ -125,7 +125,7 @@ func NewChartAddCmd() *cobra.Command {
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-			return c.Add(&kclchart.ChartConfig{
+			return c.AddChart(&kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:           chart,
 					RepoURL:         repoURL,

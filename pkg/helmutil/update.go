@@ -35,7 +35,7 @@ func (c *ChartPkg) Update() error {
 		if k != chart.GetSnakeCaseName() {
 			return fmt.Errorf("chart key '%s' does not match chart name '%s'", k, chart.GetSnakeCaseName())
 		}
-		err := c.Add(&chart)
+		err := c.AddChart(&chart)
 		if err != nil {
 			return fmt.Errorf("failed to update chart '%s': %w", k, err)
 		}

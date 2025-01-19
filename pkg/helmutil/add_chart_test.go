@@ -13,6 +13,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
 const (
@@ -63,12 +64,30 @@ func TestHelmChartAdd(t *testing.T) {
 			chart: &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:          "kube-prometheus-stack",
-					RepoURL:        "https://prometheus-community.github.io/helm-charts",
+					RepoURL:        "@prometheus",
 					TargetRevision: "67.9.0",
+					Repositories: []kclhelm.ChartRepo{
+						{
+							Name: "prometheus",
+							URL:  "https://prometheus-community.github.io/helm-charts",
+						},
+					},
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.AutoGeneratorType,
 					CRDPath:         "**/crds/crds/*.yaml",
+				},
+			},
+		},
+		"simple-chart": {
+			chart: &kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
+					Chart:   "simple-chart",
+					RepoURL: "./testdata/charts",
+				},
+				HelmChartConfig: kclchart.HelmChartConfig{
+					SchemaGenerator: jsonschema.LocalPathGeneratorType,
+					SchemaPath:      "./testdata/schemas/simple-chart/values.schema.json",
 				},
 			},
 		},
@@ -77,7 +96,7 @@ func TestHelmChartAdd(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			err := ca.Add(tc.chart)
+			err := ca.AddChart(tc.chart)
 			require.NoError(t, err)
 
 			depsOpt, err := options.LoadDepsFrom(chartPath, true)
