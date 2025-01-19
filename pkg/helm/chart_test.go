@@ -178,9 +178,10 @@ func BenchmarkHelmChart(b *testing.B) {
 
 func BenchmarkAppTemplateHelmChart(b *testing.B) {
 	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
-		ChartName:      "app-template",
-		TargetRevision: "3.6.0",
-		RepoURL:        "https://bjw-s.github.io/helm-charts/",
+		ChartName:            "app-template",
+		TargetRevision:       "3.6.0",
+		RepoURL:              "https://bjw-s.github.io/helm-charts/",
+		SkipSchemaValidation: true,
 	})
 	require.NoError(b, err)
 	_, err = c.Template()
