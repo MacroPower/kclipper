@@ -77,7 +77,7 @@ func (m *Manager) Get(repo string) (*Repo, error) {
 		return m.GetByName(strings.TrimPrefix(repo, "@"))
 	}
 
-	return m.GetOrAddByURL(repo)
+	return m.GetByURL(repo)
 }
 
 func (m *Manager) GetByName(name string) (*Repo, error) {
@@ -91,31 +91,23 @@ func (m *Manager) GetByName(name string) (*Repo, error) {
 	return repo, nil
 }
 
-func (m *Manager) GetOrAddByURL(repoURL string) (*Repo, error) {
+func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
 	u, err := url.Parse(repoURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL '%s': %w", repoURL, err)
 	}
 	repoURL = u.String()
 
-	repo, err := m.GetByURL(repoURL)
-	if err != nil {
-		repo = &Repo{Name: repoURL, URL: repoURL}
-		err = m.Add(repo)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return repo, nil
-}
-
-func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
 	repo, ok := m.reposByURL[repoURL]
 	if !ok {
-		return nil, fmt.Errorf("repo with url '%s' not found", repoURL)
+		return &Repo{
+			Name: repoURL,
+			URL:  repoURL,
+			url:  u,
+		}, nil
 	}
 	return repo, nil
 }
