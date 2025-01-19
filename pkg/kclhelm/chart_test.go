@@ -1,4 +1,4 @@
-package pluginmodule_test
+package kclhelm_test
 
 import (
 	"bytes"
@@ -8,32 +8,32 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
 func TestGenerateHelmModule(t *testing.T) {
 	t.Parallel()
 
-	err := os.Chdir("../../../")
+	err := os.Chdir("../../")
 	require.NoError(t, err)
 
 	b := &bytes.Buffer{}
 
-	cb := pluginmodule.ChartBase{}
+	cb := kclhelm.ChartBase{}
 	err = cb.GenerateKCL(b)
 	require.NoError(t, err)
 	assert.NotEmpty(t, b.String())
 	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
-	cc := pluginmodule.ChartConfig{}
+	cc := kclhelm.ChartConfig{}
 	err = cc.GenerateKCL(b)
 	require.NoError(t, err)
 	assert.NotEmpty(t, b.String())
 	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
-	c := pluginmodule.Chart{}
+	c := kclhelm.Chart{}
 	err = c.GenerateKCL(b)
 	require.NoError(t, err)
 	assert.NotEmpty(t, b.String())

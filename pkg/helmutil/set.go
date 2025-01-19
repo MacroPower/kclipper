@@ -8,7 +8,7 @@ import (
 
 	"kcl-lang.io/kcl-go"
 
-	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
+	"github.com/MacroPower/kclipper/pkg/kclchart"
 )
 
 func (c *ChartPkg) Set(chart string, keyValueOverrides string) error {
@@ -16,8 +16,8 @@ func (c *ChartPkg) Set(chart string, keyValueOverrides string) error {
 		return errors.New("chart name cannot be empty")
 	}
 
-	hc := helmmodels.Chart{
-		ChartBase: helmmodels.ChartBase{
+	hc := kclchart.Chart{
+		ChartBase: kclchart.ChartBase{
 			Chart: chart,
 		},
 	}
@@ -27,7 +27,7 @@ func (c *ChartPkg) Set(chart string, keyValueOverrides string) error {
 		return fmt.Errorf("no key=value pair found in '%s'", keyValueOverrides)
 	}
 
-	configValue := reflect.ValueOf(&helmmodels.ChartConfig{}).Elem().FieldByNameFunc(func(fieldName string) bool {
+	configValue := reflect.ValueOf(&kclchart.ChartConfig{}).Elem().FieldByNameFunc(func(fieldName string) bool {
 		return strings.EqualFold(fieldName, key)
 	})
 

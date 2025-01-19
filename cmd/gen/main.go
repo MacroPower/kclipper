@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func generate(path string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fcb.Close()
-	pcb := &pluginmodule.ChartBase{}
+	pcb := &kclhelm.ChartBase{}
 	if err = pcb.GenerateKCL(fcb); err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
@@ -34,7 +34,7 @@ func generate(path string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fcc.Close()
-	pcc := &pluginmodule.ChartConfig{}
+	pcc := &kclhelm.ChartConfig{}
 	if err = pcc.GenerateKCL(fcc); err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
@@ -44,7 +44,7 @@ func generate(path string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fcr.Close()
-	pcr := &pluginmodule.ChartRepo{}
+	pcr := &kclhelm.ChartRepo{}
 	if err = pcr.GenerateKCL(fcr); err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
@@ -54,7 +54,7 @@ func generate(path string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fc.Close()
-	pc := &pluginmodule.Chart{}
+	pc := &kclhelm.Chart{}
 	if err = pc.GenerateKCL(fc); err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}

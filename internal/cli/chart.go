@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
 const (
@@ -268,7 +268,7 @@ func NewChartRepoAddCmd() *cobra.Command {
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-			return c.AddRepo(&pluginmodule.ChartRepo{
+			return c.AddRepo(&kclhelm.ChartRepo{
 				Name:                  name,
 				URL:                   url,
 				UsernameEnv:           usernameEnv,

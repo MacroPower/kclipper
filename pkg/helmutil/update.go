@@ -7,7 +7,7 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go/pkg/kcl"
 
-	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
+	"github.com/MacroPower/kclipper/pkg/kclchart"
 )
 
 // Update loads the chart configurations defined in charts.k and calls Add to
@@ -25,7 +25,7 @@ func (c *ChartPkg) Update() error {
 
 	mainData := mainOutput.GetRawJsonResult()
 
-	chartData := &helmmodels.ChartData{}
+	chartData := &kclchart.ChartData{}
 	if err := json.Unmarshal([]byte(mainData), chartData); err != nil {
 		return fmt.Errorf("failed to unmarshal output from '%s': %w", c.BasePath, err)
 	}

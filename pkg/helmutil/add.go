@@ -11,10 +11,10 @@ import (
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
-	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
-	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclchart"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
@@ -27,10 +27,10 @@ func (c *ChartPkg) Add(
 	chart, repoURL, targetRevision, schemaPath, crdPath string,
 	genType jsonschema.GeneratorType,
 	validateType jsonschema.ValidatorType,
-	helmRepos []pluginmodule.ChartRepo,
+	helmRepos []kclhelm.ChartRepo,
 ) error {
-	hc := helmmodels.Chart{
-		ChartBase: helmmodels.ChartBase{
+	hc := kclchart.Chart{
+		ChartBase: kclchart.ChartBase{
 			Chart:           chart,
 			RepoURL:         repoURL,
 			TargetRevision:  targetRevision,
@@ -137,7 +137,7 @@ func (c *ChartPkg) Add(
 	return nil
 }
 
-func (c *ChartPkg) generateAndWriteChartKCL(hc helmmodels.Chart, chartDir string) error {
+func (c *ChartPkg) generateAndWriteChartKCL(hc kclchart.Chart, chartDir string) error {
 	kclChart := &bytes.Buffer{}
 	if err := hc.GenerateKCL(kclChart); err != nil {
 		return fmt.Errorf("failed to generate chart.k: %w", err)

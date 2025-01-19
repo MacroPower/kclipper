@@ -1,4 +1,4 @@
-package chartmodule
+package kclchart
 
 import (
 	"bytes"
@@ -10,8 +10,8 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
 var (
@@ -29,7 +29,7 @@ type ChartData struct {
 }
 
 type ChartRepoData struct {
-	Repos map[string]pluginmodule.ChartRepo `json:"repos"`
+	Repos map[string]kclhelm.ChartRepo `json:"repos"`
 }
 
 // GetSortedKeys returns the chart keys in alphabetical order.
@@ -43,9 +43,9 @@ func (cd *ChartData) GetSortedKeys() []string {
 }
 
 type (
-	ChartBase       pluginmodule.ChartBase
-	HelmChartConfig pluginmodule.ChartConfig
-	HelmChart       pluginmodule.Chart
+	ChartBase       kclhelm.ChartBase
+	HelmChartConfig kclhelm.ChartConfig
+	HelmChart       kclhelm.Chart
 )
 
 // All possible chart configuration that can be defined in `charts.k`,

@@ -8,9 +8,9 @@ import (
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	kclutil "github.com/MacroPower/kclipper/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 func Register() {
@@ -52,7 +52,7 @@ var Plugin = plugin.Plugin{
 
 				repoMgr := helmrepo.NewManager()
 				for _, repo := range repos {
-					var pcr pluginmodule.ChartRepo
+					var pcr kclhelm.ChartRepo
 					repoMap, ok := repo.(map[string]any)
 					if !ok {
 						return nil, fmt.Errorf("invalid repository: %#v", repo)

@@ -9,9 +9,9 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
 	"github.com/MacroPower/kclipper/pkg/helmtest"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
 const (
@@ -30,10 +30,10 @@ func TestHelmChartAddRepo(t *testing.T) {
 	require.NoError(t, err)
 
 	tcs := map[string]struct {
-		repo *pluginmodule.ChartRepo
+		repo *kclhelm.ChartRepo
 	}{
 		"podinfo": {
-			repo: &pluginmodule.ChartRepo{
+			repo: &kclhelm.ChartRepo{
 				Name:            "podinfo",
 				URL:             "https://stefanprodan.github.io/podinfo",
 				PassCredentials: true,

@@ -9,10 +9,10 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
-	helmmodels "github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
 	"github.com/MacroPower/kclipper/pkg/helmtest"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclchart"
 )
 
 const (
@@ -31,42 +31,42 @@ func TestHelmChartAdd(t *testing.T) {
 	require.NoError(t, err)
 
 	tcs := map[string]struct {
-		chart *helmmodels.ChartConfig
+		chart *kclchart.ChartConfig
 	}{
 		"podinfo": {
-			chart: &helmmodels.ChartConfig{
-				ChartBase: helmmodels.ChartBase{
+			chart: &kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
 					Chart:           "podinfo",
 					RepoURL:         "https://stefanprodan.github.io/podinfo",
 					TargetRevision:  "6.7.1",
 					SchemaValidator: jsonschema.HelmValidatorType,
 				},
-				HelmChartConfig: helmmodels.HelmChartConfig{
+				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.AutoGeneratorType,
 				},
 			},
 		},
 		"app-template": {
-			chart: &helmmodels.ChartConfig{
-				ChartBase: helmmodels.ChartBase{
+			chart: &kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
 					Chart:          "app-template",
 					RepoURL:        "https://bjw-s.github.io/helm-charts/",
 					TargetRevision: "3.6.0",
 				},
-				HelmChartConfig: helmmodels.HelmChartConfig{
+				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.ChartPathGeneratorType,
 					SchemaPath:      "charts/common/values.schema.json",
 				},
 			},
 		},
 		"prometheus": {
-			chart: &helmmodels.ChartConfig{
-				ChartBase: helmmodels.ChartBase{
+			chart: &kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
 					Chart:          "kube-prometheus-stack",
 					RepoURL:        "https://prometheus-community.github.io/helm-charts",
 					TargetRevision: "67.9.0",
 				},
-				HelmChartConfig: helmmodels.HelmChartConfig{
+				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.AutoGeneratorType,
 					CRDPath:         "**/crds/crds/*.yaml",
 				},

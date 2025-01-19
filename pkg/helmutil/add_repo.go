@@ -8,7 +8,7 @@ import (
 
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels/pluginmodule"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
 const initialRepoContents = `import helm
@@ -16,7 +16,7 @@ const initialRepoContents = `import helm
 repos: helm.ChartRepos = {}
 `
 
-func (c *ChartPkg) AddRepo(repo *pluginmodule.ChartRepo) error {
+func (c *ChartPkg) AddRepo(repo *kclhelm.ChartRepo) error {
 	if err := c.Init(); err != nil {
 		return fmt.Errorf("failed to init before add: %w", err)
 	}

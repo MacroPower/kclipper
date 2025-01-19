@@ -1,4 +1,4 @@
-package pluginmodule
+package kclhelm
 
 import (
 	"bytes"
@@ -264,7 +264,7 @@ func (c *ChartRepo) GenerateKCL(w io.Writer) error {
 
 func newSchemaReflector() (*jsonschema.Reflector, error) {
 	r := jsonschema.NewReflector()
-	err := r.AddGoComments("github.com/MacroPower/kclipper", "./pkg/helmmodels/pluginmodule")
+	err := r.AddGoComments("github.com/MacroPower/kclipper", "./pkg/kclhelm")
 	if err != nil {
 		return nil, fmt.Errorf("failed to add go comments: %w", err)
 	}

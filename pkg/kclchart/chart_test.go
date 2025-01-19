@@ -1,4 +1,4 @@
-package chartmodule_test
+package kclchart_test
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/helmmodels/chartmodule"
+	"github.com/MacroPower/kclipper/pkg/kclchart"
 )
 
 func TestGenerateChart(t *testing.T) {
@@ -14,14 +14,14 @@ func TestGenerateChart(t *testing.T) {
 
 	b := &bytes.Buffer{}
 
-	cc := chartmodule.ChartConfig{}
+	cc := kclchart.ChartConfig{}
 	err := cc.GenerateKCL(b)
 	require.NoError(t, err)
 	require.NotEmpty(t, b.String())
 	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
-	c := chartmodule.Chart{}
+	c := kclchart.Chart{}
 	err = c.GenerateKCL(b)
 	require.NoError(t, err)
 	require.NotEmpty(t, b.String())
