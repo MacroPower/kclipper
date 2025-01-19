@@ -52,7 +52,16 @@ var Plugin = plugin.Plugin{
 				kubeVersion := os.Getenv("KUBE_VERSION")
 				kubeAPIVersions := os.Getenv("KUBE_API_VERSIONS")
 
-				repoMgr := helmrepo.NewManager()
+				currentPath := os.Getenv("ARGOCD_APP_SOURCE_PATH")
+				if currentPath == "" {
+					currentPath = "."
+				}
+				repoRoot := os.Getenv("ARGOCD_APP_REPO_ROOT")
+				if repoRoot == "" {
+					repoRoot = "."
+				}
+
+				repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(currentPath, repoRoot))
 				for _, repo := range repos {
 					var pcr kclhelm.ChartRepo
 					repoMap, ok := repo.(map[string]any)

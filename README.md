@@ -55,7 +55,7 @@ manifests.yaml_stream([*_podinfo, _serviceMonitor])
 
 ---
 
-**Declaratively manage all of your Helm charts and their schemas.** Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more for Chart, CRD, and Value objects, as well as `values.yaml` files (if you prefer YAML over KCL for values, or want to use both). Optionally, use the `kcl chart` command to make quick edits from the command line:
+**Declaratively manage all of your Helm charts and their schemas.** Private, OCI, and local repos are all supported. Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more for Chart, CRD, and Value objects, as well as `values.yaml` files (if you prefer YAML over KCL for values, or want to use both). Optionally, use the `kcl chart` command to make quick edits from the command line:
 
 ```py
 import helm
@@ -68,22 +68,23 @@ charts: helm.Charts = {
         targetRevision = "6.7.0"
         schemaGenerator = "AUTO"
     }
-    # kcl chart add -c app-template -r https://bjw-s.github.io/helm-charts/ -t "3.6.0"
+    # kcl chart repo add -n bjw-s -u https://bjw-s.github.io/helm-charts/
+    # kcl chart add -c app-template -r @bjw-s -t "3.6.0"
     app_template: {
         chart = "app-template"
-        repoURL = "https://bjw-s.github.io/helm-charts/"
+        repoURL = "@bjw-s"
         targetRevision = "3.6.0"
         schemaValidator = "KCL"
         schemaGenerator = "CHART-PATH"
         schemaPath = "charts/common/values.schema.json"
+        repositories = [repos.bjw_s]
     }
-    # kcl chart add -c kube-prometheus-stack -r https://prometheus-community.github.io/helm-charts -t "67.9.0"
-    kube_prometheus_stack: {
-        chart = "kube-prometheus-stack"
-        repoURL = "https://prometheus-community.github.io/helm-charts"
-        targetRevision = "67.9.0"
+    # kcl chart add -c my-chart -r ./my-charts/
+    my_chart: {
+        chart = "my-chart"
+        repoURL = "./my-charts/"
         schemaGenerator = "AUTO"
-        crdPath = "**/crds/crds/*.yaml"
+        crdPath = "**/crds/*.yaml"
     }
 }
 ```

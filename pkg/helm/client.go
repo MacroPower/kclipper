@@ -11,7 +11,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 	"github.com/MacroPower/kclipper/pkg/argoutil/sync"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/pathutil"
@@ -115,11 +114,7 @@ func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.
 }
 
 func (c *Client) getLocalChart(chart string, repo *helmrepo.Repo) (string, error) {
-	chartDir, err := filepath.Abs(repo.URL)
-	if err != nil {
-		return "", fmt.Errorf("failed to get absolute path: %w", err)
-	}
-	chartPath := filepath.Join(chartDir, chart)
+	chartPath := filepath.Join(repo.URL.String(), chart)
 	if !dirExists(chartPath) {
 		return "", fmt.Errorf("chart directory does not exist: %s", chartPath)
 	}
@@ -127,7 +122,7 @@ func (c *Client) getLocalChart(chart string, repo *helmrepo.Repo) (string, error
 }
 
 func (c *Client) getCachedOrRemoteChart(chart, version string, repo *helmrepo.Repo) (string, error) {
-	cachedChartPath, err := c.getCachedChartPath(chart, repo.URL, version)
+	cachedChartPath, err := c.getCachedChartPath(chart, repo.URL.String(), version)
 	if err != nil {
 		return "", fmt.Errorf("error getting cached chart path: %w", err)
 	}
@@ -152,7 +147,7 @@ func (c *Client) getCachedOrRemoteChart(chart, version string, repo *helmrepo.Re
 }
 
 func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.Repo) error {
-	helmCmd, err := argohelm.NewCmdWithVersion("", c.Proxy, c.NoProxy)
+	helmCmd, err := NewCmdWithVersion("", c.Proxy, c.NoProxy)
 	if err != nil {
 		return fmt.Errorf("error creating Helm command: %w", err)
 	}

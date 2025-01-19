@@ -13,8 +13,8 @@ schema ChartBase:
         Helm chart name.
     repoURL : str, required
         URL of the Helm chart repository.
-    targetRevision : str, required
-        Semver tag for the chart's version.
+    targetRevision : str, optional
+        Semver tag for the chart's version. May be omitted for local charts.
     releaseName : str, optional
         Helm release name to use. If omitted the chart name will be used.
     namespace : str, optional
@@ -31,7 +31,7 @@ schema ChartBase:
 
     chart: str
     repoURL: str
-    targetRevision: str
+    targetRevision?: str
     releaseName?: str
     namespace?: str
     skipCRDs?: bool

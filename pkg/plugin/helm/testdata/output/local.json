@@ -1,0 +1,102 @@
+{
+  "result": [
+    {
+      "apiVersion": "v1",
+      "automountServiceAccountToken": true,
+      "kind": "ServiceAccount",
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/instance": "simple-chart",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "simple-chart",
+          "app.kubernetes.io/version": "1.16.0",
+          "helm.sh/chart": "simple-chart-0.1.0"
+        },
+        "name": "simple-chart"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/instance": "simple-chart",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "simple-chart",
+          "app.kubernetes.io/version": "1.16.0",
+          "helm.sh/chart": "simple-chart-0.1.0"
+        },
+        "name": "simple-chart"
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "http",
+            "port": 80,
+            "protocol": "TCP",
+            "targetPort": "http"
+          }
+        ],
+        "selector": {
+          "app.kubernetes.io/instance": "simple-chart",
+          "app.kubernetes.io/name": "simple-chart"
+        },
+        "type": "ClusterIP"
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/instance": "simple-chart",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "simple-chart",
+          "app.kubernetes.io/version": "1.16.0",
+          "helm.sh/chart": "simple-chart-0.1.0"
+        },
+        "name": "simple-chart"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/instance": "simple-chart",
+            "app.kubernetes.io/name": "simple-chart"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/instance": "simple-chart",
+              "app.kubernetes.io/managed-by": "Helm",
+              "app.kubernetes.io/name": "simple-chart",
+              "app.kubernetes.io/version": "1.16.0",
+              "helm.sh/chart": "simple-chart-0.1.0"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "image": "nginx:1.16.0",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": { "httpGet": { "path": "/", "port": "http" } },
+                "name": "simple-chart",
+                "ports": [
+                  { "containerPort": 80, "name": "http", "protocol": "TCP" }
+                ],
+                "readinessProbe": {
+                  "httpGet": { "path": "/", "port": "http" }
+                },
+                "resources": {},
+                "securityContext": {}
+              }
+            ],
+            "securityContext": {},
+            "serviceAccountName": "simple-chart"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -23,6 +23,10 @@ charts: helm.Charts = {
         schemaGenerator = "AUTO"
         targetRevision = "67.9.0"
     }
+    simple_chart: {
+        chart = "simple-chart"
+        repoURL = "./my-local-charts/"
+    }
     # private: {
     #     chart = "private"
     #     repoURL = "@chartmuseum"

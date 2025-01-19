@@ -3,6 +3,7 @@ import kcl_plugin.http
 import helm
 import charts.podinfo
 import charts.kube_prometheus_stack.crds as prometheus_crds
+import charts.simple_chart
 import regex
 
 {
@@ -22,6 +23,7 @@ import regex
             resource
         }
     })
+    "helm.template(local)": helm.template(simple_chart.Chart {})
     "helm.crd": prometheus_crds.Alertmanager{
       spec: prometheus_crds.MonitoringCoreosComV1AlertmanagerSpec{
         replicas: 2

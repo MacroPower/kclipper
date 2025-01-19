@@ -8,7 +8,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	argohelm "github.com/MacroPower/kclipper/pkg/argoutil/helm"
 	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
@@ -83,12 +82,12 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 }
 
 func (c *Chart) template() ([]byte, error) {
-	cmd, err := argohelm.NewCmdWithVersion(c.path, c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy)
+	cmd, err := NewCmdWithVersion(c.path, c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy)
 	if err != nil {
 		return nil, fmt.Errorf("error creating helm command: %w", err)
 	}
 
-	out, _, err := cmd.Template(".", &argohelm.TemplateOpts{
+	out, _, err := cmd.Template(".", &CmdTemplateOpts{
 		Name:                 c.TemplateOpts.ChartName,
 		Namespace:            c.TemplateOpts.Namespace,
 		Values:               c.TemplateOpts.ValuesObject,

@@ -14,8 +14,8 @@ type ChartBase struct {
 	Chart string `json:"chart"`
 	// URL of the Helm chart repository.
 	RepoURL string `json:"repoURL"`
-	// Semver tag for the chart's version.
-	TargetRevision string `json:"targetRevision"`
+	// Semver tag for the chart's version. May be omitted for local charts.
+	TargetRevision string `json:"targetRevision,omitempty"`
 	// Helm release name to use. If omitted the chart name will be used.
 	ReleaseName string `json:"releaseName,omitempty"`
 	// Optional namespace to template with.

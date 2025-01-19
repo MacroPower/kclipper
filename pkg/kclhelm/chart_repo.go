@@ -100,13 +100,15 @@ func (c *ChartRepo) FromMap(m map[string]any) error {
 	return nil
 }
 
-func (c *ChartRepo) GetHelmRepo() (*helmrepo.Repo, error) {
-	repo := &helmrepo.Repo{
-		Name:               c.Name,
-		URL:                c.URL,
-		CAPath:             c.CAPath,
-		InsecureSkipVerify: c.InsecureSkipVerify,
-		PassCredentials:    c.PassCredentials,
+func (c *ChartRepo) GetHelmRepo() (*helmrepo.RepoOpts, error) {
+	repo := &helmrepo.RepoOpts{
+		Name:                  c.Name,
+		URL:                   c.URL,
+		CAPath:                c.CAPath,
+		TLSClientCertDataPath: c.TLSClientCertDataPath,
+		TLSClientCertKeyPath:  c.TLSClientCertKeyPath,
+		InsecureSkipVerify:    c.InsecureSkipVerify,
+		PassCredentials:       c.PassCredentials,
 	}
 
 	if c.UsernameEnv != "" {
@@ -122,20 +124,6 @@ func (c *ChartRepo) GetHelmRepo() (*helmrepo.Repo, error) {
 			return nil, fmt.Errorf("failed to get password, environment variable '%s' is unset", c.PasswordEnv)
 		}
 		repo.Password = password
-	}
-	if c.TLSClientCertDataPath != "" {
-		tlsClientCertData, err := os.ReadFile(c.TLSClientCertDataPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read TLS client certificate data from '%s': %w", c.TLSClientCertDataPath, err)
-		}
-		repo.TLSClientCertData = tlsClientCertData
-	}
-	if c.TLSClientCertKeyPath != "" {
-		tlsClientCertKey, err := os.ReadFile(c.TLSClientCertKeyPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read TLS client certificate key from '%s': %w", c.TLSClientCertKeyPath, err)
-		}
-		repo.TLSClientCertKey = tlsClientCertKey
 	}
 
 	return repo, nil

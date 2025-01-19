@@ -2,7 +2,6 @@ package helm
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"path"
 	"path/filepath"
@@ -57,49 +56,21 @@ func (c *Cmd) Fetch(chart, version, destination string, repo *helmrepo.Repo) (st
 		RegistryClient: c.rc,
 	}))
 	ap.Settings = c.settings
-
 	ap.Untar = false
-
 	ap.DestDir = destination
 	if version != "" {
 		ap.Version = version
 	}
+
 	if repo != nil {
-		creds := repo
-		if creds.Username != "" {
-			ap.Username = creds.Username
-		}
-		if creds.Password != "" {
-			ap.Password = creds.Password
-		}
-		if creds.InsecureSkipVerify {
-			ap.InsecureSkipTLSverify = true
-		}
-
-		ap.RepoURL = repo.URL
-
-		if creds.CAPath != "" {
-			ap.CaFile = creds.CAPath
-		}
-		if len(creds.TLSClientCertData) > 0 {
-			filePath, closer, err := writeToTmp(creds.TLSClientCertData)
-			if err != nil {
-				return "", fmt.Errorf("failed to write certificate data to temporary file: %w", err)
-			}
-			defer tryClose(closer)
-			ap.CertFile = filePath
-		}
-		if len(creds.TLSClientCertKey) > 0 {
-			filePath, closer, err := writeToTmp(creds.TLSClientCertKey)
-			if err != nil {
-				return "", fmt.Errorf("failed to write key data to temporary file: %w", err)
-			}
-			defer tryClose(closer)
-			ap.KeyFile = filePath
-		}
-		if repo.PassCredentials {
-			ap.PassCredentialsAll = true
-		}
+		ap.RepoURL = repo.URL.String()
+		ap.Username = repo.Username
+		ap.Password = repo.Password
+		ap.CaFile = repo.CAPath.String()
+		ap.CertFile = repo.TLSClientCertDataPath.String()
+		ap.KeyFile = repo.TLSClientCertKeyPath.String()
+		ap.PassCredentialsAll = repo.PassCredentials
+		ap.InsecureSkipTLSverify = repo.InsecureSkipVerify
 	}
 
 	out, err := ap.Run(chart)
@@ -109,7 +80,7 @@ func (c *Cmd) Fetch(chart, version, destination string, repo *helmrepo.Repo) (st
 	return out, nil
 }
 
-func (c *Cmd) Template(chartPath string, opts *TemplateOpts) (string, string, error) {
+func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string, error) {
 	// Fail open instead of blocking the template.
 	kv := &chartutil.KubeVersion{
 		Major:   "999",
@@ -217,31 +188,7 @@ func removeSchemasFromObject(chart *chart.Chart) {
 	}
 }
 
-func writeToTmp(data []byte) (string, *InlineCloser, error) {
-	file, err := os.CreateTemp("", "")
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to create temporary file: %w", err)
-	}
-	err = os.WriteFile(file.Name(), data, 0o600)
-	if err != nil {
-		_ = os.RemoveAll(file.Name())
-		return "", nil, fmt.Errorf("failed to write data to temporary file: %w", err)
-	}
-	defer func() {
-		if err = file.Close(); err != nil {
-			slog.Error("error closing file", "file", file.Name(), "security", 2, "CWE", 755, "err", err)
-		}
-	}()
-	return file.Name(), newInlineCloser(func() error {
-		return os.RemoveAll(file.Name())
-	}), nil
-}
-
-type ChartPuller interface {
-	Pull(chart, repo, version string, repos helmrepo.Getter) (string, error)
-}
-
-type TemplateOpts struct {
+type CmdTemplateOpts struct {
 	Name                 string
 	Namespace            string
 	KubeVersion          string
@@ -251,5 +198,5 @@ type TemplateOpts struct {
 	SkipSchemaValidation bool
 
 	RepoGetter       helmrepo.Getter
-	DependencyPuller ChartPuller
+	DependencyPuller ChartClient
 }

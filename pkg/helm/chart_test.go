@@ -18,7 +18,7 @@ import (
 func init() {
 	log.SetLogLevel("warn")
 
-	err := helmrepo.DefaultManager.Add(&helmrepo.Repo{
+	err := helmrepo.DefaultManager.Add(&helmrepo.RepoOpts{
 		Name:            "chartmuseum",
 		URL:             "http://localhost:8080",
 		Username:        "user",
@@ -26,6 +26,15 @@ func init() {
 		PassCredentials: true,
 	})
 	if err != nil {
+		panic(err)
+	}
+
+	testdataDir := "./testdata"
+	gotDir := filepath.Join(testdataDir, "got")
+	if err := os.RemoveAll(gotDir); err != nil {
+		panic(err)
+	}
+	if err := os.MkdirAll(gotDir, 0o700); err != nil {
 		panic(err)
 	}
 }
@@ -143,9 +152,7 @@ func TestHelmChart(t *testing.T) {
 
 			// Write the results to testdata/got for debugging.
 			gotDir := filepath.Join("testdata/got", tc.opts.ChartName)
-			err = os.RemoveAll(gotDir)
-			require.NoError(t, err)
-			err = os.MkdirAll(gotDir, 0o755)
+			err = os.MkdirAll(gotDir, 0o700)
 			require.NoError(t, err)
 
 			err = os.WriteFile(filepath.Join(gotDir, "output.yaml"), resultYAMLs, 0o600)

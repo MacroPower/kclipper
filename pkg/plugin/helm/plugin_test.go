@@ -34,9 +34,13 @@ func TestPluginHelmTemplate(t *testing.T) {
 		kclFile     string
 		resultsFile string
 	}{
-		"Simple": {
-			kclFile:     "input/simple.k",
-			resultsFile: "output/simple.json",
+		"Remote": {
+			kclFile:     "input/remote.k",
+			resultsFile: "output/remote.json",
+		},
+		"Local": {
+			kclFile:     "input/local.k",
+			resultsFile: "output/local.json",
 		},
 	}
 	for name, tc := range tcs {
