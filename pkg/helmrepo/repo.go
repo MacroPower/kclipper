@@ -25,6 +25,7 @@ type Repo struct {
 	PassCredentials    bool
 }
 
+// IsLocal returns true if the repo URL is a local file path.
 func (r *Repo) IsLocal() bool {
 	return r.url.Host == ""
 }
@@ -33,6 +34,7 @@ type Getter interface {
 	Get(repo string) (*Repo, error)
 }
 
+// Manager manages a collection of [Repo]s.
 type Manager struct {
 	reposByName map[string]*Repo
 	reposByURL  map[string]*Repo
@@ -40,6 +42,7 @@ type Manager struct {
 	mu sync.RWMutex
 }
 
+// NewManager creates a new [Manager].
 func NewManager() *Manager {
 	return &Manager{
 		reposByName: make(map[string]*Repo),
@@ -47,6 +50,8 @@ func NewManager() *Manager {
 	}
 }
 
+// Add adds a new repo to the [Manager]. If a repo with the same name or URL
+// already exists, an error is returned.
 func (m *Manager) Add(repo *Repo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -72,6 +77,8 @@ func (m *Manager) Add(repo *Repo) error {
 	return nil
 }
 
+// Get returns a repo by its name or URL. It calls [Manager.GetByName] or
+// [Manager.GetByURL] depending on the input.
 func (m *Manager) Get(repo string) (*Repo, error) {
 	if strings.HasPrefix(repo, "@") {
 		return m.GetByName(strings.TrimPrefix(repo, "@"))
@@ -80,6 +87,8 @@ func (m *Manager) Get(repo string) (*Repo, error) {
 	return m.GetByURL(repo)
 }
 
+// GetByName returns a repo by its name. If the repo does not exist in the
+// [Manager], an error is returned.
 func (m *Manager) GetByName(name string) (*Repo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -91,6 +100,8 @@ func (m *Manager) GetByName(name string) (*Repo, error) {
 	return repo, nil
 }
 
+// GetByURL returns a repo by its URL. If the repo does not exist in the
+// [Manager], a new [Repo] is created with the URL as the name.
 func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
