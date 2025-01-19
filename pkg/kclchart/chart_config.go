@@ -9,6 +9,7 @@ import (
 	"github.com/iancoleman/strcase"
 
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 type ChartData struct {
@@ -94,4 +95,20 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	}
 
 	return nil
+}
+
+func (c *ChartConfig) ToAutomation() kclutil.Automation {
+	return kclutil.Automation{
+		"chart":           kclutil.NewString(c.Chart),
+		"repoURL":         kclutil.NewString(c.RepoURL),
+		"targetRevision":  kclutil.NewString(c.TargetRevision),
+		"releaseName":     kclutil.NewString(c.ReleaseName),
+		"namespace":       kclutil.NewString(c.Namespace),
+		"skipCRDs":        kclutil.NewBool(c.SkipCRDs),
+		"passCredentials": kclutil.NewBool(c.PassCredentials),
+		"schemaPath":      kclutil.NewString(c.SchemaPath),
+		"crdPath":         kclutil.NewString(c.CRDPath),
+		"schemaValidator": kclutil.NewString(string(c.SchemaValidator)),
+		"schemaGenerator": kclutil.NewString(string(c.SchemaGenerator)),
+	}
 }

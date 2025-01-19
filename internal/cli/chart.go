@@ -10,6 +10,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclchart"
 	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
@@ -124,7 +125,19 @@ func NewChartAddCmd() *cobra.Command {
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-			return c.Add(chart, repoURL, targetRevision, schemaPath, crdPath, schemaGenerator, schemaValidator, nil)
+			return c.Add(&kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
+					Chart:           chart,
+					RepoURL:         repoURL,
+					TargetRevision:  targetRevision,
+					SchemaValidator: schemaValidator,
+				},
+				HelmChartConfig: kclchart.HelmChartConfig{
+					SchemaGenerator: schemaGenerator,
+					SchemaPath:      schemaPath,
+					CRDPath:         crdPath,
+				},
+			})
 		},
 		SilenceUsage: true,
 	}

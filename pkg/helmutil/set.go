@@ -3,12 +3,14 @@ package helmutil
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"reflect"
 	"strings"
 
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclipper/pkg/kclchart"
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 func (c *ChartPkg) Set(chart string, keyValueOverrides string) error {
@@ -35,12 +37,15 @@ func (c *ChartPkg) Set(chart string, keyValueOverrides string) error {
 		return fmt.Errorf("key '%s' is not a valid chart configuration attribute", key)
 	}
 
-	chartConfig := map[string]string{key: value}
-	if err := c.updateChartsFile(c.BasePath, hc.GetSnakeCaseName(), chartConfig); err != nil {
-		return err
+	setAutomation := kclutil.Automation{key: kclutil.NewString(value)}
+	chartsFile := filepath.Join(c.BasePath, "charts.k")
+	chartsSpec := kclutil.SpecPathJoin("charts", hc.GetSnakeCaseName())
+	err := c.updateFile(setAutomation, chartsFile, initialChartContents, chartsSpec)
+	if err != nil {
+		return fmt.Errorf("failed to update '%s': %w", chartsFile, err)
 	}
 
-	_, err := kcl.FormatPath(c.BasePath)
+	_, err = kcl.FormatPath(c.BasePath)
 	if err != nil {
 		return fmt.Errorf("failed to format kcl files: %w", err)
 	}

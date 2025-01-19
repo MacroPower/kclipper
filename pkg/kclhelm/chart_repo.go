@@ -9,6 +9,7 @@ import (
 	"github.com/iancoleman/strcase"
 
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 // Defines a Helm chart repository.
@@ -138,4 +139,18 @@ func (c *ChartRepo) GetHelmRepo() (*helmrepo.Repo, error) {
 	}
 
 	return repo, nil
+}
+
+func (c *ChartRepo) ToAutomation() kclutil.Automation {
+	return kclutil.Automation{
+		"name":                  kclutil.NewString(c.Name),
+		"url":                   kclutil.NewString(c.URL),
+		"usernameEnv":           kclutil.NewString(c.UsernameEnv),
+		"passwordEnv":           kclutil.NewString(c.PasswordEnv),
+		"caPath":                kclutil.NewString(c.CAPath),
+		"tlsClientCertDataPath": kclutil.NewString(c.TLSClientCertDataPath),
+		"tlsClientCertKeyPath":  kclutil.NewString(c.TLSClientCertKeyPath),
+		"insecureSkipVerify":    kclutil.NewBool(c.InsecureSkipVerify),
+		"passCredentials":       kclutil.NewBool(c.PassCredentials),
+	}
 }

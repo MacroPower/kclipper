@@ -9,7 +9,7 @@ import (
 
 	"github.com/MacroPower/kclipper/pkg/helmtest"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/MacroPower/kclipper/pkg/kclchart"
 )
 
 const (
@@ -27,10 +27,13 @@ func TestHelmChartUpdate(t *testing.T) {
 	err := chartPkg.Init()
 	require.NoError(t, err)
 
-	schemaPath := ""
-	crdPath := ""
-	err = chartPkg.Add("podinfo", "https://stefanprodan.github.io/podinfo", "6.7.1", schemaPath, crdPath,
-		jsonschema.DefaultGeneratorType, jsonschema.DefaultValidatorType, nil)
+	err = chartPkg.Add(&kclchart.ChartConfig{
+		ChartBase: kclchart.ChartBase{
+			Chart:          "podinfo",
+			RepoURL:        "https://stefanprodan.github.io/podinfo",
+			TargetRevision: "6.7.1",
+		},
+	})
 	require.NoError(t, err)
 	os.RemoveAll(path.Join(chartPath, "podinfo"))
 
