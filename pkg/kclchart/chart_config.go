@@ -1,38 +1,51 @@
 package kclchart
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"reflect"
+	"sort"
 
 	"github.com/iancoleman/strcase"
 
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 )
 
-// All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`.
-type Chart struct {
-	ChartBase `json:",inline"`
-	HelmChart `json:",inline"`
+type ChartData struct {
+	Charts map[string]ChartConfig `json:"charts"`
 }
 
-func (c *Chart) GetSnakeCaseName() string {
-	return strcase.ToSnake(c.ChartBase.Chart)
+// GetSortedKeys returns the chart keys in alphabetical order.
+func (cd *ChartData) GetSortedKeys() []string {
+	names := make([]string, 0, len(cd.Charts))
+	for name := range cd.Charts {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
-func (c *Chart) GenerateKCL(w io.Writer) error {
+// All possible chart configuration that can be defined in `charts.k`,
+// inheriting from `helm.ChartConfig(helm.ChartBase)`.
+type ChartConfig struct {
+	ChartBase       `json:",inline"`
+	HelmChartConfig `json:",inline"`
+}
+
+func (c *ChartConfig) GetSnakeCaseName() string {
+	return strcase.ToSnake(c.Chart)
+}
+
+func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	r, err := newSchemaReflector()
 	if err != nil {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
-	js := r.Reflect(reflect.TypeOf(Chart{}))
-	js.Schema.Description = "All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`."
+	js := r.Reflect(reflect.TypeOf(ChartConfig{}))
 
 	js.SetProperty("chart", jsonschema.WithDefault(c.ChartBase.Chart))
 	js.SetProperty("repoURL", jsonschema.WithDefault(c.ChartBase.RepoURL))
 	js.SetProperty("targetRevision", jsonschema.WithDefault(c.ChartBase.TargetRevision))
-	js.SetProperty("values", jsonschema.WithType("null"))
 
 	js.SetOrRemoveProperty(
 		"namespace", c.ChartBase.Namespace != "",
@@ -51,9 +64,22 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		jsonschema.WithDefault(c.ChartBase.PassCredentials),
 	)
 	js.SetOrRemoveProperty(
+		"schemaPath", c.HelmChartConfig.SchemaPath != "",
+		jsonschema.WithDefault(c.HelmChartConfig.SchemaPath),
+	)
+	js.SetOrRemoveProperty(
+		"crdPath", c.HelmChartConfig.CRDPath != "",
+		jsonschema.WithDefault(c.HelmChartConfig.CRDPath),
+	)
+	js.SetOrRemoveProperty(
 		"schemaValidator", c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType,
 		jsonschema.WithDefault(c.ChartBase.SchemaValidator),
 		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),
+	)
+	js.SetOrRemoveProperty(
+		"schemaGenerator", c.HelmChartConfig.SchemaGenerator != jsonschema.DefaultGeneratorType,
+		jsonschema.WithDefault(c.HelmChartConfig.SchemaGenerator),
+		jsonschema.WithEnum(jsonschema.GeneratorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
 		"repositories", len(c.ChartBase.Repositories) > 0,
@@ -62,16 +88,9 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		jsonschema.WithNoItems(),
 	)
 
-	js.RemoveProperty("valueFiles")
-	js.RemoveProperty("postRenderer")
-
-	b := &bytes.Buffer{}
-	err = js.GenerateKCL(b, genOptInheritHelmChart, genOptFixValues, genOptFixChartRepo)
+	err = js.GenerateKCL(w, genOptFixChartRepo)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
-	}
-	if _, err := b.WriteTo(w); err != nil {
-		return fmt.Errorf("failed to write to KCL schema: %w", err)
 	}
 
 	return nil
