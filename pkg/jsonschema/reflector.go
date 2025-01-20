@@ -34,8 +34,12 @@ func (r *Reflector) AddGoComments(pkg, path string) error {
 	return nil
 }
 
-func (r *Reflector) Reflect(t reflect.Type) *Reflected {
-	return &Reflected{Schema: r.Reflector.ReflectFromType(t)}
+func (r *Reflector) Reflect(t reflect.Type, opts ...PropertyOpt) *Reflected {
+	rs := r.Reflector.ReflectFromType(t)
+	for _, opt := range opts {
+		opt(rs)
+	}
+	return &Reflected{Schema: rs}
 }
 
 type replacement struct {
@@ -138,5 +142,11 @@ func WithType(t string) PropertyOpt {
 func WithNoItems() PropertyOpt {
 	return func(s *invopopjsonschema.Schema) {
 		s.Items = nil
+	}
+}
+
+func WithAllowAdditionalProperties() PropertyOpt {
+	return func(s *invopopjsonschema.Schema) {
+		s.AdditionalProperties = invopopjsonschema.TrueSchema
 	}
 }
