@@ -15,7 +15,7 @@ test_Chart = lambda {
         chart = "test-oci"
         repoURL = "example.com"
         targetRevision = "0.1.0"
-        postRenderer = lambda r: {str:} {
+        postRenderer = lambda r: Resource {
           r
         }
     }

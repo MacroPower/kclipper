@@ -17,7 +17,7 @@ import regex
     })
     "helm.template(file)": helm.template(podinfo.Chart {
         valueFiles = ["values.yaml"]
-        postRenderer = lambda resource: {str:} -> {str:} {
+        postRenderer = lambda resource: helm.Resource -> helm.Resource {
             if regex.match(resource.metadata.name, "^podinfo-service-test-.*$"):
                 resource.metadata.annotations |= {"example.com/added" = "by kcl patch"}
             resource

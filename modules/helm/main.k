@@ -3,13 +3,37 @@ This module provides an interface for the kclipper Helm plugin.
 """
 import file
 import yaml
+import k8s.apimachinery.pkg.apis.meta.v1
 import kcl_plugin.helm as helm_plugin
 
 type Charts = {str:ChartConfig}
 
 type ChartRepos = {str:ChartRepo}
 
-template = lambda chart: Chart -> [{str:}] {
+schema Resource:
+    r"""
+    Kubernetes resource.
+
+    Attributes
+    ----------
+    apiVersion : str, required
+        Identifies the version of the object's schema.
+        More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+    kind : str, required
+        Identifies the object's schema.
+        More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+    metadata : v1.ObjectMeta, required
+        Describes the object's metadata.
+        More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+    """
+
+    apiVersion: str
+    kind: str
+    metadata: v1.ObjectMeta
+    [...str]: any
+
+
+template = lambda chart: Chart -> [Resource] {
     """Render Helm chart templates using kclipper's `kcl_plugin.helm.template`.
 
     Examples

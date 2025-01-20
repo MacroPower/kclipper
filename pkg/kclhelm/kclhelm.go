@@ -12,7 +12,7 @@ const (
 	repositoriesKCLName string = "repositories"
 	repositoriesKCLType string = "[ChartRepo]"
 	postRendererKCLName string = "postRenderer"
-	postRendererKCLType string = "({str:}) -> {str:}"
+	postRendererKCLType string = "(Resource) -> Resource"
 )
 
 var (

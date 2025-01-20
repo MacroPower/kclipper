@@ -13,11 +13,11 @@ schema Chart(ChartBase):
         Helm values to be passed to Helm template. These take precedence over valueFiles.
     valueFiles : [str], optional
         Helm value files to be passed to Helm template.
-    postRenderer : ({str:}) -> {str:}, optional
+    postRenderer : (Resource) -> Resource, optional
         Lambda function to modify the Helm template output. Evaluated for each resource in the Helm template output.
     """
 
     values?: any
     valueFiles?: [str]
-    postRenderer?: ({str:}) -> {str:}
+    postRenderer?: (Resource) -> Resource
 
