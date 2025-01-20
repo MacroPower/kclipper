@@ -4,6 +4,7 @@ This module provides an interface for the kclipper Helm plugin.
 import file
 import yaml
 import k8s.apimachinery.pkg.apis.meta.v1
+import json_merge_patch
 import kcl_plugin.helm as helm_plugin
 
 type Charts = {str:ChartConfig}
@@ -57,7 +58,7 @@ template = lambda chart: Chart -> [Resource] {
         _values = {
             k: v
             for filename in _chart.valueFiles
-            for k, v in merge(_values, yaml.decode(file.read(filename)))
+            for k, v in json_merge_patch.merge(_values, yaml.decode(file.read(filename)))
         }
 
     _values |= _chart.values
