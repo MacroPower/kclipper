@@ -174,7 +174,7 @@ To use kclipper with Argo CD, you can follow [this guide](https://www.kcl-lang.i
 
 ## Usage
 
-> This guide assumes you are fully utilizing plugins, packages, and the kcl chart CLI. If you only want to use a subset of these, please see the extension docs for [OS](./docs/os_extensions.md), [HTTP](./docs/http_extensions.md), and [Helm](./docs/helm_extensions.md).
+> This guide assumes you are fully utilizing plugins, packages, and the kcl chart CLI. If you only want to use a subset of these, please see the [extension docs](./docs/helm_extensions.md).
 
 First, navigate to your project directory. If you don't have a KCL project set up yet, you can run the following command:
 

@@ -1,5 +1,3 @@
-import kcl_plugin.os
-import kcl_plugin.http
 import helm
 import charts.podinfo
 import charts.kube_prometheus_stack.crds as prometheus_crds
@@ -7,9 +5,6 @@ import charts.simple_chart
 import regex
 
 {
-    "os.exec": os.exec("echo", ["Hello, World!"])
-    "os.exec(env)": os.exec("bash", ["-c", 'echo "Hello, $LOCATION!"'], env={"LOCATION": "World"})
-    "http.get": http.get("https://example.com", timeout="10s")
     "helm.template": helm.template(podinfo.Chart {
         values = {
             service.enabled = False
