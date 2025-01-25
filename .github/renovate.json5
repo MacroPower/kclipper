@@ -24,7 +24,7 @@
     {
       "matchManagers": ["regex"],
       "postUpgradeTasks": {
-        "commands": ["kcl chart update --path=\"{{parentDir}}\""],
+        "commands": ["kcl chart update --path=\"{{packageFileDir}}\""],
         "executionMode": "branch"
       }
     }
