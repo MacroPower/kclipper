@@ -36,7 +36,7 @@ tasks:
 
   lint:
     desc: Runs all lint targets
-    deps: [go-lint]
+    deps: [go-lint, renovate-lint]
 
   test:
     desc: Runs all test targets
@@ -250,3 +250,8 @@ tasks:
         ghcr.io/helm/chartmuseum:v0.16.2
     # helm package .
     # curl -u user:hunter2 --data-binary "@simple-chart-0.1.0.tgz" http://localhost:8080/api/charts
+
+  renovate-lint:
+    desc: Lints Renovate configuration
+    cmds:
+      - renovate-config-validator .github/renovate.json5

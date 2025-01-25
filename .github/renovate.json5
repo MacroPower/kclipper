@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "ignorePaths": [
+    "**/testdata/**"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/).+/charts/charts\\.k$"
+      ],
+      "matchStrings": [
+        ".*\\{(\\n.*?)*[^\\}]*",
+        "(.*\\n)*\\s*chart\\s*=\\s*\"(?<depName>.+)\"(.*\\n)*\\s*repoURL\\s*=\\s*\"(?<registryUrl>.+)\"(.*\\n)*\\s*targetRevision\\s*=\\s*\"(?<currentValue>.+)\""
+      ],
+      "matchStringsStrategy": "recursive",
+      "datasourceTemplate": "helm"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["regex"],
+      "postUpgradeTasks": {
+        "commands": ["kcl chart update --path=\"{{parentDir}}\""],
+        "executionMode": "branch"
+      }
+    }
+  ]
+}
