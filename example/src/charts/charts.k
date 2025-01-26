@@ -1,5 +1,4 @@
 import helm
-import file
 
 charts: helm.Charts = {
     podinfo: {
