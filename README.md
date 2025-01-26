@@ -95,6 +95,8 @@ charts: helm.Charts = {
 
 ![kcl chart update](./docs/demos/chart-update.gif)
 
+Also works with [Renovate](https://github.com/renovatebot/renovate)! You can find [example pull requests](https://github.com/MacroPower/kclipper/pull/18) and a [config file](.github/renovate.json5) in this repo.
+
 ---
 
 **Enjoy blazing-fast reconciliation times.** Kclipper is built with performance in mind and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using schemaValidator="KCL" disables Helm's value validation and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g., remote refs, chart dependencies, or both).
