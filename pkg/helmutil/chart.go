@@ -15,13 +15,35 @@ type ChartPkg struct {
 	BasePath string
 	Client   helm.ChartFileClient
 
+	Vendor, FastEval bool
+
 	mu sync.RWMutex
 }
 
-func NewChartPkg(basePath string, client helm.ChartFileClient) *ChartPkg {
-	return &ChartPkg{
+func NewChartPkg(basePath string, client helm.ChartFileClient, opts ...ChartPkgOpts) *ChartPkg {
+	c := &ChartPkg{
+		Vendor:   false,
+		FastEval: true,
 		BasePath: basePath,
 		Client:   client,
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
+}
+
+type ChartPkgOpts func(*ChartPkg)
+
+func WithVendor(vendor bool) ChartPkgOpts {
+	return func(c *ChartPkg) {
+		c.Vendor = vendor
+	}
+}
+
+func WithFastEval(fastEval bool) ChartPkgOpts {
+	return func(c *ChartPkg) {
+		c.FastEval = fastEval
 	}
 }
 

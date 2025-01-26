@@ -24,8 +24,11 @@ const (
   # Add chart for the current module
   kcl chart add --chart podinfo --repo_url https://stefanprodan.github.io/podinfo --target_revision 6.7.0
 
-  # Update chart schemas for the current module
+  # Update all chart schemas for the current module
   kcl chart update
+
+  # Update a specific chart's schemas for the current module
+  kcl chart update --chart podinfo
 
   # Set chart configuration attributes
   kcl chart set --chart podinfo --overrides "targetRevision=6.7.1"
@@ -168,17 +171,22 @@ func NewChartUpdateCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			vendor, err := flags.GetBool("vendor")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 
 			if merr != nil {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
 			}
 
-			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
+			c := helmutil.NewChartPkg(basePath, helm.DefaultClient, helmutil.WithVendor(vendor))
 			return c.Update(charts...)
 		},
 		SilenceUsage: true,
 	}
-	cmd.Flags().StringSliceP("chart", "c", []string{}, "Specify the Helm chart name")
+	cmd.Flags().StringSliceP("chart", "c", []string{}, "Helm chart to update (if unset, updates all charts)")
+	cmd.Flags().BoolP("vendor", "V", false, "Run in vendor mode")
 
 	return cmd
 }
