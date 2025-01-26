@@ -1,4 +1,5 @@
 import helm
+import file
 
 charts: helm.Charts = {
     podinfo: {
@@ -19,18 +20,13 @@ charts: helm.Charts = {
     kube_prometheus_stack: {
         chart = "kube-prometheus-stack"
         crdPath = "**/crds/crds/*.yaml"
-        repoURL = "https://prometheus-community.github.io/helm-charts"
+        repositories = [repos.prometheus_community]
+        repoURL = "@prometheus-community"
         schemaGenerator = "AUTO"
         targetRevision = "67.9.0"
     }
     simple_chart: {
         chart = "simple-chart"
-        repoURL = "./my-local-charts/"
+        repoURL = "/example/src/my-local-charts"
     }
-    # private: {
-    #     chart = "private"
-    #     repoURL = "@chartmuseum"
-    #     targetRevision = "0.1.0"
-    #     repositories = [repos.chartmuseum]
-    # }
 }

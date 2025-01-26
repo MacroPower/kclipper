@@ -12,15 +12,13 @@ schema Chart(helm.Chart):
     Attributes
     ----------
     chart : str, required, default is "simple-chart"
-    repoURL : str, required, default is "./my-local-charts/"
-    targetRevision : str, required, default is ""
-    schemaValidator : "KCL" | "HELM", optional, default is "KCL"
+    repoURL : str, required, default is "./my-local-charts"
+    targetRevision : str, optional, default is ""
     values : Values | any, optional
     """
 
     chart: str = "simple-chart"
-    repoURL: str = "./my-local-charts/"
-    targetRevision: str = ""
-    schemaValidator?: "KCL" | "HELM" = "KCL"
+    repoURL: str = "./my-local-charts"
+    targetRevision?: str = ""
     values?: Values | any
 
