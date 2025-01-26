@@ -15,5 +15,5 @@ customManagers:
 packageRules:
   - matchManagers: ["custom.regex"]
     postUpgradeTasks:
-      commands: ['kcl chart update --path="{{packageFileDir}}"']
-      executionMode: "branch"
+      commands: ['kcl chart update --chart="{{depName}}" --path="{{packageFileDir}}"']
+      executionMode: "update"
