@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
-	"kcl-lang.io/lib/go/native"
 
 	"github.com/MacroPower/kclipper/pkg/log"
 	helmplugin "github.com/MacroPower/kclipper/pkg/plugin/helm"

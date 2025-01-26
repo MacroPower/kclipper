@@ -20,7 +20,6 @@ require (
 	kcl-lang.io/kcl-go v0.11.0
 	kcl-lang.io/kcl-openapi v0.10.0
 	kcl-lang.io/kpm v0.11.0
-	kcl-lang.io/lib v0.11.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -260,6 +259,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f // indirect
 	k8s.io/kubectl v0.31.3 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
+	kcl-lang.io/lib v0.11.0 // indirect
 	oras.land/oras-go v1.2.6 // indirect
 	oras.land/oras-go/v2 v2.5.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect

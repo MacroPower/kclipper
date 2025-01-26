@@ -1,6 +1,6 @@
 package kclutil
 
-import "kcl-lang.io/lib/go/plugin"
+import "kcl-lang.io/kcl-go/pkg/plugin"
 
 type SafeMethodArgs struct {
 	Args *plugin.MethodArgs
