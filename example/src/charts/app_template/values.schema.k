@@ -583,9 +583,9 @@ schema ValuesControllersAdditionalPropertiesPod:
     enableServiceLinks : bool, optional, default is False
     hostAliases : [ValuesControllersAdditionalPropertiesPodHostAliasesItems0], optional
     hostIPC : bool, optional, default is False
-    hostNetwork : bool, optional, default is "false"
+    hostNetwork : bool, optional, default is False
     hostPID : bool, optional, default is False
-    hostUsers : bool, optional, default is False
+    hostUsers : bool, optional
     hostname : str, optional
     imagePullSecrets : [ValuesControllersAdditionalPropertiesPodImagePullSecretsItems0], optional
     labels : any, optional
@@ -841,9 +841,9 @@ schema ValuesDefaultPodOptions:
     enableServiceLinks : bool, optional, default is False
     hostAliases : [ValuesDefaultPodOptionsHostAliasesItems0], optional
     hostIPC : bool, optional, default is False
-    hostNetwork : bool, optional, default is "false"
+    hostNetwork : bool, optional, default is False
     hostPID : bool, optional, default is False
-    hostUsers : bool, optional, default is False
+    hostUsers : bool, optional
     hostname : str, optional
     imagePullSecrets : [ValuesDefaultPodOptionsImagePullSecretsItems0], optional
     labels : any, optional
@@ -1090,7 +1090,8 @@ schema ValuesIngressAdditionalProperties:
     ----------
     annotations : any, optional
     className : str, optional
-    defaultBackend : str, optional
+    defaultBackend : ValuesIngressAdditionalPropertiesDefaultBackend, optional
+        IngressBackend describes all endpoints for a given service and port.
     enabled : bool, optional, default is True
     hosts : [any], optional
     labels : any, optional
@@ -1100,12 +1101,75 @@ schema ValuesIngressAdditionalProperties:
 
     annotations?: any
     className?: str
-    defaultBackend?: str
+    defaultBackend?: ValuesIngressAdditionalPropertiesDefaultBackend
     enabled?: bool
     hosts?: [any]
     labels?: any
     nameOverride?: str
     tls?: [any]
+
+schema ValuesIngressAdditionalPropertiesDefaultBackend:
+    r"""
+    IngressBackend describes all endpoints for a given service and port.
+
+    Attributes
+    ----------
+    resource : ValuesIngressAdditionalPropertiesDefaultBackendResource, optional
+        resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object. If resource is specified, a service.Name and service.Port must not be specified. This is a mutually exclusive setting with "Service".
+    service : ValuesIngressAdditionalPropertiesDefaultBackendService, optional
+        service references a service as a backend. This is a mutually exclusive setting with "Resource".
+    """
+
+    resource?: ValuesIngressAdditionalPropertiesDefaultBackendResource
+    service?: ValuesIngressAdditionalPropertiesDefaultBackendService
+
+schema ValuesIngressAdditionalPropertiesDefaultBackendResource:
+    r"""
+    resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object. If resource is specified, a service.Name and service.Port must not be specified. This is a mutually exclusive setting with "Service".
+
+    Attributes
+    ----------
+    apiGroup : str, optional
+        APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required.
+    kind : str, optional
+        Kind is the type of resource being referenced
+    name : str, optional
+        Name is the name of resource being referenced
+    """
+
+    apiGroup?: str
+    kind?: str
+    name?: str
+
+schema ValuesIngressAdditionalPropertiesDefaultBackendService:
+    r"""
+    service references a service as a backend. This is a mutually exclusive setting with "Resource".
+
+    Attributes
+    ----------
+    name : str, optional
+        name is the referenced service. The service must exist in the same namespace as the Ingress object.
+    port : ValuesIngressAdditionalPropertiesDefaultBackendServicePort, optional
+        port of the referenced service. A port name or port number is required for a IngressServiceBackend.
+    """
+
+    name?: str
+    port?: ValuesIngressAdditionalPropertiesDefaultBackendServicePort
+
+schema ValuesIngressAdditionalPropertiesDefaultBackendServicePort:
+    r"""
+    port of the referenced service. A port name or port number is required for a IngressServiceBackend.
+
+    Attributes
+    ----------
+    name : str, optional
+        name is the name of the port on the Service. This is a mutually exclusive setting with "Number".
+    number : int, optional
+        number is the numerical port number (e.g. 80) on the Service. This is a mutually exclusive setting with "Name".
+    """
+
+    name?: str
+    number?: int
 
 schema ValuesNetworkpoliciesAdditionalProperties:
     r"""
