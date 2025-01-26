@@ -12,13 +12,15 @@ schema Chart(helm.Chart):
     Attributes
     ----------
     chart : str, required, default is "simple-chart"
-    repoURL : str, required, default is "./my-local-charts"
+    repoURL : str, required, default is "@local"
     targetRevision : str, optional, default is ""
+    repositories : [helm.ChartRepo], optional, default is [{name = "local", url = "/example/src/my-local-charts"}]
     values : Values | any, optional
     """
 
     chart: str = "simple-chart"
-    repoURL: str = "./my-local-charts"
+    repoURL: str = "@local"
     targetRevision?: str = ""
+    repositories?: [helm.ChartRepo] = [{name = "local", url = "/example/src/my-local-charts"}]
     values?: Values | any
 

@@ -13,14 +13,14 @@ schema Chart(helm.Chart):
     ----------
     chart : str, required, default is "app-template"
     repoURL : str, required, default is "https://bjw-s.github.io/helm-charts/"
-    targetRevision : str, required, default is "3.6.0"
+    targetRevision : str, optional, default is "3.6.0"
     schemaValidator : "KCL" | "HELM", optional, default is "KCL"
     values : Values | any, optional
     """
 
     chart: str = "app-template"
     repoURL: str = "https://bjw-s.github.io/helm-charts/"
-    targetRevision: str = "3.6.0"
+    targetRevision?: str = "3.6.0"
     schemaValidator?: "KCL" | "HELM" = "KCL"
     values?: Values | any
 

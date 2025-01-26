@@ -20,13 +20,13 @@ charts: helm.Charts = {
     kube_prometheus_stack: {
         chart = "kube-prometheus-stack"
         crdPath = "**/crds/crds/*.yaml"
-        repositories = [repos.prometheus_community]
-        repoURL = "@prometheus-community"
+        repoURL = "https://prometheus-community.github.io/helm-charts"
         schemaGenerator = "AUTO"
         targetRevision = "67.9.0"
     }
     simple_chart: {
         chart = "simple-chart"
-        repoURL = "/example/src/my-local-charts"
+        repoURL = "@local"
+        repositories = [repos.local]
     }
 }
