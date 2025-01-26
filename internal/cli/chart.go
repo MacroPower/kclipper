@@ -153,20 +153,34 @@ func NewChartAddCmd() *cobra.Command {
 }
 
 func NewChartUpdateCmd() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "update",
 		Short: "Update charts",
 		RunE: func(cc *cobra.Command, _ []string) error {
+			var merr error
+
 			flags := cc.Flags()
 			basePath, err := flags.GetString("path")
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrInvalidArgument, err)
+				merr = multierror.Append(merr, err)
 			}
+			charts, err := flags.GetStringSlice("chart")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+
+			if merr != nil {
+				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
+			}
+
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-			return c.Update()
+			return c.Update(charts...)
 		},
 		SilenceUsage: true,
 	}
+	cmd.Flags().StringSliceP("chart", "c", []string{}, "Specify the Helm chart name")
+
+	return cmd
 }
 
 func NewChartSetCmd() *cobra.Command {
