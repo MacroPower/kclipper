@@ -363,6 +363,8 @@ Please note that if you use `valueFiles` and `schemaValidator=KCL`, the valueFil
 
 ### Helm Repositories
 
+Helm repositories are supported and may use `http://`, `https://`, or `oci://` URLs. You can also specify a local path. For local paths, all relative paths are relative to the topmost KCL module, and absolute paths start from the repository root. Accessing local charts from paths external to your repository is not allowed.
+
 You can add Helm repositories to your project by running the following command:
 
 ```bash

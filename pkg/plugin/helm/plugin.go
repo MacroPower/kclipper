@@ -52,16 +52,21 @@ var Plugin = plugin.Plugin{
 				kubeVersion := os.Getenv("KUBE_VERSION")
 				kubeAPIVersions := os.Getenv("KUBE_API_VERSIONS")
 
-				currentPath := os.Getenv("ARGOCD_APP_SOURCE_PATH")
-				if currentPath == "" {
-					currentPath = "."
+				var err error
+				cwd := os.Getenv("ARGOCD_APP_SOURCE_PATH")
+				if cwd == "" {
+					cwd = "."
 				}
-				repoRoot := os.Getenv("ARGOCD_APP_REPO_ROOT")
-				if repoRoot == "" {
-					repoRoot = "."
+				repoRoot, err := kclutil.FindRepoRoot(cwd)
+				if err != nil {
+					return nil, fmt.Errorf("failed to find repository root: %w", err)
+				}
+				pkgPath, err := kclutil.FindTopPkgRoot(repoRoot, cwd)
+				if err != nil {
+					return nil, fmt.Errorf("failed to find package root: %w", err)
 				}
 
-				repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(currentPath, repoRoot))
+				repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(pkgPath, repoRoot))
 				for _, repo := range repos {
 					var pcr kclhelm.ChartRepo
 					repoMap, ok := repo.(map[string]any)

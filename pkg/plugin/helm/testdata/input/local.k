@@ -5,7 +5,7 @@ _chart = helm.template(
   repo_url="@local",
   repositories=[{
     name="local"
-    url="./testdata/charts"
+    url="./charts"
   }],
 )
 

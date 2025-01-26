@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 	"kcl-lang.io/lib/go/native"
@@ -30,6 +31,10 @@ func TestPluginHelmTemplate(t *testing.T) {
 
 	helmplugin.Register()
 
+	workDir := testDataDir
+	err := os.Chdir(workDir)
+	require.NoError(t, err)
+
 	tcs := map[string]struct {
 		kclFile     string
 		resultsFile string
@@ -47,27 +52,21 @@ func TestPluginHelmTemplate(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			inputKCLFile := filepath.Join(testDataDir, tc.kclFile)
 			wantResultsFile := filepath.Join(testDataDir, tc.resultsFile)
-
-			inputKCL, err := os.ReadFile(inputKCLFile)
-			require.NoError(t, err)
-
 			want, err := os.ReadFile(wantResultsFile)
 			require.NoError(t, err)
 
 			client := native.NewNativeServiceClient()
 			result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
-				KFilenameList: []string{"main.k"},
-				KCodeList:     []string{string(inputKCL)},
+				KFilenameList: []string{tc.kclFile},
+				WorkDir:       workDir,
 				Args:          []*gpyrpc.Argument{},
 			})
 			require.NoError(t, err)
-			require.Empty(t, result.GetErrMessage())
+			require.Empty(t, result.GetErrMessage(), result.GetLogMessage())
 
 			got := result.GetJsonResult()
-
-			require.JSONEq(t, string(want), got)
+			assert.JSONEq(t, string(want), got)
 		})
 	}
 }

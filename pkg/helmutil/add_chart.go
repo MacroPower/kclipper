@@ -14,6 +14,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
 const initialChartContents = `import helm
@@ -26,12 +27,26 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 		return fmt.Errorf("failed to init before add: %w", err)
 	}
 
-	chartDir := path.Join(c.BasePath, chart.GetSnakeCaseName())
+	absBasePath, err := filepath.Abs(c.BasePath)
+	if err != nil {
+		return fmt.Errorf("failed to get absolute path: %w", err)
+	}
+
+	chartDir := path.Join(absBasePath, chart.GetSnakeCaseName())
 	if err := os.MkdirAll(chartDir, 0o755); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
 
-	repoMgr := helmrepo.NewManager()
+	repoRoot, err := kclutil.FindRepoRoot(c.BasePath)
+	if err != nil {
+		return fmt.Errorf("failed to find repository root: %w", err)
+	}
+	pkgPath, err := kclutil.FindTopPkgRoot(repoRoot, c.BasePath)
+	if err != nil {
+		return fmt.Errorf("failed to find package root: %w", err)
+	}
+
+	repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(pkgPath, repoRoot))
 	for _, repo := range chart.Repositories {
 		hr, err := repo.GetHelmRepo()
 		if err != nil {
@@ -58,7 +73,7 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 		return err
 	}
 
-	if err := generateAndWriteValuesSchemaFiles(chart, helmChart, chartDir); err != nil {
+	if err := generateAndWriteValuesSchemaFiles(chart, helmChart, pkgPath, repoRoot, chartDir); err != nil {
 		return err
 	}
 
@@ -100,7 +115,7 @@ func generateAndWriteChartKCL(hc *kclchart.Chart, chartDir string) error {
 }
 
 func generateAndWriteValuesSchemaFiles(
-	chart *kclchart.ChartConfig, chartFiles *helm.ChartFiles, chartDir string,
+	chart *kclchart.ChartConfig, chartFiles *helm.ChartFiles, basePath, repoRoot, chartDir string,
 ) error {
 	var jsonSchemaBytes []byte
 	var err error
@@ -109,9 +124,13 @@ func generateAndWriteValuesSchemaFiles(
 	case jsonschema.NoGeneratorType:
 		break
 	case jsonschema.URLGeneratorType, jsonschema.LocalPathGeneratorType:
-		jsonSchemaBytes, err = jsonschema.DefaultReaderGenerator.FromPaths(chart.SchemaPath)
+		schemaPath, err := pathutil.ResolveFilePathOrURL(basePath, repoRoot, chart.SchemaPath, []string{"http", "https"})
 		if err != nil {
-			return fmt.Errorf("failed to fetch schema from %s: %w", chart.SchemaPath, err)
+			return fmt.Errorf("failed to resolve schema path: %w", err)
+		}
+		jsonSchemaBytes, err = jsonschema.DefaultReaderGenerator.FromPaths(schemaPath.String())
+		if err != nil {
+			return fmt.Errorf("failed to fetch schema from '%s': %w", schemaPath.String(), err)
 		}
 	case jsonschema.DefaultGeneratorType, jsonschema.AutoGeneratorType,
 		jsonschema.ValueInferenceGeneratorType, jsonschema.ChartPathGeneratorType:

@@ -79,15 +79,27 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 			},
 		},
-		"simple-chart": {
+		"simple-chart-rel": {
 			chart: &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:   "simple-chart",
-					RepoURL: "./testdata/charts",
+					RepoURL: "./charts",
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.LocalPathGeneratorType,
-					SchemaPath:      "./testdata/schemas/simple-chart/values.schema.json",
+					SchemaPath:      "./schemas/simple-chart/values.schema.json",
+				},
+			},
+		},
+		"simple-chart-abs": {
+			chart: &kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
+					Chart:   "simple-chart",
+					RepoURL: "/pkg/helmutil/testdata/charts",
+				},
+				HelmChartConfig: kclchart.HelmChartConfig{
+					SchemaGenerator: jsonschema.LocalPathGeneratorType,
+					SchemaPath:      "/pkg/helmutil/testdata/schemas/simple-chart/values.schema.json",
 				},
 			},
 		},
