@@ -22,8 +22,8 @@ on:
   push:
     branches: ["main", "renovate*"]
     paths:
-      - .github/renovate.json5
-      - .github/renovate/**.json5
+      - .github/renovate.yaml
+      - .github/renovate/**.yaml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -61,6 +61,6 @@ jobs:
         with:
           docker-cmd-file: .github/renovate-entrypoint.sh
           docker-user: root
-          configurationFile: .github/renovate.json5
+          configurationFile: .github/renovate.yaml
           token: "${{ steps.app-token.outputs.token }}"
           renovate-version: "${{ env.WORKFLOW_RENOVATE_VERSION }}"
