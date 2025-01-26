@@ -254,4 +254,4 @@ tasks:
   renovate-lint:
     desc: Lints Renovate configuration
     cmds:
-      - renovate-config-validator .github/renovate.json5
+      - renovate-config-validator .github/renovate.yaml
