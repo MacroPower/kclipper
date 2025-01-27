@@ -1,7 +1,5 @@
 package jsonschema
 
-import "errors"
-
 var DefaultNoGenerator = NewNoGenerator()
 
 var _ FileGenerator = DefaultNoGenerator
@@ -13,9 +11,9 @@ func NewNoGenerator() *NoGenerator {
 }
 
 func (g *NoGenerator) FromData(_ []byte) ([]byte, error) {
-	return nil, errors.New("no generator selected")
+	return []byte{}, nil
 }
 
 func (g *NoGenerator) FromPaths(_ ...string) ([]byte, error) {
-	return nil, errors.New("no generator selected")
+	return []byte{}, nil
 }

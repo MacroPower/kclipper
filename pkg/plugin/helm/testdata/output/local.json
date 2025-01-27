@@ -97,6 +97,32 @@
           }
         }
       }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": { "helm.sh/hook": "test" },
+        "labels": {
+          "app.kubernetes.io/instance": "simple-chart",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "simple-chart",
+          "app.kubernetes.io/version": "1.16.0",
+          "helm.sh/chart": "simple-chart-0.1.0"
+        },
+        "name": "simple-chart-test-connection"
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": ["simple-chart:80"],
+            "command": ["wget"],
+            "image": "busybox",
+            "name": "wget"
+          }
+        ],
+        "restartPolicy": "Never"
+      }
     }
   ]
 }

@@ -158,7 +158,8 @@ func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string,
 	ta.DryRun = true
 	ta.DryRunOption = "client"
 	ta.ClientOnly = true
-	ta.DisableOpenAPIValidation = true
+	ta.DisableHooks = true
+	ta.DisableOpenAPIValidation = opts.SkipSchemaValidation
 	ta.ReleaseName = opts.Name
 	ta.Namespace = opts.Namespace
 	ta.NameTemplate = opts.Name
@@ -177,8 +178,18 @@ func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string,
 	if err != nil {
 		return "", "", fmt.Errorf("failed to run install action: %w", err)
 	}
+	manifest := release.Manifest
 
-	return release.Manifest, release.Name, nil
+	if !opts.SkipHooks {
+		for _, hook := range release.Hooks {
+			if hook == nil {
+				continue
+			}
+			manifest += "\n---\n" + hook.Manifest
+		}
+	}
+
+	return manifest, release.Name, nil
 }
 
 func removeSchemasFromObject(chart *chart.Chart) {
@@ -196,6 +207,7 @@ type CmdTemplateOpts struct {
 	Values               map[string]any
 	SkipCrds             bool
 	SkipSchemaValidation bool
+	SkipHooks            bool
 
 	RepoGetter       helmrepo.Getter
 	DependencyPuller ChartClient

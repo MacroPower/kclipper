@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
@@ -43,10 +44,13 @@ func TestHelmChart(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		opts  helm.TemplateOpts
-		gen   jsonschema.FileGenerator
-		match func(string) bool
-		crds  bool
+		opts         helm.TemplateOpts
+		gen          jsonschema.FileGenerator
+		match        func(string) bool
+		importValues bool
+		importCRDs   bool
+
+		objectCount int
 	}{
 		"podinfo": {
 			opts: helm.TemplateOpts{
@@ -54,8 +58,11 @@ func TestHelmChart(t *testing.T) {
 				TargetRevision: "6.7.1",
 				RepoURL:        "https://stefanprodan.github.io/podinfo",
 			},
-			gen:   jsonschema.DefaultAutoGenerator,
-			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			gen:          jsonschema.DefaultAutoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			importValues: true,
+			importCRDs:   false,
+			objectCount:  -1,
 		},
 		"prometheus": {
 			opts: helm.TemplateOpts{
@@ -63,9 +70,11 @@ func TestHelmChart(t *testing.T) {
 				TargetRevision: "67.9.0",
 				RepoURL:        "https://prometheus-community.github.io/helm-charts",
 			},
-			gen:   jsonschema.DefaultAutoGenerator,
-			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
-			crds:  true,
+			gen:          jsonschema.DefaultAutoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			importValues: true,
+			importCRDs:   true,
+			objectCount:  -1,
 		},
 		"app-template": {
 			opts: helm.TemplateOpts{
@@ -87,38 +96,99 @@ func TestHelmChart(t *testing.T) {
 						},
 					},
 				},
+				SkipSchemaValidation: true,
 			},
-			gen:   jsonschema.DefaultReaderGenerator,
-			match: func(s string) bool { return s == "charts/common/values.schema.json" },
+			gen:          jsonschema.DefaultReaderGenerator,
+			match:        func(s string) bool { return s == "charts/common/values.schema.json" },
+			importValues: true,
+			importCRDs:   false,
+			objectCount:  -1,
 		},
-		"local": {
+		"local path": {
 			opts: helm.TemplateOpts{
 				ChartName: "simple-chart",
 				RepoURL:   "./testdata",
 			},
-			gen:   jsonschema.DefaultAutoGenerator,
-			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			gen:          jsonschema.DefaultAutoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			importValues: true,
+			importCRDs:   false,
+			objectCount:  4,
 		},
-		"auth": {
+		"direct repo with auth": {
 			opts: helm.TemplateOpts{
 				ChartName:      "simple-chart",
 				TargetRevision: "0.1.0",
 				RepoURL:        "http://localhost:8080",
 			},
-			gen:   jsonschema.DefaultAutoGenerator,
-			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			gen:          jsonschema.DefaultAutoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			importValues: true,
+			importCRDs:   false,
+			objectCount:  4,
 		},
-		"auth-repo": {
+		"subchart uses repo with auth": {
 			opts: helm.TemplateOpts{
 				ChartName: "parent-chart",
 				RepoURL:   "./testdata",
 			},
-			gen:   jsonschema.DefaultAutoGenerator,
-			match: jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			gen:          jsonschema.DefaultAutoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.AutoGeneratorType),
+			importValues: true,
+			importCRDs:   false,
+			objectCount:  4,
+		},
+		"crds only": {
+			opts: helm.TemplateOpts{
+				ChartName: "crds",
+				RepoURL:   "./testdata",
+				SkipCRDs:  false,
+			},
+			gen:          jsonschema.DefaultNoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.NoGeneratorType),
+			importValues: false,
+			importCRDs:   true,
+			objectCount:  1,
+		},
+		"skip crds": {
+			opts: helm.TemplateOpts{
+				ChartName: "crds",
+				RepoURL:   "./testdata",
+				SkipCRDs:  true,
+			},
+			gen:          jsonschema.DefaultNoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.NoGeneratorType),
+			importValues: false,
+			importCRDs:   false,
+			objectCount:  0,
+		},
+		"hooks only": {
+			opts: helm.TemplateOpts{
+				ChartName: "test-hooks",
+				RepoURL:   "./testdata",
+				SkipHooks: false,
+			},
+			gen:          jsonschema.DefaultNoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.NoGeneratorType),
+			importValues: false,
+			importCRDs:   false,
+			objectCount:  1,
+		},
+		"skip hooks": {
+			opts: helm.TemplateOpts{
+				ChartName: "test-hooks",
+				RepoURL:   "./testdata",
+				SkipHooks: true,
+			},
+			gen:          jsonschema.DefaultNoGenerator,
+			match:        jsonschema.GetFileFilter(jsonschema.NoGeneratorType),
+			importValues: false,
+			importCRDs:   false,
+			objectCount:  0,
 		},
 	}
 	for name, tc := range tcs {
-		t.Run(name, func(t *testing.T) {
+		t.Run(name+"_chart", func(t *testing.T) {
 			t.Parallel()
 
 			c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
@@ -126,10 +196,29 @@ func TestHelmChart(t *testing.T) {
 
 			results, err := c.Template()
 			require.NoError(t, err)
-			require.NotEmpty(t, results)
+			if tc.objectCount >= 0 {
+				assert.Len(t, results, tc.objectCount)
+			} else {
+				assert.NotEmpty(t, results)
+			}
+
 			resultYAMLs, err := yaml.Marshal(results)
 			require.NoError(t, err)
-			require.NotEmpty(t, resultYAMLs)
+			if tc.objectCount != 0 {
+				assert.NotEmpty(t, resultYAMLs)
+			}
+
+			// Write the results to testdata/got for debugging.
+			gotDir := filepath.Join("testdata/got", t.Name())
+			err = os.MkdirAll(gotDir, 0o700)
+			require.NoError(t, err)
+
+			err = os.WriteFile(filepath.Join(gotDir, "output.yaml"), resultYAMLs, 0o600)
+			require.NoError(t, err)
+		})
+
+		t.Run(name+"_chartfiles", func(t *testing.T) {
+			t.Parallel()
 
 			cf, err := helm.NewChartFiles(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
 			require.NoError(t, err)
@@ -137,31 +226,67 @@ func TestHelmChart(t *testing.T) {
 
 			schema, err := cf.GetValuesJSONSchema(tc.gen, tc.match)
 			require.NoError(t, err)
-			require.NotEmpty(t, schema)
 
-			if tc.crds {
-				crds, err := cf.GetCRDs(func(s string) bool {
-					return filepath.Base(filepath.Dir(s)) == "crds" && filepath.Base(s) != "Chart.yaml" && filepath.Ext(s) == ".yaml"
-				})
+			crds, err := cf.GetCRDs(func(s string) bool {
+				return filepath.Base(filepath.Dir(s)) == "crds" && filepath.Base(s) != "Chart.yaml" && filepath.Ext(s) == ".yaml"
+			})
+			require.NoError(t, err)
+
+			// Write the results to testdata/got for debugging.
+			gotDir := filepath.Join("testdata/got", t.Name())
+			err = os.MkdirAll(gotDir, 0o700)
+			require.NoError(t, err)
+
+			if tc.importValues {
+				require.NotEmpty(t, schema)
+				err = os.WriteFile(filepath.Join(gotDir, "values.schema.json"), schema, 0o600)
 				require.NoError(t, err)
+			}
+
+			if tc.importCRDs {
 				require.NotEmpty(t, crds)
 				for _, crd := range crds {
 					require.NotEmpty(t, crd)
 				}
 			}
-
-			// Write the results to testdata/got for debugging.
-			gotDir := filepath.Join("testdata/got", tc.opts.ChartName)
-			err = os.MkdirAll(gotDir, 0o700)
-			require.NoError(t, err)
-
-			err = os.WriteFile(filepath.Join(gotDir, "output.yaml"), resultYAMLs, 0o600)
-			require.NoError(t, err)
-
-			err = os.WriteFile(filepath.Join(gotDir, "values.schema.json"), schema, 0o600)
-			require.NoError(t, err)
 		})
 	}
+}
+
+func TestHelmChartAPIVersions(t *testing.T) {
+	t.Parallel()
+
+	t.Run("v1", func(t *testing.T) {
+		t.Parallel()
+
+		c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
+			ChartName:   "api-versions",
+			RepoURL:     "./testdata",
+			APIVersions: []string{"sample/v1"},
+		})
+		require.NoError(t, err)
+
+		objs, err := c.Template()
+		require.NoError(t, err)
+		require.Len(t, objs, 1)
+		assert.Equal(t, "sample/v1", objs[0].GetAPIVersion())
+	})
+
+	t.Run("v2", func(t *testing.T) {
+		t.Parallel()
+
+		c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
+			ChartName:   "api-versions",
+			RepoURL:     "./testdata",
+			APIVersions: []string{"sample/v2"},
+		})
+		require.NoError(t, err)
+
+		objs, err := c.Template()
+		require.NoError(t, err)
+		require.Len(t, objs, 1)
+		assert.Equal(t, "sample/v2", objs[0].GetAPIVersion())
+	})
 }
 
 func BenchmarkHelmChart(b *testing.B) {

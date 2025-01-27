@@ -1,8 +1,10 @@
 package helm
 
 import (
+	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -11,6 +13,8 @@ import (
 	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
+
+var ErrNoMatcher = errors.New("no matcher provided")
 
 type TemplateOpts struct {
 	ChartName            string
@@ -26,6 +30,7 @@ type TemplateOpts struct {
 	Proxy                string
 	NoProxy              string
 	SkipSchemaValidation bool
+	SkipHooks            bool
 }
 
 type ChartClient interface {
@@ -95,6 +100,7 @@ func (c *Chart) template() ([]byte, error) {
 		KubeVersion:          c.TemplateOpts.KubeVersion,
 		APIVersions:          c.TemplateOpts.APIVersions,
 		SkipSchemaValidation: c.TemplateOpts.SkipSchemaValidation,
+		SkipHooks:            c.TemplateOpts.SkipHooks,
 		RepoGetter:           c.Repos,
 		DependencyPuller:     c.Client,
 	})
@@ -136,7 +142,10 @@ func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts TemplateO
 // more files from the chart. The [match] function can be used to match a subset
 // of the pulled files in the chart directory for JSON Schema generation.
 func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(string) bool) ([]byte, error) {
-	unmatchedFiles := []string{}
+	if match == nil {
+		return nil, ErrNoMatcher
+	}
+
 	matchedFiles := []string{}
 	err := filepath.Walk(c.path,
 		func(path string, _ os.FileInfo, err error) error {
@@ -152,8 +161,7 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 				// Append the unmodified/absolute path to the matched files.
 				matchedFiles = append(matchedFiles, path)
 			} else {
-				// Append the relative path to the unmatched files, for use in error messages.
-				unmatchedFiles = append(unmatchedFiles, relPath)
+				slog.Debug("skipping file", slog.String("file", relPath))
 			}
 			return nil
 		})
@@ -162,15 +170,12 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 	}
 
 	if len(matchedFiles) == 0 {
-		unmatchedFileStr := []string{}
-		for _, f := range unmatchedFiles {
-			unmatchedFileStr = append(unmatchedFileStr, fmt.Sprintf("\t%s\n", f))
-		}
-		errMsg := "successfully pulled '%s' into '%s', but failed to find any input files" +
-			"for the provided JSON Schema generator; the following paths were searched:\n%s"
-		return nil, fmt.Errorf(errMsg, c.TemplateOpts.ChartName, c.path, unmatchedFileStr)
+		slog.Warn("no input files found for the provided JSON Schema generator",
+			slog.String("chart", c.TemplateOpts.ChartName),
+			slog.String("path", c.path),
+		)
+		return []byte{}, nil
 	}
-
 	jsonSchema, err := gen.FromPaths(matchedFiles...)
 	if err != nil {
 		return nil, fmt.Errorf("error converting values schema to JSON Schema: %w", err)
@@ -180,7 +185,10 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 }
 
 func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
-	unmatchedFiles := []string{}
+	if match == nil {
+		return nil, ErrNoMatcher
+	}
+
 	matchedFiles := []string{}
 	err := filepath.Walk(c.path,
 		func(path string, _ os.FileInfo, err error) error {
@@ -196,8 +204,7 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 				// Append the unmodified/absolute path to the matched files.
 				matchedFiles = append(matchedFiles, path)
 			} else {
-				// Append the relative path to the unmatched files, for use in error messages.
-				unmatchedFiles = append(unmatchedFiles, relPath)
+				slog.Debug("skipping file", slog.String("file", relPath))
 			}
 			return nil
 		})
@@ -205,17 +212,14 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 		return nil, fmt.Errorf("error reading helm chart directory: %w", err)
 	}
 
-	if len(matchedFiles) == 0 {
-		unmatchedFileStr := []string{}
-		for _, f := range unmatchedFiles {
-			unmatchedFileStr = append(unmatchedFileStr, fmt.Sprintf("\t%s\n", f))
-		}
-		errMsg := "successfully pulled '%s' into '%s', but failed to find any CRDs; " +
-			"the following paths were searched:\n%s"
-		return nil, fmt.Errorf(errMsg, c.TemplateOpts.ChartName, c.path, unmatchedFileStr)
-	}
-
 	crdBytes := [][]byte{}
+	if len(matchedFiles) == 0 {
+		slog.Warn("no input files found for the CRD schema generator",
+			slog.String("chart", c.TemplateOpts.ChartName),
+			slog.String("path", c.path),
+		)
+		return crdBytes, nil
+	}
 	for _, f := range matchedFiles {
 		b, err := os.ReadFile(f)
 		if err != nil {
