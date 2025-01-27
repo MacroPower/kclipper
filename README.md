@@ -99,7 +99,7 @@ Also works with [Renovate](https://github.com/renovatebot/renovate)! You can fin
 
 ---
 
-**Enjoy blazing-fast reconciliation times.** Kclipper is built with performance in mind and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O. Additionally, using schemaValidator="KCL" disables Helm's value validation and instead relies on KCL for values validation. This can provide a significant performance boost for any chart that includes a proper JSON Schema, and is especially noticeable for charts with nested JSON Schemas (e.g., remote refs, chart dependencies, or both).
+**Enjoy blazing-fast reconciliation times.** Kclipper is built with performance in mind and is optimized for speedy rendering at runtime. It achieves this with a custom Helm template implementation, based on the Argo CD Helm source implementation, with edits to minimize I/O.
 
 | Chart        | Vanilla Argo CD | kclipper   | kclipper (schemaValidator=KCL) |
 | :----------- | :-------------- | :--------- | :----------------------------- |
@@ -108,7 +108,7 @@ Also works with [Renovate](https://github.com/renovatebot/renovate)! You can fin
 
 > Approximate values from my Mac Mini M2.
 
-There is a bit of a trade-off. The binary size is larger, and KCL initialization will be slower by an small, absolute amount of time. Meaning, KCL runs with no Helm templates will be slightly slower compared to upstream KCL. See [benchmarks](./benchmarks) for more details.
+See [benchmarks](./benchmarks) for more details.
 
 ---
 

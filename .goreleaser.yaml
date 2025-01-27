@@ -42,6 +42,7 @@ builds:
     flags:
       - -trimpath
       - -tags={{ .Env.BUILD_TAGS }}
+    buildmode: pie
 
 dockers:
   - goos: linux

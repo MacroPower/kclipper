@@ -20,7 +20,7 @@ env:
   CXX_LINUX_ARM64: zig c++ -target aarch64-linux-gnu
   CXX_DARWIN_AMD64: zig c++ -target x86_64-macos-none -F{{ .FRAMEWORK_PATH }}
   CXX_DARWIN_ARM64: zig c++ -target aarch64-macos-none -F{{ .FRAMEWORK_PATH }}
-  BUILD_TAGS: netgo,rpc
+  BUILD_TAGS: netgo
 
 tasks:
   default:
@@ -70,10 +70,9 @@ tasks:
   go-test:
     desc: Tests Go code
     cmds:
-      - |
-        export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
-        mkdir -p .test/
-        go test -vet=all -coverprofile=.test/cover.out -tags={{.BUILD_TAGS}} ./...
+      - cmd: mkdir -p .test/
+        silent: true
+      - go test -vet=all -coverprofile=.test/cover.out -tags={{.BUILD_TAGS}} ./...
 
   go-bench:
     desc: Run Go benchmarks
@@ -90,16 +89,12 @@ tasks:
       PKG: '{{.PKG | default "./..."}}'
       FLAGS: '{{.FLAGS | default ""}}'
     cmds:
-      - |
-        export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
-        go test -ldflags="-s -w" -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
+      - go test -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
 
   go-gen:
     desc: Generates Go code
     cmds:
-      - |
-        export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
-        go generate ./...
+      - go generate ./...
 
   go-build:
     desc: Builds Go binaries
@@ -142,21 +137,24 @@ tasks:
           FLAGS: "--single-target"
       - task: pull-upstream
     vars:
-      KCLX_BIN: dist/kclipper_{{OS}}_{{ARCH}}*/kcl
-      KCL_CODE: benchmarks/no-charts.k
-      KCL_HELM: benchmarks/10-charts.k
-      KCL_HELM_VALUES: benchmarks/10-charts-with-values.k
+      KCLX_BIN: ../dist/kclipper_{{OS}}_{{ARCH}}*/kcl
+      KCL_CODE: no-charts.k
+      KCL_HELM: 10-charts.k
+      KCL_HELM_VALUES: 10-charts-with-values.k
     cmds:
-      - >-
-        hyperfine --warmup=50 --min-runs=1000
-        --export-markdown ./benchmarks/README.md
-        --command-name "kclipper ./{{.KCL_CODE}}"
-        --command-name "kclipper ./{{.KCL_HELM}}"
-        --command-name "kclipper ./{{.KCL_HELM_VALUES}}"
-        --reference ".tmp/bin/kcl ./{{.KCL_CODE}}"
-        "{{.KCLX_BIN}} ./{{.KCL_CODE}}"
-        "{{.KCLX_BIN}} ./{{.KCL_HELM}}"
-        "{{.KCLX_BIN}} ./{{.KCL_HELM_VALUES}}"
+      - cp ./.tmp/bin/kcl ./benchmarks/kcl
+      - defer: rm ./benchmarks/kcl
+      - |-
+        cd benchmarks
+        hyperfine --warmup=50 --min-runs=1000 \
+          --export-markdown ./README.md \
+          --command-name "kcl(ipper) -V {{.KCL_CODE}}" \
+          --command-name "kcl(ipper) -V {{.KCL_HELM}}" \
+          --command-name "kcl(ipper) -V {{.KCL_HELM_VALUES}}" \
+          --reference "kcl -V {{.KCL_CODE}}" \
+          "{{.KCLX_BIN}} -V {{.KCL_CODE}}" \
+          "{{.KCLX_BIN}} -V {{.KCL_HELM}}" \
+          "{{.KCLX_BIN}} -V {{.KCL_HELM_VALUES}}"
 
   bench-diff-docker:
     desc: Compares benchmark results

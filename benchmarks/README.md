@@ -1,6 +1,6 @@
-| Command                                         |  Mean [ms] | Min [ms] | Max [ms] |    Relative |
-| :---------------------------------------------- | ---------: | -------: | -------: | ----------: |
-| `.tmp/bin/kcl ./benchmarks/no-charts.k`         | 46.0 ± 2.4 |     43.5 |     82.7 |        1.00 |
-| `kclipper ./benchmarks/no-charts.k`             | 58.5 ± 2.6 |     56.2 |     94.5 | 1.27 ± 0.09 |
-| `kclipper ./benchmarks/10-charts.k`             | 80.4 ± 2.9 |     77.3 |    116.3 | 1.75 ± 0.11 |
-| `kclipper ./benchmarks/10-charts-with-values.k` | 87.8 ± 3.5 |     84.0 |    126.6 | 1.91 ± 0.12 |
+| Command                                 |  Mean [ms] | Min [ms] | Max [ms] |    Relative |
+| :-------------------------------------- | ---------: | -------: | -------: | ----------: |
+| `kcl -V no-charts.k`                    | 57.7 ± 2.5 |     54.8 |     89.4 |        1.00 |
+| `kcl(ipper) -V no-charts.k`             | 58.6 ± 2.1 |     55.8 |     82.0 | 1.02 ± 0.06 |
+| `kcl(ipper) -V 10-charts.k`             | 91.2 ± 3.4 |     86.6 |    129.3 | 1.58 ± 0.09 |
+| `kcl(ipper) -V 10-charts-with-values.k` | 98.3 ± 4.3 |     93.6 |    146.1 | 1.71 ± 0.10 |
