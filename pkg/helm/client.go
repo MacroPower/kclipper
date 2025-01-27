@@ -31,7 +31,7 @@ type PathCacher interface {
 	GetPaths() map[string]string
 }
 
-type KeyLock interface {
+type KeyLocker interface {
 	Lock(key string)
 	Unlock(key string)
 	RLock(key string)
@@ -40,12 +40,11 @@ type KeyLock interface {
 
 type Client struct {
 	Paths          PathCacher
+	RepoLock       KeyLocker
 	MaxExtractSize resource.Quantity
 	Project        string
 	Proxy          string
 	NoProxy        string
-
-	repoLock KeyLock
 }
 
 func NewClient(paths PathCacher, project, maxExtractSize string) (*Client, error) {
@@ -56,9 +55,9 @@ func NewClient(paths PathCacher, project, maxExtractSize string) (*Client, error
 
 	return &Client{
 		Paths:          paths,
+		RepoLock:       globalLock,
 		MaxExtractSize: maxExtractSizeResource,
 		Project:        project,
-		repoLock:       globalLock,
 	}, nil
 }
 
@@ -134,8 +133,8 @@ func (c *Client) getCachedOrRemoteChart(chart, version string, repo *helmrepo.Re
 		return "", fmt.Errorf("error getting cached chart path: %w", err)
 	}
 
-	c.repoLock.Lock(cachedChartPath)
-	defer c.repoLock.Unlock(cachedChartPath)
+	c.RepoLock.Lock(cachedChartPath)
+	defer c.RepoLock.Unlock(cachedChartPath)
 
 	// check if chart tar is already downloaded
 	exists, err := fileExists(cachedChartPath)
