@@ -10,8 +10,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/MacroPower/kclipper/pkg/argoutil/kube"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
+	"github.com/MacroPower/kclipper/pkg/kube"
 )
 
 var ErrNoMatcher = errors.New("no matcher provided")
