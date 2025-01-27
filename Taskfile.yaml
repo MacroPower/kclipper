@@ -72,7 +72,8 @@ tasks:
     cmds:
       - |
         export CC=$CC_{{.C_ENV}} CXX=$CXX_{{.C_ENV}}
-        go test -vet=all -tags={{.BUILD_TAGS}} ./...
+        mkdir -p .test/
+        go test -vet=all -coverprofile=.test/cover.out -tags={{.BUILD_TAGS}} ./...
 
   go-bench:
     desc: Run Go benchmarks
