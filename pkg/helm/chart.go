@@ -37,11 +37,6 @@ type ChartClient interface {
 	Pull(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
 }
 
-type Commander interface {
-	Fetch()
-	Template()
-}
-
 type JSONSchemaGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }

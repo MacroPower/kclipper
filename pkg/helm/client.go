@@ -11,12 +11,12 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/MacroPower/kclipper/pkg/argoutil/sync"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/pathutil"
+	"github.com/MacroPower/kclipper/pkg/syncutil"
 )
 
-var globalLock = sync.NewKeyLock()
+var globalLock = syncutil.NewKeyLock()
 
 var DefaultClient = MustNewClient(
 	pathutil.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), pathutil.NewBase64PathEncoder()),
@@ -31,6 +31,13 @@ type PathCacher interface {
 	GetPaths() map[string]string
 }
 
+type KeyLock interface {
+	Lock(key string)
+	Unlock(key string)
+	RLock(key string)
+	RUnlock(key string)
+}
+
 type Client struct {
 	Paths          PathCacher
 	MaxExtractSize resource.Quantity
@@ -38,7 +45,7 @@ type Client struct {
 	Proxy          string
 	NoProxy        string
 
-	repoLock sync.KeyLock
+	repoLock KeyLock
 }
 
 func NewClient(paths PathCacher, project, maxExtractSize string) (*Client, error) {
