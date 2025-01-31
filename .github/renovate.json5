@@ -1,7 +1,18 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["config:recommended"],
-  ignorePaths: ["**/testdata/**"],
+  extends: [
+    "config:recommended",
+    ":disableRateLimiting",
+    ":separateMajorReleases",
+    ":rebaseStalePrs",
+  ],
+  ignorePaths: [
+    "**/testdata/**",
+  ],
+  postUpdateOptions: [
+    "gomodTidy",
+    "gomodUpdateImportPaths",
+  ],
   customManagers: [
     {
       customType: "regex",
