@@ -1,0 +1,4 @@
+rules:
+  cache-poisoning:
+    ignore:
+      - release.yaml:3

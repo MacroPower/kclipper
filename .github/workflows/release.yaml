@@ -10,20 +10,20 @@ on:
         description: Tag to release
         required: true
 
-permissions:
-  contents: write
-  packages: write
-
 jobs:
   goreleaser:
     name: goreleaser
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.tag != '' && format('refs/tags/{0}', github.event.inputs.tag) || github.ref }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -51,18 +51,24 @@ jobs:
   kcl-mod:
     name: kcl-mod
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.tag != '' && format('refs/tags/{0}', github.event.inputs.tag) || github.ref }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up KCL
         run: wget -q https://kcl-lang.io/script/install-cli.sh -O - | /bin/bash
 
       - name: Login to GitHub Container Registry
-        run: kcl registry login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
+        run: kcl registry login -u $GITHUB_ACTOR -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Publish KCL packages
         run: |

@@ -43,6 +43,11 @@ jobs:
   renovate:
     name: renovate
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      security-events: read
     steps:
       - name: Generate Token
         uses: actions/create-github-app-token@v1
@@ -55,6 +60,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: "${{ steps.app-token.outputs.token }}"
+          persist-credentials: false
 
       - name: Renovate
         uses: renovatebot/github-action@v41.0.10
