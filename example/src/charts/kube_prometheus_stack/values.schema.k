@@ -17,7 +17,8 @@ schema Values:
     adminUser : str, optional, default is "admin"
         Administrator credentials when not using an existing secret (see below)
     affinity : ValuesAffinity, optional
-        # Assign a group of affinity scheduling rules
+        # Affinity for pod assignment (evaluated as template)
+        # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
         #
     alerting : ValuesAlerting, optional
         # Configure grafana alerting (can be templated)
@@ -39,7 +40,7 @@ schema Values:
         Alternatively, if you wish to allow secret values to be exposed in the rendered grafana.ini configmap,
         you can disable this check by setting assertNoLeakedSecrets to false.
     automountServiceAccountToken : bool, optional, default is True
-        If false then the user will opt out of automounting API credentials.
+        # Should the service account be auto mounted on the pod
     autoscaling : ValuesAutoscaling, optional
         # Create HorizontalPodAutoscaler object for deployment type
 
@@ -55,8 +56,7 @@ schema Values:
         Available collectors for kube-state-metrics.
         By default, all available resources are enabled, comment out to disable.
     commonLabels : ValuesCommonLabels, optional
-        # Labels to apply to all resources
-        #
+        # Extra labels to attach to all resources (can be templated)
     config : str, optional,
         default is
         ```
@@ -138,7 +138,27 @@ schema Values:
         for deployments that have node_exporter deployed outside of the cluster, list
         their addresses here
     env : ValuesEnv, optional
-        Additional environment variables that will be passed to the daemonset
+        # Extra environment variables that will be pass onto deployment pods
+        #
+        # to provide grafana with access to CloudWatch on AWS EKS:
+        # 1. create an iam role of type "Web identity" with provider oidc.eks.* (note the provider for later)
+        # 2. edit the "Trust relationships" of the role, add a line inside the StringEquals clause using the
+        # same oidc eks provider as noted before (same as the existing line)
+        # also, replace NAMESPACE and prometheus-operator-grafana with the service account namespace and name
+        #
+        #  "oidc.eks.us-east-1.amazonaws.com/id/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:sub": "system:serviceaccount:NAMESPACE:prometheus-operator-grafana",
+        #
+        # 3. attach a policy to the role, you can use a built in policy called CloudWatchReadOnlyAccess
+        # 4. use the following env: (replace 123456789000 and iam-role-name-here with your aws account number and role name)
+        #
+        # env:
+        #   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here
+        #   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+        #   AWS_REGION: us-east-1
+        #
+        # 5. uncomment the EKS section in extraSecretMounts: below
+        # 6. uncomment the annotation section in the serviceAccount: above
+        # make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
     envFromConfigMaps : [any], optional
         # The names of conifgmaps in the same kubernetes namespace which contain values to be added to the environment
         # Each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
@@ -181,21 +201,23 @@ schema Values:
         # Additional mounts from the host to windows-exporter container
         #
     extraInitContainers : [any], optional
-        # Additional InitContainers to initialize the pod
+        # Additional init containers (evaluated as template)
+        # ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
         #
     extraLabels : ValuesExtraLabels, optional
         Apply extra labels to common labels.
     extraManifests : [str], optional
-        # Extra manifests to deploy as an array
+        Extra manifests to deploy as an array
     extraObjects : [ValuesExtraObjectsItems0], optional
         Create a dynamic manifests via values:
     extraSecretMounts : [any], optional
         # Additional grafana server secret mounts
         Defines additional mounts with secrets. Secrets must be manually created in the namespace.
     extraVolumeMounts : [any], optional
-        # Extra volume mounts in the node-exporter container
+        # Additional grafana server volume mounts
+        Defines additional volume mounts.
     extraVolumes : [any], optional
-        # Extra volumes to become available in the pod
+        # Additional Grafana server volumes
     fullnameOverride : str, optional, default is ""
         # Provide a name to substitute for the full names of resources
         #
@@ -227,9 +249,10 @@ schema Values:
     hostSysFsMount : ValuesHostSysFsMount, optional
         Mount the node's sys file system (/sys) at /host/sys in the container
     image : ValuesImage, optional
-        Default values for prometheus-node-exporter.
-        This is a YAML-formatted file.
-        Declare variables to be passed into your templates.
+        # Use an alternate scheduler, e.g. "stork".
+        # ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+        #
+        schedulerName: "default-scheduler"
     imagePullSecrets : [any], optional
     imageRenderer : ValuesImageRenderer, optional
         # Add a seperate remote image renderer deployment/service
@@ -312,8 +335,7 @@ schema Values:
         A single '*' can be provided per resource instead to allow any labels, but that has
         severe performance implications (Example: '=pods=[*]').
     nameOverride : str, optional, default is ""
-        # Provide a name in place of kube-prometheus-stack for `app:` labels
-        #
+        - name: "image-pull-secret"
     namespaceOverride : str, optional, default is ""
         # Override the deployment namespace
         #
@@ -330,8 +352,9 @@ schema Values:
         # Deploy node exporter as a daemonset to all nodes
         #
     nodeSelector : ValuesNodeSelector, optional
-        # Assign a nodeSelector if operating a hybrid cluster
-        #
+        # Node labels for pod assignment
+        # ref: https://kubernetes.io/docs/user-guide/node-selection/
+
     notifiers : ValuesNotifiers, optional
         # Configure notifiers
         # ref: http://docs.grafana.org/administration/provisioning/#alert-notification-channels
@@ -346,7 +369,8 @@ schema Values:
     podAnnotations : ValuesPodAnnotations, optional
         Annotations to be added to windows exporter pods
     podDisruptionBudget : ValuesPodDisruptionBudget, optional
-        Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+        # See `kubectl explain poddisruptionbudget.spec` for more
+        # ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
     podLabels : ValuesPodLabels, optional
         Extra labels to be added to windows exporter pods
     podPortName : str, optional, default is "grafana"
@@ -386,8 +410,8 @@ schema Values:
         Specify the container restart policy passed to the Node Export container
         Possible Values: Always (default)|OnFailure|Never
     revisionHistoryLimit : int, optional, default is 10
-        Number of old history to retain to allow rollback
-        Default Kubernetes value is set to 10
+        # Number of old ReplicaSets to retain
+        #
     route : ValuesRoute, optional
         BETA: Configure the gateway routes for the chart here.
         More routes can be added by adding a dictionary key like the 'main' route.
@@ -406,7 +430,10 @@ schema Values:
         Default values for telemetry configuration can be overridden
         If you set telemetryNodePort, you must also set service.type to NodePort
     service : ValuesService, optional
-        # Service configuration
+        # Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).
+        # or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+        # ref: http://kubernetes.io/docs/user-guide/services/
+        #
     serviceAccount : ValuesServiceAccount, optional
     serviceMonitor : ValuesServiceMonitor, optional
     sidecar : ValuesSidecar, optional
@@ -445,10 +472,12 @@ schema Values:
         # The volume's resources will be used by kube-rbac-proxy if kubeRBACProxy.tls.enabled is set.
     tolerations : [ValuesTolerationsItems0], optional
         # Tolerations for pod assignment
-        # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        #
     topologySpreadConstraints : [any], optional
-        # Topology spread constraints for pod assignment
-        # Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+        # Topology Spread Constraints
+        # ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+        #
     updateStrategy : ValuesUpdateStrategy, optional
         # Customize the updateStrategy if set
     useStatefulSet : bool, optional, default is False
@@ -648,7 +677,8 @@ schema ValuesAdmin:
 
 schema ValuesAffinity:
     r"""
-    # Assign a group of affinity scheduling rules
+    # Affinity for pod assignment (evaluated as template)
+    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
     #
 
     Attributes
@@ -1980,8 +2010,7 @@ schema ValuesAutosharding:
 
 schema ValuesCommonLabels:
     r"""
-    # Labels to apply to all resources
-    #
+    # Extra labels to attach to all resources (can be templated)
 
     Attributes
     ----------
@@ -3247,7 +3276,27 @@ schema ValuesDownloadDashboardsSecurityContextSeccompProfile:
 
 schema ValuesEnv:
     r"""
-    Additional environment variables that will be passed to the daemonset
+    # Extra environment variables that will be pass onto deployment pods
+    #
+    # to provide grafana with access to CloudWatch on AWS EKS:
+    # 1. create an iam role of type "Web identity" with provider oidc.eks.* (note the provider for later)
+    # 2. edit the "Trust relationships" of the role, add a line inside the StringEquals clause using the
+    # same oidc eks provider as noted before (same as the existing line)
+    # also, replace NAMESPACE and prometheus-operator-grafana with the service account namespace and name
+    #
+    #  "oidc.eks.us-east-1.amazonaws.com/id/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:sub": "system:serviceaccount:NAMESPACE:prometheus-operator-grafana",
+    #
+    # 3. attach a policy to the role, you can use a built in policy called CloudWatchReadOnlyAccess
+    # 4. use the following env: (replace 123456789000 and iam-role-name-here with your aws account number and role name)
+    #
+    # env:
+    #   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here
+    #   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+    #   AWS_REGION: us-east-1
+    #
+    # 5. uncomment the EKS section in extraSecretMounts: below
+    # 6. uncomment the annotation section in the serviceAccount: above
+    # make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
     """
 
     [...str]: any
@@ -3359,18 +3408,26 @@ schema ValuesGlobal:
     ----------
     environment : str, optional
     imagePullSecrets : [any], optional
-        # Reference to one or more secrets to be used when pulling images
-        # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-        #
-    imageRegistry : str, optional, default is ""
-        # Global image registry to use if it needs to be overriden for some specific use cases (e.g local registries, custom images, ...)
-        #
+        To help compatibility with other charts which use global.imagePullSecrets.
+        Allow either an array of {name: pullSecret} maps (k8s-style), or an array of strings (more common helm-style).
+        Can be templated.
+        global:
+          imagePullSecrets:
+          - name: pullSecret1
+          - name: pullSecret2
+        or
+        global:
+          imagePullSecrets:
+          - pullSecret1
+          - pullSecret2
+    imageRegistry : any, optional, default is "null"
+        Overrides the Docker registry globally for all images
     rbac : ValuesGlobalRbac, optional
     """
 
     environment?: str
     imagePullSecrets?: [any]
-    imageRegistry?: str
+    imageRegistry?: any
     rbac?: ValuesGlobalRbac
     [...str]: any
 
@@ -3937,9 +3994,10 @@ schema ValuesHostSysFsMount:
 
 schema ValuesImage:
     r"""
-    Default values for prometheus-node-exporter.
-    This is a YAML-formatted file.
-    Declare variables to be passed into your templates.
+    # Use an alternate scheduler, e.g. "stork".
+    # ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+    #
+    schedulerName: "default-scheduler"
 
     Attributes
     ----------
@@ -3951,13 +4009,13 @@ schema ValuesImage:
         # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
         # Can be templated.
         #
-    registry : str, optional, default is "ghcr.io"
+    registry : str, optional, default is "docker.io"
         The Docker registry
-    repository : str, optional, default is "prometheus-community/windows-exporter"
+    repository : str, optional, default is "grafana/grafana"
         Docker image repository
     sha : str, optional, default is ""
     tag : str, optional, default is ""
-        Overrides the image tag whose default is {{ printf "v%s" .Chart.AppVersion }}
+        Overrides the Grafana image tag whose default is the chart appVersion
     """
 
     digest?: str
@@ -5835,6 +5893,8 @@ schema ValuesKubeletServiceMonitor:
     interval : str, optional, default is ""
         # Scrape interval. If not set, the Prometheus default scrape interval is used.
         #
+    kubelet : bool, optional, default is True
+        # Enable scraping /metrics from kubelet's service
     labelLimit : int, optional, default is 0
         # Per-scrape limit on number of labels that will be accepted for a sample. Only valid in Prometheus versions 2.27.0 and newer.
         #
@@ -5907,6 +5967,7 @@ schema ValuesKubeletServiceMonitor:
     https?: bool
     insecureSkipVerify?: bool
     interval?: str
+    kubelet?: bool
     labelLimit?: int
     labelNameLengthLimit?: int
     labelValueLengthLimit?: int
@@ -6070,12 +6131,12 @@ schema ValuesLivenessProbe:
 
     Attributes
     ----------
-    failureThreshold : int, optional, default is 3
+    failureThreshold : int, optional, default is 10
     httpGet : ValuesLivenessProbeHttpGet, optional
-    initialDelaySeconds : int, optional, default is 0
+    initialDelaySeconds : int, optional, default is 60
     periodSeconds : int, optional, default is 10
     successThreshold : int, optional, default is 1
-    timeoutSeconds : int, optional, default is 1
+    timeoutSeconds : int, optional, default is 30
     """
 
     failureThreshold?: int
@@ -6093,7 +6154,7 @@ schema ValuesLivenessProbeHttpGet:
     Attributes
     ----------
     httpHeaders : [any], optional
-    path : str, optional, default is "/health"
+    path : str, optional, default is "/api/health"
     port : int, optional, default is 3000
     scheme : str, optional, default is "http"
     """
@@ -6144,7 +6205,7 @@ schema ValuesNetworkPolicy:
         Can be:
         * kubernetes for networking.k8s.io/v1/NetworkPolicy
         * cilium     for cilium.io/v2/CiliumNetworkPolicy
-    ingress : [ValuesNetworkPolicyIngressItems0], optional, default is True
+    ingress : bool | ValuesNetworkPolicyIngressItems0, optional, default is True
         #
         # The Policy model to apply. When set to false, only pods with the correct
         # client label will have network access to  grafana port defined.
@@ -6158,7 +6219,7 @@ schema ValuesNetworkPolicy:
     enabled?: bool
     explicitNamespacesSelector?: ValuesNetworkPolicyExplicitNamespacesSelector
     flavor?: str
-    ingress?: [ValuesNetworkPolicyIngressItems0]
+    ingress?: bool | ValuesNetworkPolicyIngressItems0
     [...str]: any
 
 schema ValuesNetworkPolicyEgress:
@@ -6306,8 +6367,9 @@ schema ValuesNodeExporterOperatingSystemsLinux:
 
 schema ValuesNodeSelector:
     r"""
-    # Assign a nodeSelector if operating a hybrid cluster
-    #
+    # Node labels for pod assignment
+    # ref: https://kubernetes.io/docs/user-guide/node-selection/
+
 
     Attributes
     ----------
@@ -6409,7 +6471,8 @@ schema ValuesPodAnnotations:
 
 schema ValuesPodDisruptionBudget:
     r"""
-    Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+    # See `kubectl explain poddisruptionbudget.spec` for more
+    # ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
     """
 
     [...str]: any
@@ -10562,9 +10625,10 @@ schema ValuesRbac:
           verbs: ["list", "watch"]
     namespaced : bool, optional, default is False
     pspAnnotations : ValuesRbacPspAnnotations, optional
-    pspEnabled : bool, optional, default is True
-        # If true, create & use Pod Security Policy resources
-        # https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+    pspEnabled : bool, optional, default is False
+        # Use an existing ClusterRole/Role (depending on rbac.namespaced false/true)
+        useExistingRole: name-of-some-role
+        useExistingClusterRole: name-of-some-clusterRole
     pspUseAppArmor : bool, optional, default is False
     useClusterRole : bool, optional, default is True
         If set to false - Run without Cluteradmin privs needed - ONLY works if namespace is also set (if useExistingRole is set this name is used as ClusterRole or Role to bind to)
@@ -10618,7 +10682,7 @@ schema ValuesReadinessProbeHttpGet:
     Attributes
     ----------
     httpHeaders : [any], optional
-    path : str, optional, default is "/health"
+    path : str, optional, default is "/api/health"
     port : int, optional, default is 3000
     scheme : str, optional, default is "http"
     """
@@ -10848,10 +10912,10 @@ schema ValuesSecurityContext:
     Attributes
     ----------
     enabled : bool, optional, default is True
-    fsGroup : int, optional, default is 65534
-    runAsGroup : int, optional, default is 65534
+    fsGroup : int, optional, default is 472
+    runAsGroup : int, optional, default is 472
     runAsNonRoot : bool, optional, default is True
-    runAsUser : int, optional, default is 65534
+    runAsUser : int, optional, default is 472
     seccompProfile : ValuesSecurityContextSeccompProfile, optional
     windowsOptions : ValuesSecurityContextWindowsOptions, optional
     """
@@ -10916,12 +10980,16 @@ schema ValuesSelfMonitor:
 
 schema ValuesService:
     r"""
-    # Service configuration
+    # Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).
+    # or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+    # ref: http://kubernetes.io/docs/user-guide/services/
+    #
 
     Attributes
     ----------
     annotations : ValuesServiceAnnotations, optional
-        # Additional annotations and labels for the service
+        targetPort: 4181 To be used with a proxy extraContainer
+        # Service annotations. Can be templated.
     appProtocol : str, optional, default is ""
         Adds the appProtocol field to the service. This allows to work with istio protocol selection. Ex: "http" or "tcp"
     clusterIP : str, optional, default is ""
@@ -10946,15 +11014,15 @@ schema ValuesService:
         Only allow access to the loadBalancerIP from these IPs
     nodePort : any, optional, default is ""
         # Port number for service type NodePort
-    port : int, optional, default is 9182
+    port : int, optional, default is 80
         # Default service port. Sets the port of the exposed container as well (NE or kubeRBACProxy).
         # Use "servicePort" below if changing the service port only is desired.
-    portName : str, optional, default is "metrics"
+    portName : str, optional, default is "service"
         # Name of the service port. Sets the port name of the main container (NE) as well.
-    servicePort : str, optional, default is ""
+    servicePort : int, optional, default is ""
         # Service port. Use this field if you wish to set a different service port
         # without changing the container port ("port" above).
-    targetPort : int, optional, default is 9100
+    targetPort : int, optional, default is 3000
         # Targeted port in the pod. Must refer to an open container port ("port" or "portName").
         # (IntOrString)
     $type : str, optional, default is "ClusterIP"
@@ -10977,7 +11045,7 @@ schema ValuesService:
     nodePort?: any
     port?: int
     portName?: str
-    servicePort?: str
+    servicePort?: int
     targetPort?: int
     $type?: str
     [...str]: any
@@ -10993,7 +11061,8 @@ schema ValuesServiceAccount:
         Use case: AWS EKS IAM roles for service accounts
         ref: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html
     automountServiceAccountToken : bool, optional, default is False
-        If false then the user will opt out of automounting API credentials.
+        # autoMount is deprecated in favor of automountServiceAccountToken
+        autoMount: false
     create : bool, optional, default is True
         Specifies whether a ServiceAccount should be created
     imagePullSecrets : [any], optional
@@ -11034,7 +11103,8 @@ schema ValuesServiceAccountLabels:
 
 schema ValuesServiceAnnotations:
     r"""
-    # Additional annotations and labels for the service
+    targetPort: 4181 To be used with a proxy extraContainer
+    # Service annotations. Can be templated.
 
     Attributes
     ----------

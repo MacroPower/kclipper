@@ -21,7 +21,7 @@ charts: helm.Charts = {
         crdPath = "**/crds/crds/*.yaml"
         repoURL = "https://prometheus-community.github.io/helm-charts"
         schemaGenerator = "AUTO"
-        targetRevision = "67.9.0"
+        targetRevision = "67.11.0"
     }
     simple_chart: {
         chart = "simple-chart"
