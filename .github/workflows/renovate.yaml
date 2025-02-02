@@ -18,7 +18,7 @@ on:
         default: latest
         required: false
   schedule:
-    - cron: "0 * * * *" # Every hour
+    - cron: "0 */6 * * *" # Every 6 hours
   push:
     branches: ["main", "renovate*"]
     paths:
@@ -31,7 +31,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  LOG_LEVEL: "${{ inputs.logLevel || 'debug' }}"
+  LOG_LEVEL: "${{ inputs.logLevel || 'info' }}"
   RENOVATE_AUTODISCOVER: true
   RENOVATE_AUTODISCOVER_FILTER: "${{ github.repository }}"
   RENOVATE_DRY_RUN: "${{ inputs.dryRun == true }}"
