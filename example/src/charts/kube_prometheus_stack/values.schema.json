@@ -46,7 +46,7 @@
     },
     "affinity": {
       "additionalProperties": true,
-      "description": "# Assign a group of affinity scheduling rules\n#",
+      "description": "# Affinity for pod assignment (evaluated as template)\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity\n#",
       "properties": {
         "podAntiAffinity": {
           "properties": {
@@ -164,7 +164,7 @@
       "description": "# Configuration for alertmanager\n# ref: https://prometheus.io/docs/alerting/alertmanager/\n#",
       "properties": {
         "alertmanagerSpec": {
-          "description": "# Settings affecting alertmanagerSpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#alertmanagerspec\n#",
+          "description": "# Settings affecting alertmanagerSpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#alertmanagerspec\n#",
           "properties": {
             "additionalConfig": {
               "description": "# Additional configuration which is not covered by the properties above. (passed through tpl)",
@@ -314,7 +314,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v0.27.0",
+                  "default": "v0.28.0",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -509,7 +509,7 @@
               "type": "object"
             },
             "tlsConfig": {
-              "description": "# tlsConfig: TLS configuration to use when connect to the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api.md#tlsconfig",
+              "description": "# tlsConfig: TLS configuration to use when connect to the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
               "type": "object"
@@ -558,7 +558,7 @@
               "type": "array"
             },
             "web": {
-              "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#alertmanagerwebspec",
+              "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#alertmanagerwebspec",
               "required": [],
               "title": "web",
               "type": "object"
@@ -766,6 +766,13 @@
           "required": [],
           "title": "extraSecret",
           "type": "object"
+        },
+        "forceDeployDashboards": {
+          "default": false,
+          "description": "# Create dashboard configmap even if alertmanager deployment has been disabled\n#",
+          "required": [],
+          "title": "forceDeployDashboards",
+          "type": "boolean"
         },
         "ingress": {
           "properties": {
@@ -1247,7 +1254,7 @@
             },
             "enableHttp2": {
               "default": true,
-              "description": "# enableHttp2: Whether to enable HTTP2.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#endpoint",
+              "description": "# enableHttp2: Whether to enable HTTP2.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#endpoint",
               "required": [],
               "title": "enableHttp2",
               "type": "boolean"
@@ -1281,7 +1288,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -1297,7 +1304,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -1334,7 +1341,7 @@
               "type": "integer"
             },
             "tlsConfig": {
-              "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api.md#tlsconfig",
+              "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
               "type": "object"
@@ -1448,7 +1455,7 @@
     },
     "automountServiceAccountToken": {
       "default": true,
-      "description": "If false then the user will opt out of automounting API credentials.",
+      "description": "# Should the service account be auto mounted on the pod",
       "required": [],
       "title": "automountServiceAccountToken",
       "type": "boolean"
@@ -1531,7 +1538,7 @@
     },
     "commonLabels": {
       "additionalProperties": true,
-      "description": "# Labels to apply to all resources\n#",
+      "description": "# Extra labels to attach to all resources (can be templated)",
       "properties": {
         "baz": {
           "required": [],
@@ -1734,7 +1741,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -1757,7 +1764,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -1778,7 +1785,7 @@
               "type": "object"
             },
             "targetLabels": {
-              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -1812,6 +1819,301 @@
           "required": [],
           "title": "enabled",
           "type": "boolean"
+        },
+        "upgradeJob": {
+          "description": "# The CRD upgrade job mitigates the limitation of helm not being able to upgrade CRDs.\n# The job will apply the CRDs to the cluster before the operator is deployed, using helm hooks.\n# It deploy a corresponding clusterrole, clusterrolebinding and serviceaccount to apply the CRDs.\n# This feature is in preview, off by default and may change in the future.",
+          "properties": {
+            "affinity": {
+              "description": "# Assign custom affinity rules to the upgrade-crd job\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/\n#",
+              "required": [],
+              "title": "affinity",
+              "type": "object"
+            },
+            "annotations": {
+              "description": "# Annotations to add to the upgrade-crd job\n#",
+              "required": [],
+              "title": "annotations",
+              "type": "object"
+            },
+            "containerSecurityContext": {
+              "description": "# Container-specific security context configuration\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
+              "properties": {
+                "allowPrivilegeEscalation": {
+                  "default": false,
+                  "required": [],
+                  "title": "allowPrivilegeEscalation",
+                  "type": "boolean"
+                },
+                "capabilities": {
+                  "properties": {
+                    "drop": {
+                      "items": {
+                        "required": [],
+                        "type": "string"
+                      },
+                      "required": [],
+                      "title": "drop",
+                      "type": "array"
+                    }
+                  },
+                  "required": [],
+                  "title": "capabilities",
+                  "type": "object"
+                },
+                "readOnlyRootFilesystem": {
+                  "default": true,
+                  "required": [],
+                  "title": "readOnlyRootFilesystem",
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "title": "containerSecurityContext",
+              "type": "object"
+            },
+            "enabled": {
+              "default": false,
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "env": {
+              "required": [],
+              "title": "env",
+              "type": "object"
+            },
+            "extraVolumeMounts": {
+              "description": "# Additional volume mounts\n#",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraVolumeMounts",
+              "type": "array"
+            },
+            "extraVolumes": {
+              "description": "# Additional volumes\n#",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraVolumes",
+              "type": "array"
+            },
+            "image": {
+              "properties": {
+                "busybox": {
+                  "properties": {
+                    "pullPolicy": {
+                      "default": "IfNotPresent",
+                      "required": [],
+                      "title": "pullPolicy",
+                      "type": "string"
+                    },
+                    "registry": {
+                      "default": "docker.io",
+                      "required": [],
+                      "title": "registry",
+                      "type": "string"
+                    },
+                    "repository": {
+                      "default": "busybox",
+                      "required": [],
+                      "title": "repository",
+                      "type": "string"
+                    },
+                    "sha": {
+                      "default": "",
+                      "required": [],
+                      "title": "sha",
+                      "type": "string"
+                    },
+                    "tag": {
+                      "default": "latest",
+                      "required": [],
+                      "title": "tag",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "busybox",
+                  "type": "object"
+                },
+                "kubectl": {
+                  "properties": {
+                    "pullPolicy": {
+                      "default": "IfNotPresent",
+                      "required": [],
+                      "title": "pullPolicy",
+                      "type": "string"
+                    },
+                    "registry": {
+                      "default": "registry.k8s.io",
+                      "required": [],
+                      "title": "registry",
+                      "type": "string"
+                    },
+                    "repository": {
+                      "default": "kubectl",
+                      "required": [],
+                      "title": "repository",
+                      "type": "string"
+                    },
+                    "sha": {
+                      "default": "",
+                      "required": [],
+                      "title": "sha",
+                      "type": "string"
+                    },
+                    "tag": {
+                      "default": "",
+                      "required": [],
+                      "title": "tag",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "kubectl",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "image",
+              "type": "object"
+            },
+            "labels": {
+              "description": "## Labels to add to the upgrade-crd job\n##",
+              "required": [],
+              "title": "labels",
+              "type": "object"
+            },
+            "nodeSelector": {
+              "description": "# Define which Nodes the Pods are scheduled on.\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n#",
+              "required": [],
+              "title": "nodeSelector",
+              "type": "object"
+            },
+            "podAnnotations": {
+              "description": "# Annotations to add to the upgrade-crd pod\n#",
+              "required": [],
+              "title": "podAnnotations",
+              "type": "object"
+            },
+            "podLabels": {
+              "description": "# Labels to add to the upgrade-crd pod\n#",
+              "required": [],
+              "title": "podLabels",
+              "type": "object"
+            },
+            "resources": {
+              "description": "# Define resources requests and limits for single Pods.\n# ref: https://kubernetes.io/docs/user-guide/compute-resources/\n#",
+              "required": [],
+              "title": "resources",
+              "type": "object"
+            },
+            "securityContext": {
+              "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
+              "properties": {
+                "fsGroup": {
+                  "default": 65534,
+                  "required": [],
+                  "title": "fsGroup",
+                  "type": "integer"
+                },
+                "runAsGroup": {
+                  "default": 65534,
+                  "required": [],
+                  "title": "runAsGroup",
+                  "type": "integer"
+                },
+                "runAsNonRoot": {
+                  "default": true,
+                  "required": [],
+                  "title": "runAsNonRoot",
+                  "type": "boolean"
+                },
+                "runAsUser": {
+                  "default": 65534,
+                  "required": [],
+                  "title": "runAsUser",
+                  "type": "integer"
+                },
+                "seccompProfile": {
+                  "properties": {
+                    "type": {
+                      "default": "RuntimeDefault",
+                      "required": [],
+                      "title": "type",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "seccompProfile",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "securityContext",
+              "type": "object"
+            },
+            "serviceAccount": {
+              "description": "# Service account for upgrade crd job to use.\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/\n#",
+              "properties": {
+                "annotations": {
+                  "required": [],
+                  "title": "annotations",
+                  "type": "object"
+                },
+                "automountServiceAccountToken": {
+                  "default": true,
+                  "required": [],
+                  "title": "automountServiceAccountToken",
+                  "type": "boolean"
+                },
+                "create": {
+                  "default": true,
+                  "required": [],
+                  "title": "create",
+                  "type": "boolean"
+                },
+                "labels": {
+                  "required": [],
+                  "title": "labels",
+                  "type": "object"
+                },
+                "name": {
+                  "default": "",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "serviceAccount",
+              "type": "object"
+            },
+            "tolerations": {
+              "description": "# If specified, the pod's tolerations.\n# ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/\n#",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "tolerations",
+              "type": "array"
+            },
+            "topologySpreadConstraints": {
+              "description": "# If specified, the pod's topology spread constraints.\n# ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/\n#",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "topologySpreadConstraints",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "upgradeJob",
+          "type": "object"
         }
       },
       "required": [],
@@ -2768,7 +3070,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "7.85.0",
+          "default": "8.9.1",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -2803,7 +3105,7 @@
     },
     "env": {
       "additionalProperties": true,
-      "description": "Additional environment variables that will be passed to the daemonset",
+      "description": "# Extra environment variables that will be pass onto deployment pods\n#\n# to provide grafana with access to CloudWatch on AWS EKS:\n# 1. create an iam role of type \"Web identity\" with provider oidc.eks.* (note the provider for later)\n# 2. edit the \"Trust relationships\" of the role, add a line inside the StringEquals clause using the\n# same oidc eks provider as noted before (same as the existing line)\n# also, replace NAMESPACE and prometheus-operator-grafana with the service account namespace and name\n#\n#  \"oidc.eks.us-east-1.amazonaws.com/id/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:sub\": \"system:serviceaccount:NAMESPACE:prometheus-operator-grafana\",\n#\n# 3. attach a policy to the role, you can use a built in policy called CloudWatchReadOnlyAccess\n# 4. use the following env: (replace 123456789000 and iam-role-name-here with your aws account number and role name)\n#\n# env:\n#   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here\n#   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token\n#   AWS_REGION: us-east-1\n#\n# 5. uncomment the EKS section in extraSecretMounts: below\n# 6. uncomment the annotation section in the serviceAccount: above\n# make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn",
       "required": [],
       "title": "env",
       "type": "object"
@@ -2848,7 +3150,7 @@
       "type": "object"
     },
     "extraArgs": {
-      "description": "# Additional container arguments\n#",
+      "description": "List of additional cli arguments to configure kube-state-metrics\nfor example: --enable-gzip-encoding, --log-file, etc.\nall the possible args can be found here: https://github.com/kubernetes/kube-state-metrics/blob/master/docs/cli-arguments.md",
       "items": {
         "required": []
       },
@@ -2936,7 +3238,7 @@
       "type": "array"
     },
     "extraInitContainers": {
-      "description": "# Additional InitContainers to initialize the pod\n#",
+      "description": "# Additional init containers (evaluated as template)\n# ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/\n#",
       "items": {
         "required": []
       },
@@ -2952,7 +3254,7 @@
       "type": "object"
     },
     "extraManifests": {
-      "description": "# Extra manifests to deploy as an array",
+      "description": "Extra manifests to deploy as an array",
       "items": {
         "required": [],
         "type": "string"
@@ -3038,7 +3340,7 @@
       "type": "array"
     },
     "extraVolumeMounts": {
-      "description": "# Extra volume mounts in the node-exporter container",
+      "description": "# Additional grafana server volume mounts\nDefines additional volume mounts.",
       "items": {
         "required": []
       },
@@ -3047,7 +3349,7 @@
       "type": "array"
     },
     "extraVolumes": {
-      "description": "# Extra volumes to become available in the pod",
+      "description": "# Additional Grafana server volumes",
       "items": {
         "required": []
       },
@@ -3072,7 +3374,7 @@
           "type": "string"
         },
         "imagePullSecrets": {
-          "description": "# Reference to one or more secrets to be used when pulling images\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/\n#",
+          "description": "To help compatibility with other charts which use global.imagePullSecrets.\nAllow either an array of {name: pullSecret} maps (k8s-style), or an array of strings (more common helm-style).\nCan be templated.\nglobal:\n  imagePullSecrets:\n  - name: pullSecret1\n  - name: pullSecret2\nor\nglobal:\n  imagePullSecrets:\n  - pullSecret1\n  - pullSecret2",
           "items": {
             "required": []
           },
@@ -3081,11 +3383,11 @@
           "type": "array"
         },
         "imageRegistry": {
-          "default": "",
-          "description": "# Global image registry to use if it needs to be overriden for some specific use cases (e.g local registries, custom images, ...)\n#",
+          "default": "null",
+          "description": "Overrides the Docker registry globally for all images",
           "required": [],
           "title": "imageRegistry",
-          "type": "string"
+          "type": "null"
         },
         "rbac": {
           "properties": {
@@ -3361,7 +3663,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -3723,7 +4025,7 @@
       "type": "boolean"
     },
     "hostNetwork": {
-      "default": true,
+      "default": false,
       "description": "Expose the service to the host network",
       "required": [],
       "title": "hostNetwork",
@@ -3792,7 +4094,7 @@
     },
     "image": {
       "additionalProperties": true,
-      "description": "Default values for prometheus-node-exporter.\nThis is a YAML-formatted file.\nDeclare variables to be passed into your templates.",
+      "description": "# Use an alternate scheduler, e.g. \"stork\".\n# ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/\n#\nschedulerName: \"default-scheduler\"",
       "properties": {
         "digest": {
           "default": "",
@@ -3816,14 +4118,14 @@
           "type": "array"
         },
         "registry": {
-          "default": "ghcr.io",
+          "default": "docker.io",
           "description": "The Docker registry",
           "required": [],
           "title": "registry",
           "type": "string"
         },
         "repository": {
-          "default": "prometheus-community/windows-exporter",
+          "default": "grafana/grafana",
           "description": "Docker image repository",
           "required": [],
           "title": "repository",
@@ -3837,7 +4139,7 @@
         },
         "tag": {
           "default": "",
-          "description": "Overrides the image tag whose default is {{ printf \"v%s\" .Chart.AppVersion }}",
+          "description": "Overrides the Grafana image tag whose default is the chart appVersion",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -4659,6 +4961,7 @@
               "properties": {
                 "enabled": {
                   "default": true,
+                  "description": "# Enable scraping via service monitor\n# Disable to prevent duplication if you enable prometheusScrape above\n#",
                   "required": [],
                   "title": "enabled",
                   "type": "boolean"
@@ -4699,7 +5002,7 @@
                   "type": "integer"
                 },
                 "metricRelabelings": {
-                  "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+                  "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
                   "items": {
                     "required": []
                   },
@@ -4715,7 +5018,7 @@
                   "type": "string"
                 },
                 "relabelings": {
-                  "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+                  "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
                   "items": {
                     "required": []
                   },
@@ -4753,6 +5056,13 @@
           "required": [],
           "title": "prometheus",
           "type": "object"
+        },
+        "prometheusScrape": {
+          "default": false,
+          "description": "# Enable scraping via kubernetes-service-endpoints\n# Disabled by default as we service monitor is enabled below\n#",
+          "required": [],
+          "title": "prometheusScrape",
+          "type": "boolean"
         },
         "rbac": {
           "properties": {
@@ -4844,7 +5154,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "properties": {
                   "action": {
@@ -4854,7 +5164,7 @@
                     "type": "string"
                   },
                   "regex": {
-                    "default": "apiserver_request_duration_seconds_bucket;(0.15|0.2|0.3|0.35|0.4|0.45|0.6|0.7|0.8|0.9|1.25|1.5|1.75|2|3|3.5|4|4.5|6|7|8|9|15|25|40|50)",
+                    "default": "(etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\\.15|0\\.2|0\\.3|0\\.35|0\\.4|0\\.45|0\\.6|0\\.7|0\\.8|0\\.9|1\\.25|1\\.5|1\\.75|2|3|3\\.5|4|4\\.5|6|7|8|9|15|20|30|40|45|50)(\\.0)?",
                     "required": [],
                     "title": "regex",
                     "type": "string"
@@ -4884,7 +5194,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -4926,7 +5236,7 @@
               "type": "object"
             },
             "targetLabels": {
-              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -5107,7 +5417,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5130,7 +5440,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5158,7 +5468,7 @@
               "type": "null"
             },
             "targetLabels": {
-              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -5275,7 +5585,7 @@
               "type": "object"
             },
             "dnsmasqMetricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5284,7 +5594,7 @@
               "type": "array"
             },
             "dnsmasqRelabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5327,7 +5637,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5343,7 +5653,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5364,7 +5674,7 @@
               "type": "object"
             },
             "targetLabels": {
-              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -5536,7 +5846,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5559,7 +5869,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5592,7 +5902,7 @@
               "type": "string"
             },
             "targetLabels": {
-              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -5745,7 +6055,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5768,7 +6078,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -5789,7 +6099,7 @@
               "type": "object"
             },
             "targetLabels": {
-              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -5816,7 +6126,7 @@
     },
     "kubeRBACProxy": {
       "additionalProperties": true,
-      "description": "Configure kube-rbac-proxy. When enabled, creates a kube-rbac-proxy to protect the node-exporter http endpoint.\nThe requests are served through the same service but requests are HTTPS.",
+      "description": "Configure kube-rbac-proxy. When enabled, creates one kube-rbac-proxy container per exposed HTTP endpoint (metrics and telemetry if enabled).\nThe requests are served through the same service but requests are then HTTPS.",
       "properties": {
         "containerSecurityContext": {
           "description": "# Specify security settings for a Container\n# Allows overrides and additional options compared to (Pod) securityContext\n# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
@@ -5881,7 +6191,7 @@
           "type": "object"
         },
         "extraArgs": {
-          "description": "List of additional cli arguments to configure kube-rbac-proxy\nfor example: --tls-cipher-suites, --log-file, etc.\nall the possible args can be found here: https://github.com/brancz/kube-rbac-proxy#usage",
+          "description": "List of additional cli arguments to configure kube-rbac-prxy\nfor example: --tls-cipher-suites, --log-file, etc.\nall the possible args can be found here: https://github.com/brancz/kube-rbac-proxy#usage",
           "items": {
             "required": []
           },
@@ -6133,7 +6443,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -6156,7 +6466,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -6184,7 +6494,7 @@
               "type": "null"
             },
             "targetLabels": {
-              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -6226,7 +6536,7 @@
     },
     "kubeTargetVersionOverride": {
       "default": "",
-      "description": "# Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.26.6\n#",
+      "description": "# Provide a k8s version to define apiGroups for podSecurityPolicy Cluster Role.\n# For example: kubeTargetVersionOverride: 1.14.9\n#",
       "required": [],
       "title": "kubeTargetVersionOverride",
       "type": "string"
@@ -6313,7 +6623,7 @@
               "type": "string"
             },
             "cAdvisorMetricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "properties": {
                   "action": {
@@ -6346,7 +6656,7 @@
               "type": "array"
             },
             "cAdvisorRelabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#\n# metrics_path is required to match upstream rules and charts",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#\n# metrics_path is required to match upstream rules and charts",
               "items": {
                 "properties": {
                   "action": {
@@ -6413,6 +6723,13 @@
               "title": "interval",
               "type": "string"
             },
+            "kubelet": {
+              "default": true,
+              "description": "# Enable scraping /metrics from kubelet's service",
+              "required": [],
+              "title": "kubelet",
+              "type": "boolean"
+            },
             "labelLimit": {
               "default": 0,
               "description": "# Per-scrape limit on number of labels that will be accepted for a sample. Only valid in Prometheus versions 2.27.0 and newer.\n#",
@@ -6435,9 +6752,33 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
-                "required": []
+                "properties": {
+                  "action": {
+                    "default": "drop",
+                    "required": [],
+                    "title": "action",
+                    "type": "string"
+                  },
+                  "regex": {
+                    "default": "(csi_operations|storage_operation_duration)_seconds_bucket;(0.25|2.5|15|25|120|600)(\\.0)?",
+                    "required": [],
+                    "title": "regex",
+                    "type": "string"
+                  },
+                  "sourceLabels": {
+                    "items": {
+                      "required": [],
+                      "type": "string"
+                    },
+                    "required": [],
+                    "title": "sourceLabels",
+                    "type": "array"
+                  }
+                },
+                "required": [],
+                "type": "object"
               },
               "required": [],
               "title": "metricRelabelings",
@@ -6451,7 +6792,7 @@
               "type": "boolean"
             },
             "probesMetricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -6460,7 +6801,7 @@
               "type": "array"
             },
             "probesRelabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "properties": {
                   "action": {
@@ -6500,7 +6841,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#\n# metrics_path is required to match upstream rules and charts",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#\n# metrics_path is required to match upstream rules and charts",
               "items": {
                 "properties": {
                   "action": {
@@ -6554,7 +6895,7 @@
               "type": "string"
             },
             "resourceRelabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "properties": {
                   "action": {
@@ -6594,7 +6935,7 @@
               "type": "integer"
             },
             "targetLabels": {
-              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "# defines the labels which are transferred from the associated Kubernetes Service object onto the ingested metrics.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -6682,7 +7023,7 @@
       "description": "# Liveness probe\n#",
       "properties": {
         "failureThreshold": {
-          "default": 3,
+          "default": 10,
           "required": [],
           "title": "failureThreshold",
           "type": "integer"
@@ -6698,7 +7039,7 @@
               "type": "array"
             },
             "path": {
-              "default": "/health",
+              "default": "/api/health",
               "required": [],
               "title": "path",
               "type": "string"
@@ -6721,7 +7062,7 @@
           "type": "object"
         },
         "initialDelaySeconds": {
-          "default": 0,
+          "default": 60,
           "required": [],
           "title": "initialDelaySeconds",
           "type": "integer"
@@ -6739,7 +7080,7 @@
           "type": "integer"
         },
         "timeoutSeconds": {
-          "default": 1,
+          "default": 30,
           "required": [],
           "title": "timeoutSeconds",
           "type": "integer"
@@ -6787,7 +7128,7 @@
     },
     "nameOverride": {
       "default": "",
-      "description": "# Provide a name in place of kube-prometheus-stack for `app:` labels\n#",
+      "description": "- name: \"image-pull-secret\"",
       "required": [],
       "title": "nameOverride",
       "type": "string"
@@ -6815,7 +7156,7 @@
     },
     "networkPolicy": {
       "additionalProperties": true,
-      "description": "Set a NetworkPolicy with:\ningress only on service.port or custom policy\nno egress permitted",
+      "description": "# Configure network policy for kube-state-metrics",
       "properties": {
         "allowExternal": {
           "default": true,
@@ -6911,7 +7252,7 @@
           },
           "required": [],
           "title": "ingress",
-          "type": "array"
+          "type": "boolean"
         }
       },
       "required": [],
@@ -6988,7 +7329,7 @@
     },
     "nodeSelector": {
       "additionalProperties": true,
-      "description": "# Assign a nodeSelector if operating a hybrid cluster\n#",
+      "description": "# Node labels for pod assignment\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n",
       "properties": {
         "kubernetes.io/os": {
           "default": "windows",
@@ -7099,7 +7440,7 @@
     },
     "podAnnotations": {
       "additionalProperties": true,
-      "description": "Annotations to be added to windows exporter pods",
+      "description": "Annotations to be added to the pod",
       "properties": {
         "cluster-autoscaler.kubernetes.io/safe-to-evict": {
           "default": "true",
@@ -7115,14 +7456,14 @@
     },
     "podDisruptionBudget": {
       "additionalProperties": true,
-      "description": "Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/",
+      "description": "# See `kubectl explain poddisruptionbudget.spec` for more\n# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/",
       "required": [],
       "title": "podDisruptionBudget",
       "type": "object"
     },
     "podLabels": {
       "additionalProperties": true,
-      "description": "Extra labels to be added to windows exporter pods",
+      "description": "Labels to be added to the pod",
       "properties": {
         "baz": {
           "required": [],
@@ -7184,7 +7525,7 @@
       "description": "# Deploy a Prometheus instance\n#",
       "properties": {
         "additionalPodMonitors": {
-          "description": "# Fallback scrape protocol used by Prometheus for scraping metrics\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.ScrapeProtocol\n#\nfallbackScrapeProtocol: \"\"",
+          "description": "# Fallback scrape protocol used by Prometheus for scraping metrics\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ScrapeProtocol\n#\nfallbackScrapeProtocol: \"\"",
           "items": {
             "required": []
           },
@@ -8022,7 +8363,7 @@
           "type": "object"
         },
         "prometheusSpec": {
-          "description": "# Settings affecting prometheusSpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#prometheusspec\n#",
+          "description": "# Settings affecting prometheusSpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#prometheusspec\n#",
           "properties": {
             "additionalAlertManagerConfigs": {
               "description": "# AdditionalAlertManagerConfigs allows for manual configuration of alertmanager jobs in the form as specified\n# in the official Prometheus documentation https://prometheus.io/docs/prometheus/latest/configuration/configuration/#\u003calertmanager_config\u003e.\n# AlertManager configurations specified are appended to the configurations generated by the Prometheus Operator.\n# As AlertManager configs are appended, the user is responsible to make sure it is valid. Note that using this\n# feature may expose the possibility to break upgrades of Prometheus. It is advised to review Prometheus release\n# notes to ensure that no incompatible AlertManager configs are going to break Prometheus after the upgrade.\n#",
@@ -8055,7 +8396,7 @@
               "type": "object"
             },
             "additionalArgs": {
-              "description": "# Allows setting additional arguments for the Prometheus container\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.Prometheus",
+              "description": "# Allows setting additional arguments for the Prometheus container\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.Prometheus",
               "items": {
                 "required": []
               },
@@ -8122,7 +8463,7 @@
               "type": "object"
             },
             "alertingEndpoints": {
-              "description": "# Alertmanagers to which alerts will be sent\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#alertmanagerendpoints\n#\n# Default configuration will connect to the alertmanager deployed as part of this release\n#",
+              "description": "# Alertmanagers to which alerts will be sent\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#alertmanagerendpoints\n#\n# Default configuration will connect to the alertmanager deployed as part of this release\n#",
               "items": {
                 "required": []
               },
@@ -8138,7 +8479,7 @@
               "type": "boolean"
             },
             "apiserverConfig": {
-              "description": "# APIServerConfig\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#apiserverconfig\n#",
+              "description": "# APIServerConfig\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#apiserverconfig\n#",
               "required": [],
               "title": "apiserverConfig",
               "type": "object"
@@ -8152,7 +8493,7 @@
             },
             "automountServiceAccountToken": {
               "default": true,
-              "description": "# If true, pass --storage.tsdb.max-block-duration=2h to prometheus. This is already done if using Thanos\n#\n# AutomountServiceAccountToken indicates whether a service account token should be automatically mounted in the pod,\n# If the field isn’t set, the operator mounts the service account token by default.\n# Warning: be aware that by default, Prometheus requires the service account token for Kubernetes service discovery,\n# It is possible to use strategic merge patch to project the service account token into the ‘prometheus’ container.",
+              "description": "# AutomountServiceAccountToken indicates whether a service account token should be automatically mounted in the pod,\n# If the field isn’t set, the operator mounts the service account token by default.\n# Warning: be aware that by default, Prometheus requires the service account token for Kubernetes service discovery,\n# It is possible to use strategic merge patch to project the service account token into the ‘prometheus’ container.",
               "required": [],
               "title": "automountServiceAccountToken",
               "type": "boolean"
@@ -8177,6 +8518,7 @@
             },
             "disableCompaction": {
               "default": false,
+              "description": "# If true, pass --storage.tsdb.max-block-duration=2h to prometheus. This is already done if using Thanos\n#",
               "required": [],
               "title": "disableCompaction",
               "type": "boolean"
@@ -8261,7 +8603,7 @@
               "type": "string"
             },
             "excludedFromEnforcement": {
-              "description": "# ExcludedFromEnforcement - list of object references to PodMonitor, ServiceMonitor, Probe and PrometheusRule objects\n# to be excluded from enforcing a namespace label of origin.\n# Works only if enforcedNamespaceLabel set to true.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#objectreference",
+              "description": "# ExcludedFromEnforcement - list of object references to PodMonitor, ServiceMonitor, Probe and PrometheusRule objects\n# to be excluded from enforcing a namespace label of origin.\n# Works only if enforcedNamespaceLabel set to true.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#objectreference",
               "items": {
                 "required": []
               },
@@ -8270,11 +8612,10 @@
               "type": "array"
             },
             "exemplars": {
-              "default": "",
               "description": "# Exemplars related settings that are runtime reloadable.\n# It requires to enable the exemplar storage feature to be effective.",
               "required": [],
               "title": "exemplars",
-              "type": "string"
+              "type": "object"
             },
             "externalLabels": {
               "description": "# External labels to add to any time series or alerts when communicating with external systems\n#",
@@ -8517,7 +8858,7 @@
               "type": "array"
             },
             "query": {
-              "description": "# QuerySpec defines the query command line flags when starting Prometheus.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#queryspec\n#",
+              "description": "# QuerySpec defines the query command line flags when starting Prometheus.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#queryspec\n#",
               "required": [],
               "title": "query",
               "type": "object"
@@ -8530,7 +8871,7 @@
               "type": "boolean"
             },
             "remoteRead": {
-              "description": "# The remote_read spec configuration for Prometheus.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#remotereadspec",
+              "description": "# The remote_read spec configuration for Prometheus.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#remotereadspec",
               "items": {
                 "required": []
               },
@@ -8539,7 +8880,7 @@
               "type": "array"
             },
             "remoteWrite": {
-              "description": "# The remote_write spec configuration for Prometheus.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#remotewritespec",
+              "description": "# The remote_write spec configuration for Prometheus.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#remotewritespec",
               "items": {
                 "required": []
               },
@@ -8680,7 +9021,7 @@
               "type": "array"
             },
             "securityContext": {
-              "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 1000 and gid 2000.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md\n#",
+              "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 1000 and gid 2000.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md\n#",
               "properties": {
                 "fsGroup": {
                   "default": 2000,
@@ -8764,7 +9105,7 @@
               "type": "object"
             },
             "thanos": {
-              "description": "# Thanos configuration allows configuring various aspects of a Prometheus server in a Thanos environment.\n# This section is experimental, it may change significantly without deprecation notice in any release.\n# This is experimental and may change significantly without backward compatibility in any release.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#thanosspec\n#",
+              "description": "# Thanos configuration allows configuring various aspects of a Prometheus server in a Thanos environment.\n# This section is experimental, it may change significantly without deprecation notice in any release.\n# This is experimental and may change significantly without backward compatibility in any release.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#thanosspec\n#",
               "required": [],
               "title": "thanos",
               "type": "object"
@@ -8788,7 +9129,7 @@
               "type": "array"
             },
             "tracingConfig": {
-              "description": "# TracingConfig configures tracing in Prometheus.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#prometheustracingconfig",
+              "description": "# TracingConfig configures tracing in Prometheus.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#prometheustracingconfig",
               "required": [],
               "title": "tracingConfig",
               "type": "object"
@@ -8840,7 +9181,7 @@
               "type": "boolean"
             },
             "web": {
-              "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#webtlsconfig",
+              "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#webtlsconfig",
               "required": [],
               "title": "web",
               "type": "object"
@@ -9252,7 +9593,7 @@
               "type": "integer"
             },
             "tlsConfig": {
-              "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#tlsconfig",
+              "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
               "type": "object"
@@ -9700,7 +10041,7 @@
               "type": "string"
             },
             "tlsConfig": {
-              "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api.md#tlsconfig",
+              "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
               "type": "object"
@@ -9793,7 +10134,7 @@
                   "type": "integer"
                 },
                 "metricRelabelings": {
-                  "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+                  "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
                   "items": {
                     "required": []
                   },
@@ -9809,7 +10150,7 @@
                   "type": "string"
                 },
                 "relabelings": {
-                  "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+                  "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
                   "items": {
                     "required": []
                   },
@@ -10663,7 +11004,7 @@
                       "type": "string"
                     },
                     "tag": {
-                      "default": "v20221220-controller-v1.5.1-58-g787ea74b6",
+                      "default": "v1.5.1",
                       "required": [],
                       "title": "tag",
                       "type": "string"
@@ -11759,7 +12100,7 @@
       "properties": {
         "create": {
           "default": true,
-          "description": "# If true, create \u0026 use RBAC resources\n#",
+          "description": "If true, create \u0026 use RBAC resources",
           "required": [],
           "title": "create",
           "type": "boolean"
@@ -11802,8 +12143,8 @@
           "type": "object"
         },
         "pspEnabled": {
-          "default": true,
-          "description": "# If true, create \u0026 use Pod Security Policy resources\n# https://kubernetes.io/docs/concepts/policy/pod-security-policy/",
+          "default": false,
+          "description": "# Use an existing ClusterRole/Role (depending on rbac.namespaced false/true)\nuseExistingRole: name-of-some-role\nuseExistingClusterRole: name-of-some-clusterRole",
           "required": [],
           "title": "pspEnabled",
           "type": "boolean"
@@ -11847,7 +12188,7 @@
               "type": "array"
             },
             "path": {
-              "default": "/health",
+              "default": "/api/health",
               "required": [],
               "title": "path",
               "type": "string"
@@ -11870,7 +12211,7 @@
           "type": "object"
         },
         "initialDelaySeconds": {
-          "default": 0,
+          "default": 5,
           "required": [],
           "title": "initialDelaySeconds",
           "type": "integer"
@@ -11888,7 +12229,7 @@
           "type": "integer"
         },
         "timeoutSeconds": {
-          "default": 1,
+          "default": 5,
           "required": [],
           "title": "timeoutSeconds",
           "type": "integer"
@@ -11933,7 +12274,7 @@
     },
     "revisionHistoryLimit": {
       "default": 10,
-      "description": "Number of old history to retain to allow rollback\nDefault Kubernetes value is set to 10",
+      "description": "# Number of old ReplicaSets to retain\n#",
       "required": [],
       "title": "revisionHistoryLimit",
       "type": "integer"
@@ -12188,13 +12529,13 @@
           "type": "boolean"
         },
         "fsGroup": {
-          "default": 65534,
+          "default": 472,
           "required": [],
           "title": "fsGroup",
           "type": "integer"
         },
         "runAsGroup": {
-          "default": 65534,
+          "default": 472,
           "required": [],
           "title": "runAsGroup",
           "type": "integer"
@@ -12206,7 +12547,7 @@
           "type": "boolean"
         },
         "runAsUser": {
-          "default": 65534,
+          "default": 472,
           "required": [],
           "title": "runAsUser",
           "type": "integer"
@@ -12272,10 +12613,10 @@
     },
     "service": {
       "additionalProperties": true,
-      "description": "# Service configuration",
+      "description": "# Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).\n# or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.\n# ref: http://kubernetes.io/docs/user-guide/services/\n#",
       "properties": {
         "annotations": {
-          "description": "# Additional annotations and labels for the service",
+          "description": "targetPort: 4181 To be used with a proxy extraContainer\n# Service annotations. Can be templated.",
           "properties": {
             "prometheus.io/scrape": {
               "default": "true",
@@ -12407,21 +12748,21 @@
           "type": "array"
         },
         "nodePort": {
-          "default": "",
+          "default": 0,
           "description": "# Port number for service type NodePort",
           "required": [],
           "title": "nodePort",
-          "type": "null"
+          "type": "integer"
         },
         "port": {
-          "default": 9182,
+          "default": 80,
           "description": "# Default service port. Sets the port of the exposed container as well (NE or kubeRBACProxy).\n# Use \"servicePort\" below if changing the service port only is desired.",
           "required": [],
           "title": "port",
           "type": "integer"
         },
         "portName": {
-          "default": "metrics",
+          "default": "service",
           "description": "# Name of the service port. Sets the port name of the main container (NE) as well.",
           "required": [],
           "title": "portName",
@@ -12434,8 +12775,14 @@
           "title": "servicePort",
           "type": "string"
         },
+        "sessionAffinity": {
+          "default": "",
+          "required": [],
+          "title": "sessionAffinity",
+          "type": "string"
+        },
         "targetPort": {
-          "default": 9100,
+          "default": 3000,
           "description": "# Targeted port in the pod. Must refer to an open container port (\"port\" or \"portName\").\n# (IntOrString)",
           "required": [],
           "title": "targetPort",
@@ -12443,7 +12790,7 @@
         },
         "type": {
           "default": "ClusterIP",
-          "description": "# Service type",
+          "description": "Default to clusterIP for backward compatibility",
           "required": [],
           "title": "type",
           "type": "string"
@@ -12464,14 +12811,14 @@
         },
         "automountServiceAccountToken": {
           "default": false,
-          "description": "If false then the user will opt out of automounting API credentials.",
+          "description": "# autoMount is deprecated in favor of automountServiceAccountToken\nautoMount: false",
           "required": [],
           "title": "automountServiceAccountToken",
           "type": "boolean"
         },
         "create": {
           "default": true,
-          "description": "Specifies whether a ServiceAccount should be created",
+          "description": "Specifies whether a ServiceAccount should be created, require rbac true",
           "required": [],
           "title": "create",
           "type": "boolean"
@@ -14012,7 +14359,7 @@
               "type": "integer"
             },
             "metricRelabelings": {
-              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -14028,7 +14375,7 @@
               "type": "string"
             },
             "relabelings": {
-              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig\n#",
+              "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
               "items": {
                 "required": []
               },
@@ -14065,7 +14412,7 @@
               "type": "integer"
             },
             "tlsConfig": {
-              "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api.md#tlsconfig",
+              "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
               "type": "object"
@@ -14076,10 +14423,10 @@
           "type": "object"
         },
         "thanosRulerSpec": {
-          "description": "# Settings affecting thanosRulerpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#thanosrulerspec\n#",
+          "description": "# Settings affecting thanosRulerpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#thanosrulerspec\n#",
           "properties": {
             "additionalArgs": {
-              "description": "# Allows setting additional arguments for the ThanosRuler container\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#thanosruler\n#",
+              "description": "# Allows setting additional arguments for the ThanosRuler container\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#thanosruler\n#",
               "items": {
                 "required": []
               },
@@ -14357,7 +14704,7 @@
               "type": "string"
             },
             "ruleNamespaceSelector": {
-              "description": "# Namespaces to be selected for PrometheusRules discovery.\n# If nil, select own namespace. Namespaces to be selected for ServiceMonitor discovery.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#namespaceselector for usage\n#",
+              "description": "# Namespaces to be selected for PrometheusRules discovery.\n# If nil, select own namespace. Namespaces to be selected for ServiceMonitor discovery.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#namespaceselector for usage\n#",
               "required": [],
               "title": "ruleNamespaceSelector",
               "type": "object"
@@ -14463,7 +14810,7 @@
               "type": "array"
             },
             "web": {
-              "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#thanosrulerwebspec",
+              "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#thanosrulerwebspec",
               "required": [],
               "title": "web",
               "type": "object"
@@ -14529,7 +14876,7 @@
       "type": "object"
     },
     "tolerations": {
-      "description": "# Tolerations for pod assignment\n# Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/",
+      "description": "# Tolerations for pod assignment\n# ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/\n#",
       "items": {
         "properties": {
           "effect": {
@@ -14553,7 +14900,7 @@
       "type": "array"
     },
     "topologySpreadConstraints": {
-      "description": "# Topology spread constraints for pod assignment\n# Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/",
+      "description": "# Topology Spread Constraints\n# ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/\n#",
       "items": {
         "required": []
       },
@@ -14604,7 +14951,7 @@
     },
     "verticalPodAutoscaler": {
       "additionalProperties": true,
-      "description": "Enable vertical pod autoscaler support for prometheus-node-exporter",
+      "description": "Enable vertical pod autoscaler support for kube-state-metrics",
       "properties": {
         "controlledResources": {
           "description": "List of resources that the vertical pod autoscaler can control. Defaults to cpu and memory",
