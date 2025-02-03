@@ -522,9 +522,9 @@
         }
       }
     },
-    "nodePackages.prettier@3.3": {
-      "last_modified": "2025-01-25T23:17:58Z",
-      "resolved": "github:NixOS/nixpkgs/b582bb5b0d7af253b05d58314b85ab8ec46b8d19#nodePackages.prettier",
+    "nodePackages.prettier@3.3.3": {
+      "last_modified": "2025-01-19T08:16:51Z",
+      "resolved": "github:NixOS/nixpkgs/50165c4f7eb48ce82bd063e1fb8047a0f515f8ce#nodePackages.prettier",
       "source": "devbox-search",
       "version": "3.3.3",
       "systems": {
