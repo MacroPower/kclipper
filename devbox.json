@@ -3,7 +3,7 @@
   "packages": {
     "go-task": "3.41.0",
     "goreleaser": "2.5",
-    "golangci-lint": "1.62",
+    "golangci-lint": "1.63.4",
     "go": "1.23.4",
     "gofumpt": "0.7.0",
     "goimports": "latest",
