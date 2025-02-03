@@ -7,7 +7,7 @@
     "go": "1.23.4",
     "gofumpt": "0.7.0",
     "goimports": "latest",
-    "git": "latest",
+    "git": "2.47.1",
     "nodePackages.prettier": "3.3.3",
     "kubernetes-helm": "3.16.3",
     "hyperfine": "1.19",
