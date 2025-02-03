@@ -474,54 +474,6 @@
         }
       }
     },
-    "kubernetes-helm@3.16.3": {
-      "last_modified": "2024-12-03T12:40:06Z",
-      "resolved": "github:NixOS/nixpkgs/566e53c2ad750c84f6d31f9ccb9d00f823165550#kubernetes-helm",
-      "source": "devbox-search",
-      "version": "3.16.3",
-      "systems": {
-        "aarch64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/ppr8wia2hmshknp9yfhr7ivqqigqqq4j-kubernetes-helm-3.16.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/ppr8wia2hmshknp9yfhr7ivqqigqqq4j-kubernetes-helm-3.16.3"
-        },
-        "aarch64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/khb4q5cgkrl5rngnkqhzl4z8scmj1ppl-kubernetes-helm-3.16.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/khb4q5cgkrl5rngnkqhzl4z8scmj1ppl-kubernetes-helm-3.16.3"
-        },
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/8xbrzsfv1q0kkranniy99fcszpwmjglr-kubernetes-helm-3.16.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/8xbrzsfv1q0kkranniy99fcszpwmjglr-kubernetes-helm-3.16.3"
-        },
-        "x86_64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/38ydgzfww64vkq9wyi5p0a924jxgaaqk-kubernetes-helm-3.16.3",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/38ydgzfww64vkq9wyi5p0a924jxgaaqk-kubernetes-helm-3.16.3"
-        }
-      }
-    },
     "nodePackages.prettier@3.3.3": {
       "last_modified": "2025-01-19T08:16:51Z",
       "resolved": "github:NixOS/nixpkgs/50165c4f7eb48ce82bd063e1fb8047a0f515f8ce#nodePackages.prettier",
