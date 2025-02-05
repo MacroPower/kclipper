@@ -41,6 +41,7 @@ func TestHelmChartAdd(t *testing.T) {
 					RepoURL:         "https://stefanprodan.github.io/podinfo",
 					TargetRevision:  "6.7.1",
 					SchemaValidator: jsonschema.HelmValidatorType,
+					SkipHooks:       true,
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.AutoGeneratorType,

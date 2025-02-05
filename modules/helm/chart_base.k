@@ -21,6 +21,8 @@ schema ChartBase:
         Optional namespace to template with.
     skipCRDs : bool, optional
         Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).
+    skipHooks : bool, optional
+        Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).
     passCredentials : bool, optional
         Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
     schemaValidator : "KCL" | "HELM", optional
@@ -35,6 +37,7 @@ schema ChartBase:
     releaseName?: str
     namespace?: str
     skipCRDs?: bool
+    skipHooks?: bool
     passCredentials?: bool
     schemaValidator?: "KCL" | "HELM"
     repositories?: [ChartRepo]

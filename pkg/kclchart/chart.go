@@ -47,6 +47,10 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		jsonschema.WithDefault(c.ChartBase.SkipCRDs),
 	)
 	js.SetOrRemoveProperty(
+		"skipHooks", c.ChartBase.SkipHooks,
+		jsonschema.WithDefault(c.ChartBase.SkipHooks),
+	)
+	js.SetOrRemoveProperty(
 		"passCredentials", c.ChartBase.PassCredentials,
 		jsonschema.WithDefault(c.ChartBase.PassCredentials),
 	)

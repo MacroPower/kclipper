@@ -22,6 +22,8 @@ type ChartBase struct {
 	Namespace string `json:"namespace,omitempty"`
 	// Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).
 	SkipCRDs bool `json:"skipCRDs,omitempty"`
+	// Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).
+	SkipHooks bool `json:"skipHooks,omitempty"`
 	// Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
 	PassCredentials bool `json:"passCredentials,omitempty"`
 	// Validator to use for the Values schema.

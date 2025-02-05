@@ -74,6 +74,7 @@ template = lambda chart: Chart -> [Resource] {
         release_name=_chart.releaseName,
         namespace=_chart.namespace,
         skip_crds=_chart.skipCRDs,
+        skip_hooks=_chart.skipHooks,
         skip_schema_validation=_skipSchemaValidation,
         pass_credentials=_chart.passCredentials,
         repositories=_chart.repositories,

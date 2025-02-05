@@ -30,6 +30,7 @@ Defines a Helm chart.
 | **repositories**       | [[ChartRepo](#chartrepo)]                        | Helm chart repositories.                                                                                     |               |
 | **schemaValidator**    | "KCL" \| "HELM"                                  | Validator to use for the Values schema.                                                                      |               |
 | **skipCRDs**           | bool                                             | Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).               |               |
+| **skipHooks**          | bool                                             | Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).                                |               |
 | **targetRevision**     | str                                              | Semver tag for the chart's version. May be omitted for local charts.                                         |               |
 | **valueFiles**         | [str]                                            | Helm value files to be passed to Helm template.                                                              |               |
 | **values**             | any                                              | Helm values to be passed to Helm template. These take precedence over valueFiles.                            |               |
@@ -53,6 +54,7 @@ Configuration that can be defined in `charts.k`, in addition to those specified 
 | **schemaPath**         | str                                                                            | Path to the schema to use, when relevant for the selected schemaGenerator.                     |               |
 | **schemaValidator**    | "KCL" \| "HELM"                                                                | Validator to use for the Values schema.                                                        |               |
 | **skipCRDs**           | bool                                                                           | Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`). |               |
+| **skipHooks**          | bool                                                                           | Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).                  |               |
 | **targetRevision**     | str                                                                            | Semver tag for the chart's version. May be omitted for local charts.                           |               |
 
 ### ChartRepo

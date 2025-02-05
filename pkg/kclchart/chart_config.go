@@ -61,6 +61,10 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		jsonschema.WithDefault(c.ChartBase.SkipCRDs),
 	)
 	js.SetOrRemoveProperty(
+		"skipHooks", c.ChartBase.SkipHooks,
+		jsonschema.WithDefault(c.ChartBase.SkipHooks),
+	)
+	js.SetOrRemoveProperty(
 		"passCredentials", c.ChartBase.PassCredentials,
 		jsonschema.WithDefault(c.ChartBase.PassCredentials),
 	)
@@ -105,6 +109,7 @@ func (c *ChartConfig) ToAutomation() kclutil.Automation {
 		"releaseName":     kclutil.NewString(c.ReleaseName),
 		"namespace":       kclutil.NewString(c.Namespace),
 		"skipCRDs":        kclutil.NewBool(c.SkipCRDs),
+		"skipHooks":       kclutil.NewBool(c.SkipHooks),
 		"passCredentials": kclutil.NewBool(c.PassCredentials),
 		"schemaPath":      kclutil.NewString(c.SchemaPath),
 		"crdPath":         kclutil.NewString(c.CRDPath),
