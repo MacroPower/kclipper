@@ -46,7 +46,7 @@
     },
     "affinity": {
       "additionalProperties": true,
-      "description": "# Affinity for pod assignment (evaluated as template)\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity\n#",
+      "description": "# Affinity settings for pod assignment\n# Can be defined as either a dict or string. String is useful for `tpl` templating.\n# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/",
       "properties": {
         "podAntiAffinity": {
           "properties": {
@@ -1455,7 +1455,7 @@
     },
     "automountServiceAccountToken": {
       "default": true,
-      "description": "# Should the service account be auto mounted on the pod",
+      "description": "If false then the user will opt out of automounting API credentials.",
       "required": [],
       "title": "automountServiceAccountToken",
       "type": "boolean"
@@ -1538,7 +1538,7 @@
     },
     "commonLabels": {
       "additionalProperties": true,
-      "description": "# Extra labels to attach to all resources (can be templated)",
+      "description": "# Labels to apply to all resources\n#",
       "properties": {
         "baz": {
           "required": [],
@@ -3105,7 +3105,7 @@
     },
     "env": {
       "additionalProperties": true,
-      "description": "# Extra environment variables that will be pass onto deployment pods\n#\n# to provide grafana with access to CloudWatch on AWS EKS:\n# 1. create an iam role of type \"Web identity\" with provider oidc.eks.* (note the provider for later)\n# 2. edit the \"Trust relationships\" of the role, add a line inside the StringEquals clause using the\n# same oidc eks provider as noted before (same as the existing line)\n# also, replace NAMESPACE and prometheus-operator-grafana with the service account namespace and name\n#\n#  \"oidc.eks.us-east-1.amazonaws.com/id/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:sub\": \"system:serviceaccount:NAMESPACE:prometheus-operator-grafana\",\n#\n# 3. attach a policy to the role, you can use a built in policy called CloudWatchReadOnlyAccess\n# 4. use the following env: (replace 123456789000 and iam-role-name-here with your aws account number and role name)\n#\n# env:\n#   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here\n#   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token\n#   AWS_REGION: us-east-1\n#\n# 5. uncomment the EKS section in extraSecretMounts: below\n# 6. uncomment the annotation section in the serviceAccount: above\n# make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn",
+      "description": "Additional Environment variables",
       "required": [],
       "title": "env",
       "type": "object"
@@ -3238,7 +3238,7 @@
       "type": "array"
     },
     "extraInitContainers": {
-      "description": "# Additional init containers (evaluated as template)\n# ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/\n#",
+      "description": "# Additional InitContainers to initialize the pod\n#",
       "items": {
         "required": []
       },
@@ -3340,7 +3340,7 @@
       "type": "array"
     },
     "extraVolumeMounts": {
-      "description": "# Additional grafana server volume mounts\nDefines additional volume mounts.",
+      "description": "# Extra volume mounts in the node-exporter container",
       "items": {
         "required": []
       },
@@ -3349,7 +3349,7 @@
       "type": "array"
     },
     "extraVolumes": {
-      "description": "# Additional Grafana server volumes",
+      "description": "# Extra volumes to become available in the pod",
       "items": {
         "required": []
       },
@@ -3374,7 +3374,7 @@
           "type": "string"
         },
         "imagePullSecrets": {
-          "description": "To help compatibility with other charts which use global.imagePullSecrets.\nAllow either an array of {name: pullSecret} maps (k8s-style), or an array of strings (more common helm-style).\nCan be templated.\nglobal:\n  imagePullSecrets:\n  - name: pullSecret1\n  - name: pullSecret2\nor\nglobal:\n  imagePullSecrets:\n  - pullSecret1\n  - pullSecret2",
+          "description": "To help compatibility with other charts which use global.imagePullSecrets.\nAllow either an array of {name: pullSecret} maps (k8s-style), or an array of strings (more common helm-style).\nglobal:\n  imagePullSecrets:\n  - name: pullSecret1\n  - name: pullSecret2\nor\nglobal:\n  imagePullSecrets:\n  - pullSecret1\n  - pullSecret2",
           "items": {
             "required": []
           },
@@ -3383,11 +3383,11 @@
           "type": "array"
         },
         "imageRegistry": {
-          "default": "null",
-          "description": "Overrides the Docker registry globally for all images",
+          "default": "",
+          "description": "\nAllow parent charts to override registry hostname",
           "required": [],
           "title": "imageRegistry",
-          "type": "null"
+          "type": "string"
         },
         "rbac": {
           "properties": {
@@ -3448,6 +3448,12 @@
           "default": "prom-operator",
           "required": [],
           "title": "adminPassword",
+          "type": "string"
+        },
+        "adminUser": {
+          "default": "admin",
+          "required": [],
+          "title": "adminUser",
           "type": "string"
         },
         "defaultDashboardsEditable": {
@@ -4094,7 +4100,7 @@
     },
     "image": {
       "additionalProperties": true,
-      "description": "# Use an alternate scheduler, e.g. \"stork\".\n# ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/\n#\nschedulerName: \"default-scheduler\"",
+      "description": "Default values for prometheus-node-exporter.\nThis is a YAML-formatted file.\nDeclare variables to be passed into your templates.",
       "properties": {
         "digest": {
           "default": "",
@@ -4118,14 +4124,14 @@
           "type": "array"
         },
         "registry": {
-          "default": "docker.io",
+          "default": "registry.k8s.io",
           "description": "The Docker registry",
           "required": [],
           "title": "registry",
           "type": "string"
         },
         "repository": {
-          "default": "grafana/grafana",
+          "default": "kube-state-metrics/kube-state-metrics",
           "description": "Docker image repository",
           "required": [],
           "title": "repository",
@@ -4139,7 +4145,7 @@
         },
         "tag": {
           "default": "",
-          "description": "Overrides the Grafana image tag whose default is the chart appVersion",
+          "description": "If unset use v + .Charts.appVersion",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -7023,7 +7029,7 @@
       "description": "# Liveness probe\n#",
       "properties": {
         "failureThreshold": {
-          "default": 10,
+          "default": 3,
           "required": [],
           "title": "failureThreshold",
           "type": "integer"
@@ -7039,7 +7045,7 @@
               "type": "array"
             },
             "path": {
-              "default": "/api/health",
+              "default": "/health",
               "required": [],
               "title": "path",
               "type": "string"
@@ -7062,7 +7068,7 @@
           "type": "object"
         },
         "initialDelaySeconds": {
-          "default": 60,
+          "default": 5,
           "required": [],
           "title": "initialDelaySeconds",
           "type": "integer"
@@ -7080,7 +7086,7 @@
           "type": "integer"
         },
         "timeoutSeconds": {
-          "default": 30,
+          "default": 5,
           "required": [],
           "title": "timeoutSeconds",
           "type": "integer"
@@ -7128,7 +7134,7 @@
     },
     "nameOverride": {
       "default": "",
-      "description": "- name: \"image-pull-secret\"",
+      "description": "# Provide a name in place of kube-prometheus-stack for `app:` labels\n#",
       "required": [],
       "title": "nameOverride",
       "type": "string"
@@ -7329,7 +7335,7 @@
     },
     "nodeSelector": {
       "additionalProperties": true,
-      "description": "# Node labels for pod assignment\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n",
+      "description": "# Node labels for pod assignment\n# Ref: https://kubernetes.io/docs/user-guide/node-selection/",
       "properties": {
         "kubernetes.io/os": {
           "default": "windows",
@@ -7456,7 +7462,7 @@
     },
     "podDisruptionBudget": {
       "additionalProperties": true,
-      "description": "# See `kubectl explain poddisruptionbudget.spec` for more\n# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/",
+      "description": "Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/",
       "required": [],
       "title": "podDisruptionBudget",
       "type": "object"
@@ -12143,8 +12149,8 @@
           "type": "object"
         },
         "pspEnabled": {
-          "default": false,
-          "description": "# Use an existing ClusterRole/Role (depending on rbac.namespaced false/true)\nuseExistingRole: name-of-some-role\nuseExistingClusterRole: name-of-some-clusterRole",
+          "default": true,
+          "description": "# If true, create \u0026 use Pod Security Policy resources\n# https://kubernetes.io/docs/concepts/policy/pod-security-policy/",
           "required": [],
           "title": "pspEnabled",
           "type": "boolean"
@@ -12188,7 +12194,7 @@
               "type": "array"
             },
             "path": {
-              "default": "/api/health",
+              "default": "/health",
               "required": [],
               "title": "path",
               "type": "string"
@@ -12274,7 +12280,7 @@
     },
     "revisionHistoryLimit": {
       "default": 10,
-      "description": "# Number of old ReplicaSets to retain\n#",
+      "description": "Number of old history to retain to allow rollback\nDefault Kubernetes value is set to 10",
       "required": [],
       "title": "revisionHistoryLimit",
       "type": "integer"
@@ -12529,13 +12535,13 @@
           "type": "boolean"
         },
         "fsGroup": {
-          "default": 472,
+          "default": 65534,
           "required": [],
           "title": "fsGroup",
           "type": "integer"
         },
         "runAsGroup": {
-          "default": 472,
+          "default": 65534,
           "required": [],
           "title": "runAsGroup",
           "type": "integer"
@@ -12547,7 +12553,7 @@
           "type": "boolean"
         },
         "runAsUser": {
-          "default": 472,
+          "default": 65534,
           "required": [],
           "title": "runAsUser",
           "type": "integer"
@@ -12613,10 +12619,10 @@
     },
     "service": {
       "additionalProperties": true,
-      "description": "# Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).\n# or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.\n# ref: http://kubernetes.io/docs/user-guide/services/\n#",
+      "description": "# Service configuration",
       "properties": {
         "annotations": {
-          "description": "targetPort: 4181 To be used with a proxy extraContainer\n# Service annotations. Can be templated.",
+          "description": "# Additional annotations and labels for the service",
           "properties": {
             "prometheus.io/scrape": {
               "default": "true",
@@ -12755,14 +12761,14 @@
           "type": "integer"
         },
         "port": {
-          "default": 80,
+          "default": 8080,
           "description": "# Default service port. Sets the port of the exposed container as well (NE or kubeRBACProxy).\n# Use \"servicePort\" below if changing the service port only is desired.",
           "required": [],
           "title": "port",
           "type": "integer"
         },
         "portName": {
-          "default": "service",
+          "default": "metrics",
           "description": "# Name of the service port. Sets the port name of the main container (NE) as well.",
           "required": [],
           "title": "portName",
@@ -12773,7 +12779,7 @@
           "description": "# Service port. Use this field if you wish to set a different service port\n# without changing the container port (\"port\" above).",
           "required": [],
           "title": "servicePort",
-          "type": "string"
+          "type": "integer"
         },
         "sessionAffinity": {
           "default": "",
@@ -12782,7 +12788,7 @@
           "type": "string"
         },
         "targetPort": {
-          "default": 3000,
+          "default": 9100,
           "description": "# Targeted port in the pod. Must refer to an open container port (\"port\" or \"portName\").\n# (IntOrString)",
           "required": [],
           "title": "targetPort",
@@ -12810,8 +12816,8 @@
           "type": "object"
         },
         "automountServiceAccountToken": {
-          "default": false,
-          "description": "# autoMount is deprecated in favor of automountServiceAccountToken\nautoMount: false",
+          "default": true,
+          "description": "If false then the user will opt out of automounting API credentials.",
           "required": [],
           "title": "automountServiceAccountToken",
           "type": "boolean"
@@ -14876,7 +14882,7 @@
       "type": "object"
     },
     "tolerations": {
-      "description": "# Tolerations for pod assignment\n# ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/\n#",
+      "description": "# Tolerations for pod assignment\n# Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/",
       "items": {
         "properties": {
           "effect": {
@@ -14900,7 +14906,7 @@
       "type": "array"
     },
     "topologySpreadConstraints": {
-      "description": "# Topology Spread Constraints\n# ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/\n#",
+      "description": "# Topology spread constraints for pod assignment\n# Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/",
       "items": {
         "required": []
       },
