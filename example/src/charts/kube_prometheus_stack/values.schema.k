@@ -17,9 +17,9 @@ schema Values:
     adminUser : str, optional, default is "admin"
         Administrator credentials when not using an existing secret (see below)
     affinity : ValuesAffinity, optional
-        # Affinity for pod assignment (evaluated as template)
-        # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-        #
+        # Affinity settings for pod assignment
+        # Can be defined as either a dict or string. String is useful for `tpl` templating.
+        # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     alerting : ValuesAlerting, optional
         # Configure grafana alerting (can be templated)
         # ref: https://docs.grafana.com/alerting/set-up/provision-alerting-resources/file-provisioning/
@@ -40,7 +40,7 @@ schema Values:
         Alternatively, if you wish to allow secret values to be exposed in the rendered grafana.ini configmap,
         you can disable this check by setting assertNoLeakedSecrets to false.
     automountServiceAccountToken : bool, optional, default is True
-        # Should the service account be auto mounted on the pod
+        If false then the user will opt out of automounting API credentials.
     autoscaling : ValuesAutoscaling, optional
         # Create HorizontalPodAutoscaler object for deployment type
 
@@ -56,7 +56,8 @@ schema Values:
         Available collectors for kube-state-metrics.
         By default, all available resources are enabled, comment out to disable.
     commonLabels : ValuesCommonLabels, optional
-        # Extra labels to attach to all resources (can be templated)
+        # Labels to apply to all resources
+        #
     config : str, optional,
         default is
         ```
@@ -88,7 +89,7 @@ schema Values:
         # custom Rules to override "for" and "severity" in defaultRules
         #
     daemonsetAnnotations : ValuesDaemonsetAnnotations, optional
-        Annotations to be added to windows exporter daemonset
+        Annotations to be added to node exporter daemonset
     dashboardProviders : ValuesDashboardProviders, optional
         # Configure grafana dashboard providers
         # ref: http://docs.grafana.org/administration/provisioning/#dashboards
@@ -122,7 +123,7 @@ schema Values:
         # See `kubectl explain deployment.spec.strategy` for more
         # ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
     dnsConfig : ValuesDnsConfig, optional
-        Custom DNS configuration to be added to prometheus-windows-exporter pods
+        Custom DNS configuration to be added to prometheus-node-exporter pods
     dnsPolicy : any, optional, default is "~"
         dns configuration for pod
     downloadDashboards : ValuesDownloadDashboards, optional
@@ -138,27 +139,7 @@ schema Values:
         for deployments that have node_exporter deployed outside of the cluster, list
         their addresses here
     env : ValuesEnv, optional
-        # Extra environment variables that will be pass onto deployment pods
-        #
-        # to provide grafana with access to CloudWatch on AWS EKS:
-        # 1. create an iam role of type "Web identity" with provider oidc.eks.* (note the provider for later)
-        # 2. edit the "Trust relationships" of the role, add a line inside the StringEquals clause using the
-        # same oidc eks provider as noted before (same as the existing line)
-        # also, replace NAMESPACE and prometheus-operator-grafana with the service account namespace and name
-        #
-        #  "oidc.eks.us-east-1.amazonaws.com/id/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:sub": "system:serviceaccount:NAMESPACE:prometheus-operator-grafana",
-        #
-        # 3. attach a policy to the role, you can use a built in policy called CloudWatchReadOnlyAccess
-        # 4. use the following env: (replace 123456789000 and iam-role-name-here with your aws account number and role name)
-        #
-        # env:
-        #   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here
-        #   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-        #   AWS_REGION: us-east-1
-        #
-        # 5. uncomment the EKS section in extraSecretMounts: below
-        # 6. uncomment the annotation section in the serviceAccount: above
-        # make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
+        Additional Environment variables
     envFromConfigMaps : [any], optional
         # The names of conifgmaps in the same kubernetes namespace which contain values to be added to the environment
         # Each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
@@ -199,7 +180,7 @@ schema Values:
     extraEmptyDirMounts : [any], optional
     extraExposePorts : [any], optional
     extraHostVolumeMounts : [any], optional
-        # Additional mounts from the host to windows-exporter container
+        # Additional mounts from the host to node-exporter container
         #
     extraInitContainers : [any], optional
         # Additional init containers (evaluated as template)
@@ -337,7 +318,8 @@ schema Values:
         A single '*' can be provided per resource instead to allow any labels, but that has
         severe performance implications (Example: '=pods=[*]').
     nameOverride : str, optional, default is ""
-        - name: "image-pull-secret"
+        # Provide a name in place of kube-prometheus-stack for `app:` labels
+        #
     namespaceOverride : str, optional, default is ""
         # Override the deployment namespace
         #
@@ -353,8 +335,7 @@ schema Values:
         #
     nodeSelector : ValuesNodeSelector, optional
         # Node labels for pod assignment
-        # ref: https://kubernetes.io/docs/user-guide/node-selection/
-
+        # Ref: https://kubernetes.io/docs/user-guide/node-selection/
     notifiers : ValuesNotifiers, optional
         # Configure notifiers
         # ref: http://docs.grafana.org/administration/provisioning/#alert-notification-channels
@@ -369,8 +350,7 @@ schema Values:
     podAnnotations : ValuesPodAnnotations, optional
         Annotations to be added to the pod
     podDisruptionBudget : ValuesPodDisruptionBudget, optional
-        # See `kubectl explain poddisruptionbudget.spec` for more
-        # ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+        Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
     podLabels : ValuesPodLabels, optional
         Labels to be added to the pod
     podPortName : str, optional, default is "grafana"
@@ -410,8 +390,8 @@ schema Values:
         Specify the container restart policy passed to the Node Export container
         Possible Values: Always (default)|OnFailure|Never
     revisionHistoryLimit : int, optional, default is 10
-        # Number of old ReplicaSets to retain
-        #
+        Number of old history to retain to allow rollback
+        Default Kubernetes value is set to 10
     route : ValuesRoute, optional
         BETA: Configure the gateway routes for the chart here.
         More routes can be added by adding a dictionary key like the 'main' route.
@@ -446,7 +426,7 @@ schema Values:
         # Volume for sidecar containers
         #
     sidecars : [any], optional
-        # Additional containers for export metrics to text file
+        # Additional containers for export metrics to text file; fields image,imagePullPolicy,securityContext take default value from main container
         #
     smtp : ValuesSmtp, optional
         # Grafana's SMTP configuration
@@ -472,12 +452,10 @@ schema Values:
         # The volume's resources will be used by kube-rbac-proxy if kubeRBACProxy.tls.enabled is set.
     tolerations : [ValuesTolerationsItems0], optional
         # Tolerations for pod assignment
-        # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-        #
+        # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
     topologySpreadConstraints : [any], optional
-        # Topology Spread Constraints
-        # ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
-        #
+        # Topology spread constraints for pod assignment
+        # Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     updateStrategy : ValuesUpdateStrategy, optional
         # Customize the updateStrategy if set
     useStatefulSet : bool, optional, default is False
@@ -677,9 +655,9 @@ schema ValuesAdmin:
 
 schema ValuesAffinity:
     r"""
-    # Affinity for pod assignment (evaluated as template)
-    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-    #
+    # Affinity settings for pod assignment
+    # Can be defined as either a dict or string. String is useful for `tpl` templating.
+    # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 
     Attributes
     ----------
@@ -2014,7 +1992,8 @@ schema ValuesAutosharding:
 
 schema ValuesCommonLabels:
     r"""
-    # Extra labels to attach to all resources (can be templated)
+    # Labels to apply to all resources
+    #
 
     Attributes
     ----------
@@ -2244,6 +2223,7 @@ schema ValuesCrdsUpgradeJob:
     extraVolumes : [any], optional
         # Additional volumes
         #
+    forceConflicts : bool, optional, default is False
     image : ValuesCrdsUpgradeJobImage, optional
     labels : ValuesCrdsUpgradeJobLabels, optional
         ## Labels to add to the upgrade-crd job
@@ -2288,6 +2268,7 @@ schema ValuesCrdsUpgradeJob:
     env?: ValuesCrdsUpgradeJobEnv
     extraVolumeMounts?: [any]
     extraVolumes?: [any]
+    forceConflicts?: bool
     image?: ValuesCrdsUpgradeJobImage
     labels?: ValuesCrdsUpgradeJobLabels
     nodeSelector?: ValuesCrdsUpgradeJobNodeSelector
@@ -2551,7 +2532,7 @@ schema ValuesCustomRules:
 
 schema ValuesDaemonsetAnnotations:
     r"""
-    Annotations to be added to windows exporter daemonset
+    Annotations to be added to node exporter daemonset
     """
 
     [...str]: any
@@ -3475,7 +3456,7 @@ schema ValuesDeploymentStrategy:
 
 schema ValuesDnsConfig:
     r"""
-    Custom DNS configuration to be added to prometheus-windows-exporter pods
+    Custom DNS configuration to be added to prometheus-node-exporter pods
     """
 
     [...str]: any
@@ -3582,27 +3563,7 @@ schema ValuesDownloadDashboardsSecurityContextSeccompProfile:
 
 schema ValuesEnv:
     r"""
-    # Extra environment variables that will be pass onto deployment pods
-    #
-    # to provide grafana with access to CloudWatch on AWS EKS:
-    # 1. create an iam role of type "Web identity" with provider oidc.eks.* (note the provider for later)
-    # 2. edit the "Trust relationships" of the role, add a line inside the StringEquals clause using the
-    # same oidc eks provider as noted before (same as the existing line)
-    # also, replace NAMESPACE and prometheus-operator-grafana with the service account namespace and name
-    #
-    #  "oidc.eks.us-east-1.amazonaws.com/id/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:sub": "system:serviceaccount:NAMESPACE:prometheus-operator-grafana",
-    #
-    # 3. attach a policy to the role, you can use a built in policy called CloudWatchReadOnlyAccess
-    # 4. use the following env: (replace 123456789000 and iam-role-name-here with your aws account number and role name)
-    #
-    # env:
-    #   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here
-    #   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-    #   AWS_REGION: us-east-1
-    #
-    # 5. uncomment the EKS section in extraSecretMounts: below
-    # 6. uncomment the annotation section in the serviceAccount: above
-    # make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
+    Additional Environment variables
     """
 
     [...str]: any
@@ -3716,7 +3677,6 @@ schema ValuesGlobal:
     imagePullSecrets : [any], optional
         To help compatibility with other charts which use global.imagePullSecrets.
         Allow either an array of {name: pullSecret} maps (k8s-style), or an array of strings (more common helm-style).
-        Can be templated.
         global:
           imagePullSecrets:
           - name: pullSecret1
@@ -3726,14 +3686,15 @@ schema ValuesGlobal:
           imagePullSecrets:
           - pullSecret1
           - pullSecret2
-    imageRegistry : any, optional, default is "null"
-        Overrides the Docker registry globally for all images
+    imageRegistry : str, optional, default is ""
+
+        Allow parent charts to override registry hostname
     rbac : ValuesGlobalRbac, optional
     """
 
     environment?: str
     imagePullSecrets?: [any]
-    imageRegistry?: any
+    imageRegistry?: str
     rbac?: ValuesGlobalRbac
     [...str]: any
 
@@ -3774,6 +3735,7 @@ schema ValuesGrafana:
         # Configure additional grafana datasources (passed through tpl)
         # ref: http://docs.grafana.org/administration/provisioning/#datasources
     adminPassword : str, optional, default is "prom-operator"
+    adminUser : str, optional, default is "admin"
     defaultDashboardsEditable : bool, optional, default is True
         # Editable flag for the default dashboards
         #
@@ -3821,6 +3783,7 @@ schema ValuesGrafana:
 
     additionalDataSources?: [any]
     adminPassword?: str
+    adminUser?: str
     defaultDashboardsEditable?: bool
     defaultDashboardsEnabled?: bool
     defaultDashboardsTimezone?: str
@@ -4315,13 +4278,13 @@ schema ValuesImage:
         # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
         # Can be templated.
         #
-    registry : str, optional, default is "docker.io"
+    registry : str, optional, default is "registry.k8s.io"
         The Docker registry
-    repository : str, optional, default is "grafana/grafana"
+    repository : str, optional, default is "kube-state-metrics/kube-state-metrics"
         Docker image repository
     sha : str, optional, default is ""
     tag : str, optional, default is ""
-        Overrides the Grafana image tag whose default is the chart appVersion
+        If unset use v + .Charts.appVersion
     """
 
     digest?: str
@@ -6463,12 +6426,12 @@ schema ValuesLivenessProbe:
 
     Attributes
     ----------
-    failureThreshold : int, optional, default is 10
+    failureThreshold : int, optional, default is 3
     httpGet : ValuesLivenessProbeHttpGet, optional
-    initialDelaySeconds : int, optional, default is 60
+    initialDelaySeconds : int, optional, default is 5
     periodSeconds : int, optional, default is 10
     successThreshold : int, optional, default is 1
-    timeoutSeconds : int, optional, default is 30
+    timeoutSeconds : int, optional, default is 5
     """
 
     failureThreshold?: int
@@ -6698,12 +6661,11 @@ schema ValuesNodeExporterOperatingSystemsLinux:
 schema ValuesNodeSelector:
     r"""
     # Node labels for pod assignment
-    # ref: https://kubernetes.io/docs/user-guide/node-selection/
-
+    # Ref: https://kubernetes.io/docs/user-guide/node-selection/
 
     Attributes
     ----------
-    "kubernetes.io/os" : str, optional, default is "windows"
+    "kubernetes.io/os" : str, optional, default is "linux"
     """
 
     "kubernetes.io/os"?: str
@@ -6801,8 +6763,7 @@ schema ValuesPodAnnotations:
 
 schema ValuesPodDisruptionBudget:
     r"""
-    # See `kubectl explain poddisruptionbudget.spec` for more
-    # ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+    Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
     """
 
     [...str]: any
@@ -6890,7 +6851,7 @@ schema ValuesPrometheus:
         PodMonitor defines monitoring for a set of pods.
         ref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.PodMonitor
         Using a PodMonitor may be preferred in some environments where there is very large number
-        of Windows Exporter endpoints (1000+) behind a single service.
+        of Node Exporter endpoints (1000+) behind a single service.
         The PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,
         the time series resulting from the configuration through PodMonitor may have different labels.
         For instance, there will not be the service label any longer which might
@@ -7161,7 +7122,7 @@ schema ValuesPrometheusMonitor:
     namespace : str, optional, default is ""
     namespaceSelector : [any], optional
     podTargetLabels : [any], optional
-        List of pod labels to add to windows exporter metrics
+        List of pod labels to add to node exporter metrics
         https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor
     proxyUrl : str, optional, default is ""
         # proxyUrl: URL of a proxy that should be used for scraping.
@@ -9202,7 +9163,7 @@ schema ValuesPrometheusPodMonitor:
     PodMonitor defines monitoring for a set of pods.
     ref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.PodMonitor
     Using a PodMonitor may be preferred in some environments where there is very large number
-    of Windows Exporter endpoints (1000+) behind a single service.
+    of Node Exporter endpoints (1000+) behind a single service.
     The PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,
     the time series resulting from the configuration through PodMonitor may have different labels.
     For instance, there will not be the service label any longer which might
@@ -11249,10 +11210,10 @@ schema ValuesSecurityContext:
     Attributes
     ----------
     enabled : bool, optional, default is True
-    fsGroup : int, optional, default is 472
-    runAsGroup : int, optional, default is 472
+    fsGroup : int, optional, default is 65534
+    runAsGroup : int, optional, default is 65534
     runAsNonRoot : bool, optional, default is True
-    runAsUser : int, optional, default is 472
+    runAsUser : int, optional, default is 65534
     seccompProfile : ValuesSecurityContextSeccompProfile, optional
     windowsOptions : ValuesSecurityContextWindowsOptions, optional
     """
@@ -11351,7 +11312,7 @@ schema ValuesService:
         Only allow access to the loadBalancerIP from these IPs
     nodePort : int, optional, default is 0
         # Port number for service type NodePort
-    port : int, optional, default is 80
+    port : int, optional, default is 8080
         # Default service port. Sets the port of the exposed container as well (NE or kubeRBACProxy).
         # Use "servicePort" below if changing the service port only is desired.
     portName : str, optional, default is "service"
@@ -11399,9 +11360,8 @@ schema ValuesServiceAccount:
         ServiceAccount annotations.
         Use case: AWS EKS IAM roles for service accounts
         ref: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html
-    automountServiceAccountToken : bool, optional, default is False
-        # autoMount is deprecated in favor of automountServiceAccountToken
-        autoMount: false
+    automountServiceAccountToken : bool, optional, default is True
+        If false then the user will opt out of automounting API credentials.
     create : bool, optional, default is True
         Specifies whether a ServiceAccount should be created, require rbac true
     imagePullSecrets : [any], optional

@@ -508,6 +508,15 @@ schema MonitoringCoreosComV1PrometheusSpec:
         scrape config namespace selector
     scrapeConfigSelector : MonitoringCoreosComV1PrometheusSpecScrapeConfigSelector, default is Undefined, optional
         scrape config selector
+    scrapeFailureLogFile : str, default is Undefined, optional
+        File to which scrape failures are logged.
+        Reloading the configuration will reopen the file.
+
+        If the filename has an empty path, e.g. 'file.log', The Prometheus Pods
+        will mount the file into an emptyDir volume at `/var/log/prometheus`.
+        If a full path is provided, e.g. '/var/log/prometheus/file.log', you
+        must mount a volume in the specified directory and it must be writable.
+        It requires Prometheus >= v2.55.0.
     scrapeInterval : str, default is "30s", optional
         Interval between consecutive scrapes.
 
@@ -523,6 +532,7 @@ schema MonitoringCoreosComV1PrometheusSpec:
         `PrometheusText1.0.0` requires Prometheus >= v3.0.0.
     scrapeTimeout : str, default is Undefined, optional
         Number of seconds to wait until a scrape request times out.
+        The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
     secrets : [str], default is Undefined, optional
         Secrets is a list of Secrets in the same namespace as the Prometheus
         object, which shall be mounted into the Prometheus Pods.
@@ -543,6 +553,13 @@ schema MonitoringCoreosComV1PrometheusSpec:
         service monitor namespace selector
     serviceMonitorSelector : MonitoringCoreosComV1PrometheusSpecServiceMonitorSelector, default is Undefined, optional
         service monitor selector
+    serviceName : str, default is Undefined, optional
+        The name of the service name used by the underlying StatefulSet(s) as the governing service.
+        If defined, the Service  must be created before the Prometheus/PrometheusAgent resource in the same namespace and it must define a selector that matches the pod labels.
+        If empty, the operator will create and manage a headless service named `prometheus-operated` for Prometheus resources,
+        or `prometheus-agent-operated` for PrometheusAgent resources.
+        When deploying multiple Prometheus/PrometheusAgent resources in the same namespace, it is recommended to specify a different value for each.
+        See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
     sha : str, default is Undefined, optional
         Deprecated: use 'spec.image' instead. The image's digest can be specified as part of the image name.
     shards : int, default is Undefined, optional
@@ -791,6 +808,8 @@ schema MonitoringCoreosComV1PrometheusSpec:
 
     scrapeConfigSelector?: MonitoringCoreosComV1PrometheusSpecScrapeConfigSelector
 
+    scrapeFailureLogFile?: str
+
     scrapeInterval?: str = "30s"
 
     scrapeProtocols?: [str]
@@ -808,6 +827,8 @@ schema MonitoringCoreosComV1PrometheusSpec:
     serviceMonitorNamespaceSelector?: MonitoringCoreosComV1PrometheusSpecServiceMonitorNamespaceSelector
 
     serviceMonitorSelector?: MonitoringCoreosComV1PrometheusSpecServiceMonitorSelector
+
+    serviceName?: str
 
     sha?: str
 
@@ -850,8 +871,10 @@ schema MonitoringCoreosComV1PrometheusSpec:
         _regex_match(str(retention), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if retention
         _regex_match(str(retentionSize), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if retentionSize
         _regex_match(str(ruleQueryOffset), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if ruleQueryOffset
+        len(scrapeFailureLogFile) >= 1 if scrapeFailureLogFile
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
+        len(serviceName) >= 1 if serviceName
 
 
 schema MonitoringCoreosComV1PrometheusSpecAdditionalAlertManagerConfigs:
@@ -6580,15 +6603,21 @@ schema MonitoringCoreosComV1PrometheusSpecOtlp:
 
     Attributes
     ----------
+    keepIdentifyingResourceAttributes : bool, default is Undefined, optional
+        Enables adding `service.name`, `service.namespace` and `service.instance.id`
+        resource attributes to the `target_info` metric, on top of converting them into the `instance` and `job` labels.
+
+        It requires Prometheus >= v3.1.0.
     promoteResourceAttributes : [str], default is Undefined, optional
         List of OpenTelemetry Attributes that should be promoted to metric labels, defaults to none.
     translationStrategy : str, default is Undefined, optional
         Configures how the OTLP receiver endpoint translates the incoming metrics.
-        If unset, Prometheus uses its default value.
 
         It requires Prometheus >= v3.0.0.
     """
 
+
+    keepIdentifyingResourceAttributes?: bool
 
     promoteResourceAttributes?: [str]
 
@@ -9351,6 +9380,11 @@ schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0:
         don't configure an explicit scrape class name.
 
         Only one scrape class can be set as the default.
+    fallbackScrapeProtocol : str, default is Undefined, optional
+        The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
+        It will only apply if the scrape resource doesn't specify any FallbackScrapeProtocol
+
+        It requires Prometheus >= v3.0.0.
     metricRelabelings : [MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0MetricRelabelingsItems0], default is Undefined, optional
         MetricRelabelings configures the relabeling rules to apply to all samples before ingestion.
 
@@ -9380,6 +9414,8 @@ schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0:
     authorization?: MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0Authorization
 
     default?: bool
+
+    fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
 
     metricRelabelings?: [MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0MetricRelabelingsItems0]
 
@@ -14496,38 +14532,52 @@ schema MonitoringCoreosComV1PrometheusSpecWebTLSConfig:
     cert : MonitoringCoreosComV1PrometheusSpecWebTLSConfigCert, default is Undefined, optional
         cert
     certFile : str, default is Undefined, optional
-        Path to the TLS certificate file in the Prometheus container for the server.
-        Mutually exclusive with `cert`.
+        Path to the TLS certificate file in the container for the web server.
+
+        Either `keySecret` or `keyFile` must be defined.
+
+        It is mutually exclusive with `cert`.
     cipherSuites : [str], default is Undefined, optional
-        List of supported cipher suites for TLS versions up to TLS 1.2. If empty,
-        Go default cipher suites are used. Available cipher suites are documented
-        in the go documentation: https://golang.org/pkg/crypto/tls/#pkg-constants
+        List of supported cipher suites for TLS versions up to TLS 1.2.
+
+        If not defined, the Go default cipher suites are used.
+        Available cipher suites are documented in the Go documentation:
+        https://golang.org/pkg/crypto/tls/#pkg-constants
     clientAuthType : str, default is Undefined, optional
-        Server policy for client authentication. Maps to ClientAuth Policies.
+        The server policy for client TLS authentication.
+
         For more detail on clientAuth options:
         https://golang.org/pkg/crypto/tls/#ClientAuthType
     clientCAFile : str, default is Undefined, optional
-        Path to the CA certificate file for client certificate authentication to the server.
-        Mutually exclusive with `client_ca`.
+        Path to the CA certificate file for client certificate authentication to
+        the server.
+
+        It is mutually exclusive with `client_ca`.
     client_ca : MonitoringCoreosComV1PrometheusSpecWebTLSConfigClientCa, default is Undefined, optional
         client ca
     curvePreferences : [str], default is Undefined, optional
         Elliptic curves that will be used in an ECDHE handshake, in preference
-        order. Available curves are documented in the go documentation:
+        order.
+
+        Available curves are documented in the Go documentation:
         https://golang.org/pkg/crypto/tls/#CurveID
     keyFile : str, default is Undefined, optional
-        Path to the TLS key file in the Prometheus container for the server.
-        Mutually exclusive with `keySecret`.
+        Path to the TLS private key file in the container for the web server.
+
+        If defined, either `cert` or `certFile` must be defined.
+
+        It is mutually exclusive with `keySecret`.
     keySecret : MonitoringCoreosComV1PrometheusSpecWebTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum TLS version that is acceptable. Defaults to TLS13.
+        Maximum TLS version that is acceptable.
     minVersion : str, default is Undefined, optional
-        Minimum TLS version that is acceptable. Defaults to TLS12.
+        Minimum TLS version that is acceptable.
     preferServerCipherSuites : bool, default is Undefined, optional
-        Controls whether the server selects the
-        client's most preferred cipher suite, or the server's most preferred
-        cipher suite. If true then the server's preference, as expressed in
+        Controls whether the server selects the client's most preferred cipher
+        suite, or the server's most preferred cipher suite.
+
+        If true then the server's preference, as expressed in
         the order of elements in cipherSuites, is used.
     """
 
@@ -14559,7 +14609,11 @@ schema MonitoringCoreosComV1PrometheusSpecWebTLSConfig:
 
 schema MonitoringCoreosComV1PrometheusSpecWebTLSConfigCert:
     r"""
-    Contains the TLS certificate for the server.
+    Secret or ConfigMap containing the TLS certificate for the web server.
+
+    Either `keySecret` or `keyFile` must be defined.
+
+    It is mutually exclusive with `certFile`.
 
     Attributes
     ----------
@@ -14629,7 +14683,10 @@ schema MonitoringCoreosComV1PrometheusSpecWebTLSConfigCertSecret:
 
 schema MonitoringCoreosComV1PrometheusSpecWebTLSConfigClientCa:
     r"""
-    Contains the CA certificate for client certificate authentication to the server.
+    Secret or ConfigMap containing the CA certificate for client certificate
+    authentication to the server.
+
+    It is mutually exclusive with `clientCAFile`.
 
     Attributes
     ----------
@@ -14699,7 +14756,11 @@ schema MonitoringCoreosComV1PrometheusSpecWebTLSConfigClientCaSecret:
 
 schema MonitoringCoreosComV1PrometheusSpecWebTLSConfigKeySecret:
     r"""
-    Secret containing the TLS key for the server.
+    Secret containing the TLS private key for the web server.
+
+    Either `cert` or `certFile` must be defined.
+
+    It is mutually exclusive with `keyFile`.
 
     Attributes
     ----------
