@@ -1,5 +1,5 @@
 {
-  "$id": "https://raw.githubusercontent.com/bjw-s/helm-charts/common-3.6.1/charts/library/common/values.schema.json",
+  "$id": "https://raw.githubusercontent.com/bjw-s/helm-charts/common-3.7.0/charts/library/common/values.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema",
   "properties": {
     "configMaps": {
@@ -709,7 +709,8 @@
                   "pullPolicy": {
                     "enum": [
                       "Always",
-                      "IfNotPresent"
+                      "IfNotPresent",
+                      "Never"
                     ],
                     "required": [],
                     "type": "string"
@@ -1295,6 +1296,14 @@
                 "required": [],
                 "type": "object"
               },
+              "shareProcessNamespace": {
+                "default": false,
+                "required": [],
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
               "terminationGracePeriodSeconds": {
                 "required": [],
                 "type": [
@@ -1712,6 +1721,14 @@
           },
           "required": [],
           "type": "object"
+        },
+        "shareProcessNamespace": {
+          "default": false,
+          "required": [],
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "terminationGracePeriodSeconds": {
           "required": [],
@@ -2192,6 +2209,10 @@
             "default": true,
             "required": [],
             "type": "boolean"
+          },
+          "forceRename": {
+            "required": [],
+            "type": "string"
           },
           "kind": {
             "required": [],
