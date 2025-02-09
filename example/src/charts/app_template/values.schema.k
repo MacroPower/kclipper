@@ -380,12 +380,12 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsImage:
 
     Attributes
     ----------
-    pullPolicy : "Always" | "IfNotPresent", optional
+    pullPolicy : "Always" | "IfNotPresent" | "Never", optional
     repository : str, optional
     tag : str | float, optional
     """
 
-    pullPolicy?: "Always" | "IfNotPresent"
+    pullPolicy?: "Always" | "IfNotPresent" | "Never"
     repository?: str
     tag?: str | float
 
@@ -596,6 +596,7 @@ schema ValuesControllersAdditionalPropertiesPod:
     schedulerName : str, optional
     securityContext : ValuesControllersAdditionalPropertiesPodSecurityContext, optional
         PodSecurityContext holds pod-level security attributes and common container settings. Some fields are also present in container.securityContext.  Field values of container.securityContext take precedence over field values of PodSecurityContext.
+    shareProcessNamespace : bool, optional, default is False
     terminationGracePeriodSeconds : int, optional
     tolerations : [ValuesControllersAdditionalPropertiesPodTolerationsItems0], optional
     topologySpreadConstraints : [ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0], optional
@@ -621,6 +622,7 @@ schema ValuesControllersAdditionalPropertiesPod:
     runtimeClassName?: str
     schedulerName?: str
     securityContext?: ValuesControllersAdditionalPropertiesPodSecurityContext
+    shareProcessNamespace?: bool
     terminationGracePeriodSeconds?: int
     tolerations?: [ValuesControllersAdditionalPropertiesPodTolerationsItems0]
     topologySpreadConstraints?: [ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0]
@@ -854,6 +856,7 @@ schema ValuesDefaultPodOptions:
     schedulerName : str, optional
     securityContext : ValuesDefaultPodOptionsSecurityContext, optional
         PodSecurityContext holds pod-level security attributes and common container settings. Some fields are also present in container.securityContext.  Field values of container.securityContext take precedence over field values of PodSecurityContext.
+    shareProcessNamespace : bool, optional, default is False
     terminationGracePeriodSeconds : int, optional
     tolerations : [ValuesDefaultPodOptionsTolerationsItems0], optional
     topologySpreadConstraints : [ValuesDefaultPodOptionsTopologySpreadConstraintsItems0], optional
@@ -879,6 +882,7 @@ schema ValuesDefaultPodOptions:
     runtimeClassName?: str
     schedulerName?: str
     securityContext?: ValuesDefaultPodOptionsSecurityContext
+    shareProcessNamespace?: bool
     terminationGracePeriodSeconds?: int
     tolerations?: [ValuesDefaultPodOptionsTolerationsItems0]
     topologySpreadConstraints?: [ValuesDefaultPodOptionsTopologySpreadConstraintsItems0]
@@ -1248,6 +1252,7 @@ schema ValuesRawResourcesAdditionalProperties:
     annotations : any, optional
     apiVersion : str, optional
     enabled : bool, optional, default is True
+    forceRename : str, optional
     kind : str, optional
     labels : any, optional
     nameOverride : str, optional
@@ -1257,6 +1262,7 @@ schema ValuesRawResourcesAdditionalProperties:
     annotations?: any
     apiVersion?: str
     enabled?: bool
+    forceRename?: str
     kind?: str
     labels?: any
     nameOverride?: str
