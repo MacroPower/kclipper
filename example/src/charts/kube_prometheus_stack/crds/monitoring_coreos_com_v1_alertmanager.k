@@ -9747,38 +9747,52 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfig:
     cert : MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCert, default is Undefined, optional
         cert
     certFile : str, default is Undefined, optional
-        Path to the TLS certificate file in the Prometheus container for the server.
-        Mutually exclusive with `cert`.
+        Path to the TLS certificate file in the container for the web server.
+
+        Either `keySecret` or `keyFile` must be defined.
+
+        It is mutually exclusive with `cert`.
     cipherSuites : [str], default is Undefined, optional
-        List of supported cipher suites for TLS versions up to TLS 1.2. If empty,
-        Go default cipher suites are used. Available cipher suites are documented
-        in the go documentation: https://golang.org/pkg/crypto/tls/#pkg-constants
+        List of supported cipher suites for TLS versions up to TLS 1.2.
+
+        If not defined, the Go default cipher suites are used.
+        Available cipher suites are documented in the Go documentation:
+        https://golang.org/pkg/crypto/tls/#pkg-constants
     clientAuthType : str, default is Undefined, optional
-        Server policy for client authentication. Maps to ClientAuth Policies.
+        The server policy for client TLS authentication.
+
         For more detail on clientAuth options:
         https://golang.org/pkg/crypto/tls/#ClientAuthType
     clientCAFile : str, default is Undefined, optional
-        Path to the CA certificate file for client certificate authentication to the server.
-        Mutually exclusive with `client_ca`.
+        Path to the CA certificate file for client certificate authentication to
+        the server.
+
+        It is mutually exclusive with `client_ca`.
     client_ca : MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCa, default is Undefined, optional
         client ca
     curvePreferences : [str], default is Undefined, optional
         Elliptic curves that will be used in an ECDHE handshake, in preference
-        order. Available curves are documented in the go documentation:
+        order.
+
+        Available curves are documented in the Go documentation:
         https://golang.org/pkg/crypto/tls/#CurveID
     keyFile : str, default is Undefined, optional
-        Path to the TLS key file in the Prometheus container for the server.
-        Mutually exclusive with `keySecret`.
+        Path to the TLS private key file in the container for the web server.
+
+        If defined, either `cert` or `certFile` must be defined.
+
+        It is mutually exclusive with `keySecret`.
     keySecret : MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum TLS version that is acceptable. Defaults to TLS13.
+        Maximum TLS version that is acceptable.
     minVersion : str, default is Undefined, optional
-        Minimum TLS version that is acceptable. Defaults to TLS12.
+        Minimum TLS version that is acceptable.
     preferServerCipherSuites : bool, default is Undefined, optional
-        Controls whether the server selects the
-        client's most preferred cipher suite, or the server's most preferred
-        cipher suite. If true then the server's preference, as expressed in
+        Controls whether the server selects the client's most preferred cipher
+        suite, or the server's most preferred cipher suite.
+
+        If true then the server's preference, as expressed in
         the order of elements in cipherSuites, is used.
     """
 
@@ -9810,7 +9824,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfig:
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCert:
     r"""
-    Contains the TLS certificate for the server.
+    Secret or ConfigMap containing the TLS certificate for the web server.
+
+    Either `keySecret` or `keyFile` must be defined.
+
+    It is mutually exclusive with `certFile`.
 
     Attributes
     ----------
@@ -9880,7 +9898,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertSecret:
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCa:
     r"""
-    Contains the CA certificate for client certificate authentication to the server.
+    Secret or ConfigMap containing the CA certificate for client certificate
+    authentication to the server.
+
+    It is mutually exclusive with `clientCAFile`.
 
     Attributes
     ----------
@@ -9950,7 +9971,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaSecret:
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigKeySecret:
     r"""
-    Secret containing the TLS key for the server.
+    Secret containing the TLS private key for the web server.
+
+    Either `cert` or `certFile` must be defined.
+
+    It is mutually exclusive with `keyFile`.
 
     Attributes
     ----------

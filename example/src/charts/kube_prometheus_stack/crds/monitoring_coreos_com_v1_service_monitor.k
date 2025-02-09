@@ -284,6 +284,7 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
 
         If empty, Prometheus uses the global scrape timeout unless it is less
         than the target's scrape interval value in which the latter is used.
+        The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
     targetPort : int | str, default is Undefined, optional
         Name or number of the target port of the `Pod` object behind the
         Service. The port must be specified with the container's port property.

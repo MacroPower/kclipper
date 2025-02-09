@@ -109,6 +109,7 @@ schema MonitoringCoreosComV1ProbeSpec:
     scrapeTimeout : str, default is Undefined, optional
         Timeout for scraping metrics from the Prometheus exporter.
         If not specified, the Prometheus global scrape timeout is used.
+        The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
     targetLimit : int, default is Undefined, optional
         TargetLimit defines a limit on the number of scraped targets that will be accepted.
     targets : MonitoringCoreosComV1ProbeSpecTargets, default is Undefined, optional

@@ -183,6 +183,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
         It requires Prometheus >= v2.49.0.
     scrapeTimeout : str, default is Undefined, optional
         ScrapeTimeout is the number of seconds to wait until a scrape request times out.
+        The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
     staticConfigs : [MonitoringCoreosComV1alpha1ScrapeConfigSpecStaticConfigsItems0], default is Undefined, optional
         StaticConfigs defines a list of static targets with a common label set.
     targetLimit : int, default is Undefined, optional
@@ -383,35 +384,83 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
         See https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview
         SDK authentication method uses environment variables by default.
         See https://learn.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication
+    authorization : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Authorization, default is Undefined, optional
+        authorization
+    basicAuth : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuth, default is Undefined, optional
+        basic auth
     clientID : str, default is Undefined, optional
         Optional client ID. Only required with the OAuth authentication method.
     clientSecret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ClientSecret, default is Undefined, optional
         client secret
+    enableHTTP2 : bool, default is Undefined, optional
+        Whether to enable HTTP2.
     environment : str, default is Undefined, optional
         The Azure environment.
+    followRedirects : bool, default is Undefined, optional
+        Configure whether HTTP requests follow HTTP 3xx redirects.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2, default is Undefined, optional
+        oauth2
     port : int, default is Undefined, optional
         The port to scrape metrics from. If using the public IP address, this must
         instead be specified in the relabeling rule.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    proxyUrl : str, default is Undefined, optional
+        `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
         RefreshInterval configures the refresh interval at which Prometheus will re-read the instance list.
     resourceGroup : str, default is Undefined, optional
         Optional resource group name. Limits discovery to this resource group.
+        Requires  Prometheus v2.35.0 and above
     subscriptionID : str, default is Undefined, required
         The subscription ID. Always required.
     tenantID : str, default is Undefined, optional
         Optional tenant ID. Only required with the OAuth authentication method.
+    tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig, default is Undefined, optional
+        tls config
     """
 
 
     authenticationMethod?: "OAuth" | "ManagedIdentity" | "SDK"
 
+    authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Authorization
+
+    basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuth
+
     clientID?: str
 
     clientSecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ClientSecret
 
+    enableHTTP2?: bool
+
     environment?: str
 
+    followRedirects?: bool
+
+    noProxy?: str
+
+    oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2
+
     port?: int
+
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ProxyConnectHeaderItems0]}
+
+    proxyFromEnvironment?: bool
+
+    proxyUrl?: str
 
     refreshInterval?: str
 
@@ -421,15 +470,780 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
 
     tenantID?: str
 
+    tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig
+
 
     check:
+        len(clientID) >= 1 if clientID
+        len(environment) >= 1 if environment
+        port <= 65535 if port not in [None, Undefined]
+        port >= 0 if port not in [None, Undefined]
+        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
+        len(resourceGroup) >= 1 if resourceGroup
         len(subscriptionID) >= 1
+        len(tenantID) >= 1 if tenantID
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Authorization:
+    r"""
+    Authorization header configuration to authenticate against the target HTTP endpoint.
+    Cannot be set at the same time as `oAuth2`, or `basicAuth`.
+
+    Attributes
+    ----------
+    credentials : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0AuthorizationCredentials, default is Undefined, optional
+        credentials
+    $type : str, default is Undefined, optional
+        Defines the authentication type. The value is case-insensitive.
+
+        "Basic" is not a supported value.
+
+        Default: "Bearer"
+    """
+
+
+    credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0AuthorizationCredentials
+
+    $type?: str
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0AuthorizationCredentials:
+    r"""
+    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuth:
+    r"""
+    BasicAuth information to authenticate against the target HTTP endpoint.
+    More info: https://prometheus.io/docs/operating/configuration/#endpoints
+    Cannot be set at the same time as `authorization`, or `oAuth2`.
+
+    Attributes
+    ----------
+    password : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthPassword, default is Undefined, optional
+        password
+    username : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthUsername, default is Undefined, optional
+        username
+    """
+
+
+    password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthPassword
+
+    username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthUsername
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthPassword:
+    r"""
+    `password` specifies a key of a Secret containing the password for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthUsername:
+    r"""
+    `username` specifies a key of a Secret containing the username for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
 
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ClientSecret:
     r"""
     Optional client secret. Only required with the OAuth authentication method.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2:
+    r"""
+    Optional OAuth 2.0 configuration to authenticate against the target HTTP endpoint.
+    Cannot be set at the same time as `authorization`, or `basicAuth`.
+
+    Attributes
+    ----------
+    clientId : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientID, default is Undefined, required
+        client Id
+    clientSecret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientSecret, default is Undefined, required
+        client secret
+    endpointParams : {str:str}, default is Undefined, optional
+        `endpointParams` configures the HTTP parameters to append to the token
+        URL.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    proxyUrl : str, default is Undefined, optional
+        `proxyURL` defines the HTTP proxy server to use.
+    scopes : [str], default is Undefined, optional
+        `scopes` defines the OAuth2 scopes used for the token request.
+    tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfig, default is Undefined, optional
+        tls config
+    tokenUrl : str, default is Undefined, required
+        `tokenURL` configures the URL to fetch the token from.
+    """
+
+
+    clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientID
+
+    clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientSecret
+
+    endpointParams?: {str:str}
+
+    noProxy?: str
+
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
+
+    proxyFromEnvironment?: bool
+
+    proxyUrl?: str
+
+    scopes?: [str]
+
+    tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfig
+
+    tokenUrl: str
+
+
+    check:
+        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        len(tokenUrl) >= 1
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientID:
+    r"""
+    `clientId` specifies a key of a Secret or ConfigMap containing the
+    OAuth2 client's ID.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
+        secret
+    """
+
+
+    configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDConfigMap
+
+    secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDSecret
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientSecret:
+    r"""
+    `clientSecret` specifies a key of a Secret containing the OAuth2
+    client's secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfig:
+    r"""
+    TLS configuration to use when connecting to the OAuth2 server.
+    It requires Prometheus >= v2.43.0.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+
+
+    ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCa
+
+    cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCert
+
+    insecureSkipVerify?: bool
+
+    keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigKeySecret
+
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+
+    serverName?: str
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+
+
+    configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaConfigMap
+
+    secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaSecret
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+
+
+    configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertConfigMap
+
+    secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertSecret
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig:
+    r"""
+    TLS configuration applying to the target HTTP endpoint.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+
+
+    ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCa
+
+    cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCert
+
+    insecureSkipVerify?: bool
+
+    keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigKeySecret
+
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+
+    serverName?: str
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+
+
+    configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaConfigMap
+
+    secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaSecret
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+
+
+    configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertConfigMap
+
+    secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertSecret
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -5299,8 +6113,12 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecGceSDConfigsItems0:
 
 
     check:
+        len($filter) >= 1 if $filter
+        port <= 65535 if port not in [None, Undefined]
+        port >= 0 if port not in [None, Undefined]
         len(project) >= 1
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
+        len(tagSeparator) >= 1 if tagSeparator
         len(zone) >= 1
 
 
@@ -6990,6 +7808,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0:
         contain port numbers.
 
         It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2, default is Undefined, optional
+        oauth2
     port : int, default is Undefined, optional
         Port to scrape the metrics from.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
@@ -7019,6 +7839,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0:
     followRedirects?: bool
 
     noProxy?: str
+
+    oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2
 
     port?: int
 
@@ -7066,6 +7888,404 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Authorizat
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0AuthorizationCredentials:
     r"""
     Selects a key of a Secret in the namespace that contains the credentials for authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2:
+    r"""
+    Configure whether to enable OAuth2.
+
+    Attributes
+    ----------
+    clientId : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientID, default is Undefined, required
+        client Id
+    clientSecret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientSecret, default is Undefined, required
+        client secret
+    endpointParams : {str:str}, default is Undefined, optional
+        `endpointParams` configures the HTTP parameters to append to the token
+        URL.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+    proxyUrl : str, default is Undefined, optional
+        `proxyURL` defines the HTTP proxy server to use.
+    scopes : [str], default is Undefined, optional
+        `scopes` defines the OAuth2 scopes used for the token request.
+    tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfig, default is Undefined, optional
+        tls config
+    tokenUrl : str, default is Undefined, required
+        `tokenURL` configures the URL to fetch the token from.
+    """
+
+
+    clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientID
+
+    clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientSecret
+
+    endpointParams?: {str:str}
+
+    noProxy?: str
+
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
+
+    proxyFromEnvironment?: bool
+
+    proxyUrl?: str
+
+    scopes?: [str]
+
+    tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfig
+
+    tokenUrl: str
+
+
+    check:
+        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        len(tokenUrl) >= 1
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientID:
+    r"""
+    `clientId` specifies a key of a Secret or ConfigMap containing the
+    OAuth2 client's ID.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
+        secret
+    """
+
+
+    configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDConfigMap
+
+    secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDSecret
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientSecret:
+    r"""
+    `clientSecret` specifies a key of a Secret containing the OAuth2
+    client's secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfig:
+    r"""
+    TLS configuration to use when connecting to the OAuth2 server.
+    It requires Prometheus >= v2.43.0.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+
+
+    ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCa
+
+    cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCert
+
+    insecureSkipVerify?: bool
+
+    keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigKeySecret
+
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+
+    serverName?: str
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+
+
+    configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaConfigMap
+
+    secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaSecret
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+
+
+    configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertConfigMap
+
+    secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertSecret
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+
+
+    key: str
+
+    name?: str = ""
+
+    optional?: bool
+
+
+schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -12143,8 +13363,18 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
 
 
     check:
+        len(applicationCredentialName) >= 1 if applicationCredentialName
+        len(domainID) >= 1 if domainID
+        len(domainName) >= 1 if domainName
+        _regex_match(str(identityEndpoint), r"^http(s)?:\/\/.+$") if identityEndpoint
+        port <= 65535 if port not in [None, Undefined]
+        port >= 0 if port not in [None, Undefined]
+        len(projectID) >= 1 if projectID
+        len(projectName) >= 1 if projectName
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(region) >= 1
+        len(userid) >= 1 if userid
+        len(username) >= 1 if username
 
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0ApplicationCredentialSecret:
