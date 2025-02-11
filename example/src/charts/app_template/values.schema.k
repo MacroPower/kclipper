@@ -86,12 +86,12 @@ schema ValuesControllersAdditionalProperties:
     annotations : any, optional
     applyDefaultContainerOptionsToInitContainers : bool, optional, default is True
     containers : ValuesControllersAdditionalPropertiesContainers, optional
-    cronjob : any, optional
+    cronjob : ValuesControllersAdditionalPropertiesCronjob, optional
     defaultContainerOptions : ValuesControllersAdditionalPropertiesDefaultContainerOptions, optional
     defaultContainerOptionsStrategy : "overwrite" | "merge", optional, default is "overwrite"
     enabled : bool, optional, default is True
     initContainers : ValuesControllersAdditionalPropertiesInitContainers, optional
-    job : any, optional
+    job : ValuesControllersAdditionalPropertiesJob, optional
     labels : any, optional
     nameOverride : str, optional
     pod : ValuesControllersAdditionalPropertiesPod, optional
@@ -99,7 +99,7 @@ schema ValuesControllersAdditionalProperties:
     revisionHistoryLimit : int, optional
     rollingUpdate : ValuesControllersAdditionalPropertiesRollingUpdate, optional
     serviceAccount : ValuesControllersAdditionalPropertiesServiceAccount, optional
-    statefulset : any, optional
+    statefulset : ValuesControllersAdditionalPropertiesStatefulset, optional
     strategy : str, optional
     $type : "deployment" | "statefulset" | "daemonset" | "cronjob" | "job", optional
     """
@@ -107,12 +107,12 @@ schema ValuesControllersAdditionalProperties:
     annotations?: any
     applyDefaultContainerOptionsToInitContainers?: bool
     containers?: ValuesControllersAdditionalPropertiesContainers
-    cronjob?: any
+    cronjob?: ValuesControllersAdditionalPropertiesCronjob
     defaultContainerOptions?: ValuesControllersAdditionalPropertiesDefaultContainerOptions
     defaultContainerOptionsStrategy?: "overwrite" | "merge"
     enabled?: bool
     initContainers?: ValuesControllersAdditionalPropertiesInitContainers
-    job?: any
+    job?: ValuesControllersAdditionalPropertiesJob
     labels?: any
     nameOverride?: str
     pod?: ValuesControllersAdditionalPropertiesPod
@@ -120,7 +120,7 @@ schema ValuesControllersAdditionalProperties:
     revisionHistoryLimit?: int
     rollingUpdate?: ValuesControllersAdditionalPropertiesRollingUpdate
     serviceAccount?: ValuesControllersAdditionalPropertiesServiceAccount
-    statefulset?: any
+    statefulset?: ValuesControllersAdditionalPropertiesStatefulset
     strategy?: str
     $type?: "deployment" | "statefulset" | "daemonset" | "cronjob" | "job"
 
@@ -137,13 +137,13 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalProperties:
 
     Attributes
     ----------
-    args : any, optional
-    command : any, optional
+    args : str | str, optional
+    command : str | str, optional
     dependsOn : str | str, optional
     enabled : bool, optional, default is True
-    env : any, optional
-    envFrom : any, optional
-    image : any, optional
+    env : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0 | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnv, optional
+    envFrom : [ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0], optional
+    image : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesImage, optional
     lifecycle : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecycle, optional
         Lifecycle describes actions that the management system should take in response to container lifecycle events. For the PostStart and PreStop lifecycle handlers, management of the container blocks until the action is complete, unless the container process fails, in which case the handler is aborted.
     nameOverride : str, optional
@@ -160,13 +160,13 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalProperties:
     workingDir : str, optional
     """
 
-    args?: any
-    command?: any
+    args?: str | str
+    command?: str | str
     dependsOn?: str | str
     enabled?: bool
-    env?: any
-    envFrom?: any
-    image?: any
+    env?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0 | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnv
+    envFrom?: [ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0]
+    image?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesImage
     lifecycle?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecycle
     nameOverride?: str
     ports?: [ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesPortsItems0]
@@ -180,20 +180,585 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalProperties:
     tty?: bool
     workingDir?: str
 
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnv:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnv
+    """
+
+    [...str]: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalProperties
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalProperties:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalProperties
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef, optional
+    dependsOn : [str], optional
+    fieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef, optional
+    value : str | float | bool, optional
+    valueFrom : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef
+    dependsOn?: [str]
+    fieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef
+    value?: str | float | bool
+    valueFrom?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0
+
+    Attributes
+    ----------
+    configMap : str, optional
+    configMapRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0ConfigMapRef, optional
+    prefix : str, optional
+    secret : str, optional
+    secretRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0SecretRef, optional
+    """
+
+    configMap?: str
+    configMapRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0ConfigMapRef
+    prefix?: str
+    secret?: str
+    secretRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0SecretRef
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0ConfigMapRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0ConfigMapRef
+
+    Attributes
+    ----------
+    identifier : str, optional
+    name : str, optional
+    optional : bool, optional
+    """
+
+    identifier?: str
+    name?: str
+    optional?: bool
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0SecretRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0SecretRef
+
+    Attributes
+    ----------
+    identifier : str, optional
+    name : str, optional
+    optional : bool, optional
+    """
+
+    identifier?: str
+    name?: str
+    optional?: bool
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0FieldRef, optional
+    name : str, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0SecretKeyRef, optional
+    value : str | float | bool, optional
+    valueFrom : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFrom, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0FieldRef
+    name?: str
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0SecretKeyRef
+    value?: str | float | bool
+    valueFrom?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFrom
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0FieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0FieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0SecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0SecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFrom:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFrom
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesImage:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesImage
+
+    Attributes
+    ----------
+    pullPolicy : "Always" | "IfNotPresent" | "Never", optional
+    repository : str, optional
+    tag : str | float, optional
+    """
+
+    pullPolicy?: "Always" | "IfNotPresent" | "Never"
+    repository?: str
+    tag?: str | float
+
 schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecycle:
     r"""
     Lifecycle describes actions that the management system should take in response to container lifecycle events. For the PostStart and PreStop lifecycle handlers, management of the container blocks until the action is complete, unless the container process fails, in which case the handler is aborted.
 
     Attributes
     ----------
-    postStart : any, optional
+    postStart : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStart, optional
         PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
-    preStop : any, optional
+    preStop : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStop, optional
         PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
     """
 
-    postStart?: any
-    preStop?: any
+    postStart?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStart
+    preStop?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStop
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStart:
+    r"""
+    PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartExec, optional
+        Exec specifies the action to take.
+    httpGet : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    sleep : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartSleep, optional
+        Sleep represents the duration that the container should sleep before being terminated.
+    tcpSocket : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartTcpSocket, optional
+        Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartExec
+    httpGet?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartHttpGet
+    sleep?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartSleep
+    tcpSocket?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartTcpSocket
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartSleep:
+    r"""
+    Sleep represents the duration that the container should sleep before being terminated.
+
+    Attributes
+    ----------
+    seconds : int, optional
+        Seconds is the number of seconds to sleep.
+    """
+
+    seconds?: int
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePostStartTcpSocket:
+    r"""
+    Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStop:
+    r"""
+    PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopExec, optional
+        Exec specifies the action to take.
+    httpGet : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    sleep : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopSleep, optional
+        Sleep represents the duration that the container should sleep before being terminated.
+    tcpSocket : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopTcpSocket, optional
+        Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopExec
+    httpGet?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopHttpGet
+    sleep?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopSleep
+    tcpSocket?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopTcpSocket
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopSleep:
+    r"""
+    Sleep represents the duration that the container should sleep before being terminated.
+
+    Attributes
+    ----------
+    seconds : int, optional
+        Seconds is the number of seconds to sleep.
+    """
+
+    seconds?: int
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecyclePreStopTcpSocket:
+    r"""
+    Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
 
 schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesPortsItems0:
     r"""
@@ -225,14 +790,452 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbes
 
     Attributes
     ----------
-    liveness : any, optional
-    readiness : any, optional
-    startup : any, optional
+    liveness : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLiveness, optional
+    readiness : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadiness, optional
+    startup : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartup, optional
     """
 
-    liveness?: any
-    readiness?: any
-    startup?: any
+    liveness?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLiveness
+    readiness?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadiness
+    startup?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartup
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLiveness:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLiveness
+
+    Attributes
+    ----------
+    custom : bool, optional, default is False
+    enabled : bool, optional, default is False
+    path : str, optional
+    port : float | str, optional
+    service : str, optional
+    spec : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpec, optional
+        Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+    $type : "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO", optional
+    """
+
+    custom?: bool
+    enabled?: bool
+    path?: str
+    port?: float | str
+    service?: str
+    spec?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpec
+    $type?: "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO"
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpec:
+    r"""
+    Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecExec, optional
+        Exec specifies the action to take.
+    failureThreshold : int, optional
+        Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+    grpc : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecGrpc, optional
+        GRPC specifies an action involving a GRPC port.
+    httpGet : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    initialDelaySeconds : int, optional
+        Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    periodSeconds : int, optional
+        How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+    successThreshold : int, optional
+        Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+    tcpSocket : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecTcpSocket, optional
+        TCPSocket specifies an action involving a TCP port.
+    terminationGracePeriodSeconds : int, optional
+        Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+    timeoutSeconds : int, optional
+        Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecExec
+    failureThreshold?: int
+    grpc?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecGrpc
+    httpGet?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecHttpGet
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    tcpSocket?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecTcpSocket
+    terminationGracePeriodSeconds?: int
+    timeoutSeconds?: int
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecGrpc:
+    r"""
+    GRPC specifies an action involving a GRPC port.
+
+    Attributes
+    ----------
+    port : int, optional
+        Port number of the gRPC service. Number must be in the range 1 to 65535.
+    service : str, optional
+        Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+        If this is not specified, the default behavior is defined by gRPC.
+    """
+
+    port?: int
+    service?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesLivenessSpecTcpSocket:
+    r"""
+    TCPSocket specifies an action involving a TCP port.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadiness:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadiness
+
+    Attributes
+    ----------
+    custom : bool, optional, default is False
+    enabled : bool, optional, default is False
+    path : str, optional
+    port : float | str, optional
+    service : str, optional
+    spec : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpec, optional
+        Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+    $type : "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO", optional
+    """
+
+    custom?: bool
+    enabled?: bool
+    path?: str
+    port?: float | str
+    service?: str
+    spec?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpec
+    $type?: "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO"
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpec:
+    r"""
+    Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecExec, optional
+        Exec specifies the action to take.
+    failureThreshold : int, optional
+        Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+    grpc : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecGrpc, optional
+        GRPC specifies an action involving a GRPC port.
+    httpGet : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    initialDelaySeconds : int, optional
+        Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    periodSeconds : int, optional
+        How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+    successThreshold : int, optional
+        Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+    tcpSocket : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecTcpSocket, optional
+        TCPSocket specifies an action involving a TCP port.
+    terminationGracePeriodSeconds : int, optional
+        Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+    timeoutSeconds : int, optional
+        Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecExec
+    failureThreshold?: int
+    grpc?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecGrpc
+    httpGet?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecHttpGet
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    tcpSocket?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecTcpSocket
+    terminationGracePeriodSeconds?: int
+    timeoutSeconds?: int
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecGrpc:
+    r"""
+    GRPC specifies an action involving a GRPC port.
+
+    Attributes
+    ----------
+    port : int, optional
+        Port number of the gRPC service. Number must be in the range 1 to 65535.
+    service : str, optional
+        Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+        If this is not specified, the default behavior is defined by gRPC.
+    """
+
+    port?: int
+    service?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesReadinessSpecTcpSocket:
+    r"""
+    TCPSocket specifies an action involving a TCP port.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartup:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartup
+
+    Attributes
+    ----------
+    custom : bool, optional, default is False
+    enabled : bool, optional, default is False
+    path : str, optional
+    port : float | str, optional
+    service : str, optional
+    spec : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpec, optional
+        Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+    $type : "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO", optional
+    """
+
+    custom?: bool
+    enabled?: bool
+    path?: str
+    port?: float | str
+    service?: str
+    spec?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpec
+    $type?: "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO"
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpec:
+    r"""
+    Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecExec, optional
+        Exec specifies the action to take.
+    failureThreshold : int, optional
+        Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+    grpc : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecGrpc, optional
+        GRPC specifies an action involving a GRPC port.
+    httpGet : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    initialDelaySeconds : int, optional
+        Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    periodSeconds : int, optional
+        How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+    successThreshold : int, optional
+        Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+    tcpSocket : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecTcpSocket, optional
+        TCPSocket specifies an action involving a TCP port.
+    terminationGracePeriodSeconds : int, optional
+        Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+    timeoutSeconds : int, optional
+        Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecExec
+    failureThreshold?: int
+    grpc?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecGrpc
+    httpGet?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecHttpGet
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    tcpSocket?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecTcpSocket
+    terminationGracePeriodSeconds?: int
+    timeoutSeconds?: int
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecGrpc:
+    r"""
+    GRPC specifies an action involving a GRPC port.
+
+    Attributes
+    ----------
+    port : int, optional
+        Port number of the gRPC service. Number must be in the range 1 to 65535.
+    service : str, optional
+        Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+        If this is not specified, the default behavior is defined by gRPC.
+    """
+
+    port?: int
+    service?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesProbesStartupSpecTcpSocket:
+    r"""
+    TCPSocket specifies an action involving a TCP port.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
 
 schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesResources:
     r"""
@@ -267,6 +1270,37 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesResour
     """
 
     name?: str
+
+schema ValuesControllersAdditionalPropertiesCronjob:
+    r"""
+    ValuesControllersAdditionalPropertiesCronjob
+
+    Attributes
+    ----------
+    activeDeadlineSeconds : int, optional
+    backoffLimit : int, optional, default is 6
+    concurrencyPolicy : str, optional, default is "Forbid"
+    failedJobsHistory : int, optional, default is 1
+    parallelism : int, optional
+    schedule : str, optional
+    startingDeadlineSeconds : int, optional, default is 30
+    successfulJobsHistory : int, optional, default is 1
+    suspend : bool, optional, default is False
+    timeZone : str, optional
+    ttlSecondsAfterFinished : int, optional
+    """
+
+    activeDeadlineSeconds?: int
+    backoffLimit?: int
+    concurrencyPolicy?: str
+    failedJobsHistory?: int
+    parallelism?: int
+    schedule?: str
+    startingDeadlineSeconds?: int
+    successfulJobsHistory?: int
+    suspend?: bool
+    timeZone?: str
+    ttlSecondsAfterFinished?: int
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptions:
     r"""
@@ -305,12 +1339,147 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditional
 
     Attributes
     ----------
-    dependsOn : any, optional
-    value : any, optional
+    configMapKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesConfigMapKeyRef, optional
+    dependsOn : [str], optional
+    fieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesSecretKeyRef, optional
+    value : str | float | bool, optional
+    valueFrom : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFrom, optional
     """
 
-    dependsOn?: any
-    value?: any
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesConfigMapKeyRef
+    dependsOn?: [str]
+    fieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesSecretKeyRef
+    value?: str | float | bool
+    valueFrom?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFrom
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFrom:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFrom
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromSecretKeyRef, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromSecretKeyRef
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0:
     r"""
@@ -367,12 +1536,147 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0:
 
     Attributes
     ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0FieldRef, optional
     name : str, optional
-    value : any, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0SecretKeyRef, optional
+    value : str | float | bool, optional
+    valueFrom : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFrom, optional
     """
 
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0FieldRef
     name?: str
-    value?: any
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0SecretKeyRef
+    value?: str | float | bool
+    valueFrom?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFrom
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0FieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0FieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0SecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0SecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFrom:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFrom
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromSecretKeyRef, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromSecretKeyRef
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsImage:
     r"""
@@ -436,13 +1740,13 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalProperties:
 
     Attributes
     ----------
-    args : any, optional
-    command : any, optional
+    args : str | str, optional
+    command : str | str, optional
     dependsOn : str | str, optional
     enabled : bool, optional, default is True
-    env : any, optional
-    envFrom : any, optional
-    image : any, optional
+    env : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0 | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnv, optional
+    envFrom : [ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0], optional
+    image : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesImage, optional
     lifecycle : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecycle, optional
         Lifecycle describes actions that the management system should take in response to container lifecycle events. For the PostStart and PreStop lifecycle handlers, management of the container blocks until the action is complete, unless the container process fails, in which case the handler is aborted.
     nameOverride : str, optional
@@ -459,13 +1763,13 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalProperties:
     workingDir : str, optional
     """
 
-    args?: any
-    command?: any
+    args?: str | str
+    command?: str | str
     dependsOn?: str | str
     enabled?: bool
-    env?: any
-    envFrom?: any
-    image?: any
+    env?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0 | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnv
+    envFrom?: [ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0]
+    image?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesImage
     lifecycle?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecycle
     nameOverride?: str
     ports?: [ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesPortsItems0]
@@ -479,20 +1783,585 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalProperties:
     tty?: bool
     workingDir?: str
 
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnv:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnv
+    """
+
+    [...str]: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalProperties
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalProperties:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalProperties
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef, optional
+    dependsOn : [str], optional
+    fieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef, optional
+    value : str | float | bool, optional
+    valueFrom : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef
+    dependsOn?: [str]
+    fieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef
+    value?: str | float | bool
+    valueFrom?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0
+
+    Attributes
+    ----------
+    configMap : str, optional
+    configMapRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0ConfigMapRef, optional
+    prefix : str, optional
+    secret : str, optional
+    secretRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0SecretRef, optional
+    """
+
+    configMap?: str
+    configMapRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0ConfigMapRef
+    prefix?: str
+    secret?: str
+    secretRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0SecretRef
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0ConfigMapRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0ConfigMapRef
+
+    Attributes
+    ----------
+    identifier : str, optional
+    name : str, optional
+    optional : bool, optional
+    """
+
+    identifier?: str
+    name?: str
+    optional?: bool
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0SecretRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0SecretRef
+
+    Attributes
+    ----------
+    identifier : str, optional
+    name : str, optional
+    optional : bool, optional
+    """
+
+    identifier?: str
+    name?: str
+    optional?: bool
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0FieldRef, optional
+    name : str, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0SecretKeyRef, optional
+    value : str | float | bool, optional
+    valueFrom : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFrom, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0FieldRef
+    name?: str
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0SecretKeyRef
+    value?: str | float | bool
+    valueFrom?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFrom
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0FieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0FieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0SecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0SecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFrom:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFrom
+
+    Attributes
+    ----------
+    configMapKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromConfigMapKeyRef, optional
+    fieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromFieldRef, optional
+    resourceFieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromResourceFieldRef, optional
+    secretKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef, optional
+    """
+
+    configMapKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromConfigMapKeyRef
+    fieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromFieldRef
+    resourceFieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromResourceFieldRef
+    secretKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromConfigMapKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromConfigMapKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromFieldRef
+
+    Attributes
+    ----------
+    apiVersion : str, optional
+    fieldPath : str, optional
+    """
+
+    apiVersion?: str
+    fieldPath?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromResourceFieldRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromResourceFieldRef
+
+    Attributes
+    ----------
+    containerName : str, optional
+    divisor : float, optional
+    resource : str, optional
+    """
+
+    containerName?: str
+    divisor?: float
+    resource?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef
+
+    Attributes
+    ----------
+    key : str, optional
+    name : str, optional
+    """
+
+    key?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesImage:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesImage
+
+    Attributes
+    ----------
+    pullPolicy : "Always" | "IfNotPresent" | "Never", optional
+    repository : str, optional
+    tag : str | float, optional
+    """
+
+    pullPolicy?: "Always" | "IfNotPresent" | "Never"
+    repository?: str
+    tag?: str | float
+
 schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecycle:
     r"""
     Lifecycle describes actions that the management system should take in response to container lifecycle events. For the PostStart and PreStop lifecycle handlers, management of the container blocks until the action is complete, unless the container process fails, in which case the handler is aborted.
 
     Attributes
     ----------
-    postStart : any, optional
+    postStart : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStart, optional
         PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
-    preStop : any, optional
+    preStop : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStop, optional
         PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
     """
 
-    postStart?: any
-    preStop?: any
+    postStart?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStart
+    preStop?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStop
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStart:
+    r"""
+    PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartExec, optional
+        Exec specifies the action to take.
+    httpGet : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    sleep : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartSleep, optional
+        Sleep represents the duration that the container should sleep before being terminated.
+    tcpSocket : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartTcpSocket, optional
+        Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartExec
+    httpGet?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartHttpGet
+    sleep?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartSleep
+    tcpSocket?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartTcpSocket
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartSleep:
+    r"""
+    Sleep represents the duration that the container should sleep before being terminated.
+
+    Attributes
+    ----------
+    seconds : int, optional
+        Seconds is the number of seconds to sleep.
+    """
+
+    seconds?: int
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePostStartTcpSocket:
+    r"""
+    Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStop:
+    r"""
+    PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopExec, optional
+        Exec specifies the action to take.
+    httpGet : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    sleep : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopSleep, optional
+        Sleep represents the duration that the container should sleep before being terminated.
+    tcpSocket : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopTcpSocket, optional
+        Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopExec
+    httpGet?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopHttpGet
+    sleep?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopSleep
+    tcpSocket?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopTcpSocket
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopSleep:
+    r"""
+    Sleep represents the duration that the container should sleep before being terminated.
+
+    Attributes
+    ----------
+    seconds : int, optional
+        Seconds is the number of seconds to sleep.
+    """
+
+    seconds?: int
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecyclePreStopTcpSocket:
+    r"""
+    Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
 
 schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesPortsItems0:
     r"""
@@ -524,14 +2393,452 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesPr
 
     Attributes
     ----------
-    liveness : any, optional
-    readiness : any, optional
-    startup : any, optional
+    liveness : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLiveness, optional
+    readiness : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadiness, optional
+    startup : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartup, optional
     """
 
-    liveness?: any
-    readiness?: any
-    startup?: any
+    liveness?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLiveness
+    readiness?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadiness
+    startup?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartup
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLiveness:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLiveness
+
+    Attributes
+    ----------
+    custom : bool, optional, default is False
+    enabled : bool, optional, default is False
+    path : str, optional
+    port : float | str, optional
+    service : str, optional
+    spec : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpec, optional
+        Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+    $type : "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO", optional
+    """
+
+    custom?: bool
+    enabled?: bool
+    path?: str
+    port?: float | str
+    service?: str
+    spec?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpec
+    $type?: "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO"
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpec:
+    r"""
+    Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecExec, optional
+        Exec specifies the action to take.
+    failureThreshold : int, optional
+        Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+    grpc : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecGrpc, optional
+        GRPC specifies an action involving a GRPC port.
+    httpGet : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    initialDelaySeconds : int, optional
+        Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    periodSeconds : int, optional
+        How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+    successThreshold : int, optional
+        Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+    tcpSocket : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecTcpSocket, optional
+        TCPSocket specifies an action involving a TCP port.
+    terminationGracePeriodSeconds : int, optional
+        Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+    timeoutSeconds : int, optional
+        Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecExec
+    failureThreshold?: int
+    grpc?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecGrpc
+    httpGet?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecHttpGet
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    tcpSocket?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecTcpSocket
+    terminationGracePeriodSeconds?: int
+    timeoutSeconds?: int
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecGrpc:
+    r"""
+    GRPC specifies an action involving a GRPC port.
+
+    Attributes
+    ----------
+    port : int, optional
+        Port number of the gRPC service. Number must be in the range 1 to 65535.
+    service : str, optional
+        Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+        If this is not specified, the default behavior is defined by gRPC.
+    """
+
+    port?: int
+    service?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesLivenessSpecTcpSocket:
+    r"""
+    TCPSocket specifies an action involving a TCP port.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadiness:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadiness
+
+    Attributes
+    ----------
+    custom : bool, optional, default is False
+    enabled : bool, optional, default is False
+    path : str, optional
+    port : float | str, optional
+    service : str, optional
+    spec : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpec, optional
+        Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+    $type : "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO", optional
+    """
+
+    custom?: bool
+    enabled?: bool
+    path?: str
+    port?: float | str
+    service?: str
+    spec?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpec
+    $type?: "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO"
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpec:
+    r"""
+    Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecExec, optional
+        Exec specifies the action to take.
+    failureThreshold : int, optional
+        Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+    grpc : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecGrpc, optional
+        GRPC specifies an action involving a GRPC port.
+    httpGet : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    initialDelaySeconds : int, optional
+        Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    periodSeconds : int, optional
+        How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+    successThreshold : int, optional
+        Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+    tcpSocket : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecTcpSocket, optional
+        TCPSocket specifies an action involving a TCP port.
+    terminationGracePeriodSeconds : int, optional
+        Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+    timeoutSeconds : int, optional
+        Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecExec
+    failureThreshold?: int
+    grpc?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecGrpc
+    httpGet?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecHttpGet
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    tcpSocket?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecTcpSocket
+    terminationGracePeriodSeconds?: int
+    timeoutSeconds?: int
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecGrpc:
+    r"""
+    GRPC specifies an action involving a GRPC port.
+
+    Attributes
+    ----------
+    port : int, optional
+        Port number of the gRPC service. Number must be in the range 1 to 65535.
+    service : str, optional
+        Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+        If this is not specified, the default behavior is defined by gRPC.
+    """
+
+    port?: int
+    service?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesReadinessSpecTcpSocket:
+    r"""
+    TCPSocket specifies an action involving a TCP port.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartup:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartup
+
+    Attributes
+    ----------
+    custom : bool, optional, default is False
+    enabled : bool, optional, default is False
+    path : str, optional
+    port : float | str, optional
+    service : str, optional
+    spec : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpec, optional
+        Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+    $type : "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO", optional
+    """
+
+    custom?: bool
+    enabled?: bool
+    path?: str
+    port?: float | str
+    service?: str
+    spec?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpec
+    $type?: "TCP" | "HTTP" | "HTTPS" | "GRPC" | "AUTO"
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpec:
+    r"""
+    Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+
+    Attributes
+    ----------
+    exec : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecExec, optional
+        Exec specifies the action to take.
+    failureThreshold : int, optional
+        Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+    grpc : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecGrpc, optional
+        GRPC specifies an action involving a GRPC port.
+    httpGet : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecHttpGet, optional
+        HTTPGet specifies the http request to perform.
+    initialDelaySeconds : int, optional
+        Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    periodSeconds : int, optional
+        How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+    successThreshold : int, optional
+        Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+    tcpSocket : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecTcpSocket, optional
+        TCPSocket specifies an action involving a TCP port.
+    terminationGracePeriodSeconds : int, optional
+        Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+    timeoutSeconds : int, optional
+        Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    """
+
+    exec?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecExec
+    failureThreshold?: int
+    grpc?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecGrpc
+    httpGet?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecHttpGet
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    tcpSocket?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecTcpSocket
+    terminationGracePeriodSeconds?: int
+    timeoutSeconds?: int
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecExec:
+    r"""
+    Exec specifies the action to take.
+
+    Attributes
+    ----------
+    command : [any] | str, optional
+        Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+    """
+
+    command?: [any] | str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecGrpc:
+    r"""
+    GRPC specifies an action involving a GRPC port.
+
+    Attributes
+    ----------
+    port : int, optional
+        Port number of the gRPC service. Number must be in the range 1 to 65535.
+    service : str, optional
+        Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+        If this is not specified, the default behavior is defined by gRPC.
+    """
+
+    port?: int
+    service?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecHttpGet:
+    r"""
+    HTTPGet specifies the http request to perform.
+
+    Attributes
+    ----------
+    host : str, optional
+        Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+    httpHeaders : [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecHttpGetHttpHeadersItems0, optional
+        Custom headers to set in the request. HTTP allows repeated headers.
+    path : str, optional
+        Path to access on the HTTP server.
+    port : str | int, optional
+        Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    scheme : str, optional
+        Scheme to use for connecting to the host. Defaults to HTTP.
+    """
+
+    host?: str
+    httpHeaders?: [any] | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecHttpGetHttpHeadersItems0
+    path?: str
+    port?: str | int
+    scheme?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecHttpGetHttpHeadersItems0:
+    r"""
+    HTTPHeader describes a custom header to be used in HTTP probes
+
+    Attributes
+    ----------
+    name : str, optional
+        The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.
+    value : str, optional
+        The header field value
+    """
+
+    name?: str
+    value?: str
+
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesProbesStartupSpecTcpSocket:
+    r"""
+    TCPSocket specifies an action involving a TCP port.
+
+    Attributes
+    ----------
+    host : str, optional
+        Optional: Host name to connect to, defaults to the pod IP.
+    port : str | int, optional
+        Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+    """
+
+    host?: str
+    port?: str | int
 
 schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesResources:
     r"""
@@ -566,6 +2873,29 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesRe
     """
 
     name?: str
+
+schema ValuesControllersAdditionalPropertiesJob:
+    r"""
+    ValuesControllersAdditionalPropertiesJob
+
+    Attributes
+    ----------
+    activeDeadlineSeconds : int, optional
+    backoffLimit : int, optional, default is 6
+    completionMode : any, optional
+    completions : any, optional
+    parallelism : int, optional
+    suspend : bool, optional, default is False
+    ttlSecondsAfterFinished : int, optional
+    """
+
+    activeDeadlineSeconds?: int
+    backoffLimit?: int
+    completionMode?: any
+    completions?: any
+    parallelism?: int
+    suspend?: bool
+    ttlSecondsAfterFinished?: int
 
 schema ValuesControllersAdditionalPropertiesPod:
     r"""
@@ -633,17 +2963,649 @@ schema ValuesControllersAdditionalPropertiesPodAffinity:
 
     Attributes
     ----------
-    nodeAffinity : any, optional
+    nodeAffinity : ValuesControllersAdditionalPropertiesPodAffinityNodeAffinity, optional
         Describes node affinity scheduling rules for the pod.
-    podAffinity : any, optional
+    podAffinity : ValuesControllersAdditionalPropertiesPodAffinityPodAffinity, optional
         Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).
-    podAntiAffinity : any, optional
+    podAntiAffinity : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinity, optional
         Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).
     """
 
-    nodeAffinity?: any
-    podAffinity?: any
-    podAntiAffinity?: any
+    nodeAffinity?: ValuesControllersAdditionalPropertiesPodAffinityNodeAffinity
+    podAffinity?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinity
+    podAntiAffinity?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinity
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinity:
+    r"""
+    Describes node affinity scheduling rules for the pod.
+
+    Attributes
+    ----------
+    preferredDuringSchedulingIgnoredDuringExecution : [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node matches the corresponding matchExpressions; the node(s) with the highest sum are the most preferred.
+    requiredDuringSchedulingIgnoredDuringExecution : ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution, optional
+        If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to an update), the system may or may not try to eventually evict the pod from its node.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution?: [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
+    requiredDuringSchedulingIgnoredDuringExecution?: ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e. is also a no-op).
+
+    Attributes
+    ----------
+    preference : ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference, optional
+        A node selector term, associated with the corresponding weight.
+    weight : int, optional
+        Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.
+    """
+
+    preference?: ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference
+    weight?: int
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference:
+    r"""
+    A node selector term, associated with the corresponding weight.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0], optional
+        A list of node selector requirements by node's labels.
+    matchFields : [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0], optional
+        A list of node selector requirements by node's fields.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0]
+    matchFields?: [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0:
+    r"""
+    A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        The label key that the selector applies to.
+    operator : str, optional
+        Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    values : [str], optional
+        An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0:
+    r"""
+    A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        The label key that the selector applies to.
+    operator : str, optional
+        Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    values : [str], optional
+        An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution:
+    r"""
+    If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to an update), the system may or may not try to eventually evict the pod from its node.
+
+    Attributes
+    ----------
+    nodeSelectorTerms : [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0], optional
+        Required. A list of node selector terms. The terms are ORed.
+    """
+
+    nodeSelectorTerms?: [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0:
+    r"""
+    A null or empty node selector term matches no objects. The requirements of them are ANDed. The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0], optional
+        A list of node selector requirements by node's labels.
+    matchFields : [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0], optional
+        A list of node selector requirements by node's fields.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0]
+    matchFields?: [ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0:
+    r"""
+    A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        The label key that the selector applies to.
+    operator : str, optional
+        Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    values : [str], optional
+        An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0:
+    r"""
+    A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        The label key that the selector applies to.
+    operator : str, optional
+        Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    values : [str], optional
+        An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinity:
+    r"""
+    Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).
+
+    Attributes
+    ----------
+    preferredDuringSchedulingIgnoredDuringExecution : [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred.
+    requiredDuringSchedulingIgnoredDuringExecution : [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution?: [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
+    requiredDuringSchedulingIgnoredDuringExecution?: [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
+
+    Attributes
+    ----------
+    podAffinityTerm : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm, optional
+        Required. A pod affinity term, associated with the corresponding weight.
+    weight : int, optional
+        weight associated with matching the corresponding podAffinityTerm, in the range 1-100.
+    """
+
+    podAffinityTerm?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
+    weight?: int
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
+    r"""
+    Required. A pod affinity term, associated with the corresponding weight.
+
+    Attributes
+    ----------
+    labelSelector : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector, optional
+        A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+    matchLabelKeys : [str], optional
+        MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    mismatchLabelKeys : [str], optional
+        MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    namespaceSelector : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector, optional
+        A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+    namespaces : [str], optional
+        namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means "this pod's namespace".
+    topologyKey : str, optional
+        This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
+    """
+
+    labelSelector?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
+    matchLabelKeys?: [str]
+    mismatchLabelKeys?: [str]
+    namespaceSelector?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
+    namespaces?: [str]
+    topologyKey?: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
+    r"""
+    A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
+    r"""
+    A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running
+
+    Attributes
+    ----------
+    labelSelector : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector, optional
+        A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+    matchLabelKeys : [str], optional
+        MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    mismatchLabelKeys : [str], optional
+        MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    namespaceSelector : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector, optional
+        A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+    namespaces : [str], optional
+        namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means "this pod's namespace".
+    topologyKey : str, optional
+        This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
+    """
+
+    labelSelector?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
+    matchLabelKeys?: [str]
+    mismatchLabelKeys?: [str]
+    namespaceSelector?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
+    namespaces?: [str]
+    topologyKey?: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
+    r"""
+    A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
+    r"""
+    A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinity:
+    r"""
+    Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).
+
+    Attributes
+    ----------
+    preferredDuringSchedulingIgnoredDuringExecution : [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling anti-affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred.
+    requiredDuringSchedulingIgnoredDuringExecution : [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        If the anti-affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the anti-affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution?: [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
+    requiredDuringSchedulingIgnoredDuringExecution?: [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
+
+    Attributes
+    ----------
+    podAffinityTerm : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm, optional
+        Required. A pod affinity term, associated with the corresponding weight.
+    weight : int, optional
+        weight associated with matching the corresponding podAffinityTerm, in the range 1-100.
+    """
+
+    podAffinityTerm?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
+    weight?: int
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
+    r"""
+    Required. A pod affinity term, associated with the corresponding weight.
+
+    Attributes
+    ----------
+    labelSelector : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector, optional
+        A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+    matchLabelKeys : [str], optional
+        MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    mismatchLabelKeys : [str], optional
+        MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    namespaceSelector : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector, optional
+        A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+    namespaces : [str], optional
+        namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means "this pod's namespace".
+    topologyKey : str, optional
+        This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
+    """
+
+    labelSelector?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
+    matchLabelKeys?: [str]
+    mismatchLabelKeys?: [str]
+    namespaceSelector?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
+    namespaces?: [str]
+    topologyKey?: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
+    r"""
+    A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
+    r"""
+    A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running
+
+    Attributes
+    ----------
+    labelSelector : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector, optional
+        A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+    matchLabelKeys : [str], optional
+        MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    mismatchLabelKeys : [str], optional
+        MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    namespaceSelector : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector, optional
+        A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+    namespaces : [str], optional
+        namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means "this pod's namespace".
+    topologyKey : str, optional
+        This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
+    """
+
+    labelSelector?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
+    matchLabelKeys?: [str]
+    mismatchLabelKeys?: [str]
+    namespaceSelector?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
+    namespaces?: [str]
+    topologyKey?: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
+    r"""
+    A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
+    r"""
+    A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
 
 schema ValuesControllersAdditionalPropertiesPodDnsConfig:
     r"""
@@ -653,15 +3615,29 @@ schema ValuesControllersAdditionalPropertiesPodDnsConfig:
     ----------
     nameservers : [str], optional
         A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed.
-    options : [any], optional
+    options : [ValuesControllersAdditionalPropertiesPodDnsConfigOptionsItems0], optional
         A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.
     searches : [str], optional
         A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.
     """
 
     nameservers?: [str]
-    options?: [any]
+    options?: [ValuesControllersAdditionalPropertiesPodDnsConfigOptionsItems0]
     searches?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodDnsConfigOptionsItems0:
+    r"""
+    PodDNSConfigOption defines DNS resolver options of a pod.
+
+    Attributes
+    ----------
+    name : str, optional
+        Required.
+    value : str, optional
+    """
+
+    name?: str
+    value?: str
 
 schema ValuesControllersAdditionalPropertiesPodHostAliasesItems0:
     r"""
@@ -717,13 +3693,13 @@ schema ValuesControllersAdditionalPropertiesPodSecurityContext:
         Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
     runAsUser : int, optional
         The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
-    seLinuxOptions : any, optional
+    seLinuxOptions : ValuesControllersAdditionalPropertiesPodSecurityContextSeLinuxOptions, optional
         The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
-    seccompProfile : any, optional
+    seccompProfile : ValuesControllersAdditionalPropertiesPodSecurityContextSeccompProfile, optional
         The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows.
     supplementalGroups : [int], optional
         A list of groups applied to the first process run in each container, in addition to the container's primary GID, the fsGroup (if specified), and group memberships defined in the container image for the uid of the container process. If unspecified, no additional groups are added to any container. Note that group memberships defined in the container image for the uid of the container process are still effective, even if they are not included in this list. Note that this field cannot be set when spec.os.name is windows.
-    sysctls : [any], optional
+    sysctls : [ValuesControllersAdditionalPropertiesPodSecurityContextSysctlsItems0], optional
         Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch. Note that this field cannot be set when spec.os.name is windows.
     """
 
@@ -732,10 +3708,63 @@ schema ValuesControllersAdditionalPropertiesPodSecurityContext:
     runAsGroup?: int
     runAsNonRoot?: bool
     runAsUser?: int
-    seLinuxOptions?: any
-    seccompProfile?: any
+    seLinuxOptions?: ValuesControllersAdditionalPropertiesPodSecurityContextSeLinuxOptions
+    seccompProfile?: ValuesControllersAdditionalPropertiesPodSecurityContextSeccompProfile
     supplementalGroups?: [int]
-    sysctls?: [any]
+    sysctls?: [ValuesControllersAdditionalPropertiesPodSecurityContextSysctlsItems0]
+
+schema ValuesControllersAdditionalPropertiesPodSecurityContextSeLinuxOptions:
+    r"""
+    The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
+
+    Attributes
+    ----------
+    level : str, optional
+        Level is SELinux level label that applies to the container.
+    role : str, optional
+        Role is a SELinux role label that applies to the container.
+    $type : str, optional
+        Type is a SELinux type label that applies to the container.
+    user : str, optional
+        User is a SELinux user label that applies to the container.
+    """
+
+    level?: str
+    role?: str
+    $type?: str
+    user?: str
+
+schema ValuesControllersAdditionalPropertiesPodSecurityContextSeccompProfile:
+    r"""
+    The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows.
+
+    Attributes
+    ----------
+    localhostProfile : str, optional
+        localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must be set if type is "Localhost". Must NOT be set for any other type.
+    $type : str, optional
+        type indicates which kind of seccomp profile will be applied. Valid options are:
+
+        Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
+    """
+
+    localhostProfile?: str
+    $type?: str
+
+schema ValuesControllersAdditionalPropertiesPodSecurityContextSysctlsItems0:
+    r"""
+    Sysctl defines a kernel parameter to be set
+
+    Attributes
+    ----------
+    name : str, optional
+        Name of a property to set
+    value : str, optional
+        Value of a property to set
+    """
+
+    name?: str
+    value?: str
 
 schema ValuesControllersAdditionalPropertiesPodTolerationsItems0:
     r"""
@@ -767,7 +3796,7 @@ schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0:
 
     Attributes
     ----------
-    labelSelector : any, optional
+    labelSelector : ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelector, optional
         LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.
     matchLabelKeys : [str], optional
         MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
@@ -798,7 +3827,7 @@ schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0:
         A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assignment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
     """
 
-    labelSelector?: any
+    labelSelector?: ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelector
     matchLabelKeys?: [str]
     maxSkew?: int
     minDomains?: int
@@ -806,6 +3835,46 @@ schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0:
     nodeTaintsPolicy?: str
     topologyKey?: str
     whenUnsatisfiable?: str
+
+schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelector:
+    r"""
+    LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelectorMatchLabels
+
+schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesControllersAdditionalPropertiesPodTopologySpreadConstraintsItems0LabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
 
 schema ValuesControllersAdditionalPropertiesRollingUpdate:
     r"""
@@ -826,6 +3895,136 @@ schema ValuesControllersAdditionalPropertiesServiceAccount:
 
     identifier?: str
     name?: str
+
+schema ValuesControllersAdditionalPropertiesStatefulset:
+    r"""
+    ValuesControllersAdditionalPropertiesStatefulset
+
+    Attributes
+    ----------
+    persistentVolumeClaimRetentionPolicy : ValuesControllersAdditionalPropertiesStatefulsetPersistentVolumeClaimRetentionPolicy, optional
+    podManagementPolicy : str, optional
+    volumeClaimTemplates : [ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0], optional
+    """
+
+    persistentVolumeClaimRetentionPolicy?: ValuesControllersAdditionalPropertiesStatefulsetPersistentVolumeClaimRetentionPolicy
+    podManagementPolicy?: str
+    volumeClaimTemplates?: [ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0]
+
+schema ValuesControllersAdditionalPropertiesStatefulsetPersistentVolumeClaimRetentionPolicy:
+    r"""
+    ValuesControllersAdditionalPropertiesStatefulsetPersistentVolumeClaimRetentionPolicy
+
+    Attributes
+    ----------
+    whenDeleted : "Delete" | "Retain", optional, default is "Retain"
+    whenScaled : "Delete" | "Retain", optional, default is "Retain"
+    """
+
+    whenDeleted?: "Delete" | "Retain"
+    whenScaled?: "Delete" | "Retain"
+
+schema ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0:
+    r"""
+    ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0
+
+    Attributes
+    ----------
+    accessMode : str, optional
+    advancedMounts : ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0AdvancedMounts, optional
+    annotations : any, optional
+    dataSource : ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0DataSource, optional
+    dataSourceRef : ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0DataSourceRef, optional
+    enabled : bool, optional, default is True
+    globalMounts : [ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0GlobalMountsItems0], optional
+    labels : any, optional
+    name : str, optional
+    size : str, optional
+    storageClass : str, optional
+    """
+
+    accessMode?: str
+    advancedMounts?: ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0AdvancedMounts
+    annotations?: any
+    dataSource?: ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0DataSource
+    dataSourceRef?: ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0DataSourceRef
+    enabled?: bool
+    globalMounts?: [ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0GlobalMountsItems0]
+    labels?: any
+    name?: str
+    size?: str
+    storageClass?: str
+
+schema ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0AdvancedMounts:
+    r"""
+    ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0AdvancedMounts
+    """
+
+    [...str]: [ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0AdvancedMountsAdditionalPropertiesItems0]
+
+schema ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0AdvancedMountsAdditionalPropertiesItems0:
+    r"""
+    ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0AdvancedMountsAdditionalPropertiesItems0
+
+    Attributes
+    ----------
+    mountPropagation : str, optional
+    path : str, optional
+    readOnly : bool, optional
+    subPath : str, optional
+    """
+
+    mountPropagation?: str
+    path?: str
+    readOnly?: bool
+    subPath?: str
+
+schema ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0DataSource:
+    r"""
+    ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0DataSource
+
+    Attributes
+    ----------
+    apiGroup : str, optional
+    kind : str, optional
+    name : str, optional
+    """
+
+    apiGroup?: str
+    kind?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0DataSourceRef:
+    r"""
+    ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0DataSourceRef
+
+    Attributes
+    ----------
+    apiGroup : str, optional
+    kind : str, optional
+    name : str, optional
+    """
+
+    apiGroup?: str
+    kind?: str
+    name?: str
+
+schema ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0GlobalMountsItems0:
+    r"""
+    ValuesControllersAdditionalPropertiesStatefulsetVolumeClaimTemplatesItems0GlobalMountsItems0
+
+    Attributes
+    ----------
+    mountPropagation : str, optional
+    path : str, optional
+    readOnly : bool, optional
+    subPath : str, optional
+    """
+
+    mountPropagation?: str
+    path?: str
+    readOnly?: bool
+    subPath?: str
 
 schema ValuesDefaultPodOptions:
     r"""
@@ -893,17 +4092,649 @@ schema ValuesDefaultPodOptionsAffinity:
 
     Attributes
     ----------
-    nodeAffinity : any, optional
+    nodeAffinity : ValuesDefaultPodOptionsAffinityNodeAffinity, optional
         Describes node affinity scheduling rules for the pod.
-    podAffinity : any, optional
+    podAffinity : ValuesDefaultPodOptionsAffinityPodAffinity, optional
         Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).
-    podAntiAffinity : any, optional
+    podAntiAffinity : ValuesDefaultPodOptionsAffinityPodAntiAffinity, optional
         Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).
     """
 
-    nodeAffinity?: any
-    podAffinity?: any
-    podAntiAffinity?: any
+    nodeAffinity?: ValuesDefaultPodOptionsAffinityNodeAffinity
+    podAffinity?: ValuesDefaultPodOptionsAffinityPodAffinity
+    podAntiAffinity?: ValuesDefaultPodOptionsAffinityPodAntiAffinity
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinity:
+    r"""
+    Describes node affinity scheduling rules for the pod.
+
+    Attributes
+    ----------
+    preferredDuringSchedulingIgnoredDuringExecution : [ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node matches the corresponding matchExpressions; the node(s) with the highest sum are the most preferred.
+    requiredDuringSchedulingIgnoredDuringExecution : ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution, optional
+        If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to an update), the system may or may not try to eventually evict the pod from its node.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution?: [ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
+    requiredDuringSchedulingIgnoredDuringExecution?: ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e. is also a no-op).
+
+    Attributes
+    ----------
+    preference : ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference, optional
+        A node selector term, associated with the corresponding weight.
+    weight : int, optional
+        Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.
+    """
+
+    preference?: ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference
+    weight?: int
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference:
+    r"""
+    A node selector term, associated with the corresponding weight.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0], optional
+        A list of node selector requirements by node's labels.
+    matchFields : [ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0], optional
+        A list of node selector requirements by node's fields.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0]
+    matchFields?: [ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0]
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0:
+    r"""
+    A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        The label key that the selector applies to.
+    operator : str, optional
+        Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    values : [str], optional
+        An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0:
+    r"""
+    A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        The label key that the selector applies to.
+    operator : str, optional
+        Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    values : [str], optional
+        An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution:
+    r"""
+    If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to an update), the system may or may not try to eventually evict the pod from its node.
+
+    Attributes
+    ----------
+    nodeSelectorTerms : [ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0], optional
+        Required. A list of node selector terms. The terms are ORed.
+    """
+
+    nodeSelectorTerms?: [ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0]
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0:
+    r"""
+    A null or empty node selector term matches no objects. The requirements of them are ANDed. The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0], optional
+        A list of node selector requirements by node's labels.
+    matchFields : [ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0], optional
+        A list of node selector requirements by node's fields.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0]
+    matchFields?: [ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0]
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0:
+    r"""
+    A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        The label key that the selector applies to.
+    operator : str, optional
+        Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    values : [str], optional
+        An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0:
+    r"""
+    A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        The label key that the selector applies to.
+    operator : str, optional
+        Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    values : [str], optional
+        An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAffinity:
+    r"""
+    Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).
+
+    Attributes
+    ----------
+    preferredDuringSchedulingIgnoredDuringExecution : [ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred.
+    requiredDuringSchedulingIgnoredDuringExecution : [ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution?: [ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
+    requiredDuringSchedulingIgnoredDuringExecution?: [ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
+
+    Attributes
+    ----------
+    podAffinityTerm : ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm, optional
+        Required. A pod affinity term, associated with the corresponding weight.
+    weight : int, optional
+        weight associated with matching the corresponding podAffinityTerm, in the range 1-100.
+    """
+
+    podAffinityTerm?: ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
+    weight?: int
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
+    r"""
+    Required. A pod affinity term, associated with the corresponding weight.
+
+    Attributes
+    ----------
+    labelSelector : ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector, optional
+        A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+    matchLabelKeys : [str], optional
+        MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    mismatchLabelKeys : [str], optional
+        MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    namespaceSelector : ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector, optional
+        A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+    namespaces : [str], optional
+        namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means "this pod's namespace".
+    topologyKey : str, optional
+        This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
+    """
+
+    labelSelector?: ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
+    matchLabelKeys?: [str]
+    mismatchLabelKeys?: [str]
+    namespaceSelector?: ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
+    namespaces?: [str]
+    topologyKey?: str
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
+    r"""
+    A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
+    r"""
+    A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running
+
+    Attributes
+    ----------
+    labelSelector : ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector, optional
+        A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+    matchLabelKeys : [str], optional
+        MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    mismatchLabelKeys : [str], optional
+        MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    namespaceSelector : ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector, optional
+        A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+    namespaces : [str], optional
+        namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means "this pod's namespace".
+    topologyKey : str, optional
+        This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
+    """
+
+    labelSelector?: ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
+    matchLabelKeys?: [str]
+    mismatchLabelKeys?: [str]
+    namespaceSelector?: ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
+    namespaces?: [str]
+    topologyKey?: str
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
+    r"""
+    A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
+    r"""
+    A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinity:
+    r"""
+    Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).
+
+    Attributes
+    ----------
+    preferredDuringSchedulingIgnoredDuringExecution : [ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling anti-affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred.
+    requiredDuringSchedulingIgnoredDuringExecution : [ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0], optional
+        If the anti-affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the anti-affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution?: [ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
+    requiredDuringSchedulingIgnoredDuringExecution?: [ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
+
+    Attributes
+    ----------
+    podAffinityTerm : ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm, optional
+        Required. A pod affinity term, associated with the corresponding weight.
+    weight : int, optional
+        weight associated with matching the corresponding podAffinityTerm, in the range 1-100.
+    """
+
+    podAffinityTerm?: ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
+    weight?: int
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
+    r"""
+    Required. A pod affinity term, associated with the corresponding weight.
+
+    Attributes
+    ----------
+    labelSelector : ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector, optional
+        A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+    matchLabelKeys : [str], optional
+        MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    mismatchLabelKeys : [str], optional
+        MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    namespaceSelector : ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector, optional
+        A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+    namespaces : [str], optional
+        namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means "this pod's namespace".
+    topologyKey : str, optional
+        This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
+    """
+
+    labelSelector?: ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
+    matchLabelKeys?: [str]
+    mismatchLabelKeys?: [str]
+    namespaceSelector?: ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
+    namespaces?: [str]
+    topologyKey?: str
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
+    r"""
+    A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
+    r"""
+    A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
+    r"""
+    Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running
+
+    Attributes
+    ----------
+    labelSelector : ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector, optional
+        A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+    matchLabelKeys : [str], optional
+        MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    mismatchLabelKeys : [str], optional
+        MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate.
+    namespaceSelector : ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector, optional
+        A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+    namespaces : [str], optional
+        namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means "this pod's namespace".
+    topologyKey : str, optional
+        This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
+    """
+
+    labelSelector?: ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
+    matchLabelKeys?: [str]
+    mismatchLabelKeys?: [str]
+    namespaceSelector?: ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
+    namespaces?: [str]
+    topologyKey?: str
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
+    r"""
+    A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
+    r"""
+    A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means "this pod's namespace". An empty selector ({}) matches all namespaces.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
 
 schema ValuesDefaultPodOptionsDnsConfig:
     r"""
@@ -913,15 +4744,29 @@ schema ValuesDefaultPodOptionsDnsConfig:
     ----------
     nameservers : [str], optional
         A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed.
-    options : [any], optional
+    options : [ValuesDefaultPodOptionsDnsConfigOptionsItems0], optional
         A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.
     searches : [str], optional
         A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.
     """
 
     nameservers?: [str]
-    options?: [any]
+    options?: [ValuesDefaultPodOptionsDnsConfigOptionsItems0]
     searches?: [str]
+
+schema ValuesDefaultPodOptionsDnsConfigOptionsItems0:
+    r"""
+    PodDNSConfigOption defines DNS resolver options of a pod.
+
+    Attributes
+    ----------
+    name : str, optional
+        Required.
+    value : str, optional
+    """
+
+    name?: str
+    value?: str
 
 schema ValuesDefaultPodOptionsHostAliasesItems0:
     r"""
@@ -977,13 +4822,13 @@ schema ValuesDefaultPodOptionsSecurityContext:
         Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
     runAsUser : int, optional
         The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
-    seLinuxOptions : any, optional
+    seLinuxOptions : ValuesDefaultPodOptionsSecurityContextSeLinuxOptions, optional
         The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
-    seccompProfile : any, optional
+    seccompProfile : ValuesDefaultPodOptionsSecurityContextSeccompProfile, optional
         The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows.
     supplementalGroups : [int], optional
         A list of groups applied to the first process run in each container, in addition to the container's primary GID, the fsGroup (if specified), and group memberships defined in the container image for the uid of the container process. If unspecified, no additional groups are added to any container. Note that group memberships defined in the container image for the uid of the container process are still effective, even if they are not included in this list. Note that this field cannot be set when spec.os.name is windows.
-    sysctls : [any], optional
+    sysctls : [ValuesDefaultPodOptionsSecurityContextSysctlsItems0], optional
         Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch. Note that this field cannot be set when spec.os.name is windows.
     """
 
@@ -992,10 +4837,63 @@ schema ValuesDefaultPodOptionsSecurityContext:
     runAsGroup?: int
     runAsNonRoot?: bool
     runAsUser?: int
-    seLinuxOptions?: any
-    seccompProfile?: any
+    seLinuxOptions?: ValuesDefaultPodOptionsSecurityContextSeLinuxOptions
+    seccompProfile?: ValuesDefaultPodOptionsSecurityContextSeccompProfile
     supplementalGroups?: [int]
-    sysctls?: [any]
+    sysctls?: [ValuesDefaultPodOptionsSecurityContextSysctlsItems0]
+
+schema ValuesDefaultPodOptionsSecurityContextSeLinuxOptions:
+    r"""
+    The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows.
+
+    Attributes
+    ----------
+    level : str, optional
+        Level is SELinux level label that applies to the container.
+    role : str, optional
+        Role is a SELinux role label that applies to the container.
+    $type : str, optional
+        Type is a SELinux type label that applies to the container.
+    user : str, optional
+        User is a SELinux user label that applies to the container.
+    """
+
+    level?: str
+    role?: str
+    $type?: str
+    user?: str
+
+schema ValuesDefaultPodOptionsSecurityContextSeccompProfile:
+    r"""
+    The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows.
+
+    Attributes
+    ----------
+    localhostProfile : str, optional
+        localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must be set if type is "Localhost". Must NOT be set for any other type.
+    $type : str, optional
+        type indicates which kind of seccomp profile will be applied. Valid options are:
+
+        Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
+    """
+
+    localhostProfile?: str
+    $type?: str
+
+schema ValuesDefaultPodOptionsSecurityContextSysctlsItems0:
+    r"""
+    Sysctl defines a kernel parameter to be set
+
+    Attributes
+    ----------
+    name : str, optional
+        Name of a property to set
+    value : str, optional
+        Value of a property to set
+    """
+
+    name?: str
+    value?: str
 
 schema ValuesDefaultPodOptionsTolerationsItems0:
     r"""
@@ -1027,7 +4925,7 @@ schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0:
 
     Attributes
     ----------
-    labelSelector : any, optional
+    labelSelector : ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelector, optional
         LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.
     matchLabelKeys : [str], optional
         MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
@@ -1058,7 +4956,7 @@ schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0:
         A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assignment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
     """
 
-    labelSelector?: any
+    labelSelector?: ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelector
     matchLabelKeys?: [str]
     maxSkew?: int
     minDomains?: int
@@ -1066,6 +4964,46 @@ schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0:
     nodeTaintsPolicy?: str
     topologyKey?: str
     whenUnsatisfiable?: str
+
+schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelector:
+    r"""
+    LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelectorMatchLabels
+
+schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesDefaultPodOptionsTopologySpreadConstraintsItems0LabelSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
 
 schema ValuesGlobal:
     r"""
@@ -1097,20 +5035,20 @@ schema ValuesIngressAdditionalProperties:
     defaultBackend : ValuesIngressAdditionalPropertiesDefaultBackend, optional
         IngressBackend describes all endpoints for a given service and port.
     enabled : bool, optional, default is True
-    hosts : [any], optional
+    hosts : [ValuesIngressAdditionalPropertiesHostsItems0], optional
     labels : any, optional
     nameOverride : str, optional
-    tls : [any], optional
+    tls : [ValuesIngressAdditionalPropertiesTlsItems0], optional
     """
 
     annotations?: any
     className?: str
     defaultBackend?: ValuesIngressAdditionalPropertiesDefaultBackend
     enabled?: bool
-    hosts?: [any]
+    hosts?: [ValuesIngressAdditionalPropertiesHostsItems0]
     labels?: any
     nameOverride?: str
-    tls?: [any]
+    tls?: [ValuesIngressAdditionalPropertiesTlsItems0]
 
 schema ValuesIngressAdditionalPropertiesDefaultBackend:
     r"""
@@ -1175,6 +5113,62 @@ schema ValuesIngressAdditionalPropertiesDefaultBackendServicePort:
     name?: str
     number?: int
 
+schema ValuesIngressAdditionalPropertiesHostsItems0:
+    r"""
+    ValuesIngressAdditionalPropertiesHostsItems0
+
+    Attributes
+    ----------
+    host : str, optional
+    paths : [ValuesIngressAdditionalPropertiesHostsItems0PathsItems0], optional
+    """
+
+    host?: str
+    paths?: [ValuesIngressAdditionalPropertiesHostsItems0PathsItems0]
+
+schema ValuesIngressAdditionalPropertiesHostsItems0PathsItems0:
+    r"""
+    ValuesIngressAdditionalPropertiesHostsItems0PathsItems0
+
+    Attributes
+    ----------
+    path : str, optional
+    pathType : str, optional, default is "Prefix"
+    service : ValuesIngressAdditionalPropertiesHostsItems0PathsItems0Service, optional
+    """
+
+    path?: str
+    pathType?: str
+    service?: ValuesIngressAdditionalPropertiesHostsItems0PathsItems0Service
+
+schema ValuesIngressAdditionalPropertiesHostsItems0PathsItems0Service:
+    r"""
+    ValuesIngressAdditionalPropertiesHostsItems0PathsItems0Service
+
+    Attributes
+    ----------
+    identifier : str, optional
+    name : str, optional
+    port : str | int, optional
+    """
+
+    identifier?: str
+    name?: str
+    port?: str | int
+
+schema ValuesIngressAdditionalPropertiesTlsItems0:
+    r"""
+    ValuesIngressAdditionalPropertiesTlsItems0
+
+    Attributes
+    ----------
+    hosts : [str], optional
+    secretName : str, optional
+    """
+
+    hosts?: [str]
+    secretName?: str
+
 schema ValuesNetworkpoliciesAdditionalProperties:
     r"""
     ValuesNetworkpoliciesAdditionalProperties
@@ -1219,14 +5213,153 @@ schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0:
 
     Attributes
     ----------
-    ports : [any], optional
+    ports : [ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0PortsItems0], optional
         ports is a list of destination ports for outgoing traffic. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
-    to : [any], optional
+    to : [ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0], optional
         to is a list of destinations for outgoing traffic of pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all destinations (traffic not restricted by destination). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the to list.
     """
 
-    ports?: [any]
-    to?: [any]
+    ports?: [ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0PortsItems0]
+    to?: [ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0]
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0PortsItems0:
+    r"""
+    NetworkPolicyPort describes a port to allow traffic on
+
+    Attributes
+    ----------
+    endPort : int, optional
+        endPort indicates that the range of ports from port to endPort if set, inclusive, should be allowed by the policy. This field cannot be defined if the port field is not defined or if the port field is defined as a named (string) port. The endPort must be equal or greater than port.
+    port : str | int, optional
+        port represents the port on the given protocol. This can either be a numerical or named port on a pod. If this field is not provided, this matches all port names and numbers. If present, only traffic on the specified protocol AND port will be matched.
+    $protocol : str, optional
+        protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match. If not specified, this field defaults to TCP.
+    """
+
+    endPort?: int
+    port?: str | int
+    $protocol?: str
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0:
+    r"""
+    NetworkPolicyPeer describes a peer to allow traffic to/from. Only certain combinations of fields are allowed
+
+    Attributes
+    ----------
+    ipBlock : ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0IpBlock, optional
+        ipBlock defines policy on a particular IPBlock. If this field is set then neither of the other fields can be.
+    namespaceSelector : ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelector, optional
+        namespaceSelector selects namespaces using cluster-scoped labels. This field follows standard label selector semantics; if present but empty, it selects all namespaces.
+
+        If podSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the namespaces selected by namespaceSelector. Otherwise it selects all pods in the namespaces selected by namespaceSelector.
+    podSelector : ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelector, optional
+        podSelector is a label selector which selects pods. This field follows standard label selector semantics; if present but empty, it selects all pods.
+
+        If namespaceSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects the pods matching podSelector in the policy's own namespace.
+    """
+
+    ipBlock?: ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0IpBlock
+    namespaceSelector?: ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelector
+    podSelector?: ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelector
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0IpBlock:
+    r"""
+    ipBlock defines policy on a particular IPBlock. If this field is set then neither of the other fields can be.
+
+    Attributes
+    ----------
+    cidr : str, optional
+        cidr is a string representing the IPBlock Valid examples are "192.168.1.0/24" or "2001:db8::/64"
+    except : [str], optional
+        except is a slice of CIDRs that should not be included within an IPBlock Valid examples are "192.168.1.0/24" or "2001:db8::/64" Except values will be rejected if they are outside the cidr range
+    """
+
+    cidr?: str
+    except?: [str]
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelector:
+    r"""
+    namespaceSelector selects namespaces using cluster-scoped labels. This field follows standard label selector semantics; if present but empty, it selects all namespaces.
+
+    If podSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the namespaces selected by namespaceSelector. Otherwise it selects all pods in the namespaces selected by namespaceSelector.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelectorMatchLabels
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0NamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelector:
+    r"""
+    podSelector is a label selector which selects pods. This field follows standard label selector semantics; if present but empty, it selects all pods.
+
+    If namespaceSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects the pods matching podSelector in the policy's own namespace.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelectorMatchLabels
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesEgressItems0ToItems0PodSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
 
 schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0:
     r"""
@@ -1234,14 +5367,307 @@ schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0:
 
     Attributes
     ----------
-    from : [any], optional
+    from : [ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0], optional
         from is a list of sources which should be able to access the pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all sources (traffic not restricted by source). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the from list.
-    ports : [any], optional
+    ports : [ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0PortsItems0], optional
         ports is a list of ports which should be made accessible on the pods selected for this rule. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
     """
 
-    from?: [any]
-    ports?: [any]
+    from?: [ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0]
+    ports?: [ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0PortsItems0]
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0:
+    r"""
+    NetworkPolicyPeer describes a peer to allow traffic to/from. Only certain combinations of fields are allowed
+
+    Attributes
+    ----------
+    ipBlock : ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0IpBlock, optional
+        ipBlock defines policy on a particular IPBlock. If this field is set then neither of the other fields can be.
+    namespaceSelector : ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelector, optional
+        namespaceSelector selects namespaces using cluster-scoped labels. This field follows standard label selector semantics; if present but empty, it selects all namespaces.
+
+        If podSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the namespaces selected by namespaceSelector. Otherwise it selects all pods in the namespaces selected by namespaceSelector.
+    podSelector : ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelector, optional
+        podSelector is a label selector which selects pods. This field follows standard label selector semantics; if present but empty, it selects all pods.
+
+        If namespaceSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects the pods matching podSelector in the policy's own namespace.
+    """
+
+    ipBlock?: ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0IpBlock
+    namespaceSelector?: ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelector
+    podSelector?: ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelector
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0IpBlock:
+    r"""
+    ipBlock defines policy on a particular IPBlock. If this field is set then neither of the other fields can be.
+
+    Attributes
+    ----------
+    cidr : str, optional
+        cidr is a string representing the IPBlock Valid examples are "192.168.1.0/24" or "2001:db8::/64"
+    except : [str], optional
+        except is a slice of CIDRs that should not be included within an IPBlock Valid examples are "192.168.1.0/24" or "2001:db8::/64" Except values will be rejected if they are outside the cidr range
+    """
+
+    cidr?: str
+    except?: [str]
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelector:
+    r"""
+    namespaceSelector selects namespaces using cluster-scoped labels. This field follows standard label selector semantics; if present but empty, it selects all namespaces.
+
+    If podSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the namespaces selected by namespaceSelector. Otherwise it selects all pods in the namespaces selected by namespaceSelector.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelectorMatchLabels
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0NamespaceSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelector:
+    r"""
+    podSelector is a label selector which selects pods. This field follows standard label selector semantics; if present but empty, it selects all pods.
+
+    If namespaceSelector is also set, then the NetworkPolicyPeer as a whole selects the pods matching podSelector in the Namespaces selected by NamespaceSelector. Otherwise it selects the pods matching podSelector in the policy's own namespace.
+
+    Attributes
+    ----------
+    matchExpressions : [ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelectorMatchExpressionsItems0], optional
+        matchExpressions is a list of label selector requirements. The requirements are ANDed.
+    matchLabels : ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelectorMatchLabels, optional
+        matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    matchExpressions?: [ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelectorMatchExpressionsItems0]
+    matchLabels?: ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelectorMatchLabels
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelectorMatchExpressionsItems0:
+    r"""
+    A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+
+    Attributes
+    ----------
+    key : str, optional
+        key is the label key that the selector applies to.
+    operator : str, optional
+        operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+    values : [str], optional
+        values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+    """
+
+    key?: str
+    operator?: str
+    values?: [str]
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0FromItems0PodSelectorMatchLabels:
+    r"""
+    matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+    """
+
+    [...str]: str
+
+schema ValuesNetworkpoliciesAdditionalPropertiesRulesIngressItems0PortsItems0:
+    r"""
+    NetworkPolicyPort describes a port to allow traffic on
+
+    Attributes
+    ----------
+    endPort : int, optional
+        endPort indicates that the range of ports from port to endPort if set, inclusive, should be allowed by the policy. This field cannot be defined if the port field is not defined or if the port field is defined as a named (string) port. The endPort must be equal or greater than port.
+    port : str | int, optional
+        port represents the port on the given protocol. This can either be a numerical or named port on a pod. If this field is not provided, this matches all port names and numbers. If present, only traffic on the specified protocol AND port will be matched.
+    $protocol : str, optional
+        protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match. If not specified, this field defaults to TCP.
+    """
+
+    endPort?: int
+    port?: str | int
+    $protocol?: str
+
+schema ValuesPersistenceAdditionalProperties:
+    r"""
+    ValuesPersistenceAdditionalProperties
+
+    Attributes
+    ----------
+    accessMode : str, optional
+    advancedMounts : any, optional
+    annotations : any, optional
+    dataSource : ValuesPersistenceAdditionalPropertiesDataSource, optional
+    dataSourceRef : ValuesPersistenceAdditionalPropertiesDataSourceRef, optional
+    defaultMode : int, optional
+    enabled : bool, optional, default is True
+    existingClaim : str, optional
+    globalMounts : [ValuesPersistenceAdditionalPropertiesGlobalMountsItems0], optional
+    hostPath : str, optional
+    hostPathType : str, optional
+    identifier : str, optional
+    items : [ValuesPersistenceAdditionalPropertiesItemsItems0], optional
+    labels : any, optional
+    medium : str, optional
+    name : str, optional
+    nameOverride : str, optional
+    path : str, optional
+    retain : bool, optional
+    server : str, optional
+    size : str, optional
+    sizeLimit : str, optional
+    storageClass : str, optional
+    $type : any, optional
+    volumeName : str, optional
+    volumeSpec : ValuesPersistenceAdditionalPropertiesVolumeSpec, optional
+    """
+
+    accessMode?: str
+    advancedMounts?: any
+    annotations?: any
+    dataSource?: ValuesPersistenceAdditionalPropertiesDataSource
+    dataSourceRef?: ValuesPersistenceAdditionalPropertiesDataSourceRef
+    defaultMode?: int
+    enabled?: bool
+    existingClaim?: str
+    globalMounts?: [ValuesPersistenceAdditionalPropertiesGlobalMountsItems0]
+    hostPath?: str
+    hostPathType?: str
+    identifier?: str
+    items?: [ValuesPersistenceAdditionalPropertiesItemsItems0]
+    labels?: any
+    medium?: str
+    name?: str
+    nameOverride?: str
+    path?: str
+    retain?: bool
+    server?: str
+    size?: str
+    sizeLimit?: str
+    storageClass?: str
+    $type?: any
+    volumeName?: str
+    volumeSpec?: ValuesPersistenceAdditionalPropertiesVolumeSpec
+
+schema ValuesPersistenceAdditionalPropertiesAdvancedMountsAdditionalProperties:
+    r"""
+    ValuesPersistenceAdditionalPropertiesAdvancedMountsAdditionalProperties
+    """
+
+    [...str]: [ValuesPersistenceAdditionalPropertiesAdvancedMountsAdditionalPropertiesAdditionalPropertiesItems0]
+
+schema ValuesPersistenceAdditionalPropertiesAdvancedMountsAdditionalPropertiesAdditionalPropertiesItems0:
+    r"""
+    ValuesPersistenceAdditionalPropertiesAdvancedMountsAdditionalPropertiesAdditionalPropertiesItems0
+
+    Attributes
+    ----------
+    mountPropagation : str, optional
+    path : str, optional
+    readOnly : bool, optional
+    subPath : str, optional
+    """
+
+    mountPropagation?: str
+    path?: str
+    readOnly?: bool
+    subPath?: str
+
+schema ValuesPersistenceAdditionalPropertiesDataSource:
+    r"""
+    ValuesPersistenceAdditionalPropertiesDataSource
+
+    Attributes
+    ----------
+    apiGroup : str, optional
+    kind : str, optional
+    name : str, optional
+    """
+
+    apiGroup?: str
+    kind?: str
+    name?: str
+
+schema ValuesPersistenceAdditionalPropertiesDataSourceRef:
+    r"""
+    ValuesPersistenceAdditionalPropertiesDataSourceRef
+
+    Attributes
+    ----------
+    apiGroup : str, optional
+    kind : str, optional
+    name : str, optional
+    """
+
+    apiGroup?: str
+    kind?: str
+    name?: str
+
+schema ValuesPersistenceAdditionalPropertiesGlobalMountsItems0:
+    r"""
+    ValuesPersistenceAdditionalPropertiesGlobalMountsItems0
+
+    Attributes
+    ----------
+    mountPropagation : str, optional
+    path : str, optional
+    readOnly : bool, optional
+    subPath : str, optional
+    """
+
+    mountPropagation?: str
+    path?: str
+    readOnly?: bool
+    subPath?: str
+
+schema ValuesPersistenceAdditionalPropertiesItemsItems0:
+    r"""
+    ValuesPersistenceAdditionalPropertiesItemsItems0
+
+    Attributes
+    ----------
+    key : str, optional
+    mode : int, optional
+    path : str, optional
+    """
+
+    key?: str
+    mode?: int
+    path?: str
+
+schema ValuesPersistenceAdditionalPropertiesVolumeSpec:
+    r"""
+    ValuesPersistenceAdditionalPropertiesVolumeSpec
+    """
+
+    [...str]: any
 
 schema ValuesRawResourcesAdditionalProperties:
     r"""
@@ -1514,7 +5940,30 @@ schema ValuesServiceAdditionalPropertiesPorts:
     ValuesServiceAdditionalPropertiesPorts
     """
 
-    [...str]: any
+    [...str]: ValuesServiceAdditionalPropertiesPortsAdditionalProperties
+
+schema ValuesServiceAdditionalPropertiesPortsAdditionalProperties:
+    r"""
+    ValuesServiceAdditionalPropertiesPortsAdditionalProperties
+
+    Attributes
+    ----------
+    appProtocol : str, optional
+    enabled : bool, optional, default is True
+    nodePort : str | int, optional
+    port : str | int, optional
+    primary : bool, optional, default is False
+    $protocol : "HTTP" | "HTTPS" | "TCP" | "UDP", optional
+    targetPort : str | int, optional
+    """
+
+    appProtocol?: str
+    enabled?: bool
+    nodePort?: str | int
+    port?: str | int
+    primary?: bool
+    $protocol?: "HTTP" | "HTTPS" | "TCP" | "UDP"
+    targetPort?: str | int
 
 schema ValuesServiceAdditionalPropertiesSessionAffinityConfig:
     r"""
