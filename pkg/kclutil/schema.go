@@ -34,13 +34,17 @@ func fixMultilineKCLDefaultComments(s string) string {
 	fixedContent := bytes.NewBufferString("\n")
 	mustWrite(fixedContent, (indent + "default is\n"))
 	mustWrite(fixedContent, (indent + "```"))
+
 	for _, line := range strings.Split(submatches[2], "\n") {
 		mustWrite(fixedContent, "\n")
+
 		if line == "" {
 			continue
 		}
+
 		mustWrite(fixedContent, (indent + line))
 	}
+
 	mustWrite(fixedContent, "\n")
 	mustWrite(fixedContent, (indent + "```"))
 

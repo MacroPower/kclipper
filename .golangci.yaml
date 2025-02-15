@@ -28,7 +28,6 @@ linters:
     - godox # Prevents TODO/BUG/FIXME.
     - gofmt # Using gofumpt instead.
     - mnd # Sometimes more readable.
-    - nlreturn # Sometimes more readable.
     - tagliatelle # Enable if standards are known.
     - varnamelen # Disabled length/complexity linters.
     - wsl # Way too annoying to deal with.
@@ -43,6 +42,14 @@ linters-settings:
   goimports:
     local-prefixes: github.com/MacroPower/kclipper
 
+  wsl:
+    force-err-cuddling: true
+    force-case-trailing-whitespace: 2
+
+  whitespace:
+    multi-if: true
+    multi-func: true
+
 issues:
   exclude-rules:
     - path: _test\.go
@@ -55,3 +62,6 @@ issues:
     - source: "`$"
       linters:
         - lll
+    - source: "^\\) .+ \\{$"
+      linters:
+        - whitespace

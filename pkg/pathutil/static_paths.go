@@ -28,6 +28,7 @@ func NewStaticTempPaths(root string, pe PathEncoder) *StaticTempPaths {
 	if err != nil {
 		panic(err)
 	}
+
 	return &StaticTempPaths{
 		root: root,
 		pe:   pe,
@@ -43,6 +44,7 @@ func (p *StaticTempPaths) pathToKey(path string) string {
 	if err != nil {
 		panic(fmt.Errorf("failed to decode key for %s: %w", path, err))
 	}
+
 	return key
 }
 
@@ -64,6 +66,7 @@ func (p *StaticTempPaths) GetPathIfExists(key string) string {
 	if _, err := os.Stat(path); err != nil {
 		return ""
 	}
+
 	return path
 }
 
@@ -75,10 +78,12 @@ func (p *StaticTempPaths) GetPaths() map[string]string {
 	}
 
 	paths := map[string]string{}
+
 	for _, d := range ds {
 		path := filepath.Join(p.root, d.Name())
 		paths[p.pathToKey(path)] = path
 	}
+
 	return paths
 }
 
@@ -94,5 +99,6 @@ func (*Base64PathEncoder) Encode(s string) string {
 
 func (*Base64PathEncoder) Decode(s string) (string, error) {
 	d, err := base64.URLEncoding.DecodeString(s)
+
 	return string(d), err
 }

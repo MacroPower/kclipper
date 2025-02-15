@@ -27,6 +27,7 @@ var (
 
 func newSchemaReflector() (*jsonschema.Reflector, error) {
 	r := jsonschema.NewReflector()
+
 	err := r.AddGoComments("github.com/MacroPower/kclipper", "./pkg/kclhelm")
 	if err != nil {
 		return nil, fmt.Errorf("failed to add go comments: %w", err)

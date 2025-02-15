@@ -41,17 +41,20 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 	if err != nil {
 		return fmt.Errorf("failed to find repository root: %w", err)
 	}
+
 	pkgPath, err := kclutil.FindTopPkgRoot(repoRoot, c.BasePath)
 	if err != nil {
 		return fmt.Errorf("failed to find package root: %w", err)
 	}
 
 	repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(pkgPath, repoRoot))
+
 	for _, repo := range chart.Repositories {
 		hr, err := repo.GetHelmRepo()
 		if err != nil {
 			return fmt.Errorf("failed to add Helm repository: %w", err)
 		}
+
 		if err := repoMgr.Add(hr); err != nil {
 			return fmt.Errorf("failed to add Helm repository: %w", err)
 		}
@@ -80,11 +83,13 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 	if chart.CRDPath != "" {
 		crds, err := helmChart.GetCRDs(func(s string) bool {
 			match, _ := filepath.Match(chart.CRDPath, s)
+
 			return match
 		})
 		if err != nil {
 			return fmt.Errorf("failed to get CRDs: %w", err)
 		}
+
 		if err := writeCRDFiles(crds, chartDir); err != nil {
 			return err
 		}
@@ -92,6 +97,7 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 
 	chartsFile := filepath.Join(c.BasePath, "charts.k")
 	chartsSpec := kclutil.SpecPathJoin("charts", chart.GetSnakeCaseName())
+
 	if err := c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec); err != nil {
 		return fmt.Errorf("failed to update '%s': %w", chartsFile, err)
 	}
@@ -108,30 +114,37 @@ func generateAndWriteChartKCL(hc *kclchart.Chart, chartDir string) error {
 	if err := hc.GenerateKCL(kclChart); err != nil {
 		return fmt.Errorf("failed to generate chart.k: %w", err)
 	}
+
 	if err := os.WriteFile(path.Join(chartDir, "chart.k"), kclChart.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write chart.k: %w", err)
 	}
+
 	return nil
 }
 
 func generateAndWriteValuesSchemaFiles(
 	chart *kclchart.ChartConfig, chartFiles *helm.ChartFiles, basePath, repoRoot, chartDir string,
 ) error {
-	var jsonSchemaBytes []byte
-	var err error
+	var (
+		jsonSchemaBytes []byte
+		err             error
+	)
 
 	switch chart.SchemaGenerator {
 	case jsonschema.NoGeneratorType:
 		break
+
 	case jsonschema.URLGeneratorType, jsonschema.LocalPathGeneratorType:
 		schemaPath, err := pathutil.ResolveFilePathOrURL(basePath, repoRoot, chart.SchemaPath, []string{"http", "https"})
 		if err != nil {
 			return fmt.Errorf("failed to resolve schema path: %w", err)
 		}
+
 		jsonSchemaBytes, err = jsonschema.DefaultReaderGenerator.FromPaths(schemaPath.String())
 		if err != nil {
 			return fmt.Errorf("failed to fetch schema from '%s': %w", schemaPath.String(), err)
 		}
+
 	case jsonschema.DefaultGeneratorType, jsonschema.AutoGeneratorType,
 		jsonschema.ValueInferenceGeneratorType, jsonschema.ChartPathGeneratorType:
 		fileMatcher := jsonschema.GetFileFilter(chart.SchemaGenerator)
@@ -140,6 +153,7 @@ func generateAndWriteValuesSchemaFiles(
 				return filePathsEqual(f, chart.SchemaPath)
 			}
 		}
+
 		jsonSchemaBytes, err = chartFiles.GetValuesJSONSchema(jsonschema.GetGenerator(chart.SchemaGenerator), fileMatcher)
 		if err != nil {
 			return fmt.Errorf("failed to generate schema: %w", err)
@@ -168,6 +182,7 @@ func writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
 	if err := os.WriteFile(path.Join(chartDir, "values.schema.k"), kclSchema, 0o600); err != nil {
 		return fmt.Errorf("failed to write values.schema.k: %w", err)
 	}
+
 	return nil
 }
 
@@ -178,6 +193,7 @@ func writeCRDFiles(crds [][]byte, chartDir string) error {
 			return fmt.Errorf("failed to generate KCL from CRD: %w", err)
 		}
 	}
+
 	return nil
 }
 

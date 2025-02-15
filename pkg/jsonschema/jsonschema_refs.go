@@ -34,6 +34,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
+
 			schema.PatternProperties[pattern] = subSchema // Update the original schema in the map
 		}
 	}
@@ -44,6 +45,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
+
 			schema.Properties[property] = subSchema // Update the original schema in the map
 		}
 	}
@@ -59,6 +61,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 		if err := handleSchemaRefs(subSchema, basePath); err != nil {
 			return err
 		}
+
 		schema.Items = subSchema // Update the original schema
 	}
 
@@ -68,6 +71,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
+
 			schema.AllOf[i] = subSchema // Update the original schema in the slice
 		}
 	}
@@ -78,6 +82,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
+
 			schema.AnyOf[i] = subSchema // Update the original schema in the slice
 		}
 	}
@@ -88,6 +93,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
+
 			schema.OneOf[i] = subSchema // Update the original schema in the slice
 		}
 	}
@@ -107,6 +113,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 		if err != nil {
 			return fmt.Errorf("invalid $ref value '%s': %w", schema.Ref, err)
 		}
+
 		if err := resolveFilePath(schema, relFilePath, jsPointer); err != nil {
 			return fmt.Errorf("invalid $ref value '%s': %w", schema.Ref, err)
 		}
@@ -137,10 +144,12 @@ func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helm
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal schema for json pointer: %w", err)
 	}
+
 	relSchema, err := unmarshalSchemaRef(relData, jsonSchemaPointer)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal schema for json pointer: %w", err)
 	}
+
 	return relSchema, nil
 }
 
@@ -150,6 +159,7 @@ func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer strin
 		return fmt.Errorf("error opening file '%s': %w", relPath, err)
 	}
 	defer file.Close()
+
 	byteValue, err := io.ReadAll(file)
 	if err != nil {
 		return fmt.Errorf("error reading file '%s': %w", relPath, err)
@@ -178,25 +188,31 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 		if err != nil {
 			return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 		}
+
 		if err := relSchema.Validate(); err != nil {
 			return nil, fmt.Errorf("invalid schema: %w", err)
 		}
+
 		return relSchema, nil
 	}
 
 	var obj interface{}
+
 	err := json.Unmarshal(data, &obj)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
+
 	jsonPointerResultRaw, err := jsonpointer.Get(obj, jsonSchemaPointer)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve JSON pointer: %w", err)
 	}
+
 	jsonPointerResultMarshaled, err := json.Marshal(jsonPointerResultRaw)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal JSON pointer result: %w", err)
 	}
+
 	err = json.Unmarshal(jsonPointerResultMarshaled, relSchema)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON pointer result: %w", err)
@@ -220,16 +236,20 @@ func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error
 	}
 
 	subSchema := &helmschema.Schema{}
+
 	var jsonNode yaml.Node
 	if err := yaml.Unmarshal(apData, &jsonNode); err != nil {
 		return err //nolint:wrapcheck
 	}
+
 	if err := subSchema.UnmarshalYAML(&jsonNode); err != nil {
 		return err //nolint:wrapcheck
 	}
+
 	if err := handleSchemaRefs(subSchema, basePath); err != nil {
 		return err
 	}
+
 	if err := subSchema.Validate(); err != nil {
 		return err //nolint:wrapcheck
 	}
@@ -253,7 +273,9 @@ func isRelativeFile(root, relPath string) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("failed to describe file '%s': %w", rp, err)
 		}
+
 		return rp, nil
 	}
+
 	return "", fmt.Errorf("'%s' is not a relative path", relPath)
 }

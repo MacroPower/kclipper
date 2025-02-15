@@ -41,6 +41,7 @@ func NewCmdWithVersion(workDir string, proxy string, noProxy string) (*Cmd, erro
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary directory for helm: %w", err)
 	}
+
 	return &Cmd{
 		WorkDir:  workDir,
 		helmHome: tmpDir,
@@ -58,6 +59,7 @@ func (c *Cmd) Fetch(chart, version, destination string, repo *helmrepo.Repo) (st
 	ap.Settings = c.settings
 	ap.Untar = false
 	ap.DestDir = destination
+
 	if version != "" {
 		ap.Version = version
 	}
@@ -77,6 +79,7 @@ func (c *Cmd) Fetch(chart, version, destination string, repo *helmrepo.Repo) (st
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch chart: %w", err)
 	}
+
 	return out, nil
 }
 
@@ -87,13 +90,16 @@ func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string,
 		Minor:   "999",
 		Version: "v999.999.999",
 	}
+
 	var err error
+
 	if opts.KubeVersion != "" {
 		kv, err = chartutil.ParseKubeVersion(opts.KubeVersion)
 		if err != nil {
 			return "", "", fmt.Errorf("failed to parse kube version: %w", err)
 		}
 	}
+
 	av := chartutil.DefaultVersionSet
 	if len(opts.APIVersions) > 0 {
 		av = opts.APIVersions
@@ -113,15 +119,19 @@ func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string,
 	}
 
 	loadedDeps := []*chart.Chart{}
+
 	for _, chartDep := range loadedChart.Metadata.Dependencies {
 		isLoaded := false
+
 		for _, includedDeps := range loadedChart.Dependencies() {
 			if includedDeps.Name() == chartDep.Name {
 				loadedDeps = append(loadedDeps, includedDeps)
 				isLoaded = true
+
 				break
 			}
 		}
+
 		if isLoaded {
 			continue
 		}
@@ -139,11 +149,14 @@ func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string,
 		if err != nil {
 			return "", "", fmt.Errorf("failed to load dependency: %w", err)
 		}
+
 		if opts.SkipSchemaValidation {
 			removeSchemasFromObject(dep)
 		}
+
 		loadedDeps = append(loadedDeps, dep)
 	}
+
 	loadedChart.SetDependencies(loadedDeps...)
 
 	ta := action.NewInstall(&action.Configuration{
@@ -178,6 +191,7 @@ func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string,
 	if err != nil {
 		return "", "", fmt.Errorf("failed to run install action: %w", err)
 	}
+
 	manifest := release.Manifest
 
 	if !opts.SkipHooks {
@@ -185,6 +199,7 @@ func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string,
 			if hook == nil {
 				continue
 			}
+
 			manifest += "\n---\n" + hook.Manifest
 		}
 	}

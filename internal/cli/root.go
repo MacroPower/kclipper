@@ -27,5 +27,6 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	cmd.AddCommand(kclcmd.NewServerCmd())
 	cmd.AddCommand(NewVersionCmd())
 	cmd.AddCommand(NewChartCmd())
+
 	return cmd
 }

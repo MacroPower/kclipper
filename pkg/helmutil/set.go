@@ -40,6 +40,7 @@ func (c *ChartPkg) Set(chart string, keyValueOverrides string) error {
 	setAutomation := kclutil.Automation{key: kclutil.NewString(value)}
 	chartsFile := filepath.Join(c.BasePath, "charts.k")
 	chartsSpec := kclutil.SpecPathJoin("charts", hc.GetSnakeCaseName())
+
 	err := c.updateFile(setAutomation, chartsFile, initialChartContents, chartsSpec)
 	if err != nil {
 		return fmt.Errorf("failed to update '%s': %w", chartsFile, err)

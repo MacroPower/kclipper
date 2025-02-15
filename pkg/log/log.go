@@ -15,6 +15,7 @@ const (
 // NewWithCurrentConfig creates a [slog.Logger] by using current configuration.
 func NewWithCurrentConfig() *slog.Logger {
 	h := CreateHandler(os.Getenv("ARGOCD_LOG_LEVEL"), os.Getenv("ARGOCD_LOG_FORMAT"))
+
 	return slog.New(h)
 }
 

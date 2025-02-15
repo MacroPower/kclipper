@@ -26,6 +26,7 @@ func TestGenerateHelmModule(t *testing.T) {
 	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
+
 	cc := kclhelm.ChartConfig{}
 	err = cc.GenerateKCL(b)
 	require.NoError(t, err)
@@ -33,6 +34,7 @@ func TestGenerateHelmModule(t *testing.T) {
 	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
+
 	cr := kclhelm.ChartRepo{}
 	err = cr.GenerateKCL(b)
 	require.NoError(t, err)
@@ -40,9 +42,12 @@ func TestGenerateHelmModule(t *testing.T) {
 	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
+
 	c := kclhelm.Chart{}
 	err = c.GenerateKCL(b)
 	require.NoError(t, err)
 	assert.NotEmpty(t, b.String())
 	// assert.Equal(t, "", b.String())
+
+	b.Truncate(0)
 }

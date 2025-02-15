@@ -14,6 +14,7 @@ import (
 
 func TestNewString(t *testing.T) {
 	t.Parallel()
+
 	s := "test"
 	mv := kclutil.NewString(s)
 	assert.True(t, mv.IsString())
@@ -23,6 +24,7 @@ func TestNewString(t *testing.T) {
 
 func TestNewBool(t *testing.T) {
 	t.Parallel()
+
 	b := true
 	mv := kclutil.NewBool(b)
 	assert.False(t, mv.IsString())
@@ -32,6 +34,7 @@ func TestNewBool(t *testing.T) {
 
 func TestAutomationSpecs(t *testing.T) {
 	t.Parallel()
+
 	tcs := map[string]struct {
 		input    kclutil.Automation
 		specPath string
@@ -69,6 +72,7 @@ func TestAutomationSpecs(t *testing.T) {
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			specs, err := tc.input.GetSpecs(tc.specPath)
 			if tc.err {
 				require.Error(t, err)
@@ -82,6 +86,7 @@ func TestAutomationSpecs(t *testing.T) {
 
 func TestSpecPathJoin(t *testing.T) {
 	t.Parallel()
+
 	tcs := map[string]struct {
 		input    []string
 		expected string
@@ -103,6 +108,7 @@ func TestSpecPathJoin(t *testing.T) {
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			result := kclutil.SpecPathJoin(tc.input...)
 			assert.Equal(t, tc.expected, result)
 		})

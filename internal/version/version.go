@@ -26,6 +26,7 @@ func getRevision() string {
 	}
 
 	modified := false
+
 	for _, v := range buildInfo.Settings {
 		switch v.Key {
 		case "vcs.revision":
@@ -36,6 +37,7 @@ func getRevision() string {
 			}
 		}
 	}
+
 	if modified {
 		return rev + "-dirty"
 	}

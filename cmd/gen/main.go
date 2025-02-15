@@ -24,6 +24,7 @@ func generate(path string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fcb.Close()
+
 	pcb := &kclhelm.ChartBase{}
 	if err = pcb.GenerateKCL(fcb); err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
@@ -34,6 +35,7 @@ func generate(path string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fcc.Close()
+
 	pcc := &kclhelm.ChartConfig{}
 	if err = pcc.GenerateKCL(fcc); err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
@@ -44,6 +46,7 @@ func generate(path string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fcr.Close()
+
 	pcr := &kclhelm.ChartRepo{}
 	if err = pcr.GenerateKCL(fcr); err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
@@ -54,6 +57,7 @@ func generate(path string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fc.Close()
+
 	pc := &kclhelm.Chart{}
 	if err = pc.GenerateKCL(fc); err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)

@@ -142,11 +142,13 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 	}
 
 	matchedFiles := []string{}
+
 	err := filepath.Walk(c.path,
 		func(path string, _ os.FileInfo, err error) error {
 			if err != nil {
 				return fmt.Errorf("error walking helm chart directory: %w", err)
 			}
+
 			relPath, err := filepath.Rel(c.path, path)
 			if err != nil {
 				return fmt.Errorf("error getting relative path: %w", err)
@@ -158,6 +160,7 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 			} else {
 				slog.Debug("skipping file", slog.String("file", relPath))
 			}
+
 			return nil
 		})
 	if err != nil {
@@ -169,8 +172,10 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 			slog.String("chart", c.TemplateOpts.ChartName),
 			slog.String("path", c.path),
 		)
+
 		return []byte{}, nil
 	}
+
 	jsonSchema, err := gen.FromPaths(matchedFiles...)
 	if err != nil {
 		return nil, fmt.Errorf("error converting values schema to JSON Schema: %w", err)
@@ -185,11 +190,13 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 	}
 
 	matchedFiles := []string{}
+
 	err := filepath.Walk(c.path,
 		func(path string, _ os.FileInfo, err error) error {
 			if err != nil {
 				return fmt.Errorf("error walking helm chart directory: %w", err)
 			}
+
 			relPath, err := filepath.Rel(c.path, path)
 			if err != nil {
 				return fmt.Errorf("error getting relative path: %w", err)
@@ -201,6 +208,7 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 			} else {
 				slog.Debug("skipping file", slog.String("file", relPath))
 			}
+
 			return nil
 		})
 	if err != nil {
@@ -208,18 +216,22 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 	}
 
 	crdBytes := [][]byte{}
+
 	if len(matchedFiles) == 0 {
 		slog.Warn("no input files found for the CRD schema generator",
 			slog.String("chart", c.TemplateOpts.ChartName),
 			slog.String("path", c.path),
 		)
+
 		return crdBytes, nil
 	}
+
 	for _, f := range matchedFiles {
 		b, err := os.ReadFile(f)
 		if err != nil {
 			return nil, fmt.Errorf("error reading CRD file: %w", err)
 		}
+
 		crdBytes = append(crdBytes, b)
 	}
 

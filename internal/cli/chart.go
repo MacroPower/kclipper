@@ -68,6 +68,7 @@ func NewChartInitCmd() *cobra.Command {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, err)
 			}
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
+
 			return c.Init()
 		},
 		SilenceUsage: true,
@@ -128,6 +129,7 @@ func NewChartAddCmd() *cobra.Command {
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
+
 			return c.AddChart(&kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:           chart,
@@ -181,6 +183,7 @@ func NewChartUpdateCmd() *cobra.Command {
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient, helmutil.WithVendor(vendor))
+
 			return c.Update(charts...)
 		},
 		SilenceUsage: true,
@@ -217,15 +220,18 @@ func NewChartSetCmd() *cobra.Command {
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
+
 			return c.Set(chart, overrides)
 		},
 		SilenceUsage: true,
 	}
 	cmd.Flags().StringP("chart", "c", "", "Specify the Helm chart name (required)")
 	cmd.Flags().StringP("overrides", "O", "", "Specify the configuration override path and value (required)")
+
 	if err := cmd.MarkFlagRequired("chart"); err != nil {
 		panic(err)
 	}
+
 	if err := cmd.MarkFlagRequired("overrides"); err != nil {
 		panic(err)
 	}
@@ -303,6 +309,7 @@ func NewChartRepoAddCmd() *cobra.Command {
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
+
 			return c.AddRepo(&kclhelm.ChartRepo{
 				Name:                  name,
 				URL:                   url,

@@ -22,6 +22,7 @@ func (c *ChartPkg) AddRepo(repo *kclhelm.ChartRepo) error {
 
 	reposFile := filepath.Join(c.BasePath, "repos.k")
 	reposSpec := kclutil.SpecPathJoin("repos", repo.GetSnakeCaseName())
+
 	err := c.updateFile(repo.ToAutomation(), reposFile, initialRepoContents, reposSpec)
 	if err != nil {
 		return fmt.Errorf("failed to update '%s': %w", reposFile, err)

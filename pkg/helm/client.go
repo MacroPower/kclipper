@@ -67,6 +67,7 @@ func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 	if err != nil {
 		panic(err)
 	}
+
 	return c
 }
 
@@ -75,6 +76,7 @@ func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 // requests will try to use [PathCacher] rather than re-pulling the chart.
 func (c *Client) Pull(chart, repo, version string, repos helmrepo.Getter) (string, error) {
 	p, _, err := c.pull(chart, repo, version, false, repos)
+
 	return p, err
 }
 
@@ -98,6 +100,7 @@ func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.
 		if err != nil {
 			return "", nil, fmt.Errorf("error getting local chart: %w", err)
 		}
+
 		return chartPath, nil, err
 	}
 
@@ -111,6 +114,7 @@ func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.
 	}
 
 	var closer io.Closer
+
 	chartPath, closer, err = c.extractChart(chart, chartPath)
 	if err != nil {
 		return "", nil, fmt.Errorf("error extracting helm chart: %w", err)
@@ -124,6 +128,7 @@ func (c *Client) getLocalChart(chart string, repo *helmrepo.Repo) (string, error
 	if !dirExists(chartPath) {
 		return "", fmt.Errorf("chart directory does not exist: %s", chartPath)
 	}
+
 	return chartPath, nil
 }
 
@@ -184,6 +189,7 @@ func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.
 	if err != nil {
 		return fmt.Errorf("error renaming file from %s to %s: %w", chartFilePath, dstPath, err)
 	}
+
 	return nil
 }
 
@@ -197,9 +203,11 @@ func (c *Client) extractChart(chart, srcPath string) (string, io.Closer, error) 
 	if err != nil {
 		return "", nil, fmt.Errorf("error opening chart path %s: %w", srcPath, err)
 	}
+
 	err = gunzip(tempDest, reader, c.MaxExtractSize.Value(), false)
 	if err != nil {
 		_ = os.RemoveAll(tempDest)
+
 		return "", nil, fmt.Errorf("error untarring chart: %w", err)
 	}
 
@@ -213,9 +221,11 @@ func (c *Client) CleanChartCache(chart, repo, version string) error {
 	if err != nil {
 		return fmt.Errorf("error getting cached chart path: %w", err)
 	}
+
 	if err := os.RemoveAll(cachePath); err != nil {
 		return fmt.Errorf("error removing chart cache at %s: %w", cachePath, err)
 	}
+
 	return nil
 }
 
@@ -224,10 +234,12 @@ func (c *Client) getCachedChartPath(chart, repo, version string) (string, error)
 	if err != nil {
 		return "", fmt.Errorf("error marshaling cache key data: %w", err)
 	}
+
 	chartPath, err := c.Paths.GetPath(string(keyData))
 	if err != nil {
 		return "", fmt.Errorf("error getting chart cache path: %w", err)
 	}
+
 	return chartPath, nil
 }
 
@@ -241,5 +253,6 @@ func normalizeChartName(chart string) string {
 	if nc == "" || nc == "." || nc == ".." {
 		return chart
 	}
+
 	return nc
 }

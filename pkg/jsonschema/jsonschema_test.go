@@ -60,6 +60,7 @@ func TestKCLConversion(t *testing.T) {
 			t.Parallel()
 
 			var testFilePaths []string
+
 			for _, filePath := range tc.filePaths {
 				testFilePath := filepath.Join(testDataDir, filePath)
 				testFilePaths = append(testFilePaths, testFilePath)

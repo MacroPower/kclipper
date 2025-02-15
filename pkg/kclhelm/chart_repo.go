@@ -47,6 +47,7 @@ func (c *ChartRepo) GenerateKCL(w io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
+
 	js := r.Reflect(reflect.TypeOf(ChartRepo{}))
 
 	err = js.GenerateKCL(w)
@@ -94,9 +95,11 @@ func (c *ChartRepo) FromMap(m map[string]any) error {
 		c.PassCredentials = passCredentials
 		delete(m, "passCredentials")
 	}
+
 	if len(m) > 0 {
 		return fmt.Errorf("unexpected keys in input data: %#v", m)
 	}
+
 	return nil
 }
 
@@ -116,13 +119,16 @@ func (c *ChartRepo) GetHelmRepo() (*helmrepo.RepoOpts, error) {
 		if !ok {
 			return nil, fmt.Errorf("failed to get username, environment variable '%s' is unset", c.UsernameEnv)
 		}
+
 		repo.Username = username
 	}
+
 	if c.PasswordEnv != "" {
 		password, ok := os.LookupEnv(c.PasswordEnv)
 		if !ok {
 			return nil, fmt.Errorf("failed to get password, environment variable '%s' is unset", c.PasswordEnv)
 		}
+
 		repo.Password = password
 	}
 

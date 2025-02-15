@@ -23,6 +23,7 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
 	testdataDir := filepath.Join(dir, "testdata")
+
 	tempDir = filepath.Join(testdataDir, ".tmp")
 	if err := os.RemoveAll(tempDir); err != nil {
 		panic(err)
@@ -60,6 +61,7 @@ func TestGetStaticPath_SameURLsDifferentInstances(t *testing.T) {
 	paths1 := pathutil.NewStaticTempPaths(tempDir, pathutil.NewBase64PathEncoder())
 	res1, err := paths1.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
+
 	paths2 := pathutil.NewStaticTempPaths(tempDir, pathutil.NewBase64PathEncoder())
 	res2, err := paths2.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)

@@ -26,6 +26,7 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
+
 	js := r.Reflect(reflect.TypeOf(Chart{}))
 	js.Schema.Description = "All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`."
 
@@ -74,6 +75,7 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
+
 	if _, err := b.WriteTo(w); err != nil {
 		return fmt.Errorf("failed to write to KCL schema: %w", err)
 	}

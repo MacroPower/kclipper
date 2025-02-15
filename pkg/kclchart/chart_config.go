@@ -22,7 +22,9 @@ func (cd *ChartData) GetSortedKeys() []string {
 	for name := range cd.Charts {
 		names = append(names, name)
 	}
+
 	sort.Strings(names)
+
 	return names
 }
 
@@ -42,6 +44,7 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
+
 	js := r.Reflect(reflect.TypeOf(ChartConfig{}))
 
 	js.SetProperty("chart", jsonschema.WithDefault(c.ChartBase.Chart))

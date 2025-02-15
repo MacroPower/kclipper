@@ -42,6 +42,7 @@ type TestClient struct {
 
 func (c *TestClient) Pull(chart, repo, version string, repos helmrepo.Getter) (string, error) {
 	p, _, err := c.pull(chart, repo, version, false, repos)
+
 	return p, err
 }
 
@@ -55,11 +56,14 @@ func (c *TestClient) pull(chart, repo, version string, extract bool, repos helmr
 		if err != nil {
 			return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
 		}
+
 		return chartPath, closer, nil
 	}
+
 	chartPath, err := c.BaseClient.Pull(chart, repo, version, repos)
 	if err != nil {
 		return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
 	}
+
 	return chartPath, nil, nil
 }

@@ -54,9 +54,11 @@ func main() {
 func executeRunCmd(args []string) {
 	cmd := kclcmd.NewRunCmd()
 	cmd.SetArgs(args)
+
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}
+
 	os.Exit(0)
 }
 
@@ -68,9 +70,11 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 	if pluginHandler == nil {
 		return
 	}
+
 	if len(os.Args) <= 1 {
 		return
 	}
+
 	cmdPathPieces := os.Args[1:]
 
 	// only look for suitable extension executables if
@@ -78,6 +82,7 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 	// flags cannot be placed before plugin name
 	if strings.HasPrefix(cmdPathPieces[0], "-") && !isHelpOrVersionFlag(cmdPathPieces[0]) {
 		executeRunCmd(cmdPathPieces)
+
 		return
 	}
 
@@ -90,20 +95,25 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 	// These commands are only added once rootCmd.Execute() is called, so we
 	// need to check them explicitly here.
 	var cmdName string // first "non-flag" arguments
+
 	for _, arg := range cmdPathPieces {
 		if !strings.HasPrefix(arg, "-") {
 			cmdName = arg
+
 			break
 		}
 	}
 
 	builtinSubCmdExist := false
+
 	for _, cmd := range foundCmd.Commands() {
 		if cmd.Name() == cmdName {
 			builtinSubCmdExist = true
+
 			break
 		}
 	}
+
 	switch cmdName {
 	// Don't search for a plugin
 	case "help", "completion", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd:
@@ -113,6 +123,7 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
+
 			executeRunCmd(cmdPathPieces)
 		}
 	}

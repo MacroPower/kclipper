@@ -54,15 +54,19 @@ func (p *RandomizedTempPaths) Add(key string, value string) {
 func (p *RandomizedTempPaths) GetPath(key string) (string, error) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
+
 	if val, ok := p.paths[key]; ok {
 		return val, nil
 	}
+
 	uniqueID, err := uuid.NewRandom()
 	if err != nil {
 		return "", fmt.Errorf("failed to generate uuid: %w", err)
 	}
+
 	repoPath := filepath.Join(p.root, uniqueID.String())
 	p.paths[key] = repoPath
+
 	return repoPath, nil
 }
 
@@ -70,9 +74,11 @@ func (p *RandomizedTempPaths) GetPath(key string) (string, error) {
 func (p *RandomizedTempPaths) GetPathIfExists(key string) string {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
+
 	if val, ok := p.paths[key]; ok {
 		return val
 	}
+
 	return ""
 }
 
@@ -80,9 +86,11 @@ func (p *RandomizedTempPaths) GetPathIfExists(key string) string {
 func (p *RandomizedTempPaths) GetPaths() map[string]string {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
+
 	paths := map[string]string{}
 	for k, v := range p.paths {
 		paths[k] = v
 	}
+
 	return paths
 }

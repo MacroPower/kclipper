@@ -103,10 +103,12 @@ func GetFileFilter(t GeneratorType) func(string) bool {
 		return func(s string) bool {
 			return jsonOrYAMLValuesRegex.MatchString(s)
 		}
+
 	case ValueInferenceGeneratorType:
 		return func(s string) bool {
 			return yamlValuesRegex.MatchString(s)
 		}
+
 	default:
 		return isJSONFile
 	}

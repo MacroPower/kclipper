@@ -32,6 +32,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 	defer gzr.Close()
 
 	var tr *tar.Reader
+
 	if maxSize != 0 {
 		lr := io.LimitReader(gzr, maxSize)
 		tr = tar.NewReader(lr)
@@ -45,8 +46,10 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 			if err == io.EOF {
 				break
 			}
+
 			return fmt.Errorf("error while iterating on tar reader: %w", err)
 		}
+
 		if header == nil || header.Name == "." {
 			continue
 		}
@@ -61,16 +64,20 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 		switch header.Typeflag {
 		case tar.TypeDir:
 			var mode os.FileMode = 0o755
+
 			if preserveFileMode {
 				if header.Mode < 0 || header.Mode > math.MaxUint32 {
 					return fmt.Errorf("invalid mode in tar header: %d", header.Mode)
 				}
+
 				mode = os.FileMode(uint32(header.Mode))
 			}
+
 			err := os.MkdirAll(target, mode)
 			if err != nil {
 				return fmt.Errorf("error creating nested folders: %w", err)
 			}
+
 		case tar.TypeSymlink:
 			// Sanity check to protect against symlink exploit
 			//nolint:gosec // G305 checked by [inbound].
@@ -81,19 +88,24 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 			} else if err != nil {
 				return fmt.Errorf("error checking symlink realpath: %w", err)
 			}
+
 			if !inbound(realPath, dstPath) {
 				return fmt.Errorf("illegal filepath in symlink: %s", linkTarget)
 			}
+
 			err = os.Symlink(realPath, target)
 			if err != nil {
 				return fmt.Errorf("error creating symlink: %w", err)
 			}
+
 		case tar.TypeReg:
 			var mode os.FileMode = 0o644
+
 			if preserveFileMode {
 				if header.Mode < 0 || header.Mode > math.MaxUint32 {
 					return fmt.Errorf("invalid mode in tar header: %d", header.Mode)
 				}
+
 				mode = os.FileMode(header.Mode)
 			}
 
@@ -106,15 +118,19 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 			if err != nil {
 				return fmt.Errorf("error creating file %q: %w", target, err)
 			}
+
 			w := bufio.NewWriter(f)
 			//nolint:gosec // G115 mitigated by [io.LimitReader].
 			if _, err := io.Copy(w, tr); err != nil {
 				f.Close()
+
 				return fmt.Errorf("error writing tgz file: %w", err)
 			}
+
 			f.Close()
 		}
 	}
+
 	return nil
 }
 
@@ -130,12 +146,14 @@ func inbound(candidate, baseDir string) bool {
 	if !filepath.IsAbs(baseDir) {
 		return false
 	}
+
 	var target string
 	if filepath.IsAbs(candidate) {
 		target = filepath.Clean(candidate)
 	} else {
 		target = filepath.Join(baseDir, candidate)
 	}
+
 	return strings.HasPrefix(target, filepath.Clean(baseDir)+string(os.PathSeparator))
 }
 
@@ -150,14 +168,17 @@ func createTempDir(baseDir string) (string, error) {
 	if base == "" {
 		base = os.TempDir()
 	}
+
 	newUUID, err := uuid.NewRandom()
 	if err != nil {
 		return "", fmt.Errorf("error creating directory name: %w", err)
 	}
+
 	tempDir := path.Join(base, newUUID.String())
 	if err := os.MkdirAll(tempDir, 0o755); err != nil {
 		return "", fmt.Errorf("error creating tempDir: %w", err)
 	}
+
 	return tempDir, nil
 }
 
@@ -166,8 +187,10 @@ func fileExists(filePath string) (bool, error) {
 		if os.IsNotExist(err) {
 			return false, nil
 		}
+
 		return false, fmt.Errorf("error checking file existence for %s: %w", filePath, err)
 	}
+
 	return true, nil
 }
 
@@ -176,5 +199,6 @@ func dirExists(path string) bool {
 	if err != nil || !fi.IsDir() {
 		return false
 	}
+
 	return true
 }

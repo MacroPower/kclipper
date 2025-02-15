@@ -16,14 +16,18 @@ func GenerateKCLFromCRD(crd []byte, dstPath string) error {
 	}
 
 	tmpSpecDir := os.TempDir()
+
 	tmpFile, err := os.CreateTemp(tmpSpecDir, "kcl-swagger-")
 	if err != nil {
 		return fmt.Errorf("failed to create temp file for spec: %w", err)
 	}
+
 	if _, err := tmpFile.Write(crd); err != nil {
 		return fmt.Errorf("failed to write CRD to temp file: %w", err)
 	}
+
 	tmpFile.Close()
+
 	defer func() {
 		_ = os.Remove(tmpFile.Name())
 	}()
@@ -34,6 +38,7 @@ func GenerateKCLFromCRD(crd []byte, dstPath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to generate CRD spec: %w", err)
 	}
+
 	defer func() {
 		_ = os.Remove(spec)
 		_ = os.Remove(filepath.Join(filepath.Base(spec), "k8s.json"))
@@ -48,6 +53,7 @@ func GenerateKCLFromCRD(crd []byte, dstPath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to generate KCL Schema: %w", err)
 	}
+
 	err = os.RemoveAll(filepath.Join(opts.Target, opts.ModelPackage, "k8s"))
 	if err != nil {
 		return fmt.Errorf("failed to remove temp 'k8s' model package: %w", err)

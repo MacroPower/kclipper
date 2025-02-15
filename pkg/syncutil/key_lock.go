@@ -36,6 +36,7 @@ func (l *KeyLock) getLock(key string) *sync.RWMutex {
 	l.guard.RLock()
 	if lock, ok := l.locks[key]; ok {
 		l.guard.RUnlock()
+
 		return lock
 	}
 
@@ -44,12 +45,14 @@ func (l *KeyLock) getLock(key string) *sync.RWMutex {
 
 	if lock, ok := l.locks[key]; ok {
 		l.guard.Unlock()
+
 		return lock
 	}
 
 	lock := &sync.RWMutex{}
 	l.locks[key] = lock
 	l.guard.Unlock()
+
 	return lock
 }
 

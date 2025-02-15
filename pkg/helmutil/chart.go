@@ -30,6 +30,7 @@ func NewChartPkg(basePath string, client helm.ChartFileClient, opts ...ChartPkgO
 	for _, opt := range opts {
 		opt(c)
 	}
+
 	return c
 }
 
@@ -52,6 +53,7 @@ func fileExists(path string) bool {
 	if err != nil || fi.IsDir() {
 		return false
 	}
+
 	return true
 }
 
@@ -71,6 +73,7 @@ func (c *ChartPkg) updateFile(automation kclutil.Automation, kclFile, initialCon
 	}
 
 	imports := []string{"helm"}
+
 	_, err = kcl.OverrideFile(kclFile, specs, imports)
 	if err != nil {
 		return fmt.Errorf("failed to update '%s': %w", kclFile, err)

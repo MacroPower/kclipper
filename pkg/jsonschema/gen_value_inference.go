@@ -56,6 +56,7 @@ func NewValueInferenceGenerator(c ValueInferenceConfig) *ValueInferenceGenerator
 	if c.DefaultFileRegex == nil {
 		c.DefaultFileRegex = defaultValuesFileRegex
 	}
+
 	helmSkipAutoGenerationConfig := &helmschema.SkipAutoGenerationConfig{
 		Title:                c.SkipTitle,
 		Description:          c.SkipDescription,
@@ -63,6 +64,7 @@ func NewValueInferenceGenerator(c ValueInferenceConfig) *ValueInferenceGenerator
 		Default:              c.SkipDefault,
 		AdditionalProperties: c.SkipAdditionalProperties,
 	}
+
 	return &ValueInferenceGenerator{
 		uncommentYAMLBlocks:       c.UncommentYAMLBlocks,
 		helmDocsCompatibilityMode: c.HelmDocsCompatibilityMode,
@@ -81,11 +83,13 @@ func (g *ValueInferenceGenerator) FromPaths(paths ...string) ([]byte, error) {
 	}
 
 	schemas := map[string]*helmschema.Schema{}
+
 	for _, path := range paths {
 		schema, err := g.schemaFromFilePath(path)
 		if err != nil {
 			return nil, fmt.Errorf("error creating schema from file path: %w", err)
 		}
+
 		schemas[path] = schema
 	}
 
@@ -118,6 +122,7 @@ func (g *ValueInferenceGenerator) schemaFromFilePath(path string) (*helmschema.S
 	if err != nil {
 		return nil, fmt.Errorf("error opening values file: %w", err)
 	}
+
 	content, err := util.ReadFileAndFixNewline(valuesFile)
 	if err != nil {
 		return nil, fmt.Errorf("error reading values file: %w", err)
@@ -144,6 +149,7 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 	}
 
 	var values yaml.Node
+
 	err = yaml.Unmarshal(data, &values)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal values yaml: %w", err)
@@ -187,11 +193,13 @@ func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error)
 	if err := fn(s); err != nil {
 		return err
 	}
+
 	for _, v := range s.Properties {
 		if err := fn(v); err != nil {
 			return err
 		}
 	}
+
 	if s.Items != nil {
 		if err := fn(s.Items); err != nil {
 			return err
@@ -205,6 +213,7 @@ func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error)
 			}
 		}
 	}
+
 	if s.OneOf != nil {
 		for _, v := range s.OneOf {
 			if err := fn(v); err != nil {
@@ -212,6 +221,7 @@ func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error)
 			}
 		}
 	}
+
 	if s.AllOf != nil {
 		for _, v := range s.AllOf {
 			if err := fn(v); err != nil {
@@ -219,26 +229,31 @@ func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error)
 			}
 		}
 	}
+
 	if s.If != nil {
 		if err := fn(s.If); err != nil {
 			return err
 		}
 	}
+
 	if s.Else != nil {
 		if err := fn(s.Else); err != nil {
 			return err
 		}
 	}
+
 	if s.Then != nil {
 		if err := fn(s.Then); err != nil {
 			return err
 		}
 	}
+
 	if s.Not != nil {
 		if err := fn(s.Not); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -246,6 +261,7 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 	if dest == nil {
 		return mergeHelmSchemas(&helmschema.Schema{}, src, setDefaults)
 	}
+
 	if src == nil {
 		return mergeHelmSchemas(&helmschema.Schema{}, dest, setDefaults)
 	}
@@ -258,51 +274,67 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 	if !src.Type.IsEmpty() {
 		dest.Type = src.Type
 	}
+
 	if src.Schema != "" {
 		dest.Schema = src.Schema
 	}
+
 	if src.MultipleOf != nil {
 		dest.MultipleOf = src.MultipleOf
 	}
+
 	if src.Maximum != nil {
 		dest.Maximum = src.Maximum
 	}
+
 	if src.Minimum != nil {
 		dest.Minimum = src.Minimum
 	}
+
 	if src.MaxLength != nil {
 		dest.MaxLength = src.MaxLength
 	}
+
 	if src.MinLength != nil {
 		dest.MinLength = src.MinLength
 	}
+
 	if src.Pattern != "" {
 		dest.Pattern = src.Pattern
 	}
+
 	if src.MaxItems != nil {
 		dest.MaxItems = src.MaxItems
 	}
+
 	if src.MinItems != nil {
 		dest.MinItems = src.MinItems
 	}
+
 	if src.ExclusiveMaximum != nil {
 		dest.ExclusiveMaximum = src.ExclusiveMaximum
 	}
+
 	if src.ExclusiveMinimum != nil {
 		dest.ExclusiveMinimum = src.ExclusiveMinimum
 	}
+
 	if src.PatternProperties != nil {
 		dest.PatternProperties = src.PatternProperties
 	}
+
 	if src.Title != "" {
 		dest.Title = src.Title
 	}
+
 	if src.Description != "" {
 		dest.Description = src.Description
 	}
+
 	if src.ReadOnly {
 		dest.ReadOnly = src.ReadOnly
 	}
+
 	if src.Id != "" {
 		dest.Id = src.Id
 	}
@@ -320,6 +352,7 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 		if dest.Properties == nil {
 			dest.Properties = make(map[string]*helmschema.Schema)
 		}
+
 		for propName, srcPropSchema := range src.Properties {
 			if destPropSchema, exists := dest.Properties[propName]; exists {
 				dest.Properties[propName] = mergeHelmSchemas(destPropSchema, srcPropSchema, setDefaults)
@@ -346,14 +379,17 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 		items = mergeHelmSchemas(items, s, setDefaults)
 		dest.AllOf = nil
 	}
+
 	for _, s := range append(dest.AnyOf, src.AnyOf...) {
 		items = mergeHelmSchemas(items, s, setDefaults)
 		dest.AnyOf = nil
 	}
+
 	for _, s := range append(dest.OneOf, src.OneOf...) {
 		items = mergeHelmSchemas(items, s, setDefaults)
 		dest.OneOf = nil
 	}
+
 	if items != nil {
 		dest = mergeHelmSchemas(dest, items, setDefaults)
 	}
@@ -361,12 +397,15 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 	if src.If != nil {
 		dest = mergeHelmSchemas(dest, src.If, setDefaults)
 	}
+
 	if src.Else != nil {
 		dest = mergeHelmSchemas(dest, src.Else, setDefaults)
 	}
+
 	if src.Then != nil {
 		dest = mergeHelmSchemas(dest, src.Then, setDefaults)
 	}
+
 	if src.Not != nil {
 		dest = mergeHelmSchemas(dest, src.Not, setDefaults)
 	}
@@ -376,17 +415,20 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 
 func intersectStringSlices(a, b []string) []string {
 	intersection := []string{}
+
 	for _, x := range a {
 		if slices.Contains(b, x) {
 			intersection = append(intersection, x)
 		}
 	}
+
 	return intersection
 }
 
 func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults bool) error {
 	if src.AdditionalProperties == true || src.AdditionalProperties == false {
 		dest.AdditionalProperties = src.AdditionalProperties
+
 		return nil
 	}
 
@@ -394,24 +436,30 @@ func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults b
 	if err != nil {
 		return err //nolint:wrapcheck
 	}
+
 	destData, err := json.Marshal(dest.AdditionalProperties)
 	if err != nil {
 		return err //nolint:wrapcheck
 	}
 
 	srcSubSchema := &helmschema.Schema{}
+
 	var jsonSrcNode yaml.Node
 	if err := yaml.Unmarshal(srcData, &jsonSrcNode); err != nil {
 		return err //nolint:wrapcheck
 	}
+
 	if err := srcSubSchema.UnmarshalYAML(&jsonSrcNode); err != nil {
 		return err //nolint:wrapcheck
 	}
+
 	destSubSchema := &helmschema.Schema{}
+
 	var jsonDestNode yaml.Node
 	if err := yaml.Unmarshal(destData, &jsonDestNode); err != nil {
 		return err //nolint:wrapcheck
 	}
+
 	if err := destSubSchema.UnmarshalYAML(&jsonDestNode); err != nil {
 		return err //nolint:wrapcheck
 	}

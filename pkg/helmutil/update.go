@@ -24,6 +24,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 	}
 
 	slog.Debug("updating kcl dependencies")
+
 	depOutput, err := svc.UpdateDependencies(&gpyrpc.UpdateDependencies_Args{
 		ManifestPath: absBasePath,
 		Vendor:       c.Vendor,
@@ -31,9 +32,11 @@ func (c *ChartPkg) Update(charts ...string) error {
 	if err != nil {
 		return fmt.Errorf("failed to update dependencies: %w", err)
 	}
+
 	externalPkgs := depOutput.GetExternalPkgs()
 
 	slog.Debug("running kcl", slog.String("path", c.BasePath), slog.String("deps", fmt.Sprint(externalPkgs)))
+
 	mainOutput, err := svc.ExecProgram(&gpyrpc.ExecProgram_Args{
 		WorkDir:       absBasePath,
 		KFilenameList: []string{"."},
@@ -43,35 +46,46 @@ func (c *ChartPkg) Update(charts ...string) error {
 	if err != nil {
 		return fmt.Errorf("failed to execute kcl: %w", err)
 	}
+
 	errMsg := mainOutput.GetErrMessage()
 	if errMsg != "" {
 		return fmt.Errorf("failed to execute kcl: %s", errMsg)
 	}
+
 	mainData := mainOutput.GetJsonResult()
 	chartData := &kclchart.ChartData{}
+
 	if err := json.Unmarshal([]byte(mainData), chartData); err != nil {
 		return fmt.Errorf("failed to unmarshal output: %w", err)
 	}
 
 	updatedCount := 0
+
 	for _, k := range chartData.GetSortedKeys() {
 		chart := chartData.Charts[k]
 		chartName := chart.Chart
+
 		chartKey := chart.GetSnakeCaseName()
 		if k != chartKey {
 			return fmt.Errorf("chart key '%s' does not match generated key '%s'", k, chartKey)
 		}
+
 		if len(charts) > 0 && !slices.Contains(charts, chartName) && !slices.Contains(charts, chartKey) {
 			slog.Info("skipping chart", slog.String("name", chartName), slog.String("key", chartKey))
+
 			continue
 		}
+
 		slog.Info("updating chart", slog.String("name", chartName), slog.String("key", chartKey))
+
 		err := c.AddChart(&chart)
 		if err != nil {
 			return fmt.Errorf("failed to update chart '%s': %w", k, err)
 		}
+
 		updatedCount++
 	}
+
 	slog.Info("update complete", slog.Int("updated", updatedCount))
 
 	return nil

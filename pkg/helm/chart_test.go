@@ -31,10 +31,12 @@ func init() {
 	}
 
 	testdataDir := "./testdata"
+
 	gotDir := filepath.Join(testdataDir, "got")
 	if err := os.RemoveAll(gotDir); err != nil {
 		panic(err)
 	}
+
 	if err := os.MkdirAll(gotDir, 0o700); err != nil {
 		panic(err)
 	}
@@ -196,6 +198,7 @@ func TestHelmChart(t *testing.T) {
 
 			results, err := c.Template()
 			require.NoError(t, err)
+
 			if tc.objectCount >= 0 {
 				assert.Len(t, results, tc.objectCount)
 			} else {
@@ -204,6 +207,7 @@ func TestHelmChart(t *testing.T) {
 
 			resultYAMLs, err := yaml.Marshal(results)
 			require.NoError(t, err)
+
 			if tc.objectCount != 0 {
 				assert.NotEmpty(t, resultYAMLs)
 			}
@@ -245,6 +249,7 @@ func TestHelmChart(t *testing.T) {
 
 			if tc.importCRDs {
 				require.NotEmpty(t, crds)
+
 				for _, crd := range crds {
 					require.NotEmpty(t, crd)
 				}

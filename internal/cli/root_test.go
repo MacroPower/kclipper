@@ -54,6 +54,7 @@ func BenchmarkRun(b *testing.B) {
 		// plugin.RegisterPlugin(helm.HelmPlugin)
 
 		out := bytes.NewBufferString("")
+
 		tc.SetArgs([]string{"run", filepath.Join(testDataDir, "simple.k"), "--output=/dev/null"})
 		tc.SetOut(out)
 		err := tc.Execute()

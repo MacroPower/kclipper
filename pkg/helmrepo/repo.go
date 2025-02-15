@@ -48,6 +48,7 @@ type RepoOpts struct {
 // IsLocal returns true if the repo URL is a local file path.
 func (r *Repo) IsLocal() bool {
 	_, ok := r.URL.URL()
+
 	return !ok
 }
 
@@ -55,9 +56,11 @@ func (r *RepoOpts) Validate() error {
 	if r.Name == "" {
 		return ErrRepoNameEmpty
 	}
+
 	if r.URL == "" {
 		return ErrRepoURLEmpty
 	}
+
 	return nil
 }
 
@@ -88,6 +91,7 @@ func NewManager(opt ...ManagerOpt) *Manager {
 	for _, o := range opt {
 		o(m)
 	}
+
 	return m
 }
 
@@ -125,6 +129,7 @@ func (m *Manager) resolveRepo(repoOpts *RepoOpts) (*Repo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrFailedToResolveURL, err)
 	}
+
 	repo.URL = p
 
 	if repoOpts.CAPath != "" {
@@ -132,20 +137,25 @@ func (m *Manager) resolveRepo(repoOpts *RepoOpts) (*Repo, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%w: %w", ErrFailedToResolveFile, err)
 		}
+
 		repo.CAPath = p
 	}
+
 	if repoOpts.TLSClientCertDataPath != "" {
 		p, err := pathutil.ResolveFileOrDirectoryPath(m.currentPath, m.repoRoot, repoOpts.TLSClientCertDataPath)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %w", ErrFailedToResolveFile, err)
 		}
+
 		repo.TLSClientCertDataPath = p
 	}
+
 	if repoOpts.TLSClientCertKeyPath != "" {
 		p, err := pathutil.ResolveFileOrDirectoryPath(m.currentPath, m.repoRoot, repoOpts.TLSClientCertKeyPath)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %w", ErrFailedToResolveFile, err)
 		}
+
 		repo.TLSClientCertKeyPath = p
 	}
 
@@ -160,6 +170,7 @@ func (m *Manager) Add(repoOpts *RepoOpts) error {
 	if err != nil {
 		return err
 	}
+
 	repoName := repo.Name
 	repoURL := repo.URL.String()
 
@@ -169,6 +180,7 @@ func (m *Manager) Add(repoOpts *RepoOpts) error {
 	if _, ok := m.reposByName[repoName]; ok {
 		return fmt.Errorf("repo with name '%s' already exists", repoName)
 	}
+
 	if _, ok := m.reposByURL[repoURL]; ok {
 		return fmt.Errorf("repo with URL '%s' already exists", repoURL)
 	}
@@ -199,6 +211,7 @@ func (m *Manager) GetByName(name string) (*Repo, error) {
 	if !ok {
 		return nil, fmt.Errorf("repo with name '%s' not found", name)
 	}
+
 	return repo, nil
 }
 
@@ -212,6 +225,7 @@ func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL '%s': %w", repoURL, err)
 	}
+
 	repoURL = u.String()
 
 	if repo, ok := m.reposByURL[repoURL]; ok {
@@ -222,6 +236,7 @@ func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrFailedToResolveURL, err)
 	}
+
 	return &Repo{
 		Name: repoURL,
 		URL:  p,

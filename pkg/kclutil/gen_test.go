@@ -86,12 +86,14 @@ func TestKCLConversion(t *testing.T) {
 			out := &bytes.Buffer{}
 			err = kclutil.Gen.GenKcl(out, "chart", schemaBytes, tc.opts)
 			require.NoError(t, err)
+
 			got := out.String()
 
 			wantFilePath := filepath.Join(testDataDir, tc.expectedPath)
 			// os.WriteFile(wantFilePath, []byte(got), 0o600)
 			expectedSchema, err := os.ReadFile(wantFilePath)
 			require.NoError(t, err)
+
 			want := string(expectedSchema)
 
 			require.Equal(t, want, got, "Input: %s\nWant: %s", inputFilePath, wantFilePath)

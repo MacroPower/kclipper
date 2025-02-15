@@ -34,17 +34,21 @@ import (
 // found in the yaml. If an error occurs, returns objects that have been parsed so far too.
 func SplitYAML(yamlData []byte) ([]*unstructured.Unstructured, error) {
 	objs := []*unstructured.Unstructured{}
+
 	ymls, err := SplitYAMLToString(yamlData)
 	if err != nil {
 		return nil, err
 	}
+
 	for _, yml := range ymls {
 		u := &unstructured.Unstructured{}
 		if err := yaml.Unmarshal([]byte(yml), u); err != nil {
 			return objs, fmt.Errorf("failed to unmarshal manifest: %w", err)
 		}
+
 		objs = append(objs, u)
 	}
+
 	return objs, nil
 }
 
@@ -56,20 +60,26 @@ func SplitYAMLToString(yamlData []byte) ([]string, error) {
 	// Ideally k8s.io/cli-runtime/pkg/resource.Builder should be used instead of this method.
 	// E.g. Builder does list unpacking and flattening and this code does not.
 	d := kubeyaml.NewYAMLOrJSONDecoder(bytes.NewReader(yamlData), 4096)
+
 	var objs []string
+
 	for {
 		ext := runtime.RawExtension{}
 		if err := d.Decode(&ext); err != nil {
 			if errors.Is(err, io.EOF) {
 				break
 			}
+
 			return objs, fmt.Errorf("failed to unmarshal manifest: %w", err)
 		}
+
 		ext.Raw = bytes.TrimSpace(ext.Raw)
 		if len(ext.Raw) == 0 || bytes.Equal(ext.Raw, []byte("null")) {
 			continue
 		}
+
 		objs = append(objs, string(ext.Raw))
 	}
+
 	return objs, nil
 }

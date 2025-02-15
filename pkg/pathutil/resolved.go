@@ -36,8 +36,8 @@ var (
 // ResolvedFilePath represents a resolved file path and is intended to prevent unintentional use of an unverified file
 // path. It is always either a URL or an absolute path.
 type ResolvedFilePath struct {
-	path string
 	url  *url.URL
+	path string
 }
 
 // URL returns the resolved ([*url.URL], true) if the path is a remote URL,
@@ -93,10 +93,12 @@ func ResolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 // allowed URL schemes.
 func isURLSchemeAllowed(scheme string, allowed []string) bool {
 	isAllowed := false
+
 	if len(allowed) > 0 {
 		for _, s := range allowed {
 			if strings.EqualFold(scheme, s) {
 				isAllowed = true
+
 				break
 			}
 		}
@@ -111,6 +113,7 @@ func isURLSchemeAllowed(scheme string, allowed []string) bool {
 // Instead, we log the concrete error details.
 func resolveFailure(path string, err error) error {
 	slog.Error("failed to resolve path", "path", path, "err", err)
+
 	return fmt.Errorf("%w: %w", ErrResolvePath, err)
 }
 
@@ -161,6 +164,7 @@ func ResolveFilePathOrURL(
 			if isURLSchemeAllowed(url.Scheme, allowedURLSchemes) {
 				return ResolvedFilePath{path: file, url: url}, nil
 			}
+
 			return ResolvedFilePath{}, fmt.Errorf("%w: %s", ErrURLSchemeNotAllowed, url.Scheme)
 		}
 	}
@@ -190,6 +194,7 @@ func resolveFileOrDirectory(
 		if err != nil {
 			return "", resolveFailure(repoRoot, err)
 		}
+
 		path = filepath.Join(absWorkDir, path)
 	} else {
 		path = filepath.Join(absRepoPath, path)
@@ -200,6 +205,7 @@ func resolveFileOrDirectory(
 	if err != nil {
 		return "", resolveFailure(repoRoot, err)
 	}
+
 	path = delinkedPath
 
 	// Resolve the joined path to an absolute path

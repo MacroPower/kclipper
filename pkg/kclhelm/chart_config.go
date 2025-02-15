@@ -25,6 +25,7 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
+
 	js := r.Reflect(reflect.TypeOf(ChartConfig{}))
 
 	js.SetProperty("schemaGenerator", jsonschema.WithEnum(jsonschema.GeneratorTypeEnum))

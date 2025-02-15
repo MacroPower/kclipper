@@ -21,6 +21,7 @@ var (
 // upward from the provided path until the filesystem root.
 func FindTopPkgRoot(root, path string) (string, error) {
 	target := "kcl.mod"
+
 	f, err := findTopFile(root, path, func(s string) (bool, error) {
 		checkPath := filepath.Join(s, "kcl.mod")
 		fi, err := os.Lstat(checkPath)
@@ -30,11 +31,13 @@ func FindTopPkgRoot(root, path string) (string, error) {
 		if fi.IsDir() {
 			return false, nil
 		}
+
 		return true, nil
 	})
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", target, err)
 	}
+
 	return f, nil
 }
 
@@ -47,6 +50,7 @@ func FindRepoRoot(path string) (string, error) {
 	// sudo ktrace trace -S -f C3 -c git rev-parse --show-toplevel | grep .git/
 	target1 := ".git"
 	target2 := "HEAD"
+
 	f, err := findTopFile("/", path, func(s string) (bool, error) {
 		checkPath1 := filepath.Join(s, target1)
 		fi1, err := os.Lstat(checkPath1)
@@ -64,11 +68,13 @@ func FindRepoRoot(path string) (string, error) {
 		if fi2.IsDir() {
 			return false, nil
 		}
+
 		return true, nil
 	})
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", filepath.Join(target1, target2), err)
 	}
+
 	return f, nil
 }
 
@@ -77,6 +83,7 @@ func findTopFile(root, path string, test func(string) (bool, error)) (string, er
 	if err != nil {
 		return "", fmt.Errorf("failed to get absolute path: %w", err)
 	}
+
 	pathAbs, err := filepath.Abs(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to get absolute path: %w", err)
@@ -84,6 +91,7 @@ func findTopFile(root, path string, test func(string) (bool, error)) (string, er
 	if !strings.HasPrefix(pathAbs, rootAbs) {
 		return "", ErrResolvedOutsideRepo
 	}
+
 	pathRel, err := filepath.Rel(rootAbs, pathAbs)
 	if err != nil {
 		return "", fmt.Errorf("failed to get relative path: %w", err)

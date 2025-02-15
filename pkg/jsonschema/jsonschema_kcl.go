@@ -40,6 +40,7 @@ func ConvertToKCLCompatibleJSONSchema(jsonSchemaData []byte) ([]byte, error) {
 	if err := yaml.Unmarshal(jsonSchemaData, &jsonNode); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
+
 	hs := &helmschema.Schema{}
 	if err := hs.UnmarshalYAML(&jsonNode); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)

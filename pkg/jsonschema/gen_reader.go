@@ -35,16 +35,19 @@ func (g *ReaderGenerator) FromPaths(paths ...string) ([]byte, error) {
 	if len(paths) == 0 {
 		return nil, errors.New("no paths provided")
 	}
+
 	if len(paths) == 1 {
 		return g.fromPath(paths[0])
 	}
 
 	pathErrs := map[string]error{}
+
 	for _, path := range paths {
 		jsBytes, err := g.fromPath(path)
 		if err == nil {
 			return jsBytes, nil
 		}
+
 		pathErrs[path] = err
 	}
 
@@ -52,6 +55,7 @@ func (g *ReaderGenerator) FromPaths(paths ...string) ([]byte, error) {
 	for path, err := range pathErrs {
 		pathErrMsgs = append(pathErrMsgs, fmt.Sprintf("\t%s: %s\n", path, err))
 	}
+
 	multiErr := fmt.Errorf("could not read JSON Schema from any of the provided paths:\n%s", pathErrMsgs)
 
 	return nil, fmt.Errorf("error generating JSON Schema: %w", multiErr)
@@ -115,6 +119,7 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 	if err := yaml.Unmarshal(data, &jsonNode); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
+
 	hs := &helmschema.Schema{}
 	if err := hs.UnmarshalYAML(&jsonNode); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
@@ -131,6 +136,7 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 	if err := hs.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
 	}
+
 	if len(hs.Properties) == 0 {
 		return nil, errors.New("empty schema")
 	}
