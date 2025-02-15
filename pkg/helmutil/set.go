@@ -13,7 +13,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
-func (c *ChartPkg) Set(chart string, keyValueOverrides string) error {
+func (c *ChartPkg) Set(chart, keyValueOverrides string) error {
 	if chart == "" {
 		return errors.New("chart name cannot be empty")
 	}

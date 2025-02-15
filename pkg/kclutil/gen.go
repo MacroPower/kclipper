@@ -23,7 +23,7 @@ type GenKclOptions struct {
 	RemoveDefaults        bool
 }
 
-func (g *gen) GenKcl(w io.Writer, filename string, src interface{}, opts *GenKclOptions) error {
+func (g *gen) GenKcl(w io.Writer, filename string, src any, opts *GenKclOptions) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 

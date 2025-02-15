@@ -123,13 +123,13 @@ func Replace(re *regexp.Regexp, repl string) GenOpt {
 
 type PropertyOpt func(*invopopjsonschema.Schema)
 
-func WithEnum(enum []interface{}) PropertyOpt {
+func WithEnum(enum []any) PropertyOpt {
 	return func(s *invopopjsonschema.Schema) {
 		s.Enum = enum
 	}
 }
 
-func WithDefault(defaultValue interface{}) PropertyOpt {
+func WithDefault(defaultValue any) PropertyOpt {
 	return func(s *invopopjsonschema.Schema) {
 		s.Default = defaultValue
 	}

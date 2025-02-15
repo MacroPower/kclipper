@@ -22,7 +22,7 @@ const (
 	NoGeneratorType             GeneratorType = "NONE"
 )
 
-var GeneratorTypeEnum = []interface{}{
+var GeneratorTypeEnum = []any{
 	AutoGeneratorType,
 	ValueInferenceGeneratorType,
 	URLGeneratorType,
@@ -39,7 +39,7 @@ const (
 	HelmValidatorType    ValidatorType = "HELM"
 )
 
-var ValidatorTypeEnum = []interface{}{
+var ValidatorTypeEnum = []any{
 	KCLValidatorType,
 	HelmValidatorType,
 }

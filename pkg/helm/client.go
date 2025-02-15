@@ -25,7 +25,7 @@ var DefaultClient = MustNewClient(
 )
 
 type PathCacher interface {
-	Add(key string, value string)
+	Add(key, value string)
 	GetPath(key string) (string, error)
 	GetPathIfExists(key string) string
 	GetPaths() map[string]string

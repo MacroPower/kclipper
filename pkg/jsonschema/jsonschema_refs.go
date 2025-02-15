@@ -202,7 +202,7 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 		return relSchema, nil
 	}
 
-	var obj interface{}
+	var obj any
 
 	err := json.Unmarshal(data, &obj)
 	if err != nil {

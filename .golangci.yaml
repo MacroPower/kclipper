@@ -26,7 +26,6 @@ linters:
     - gocognit # Disabled length/complexity linters.
     - gocyclo # Disabled length/complexity linters.
     - godox # Prevents TODO/BUG/FIXME.
-    - gofmt # Using gofumpt instead.
     - mnd # Sometimes more readable.
     - tagliatelle # Enable if standards are known.
     - varnamelen # Disabled length/complexity linters.
@@ -49,6 +48,15 @@ linters-settings:
   whitespace:
     multi-if: true
     multi-func: true
+
+  gofmt:
+    simplify: true
+    rewrite-rules:
+      - pattern: 'interface{}'
+        replacement: 'any'
+
+  gofumpt:
+    extra-rules: true
 
   godot:
     scope: all

@@ -31,7 +31,7 @@ type Cmd struct {
 	settings *cli.EnvSettings
 }
 
-func NewCmdWithVersion(workDir string, proxy string, noProxy string) (*Cmd, error) {
+func NewCmdWithVersion(workDir, proxy, noProxy string) (*Cmd, error) {
 	rc, err := registry.NewClient(registry.ClientOptEnableCache(true))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create registry client: %w", err)

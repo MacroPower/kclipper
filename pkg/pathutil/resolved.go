@@ -176,7 +176,7 @@ func ResolveFilePathOrURL(currentPath, repoRoot, file string, allowedURLSchemes 
 }
 
 func resolveFileOrDirectory(
-	currentPath string, repoRoot string, fileOrDirectory string, allowResolveToRoot bool,
+	currentPath, repoRoot, fileOrDirectory string, allowResolveToRoot bool,
 ) (string, error) {
 	// Ensure that our repository root is absolute.
 	absRepoPath, err := filepath.Abs(repoRoot)

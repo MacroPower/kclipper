@@ -48,7 +48,7 @@ func (p *StaticTempPaths) pathToKey(path string) string {
 	return key
 }
 
-func (p *StaticTempPaths) Add(_ string, _ string) {
+func (p *StaticTempPaths) Add(_, _ string) {
 }
 
 // GetPath generates a path for the given key or returns previously generated one.
