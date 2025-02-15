@@ -32,7 +32,7 @@ var (
 	genOptFixChartRepo     = jsonschema.Replace(repositoriesRegexp, "${1}"+repositoriesKCLType+"${2}")
 )
 
-//nolint:unparam
+//nolint:unparam // For consistency.
 func newSchemaReflector() (*jsonschema.Reflector, error) {
 	r := jsonschema.NewReflector()
 

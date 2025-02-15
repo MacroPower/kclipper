@@ -25,7 +25,7 @@ func (c *ChartPkg) AddRepo(repo *kclhelm.ChartRepo) error {
 
 	err := c.updateFile(repo.ToAutomation(), reposFile, initialRepoContents, reposSpec)
 	if err != nil {
-		return fmt.Errorf("failed to update '%s': %w", reposFile, err)
+		return fmt.Errorf("failed to update %q: %w", reposFile, err)
 	}
 
 	_, err = kcl.FormatPath(c.BasePath)

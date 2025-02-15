@@ -112,17 +112,17 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 
 	jsFilePath, jsPointer, found := strings.Cut(schema.Ref, "#")
 	if !found {
-		return fmt.Errorf("invalid $ref value '%s'", schema.Ref)
+		return fmt.Errorf("invalid $ref value %q", schema.Ref)
 	}
 
 	if jsFilePath != "" {
 		relFilePath, err := isRelativeFile(basePath, jsFilePath)
 		if err != nil {
-			return fmt.Errorf("invalid $ref value '%s': %w", schema.Ref, err)
+			return fmt.Errorf("invalid $ref value %q: %w", schema.Ref, err)
 		}
 
 		if err := resolveFilePath(schema, relFilePath, jsPointer); err != nil {
-			return fmt.Errorf("invalid $ref value '%s': %w", schema.Ref, err)
+			return fmt.Errorf("invalid $ref value %q: %w", schema.Ref, err)
 		}
 	}
 
@@ -163,13 +163,13 @@ func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helm
 func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer string) error {
 	file, err := os.Open(relPath)
 	if err != nil {
-		return fmt.Errorf("error opening file '%s': %w", relPath, err)
+		return fmt.Errorf("error opening file %q: %w", relPath, err)
 	}
 	defer file.Close()
 
 	byteValue, err := io.ReadAll(file)
 	if err != nil {
-		return fmt.Errorf("error reading file '%s': %w", relPath, err)
+		return fmt.Errorf("error reading file %q: %w", relPath, err)
 	}
 
 	relSchema, err := unmarshalSchemaRef(byteValue, jsonSchemaPointer)
@@ -239,26 +239,26 @@ func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error
 
 	apData, err := json.Marshal(schema.AdditionalProperties)
 	if err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to marshal additional properties: %w", err)
 	}
 
 	subSchema := &helmschema.Schema{}
 
 	var jsonNode yaml.Node
 	if err := yaml.Unmarshal(apData, &jsonNode); err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to unmarshal additional properties: %w", err)
 	}
 
 	if err := subSchema.UnmarshalYAML(&jsonNode); err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to unmarshal additional properties: %w", err)
 	}
 
 	if err := handleSchemaRefs(subSchema, basePath); err != nil {
-		return err
+		return fmt.Errorf("failed to handle schema refs in additional properties: %w", err)
 	}
 
 	if err := subSchema.Validate(); err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("invalid schema: %w", err)
 	}
 
 	// No idea why, but Required isn't marshaled correctly without recreating the struct.
@@ -278,11 +278,11 @@ func isRelativeFile(root, relPath string) (string, error) {
 		rp := path.Join(root, relPath)
 		_, err := os.Stat(rp)
 		if err != nil {
-			return "", fmt.Errorf("failed to describe file '%s': %w", rp, err)
+			return "", fmt.Errorf("failed to describe file %q: %w", rp, err)
 		}
 
 		return rp, nil
 	}
 
-	return "", fmt.Errorf("'%s' is not a relative path", relPath)
+	return "", fmt.Errorf("%q is not a relative path", relPath)
 }

@@ -62,7 +62,7 @@ func SetLogFormat(logFormat string) {
 	case TextFormat, "":
 		os.Setenv("ARGOCD_LOG_FORMAT", TextFormat)
 	default:
-		panic(fmt.Errorf("unknown log format '%s'", logFormat))
+		panic(fmt.Errorf("unknown log format %q", logFormat))
 	}
 
 	slog.SetDefault(NewWithCurrentConfig())

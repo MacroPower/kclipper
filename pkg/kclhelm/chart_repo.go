@@ -117,7 +117,7 @@ func (c *ChartRepo) GetHelmRepo() (*helmrepo.RepoOpts, error) {
 	if c.UsernameEnv != "" {
 		username, ok := os.LookupEnv(c.UsernameEnv)
 		if !ok {
-			return nil, fmt.Errorf("failed to get username, environment variable '%s' is unset", c.UsernameEnv)
+			return nil, fmt.Errorf("failed to get username, environment variable %q is unset", c.UsernameEnv)
 		}
 
 		repo.Username = username
@@ -126,7 +126,7 @@ func (c *ChartRepo) GetHelmRepo() (*helmrepo.RepoOpts, error) {
 	if c.PasswordEnv != "" {
 		password, ok := os.LookupEnv(c.PasswordEnv)
 		if !ok {
-			return nil, fmt.Errorf("failed to get password, environment variable '%s' is unset", c.PasswordEnv)
+			return nil, fmt.Errorf("failed to get password, environment variable %q is unset", c.PasswordEnv)
 		}
 
 		repo.Password = password

@@ -62,20 +62,20 @@ func (c *ChartPkg) updateFile(automation kclutil.Automation, kclFile, initialCon
 
 	if !fileExists(kclFile) {
 		if err := os.WriteFile(kclFile, []byte(initialContents), 0o600); err != nil {
-			return fmt.Errorf("failed to write '%s': %w", kclFile, err)
+			return fmt.Errorf("failed to write %q: %w", kclFile, err)
 		}
 	}
 
 	specs, err := automation.GetSpecs(specPath)
 	if err != nil {
-		return fmt.Errorf("failed generating inputs for '%s': %w", kclFile, err)
+		return fmt.Errorf("failed generating inputs for %q: %w", kclFile, err)
 	}
 
 	imports := []string{"helm"}
 
 	_, err = kcl.OverrideFile(kclFile, specs, imports)
 	if err != nil {
-		return fmt.Errorf("failed to update '%s': %w", kclFile, err)
+		return fmt.Errorf("failed to update %q: %w", kclFile, err)
 	}
 
 	return nil

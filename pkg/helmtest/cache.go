@@ -19,7 +19,7 @@ func (*TestPathEncoder) Encode(s string) string {
 
 	err := json.Unmarshal([]byte(s), o)
 	if err != nil {
-		panic(fmt.Errorf("failed to encode key '%s': %w", s, err))
+		panic(fmt.Errorf("failed to encode key %q: %w", s, err))
 	}
 
 	key := fmt.Sprintf("%s__%s__%s__%s", o.Chart, o.Project, o.URL, o.Version)
@@ -30,7 +30,7 @@ func (*TestPathEncoder) Encode(s string) string {
 func (*TestPathEncoder) Decode(s string) (string, error) {
 	d, err := url.PathUnescape(s)
 	attrs := strings.Split(d, "__")
-	key := fmt.Sprintf(`{"chart":"%s","project":"%s","url":"%s","version":"%s"}`, attrs[0], attrs[1], attrs[2], attrs[3])
+	key := fmt.Sprintf(`{"chart":%q,"project":%q,"url":%q,"version":%q}`, attrs[0], attrs[1], attrs[2], attrs[3])
 
-	return key, fmt.Errorf("failed to decode key '%s': %w", s, err)
+	return key, fmt.Errorf("failed to decode key %q: %w", s, err)
 }

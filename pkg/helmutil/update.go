@@ -70,7 +70,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 		chartKey := chart.GetSnakeCaseName()
 		if k != chartKey {
-			return fmt.Errorf("chart key '%s' does not match generated key '%s'", k, chartKey)
+			return fmt.Errorf("chart key %q does not match generated key %q", k, chartKey)
 		}
 
 		chartSlog := slog.With(
@@ -88,7 +88,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 		err := c.AddChart(&chart)
 		if err != nil {
-			return fmt.Errorf("failed to update chart '%s': %w", k, err)
+			return fmt.Errorf("failed to update chart %q: %w", k, err)
 		}
 
 		updatedCount++

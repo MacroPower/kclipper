@@ -42,7 +42,7 @@ func (p *StaticTempPaths) keyToPath(key string) string {
 func (p *StaticTempPaths) pathToKey(path string) string {
 	key, err := p.pe.Decode(filepath.Base(path))
 	if err != nil {
-		panic(fmt.Errorf("failed to decode key for %s: %w", path, err))
+		panic(fmt.Errorf("failed to decode key for %q: %w", path, err))
 	}
 
 	return key

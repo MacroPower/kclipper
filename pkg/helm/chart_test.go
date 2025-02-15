@@ -48,13 +48,13 @@ func TestHelmChart(t *testing.T) {
 	tcs := map[string]struct {
 		gen          jsonschema.FileGenerator
 		match        func(string) bool
-		opts         helm.TemplateOpts
+		opts         *helm.TemplateOpts
 		objectCount  int
 		importValues bool
 		importCRDs   bool
 	}{
 		"podinfo": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName:      "podinfo",
 				TargetRevision: "6.7.1",
 				RepoURL:        "https://stefanprodan.github.io/podinfo",
@@ -66,7 +66,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  -1,
 		},
 		"prometheus": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName:      "kube-prometheus-stack",
 				TargetRevision: "67.9.0",
 				RepoURL:        "https://prometheus-community.github.io/helm-charts",
@@ -78,7 +78,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  -1,
 		},
 		"app-template": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName:      "app-template",
 				TargetRevision: "3.6.0",
 				RepoURL:        "https://bjw-s.github.io/helm-charts/",
@@ -106,7 +106,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  -1,
 		},
 		"local path": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName: "simple-chart",
 				RepoURL:   "./testdata",
 			},
@@ -117,7 +117,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  4,
 		},
 		"direct repo with auth": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName:      "simple-chart",
 				TargetRevision: "0.1.0",
 				RepoURL:        "http://localhost:8080",
@@ -129,7 +129,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  4,
 		},
 		"subchart uses repo with auth": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName: "parent-chart",
 				RepoURL:   "./testdata",
 			},
@@ -140,7 +140,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  4,
 		},
 		"crds only": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName: "crds",
 				RepoURL:   "./testdata",
 				SkipCRDs:  false,
@@ -152,7 +152,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  1,
 		},
 		"skip crds": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName: "crds",
 				RepoURL:   "./testdata",
 				SkipCRDs:  true,
@@ -164,7 +164,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  0,
 		},
 		"hooks only": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName: "test-hooks",
 				RepoURL:   "./testdata",
 				SkipHooks: false,
@@ -176,7 +176,7 @@ func TestHelmChart(t *testing.T) {
 			objectCount:  1,
 		},
 		"skip hooks": {
-			opts: helm.TemplateOpts{
+			opts: &helm.TemplateOpts{
 				ChartName: "test-hooks",
 				RepoURL:   "./testdata",
 				SkipHooks: true,
@@ -263,7 +263,7 @@ func TestHelmChartAPIVersions(t *testing.T) {
 	t.Run("v1", func(t *testing.T) {
 		t.Parallel()
 
-		c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
+		c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 			ChartName:   "api-versions",
 			RepoURL:     "./testdata",
 			APIVersions: []string{"sample/v1"},
@@ -279,7 +279,7 @@ func TestHelmChartAPIVersions(t *testing.T) {
 	t.Run("v2", func(t *testing.T) {
 		t.Parallel()
 
-		c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
+		c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 			ChartName:   "api-versions",
 			RepoURL:     "./testdata",
 			APIVersions: []string{"sample/v2"},
@@ -294,7 +294,7 @@ func TestHelmChartAPIVersions(t *testing.T) {
 }
 
 func BenchmarkHelmChart(b *testing.B) {
-	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
+	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 		ChartName:      "podinfo",
 		TargetRevision: "6.7.1",
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
@@ -313,7 +313,7 @@ func BenchmarkHelmChart(b *testing.B) {
 }
 
 func BenchmarkAppTemplateHelmChart(b *testing.B) {
-	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, helm.TemplateOpts{
+	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 		ChartName:            "app-template",
 		TargetRevision:       "3.6.0",
 		RepoURL:              "https://bjw-s.github.io/helm-charts/",

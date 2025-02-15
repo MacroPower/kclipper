@@ -20,7 +20,6 @@ var testDataDir string
 func init() {
 	log.SetLogLevel("warn")
 
-	//nolint:dogsled
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
 	testDataDir = filepath.Join(dir, "testdata")

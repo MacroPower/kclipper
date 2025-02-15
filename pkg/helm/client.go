@@ -50,7 +50,7 @@ type Client struct {
 func NewClient(paths PathCacher, project, maxExtractSize string) (*Client, error) {
 	maxExtractSizeResource, err := resource.ParseQuantity(maxExtractSize)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse quantity '%s': %w", maxExtractSize, err)
+		return nil, fmt.Errorf("failed to parse quantity %q: %w", maxExtractSize, err)
 	}
 
 	return &Client{
@@ -92,7 +92,7 @@ func (c *Client) PullAndExtract(chart, repo, version string, repos helmrepo.Gett
 func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
 	hr, err := repos.Get(repo)
 	if err != nil {
-		return "", nil, fmt.Errorf("error getting repo %s: %w", repo, err)
+		return "", nil, fmt.Errorf("error getting repo %q: %w", repo, err)
 	}
 
 	if hr.IsLocal() {
@@ -126,7 +126,7 @@ func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.
 func (c *Client) getLocalChart(chart string, repo *helmrepo.Repo) (string, error) {
 	chartPath := filepath.Join(repo.URL.String(), chart)
 	if !dirExists(chartPath) {
-		return "", fmt.Errorf("chart directory does not exist: %s", chartPath)
+		return "", fmt.Errorf("chart directory does not exist: %q", chartPath)
 	}
 
 	return chartPath, nil
@@ -178,7 +178,7 @@ func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.
 	// 'helm pull/fetch' file downloads chart into the tgz file and we move that to where we want it.
 	infos, err := os.ReadDir(tempDest)
 	if err != nil {
-		return fmt.Errorf("error reading directory %s: %w", tempDest, err)
+		return fmt.Errorf("error reading directory %q: %w", tempDest, err)
 	}
 	if len(infos) != 1 {
 		return fmt.Errorf("expected 1 file, found %v", len(infos))
@@ -187,7 +187,7 @@ func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.
 	chartFilePath := filepath.Join(tempDest, infos[0].Name())
 	err = os.Rename(chartFilePath, dstPath)
 	if err != nil {
-		return fmt.Errorf("error renaming file from %s to %s: %w", chartFilePath, dstPath, err)
+		return fmt.Errorf("error renaming file from %q to %q: %w", chartFilePath, dstPath, err)
 	}
 
 	return nil
@@ -201,7 +201,7 @@ func (c *Client) extractChart(chart, srcPath string) (string, io.Closer, error) 
 
 	reader, err := os.Open(srcPath)
 	if err != nil {
-		return "", nil, fmt.Errorf("error opening chart path %s: %w", srcPath, err)
+		return "", nil, fmt.Errorf("error opening chart path %q: %w", srcPath, err)
 	}
 
 	err = gunzip(tempDest, reader, c.MaxExtractSize.Value(), false)
@@ -223,7 +223,7 @@ func (c *Client) CleanChartCache(chart, repo, version string) error {
 	}
 
 	if err := os.RemoveAll(cachePath); err != nil {
-		return fmt.Errorf("error removing chart cache at %s: %w", cachePath, err)
+		return fmt.Errorf("error removing chart cache at %q: %w", cachePath, err)
 	}
 
 	return nil

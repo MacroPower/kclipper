@@ -93,7 +93,7 @@ var Plugin = plugin.Plugin{
 					return nil, fmt.Errorf("failed to create helm client: %w", err)
 				}
 
-				helmChart, err := helm.NewChart(helmClient, repoMgr, helm.TemplateOpts{
+				helmChart, err := helm.NewChart(helmClient, repoMgr, &helm.TemplateOpts{
 					ChartName:            chartName,
 					TargetRevision:       targetRevision,
 					RepoURL:              repoURL,
@@ -108,12 +108,12 @@ var Plugin = plugin.Plugin{
 					APIVersions:          strings.Split(kubeAPIVersions, ","),
 				})
 				if err != nil {
-					return nil, fmt.Errorf("failed to create chart handler for '%s': %w", chartName, err)
+					return nil, fmt.Errorf("failed to create chart handler for %q: %w", chartName, err)
 				}
 
 				objs, err := helmChart.Template()
 				if err != nil {
-					return nil, fmt.Errorf("failed to template '%s': %w", chartName, err)
+					return nil, fmt.Errorf("failed to template %q: %w", chartName, err)
 				}
 
 				return &plugin.MethodResult{V: objs}, nil

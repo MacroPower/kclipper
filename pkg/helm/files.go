@@ -188,7 +188,7 @@ func fileExists(filePath string) (bool, error) {
 			return false, nil
 		}
 
-		return false, fmt.Errorf("error checking file existence for %s: %w", filePath, err)
+		return false, fmt.Errorf("error checking file existence for %q: %w", filePath, err)
 	}
 
 	return true, nil

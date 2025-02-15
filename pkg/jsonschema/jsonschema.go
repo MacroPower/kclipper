@@ -46,7 +46,7 @@ var ValidatorTypeEnum = []any{
 
 // GetGenerator returns a [FileGenerator] for the given [GeneratorType].
 //
-//nolint:ireturn,nolintlint
+//nolint:ireturn,nolintlint // Multiple concrete types.
 func GetGenerator(t GeneratorType) FileGenerator {
 	switch t {
 	case DefaultGeneratorType, AutoGeneratorType:

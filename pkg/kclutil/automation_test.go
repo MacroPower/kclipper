@@ -173,17 +173,17 @@ func TestKCLAutomation(t *testing.T) {
 
 			inputFile := filepath.Join(testAutomationDir, ".tmp", name+".k")
 			err := os.WriteFile(inputFile, []byte(tc.inputKCL), 0o600)
-			require.NoErrorf(t, err, "failed to write '%s'", inputFile)
+			require.NoErrorf(t, err, "failed to write %q", inputFile)
 
 			specs, err := tc.input.GetSpecs(tc.specPath)
-			require.NoErrorf(t, err, "failed generating inputs for '%s'", inputFile)
+			require.NoErrorf(t, err, "failed generating inputs for %q", inputFile)
 
 			imports := []string{}
 			_, err = kcl.OverrideFile(inputFile, specs, imports)
-			require.NoErrorf(t, err, "failed to update '%s'", inputFile)
+			require.NoErrorf(t, err, "failed to update %q", inputFile)
 
 			got, err := kcl.Run(inputFile)
-			require.NoErrorf(t, err, "failed to evaluate '%s'", inputFile)
+			require.NoErrorf(t, err, "failed to evaluate %q", inputFile)
 
 			assert.JSONEq(t, tc.expected, got.GetRawJsonResult())
 		})

@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	schemaInvalidDefaultRegexp   = regexp.MustCompile(`( default is\s+)r"""([\s\S\r\n]*?)"""(.*)`)
-	schemaDefaultMultilineRegexp = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)\s+=\s*r"""([\s\S\r\n]*?)"""`)
+	schemaInvalidDefaultRegexp   = regexp.MustCompile(`( default is\s+)r"""([\s\S]*?)"""(.*)`)
+	schemaDefaultMultilineRegexp = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)\s+=\s*r"""([\s\S]*?)"""`)
 	schemaDefaultRegexp          = regexp.MustCompile(`(\s+\S+:\s+\S+(\s+\|\s+\S+)*)(\s+=.+)`)
 )
 
@@ -27,7 +27,7 @@ func FixKCLSchema(kclSchema string, removeDefaults bool) string {
 func fixMultilineKCLDefaultComments(s string) string {
 	submatches := schemaInvalidDefaultRegexp.FindStringSubmatch(s)
 	if len(submatches) != 4 {
-		panic(fmt.Sprintf("regex had %d submatches in '%s'; expected 4 submatches", len(submatches), s))
+		panic(fmt.Sprintf("regex had %d submatches in %q; expected 4 submatches", len(submatches), s))
 	}
 
 	indent := strings.Repeat(" ", 8)

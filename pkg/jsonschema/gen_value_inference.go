@@ -435,39 +435,39 @@ func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults b
 
 	srcData, err := json.Marshal(src.AdditionalProperties)
 	if err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to marshal src additional properties: %w", err)
 	}
 
 	destData, err := json.Marshal(dest.AdditionalProperties)
 	if err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to marshal dest additional properties: %w", err)
 	}
 
 	srcSubSchema := &helmschema.Schema{}
 
 	var jsonSrcNode yaml.Node
 	if err := yaml.Unmarshal(srcData, &jsonSrcNode); err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to unmarshal src additional properties: %w", err)
 	}
 
 	if err := srcSubSchema.UnmarshalYAML(&jsonSrcNode); err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to unmarshal src additional properties: %w", err)
 	}
 
 	destSubSchema := &helmschema.Schema{}
 
 	var jsonDestNode yaml.Node
 	if err := yaml.Unmarshal(destData, &jsonDestNode); err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to unmarshal dest additional properties: %w", err)
 	}
 
 	if err := destSubSchema.UnmarshalYAML(&jsonDestNode); err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("failed to unmarshal dest additional properties: %w", err)
 	}
 
 	subSchema := mergeHelmSchemas(destSubSchema, srcSubSchema, setDefaults)
 	if err := subSchema.Validate(); err != nil {
-		return err //nolint:wrapcheck
+		return fmt.Errorf("invalid schema: %w", err)
 	}
 
 	dest.AdditionalProperties = subSchema

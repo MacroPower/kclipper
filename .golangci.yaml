@@ -4,8 +4,10 @@
 run:
   # Timeout for analysis, e.g. 30s, 5m.
   timeout: 5m
+  allow-parallel-runners: true
 
 output:
+  show-stats: true
   formats:
     - format: colored-line-number
 
@@ -14,6 +16,7 @@ linters:
   disable:
     - cyclop # Disabled length/complexity linters.
     - depguard # Enable with settings for required guards.
+    - dogsled # No way to feasibly follow this in many cases.
     - err113 # No way to feasibly follow this in many cases.
     - exhaustruct # Enable for certain files if needed.
     - exportloopref # Replaced by copyloopvar.
@@ -27,6 +30,7 @@ linters:
     - gocyclo # Disabled length/complexity linters.
     - godox # Prevents TODO/BUG/FIXME.
     - loggercheck # Using sloglint instead.
+    - maintidx # Disabled length/complexity linters.
     - mnd # Sometimes more readable.
     - tagliatelle # Enable if standards are known.
     - varnamelen # Disabled length/complexity linters.
@@ -35,6 +39,7 @@ linters:
 linters-settings:
   misspell:
     locale: US
+    mode: default
 
   exhaustive:
     default-signifies-exhaustive: true
@@ -51,6 +56,10 @@ linters-settings:
   wsl:
     force-err-cuddling: true
     force-case-trailing-whitespace: 2
+
+  unused:
+    exported-fields-are-used: false
+    local-variables-are-used: false
 
   whitespace:
     multi-if: true
@@ -88,6 +97,13 @@ linters-settings:
 
   gofumpt:
     extra-rules: true
+
+  gocritic:
+    enable-all: true
+    disabled-checks:
+      - commentedOutCode
+      - filepathJoin
+      - unnamedResult
 
   godot:
     scope: all

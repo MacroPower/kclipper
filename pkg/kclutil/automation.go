@@ -22,7 +22,7 @@ func (s MapValue) IsBool() bool {
 func (s MapValue) GetValue() string {
 	if s.IsString() {
 		if *s.s != "" {
-			return fmt.Sprintf(`"%s"`, *s.s)
+			return fmt.Sprintf("%q", *s.s)
 		}
 
 		return ""

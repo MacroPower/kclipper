@@ -36,12 +36,12 @@ func TestChartPkg_Set(t *testing.T) {
 		"invalid key-value pair": {
 			chart:             "test-chart",
 			keyValueOverrides: "invalidpair",
-			expectedError:     errors.New("no key=value pair found in 'invalidpair'"),
+			expectedError:     errors.New(`no key=value pair found in "invalidpair"`),
 		},
 		"invalid chart configuration attribute": {
 			chart:             "test-chart",
 			keyValueOverrides: "InvalidKey=value",
-			expectedError:     errors.New("key 'InvalidKey' is not a valid chart configuration attribute"),
+			expectedError:     errors.New(`key "InvalidKey" is not a valid chart configuration attribute`),
 		},
 		"successful set": {
 			chart:             "test-chart",

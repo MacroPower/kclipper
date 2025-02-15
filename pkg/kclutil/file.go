@@ -23,13 +23,13 @@ func (f *file) OverrideFile(file string, specs, importPaths []string) (bool, err
 
 	if !kclutil.FileExists(file) {
 		if err := os.WriteFile(file, []byte(""), 0o600); err != nil {
-			return false, fmt.Errorf("failed to write '%s': %w", file, err)
+			return false, fmt.Errorf("failed to write %q: %w", file, err)
 		}
 	}
 
 	ok, err := kcl.OverrideFile(file, specs, importPaths)
 	if err != nil {
-		return ok, fmt.Errorf("failed to override '%s': %w", file, err)
+		return ok, fmt.Errorf("failed to override %q: %w", file, err)
 	}
 
 	return ok, nil

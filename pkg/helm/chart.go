@@ -44,11 +44,11 @@ type JSONSchemaGenerator interface {
 type Chart struct {
 	Client       ChartClient
 	Repos        helmrepo.Getter
+	TemplateOpts *TemplateOpts
 	path         string
-	TemplateOpts TemplateOpts
 }
 
-func NewChart(client ChartClient, repos helmrepo.Getter, opts TemplateOpts) (*Chart, error) {
+func NewChart(client ChartClient, repos helmrepo.Getter, opts *TemplateOpts) (*Chart, error) {
 	chartPath, err := client.Pull(opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
@@ -112,11 +112,11 @@ type ChartFileClient interface {
 type ChartFiles struct {
 	Client       ChartFileClient
 	closer       io.Closer
+	TemplateOpts *TemplateOpts
 	path         string
-	TemplateOpts TemplateOpts
 }
 
-func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts TemplateOpts) (*ChartFiles, error) {
+func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts *TemplateOpts) (*ChartFiles, error) {
 	chartPath, closer, err := client.PullAndExtract(opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)

@@ -30,7 +30,7 @@ func NewReflector() *Reflector {
 func (r *Reflector) AddGoComments(pkg, path string) error {
 	err := r.Reflector.AddGoComments(pkg, path, invopopjsonschema.WithFullComment())
 	if err != nil {
-		return fmt.Errorf("failed to add go comments from '%s': %w", pkg, err)
+		return fmt.Errorf("failed to add go comments from %q: %w", pkg, err)
 	}
 
 	return nil

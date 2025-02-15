@@ -60,7 +60,7 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 		}
 	}
 
-	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, helm.TemplateOpts{
+	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, &helm.TemplateOpts{
 		ChartName:       chart.Chart,
 		TargetRevision:  chart.TargetRevision,
 		RepoURL:         chart.RepoURL,
@@ -68,7 +68,7 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 		PassCredentials: chart.PassCredentials,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to create chart handler for '%s': %w", chart.Chart, err)
+		return fmt.Errorf("failed to create chart handler for %q: %w", chart.Chart, err)
 	}
 	defer helmChart.Dispose()
 
@@ -102,7 +102,7 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 	chartsSpec := kclutil.SpecPathJoin("charts", chart.GetSnakeCaseName())
 
 	if err := c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec); err != nil {
-		return fmt.Errorf("failed to update '%s': %w", chartsFile, err)
+		return fmt.Errorf("failed to update %q: %w", chartsFile, err)
 	}
 
 	if _, err := kcl.FormatPath(c.BasePath); err != nil {
@@ -145,7 +145,7 @@ func generateAndWriteValuesSchemaFiles(
 
 		jsonSchemaBytes, err = jsonschema.DefaultReaderGenerator.FromPaths(schemaPath.String())
 		if err != nil {
-			return fmt.Errorf("failed to fetch schema from '%s': %w", schemaPath.String(), err)
+			return fmt.Errorf("failed to fetch schema from %q: %w", schemaPath.String(), err)
 		}
 
 	case jsonschema.DefaultGeneratorType, jsonschema.AutoGeneratorType,

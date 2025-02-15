@@ -177,11 +177,11 @@ func (m *Manager) Add(repoOpts *RepoOpts) error {
 	defer m.mu.Unlock()
 
 	if _, ok := m.reposByName[repoName]; ok {
-		return fmt.Errorf("repo with name '%s' already exists", repoName)
+		return fmt.Errorf("repo with name %q already exists", repoName)
 	}
 
 	if _, ok := m.reposByURL[repoURL]; ok {
-		return fmt.Errorf("repo with URL '%s' already exists", repoURL)
+		return fmt.Errorf("repo with URL %q already exists", repoURL)
 	}
 
 	m.reposByName[repoName] = repo
@@ -208,7 +208,7 @@ func (m *Manager) GetByName(name string) (*Repo, error) {
 
 	repo, ok := m.reposByName[name]
 	if !ok {
-		return nil, fmt.Errorf("repo with name '%s' not found", name)
+		return nil, fmt.Errorf("repo with name %q not found", name)
 	}
 
 	return repo, nil
@@ -222,7 +222,7 @@ func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
 
 	u, err := url.Parse(repoURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse URL '%s': %w", repoURL, err)
+		return nil, fmt.Errorf("failed to parse URL %q: %w", repoURL, err)
 	}
 
 	repoURL = u.String()

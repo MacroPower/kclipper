@@ -19,7 +19,6 @@ import (
 var tempDir string
 
 func init() {
-	//nolint:dogsled
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
 	testdataDir := filepath.Join(dir, "testdata")

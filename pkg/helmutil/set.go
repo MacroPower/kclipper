@@ -26,7 +26,7 @@ func (c *ChartPkg) Set(chart, keyValueOverrides string) error {
 
 	key, value, found := strings.Cut(keyValueOverrides, "=")
 	if !found {
-		return fmt.Errorf("no key=value pair found in '%s'", keyValueOverrides)
+		return fmt.Errorf("no key=value pair found in %q", keyValueOverrides)
 	}
 
 	configValue := reflect.ValueOf(&kclchart.ChartConfig{}).Elem().FieldByNameFunc(func(fieldName string) bool {
@@ -34,7 +34,7 @@ func (c *ChartPkg) Set(chart, keyValueOverrides string) error {
 	})
 
 	if !configValue.CanSet() {
-		return fmt.Errorf("key '%s' is not a valid chart configuration attribute", key)
+		return fmt.Errorf("key %q is not a valid chart configuration attribute", key)
 	}
 
 	setAutomation := kclutil.Automation{key: kclutil.NewString(value)}
@@ -43,7 +43,7 @@ func (c *ChartPkg) Set(chart, keyValueOverrides string) error {
 
 	err := c.updateFile(setAutomation, chartsFile, initialChartContents, chartsSpec)
 	if err != nil {
-		return fmt.Errorf("failed to update '%s': %w", chartsFile, err)
+		return fmt.Errorf("failed to update %q: %w", chartsFile, err)
 	}
 
 	_, err = kcl.FormatPath(c.BasePath)
