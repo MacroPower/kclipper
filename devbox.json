@@ -5,8 +5,6 @@
     "goreleaser": "2.7.0",
     "golangci-lint": "1.64.2",
     "go": "1.23.5",
-    "gofumpt": "0.7.0",
-    "goimports": "latest",
     "git": "2.47.2",
     "nodePackages.prettier": "3.3.3",
     "hyperfine": "1.19",

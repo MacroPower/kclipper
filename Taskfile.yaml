@@ -63,8 +63,6 @@ tasks:
   go-format:
     desc: Formats Go code including imports
     cmds:
-      - gofumpt -w $({{.GO_FILES_CMD}})
-      - goimports -w $({{.GO_FILES_CMD}})
       - golangci-lint run --fix --disable=godot
 
   go-lint:
