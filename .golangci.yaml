@@ -94,6 +94,10 @@ linters-settings:
     period: true
     capital: true
 
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+
 issues:
   exclude-rules:
     - path: _test\.go

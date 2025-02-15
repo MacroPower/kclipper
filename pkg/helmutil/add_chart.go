@@ -82,7 +82,10 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 
 	if chart.CRDPath != "" {
 		crds, err := helmChart.GetCRDs(func(s string) bool {
-			match, _ := filepath.Match(chart.CRDPath, s)
+			match, err := filepath.Match(chart.CRDPath, s)
+			if err != nil {
+				return false
+			}
 
 			return match
 		})

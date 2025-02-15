@@ -46,8 +46,12 @@ func NewChartCmd() *cobra.Command {
 		Example:      chartExample,
 		SilenceUsage: true,
 	}
+
 	cmd.PersistentFlags().StringP("path", "p", "charts", "Base path for the charts package")
-	_ = cmd.MarkFlagDirname("path")
+	if err := cmd.MarkPersistentFlagDirname("path"); err != nil {
+		panic(err)
+	}
+
 	cmd.AddCommand(NewChartInitCmd())
 	cmd.AddCommand(NewChartAddCmd())
 	cmd.AddCommand(NewChartUpdateCmd())

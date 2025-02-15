@@ -86,7 +86,10 @@ func (g *ReaderGenerator) FromFile(path string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
-	baseDir, _ := filepath.Abs(filepath.Dir(path))
+	baseDir, err := filepath.Abs(filepath.Dir(path))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get absolute path: %w", err)
+	}
 
 	return g.FromReader(bytes.NewReader(jsBytes), baseDir)
 }
