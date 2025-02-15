@@ -12,12 +12,11 @@ import (
 )
 
 type ChartPkg struct {
-	BasePath string
 	Client   helm.ChartFileClient
-
-	Vendor, FastEval bool
-
-	mu sync.RWMutex
+	BasePath string
+	mu       sync.RWMutex
+	Vendor   bool
+	FastEval bool
 }
 
 func NewChartPkg(basePath string, client helm.ChartFileClient, opts ...ChartPkgOpts) *ChartPkg {

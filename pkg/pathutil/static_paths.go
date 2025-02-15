@@ -19,8 +19,8 @@ type PathEncoder interface {
 // convert keys to paths. This allows cache preservation across multiple KCL run
 // invocations.
 type StaticTempPaths struct {
-	root string
 	pe   PathEncoder
+	root string
 }
 
 func NewStaticTempPaths(root string, pe PathEncoder) *StaticTempPaths {

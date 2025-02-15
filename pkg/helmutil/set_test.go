@@ -24,9 +24,9 @@ func TestChartPkg_Set(t *testing.T) {
 	ca := helmutil.NewChartPkg(chartPath, nil)
 
 	tests := map[string]struct {
+		expectedError     error
 		chart             string
 		keyValueOverrides string
-		expectedError     error
 	}{
 		"empty chart name": {
 			chart:             "",

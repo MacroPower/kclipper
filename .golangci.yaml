@@ -50,6 +50,11 @@ linters-settings:
     multi-if: true
     multi-func: true
 
+  govet:
+    enable-all: true
+    disable:
+      - shadow
+
   usetesting:
     os-temp-dir: true
 

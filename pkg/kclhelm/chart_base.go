@@ -20,16 +20,16 @@ type ChartBase struct {
 	ReleaseName string `json:"releaseName,omitempty"`
 	// Optional namespace to template with.
 	Namespace string `json:"namespace,omitempty"`
+	// Validator to use for the Values schema.
+	SchemaValidator jsonschema.ValidatorType `json:"schemaValidator,omitempty"`
+	// Helm chart repositories.
+	Repositories []ChartRepo `json:"repositories,omitempty"`
 	// Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).
 	SkipCRDs bool `json:"skipCRDs,omitempty"`
 	// Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).
 	SkipHooks bool `json:"skipHooks,omitempty"`
 	// Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
 	PassCredentials bool `json:"passCredentials,omitempty"`
-	// Validator to use for the Values schema.
-	SchemaValidator jsonschema.ValidatorType `json:"schemaValidator,omitempty"`
-	// Helm chart repositories.
-	Repositories []ChartRepo `json:"repositories,omitempty"`
 }
 
 func (c *ChartBase) GenerateKCL(w io.Writer) error {

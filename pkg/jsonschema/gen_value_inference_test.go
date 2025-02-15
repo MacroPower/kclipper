@@ -17,8 +17,8 @@ func TestValueInferenceGenerator(t *testing.T) {
 	generator := jsonschema.DefaultValueInferenceGenerator
 
 	testCases := map[string]struct {
-		filePaths    []string
 		expectedPath string
+		filePaths    []string
 	}{
 		"SingleFile": {
 			filePaths:    []string{"input/values.yaml"},

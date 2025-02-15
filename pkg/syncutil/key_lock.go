@@ -21,8 +21,8 @@ package syncutil
 import "sync"
 
 type KeyLock struct {
-	guard sync.RWMutex
 	locks map[string]*sync.RWMutex
+	guard sync.RWMutex
 }
 
 func NewKeyLock() *KeyLock {

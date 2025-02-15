@@ -88,8 +88,8 @@ func TestSpecPathJoin(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		input    []string
 		expected string
+		input    []string
 	}{
 		"single path": {
 			input:    []string{"path"},

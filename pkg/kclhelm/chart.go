@@ -11,10 +11,10 @@ import (
 type Chart struct {
 	// Helm values to be passed to Helm template. These take precedence over valueFiles.
 	Values any `json:"values,omitempty"`
-	// Helm value files to be passed to Helm template.
-	ValueFiles []string `json:"valueFiles,omitempty"`
 	// Lambda function to modify the Helm template output. Evaluated for each resource in the Helm template output.
 	PostRenderer any `json:"postRenderer,omitempty"`
+	// Helm value files to be passed to Helm template.
+	ValueFiles []string `json:"valueFiles,omitempty"`
 }
 
 func (c *Chart) GenerateKCL(w io.Writer) error {

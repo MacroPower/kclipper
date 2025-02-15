@@ -26,9 +26,9 @@ func TestKCLConversion(t *testing.T) {
 	t.Parallel()
 
 	testCases := map[string]struct {
+		opts         *kclutil.GenKclOptions
 		filePath     string
 		expectedPath string
-		opts         *kclutil.GenKclOptions
 	}{
 		"SimpleSchema": {
 			filePath:     "input/schema.json",

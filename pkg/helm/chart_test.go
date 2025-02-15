@@ -46,13 +46,12 @@ func TestHelmChart(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		opts         helm.TemplateOpts
 		gen          jsonschema.FileGenerator
 		match        func(string) bool
+		opts         helm.TemplateOpts
+		objectCount  int
 		importValues bool
 		importCRDs   bool
-
-		objectCount int
 	}{
 		"podinfo": {
 			opts: helm.TemplateOpts{

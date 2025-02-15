@@ -13,9 +13,9 @@ func TestFindTopPkgRoot(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
+		err  error
 		path string
 		want string
-		err  error
 	}{
 		"subpkg": {
 			path: filepath.Join(testDataDir, "./kcl/pkg/subpkg"),

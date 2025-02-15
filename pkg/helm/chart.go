@@ -17,18 +17,18 @@ import (
 var ErrNoMatcher = errors.New("no matcher provided")
 
 type TemplateOpts struct {
-	ChartName            string
+	ValuesObject         map[string]any
+	Proxy                string
 	TargetRevision       string
 	RepoURL              string
 	ReleaseName          string
 	Namespace            string
-	ValuesObject         map[string]any
-	SkipCRDs             bool
+	ChartName            string
 	KubeVersion          string
-	APIVersions          []string
-	PassCredentials      bool
-	Proxy                string
 	NoProxy              string
+	APIVersions          []string
+	SkipCRDs             bool
+	PassCredentials      bool
 	SkipSchemaValidation bool
 	SkipHooks            bool
 }
@@ -44,9 +44,8 @@ type JSONSchemaGenerator interface {
 type Chart struct {
 	Client       ChartClient
 	Repos        helmrepo.Getter
+	path         string
 	TemplateOpts TemplateOpts
-
-	path string
 }
 
 func NewChart(client ChartClient, repos helmrepo.Getter, opts TemplateOpts) (*Chart, error) {
@@ -112,10 +111,9 @@ type ChartFileClient interface {
 
 type ChartFiles struct {
 	Client       ChartFileClient
+	closer       io.Closer
+	path         string
 	TemplateOpts TemplateOpts
-
-	path   string
-	closer io.Closer
 }
 
 func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts TemplateOpts) (*ChartFiles, error) {

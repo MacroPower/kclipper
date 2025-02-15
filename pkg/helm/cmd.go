@@ -20,15 +20,14 @@ import (
 
 // A thin wrapper around helm.sh/helm, adding logging and error translation.
 type Cmd struct {
+	rc        *registry.Client
+	settings  *cli.EnvSettings
 	helmHome  string
 	WorkDir   string
-	IsLocal   bool
-	IsHelmOci bool
 	proxy     string
 	noProxy   string
-
-	rc       *registry.Client
-	settings *cli.EnvSettings
+	IsLocal   bool
+	IsHelmOci bool
 }
 
 func NewCmdWithVersion(workDir, proxy, noProxy string) (*Cmd, error) {
@@ -215,15 +214,14 @@ func removeSchemasFromObject(chart *chart.Chart) {
 }
 
 type CmdTemplateOpts struct {
+	RepoGetter           helmrepo.Getter
+	DependencyPuller     ChartClient
+	Values               map[string]any
 	Name                 string
 	Namespace            string
 	KubeVersion          string
 	APIVersions          []string
-	Values               map[string]any
 	SkipCrds             bool
 	SkipSchemaValidation bool
 	SkipHooks            bool
-
-	RepoGetter       helmrepo.Getter
-	DependencyPuller ChartClient
 }

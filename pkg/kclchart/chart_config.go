@@ -31,8 +31,8 @@ func (cd *ChartData) GetSortedKeys() []string {
 // All possible chart configuration that can be defined in `charts.k`,
 // inheriting from `helm.ChartConfig(helm.ChartBase)`.
 type ChartConfig struct {
-	ChartBase       `json:",inline"`
 	HelmChartConfig `json:",inline"`
+	ChartBase       `json:",inline"`
 }
 
 func (c *ChartConfig) GetSnakeCaseName() string {

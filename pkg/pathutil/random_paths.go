@@ -32,8 +32,8 @@ type TempPaths interface {
 
 // RandomizedTempPaths allows generating and memoizing random paths, each path being mapped to a specific key.
 type RandomizedTempPaths struct {
-	root  string
 	paths map[string]string
+	root  string
 	lock  sync.RWMutex
 }
 

@@ -17,8 +17,8 @@ func TestAutoGenerator(t *testing.T) {
 	generator := jsonschema.DefaultAutoGenerator
 
 	testCases := map[string]struct {
-		filePaths    []string
 		expectedPath string
+		filePaths    []string
 	}{
 		"SingleYAMLFile": {
 			filePaths:    []string{"input/values.yaml"},

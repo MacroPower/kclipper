@@ -70,13 +70,12 @@ type Getter interface {
 
 // Manager manages a collection of [Repo]s.
 type Manager struct {
-	reposByName map[string]*Repo
-	reposByURL  map[string]*Repo
-
-	allowedURLSchemes     []string
-	currentPath, repoRoot string
-
-	mu sync.RWMutex
+	reposByName       map[string]*Repo
+	reposByURL        map[string]*Repo
+	currentPath       string
+	repoRoot          string
+	allowedURLSchemes []string
+	mu                sync.RWMutex
 }
 
 // NewManager creates a new [Manager].

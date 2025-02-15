@@ -17,8 +17,8 @@ func TestReaderGenerator(t *testing.T) {
 	generator := jsonschema.DefaultReaderGenerator
 
 	testCases := map[string]struct {
-		filePaths    []string
 		expectedPath string
+		filePaths    []string
 	}{
 		"SingleFile": {
 			filePaths:    []string{"input/schema.json"},
