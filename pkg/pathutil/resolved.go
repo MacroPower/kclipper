@@ -33,8 +33,9 @@ var (
 	ErrResolvedToRepoRoot     = errors.New("path resolved to repository root, which is not allowed")
 )
 
-// ResolvedFilePath represents a resolved file path and is intended to prevent unintentional use of an unverified file
-// path. It is always either a URL or an absolute path.
+// ResolvedFilePath represents a resolved file path and is intended to prevent
+// unintentional use of an unverified file path. It is always either a URL or an
+// absolute path.
 type ResolvedFilePath struct {
 	url  *url.URL
 	path string
@@ -51,8 +52,9 @@ func (r ResolvedFilePath) String() string {
 	return r.path
 }
 
-// ResolvedFileOrDirectoryPath represents a resolved file or directory path and is intended to prevent unintentional use
-// of an unverified file or directory path. It is an absolute path.
+// ResolvedFileOrDirectoryPath represents a resolved file or directory path and
+// is intended to prevent unintentional use of an unverified file or directory
+// path. It is an absolute path.
 type ResolvedFileOrDirectoryPath string
 
 // String returns the resolved absolute file or directory path as a string.
@@ -66,12 +68,12 @@ func (r ResolvedFileOrDirectoryPath) String() string {
 func ResolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 	resolved, err := os.Readlink(path)
 	if err != nil {
-		// path is not a symbolic link
+		// Readlink returning [os.PathError] implies `path` is not a symbolic link.
 		var pathErr *os.PathError
 		if errors.As(err, &pathErr) {
 			return path, nil
 		}
-		// Other error has occurred
+		// Other error has occurred.
 		return "", fmt.Errorf("failed to read link for path '%s': %w", path, err)
 	}
 
@@ -80,7 +82,7 @@ func ResolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 	}
 
 	// If we resolved to a relative symlink, make sure we use the absolute
-	// path for further resolving
+	// path for further resolving.
 	if !strings.HasPrefix(resolved, string(os.PathSeparator)) {
 		basePath := filepath.Dir(path)
 		resolved = filepath.Join(basePath, resolved)
@@ -104,7 +106,7 @@ func isURLSchemeAllowed(scheme string, allowed []string) bool {
 		}
 	}
 
-	// Empty scheme means local file
+	// Empty scheme means local file.
 	return isAllowed && scheme != ""
 }
 
@@ -126,40 +128,36 @@ func ResolveFileOrDirectoryPath(currentPath, repoRoot, dir string) (ResolvedFile
 	return ResolvedFileOrDirectoryPath(path), nil
 }
 
-// ResolveFilePathOrURL will inspect and resolve given file, and make sure
-// that its final path is within the boundaries of the path specified in
-// repoRoot.
+// ResolveFilePathOrURL will inspect and resolve given file, and make sure that
+// its final path is within the boundaries of the path specified in repoRoot.
 //
-// currentPath is the path we're operating in, e.g. where a Helm chart was unpacked
-// to. repoRoot is the path to the root of the repository.
+// `currentPath` is the path we're operating in, e.g. where a Helm chart was
+// unpacked to. `repoRoot` is the path to the root of the repository. If either
+// `currentPath` or `repoRoot` is relative, it will be treated as relative to
+// the current working directory.
 //
-// If either currentPath or repoRoot is relative, it will be treated as relative
-// to the current working directory.
-//
-// file is the path to a file, relative to currentPath. If file is
+// `file` is the path to a file, relative to `currentPath`. If `file` is
 // specified as an absolute path (i.e. leading slash), it will be treated as
-// relative to the repoRoot. In case file is a symlink in the extracted
+// relative to the `repoRoot`. In case `file` is a symlink in the extracted
 // chart, it will be resolved recursively and the decision of whether it is in
-// the boundary of repoRoot will be made using the final resolved path.
-// file can also be a remote URL with a protocol scheme as prefix,
-// in which case the scheme must be included in the list of allowed schemes
-// specified by allowedURLSchemes.
+// the boundary of `repoRoot` will be made using the final resolved path. `file`
+// can also be a remote URL with a protocol scheme as prefix, in which case the
+// scheme must be included in the list of allowed schemes specified by
+// allowedURLSchemes.
 //
-// Will return an error if either file is outside the boundaries of the
-// repoRoot, file is an URL with a forbidden protocol scheme or if
-// file is a recursive symlink nested too deep. May return errors for
-// other reasons as well.
+// Will return an error if either `file` is outside the boundaries of the
+// repoRoot, `file` is an URL with a forbidden protocol scheme or if `file` is a
+// recursive symlink nested too deep. May return errors for other reasons as
+// well.
 //
-// resolvedPath will hold the absolute, resolved path for file on success
-// or set to the empty string on failure.
-func ResolveFilePathOrURL(
-	currentPath, repoRoot, file string, allowedURLSchemes []string,
-) (ResolvedFilePath, error) {
+// [ResolvedFilePath] will hold the absolute, resolved path for `file` on
+// success.
+func ResolveFilePathOrURL(currentPath, repoRoot, file string, allowedURLSchemes []string) (ResolvedFilePath, error) {
 	// A file can be specified as an URL to a remote resource.
 	// We only allow certain URL schemes for remote files.
 	url, err := url.Parse(file)
 	if err == nil {
-		// If scheme is empty, it means we parsed a path only
+		// If scheme is empty, it means we parsed a path only.
 		if url.Scheme != "" {
 			if isURLSchemeAllowed(url.Scheme, allowedURLSchemes) {
 				return ResolvedFilePath{path: file, url: url}, nil
@@ -180,14 +178,14 @@ func ResolveFilePathOrURL(
 func resolveFileOrDirectory(
 	currentPath string, repoRoot string, fileOrDirectory string, allowResolveToRoot bool,
 ) (string, error) {
-	// Ensure that our repository root is absolute
+	// Ensure that our repository root is absolute.
 	absRepoPath, err := filepath.Abs(repoRoot)
 	if err != nil {
 		return "", resolveFailure(repoRoot, err)
 	}
 
-	// If the path to the file or directory is relative, join it with the current working directory (currentPath)
-	// Otherwise, join it with the repository's root
+	// If the path to the file or directory is relative, join it with `currentPath`.
+	// Otherwise, join it with the repository's root.
 	path := fileOrDirectory
 	if !filepath.IsAbs(path) {
 		absWorkDir, err := filepath.Abs(currentPath)
@@ -200,7 +198,7 @@ func resolveFileOrDirectory(
 		path = filepath.Join(absRepoPath, path)
 	}
 
-	// Ensure any symbolic link is resolved before we evaluate the path
+	// Ensure any symbolic link is resolved before we evaluate the path.
 	delinkedPath, err := ResolveSymbolicLinkRecursive(path, 10)
 	if err != nil {
 		return "", resolveFailure(repoRoot, err)
@@ -208,14 +206,14 @@ func resolveFileOrDirectory(
 
 	path = delinkedPath
 
-	// Resolve the joined path to an absolute path
+	// Resolve the joined path to an absolute path.
 	path, err = filepath.Abs(path)
 	if err != nil {
 		return "", resolveFailure(repoRoot, err)
 	}
 
 	// Ensure our root path has a trailing slash, otherwise the following check
-	// would return true if root is /foo and path would be /foo2
+	// would return true if root is `/foo` and path would be `/foo2`.
 	requiredRootPath := absRepoPath
 	if !strings.HasSuffix(requiredRootPath, string(os.PathSeparator)) {
 		requiredRootPath += string(os.PathSeparator)
@@ -227,7 +225,7 @@ func resolveFileOrDirectory(
 			return "", fmt.Errorf("%w: %s", ErrResolvedToRepoRoot, path)
 		}
 	} else {
-		// Make sure that the resolved path to file is within the repository's root path
+		// Make sure that the resolved path to file is within the repository's root path.
 		if !strings.HasPrefix(path, requiredRootPath) {
 			return "", fmt.Errorf("%w: %s", ErrResolvedOutsideRepo, fileOrDirectory)
 		}

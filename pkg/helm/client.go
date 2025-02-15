@@ -141,7 +141,7 @@ func (c *Client) getCachedOrRemoteChart(chart, version string, repo *helmrepo.Re
 	c.RepoLock.Lock(cachedChartPath)
 	defer c.RepoLock.Unlock(cachedChartPath)
 
-	// check if chart tar is already downloaded
+	// Check if chart tar is already downloaded.
 	exists, err := fileExists(cachedChartPath)
 	if err != nil {
 		return "", fmt.Errorf("error checking existence of cached chart path: %w", err)
@@ -163,7 +163,7 @@ func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.
 		return fmt.Errorf("error creating Helm command: %w", err)
 	}
 
-	// create empty temp directory to extract chart from the registry
+	// Create empty temp directory to extract chart from the registry.
 	tempDest, err := createTempDir(os.TempDir())
 	if err != nil {
 		return fmt.Errorf("error creating temporary destination directory: %w", err)
@@ -175,7 +175,7 @@ func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.
 		return fmt.Errorf("error fetching chart: %w", err)
 	}
 
-	// 'helm pull/fetch' file downloads chart into the tgz file and we move that to where we want it
+	// 'helm pull/fetch' file downloads chart into the tgz file and we move that to where we want it.
 	infos, err := os.ReadDir(tempDest)
 	if err != nil {
 		return fmt.Errorf("error reading directory %s: %w", tempDest, err)

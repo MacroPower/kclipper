@@ -50,12 +50,18 @@ linters-settings:
     multi-if: true
     multi-func: true
 
+  godot:
+    scope: all
+    period: true
+    capital: true
+
 issues:
   exclude-rules:
     - path: _test\.go
       linters:
         - dupl
         - promlinter
+        - godot
     - source: "^// http(s)?://([^\\s]*)$"
       linters:
         - lll

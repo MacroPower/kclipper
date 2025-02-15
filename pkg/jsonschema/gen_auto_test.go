@@ -52,17 +52,17 @@ func TestAutoGenerator(t *testing.T) {
 				testFilePath := filepath.Join(testDataDir, filePath)
 				testFilePaths = append(testFilePaths, testFilePath)
 
-				// Ensure test file exists
+				// Ensure test file exists.
 				_, err := os.Stat(testFilePath)
 				require.NoError(t, err)
 			}
 
-			// Test FromPaths
+			// Test FromPaths.
 			schemaBytes, err := generator.FromPaths(testFilePaths...)
 			require.NoError(t, err)
 			require.NotEmpty(t, schemaBytes)
 
-			// Verify the output schema
+			// Verify the output schema.
 			wantFilePath := filepath.Join(testDataDir, tc.expectedPath)
 			expectedSchema, err := os.ReadFile(wantFilePath)
 			require.NoError(t, err)

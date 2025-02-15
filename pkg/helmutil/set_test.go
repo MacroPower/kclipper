@@ -14,7 +14,7 @@ import (
 func TestChartPkg_Set(t *testing.T) {
 	t.Parallel()
 
-	// Setup test data
+	// Setup test data.
 	basePath := "testdata/got/set"
 	chartPath := path.Join(basePath, "charts")
 	_ = os.RemoveAll(chartPath)

@@ -43,7 +43,7 @@ func (c *ChartPkg) Init() error {
 	}
 
 	if exists {
-		// kcl.mod already exists, nothing to do
+		// `kcl.mod` already exists, nothing to do.
 		return nil
 	}
 

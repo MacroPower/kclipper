@@ -44,10 +44,11 @@ func FindTopPkgRoot(root, path string) (string, error) {
 // FindRepoRoot returns topmost (i.e. passing submodules) git repository for the
 // provided path. If no git repository is found, it will return an error.
 func FindRepoRoot(path string) (string, error) {
-	// Look for a `.git` directory containing a `HEAD` file.
 	// Ideally this would be `git rev-parse --show-toplevel` but I didn't want to
 	// add another package just for this. To see what is normally looked up:
-	// sudo ktrace trace -S -f C3 -c git rev-parse --show-toplevel | grep .git/
+	// 	sudo ktrace trace -S -f C3 -c git rev-parse --show-toplevel | grep .git/
+
+	// Look for a `.git` directory containing a `HEAD` file.
 	target1 := ".git"
 	target2 := "HEAD"
 

@@ -13,12 +13,12 @@ func TestNoGenerator(t *testing.T) {
 
 	generator := jsonschema.DefaultNoGenerator
 
-	// Test FromPaths
+	// Test FromPaths.
 	out, err := generator.FromPaths("path")
 	require.NoError(t, err)
 	require.Empty(t, out)
 
-	// Test FromData
+	// Test FromData.
 	out, err = generator.FromData([]byte("data"))
 	require.NoError(t, err)
 	require.Empty(t, out)

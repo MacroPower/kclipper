@@ -61,7 +61,7 @@ tasks:
     cmds:
       - gofumpt -w $({{.GO_FILES_CMD}})
       - goimports -w $({{.GO_FILES_CMD}})
-      - golangci-lint run --fix
+      - golangci-lint run --fix --disable=godot
 
   go-lint:
     desc: Lints Go code

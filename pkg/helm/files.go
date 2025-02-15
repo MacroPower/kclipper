@@ -56,7 +56,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 
 		//nolint:gosec // G305 checked by [inbound].
 		target := filepath.Join(dstPath, header.Name)
-		// Sanity check to protect against zip-slip
+		// Sanity check to protect against zip-slip.
 		if !inbound(target, dstPath) {
 			return fmt.Errorf("illegal filepath in archive: %s", target)
 		}

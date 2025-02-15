@@ -1,6 +1,6 @@
 // Copyright (c) 2023 dadav, Licensed under the MIT License.
 // Modifications Copyright (c) 2024-2025 Jacob Colvin
-// Licensed under the Apache License, Version 2.0
+// Licensed under the Apache License, Version 2.0.
 
 package jsonschema
 
@@ -132,16 +132,16 @@ func (g *ValueInferenceGenerator) schemaFromFilePath(path string) (*helmschema.S
 }
 
 func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schema, error) {
-	// Check if a schema reference exists in the yaml file
+	// Check if a schema reference exists in the yaml file.
 	schemaRef := `# yaml-language-server: $schema=`
 	if strings.Contains(string(data), schemaRef) {
 		return nil, errors.New("schema reference already exists in values file")
 	}
 
 	var err error
-	// Optional preprocessing
+	// Optional preprocessing.
 	if g.uncommentYAMLBlocks {
-		// Remove comments from valid yaml
+		// Remove comments from valid yaml.
 		data, err = util.RemoveCommentsFromYaml(bytes.NewReader(data))
 		if err != nil {
 			return nil, fmt.Errorf("failed uncommenting yaml: %w", err)
@@ -270,7 +270,7 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 		dest.Default = src.Default
 	}
 
-	// Resolve simple fields by favoring the fields from 'src' if they're provided
+	// Resolve simple fields by favoring the fields from 'src' if they're provided.
 	if !src.Type.IsEmpty() {
 		dest.Type = src.Type
 	}
@@ -339,7 +339,7 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 		dest.Id = src.Id
 	}
 
-	// Merge 'enum' field (assuming that maintaining order doesn't matter)
+	// Merge 'enum' field (assuming that maintaining order doesn't matter).
 	dest.Enum = slices.Compact(append(dest.Enum, src.Enum...))
 
 	dest.Required = helmschema.BoolOrArrayOfString{
@@ -347,7 +347,7 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 		Strings: intersectStringSlices(dest.Required.Strings, src.Required.Strings),
 	}
 
-	// Recursive calls for nested structures
+	// Recursive calls for nested structures.
 	if src.Properties != nil {
 		if dest.Properties == nil {
 			dest.Properties = make(map[string]*helmschema.Schema)
@@ -369,7 +369,7 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 		}
 	}
 
-	// Merge 'items' if they exist (assuming they're not arrays)
+	// Merge 'items' if they exist (assuming they're not arrays).
 	if src.Items != nil {
 		dest.Items = mergeHelmSchemas(dest.Items, src.Items, setDefaults)
 	}

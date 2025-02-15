@@ -1,6 +1,6 @@
 // Copyright (c) 2023 dadav, Licensed under the MIT License.
 // Modifications Copyright (c) 2024-2025 Jacob Colvin
-// Licensed under the Apache License, Version 2.0
+// Licensed under the Apache License, Version 2.0.
 
 package jsonschema
 
@@ -28,77 +28,83 @@ import (
 //   - schema: Pointer to the Schema object containing the references to resolve.
 //   - basePath: Path to the current file, used for resolving relative paths.
 func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
-	// Handle $ref in pattern properties
+	// Handle $ref in PatternProperties.
 	if schema.PatternProperties != nil {
 		for pattern, subSchema := range schema.PatternProperties {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
 
-			schema.PatternProperties[pattern] = subSchema // Update the original schema in the map
+			// Update the original schema in the map.
+			schema.PatternProperties[pattern] = subSchema
 		}
 	}
 
-	// Handle $ref in properties
+	// Handle $ref in Properties.
 	if schema.Properties != nil {
 		for property, subSchema := range schema.Properties {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
 
-			schema.Properties[property] = subSchema // Update the original schema in the map
+			// Update the original schema in the map.
+			schema.Properties[property] = subSchema
 		}
 	}
 
-	// Handle $ref in additional properties
+	// Handle $ref in AdditionalProperties.
 	if err := derefAdditionalProperties(schema, basePath); err != nil {
 		schema.AdditionalProperties = true
 	}
 
-	// Handle $ref in items
+	// Handle $ref in Items.
 	if schema.Items != nil {
 		subSchema := schema.Items
 		if err := handleSchemaRefs(subSchema, basePath); err != nil {
 			return err
 		}
 
-		schema.Items = subSchema // Update the original schema
+		// Update the original schema.
+		schema.Items = subSchema
 	}
 
-	// Handle $ref in allOf
+	// Handle $ref in AllOf.
 	if schema.AllOf != nil {
 		for i, subSchema := range schema.AllOf {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
 
-			schema.AllOf[i] = subSchema // Update the original schema in the slice
+			// Update the original schema in the slice.
+			schema.AllOf[i] = subSchema
 		}
 	}
 
-	// Handle $ref in anyOf
+	// Handle $ref in AnyOf.
 	if schema.AnyOf != nil {
 		for i, subSchema := range schema.AnyOf {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
 
-			schema.AnyOf[i] = subSchema // Update the original schema in the slice
+			// Update the original schema in the slice.
+			schema.AnyOf[i] = subSchema
 		}
 	}
 
-	// Handle $ref in oneOf
+	// Handle $ref in OneOf.
 	if schema.OneOf != nil {
 		for i, subSchema := range schema.OneOf {
 			if err := handleSchemaRefs(subSchema, basePath); err != nil {
 				return err
 			}
 
-			schema.OneOf[i] = subSchema // Update the original schema in the slice
+			// Update the original schema in the slice.
+			schema.OneOf[i] = subSchema
 		}
 	}
 
-	// Handle main schema $ref
+	// Handle main schema $ref.
 	if schema.Ref == "" {
 		return nil
 	}

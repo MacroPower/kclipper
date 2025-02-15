@@ -1,6 +1,6 @@
 // Copyright 2017-2018 The Argo Authors
 // Modifications Copyright 2024-2025 Jacob Colvin
-// Licensed under the Apache License, Version 2.0
+// Licensed under the Apache License, Version 2.0.
 
 package pathutil_test
 
