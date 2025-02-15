@@ -35,7 +35,10 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 	externalPkgs := depOutput.GetExternalPkgs()
 
-	slog.Debug("running kcl", slog.String("path", c.BasePath), slog.String("deps", fmt.Sprint(externalPkgs)))
+	slog.Debug("running kcl",
+		slog.String("path", c.BasePath),
+		slog.String("deps", fmt.Sprint(externalPkgs)),
+	)
 
 	mainOutput, err := svc.ExecProgram(&gpyrpc.ExecProgram_Args{
 		WorkDir:       absBasePath,
@@ -70,13 +73,18 @@ func (c *ChartPkg) Update(charts ...string) error {
 			return fmt.Errorf("chart key '%s' does not match generated key '%s'", k, chartKey)
 		}
 
+		chartSlog := slog.With(
+			slog.String("chart_name", chartName),
+			slog.String("chart_key", chartKey),
+		)
+
 		if len(charts) > 0 && !slices.Contains(charts, chartName) && !slices.Contains(charts, chartKey) {
-			slog.Info("skipping chart", slog.String("name", chartName), slog.String("key", chartKey))
+			chartSlog.Info("skipping chart")
 
 			continue
 		}
 
-		slog.Info("updating chart", slog.String("name", chartName), slog.String("key", chartKey))
+		chartSlog.Info("updating chart")
 
 		err := c.AddChart(&chart)
 		if err != nil {

@@ -114,7 +114,10 @@ func isURLSchemeAllowed(scheme string, allowed []string) bool {
 // returned to the user and could be used for information gathering.
 // Instead, we log the concrete error details.
 func resolveFailure(path string, err error) error {
-	slog.Error("failed to resolve path", "path", path, "err", err)
+	slog.Error("failed to resolve path",
+		slog.String("path", path),
+		slog.Any("err", err),
+	)
 
 	return fmt.Errorf("%w: %w", ErrResolvePath, err)
 }

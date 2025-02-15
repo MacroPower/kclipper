@@ -21,6 +21,9 @@ func newInlineCloser(closeFn func() error) *InlineCloser {
 // method, logging any errors.
 func tryClose(c io.Closer) {
 	if err := c.Close(); err != nil {
-		slog.Warn("failed to close", "closer", c, "err", err)
+		slog.Warn("failed to close",
+			slog.Any("closer", c),
+			slog.Any("err", err),
+		)
 	}
 }

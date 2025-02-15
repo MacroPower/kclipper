@@ -26,6 +26,7 @@ linters:
     - gocognit # Disabled length/complexity linters.
     - gocyclo # Disabled length/complexity linters.
     - godox # Prevents TODO/BUG/FIXME.
+    - loggercheck # Using sloglint instead.
     - mnd # Sometimes more readable.
     - tagliatelle # Enable if standards are known.
     - varnamelen # Disabled length/complexity linters.
@@ -48,6 +49,17 @@ linters-settings:
   whitespace:
     multi-if: true
     multi-func: true
+
+  sloglint:
+    attr-only: true
+    static-msg: true
+    args-on-sep-lines: true
+    key-naming-case: snake
+    context: scope
+    forbidden-keys:
+      - time
+      - level
+      - msg
 
   gofmt:
     simplify: true
