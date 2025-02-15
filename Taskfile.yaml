@@ -36,7 +36,11 @@ tasks:
 
   lint:
     desc: Runs all lint targets
-    deps: [go-lint, renovate-lint, actions-lint]
+    deps:
+      - go-lint
+      - renovate-lint
+      - actions-lint
+      - goreleaser-lint
 
   test:
     desc: Runs all test targets
@@ -260,3 +264,8 @@ tasks:
     desc: Lints GitHub Actions
     cmds:
       - zizmor .github/workflows --config .github/zizmor.yaml
+
+  goreleaser-lint:
+    desc: Lints GoReleaser configuration
+    cmds:
+      - goreleaser check
