@@ -48,7 +48,7 @@ func TestRun(t *testing.T) {
 }
 
 func BenchmarkRun(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		tc := cli.NewRootCmd("test", "", "")
 
 		// plugin.RegisterPlugin(helm.HelmPlugin)
