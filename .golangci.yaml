@@ -19,7 +19,7 @@ linters:
     - exportloopref # Replaced by copyloopvar.
     - forbidigo # Enable with settings for required guards.
     - funlen # Disabled length/complexity linters.
-    - gci # Using goimports instead.
+    - goimports # Using gci instead.
     - ginkgolinter # Enable if using Ginkgo.
     - gochecknoglobals # Useful in some cases.
     - gochecknoinits # Useful in some cases.
@@ -39,8 +39,14 @@ linters-settings:
   exhaustive:
     default-signifies-exhaustive: true
 
-  goimports:
-    local-prefixes: github.com/MacroPower/kclipper
+  gci:
+    sections:
+      - standard
+      - default
+      - blank
+      - dot
+      - alias
+      - localmodule
 
   wsl:
     force-err-cuddling: true

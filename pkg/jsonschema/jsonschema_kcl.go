@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"fmt"
 
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
 	"gopkg.in/yaml.v3"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
+
+	helmschema "github.com/dadav/helm-schema/pkg/schema"
 
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 )

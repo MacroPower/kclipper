@@ -10,8 +10,9 @@ import (
 	"os"
 	"path/filepath"
 
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
 	"gopkg.in/yaml.v3"
+
+	helmschema "github.com/dadav/helm-schema/pkg/schema"
 )
 
 // DefaultReaderGenerator is an opinionated [ReaderGenerator].

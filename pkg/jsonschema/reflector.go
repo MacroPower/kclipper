@@ -7,8 +7,9 @@ import (
 	"reflect"
 	"regexp"
 
-	invopopjsonschema "github.com/invopop/jsonschema"
 	"kcl-lang.io/kcl-go/pkg/tools/gen"
+
+	invopopjsonschema "github.com/invopop/jsonschema"
 
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 )

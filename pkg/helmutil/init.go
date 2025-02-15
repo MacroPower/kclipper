@@ -6,6 +6,7 @@ import (
 
 	"kcl-lang.io/kpm/pkg/downloader"
 	"kcl-lang.io/kpm/pkg/opt"
+
 	kclpkg "kcl-lang.io/kpm/pkg/package"
 
 	"github.com/MacroPower/kclipper/internal/version"

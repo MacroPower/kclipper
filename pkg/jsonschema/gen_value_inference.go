@@ -14,9 +14,10 @@ import (
 	"slices"
 	"strings"
 
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
 	"github.com/dadav/helm-schema/pkg/util"
 	"gopkg.in/yaml.v3"
+
+	helmschema "github.com/dadav/helm-schema/pkg/schema"
 )
 
 var defaultValuesFileRegex = regexp.MustCompile(`^(.*/)?values\.ya?ml$`)

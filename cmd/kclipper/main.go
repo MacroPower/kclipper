@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 	"kcl-lang.io/cli/pkg/plugin"
+
+	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 
 	"github.com/MacroPower/kclipper/internal/cli"
 	"github.com/MacroPower/kclipper/pkg/log"

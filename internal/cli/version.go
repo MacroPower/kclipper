@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
 	kclversion "kcl-lang.io/cli/pkg/version"
 
 	"github.com/MacroPower/kclipper/internal/version"

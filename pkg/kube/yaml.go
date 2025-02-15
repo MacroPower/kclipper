@@ -26,8 +26,9 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	kubeyaml "k8s.io/apimachinery/pkg/util/yaml"
 	"sigs.k8s.io/yaml"
+
+	kubeyaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 
 // SplitYAML splits a YAML file into unstructured objects. Returns list of all unstructured objects

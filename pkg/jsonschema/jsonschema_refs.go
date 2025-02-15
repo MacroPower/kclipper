@@ -13,8 +13,9 @@ import (
 	"strings"
 
 	"github.com/dadav/go-jsonpointer"
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
 	"gopkg.in/yaml.v3"
+
+	helmschema "github.com/dadav/helm-schema/pkg/schema"
 )
 
 // handleSchemaRefs processes and resolves JSON Schema references ($ref) within a schema.

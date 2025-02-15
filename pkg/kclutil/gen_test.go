@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	kclgen "kcl-lang.io/kcl-go/pkg/tools/gen"
 
 	"github.com/MacroPower/kclipper/pkg/kclutil"
