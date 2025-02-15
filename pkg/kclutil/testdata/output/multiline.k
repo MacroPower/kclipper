@@ -9,23 +9,15 @@ schema Chart:
 
     Attributes
     ----------
-    foo : str, optional,
-        default is
-        ```
-        This is a multi-line default.
-
-        It has 'multiple lines'.
-
-        And `even` some #markdown.
-        ```
-        This is a multi-line description.
+    foo : str, optional, default is "This is a multi-line \"default\".\n\nIt has 'multiple lines'.\n\nAnd `even` some #markdown."
+        This is a multi-line "description".
 
         It has 'multiple lines'.
 
         And `even` some #markdown.
     """
 
-    foo?: str = r"""This is a multi-line default.
+    foo?: str = r"""This is a multi-line "default".
 
 It has 'multiple lines'.
 

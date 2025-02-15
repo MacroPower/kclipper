@@ -3,11 +3,11 @@
   "additionalProperties": true,
   "properties": {
     "foo": {
-      "default": "This is a multi-line default.\n\nIt has 'multiple lines'.\n\nAnd `even` some #markdown.",
+      "default": "This is a multi-line \"default\".\n\nIt has 'multiple lines'.\n\nAnd `even` some #markdown.",
       "required": [],
       "title": "foo",
       "type": "string",
-      "description": "This is a multi-line description.\n\nIt has 'multiple lines'.\n\nAnd `even` some #markdown."
+      "description": "This is a multi-line \"description\".\n\nIt has 'multiple lines'.\n\nAnd `even` some #markdown."
     }
   },
   "required": []
