@@ -50,6 +50,14 @@ linters-settings:
     multi-if: true
     multi-func: true
 
+  usetesting:
+    os-temp-dir: true
+
+  testifylint:
+    enable-all: true
+    expected-actual:
+      pattern: ^want
+
   sloglint:
     attr-only: true
     static-msg: true
