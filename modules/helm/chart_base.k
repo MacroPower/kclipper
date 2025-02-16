@@ -19,16 +19,16 @@ schema ChartBase:
         Helm release name to use. If omitted the chart name will be used.
     namespace : str, optional
         Optional namespace to template with.
+    schemaValidator : "KCL" | "HELM", optional
+        Validator to use for the Values schema.
+    repositories : [ChartRepo], optional
+        Helm chart repositories.
     skipCRDs : bool, optional
         Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).
     skipHooks : bool, optional
         Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).
     passCredentials : bool, optional
         Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
-    schemaValidator : "KCL" | "HELM", optional
-        Validator to use for the Values schema.
-    repositories : [ChartRepo], optional
-        Helm chart repositories.
     """
 
     chart: str
@@ -36,9 +36,9 @@ schema ChartBase:
     targetRevision?: str
     releaseName?: str
     namespace?: str
+    schemaValidator?: "KCL" | "HELM"
+    repositories?: [ChartRepo]
     skipCRDs?: bool
     skipHooks?: bool
     passCredentials?: bool
-    schemaValidator?: "KCL" | "HELM"
-    repositories?: [ChartRepo]
 
