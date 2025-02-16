@@ -11,7 +11,10 @@
     "cobra-cli": "1.3.0",
     "graphviz": "12.2.1",
     "zig": "0.10",
-    "zizmor": "1.3.0"
+    "zizmor": "1.3.0",
+    "darwin.libresolv": {
+      "platforms": ["aarch64-darwin", "x86_64-darwin"]
+    }
   },
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"]
