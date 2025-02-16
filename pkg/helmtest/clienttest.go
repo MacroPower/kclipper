@@ -56,32 +56,23 @@ type TestClient struct {
 }
 
 func (c *TestClient) Pull(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, error) {
-	p, _, err := c.pull(ctx, chart, repo, version, false, repos)
+	time.Sleep(c.Latency)
 
-	return p, err
+	chartPath, err := c.BaseClient.Pull(ctx, chart, repo, version, repos)
+	if err != nil {
+		return "", fmt.Errorf("%w: %w", ErrTestClient, err)
+	}
+
+	return chartPath, nil
 }
 
 func (c *TestClient) PullAndExtract(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
-	return c.pull(ctx, chart, repo, version, true, repos)
-}
-
-//nolint:revive // TODO: Refactor this.
-func (c *TestClient) pull(ctx context.Context, chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
 	time.Sleep(c.Latency)
 
-	if extract {
-		chartPath, closer, err := c.BaseClient.PullAndExtract(ctx, chart, repo, version, repos)
-		if err != nil {
-			return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
-		}
-
-		return chartPath, closer, nil
-	}
-
-	chartPath, err := c.BaseClient.Pull(ctx, chart, repo, version, repos)
+	chartPath, closer, err := c.BaseClient.PullAndExtract(ctx, chart, repo, version, repos)
 	if err != nil {
 		return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
 	}
 
-	return chartPath, nil, nil
+	return chartPath, closer, nil
 }

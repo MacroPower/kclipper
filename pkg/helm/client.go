@@ -92,50 +92,50 @@ func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 	return c
 }
 
-// Pull will retrieve the chart, and return the path to the chart .tar.gz file.
-// Pulled charts will be stored in the injected [PathCacher], and subsequent
-// requests will try to use [PathCacher] rather than re-pulling the chart.
+// Pull pulls the Helm chart and returns the path to the chart directory or
+// .tar.gz file. Pulled charts will be stored in the injected [PathCacher], and
+// subsequent requests will try to use [PathCacher] rather than re-pulling the
+// chart.
 func (c *Client) Pull(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, error) {
-	p, _, err := c.pull(ctx, chart, repo, version, false, repos)
-
-	return p, err
-}
-
-// PullAndExtract will retrieve the chart, extract it, and return the path to the
-// extracted chart. An [io.Closer] is also returned, calling Close() will clean up
-// the extracted chart. Pulled charts will be stored in the injected [PathCacher]
-// in .tar.gz format, and subsequent requests will try to use [PathCacher] rather
-// than re-pulling the chart.
-func (c *Client) PullAndExtract(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
-	return c.pull(ctx, chart, repo, version, true, repos)
-}
-
-//nolint:revive // TODO: Refactor this.
-func (c *Client) pull(ctx context.Context, chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
 	hr, err := repos.Get(repo)
 	if err != nil {
-		return "", nil, fmt.Errorf("error getting repo %q: %w", repo, err)
+		return "", fmt.Errorf("error getting repo %q: %w", repo, err)
 	}
 
 	if hr.IsLocal() {
 		chartPath, err := c.getLocalChart(chart, hr)
 		if err != nil {
-			return "", nil, fmt.Errorf("error getting local chart: %w", err)
+			return "", fmt.Errorf("error getting local chart: %w", err)
 		}
 
-		return chartPath, nil, err
+		return chartPath, err
 	}
 
 	chartPath, err := c.getCachedOrRemoteChart(ctx, chart, version, hr)
 	if err != nil {
+		return "", fmt.Errorf("error pulling helm chart: %w", err)
+	}
+
+	return chartPath, err
+}
+
+// PullAndExtract will retrieve the chart, extract it (if it is a .tar.gz file),
+// and return the path to the extracted chart. An [io.Closer] is also returned,
+// calling Close() will clean up the extracted chart. Pulled charts will be
+// stored in the injected [PathCacher] in .tar.gz format, and subsequent
+// requests will try to use [PathCacher] rather than re-pulling the chart.
+func (c *Client) PullAndExtract(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
+	closer := NewNopCloser()
+
+	chartPath, err := c.Pull(ctx, chart, repo, version, repos)
+	if err != nil {
 		return "", nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
 
-	if !extract {
-		return chartPath, nil, nil
+	// If the chart is already extracted, return the path to the extracted chart.
+	if dirExists(chartPath) {
+		return chartPath, closer, nil
 	}
-
-	var closer io.Closer
 
 	chartPath, closer, err = c.extractChart(chart, chartPath)
 	if err != nil {
