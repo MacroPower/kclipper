@@ -45,16 +45,21 @@ func main() {
 
 	cmd := cli.NewRootCmd(cmdName, shortDesc, longDesc)
 
-	err := bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
+	ok, err := bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
 		os.Exit(1)
+	}
+	if ok {
+		os.Exit(0)
 	}
 
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
 		os.Exit(1)
 	}
+
+	os.Exit(0)
 }
 
 // executeRunCmd the run command for the root command.
@@ -73,13 +78,13 @@ func isHelpOrVersionFlag(flag string) bool {
 	return flag == "-h" || flag == "--help" || flag == "-v" || flag == "--version"
 }
 
-func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) error {
+func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) (bool, error) {
 	if pluginHandler == nil {
-		return nil
+		return false, nil
 	}
 
 	if len(os.Args) <= 1 {
-		return nil
+		return false, nil
 	}
 
 	cmdPathPieces := os.Args[1:]
@@ -88,12 +93,12 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 	// the specified command does not already exist.
 	// Flags cannot be placed before plugin name.
 	if strings.HasPrefix(cmdPathPieces[0], "-") && !isHelpOrVersionFlag(cmdPathPieces[0]) {
-		return executeRunCmd(cmdPathPieces)
+		return true, executeRunCmd(cmdPathPieces)
 	}
 
 	foundCmd, _, err := cmd.Find(cmdPathPieces)
 	if err == nil {
-		return nil
+		return false, nil
 	}
 
 	// Also check the commands that will be added by Cobra.
@@ -125,12 +130,12 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 	default:
 		if !builtinSubCmdExist {
 			if err := plugin.HandlePluginCommand(pluginHandler, cmdPathPieces, false); err != nil {
-				return fmt.Errorf("error handling plugin command: %w", err)
+				return false, fmt.Errorf("error handling plugin command: %w", err)
 			}
 
-			return executeRunCmd(cmdPathPieces)
+			return true, executeRunCmd(cmdPathPieces)
 		}
 	}
 
-	return nil
+	return false, nil
 }
