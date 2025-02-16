@@ -50,7 +50,7 @@ type FileGenerator interface {
 
 // GetGenerator returns a [FileGenerator] for the given [GeneratorType].
 //
-//nolint:ireturn,nolintlint // Multiple concrete types.
+//nolint:ireturn // Multiple concrete types.
 func GetGenerator(t GeneratorType) FileGenerator {
 	switch t {
 	case DefaultGeneratorType, AutoGeneratorType:
