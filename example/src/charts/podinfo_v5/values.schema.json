@@ -24,7 +24,7 @@
     },
     "cache": {
       "default": "",
-      "description": "Redis address in the format \u003chost\u003e:\u003cport\u003e",
+      "description": "Redis address in the format tcp://\u003chost\u003e:\u003cport\u003e",
       "required": [],
       "title": "cache",
       "type": "string"
@@ -73,6 +73,47 @@
       "required": [],
       "title": "certificate",
       "type": "object"
+    },
+    "config": {
+      "additionalProperties": true,
+      "description": "config file settings",
+      "properties": {
+        "name": {
+          "default": "",
+          "description": "config file name",
+          "required": [],
+          "title": "name",
+          "type": "string"
+        },
+        "path": {
+          "default": "",
+          "description": "config file path",
+          "required": [],
+          "title": "path",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "title": "config",
+      "type": "object"
+    },
+    "extraArgs": {
+      "description": "Additional command line arguments to pass to podinfo container",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraArgs",
+      "type": "array"
+    },
+    "extraEnvs": {
+      "description": "Extra environment variables for the podinfo container",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraEnvs",
+      "type": "array"
     },
     "faults": {
       "additionalProperties": true,
@@ -205,7 +246,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "5.2.1",
+          "default": "6.7.1",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -218,10 +259,21 @@
     "ingress": {
       "additionalProperties": true,
       "properties": {
+        "additionalLabels": {
+          "required": [],
+          "title": "additionalLabels",
+          "type": "object"
+        },
         "annotations": {
           "required": [],
           "title": "annotations",
           "type": "object"
+        },
+        "className": {
+          "default": "",
+          "required": [],
+          "title": "className",
+          "type": "string"
         },
         "enabled": {
           "default": false,
@@ -230,22 +282,47 @@
           "type": "boolean"
         },
         "hosts": {
+          "description": "kubernetes.io/ingress.class: nginx\nkubernetes.io/tls-acme: \"true\"",
           "items": {
-            "required": []
+            "properties": {
+              "host": {
+                "default": "podinfo.local",
+                "required": [],
+                "title": "host",
+                "type": "string"
+              },
+              "paths": {
+                "items": {
+                  "properties": {
+                    "path": {
+                      "default": "/",
+                      "required": [],
+                      "title": "path",
+                      "type": "string"
+                    },
+                    "pathType": {
+                      "default": "ImplementationSpecific",
+                      "required": [],
+                      "title": "pathType",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "title": "paths",
+                "type": "array"
+              }
+            },
+            "required": [],
+            "type": "object"
           },
           "required": [],
           "title": "hosts",
           "type": "array"
         },
-        "path": {
-          "default": "/*",
-          "description": "kubernetes.io/ingress.class: nginx\nkubernetes.io/tls-acme: \"true\"",
-          "required": [],
-          "title": "path",
-          "type": "string"
-        },
         "tls": {
-          "description": " - podinfo.local",
           "items": {
             "required": []
           },
@@ -297,6 +374,139 @@
       "title": "podAnnotations",
       "type": "object"
     },
+    "podDisruptionBudget": {
+      "additionalProperties": true,
+      "description": "Disruption budget will be configured only when the replicaCount is greater than 1",
+      "required": [],
+      "title": "podDisruptionBudget",
+      "type": "object"
+    },
+    "probes": {
+      "additionalProperties": true,
+      "description": "https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
+      "properties": {
+        "liveness": {
+          "properties": {
+            "failureThreshold": {
+              "default": 3,
+              "required": [],
+              "title": "failureThreshold",
+              "type": "integer"
+            },
+            "initialDelaySeconds": {
+              "default": 1,
+              "required": [],
+              "title": "initialDelaySeconds",
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "default": 10,
+              "required": [],
+              "title": "periodSeconds",
+              "type": "integer"
+            },
+            "successThreshold": {
+              "default": 1,
+              "required": [],
+              "title": "successThreshold",
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "default": 5,
+              "required": [],
+              "title": "timeoutSeconds",
+              "type": "integer"
+            }
+          },
+          "required": [],
+          "title": "liveness",
+          "type": "object"
+        },
+        "readiness": {
+          "properties": {
+            "failureThreshold": {
+              "default": 3,
+              "required": [],
+              "title": "failureThreshold",
+              "type": "integer"
+            },
+            "initialDelaySeconds": {
+              "default": 1,
+              "required": [],
+              "title": "initialDelaySeconds",
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "default": 10,
+              "required": [],
+              "title": "periodSeconds",
+              "type": "integer"
+            },
+            "successThreshold": {
+              "default": 1,
+              "required": [],
+              "title": "successThreshold",
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "default": 5,
+              "required": [],
+              "title": "timeoutSeconds",
+              "type": "integer"
+            }
+          },
+          "required": [],
+          "title": "readiness",
+          "type": "object"
+        },
+        "startup": {
+          "properties": {
+            "enable": {
+              "default": false,
+              "required": [],
+              "title": "enable",
+              "type": "boolean"
+            },
+            "failureThreshold": {
+              "default": 20,
+              "required": [],
+              "title": "failureThreshold",
+              "type": "integer"
+            },
+            "initialDelaySeconds": {
+              "default": 10,
+              "required": [],
+              "title": "initialDelaySeconds",
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "default": 10,
+              "required": [],
+              "title": "periodSeconds",
+              "type": "integer"
+            },
+            "successThreshold": {
+              "default": 1,
+              "required": [],
+              "title": "successThreshold",
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "default": 5,
+              "required": [],
+              "title": "timeoutSeconds",
+              "type": "integer"
+            }
+          },
+          "required": [],
+          "title": "startup",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "probes",
+      "type": "object"
+    },
     "redis": {
       "additionalProperties": true,
       "description": "Redis deployment",
@@ -314,7 +524,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "6.0.8",
+          "default": "7.0.7",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -456,6 +666,15 @@
           "title": "enabled",
           "type": "boolean"
         },
+        "imagePullSecrets": {
+          "description": "List of image pull secrets if pulling from private registries",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "imagePullSecrets",
+          "type": "array"
+        },
         "name": {
           "default": "",
           "description": "The name of the service account to use.\nIf not set and create is true, a name is generated using the fullname template",
@@ -543,6 +762,15 @@
       },
       "required": [],
       "title": "tolerations",
+      "type": "array"
+    },
+    "topologySpreadConstraints": {
+      "description": "https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "topologySpreadConstraints",
       "type": "array"
     },
     "ui": {

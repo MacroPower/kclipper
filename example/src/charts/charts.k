@@ -11,7 +11,7 @@ charts: helm.Charts = {
     podinfo_v5: {
         chart = "podinfo"
         repoURL = "https://stefanprodan.github.io/podinfo"
-        targetRevision = "5.2.1"
+        targetRevision = "6.7.1"
         schemaGenerator = "AUTO"
         schemaValidator = "KCL"
     }
