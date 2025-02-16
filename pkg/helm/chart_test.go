@@ -1,9 +1,11 @@
 package helm_test
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -192,7 +194,7 @@ func TestHelmChart(t *testing.T) {
 			c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
 			require.NoError(t, err)
 
-			results, err := c.Template()
+			results, err := c.Template(context.Background())
 			require.NoError(t, err)
 
 			if tc.objectCount >= 0 {
@@ -254,6 +256,22 @@ func TestHelmChart(t *testing.T) {
 	}
 }
 
+func TestHelmChartTimeout(t *testing.T) {
+	t.Parallel()
+
+	c, err := helm.NewChart(helmtest.SlowTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
+		ChartName:      "podinfo",
+		TargetRevision: "6.7.1",
+		RepoURL:        "https://stefanprodan.github.io/podinfo",
+		Timeout:        100 * time.Millisecond,
+	})
+	require.NoError(t, err)
+
+	_, err = c.Template(context.Background())
+	require.Error(t, err)
+	assert.ErrorIs(t, err, context.DeadlineExceeded)
+}
+
 func TestHelmChartAPIVersions(t *testing.T) {
 	t.Parallel()
 
@@ -267,7 +285,7 @@ func TestHelmChartAPIVersions(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		objs, err := c.Template()
+		objs, err := c.Template(context.Background())
 		require.NoError(t, err)
 		require.Len(t, objs, 1)
 		assert.Equal(t, "sample/v1", objs[0].GetAPIVersion())
@@ -283,7 +301,7 @@ func TestHelmChartAPIVersions(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		objs, err := c.Template()
+		objs, err := c.Template(context.Background())
 		require.NoError(t, err)
 		require.Len(t, objs, 1)
 		assert.Equal(t, "sample/v2", objs[0].GetAPIVersion())
@@ -297,13 +315,13 @@ func BenchmarkHelmChart(b *testing.B) {
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
 	})
 	require.NoError(b, err)
-	_, err = c.Template()
+	_, err = c.Template(context.Background())
 	require.NoError(b, err)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			_, err := c.Template()
+			_, err := c.Template(context.Background())
 			require.NoError(b, err)
 		}
 	})
@@ -317,13 +335,13 @@ func BenchmarkAppTemplateHelmChart(b *testing.B) {
 		SkipSchemaValidation: true,
 	})
 	require.NoError(b, err)
-	_, err = c.Template()
+	_, err = c.Template(context.Background())
 	require.NoError(b, err)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			_, err := c.Template()
+			_, err := c.Template(context.Background())
 			require.NoError(b, err)
 		}
 	})

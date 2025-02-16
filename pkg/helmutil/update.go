@@ -66,7 +66,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 		return fmt.Errorf("failed to unmarshal output: %w", err)
 	}
 
-	workerCount := int64(runtime.NumCPU())
+	workerCount := int64(runtime.GOMAXPROCS(0))
 	chartCount := int64(len(chartData.Charts))
 	if workerCount > chartCount {
 		workerCount = chartCount

@@ -1,6 +1,7 @@
 package helm
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -94,8 +95,8 @@ func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 // Pull will retrieve the chart, and return the path to the chart .tar.gz file.
 // Pulled charts will be stored in the injected [PathCacher], and subsequent
 // requests will try to use [PathCacher] rather than re-pulling the chart.
-func (c *Client) Pull(chart, repo, version string, repos helmrepo.Getter) (string, error) {
-	p, _, err := c.pull(chart, repo, version, false, repos)
+func (c *Client) Pull(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, error) {
+	p, _, err := c.pull(ctx, chart, repo, version, false, repos)
 
 	return p, err
 }
@@ -105,12 +106,12 @@ func (c *Client) Pull(chart, repo, version string, repos helmrepo.Getter) (strin
 // the extracted chart. Pulled charts will be stored in the injected [PathCacher]
 // in .tar.gz format, and subsequent requests will try to use [PathCacher] rather
 // than re-pulling the chart.
-func (c *Client) PullAndExtract(chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
-	return c.pull(chart, repo, version, true, repos)
+func (c *Client) PullAndExtract(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
+	return c.pull(ctx, chart, repo, version, true, repos)
 }
 
 //nolint:revive // TODO: Refactor this.
-func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
+func (c *Client) pull(ctx context.Context, chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
 	hr, err := repos.Get(repo)
 	if err != nil {
 		return "", nil, fmt.Errorf("error getting repo %q: %w", repo, err)
@@ -125,7 +126,7 @@ func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.
 		return chartPath, nil, err
 	}
 
-	chartPath, err := c.getCachedOrRemoteChart(chart, version, hr)
+	chartPath, err := c.getCachedOrRemoteChart(ctx, chart, version, hr)
 	if err != nil {
 		return "", nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
@@ -153,7 +154,7 @@ func (c *Client) getLocalChart(chart string, repo *helmrepo.Repo) (string, error
 	return chartPath, nil
 }
 
-func (c *Client) getCachedOrRemoteChart(chart, version string, repo *helmrepo.Repo) (string, error) {
+func (c *Client) getCachedOrRemoteChart(ctx context.Context, chart, version string, repo *helmrepo.Repo) (string, error) {
 	cachedChartPath, err := c.getCachedChartPath(chart, repo.URL.String(), version)
 	if err != nil {
 		return "", fmt.Errorf("error getting cached chart path: %w", err)
@@ -169,7 +170,7 @@ func (c *Client) getCachedOrRemoteChart(chart, version string, repo *helmrepo.Re
 	}
 
 	if !exists {
-		err := c.pullRemoteChart(chart, version, cachedChartPath, repo)
+		err := c.pullRemoteChart(ctx, chart, version, cachedChartPath, repo)
 		if err != nil {
 			return "", fmt.Errorf("error pulling helm chart: %w", err)
 		}
@@ -178,7 +179,7 @@ func (c *Client) getCachedOrRemoteChart(chart, version string, repo *helmrepo.Re
 	return cachedChartPath, nil
 }
 
-func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.Repo) error {
+func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath string, repo *helmrepo.Repo) error {
 	// Create empty temp directory to extract chart from the registry.
 	tempDest, err := createTempDir(os.TempDir())
 	if err != nil {
@@ -213,9 +214,19 @@ func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.
 		ap.InsecureSkipTLSverify = repo.InsecureSkipVerify
 	}
 
-	_, err = ap.Run(chart)
-	if err != nil {
-		return fmt.Errorf("failed to fetch chart: %w", err)
+	done := make(chan error, 1)
+	go func() {
+		_, err = ap.Run(chart)
+		done <- err
+	}()
+
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("failed to pull helm chart: %w", ctx.Err())
+	case err := <-done:
+		if err != nil {
+			return fmt.Errorf("failed to pull helm chart: %w", err)
+		}
 	}
 
 	// 'helm pull/fetch' file downloads chart into the tgz file and we move that

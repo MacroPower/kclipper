@@ -1,11 +1,13 @@
 package helmtest
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"go/build"
 	"io"
 	"path/filepath"
+	"time"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
@@ -14,7 +16,9 @@ import (
 
 var (
 	DefaultTestClient ChartClient
-	ErrTestClient     = errors.New("test client failure")
+	SlowTestClient    ChartClient
+
+	ErrTestClient = errors.New("test client failure")
 )
 
 func init() {
@@ -26,34 +30,47 @@ func init() {
 	testDataDir := filepath.Join(pkg.Dir, "testdata")
 	DefaultTestClient = &TestClient{
 		BaseClient: helm.MustNewClient(
-			pathutil.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}), "test", "10M",
+			pathutil.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}),
+			"test",
+			"10M",
 		),
+	}
+	SlowTestClient = &TestClient{
+		BaseClient: helm.MustNewClient(
+			pathutil.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}),
+			"test",
+			"10M",
+		),
+		Latency: 1 * time.Second,
 	}
 }
 
 type ChartClient interface {
-	Pull(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
-	PullAndExtract(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
+	Pull(ctx context.Context, chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
+	PullAndExtract(ctx context.Context, chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
 }
 
 type TestClient struct {
 	BaseClient ChartClient
+	Latency    time.Duration
 }
 
-func (c *TestClient) Pull(chart, repo, version string, repos helmrepo.Getter) (string, error) {
-	p, _, err := c.pull(chart, repo, version, false, repos)
+func (c *TestClient) Pull(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, error) {
+	p, _, err := c.pull(ctx, chart, repo, version, false, repos)
 
 	return p, err
 }
 
-func (c *TestClient) PullAndExtract(chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
-	return c.pull(chart, repo, version, true, repos)
+func (c *TestClient) PullAndExtract(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
+	return c.pull(ctx, chart, repo, version, true, repos)
 }
 
 //nolint:revive // TODO: Refactor this.
-func (c *TestClient) pull(chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
+func (c *TestClient) pull(ctx context.Context, chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
+	time.Sleep(c.Latency)
+
 	if extract {
-		chartPath, closer, err := c.BaseClient.PullAndExtract(chart, repo, version, repos)
+		chartPath, closer, err := c.BaseClient.PullAndExtract(ctx, chart, repo, version, repos)
 		if err != nil {
 			return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
 		}
@@ -61,7 +78,7 @@ func (c *TestClient) pull(chart, repo, version string, extract bool, repos helmr
 		return chartPath, closer, nil
 	}
 
-	chartPath, err := c.BaseClient.Pull(chart, repo, version, repos)
+	chartPath, err := c.BaseClient.Pull(ctx, chart, repo, version, repos)
 	if err != nil {
 		return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
 	}

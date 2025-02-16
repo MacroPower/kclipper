@@ -1,10 +1,15 @@
 package helm
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"runtime"
+	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"golang.org/x/sync/semaphore"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -29,6 +34,7 @@ type TemplateOpts struct {
 	KubeVersion          string
 	NoProxy              string
 	APIVersions          []string
+	Timeout              time.Duration
 	SkipCRDs             bool
 	PassCredentials      bool
 	SkipSchemaValidation bool
@@ -36,35 +42,46 @@ type TemplateOpts struct {
 }
 
 type ChartClient interface {
-	Pull(chartName, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
+	Pull(ctx context.Context, chartName, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
 }
 
 type Chart struct {
 	Client       ChartClient
 	Repos        helmrepo.Getter
 	TemplateOpts *TemplateOpts
-	path         string
 }
 
+// NewChart creates a new [Chart].
 func NewChart(client ChartClient, repos helmrepo.Getter, opts *TemplateOpts) (*Chart, error) {
-	chartPath, err := client.Pull(opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
-	if err != nil {
-		return nil, fmt.Errorf("error pulling helm chart: %w", err)
+	if opts.Timeout == 0 {
+		opts.Timeout = 60 * time.Second
 	}
 
 	return &Chart{
 		Client:       client,
 		Repos:        repos,
 		TemplateOpts: opts,
-		path:         chartPath,
 	}, nil
 }
 
-// Template templates the Helm [Chart]. The rendered output is then split into
-// individual Kubernetes objects and returned as a slice of
-// [unstructured.Unstructured] objects.
-func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
-	out, err := c.templateData()
+// Template templates the Helm [Chart]. The [chart.Chart] and its dependencies
+// are pulled as needed. The rendered output is then split into individual
+// Kubernetes objects and returned as a slice of [unstructured.Unstructured].
+func (c *Chart) Template(ctx context.Context) ([]*unstructured.Unstructured, error) {
+	ctx, cancel := context.WithTimeout(ctx, c.TemplateOpts.Timeout)
+	defer cancel()
+
+	chartPath, err := c.Client.Pull(ctx,
+		c.TemplateOpts.ChartName,
+		c.TemplateOpts.RepoURL,
+		c.TemplateOpts.TargetRevision,
+		c.Repos,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error pulling helm chart: %w", err)
+	}
+
+	out, err := c.templateData(ctx, chartPath)
 	if err != nil {
 		return nil, err
 	}
@@ -77,10 +94,10 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 	return objs, nil
 }
 
-func (c *Chart) templateData() ([]byte, error) {
+func (c *Chart) templateData(ctx context.Context, chartPath string) ([]byte, error) {
 	var err error
 
-	loadedChart, err := loader.Load(filepath.Clean(c.path))
+	loadedChart, err := loader.Load(filepath.Clean(chartPath))
 	if err != nil {
 		return nil, fmt.Errorf("failed to load chart: %w", err)
 	}
@@ -95,8 +112,14 @@ func (c *Chart) templateData() ([]byte, error) {
 	}
 
 	// Recursively load and set all chart dependencies.
-	if err := c.setChartDependencies(loadedChart); err != nil {
+	workerCount := int64(runtime.GOMAXPROCS(0))
+	sem := semaphore.NewWeighted(workerCount)
+	if err := c.setChartDependencies(ctx, loadedChart, sem); err != nil {
 		return nil, fmt.Errorf("failed to set chart dependencies: %w", err)
+	}
+	err = sem.Acquire(ctx, workerCount)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load chart dependencies: %w", err)
 	}
 
 	// Fail open instead of blocking the template.
@@ -167,30 +190,75 @@ func (c *Chart) templateData() ([]byte, error) {
 	return []byte(manifest), nil
 }
 
-func (c *Chart) setChartDependencies(parentChart *chart.Chart) error {
+// setChartDependencies concurrently loads and sets the dependencies of the
+// target chart. It is called recursively until all dependencies are loaded.
+// It uses a weighted semaphore to limit the number of concurrent loads.
+func (c *Chart) setChartDependencies(ctx context.Context, target *chart.Chart, sem *semaphore.Weighted) error {
 	loadedDeps := []*chart.Chart{}
 
-	for _, chartDep := range parentChart.Metadata.Dependencies {
-		loadedDep, err := c.loadChartDependency(parentChart, chartDep)
-		if err != nil {
-			return fmt.Errorf("failed to load dependency: %w", err)
-		}
-
-		for _, dep := range loadedDep.Dependencies() {
-			if err := c.setChartDependencies(dep); err != nil {
-				return fmt.Errorf("failed to set chart dependencies: %w", err)
-			}
-		}
-
-		loadedDeps = append(loadedDeps, loadedDep)
+	type loadResult struct {
+		chart *chart.Chart
+		err   error
 	}
 
-	parentChart.SetDependencies(loadedDeps...)
+	depCount := len(target.Metadata.Dependencies)
+	resultCh := make(chan loadResult, depCount)
+	// The smaller semaphore of sem and innerSem will block.
+	innerSem := semaphore.NewWeighted(int64(depCount))
+
+	for _, chartDep := range target.Metadata.Dependencies {
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return fmt.Errorf("failed to acquire semaphore: %w", err)
+		}
+		if err := innerSem.Acquire(ctx, 1); err != nil {
+			return fmt.Errorf("failed to acquire semaphore: %w", err)
+		}
+		go func() {
+			defer sem.Release(1)
+			defer innerSem.Release(1)
+
+			dep, err := c.loadChartDependency(ctx, target, chartDep)
+			if err != nil {
+				resultCh <- loadResult{err: fmt.Errorf("failed to load chart dependency for %q: %w", target.Name(), err)}
+
+				return
+			}
+
+			resultCh <- loadResult{chart: dep}
+		}()
+	}
+
+	err := innerSem.Acquire(ctx, int64(depCount))
+	if err != nil {
+		return fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+
+	close(resultCh)
+
+	var merr error
+	for result := range resultCh {
+		if result.err != nil {
+			merr = multierror.Append(merr, result.err)
+
+			continue
+		}
+
+		if err := c.setChartDependencies(ctx, result.chart, sem); err != nil {
+			return fmt.Errorf("failed to load chart dependencies: %w", err)
+		}
+
+		loadedDeps = append(loadedDeps, result.chart)
+	}
+	if merr != nil {
+		return fmt.Errorf("failed to load chart dependencies: %w", merr)
+	}
+
+	target.SetDependencies(loadedDeps...)
 
 	return nil
 }
 
-func (c *Chart) loadChartDependency(parentChart *chart.Chart, dep *chart.Dependency) (*chart.Chart, error) {
+func (c *Chart) loadChartDependency(ctx context.Context, parentChart *chart.Chart, dep *chart.Dependency) (*chart.Chart, error) {
 	// Check if the dependency is already loaded.
 	for _, includedDep := range parentChart.Dependencies() {
 		if includedDep.Name() == dep.Name {
@@ -202,7 +270,7 @@ func (c *Chart) loadChartDependency(parentChart *chart.Chart, dep *chart.Depende
 		return nil, fmt.Errorf("dependency has no repository: %#v", dep)
 	}
 
-	depPath, err := c.Client.Pull(dep.Name, dep.Repository, dep.Version, c.Repos)
+	depPath, err := c.Client.Pull(ctx, dep.Name, dep.Repository, dep.Version, c.Repos)
 	if err != nil {
 		return nil, fmt.Errorf("failed to pull dependency: %w", err)
 	}

@@ -1,10 +1,12 @@
 package helm
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
@@ -53,7 +55,15 @@ var Plugin = plugin.Plugin{
 				kubeVersion := os.Getenv("KUBE_VERSION")
 				kubeAPIVersions := os.Getenv("KUBE_API_VERSIONS")
 
-				var err error
+				timeoutStr, ok := os.LookupEnv("ARGOCD_EXEC_TIMEOUT")
+				if !ok {
+					timeoutStr = "60s"
+				}
+				timeout, err := time.ParseDuration(timeoutStr)
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse timeout: %w", err)
+				}
+
 				cwd := os.Getenv("ARGOCD_APP_SOURCE_PATH")
 				if cwd == "" {
 					cwd = "."
@@ -106,12 +116,13 @@ var Plugin = plugin.Plugin{
 					ValuesObject:         safeArgs.MapKwArg("values", map[string]any{}),
 					KubeVersion:          kubeVersion,
 					APIVersions:          strings.Split(kubeAPIVersions, ","),
+					Timeout:              timeout,
 				})
 				if err != nil {
 					return nil, fmt.Errorf("failed to create chart handler for %q: %w", chartName, err)
 				}
 
-				objs, err := helmChart.Template()
+				objs, err := helmChart.Template(context.Background())
 				if err != nil {
 					return nil, fmt.Errorf("failed to template %q: %w", chartName, err)
 				}

@@ -1,6 +1,7 @@
 package helm
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -18,7 +19,7 @@ type JSONSchemaGenerator interface {
 }
 
 type ChartFileClient interface {
-	PullAndExtract(chartName, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
+	PullAndExtract(ctx context.Context, chartName, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
 }
 
 type ChartFiles struct {
@@ -29,7 +30,10 @@ type ChartFiles struct {
 }
 
 func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts *TemplateOpts) (*ChartFiles, error) {
-	chartPath, closer, err := client.PullAndExtract(opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
+	ctx, cancel := context.WithTimeout(context.Background(), opts.Timeout)
+	defer cancel()
+
+	chartPath, closer, err := client.PullAndExtract(ctx, opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
 	if err != nil {
 		return nil, fmt.Errorf("error pulling helm chart: %w", err)
 	}
