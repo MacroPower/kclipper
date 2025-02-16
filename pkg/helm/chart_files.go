@@ -8,106 +8,17 @@ import (
 	"os"
 	"path/filepath"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/kube"
 )
 
 var ErrNoMatcher = errors.New("no matcher provided")
-
-type TemplateOpts struct {
-	ValuesObject         map[string]any
-	Proxy                string
-	TargetRevision       string
-	RepoURL              string
-	ReleaseName          string
-	Namespace            string
-	ChartName            string
-	KubeVersion          string
-	NoProxy              string
-	APIVersions          []string
-	SkipCRDs             bool
-	PassCredentials      bool
-	SkipSchemaValidation bool
-	SkipHooks            bool
-}
-
-type ChartClient interface {
-	Pull(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
-}
 
 type JSONSchemaGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }
 
-type Chart struct {
-	Client       ChartClient
-	Repos        helmrepo.Getter
-	TemplateOpts *TemplateOpts
-	path         string
-}
-
-func NewChart(client ChartClient, repos helmrepo.Getter, opts *TemplateOpts) (*Chart, error) {
-	chartPath, err := client.Pull(opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
-	if err != nil {
-		return nil, fmt.Errorf("error pulling helm chart: %w", err)
-	}
-
-	return &Chart{
-		Client:       client,
-		Repos:        repos,
-		TemplateOpts: opts,
-		path:         chartPath,
-	}, nil
-}
-
-// Template pulls a Helm chart using the provided [TemplateOpts], and then
-// executes `helm template` to render the chart. The rendered output is then
-// split into individual Kubernetes objects and returned as a slice of
-// [unstructured.Unstructured] objects.
-func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
-	out, err := c.template()
-	if err != nil {
-		return nil, err
-	}
-
-	objs, err := kube.SplitYAML(out)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing helm template output: %w", err)
-	}
-
-	return objs, nil
-}
-
-//nolint:revive // TODO: Refactor this.
-func (c *Chart) template() ([]byte, error) {
-	cmd, err := NewCmdWithVersion(c.path, c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy)
-	if err != nil {
-		return nil, fmt.Errorf("error creating helm command: %w", err)
-	}
-
-	out, _, err := cmd.Template(".", &CmdTemplateOpts{
-		Name:                 c.TemplateOpts.ChartName,
-		Namespace:            c.TemplateOpts.Namespace,
-		Values:               c.TemplateOpts.ValuesObject,
-		SkipCrds:             c.TemplateOpts.SkipCRDs,
-		KubeVersion:          c.TemplateOpts.KubeVersion,
-		APIVersions:          c.TemplateOpts.APIVersions,
-		SkipSchemaValidation: c.TemplateOpts.SkipSchemaValidation,
-		SkipHooks:            c.TemplateOpts.SkipHooks,
-		RepoGetter:           c.Repos,
-		DependencyPuller:     c.Client,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("error templating helm chart: %w", err)
-	}
-
-	return []byte(out), nil
-}
-
 type ChartFileClient interface {
-	PullAndExtract(chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
+	PullAndExtract(chartName, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
 }
 
 type ChartFiles struct {

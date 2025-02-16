@@ -4,11 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v3/pkg/registry"
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
@@ -44,6 +48,8 @@ type Client struct {
 	Paths          PathCacher
 	RepoLock       KeyLocker
 	MaxExtractSize resource.Quantity
+	rc             *registry.Client
+	helmHome       string
 	Project        string
 	Proxy          string
 	NoProxy        string
@@ -55,10 +61,22 @@ func NewClient(paths PathCacher, project, maxExtractSize string) (*Client, error
 		return nil, fmt.Errorf("failed to parse quantity %q: %w", maxExtractSize, err)
 	}
 
+	rc, err := registry.NewClient(registry.ClientOptEnableCache(true))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create registry client: %w", err)
+	}
+
+	tmpDir, err := os.MkdirTemp("", "helm")
+	if err != nil {
+		return nil, fmt.Errorf("failed to create temporary directory for helm: %w", err)
+	}
+
 	return &Client{
 		Paths:          paths,
 		RepoLock:       globalLock,
 		MaxExtractSize: maxExtractSizeResource,
+		rc:             rc,
+		helmHome:       tmpDir,
 		Project:        project,
 	}, nil
 }
@@ -161,11 +179,6 @@ func (c *Client) getCachedOrRemoteChart(chart, version string, repo *helmrepo.Re
 }
 
 func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.Repo) error {
-	helmCmd, err := NewCmdWithVersion("", c.Proxy, c.NoProxy)
-	if err != nil {
-		return fmt.Errorf("error creating Helm command: %w", err)
-	}
-
 	// Create empty temp directory to extract chart from the registry.
 	tempDest, err := createTempDir(os.TempDir())
 	if err != nil {
@@ -173,12 +186,40 @@ func (c *Client) pullRemoteChart(chart, version, dstPath string, repo *helmrepo.
 	}
 	defer func() { _ = os.RemoveAll(tempDest) }()
 
-	_, err = helmCmd.Fetch(chart, version, tempDest, repo)
-	if err != nil {
-		return fmt.Errorf("error fetching chart: %w", err)
+	ap := action.NewPullWithOpts(action.WithConfig(&action.Configuration{
+		RegistryClient: c.rc,
+		Log: func(msg string, kv ...any) {
+			slog.Debug(msg, kv...)
+		},
+	}))
+	ap.Settings = &cli.EnvSettings{
+		RepositoryCache: filepath.Join(c.helmHome, "cache"),
+	}
+	ap.Untar = false
+	ap.DestDir = tempDest
+
+	if version != "" {
+		ap.Version = version
 	}
 
-	// 'helm pull/fetch' file downloads chart into the tgz file and we move that to where we want it.
+	if repo != nil {
+		ap.RepoURL = repo.URL.String()
+		ap.Username = repo.Username
+		ap.Password = repo.Password
+		ap.CaFile = repo.CAPath.String()
+		ap.CertFile = repo.TLSClientCertDataPath.String()
+		ap.KeyFile = repo.TLSClientCertKeyPath.String()
+		ap.PassCredentialsAll = repo.PassCredentials
+		ap.InsecureSkipTLSverify = repo.InsecureSkipVerify
+	}
+
+	_, err = ap.Run(chart)
+	if err != nil {
+		return fmt.Errorf("failed to fetch chart: %w", err)
+	}
+
+	// 'helm pull/fetch' file downloads chart into the tgz file and we move that
+	// to where we want it, if the pull was successful.
 	infos, err := os.ReadDir(tempDest)
 	if err != nil {
 		return fmt.Errorf("error reading directory %q: %w", tempDest, err)
