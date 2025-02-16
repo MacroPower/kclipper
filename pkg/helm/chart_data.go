@@ -15,7 +15,6 @@ import (
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/chartutil"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 
 	helmkube "helm.sh/helm/v3/pkg/kube"
 
@@ -140,7 +139,7 @@ func (c *Chart) templateData(ctx context.Context, chartPath string) ([]byte, err
 	}
 
 	ta := action.NewInstall(&action.Configuration{
-		KubeClient: helmkube.New(genericclioptions.NewConfigFlags(false)),
+		KubeClient: helmkube.New(nil),
 		Capabilities: &chartutil.Capabilities{
 			KubeVersion: *kv,
 			APIVersions: av,
