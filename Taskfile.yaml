@@ -54,6 +54,12 @@ tasks:
     desc: Runs all release targets
     deps: [go-release]
 
+  dev-install:
+    desc: Installs development dependencies
+    cmds:
+      - devbox install
+      - nix-collect-garbage
+
   install:
     desc: Builds and installs binaries
     cmds:
