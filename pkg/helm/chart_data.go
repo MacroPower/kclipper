@@ -169,7 +169,7 @@ func (c *Chart) templateData(ctx context.Context, chartPath string) ([]byte, err
 		c.TemplateOpts.ValuesObject = make(map[string]any)
 	}
 
-	release, err := ta.Run(loadedChart, c.TemplateOpts.ValuesObject)
+	release, err := ta.RunWithContext(ctx, loadedChart, c.TemplateOpts.ValuesObject)
 	if err != nil {
 		return nil, fmt.Errorf("failed to run install action: %w", err)
 	}
