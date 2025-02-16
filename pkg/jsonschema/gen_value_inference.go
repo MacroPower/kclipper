@@ -84,6 +84,7 @@ func (g *ValueInferenceGenerator) FromPaths(paths ...string) ([]byte, error) {
 	if len(paths) == 0 {
 		return nil, errors.New("no file paths provided")
 	}
+	slices.Sort(paths)
 
 	schemas := map[string]*helmschema.Schema{}
 
@@ -97,8 +98,8 @@ func (g *ValueInferenceGenerator) FromPaths(paths ...string) ([]byte, error) {
 	}
 
 	mergedSchema := &helmschema.Schema{}
-	for k, vs := range schemas {
-		mergedSchema = mergeHelmSchemas(mergedSchema, vs, g.defaultFileRegex.MatchString(k))
+	for _, k := range paths {
+		mergedSchema = mergeHelmSchemas(mergedSchema, schemas[k], g.defaultFileRegex.MatchString(k))
 	}
 
 	if err := mergedSchema.Validate(); err != nil {
@@ -357,11 +358,17 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 			dest.Properties = make(map[string]*helmschema.Schema)
 		}
 
-		for propName, srcPropSchema := range src.Properties {
-			if destPropSchema, exists := dest.Properties[propName]; exists {
-				dest.Properties[propName] = mergeHelmSchemas(destPropSchema, srcPropSchema, setDefaults)
+		propKeys := []string{}
+		for k := range src.Properties {
+			propKeys = append(propKeys, k)
+		}
+		slices.Sort(propKeys)
+
+		for _, k := range propKeys {
+			if destPropSchema, exists := dest.Properties[k]; exists {
+				dest.Properties[k] = mergeHelmSchemas(destPropSchema, src.Properties[k], setDefaults)
 			} else {
-				dest.Properties[propName] = mergeHelmSchemas(&helmschema.Schema{}, srcPropSchema, setDefaults)
+				dest.Properties[k] = mergeHelmSchemas(&helmschema.Schema{}, src.Properties[k], setDefaults)
 			}
 		}
 	}
