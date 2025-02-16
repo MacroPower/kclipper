@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"kcl-lang.io/kcl-go"
 
@@ -17,6 +18,7 @@ type ChartPkg struct {
 	mu       sync.RWMutex
 	Vendor   bool
 	FastEval bool
+	Timeout  time.Duration
 }
 
 func NewChartPkg(basePath string, client helm.ChartFileClient, opts ...ChartPkgOpts) *ChartPkg {
@@ -25,6 +27,7 @@ func NewChartPkg(basePath string, client helm.ChartFileClient, opts ...ChartPkgO
 		FastEval: true,
 		BasePath: basePath,
 		Client:   client,
+		Timeout:  5 * time.Minute,
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -44,6 +47,12 @@ func WithVendor(vendor bool) ChartPkgOpts {
 func WithFastEval(fastEval bool) ChartPkgOpts {
 	return func(c *ChartPkg) {
 		c.FastEval = fastEval
+	}
+}
+
+func WithTimeout(timeout time.Duration) ChartPkgOpts {
+	return func(c *ChartPkg) {
+		c.Timeout = timeout
 	}
 }
 

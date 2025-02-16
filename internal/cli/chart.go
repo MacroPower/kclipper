@@ -3,6 +3,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
@@ -52,6 +53,8 @@ func NewChartCmd() *cobra.Command {
 		panic(err)
 	}
 
+	cmd.PersistentFlags().DurationP("timeout", "t", 5*time.Minute, "Timeout for the command")
+
 	cmd.AddCommand(NewChartInitCmd())
 	cmd.AddCommand(NewChartAddCmd())
 	cmd.AddCommand(NewChartUpdateCmd())
@@ -97,6 +100,10 @@ func NewChartAddCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			timeout, err := flags.GetDuration("timeout")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 			chart, err := flags.GetString("chart")
 			if err != nil {
 				merr = multierror.Append(merr, err)
@@ -127,12 +134,19 @@ func NewChartAddCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			vendor, err := flags.GetBool("vendor")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 
 			if merr != nil {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
 			}
 
-			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
+			c := helmutil.NewChartPkg(basePath, helm.DefaultClient,
+				helmutil.WithVendor(vendor),
+				helmutil.WithTimeout(timeout),
+			)
 
 			return c.AddChart(&kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
@@ -153,10 +167,11 @@ func NewChartAddCmd() *cobra.Command {
 	cmd.Flags().StringP("chart", "c", "", "Helm chart name (required)")
 	cmd.Flags().StringP("repo_url", "r", "", "URL of the Helm chart repository (required)")
 	cmd.Flags().StringP("target_revision", "t", "", "Semver tag for the chart's version")
-	cmd.Flags().StringP("schema_generator", "G", "", "Chart schema generator")
-	cmd.Flags().StringP("schema_validator", "V", "KCL", "Chart schema validator")
-	cmd.Flags().StringP("schema_path", "P", "", "Chart schema path")
-	cmd.Flags().StringP("crd_path", "C", "", "CRD path")
+	cmd.Flags().String("schema_generator", "", "Chart schema generator")
+	cmd.Flags().String("schema_validator", "KCL", "Chart schema validator")
+	cmd.Flags().String("schema_path", "", "Chart schema path")
+	cmd.Flags().String("crd_path", "", "CRD path")
+	cmd.Flags().BoolP("vendor", "V", false, "Run in vendor mode")
 
 	return cmd
 }
@@ -173,6 +188,10 @@ func NewChartUpdateCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			timeout, err := flags.GetDuration("timeout")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 			charts, err := flags.GetStringSlice("chart")
 			if err != nil {
 				merr = multierror.Append(merr, err)
@@ -186,7 +205,10 @@ func NewChartUpdateCmd() *cobra.Command {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
 			}
 
-			c := helmutil.NewChartPkg(basePath, helm.DefaultClient, helmutil.WithVendor(vendor))
+			c := helmutil.NewChartPkg(basePath, helm.DefaultClient,
+				helmutil.WithVendor(vendor),
+				helmutil.WithTimeout(timeout),
+			)
 
 			return c.Update(charts...)
 		},

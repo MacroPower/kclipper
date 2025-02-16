@@ -1,12 +1,16 @@
 package helmutil
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"runtime"
 	"slices"
 
+	"github.com/hashicorp/go-multierror"
+	"golang.org/x/sync/semaphore"
 	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 
@@ -62,7 +66,13 @@ func (c *ChartPkg) Update(charts ...string) error {
 		return fmt.Errorf("failed to unmarshal output: %w", err)
 	}
 
-	updatedCount := 0
+	workerCount := int64(runtime.NumCPU())
+	chartCount := int64(len(chartData.Charts))
+	if workerCount > chartCount {
+		workerCount = chartCount
+	}
+	sem := semaphore.NewWeighted(workerCount)
+	errChan := make(chan error, len(chartData.Charts))
 
 	for _, k := range chartData.GetSortedKeys() {
 		chart := chartData.Charts[k]
@@ -78,23 +88,48 @@ func (c *ChartPkg) Update(charts ...string) error {
 			slog.String("chart_key", chartKey),
 		)
 
-		if len(charts) > 0 && !slices.Contains(charts, chartName) && !slices.Contains(charts, chartKey) {
-			chartSlog.Info("skipping chart")
-
-			continue
-		}
-
-		chartSlog.Info("updating chart")
-
-		err := c.AddChart(&chart)
+		err = sem.Acquire(context.Background(), 1)
 		if err != nil {
-			return fmt.Errorf("failed to update chart %q: %w", k, err)
+			return fmt.Errorf("failed to acquire worker: %w", err)
 		}
+		go func(chart kclchart.ChartConfig, logger *slog.Logger) {
+			defer sem.Release(1)
 
-		updatedCount++
+			if len(charts) > 0 && !slices.Contains(charts, chartName) && !slices.Contains(charts, chartKey) {
+				chartSlog.Info("skipping chart")
+
+				return
+			}
+
+			logger.Info("updating chart")
+
+			err := c.AddChart(&chart)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to update chart %q: %w", k, err)
+
+				return
+			}
+		}(chart, chartSlog)
 	}
 
-	slog.Info("update complete", slog.Int("updated", updatedCount))
+	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	defer cancel()
+
+	err = sem.Acquire(ctx, workerCount)
+	if err != nil {
+		return fmt.Errorf("failed to update charts: %w", err)
+	}
+
+	close(errChan)
+	var merr error
+	for err := range errChan {
+		merr = multierror.Append(merr, err)
+	}
+	if merr != nil {
+		return fmt.Errorf("failed to update charts: %w", err)
+	}
+
+	slog.Info("update complete")
 
 	return nil
 }
