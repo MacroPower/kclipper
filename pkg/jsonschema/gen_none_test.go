@@ -16,10 +16,10 @@ func TestNoGenerator(t *testing.T) {
 	// Test FromPaths.
 	out, err := generator.FromPaths("path")
 	require.NoError(t, err)
-	require.Empty(t, out)
+	require.JSONEq(t, jsonschema.EmptySchema, string(out))
 
 	// Test FromData.
 	out, err = generator.FromData([]byte("data"))
 	require.NoError(t, err)
-	require.Empty(t, out)
+	require.JSONEq(t, jsonschema.EmptySchema, string(out))
 }

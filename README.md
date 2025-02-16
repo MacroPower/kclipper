@@ -323,6 +323,7 @@ The following schema generators are currently available:
 
 | Name            | Description                                                                           |   Parameters |
 | :-------------- | :------------------------------------------------------------------------------------ | -----------: |
+| NONE (default)  | Do not use a schema generator (Values will be `[...str]: any`).                        |              |
 | AUTO            | Try to automatically select the best schema generator for the chart.                  |              |
 | VALUE-INFERENCE | Infer the schema from one or more values.yaml files (uses [helm-schema][helm-schema]) |              |
 | URL             | Use a JSON Schema file located at a specified URL.                                    | `schemaPath` |

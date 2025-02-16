@@ -104,6 +104,14 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 			},
 		},
+		"simple-chart-no-config": {
+			chart: &kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
+					Chart:   "simple-chart",
+					RepoURL: "./charts",
+				},
+			},
+		},
 	}
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {

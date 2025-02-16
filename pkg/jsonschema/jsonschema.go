@@ -53,13 +53,13 @@ type FileGenerator interface {
 //nolint:ireturn // Multiple concrete types.
 func GetGenerator(t GeneratorType) FileGenerator {
 	switch t {
-	case DefaultGeneratorType, AutoGeneratorType:
+	case AutoGeneratorType:
 		return DefaultAutoGenerator
 	case ValueInferenceGeneratorType:
 		return DefaultValueInferenceGenerator
 	case URLGeneratorType, ChartPathGeneratorType, LocalPathGeneratorType:
 		return DefaultReaderGenerator
-	case NoGeneratorType:
+	case DefaultGeneratorType, NoGeneratorType:
 		return DefaultNoGenerator
 	default:
 		return DefaultNoGenerator
@@ -98,7 +98,7 @@ func GetValidatorType(t string) ValidatorType {
 
 func GetFileFilter(t GeneratorType) func(string) bool {
 	switch t {
-	case DefaultGeneratorType, AutoGeneratorType:
+	case AutoGeneratorType:
 		return func(s string) bool {
 			return jsonOrYAMLValuesRegex.MatchString(s)
 		}

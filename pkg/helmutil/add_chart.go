@@ -134,8 +134,8 @@ func generateAndWriteValuesSchemaFiles(
 	)
 
 	switch chart.SchemaGenerator {
-	case jsonschema.NoGeneratorType:
-		return nil
+	case jsonschema.DefaultGeneratorType, jsonschema.NoGeneratorType:
+		jsonSchemaBytes = []byte(jsonschema.EmptySchema)
 
 	case jsonschema.URLGeneratorType, jsonschema.LocalPathGeneratorType:
 		schemaPath, err := pathutil.ResolveFilePathOrURL(basePath, repoRoot, chart.SchemaPath, []string{"http", "https"})
@@ -148,7 +148,7 @@ func generateAndWriteValuesSchemaFiles(
 			return fmt.Errorf("failed to fetch schema from %q: %w", schemaPath.String(), err)
 		}
 
-	case jsonschema.DefaultGeneratorType, jsonschema.AutoGeneratorType,
+	case jsonschema.AutoGeneratorType,
 		jsonschema.ValueInferenceGeneratorType, jsonschema.ChartPathGeneratorType:
 		fileMatcher := jsonschema.GetFileFilter(chart.SchemaGenerator)
 		if chart.SchemaPath != "" {
