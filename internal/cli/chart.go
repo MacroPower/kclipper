@@ -148,7 +148,7 @@ func NewChartAddCmd() *cobra.Command {
 				helmutil.WithTimeout(timeout),
 			)
 
-			return c.AddChart(&kclchart.ChartConfig{
+			cConfig := &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:           chart,
 					RepoURL:         repoURL,
@@ -160,7 +160,9 @@ func NewChartAddCmd() *cobra.Command {
 					SchemaPath:      schemaPath,
 					CRDPath:         crdPath,
 				},
-			})
+			}
+
+			return c.AddChart(cConfig.GetSnakeCaseName(), cConfig)
 		},
 		SilenceUsage: true,
 	}

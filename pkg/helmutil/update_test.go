@@ -27,7 +27,7 @@ func TestHelmChartUpdate(t *testing.T) {
 	err := chartPkg.Init()
 	require.NoError(t, err)
 
-	err = chartPkg.AddChart(&kclchart.ChartConfig{
+	err = chartPkg.AddChart("podinfo", &kclchart.ChartConfig{
 		ChartBase: kclchart.ChartBase{
 			Chart:          "podinfo",
 			RepoURL:        "https://stefanprodan.github.io/podinfo",

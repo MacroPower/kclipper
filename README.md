@@ -55,7 +55,7 @@ manifests.yaml_stream([*_podinfo, _serviceMonitor])
 
 ---
 
-**Declaratively manage all of your Helm charts and their schemas.** Private, OCI, and local repos are all supported. Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more for Chart, CRD, and Value objects, as well as `values.yaml` files (if you prefer YAML over KCL for values, or want to use both). Optionally, use the `kcl chart` command to make quick edits from the command line:
+**Declaratively manage all of your Helm charts and their schemas.** Private, OCI, and local repos are all supported. Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more for Chart, CRD, and Value objects, as well as `values.yaml` files (if you prefer YAML over KCL for values, or want to use both). Use KCL keys to define the same chart with unique configuration (e.g. multiple targetRevisions). Optionally, use the `kcl chart` command to make quick edits from the command line:
 
 ```py
 import helm
@@ -70,7 +70,7 @@ charts: helm.Charts = {
     }
     # kcl chart repo add -n bjw-s -u https://bjw-s.github.io/helm-charts/
     # kcl chart add -c app-template -r @bjw-s -t "3.6.0"
-    app_template: {
+    app_template_v3: {
         chart = "app-template"
         repoURL = "@bjw-s"
         targetRevision = "3.6.0"
@@ -83,7 +83,6 @@ charts: helm.Charts = {
     my_chart: {
         chart = "my-chart"
         repoURL = "./my-charts/"
-        schemaGenerator = "AUTO"
         crdPath = "**/crds/*.yaml"
     }
 }

@@ -117,7 +117,7 @@ func TestHelmChartAdd(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			err := ca.AddChart(tc.chart)
+			err := ca.AddChart(tc.chart.GetSnakeCaseName(), tc.chart)
 			require.NoError(t, err)
 
 			depsOpt, err := options.LoadDepsFrom(chartPath, true)

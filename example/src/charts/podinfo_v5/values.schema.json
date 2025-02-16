@@ -1,0 +1,577 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": true,
+  "properties": {
+    "affinity": {
+      "additionalProperties": true,
+      "required": [],
+      "title": "affinity",
+      "type": "object"
+    },
+    "backend": {
+      "default": "",
+      "required": [],
+      "title": "backend",
+      "type": "null"
+    },
+    "backends": {
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "backends",
+      "type": "array"
+    },
+    "cache": {
+      "default": "",
+      "description": "Redis address in the format \u003chost\u003e:\u003cport\u003e",
+      "required": [],
+      "title": "cache",
+      "type": "string"
+    },
+    "certificate": {
+      "additionalProperties": true,
+      "description": "create a certificate manager certificate (cert-manager required)",
+      "properties": {
+        "create": {
+          "default": false,
+          "required": [],
+          "title": "create",
+          "type": "boolean"
+        },
+        "dnsNames": {
+          "description": "the hostname / subject alternative names for the certificate",
+          "items": {
+            "required": [],
+            "type": "string"
+          },
+          "required": [],
+          "title": "dnsNames",
+          "type": "array"
+        },
+        "issuerRef": {
+          "description": "the issuer used to issue the certificate",
+          "properties": {
+            "kind": {
+              "default": "ClusterIssuer",
+              "required": [],
+              "title": "kind",
+              "type": "string"
+            },
+            "name": {
+              "default": "self-signed",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "issuerRef",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "certificate",
+      "type": "object"
+    },
+    "faults": {
+      "additionalProperties": true,
+      "description": "failure conditions",
+      "properties": {
+        "delay": {
+          "default": false,
+          "required": [],
+          "title": "delay",
+          "type": "boolean"
+        },
+        "error": {
+          "default": false,
+          "required": [],
+          "title": "error",
+          "type": "boolean"
+        },
+        "testFail": {
+          "default": false,
+          "required": [],
+          "title": "testFail",
+          "type": "boolean"
+        },
+        "testTimeout": {
+          "default": false,
+          "required": [],
+          "title": "testTimeout",
+          "type": "boolean"
+        },
+        "unhealthy": {
+          "default": false,
+          "required": [],
+          "title": "unhealthy",
+          "type": "boolean"
+        },
+        "unready": {
+          "default": false,
+          "required": [],
+          "title": "unready",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "title": "faults",
+      "type": "object"
+    },
+    "global": {
+      "additionalProperties": true,
+      "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
+      "required": [],
+      "title": "global",
+      "type": "object"
+    },
+    "h2c": {
+      "additionalProperties": true,
+      "description": "enable h2c protocol (non-TLS version of HTTP/2)",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "title": "h2c",
+      "type": "object"
+    },
+    "host": {
+      "default": "",
+      "required": [],
+      "title": "host",
+      "type": "null"
+    },
+    "hpa": {
+      "additionalProperties": true,
+      "description": "metrics-server add-on required",
+      "properties": {
+        "cpu": {
+          "default": "",
+          "description": "average total CPU usage per pod (1-100)",
+          "required": [],
+          "title": "cpu",
+          "type": "null"
+        },
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "maxReplicas": {
+          "default": 10,
+          "required": [],
+          "title": "maxReplicas",
+          "type": "integer"
+        },
+        "memory": {
+          "default": "",
+          "description": "average memory usage per pod (100Mi-1Gi)",
+          "required": [],
+          "title": "memory",
+          "type": "null"
+        },
+        "requests": {
+          "default": "",
+          "description": "average http requests per second per pod (k8s-prometheus-adapter)",
+          "required": [],
+          "title": "requests",
+          "type": "null"
+        }
+      },
+      "required": [],
+      "title": "hpa",
+      "type": "object"
+    },
+    "image": {
+      "additionalProperties": true,
+      "properties": {
+        "pullPolicy": {
+          "default": "IfNotPresent",
+          "required": [],
+          "title": "pullPolicy",
+          "type": "string"
+        },
+        "repository": {
+          "default": "ghcr.io/stefanprodan/podinfo",
+          "required": [],
+          "title": "repository",
+          "type": "string"
+        },
+        "tag": {
+          "default": "5.2.1",
+          "required": [],
+          "title": "tag",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "title": "image",
+      "type": "object"
+    },
+    "ingress": {
+      "additionalProperties": true,
+      "properties": {
+        "annotations": {
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "hosts": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "hosts",
+          "type": "array"
+        },
+        "path": {
+          "default": "/*",
+          "description": "kubernetes.io/ingress.class: nginx\nkubernetes.io/tls-acme: \"true\"",
+          "required": [],
+          "title": "path",
+          "type": "string"
+        },
+        "tls": {
+          "description": " - podinfo.local",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "tls",
+          "type": "array"
+        }
+      },
+      "required": [],
+      "title": "ingress",
+      "type": "object"
+    },
+    "linkerd": {
+      "additionalProperties": true,
+      "properties": {
+        "profile": {
+          "properties": {
+            "enabled": {
+              "default": false,
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            }
+          },
+          "required": [],
+          "title": "profile",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "linkerd",
+      "type": "object"
+    },
+    "logLevel": {
+      "default": "info",
+      "required": [],
+      "title": "logLevel",
+      "type": "string"
+    },
+    "nodeSelector": {
+      "additionalProperties": true,
+      "required": [],
+      "title": "nodeSelector",
+      "type": "object"
+    },
+    "podAnnotations": {
+      "additionalProperties": true,
+      "required": [],
+      "title": "podAnnotations",
+      "type": "object"
+    },
+    "redis": {
+      "additionalProperties": true,
+      "description": "Redis deployment",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "repository": {
+          "default": "redis",
+          "required": [],
+          "title": "repository",
+          "type": "string"
+        },
+        "tag": {
+          "default": "6.0.8",
+          "required": [],
+          "title": "tag",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "title": "redis",
+      "type": "object"
+    },
+    "replicaCount": {
+      "default": 1,
+      "required": [],
+      "title": "replicaCount",
+      "type": "integer"
+    },
+    "resources": {
+      "additionalProperties": true,
+      "properties": {
+        "limits": {
+          "default": "",
+          "properties": {
+            "memory": {
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "limits",
+          "type": "null"
+        },
+        "requests": {
+          "properties": {
+            "cpu": {
+              "default": "1m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "16Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "requests",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "resources",
+      "type": "object"
+    },
+    "securityContext": {
+      "additionalProperties": true,
+      "description": "set container security context",
+      "required": [],
+      "title": "securityContext",
+      "type": "object"
+    },
+    "service": {
+      "additionalProperties": true,
+      "description": "Kubernetes Service settings",
+      "properties": {
+        "annotations": {
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "externalPort": {
+          "default": 9898,
+          "required": [],
+          "title": "externalPort",
+          "type": "integer"
+        },
+        "grpcPort": {
+          "default": 9999,
+          "required": [],
+          "title": "grpcPort",
+          "type": "integer"
+        },
+        "grpcService": {
+          "default": "podinfo",
+          "required": [],
+          "title": "grpcService",
+          "type": "string"
+        },
+        "hostPort": {
+          "default": "",
+          "description": "the port used to bind the http port to the host\nNOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing\nin local clusters such as kind without port forwarding",
+          "required": [],
+          "title": "hostPort",
+          "type": "null"
+        },
+        "httpPort": {
+          "default": 9898,
+          "required": [],
+          "title": "httpPort",
+          "type": "integer"
+        },
+        "metricsPort": {
+          "default": 9797,
+          "required": [],
+          "title": "metricsPort",
+          "type": "integer"
+        },
+        "nodePort": {
+          "default": 31198,
+          "required": [],
+          "title": "nodePort",
+          "type": "integer"
+        },
+        "type": {
+          "default": "ClusterIP",
+          "required": [],
+          "title": "type",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "title": "service",
+      "type": "object"
+    },
+    "serviceAccount": {
+      "additionalProperties": true,
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Specifies whether a service account should be created",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "name": {
+          "default": "",
+          "description": "The name of the service account to use.\nIf not set and create is true, a name is generated using the fullname template",
+          "required": [],
+          "title": "name",
+          "type": "null"
+        }
+      },
+      "required": [],
+      "title": "serviceAccount",
+      "type": "object"
+    },
+    "serviceMonitor": {
+      "additionalProperties": true,
+      "description": "create Prometheus Operator monitor",
+      "properties": {
+        "additionalLabels": {
+          "required": [],
+          "title": "additionalLabels",
+          "type": "object"
+        },
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "interval": {
+          "default": "15s",
+          "required": [],
+          "title": "interval",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "title": "serviceMonitor",
+      "type": "object"
+    },
+    "tls": {
+      "additionalProperties": true,
+      "description": "enable tls on the podinfo service",
+      "properties": {
+        "certPath": {
+          "default": "/data/cert",
+          "description": "the path where the certificate key pair will be mounted",
+          "required": [],
+          "title": "certPath",
+          "type": "string"
+        },
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "hostPort": {
+          "default": "",
+          "description": "the port used to bind the tls port to the host\nNOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing\nin local clusters such as kind without port forwarding",
+          "required": [],
+          "title": "hostPort",
+          "type": "null"
+        },
+        "port": {
+          "default": 9899,
+          "description": "the port used to host the tls endpoint on the service",
+          "required": [],
+          "title": "port",
+          "type": "integer"
+        },
+        "secretName": {
+          "default": "",
+          "description": "the name of the secret used to mount the certificate key pair",
+          "required": [],
+          "title": "secretName",
+          "type": "null"
+        }
+      },
+      "required": [],
+      "title": "tls",
+      "type": "object"
+    },
+    "tolerations": {
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "tolerations",
+      "type": "array"
+    },
+    "ui": {
+      "additionalProperties": true,
+      "properties": {
+        "color": {
+          "default": "#34577c",
+          "required": [],
+          "title": "color",
+          "type": "string"
+        },
+        "logo": {
+          "default": "",
+          "required": [],
+          "title": "logo",
+          "type": "string"
+        },
+        "message": {
+          "default": "",
+          "required": [],
+          "title": "message",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "title": "ui",
+      "type": "object"
+    }
+  },
+  "required": [],
+  "type": "object"
+}

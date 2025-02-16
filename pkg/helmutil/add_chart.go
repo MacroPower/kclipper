@@ -22,7 +22,7 @@ const initialChartContents = `import helm
 charts: helm.Charts = {}
 `
 
-func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
+func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	if err := c.Init(); err != nil {
 		return fmt.Errorf("failed to init before add: %w", err)
 	}
@@ -32,7 +32,7 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 		return fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
-	chartDir := path.Join(absBasePath, chart.GetSnakeCaseName())
+	chartDir := path.Join(absBasePath, key)
 	if err := os.MkdirAll(chartDir, 0o750); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
@@ -99,7 +99,7 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 	}
 
 	chartsFile := filepath.Join(c.BasePath, "charts.k")
-	chartsSpec := kclutil.SpecPathJoin("charts", chart.GetSnakeCaseName())
+	chartsSpec := kclutil.SpecPathJoin("charts", key)
 
 	if err := c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec); err != nil {
 		return fmt.Errorf("failed to update %q: %w", chartsFile, err)

@@ -78,14 +78,9 @@ func (c *ChartPkg) Update(charts ...string) error {
 		chart := chartData.Charts[k]
 		chartName := chart.Chart
 
-		chartKey := chart.GetSnakeCaseName()
-		if k != chartKey {
-			return fmt.Errorf("chart key %q does not match generated key %q", k, chartKey)
-		}
-
 		chartSlog := slog.With(
 			slog.String("chart_name", chartName),
-			slog.String("chart_key", chartKey),
+			slog.String("chart_key", k),
 		)
 
 		err = sem.Acquire(context.Background(), 1)
@@ -95,7 +90,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 		go func(chart kclchart.ChartConfig, logger *slog.Logger) {
 			defer sem.Release(1)
 
-			if len(charts) > 0 && !slices.Contains(charts, chartName) && !slices.Contains(charts, chartKey) {
+			if len(charts) > 0 && !slices.Contains(charts, chartName) && !slices.Contains(charts, k) {
 				chartSlog.Info("skipping chart")
 
 				return
@@ -103,7 +98,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 			logger.Info("updating chart")
 
-			err := c.AddChart(&chart)
+			err := c.AddChart(k, &chart)
 			if err != nil {
 				errChan <- fmt.Errorf("failed to update chart %q: %w", k, err)
 
