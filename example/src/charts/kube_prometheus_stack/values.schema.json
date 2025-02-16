@@ -46,7 +46,7 @@
     },
     "affinity": {
       "additionalProperties": true,
-      "description": "# Affinity settings for pod assignment\n# Can be defined as either a dict or string. String is useful for `tpl` templating.\n# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/",
+      "description": "# Assign a group of affinity scheduling rules\n#",
       "properties": {
         "podAntiAffinity": {
           "properties": {
@@ -2170,7 +2170,7 @@
     },
     "daemonsetAnnotations": {
       "additionalProperties": true,
-      "description": "Annotations to be added to node exporter daemonset",
+      "description": "Annotations to be added to windows exporter daemonset",
       "required": [],
       "title": "daemonsetAnnotations",
       "type": "object"
@@ -2963,7 +2963,7 @@
     },
     "dnsConfig": {
       "additionalProperties": true,
-      "description": "Custom DNS configuration to be added to prometheus-node-exporter pods",
+      "description": "Custom DNS configuration to be added to prometheus-windows-exporter pods",
       "required": [],
       "title": "dnsConfig",
       "type": "object"
@@ -3111,7 +3111,7 @@
     },
     "env": {
       "additionalProperties": true,
-      "description": "Additional Environment variables",
+      "description": "Additional environment variables that will be passed to the daemonset",
       "required": [],
       "title": "env",
       "type": "object"
@@ -3156,7 +3156,7 @@
       "type": "object"
     },
     "extraArgs": {
-      "description": "List of additional cli arguments to configure kube-state-metrics\nfor example: --enable-gzip-encoding, --log-file, etc.\nall the possible args can be found here: https://github.com/kubernetes/kube-state-metrics/blob/master/docs/cli-arguments.md",
+      "description": "# Additional container arguments\n#",
       "items": {
         "required": []
       },
@@ -3235,7 +3235,7 @@
       "type": "array"
     },
     "extraHostVolumeMounts": {
-      "description": "# Additional mounts from the host to node-exporter container\n#",
+      "description": "# Additional mounts from the host to windows-exporter container\n#",
       "items": {
         "required": []
       },
@@ -3244,7 +3244,7 @@
       "type": "array"
     },
     "extraInitContainers": {
-      "description": "# Additional init containers (evaluated as template)\n# ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/\n#",
+      "description": "# Additional InitContainers to initialize the pod\n#",
       "items": {
         "required": []
       },
@@ -3260,7 +3260,7 @@
       "type": "object"
     },
     "extraManifests": {
-      "description": "Extra manifests to deploy as an array",
+      "description": "# Extra manifests to deploy as an array",
       "items": {
         "required": [],
         "type": "string"
@@ -3346,7 +3346,7 @@
       "type": "array"
     },
     "extraVolumeMounts": {
-      "description": "# Additional grafana server volume mounts\nDefines additional volume mounts.",
+      "description": "# Extra volume mounts in the node-exporter container",
       "items": {
         "required": []
       },
@@ -3355,7 +3355,7 @@
       "type": "array"
     },
     "extraVolumes": {
-      "description": "# Additional Grafana server volumes",
+      "description": "# Extra volumes to become available in the pod",
       "items": {
         "required": []
       },
@@ -3372,7 +3372,7 @@
     },
     "global": {
       "additionalProperties": true,
-      "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
+      "description": "#",
       "properties": {
         "environment": {
           "required": [],
@@ -3380,7 +3380,7 @@
           "type": "string"
         },
         "imagePullSecrets": {
-          "description": "To help compatibility with other charts which use global.imagePullSecrets.\nAllow either an array of {name: pullSecret} maps (k8s-style), or an array of strings (more common helm-style).\nglobal:\n  imagePullSecrets:\n  - name: pullSecret1\n  - name: pullSecret2\nor\nglobal:\n  imagePullSecrets:\n  - pullSecret1\n  - pullSecret2",
+          "description": "# Reference to one or more secrets to be used when pulling images\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/\n#",
           "items": {
             "required": []
           },
@@ -3390,7 +3390,7 @@
         },
         "imageRegistry": {
           "default": "",
-          "description": "\nAllow parent charts to override registry hostname",
+          "description": "# Global image registry to use if it needs to be overriden for some specific use cases (e.g local registries, custom images, ...)\n#",
           "required": [],
           "title": "imageRegistry",
           "type": "string"
@@ -4037,7 +4037,7 @@
       "type": "boolean"
     },
     "hostNetwork": {
-      "default": false,
+      "default": true,
       "description": "Expose the service to the host network",
       "required": [],
       "title": "hostNetwork",
@@ -4106,7 +4106,7 @@
     },
     "image": {
       "additionalProperties": true,
-      "description": "# Use an alternate scheduler, e.g. \"stork\".\n# ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/\n#\nschedulerName: \"default-scheduler\"",
+      "description": "Default values for prometheus-node-exporter.\nThis is a YAML-formatted file.\nDeclare variables to be passed into your templates.",
       "properties": {
         "digest": {
           "default": "",
@@ -4130,14 +4130,14 @@
           "type": "array"
         },
         "registry": {
-          "default": "registry.k8s.io",
+          "default": "ghcr.io",
           "description": "The Docker registry",
           "required": [],
           "title": "registry",
           "type": "string"
         },
         "repository": {
-          "default": "kube-state-metrics/kube-state-metrics",
+          "default": "prometheus-community/windows-exporter",
           "description": "Docker image repository",
           "required": [],
           "title": "repository",
@@ -4151,7 +4151,7 @@
         },
         "tag": {
           "default": "",
-          "description": "If unset use v + .Charts.appVersion",
+          "description": "Overrides the image tag whose default is {{ printf \"v%s\" .Chart.AppVersion }}",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -6138,7 +6138,7 @@
     },
     "kubeRBACProxy": {
       "additionalProperties": true,
-      "description": "Configure kube-rbac-proxy. When enabled, creates one kube-rbac-proxy container per exposed HTTP endpoint (metrics and telemetry if enabled).\nThe requests are served through the same service but requests are then HTTPS.",
+      "description": "Configure kube-rbac-proxy. When enabled, creates a kube-rbac-proxy to protect the node-exporter http endpoint.\nThe requests are served through the same service but requests are HTTPS.",
       "properties": {
         "containerSecurityContext": {
           "description": "# Specify security settings for a Container\n# Allows overrides and additional options compared to (Pod) securityContext\n# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
@@ -6203,7 +6203,7 @@
           "type": "object"
         },
         "extraArgs": {
-          "description": "List of additional cli arguments to configure kube-rbac-prxy\nfor example: --tls-cipher-suites, --log-file, etc.\nall the possible args can be found here: https://github.com/brancz/kube-rbac-proxy#usage",
+          "description": "List of additional cli arguments to configure kube-rbac-proxy\nfor example: --tls-cipher-suites, --log-file, etc.\nall the possible args can be found here: https://github.com/brancz/kube-rbac-proxy#usage",
           "items": {
             "required": []
           },
@@ -6548,7 +6548,7 @@
     },
     "kubeTargetVersionOverride": {
       "default": "",
-      "description": "# Provide a k8s version to define apiGroups for podSecurityPolicy Cluster Role.\n# For example: kubeTargetVersionOverride: 1.14.9\n#",
+      "description": "# Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.26.6\n#",
       "required": [],
       "title": "kubeTargetVersionOverride",
       "type": "string"
@@ -7051,7 +7051,7 @@
               "type": "array"
             },
             "path": {
-              "default": "/api/health",
+              "default": "/health",
               "required": [],
               "title": "path",
               "type": "string"
@@ -7074,7 +7074,7 @@
           "type": "object"
         },
         "initialDelaySeconds": {
-          "default": 5,
+          "default": 0,
           "required": [],
           "title": "initialDelaySeconds",
           "type": "integer"
@@ -7092,7 +7092,7 @@
           "type": "integer"
         },
         "timeoutSeconds": {
-          "default": 5,
+          "default": 1,
           "required": [],
           "title": "timeoutSeconds",
           "type": "integer"
@@ -7168,7 +7168,7 @@
     },
     "networkPolicy": {
       "additionalProperties": true,
-      "description": "# Configure network policy for kube-state-metrics",
+      "description": "Set a NetworkPolicy with:\ningress only on service.port or custom policy\nno egress permitted",
       "properties": {
         "allowExternal": {
           "default": true,
@@ -7264,7 +7264,7 @@
           },
           "required": [],
           "title": "ingress",
-          "type": "boolean"
+          "type": "array"
         }
       },
       "required": [],
@@ -7341,10 +7341,10 @@
     },
     "nodeSelector": {
       "additionalProperties": true,
-      "description": "# Node labels for pod assignment\n# Ref: https://kubernetes.io/docs/user-guide/node-selection/",
+      "description": "# Assign a nodeSelector if operating a hybrid cluster\n#",
       "properties": {
         "kubernetes.io/os": {
-          "default": "linux",
+          "default": "windows",
           "required": [],
           "title": "kubernetes.io/os",
           "type": "string"
@@ -7452,7 +7452,7 @@
     },
     "podAnnotations": {
       "additionalProperties": true,
-      "description": "Annotations to be added to the pod",
+      "description": "Annotations to be added to windows exporter pods",
       "properties": {
         "cluster-autoscaler.kubernetes.io/safe-to-evict": {
           "default": "true",
@@ -7475,7 +7475,7 @@
     },
     "podLabels": {
       "additionalProperties": true,
-      "description": "Labels to be added to the pod",
+      "description": "Extra labels to be added to windows exporter pods",
       "properties": {
         "baz": {
           "required": [],
@@ -7992,7 +7992,7 @@
               "type": "array"
             },
             "podTargetLabels": {
-              "description": "List of pod labels to add to node exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "List of pod labels to add to windows exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -8114,7 +8114,7 @@
           "type": "object"
         },
         "podMonitor": {
-          "description": "PodMonitor defines monitoring for a set of pods.\nref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.PodMonitor\nUsing a PodMonitor may be preferred in some environments where there is very large number\nof Node Exporter endpoints (1000+) behind a single service.\nThe PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,\nthe time series resulting from the configuration through PodMonitor may have different labels.\nFor instance, there will not be the service label any longer which might\naffect PromQL queries selecting that label.",
+          "description": "PodMonitor defines monitoring for a set of pods.\nref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.PodMonitor\nUsing a PodMonitor may be preferred in some environments where there is very large number\nof Windows Exporter endpoints (1000+) behind a single service.\nThe PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,\nthe time series resulting from the configuration through PodMonitor may have different labels.\nFor instance, there will not be the service label any longer which might\naffect PromQL queries selecting that label.",
           "properties": {
             "additionalLabels": {
               "description": "Additional labels, e.g. setting a label for pod monitor selector as set in prometheus",
@@ -12112,7 +12112,7 @@
       "properties": {
         "create": {
           "default": true,
-          "description": "If true, create \u0026 use RBAC resources",
+          "description": "# If true, create \u0026 use RBAC resources\n#",
           "required": [],
           "title": "create",
           "type": "boolean"
@@ -12155,8 +12155,8 @@
           "type": "object"
         },
         "pspEnabled": {
-          "default": false,
-          "description": "# Use an existing ClusterRole/Role (depending on rbac.namespaced false/true)\nuseExistingRole: name-of-some-role\nuseExistingClusterRole: name-of-some-clusterRole",
+          "default": true,
+          "description": "# If true, create \u0026 use Pod Security Policy resources\n# https://kubernetes.io/docs/concepts/policy/pod-security-policy/",
           "required": [],
           "title": "pspEnabled",
           "type": "boolean"
@@ -12200,7 +12200,7 @@
               "type": "array"
             },
             "path": {
-              "default": "/api/health",
+              "default": "/health",
               "required": [],
               "title": "path",
               "type": "string"
@@ -12223,7 +12223,7 @@
           "type": "object"
         },
         "initialDelaySeconds": {
-          "default": 5,
+          "default": 0,
           "required": [],
           "title": "initialDelaySeconds",
           "type": "integer"
@@ -12241,7 +12241,7 @@
           "type": "integer"
         },
         "timeoutSeconds": {
-          "default": 5,
+          "default": 1,
           "required": [],
           "title": "timeoutSeconds",
           "type": "integer"
@@ -12625,10 +12625,10 @@
     },
     "service": {
       "additionalProperties": true,
-      "description": "# Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).\n# or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.\n# ref: http://kubernetes.io/docs/user-guide/services/\n#",
+      "description": "# Service configuration",
       "properties": {
         "annotations": {
-          "description": "targetPort: 4181 To be used with a proxy extraContainer\n# Service annotations. Can be templated.",
+          "description": "# Additional annotations and labels for the service.",
           "properties": {
             "prometheus.io/scrape": {
               "default": "true",
@@ -12760,22 +12760,22 @@
           "type": "array"
         },
         "nodePort": {
-          "default": 0,
+          "default": "",
           "description": "# Port number for service type NodePort",
           "required": [],
           "title": "nodePort",
-          "type": "integer"
+          "type": "null"
         },
         "port": {
-          "default": 8080,
-          "description": "# Default service port. Sets the port of the exposed container as well (NE or kubeRBACProxy).\n# Use \"servicePort\" below if changing the service port only is desired.",
+          "default": 9182,
+          "description": "# Default service port. Sets the port of the exposed container as well (windows-exporter).",
           "required": [],
           "title": "port",
           "type": "integer"
         },
         "portName": {
-          "default": "service",
-          "description": "# Name of the service port. Sets the port name of the main container (NE) as well.",
+          "default": "metrics",
+          "description": "# Name of the service port. Sets the port name of the main container (windows-exporter) as well.",
           "required": [],
           "title": "portName",
           "type": "string"
@@ -12794,7 +12794,7 @@
           "type": "string"
         },
         "targetPort": {
-          "default": 3000,
+          "default": 9100,
           "description": "# Targeted port in the pod. Must refer to an open container port (\"port\" or \"portName\").\n# (IntOrString)",
           "required": [],
           "title": "targetPort",
@@ -12802,7 +12802,7 @@
         },
         "type": {
           "default": "ClusterIP",
-          "description": "Default to clusterIP for backward compatibility",
+          "description": "# Service type",
           "required": [],
           "title": "type",
           "type": "string"
@@ -12822,7 +12822,7 @@
           "type": "object"
         },
         "automountServiceAccountToken": {
-          "default": true,
+          "default": false,
           "description": "If false then the user will opt out of automounting API credentials.",
           "required": [],
           "title": "automountServiceAccountToken",
@@ -12830,7 +12830,7 @@
         },
         "create": {
           "default": true,
-          "description": "Specifies whether a ServiceAccount should be created, require rbac true",
+          "description": "Specifies whether a ServiceAccount should be created",
           "required": [],
           "title": "create",
           "type": "boolean"
@@ -13756,7 +13756,7 @@
       "type": "array"
     },
     "sidecars": {
-      "description": "# Additional containers for export metrics to text file; fields image,imagePullPolicy,securityContext take default value from main container\n#",
+      "description": "# Additional containers for export metrics to text file\n#",
       "items": {
         "required": []
       },
@@ -14963,7 +14963,7 @@
     },
     "verticalPodAutoscaler": {
       "additionalProperties": true,
-      "description": "Enable vertical pod autoscaler support for kube-state-metrics",
+      "description": "Enable vertical pod autoscaler support for prometheus-node-exporter",
       "properties": {
         "controlledResources": {
           "description": "List of resources that the vertical pod autoscaler can control. Defaults to cpu and memory",

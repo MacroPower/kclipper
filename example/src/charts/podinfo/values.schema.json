@@ -197,7 +197,7 @@
           "description": "average total CPU usage per pod (1-100)",
           "required": [],
           "title": "cpu",
-          "type": "integer"
+          "type": "null"
         },
         "enabled": {
           "default": false,
@@ -554,7 +554,7 @@
           },
           "required": [],
           "title": "limits",
-          "type": "object"
+          "type": "null"
         },
         "requests": {
           "properties": {

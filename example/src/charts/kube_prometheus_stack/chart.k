@@ -11,14 +11,14 @@ schema Chart(helm.Chart):
 
     Attributes
     ----------
+    values : Values | any, optional
     chart : str, required, default is "kube-prometheus-stack"
     repoURL : str, required, default is "https://prometheus-community.github.io/helm-charts"
     targetRevision : str, optional, default is "69.2.0"
-    values : Values | any, optional
     """
 
+    values?: Values | any
     chart: str = "kube-prometheus-stack"
     repoURL: str = "https://prometheus-community.github.io/helm-charts"
     targetRevision?: str = "69.2.0"
-    values?: Values | any
 

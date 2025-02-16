@@ -195,7 +195,7 @@ schema ValuesHpa:
 
     Attributes
     ----------
-    cpu : int, optional, default is ""
+    cpu : any, optional, default is ""
         average total CPU usage per pod (1-100)
     enabled : bool, optional, default is False
     maxReplicas : int, optional, default is 10
@@ -205,7 +205,7 @@ schema ValuesHpa:
         average http requests per second per pod (k8s-prometheus-adapter)
     """
 
-    cpu?: int
+    cpu?: any
     enabled?: bool
     maxReplicas?: int
     memory?: any
@@ -433,11 +433,11 @@ schema ValuesResources:
 
     Attributes
     ----------
-    limits : ValuesResourcesLimits, optional, default is ""
+    limits : any | ValuesResourcesLimits, optional, default is ""
     requests : ValuesResourcesRequests, optional
     """
 
-    limits?: ValuesResourcesLimits
+    limits?: any | ValuesResourcesLimits
     requests?: ValuesResourcesRequests
     [...str]: any
 

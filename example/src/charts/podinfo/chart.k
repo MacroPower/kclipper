@@ -11,16 +11,16 @@ schema Chart(helm.Chart):
 
     Attributes
     ----------
+    values : Values | any, optional
     chart : str, required, default is "podinfo"
     repoURL : str, required, default is "https://stefanprodan.github.io/podinfo"
     targetRevision : str, optional, default is "6.7.1"
     schemaValidator : "KCL" | "HELM", optional, default is "KCL"
-    values : Values | any, optional
     """
 
+    values?: Values | any
     chart: str = "podinfo"
     repoURL: str = "https://stefanprodan.github.io/podinfo"
     targetRevision?: str = "6.7.1"
     schemaValidator?: "KCL" | "HELM" = "KCL"
-    values?: Values | any
 

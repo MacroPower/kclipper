@@ -11,16 +11,16 @@ schema Chart(helm.Chart):
 
     Attributes
     ----------
+    values : Values | any, optional
     chart : str, required, default is "app-template"
     repoURL : str, required, default is "https://bjw-s.github.io/helm-charts/"
     targetRevision : str, optional, default is "3.7.1"
     schemaValidator : "KCL" | "HELM", optional, default is "KCL"
-    values : Values | any, optional
     """
 
+    values?: Values | any
     chart: str = "app-template"
     repoURL: str = "https://bjw-s.github.io/helm-charts/"
     targetRevision?: str = "3.7.1"
     schemaValidator?: "KCL" | "HELM" = "KCL"
-    values?: Values | any
 
