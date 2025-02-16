@@ -53,10 +53,6 @@ type Chart struct {
 
 // NewChart creates a new [Chart].
 func NewChart(client ChartClient, repos helmrepo.Getter, opts *TemplateOpts) (*Chart, error) {
-	if opts.Timeout == 0 {
-		opts.Timeout = 60 * time.Second
-	}
-
 	return &Chart{
 		Client:       client,
 		Repos:        repos,
@@ -68,7 +64,10 @@ func NewChart(client ChartClient, repos helmrepo.Getter, opts *TemplateOpts) (*C
 // are pulled as needed. The rendered output is then split into individual
 // Kubernetes objects and returned as a slice of [unstructured.Unstructured].
 func (c *Chart) Template(ctx context.Context) ([]*unstructured.Unstructured, error) {
-	ctx, cancel := context.WithTimeout(ctx, c.TemplateOpts.Timeout)
+	cancel := func() {}
+	if c.TemplateOpts.Timeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, c.TemplateOpts.Timeout)
+	}
 	defer cancel()
 
 	chartPath, err := c.Client.Pull(ctx,
