@@ -80,6 +80,7 @@ func (c *Chart) Template() ([]*unstructured.Unstructured, error) {
 	return objs, nil
 }
 
+//nolint:revive // TODO: Refactor this.
 func (c *Chart) template() ([]byte, error) {
 	cmd, err := NewCmdWithVersion(c.path, c.TemplateOpts.Proxy, c.TemplateOpts.NoProxy)
 	if err != nil {
@@ -225,6 +226,7 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 	}
 
 	for _, f := range matchedFiles {
+		//nolint:gosec // G304 not relevant for client-side generation.
 		b, err := os.ReadFile(f)
 		if err != nil {
 			return nil, fmt.Errorf("error reading CRD file: %w", err)

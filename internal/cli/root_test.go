@@ -18,10 +18,6 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
 	testDataDir = filepath.Join(dir, "testdata")
-
-	os.Setenv("KCLX_HELM_PLUGIN_DISABLED", "true")
-	os.Setenv("KCLX_OS_PLUGIN_DISABLED", "true")
-	os.Setenv("KCLX_HTTP_PLUGIN_DISABLED", "true")
 }
 
 func TestRun(t *testing.T) {
@@ -30,7 +26,7 @@ func TestRun(t *testing.T) {
 	tc := cli.NewRootCmd("test", "", "")
 	out := bytes.NewBufferString("")
 	outFile := filepath.Join(testDataDir, "got/simple.json")
-	err := os.MkdirAll(filepath.Dir(outFile), 0o755)
+	err := os.MkdirAll(filepath.Dir(outFile), 0o750)
 	require.NoError(t, err)
 
 	tc.SetArgs([]string{"run", filepath.Join(testDataDir, "simple.k"), "--format=json", "--output", outFile})

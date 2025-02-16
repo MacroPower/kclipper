@@ -5,9 +5,11 @@ import (
 	"fmt"
 )
 
-var DefaultAutoGenerator = NewAutoGenerator()
+var (
+	DefaultAutoGenerator = NewAutoGenerator()
 
-var _ FileGenerator = DefaultAutoGenerator
+	_ FileGenerator = DefaultAutoGenerator
+)
 
 type AutoGenerator struct{}
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,10 +16,12 @@ import (
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
 )
 
-// DefaultReaderGenerator is an opinionated [ReaderGenerator].
-var DefaultReaderGenerator = NewReaderGenerator()
+var (
+	// DefaultReaderGenerator is an opinionated [ReaderGenerator].
+	DefaultReaderGenerator = NewReaderGenerator()
 
-var _ FileGenerator = DefaultReaderGenerator
+	_ FileGenerator = DefaultReaderGenerator
+)
 
 // ReaderGenerator reads a JSON Schema from a given location and returns
 // corresponding []byte representations.
@@ -81,6 +84,7 @@ func (g *ReaderGenerator) fromPath(path string) ([]byte, error) {
 }
 
 func (g *ReaderGenerator) FromFile(path string) ([]byte, error) {
+	//nolint:gosec // G304 not relevant for client-side generation.
 	jsBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
@@ -102,7 +106,15 @@ func (g *ReaderGenerator) FromURL(schemaURL *url.URL) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed http request: %w", err)
 	}
-	defer schema.Body.Close()
+	defer func() {
+		err = schema.Body.Close()
+		if err != nil {
+			slog.Error("failed to close http response body",
+				slog.String("url", schemaURL.String()),
+				slog.Any("err", err),
+			)
+		}
+	}()
 
 	return g.FromReader(schema.Body, "")
 }

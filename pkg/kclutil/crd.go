@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	crdGen "kcl-lang.io/kcl-openapi/pkg/kube_resource/generator"
-	swaggerGen "kcl-lang.io/kcl-openapi/pkg/swagger/generator"
+	crdgen "kcl-lang.io/kcl-openapi/pkg/kube_resource/generator"
+	swaggergen "kcl-lang.io/kcl-openapi/pkg/swagger/generator"
 )
 
 func GenerateKCLFromCRD(crd []byte, dstPath string) error {
-	opts := new(swaggerGen.GenOpts)
+	opts := new(swaggergen.GenOpts)
 	if err := opts.EnsureDefaults(); err != nil {
 		return fmt.Errorf("failed to ensure default generator options: %w", err)
 	}
@@ -26,13 +26,16 @@ func GenerateKCLFromCRD(crd []byte, dstPath string) error {
 		return fmt.Errorf("failed to write CRD to temp file: %w", err)
 	}
 
-	tmpFile.Close()
+	err = tmpFile.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close temp file: %w", err)
+	}
 
 	defer func() {
 		_ = os.Remove(tmpFile.Name())
 	}()
 
-	spec, err := crdGen.GetSpec(&crdGen.GenOpts{
+	spec, err := crdgen.GetSpec(&crdgen.GenOpts{
 		Spec: tmpFile.Name(),
 	})
 	if err != nil {
@@ -49,7 +52,7 @@ func GenerateKCLFromCRD(crd []byte, dstPath string) error {
 	opts.ModelPackage = "crds"
 	opts.ValidateSpec = false
 
-	err = swaggerGen.Generate(opts)
+	err = swaggergen.Generate(opts)
 	if err != nil {
 		return fmt.Errorf("failed to generate KCL Schema: %w", err)
 	}

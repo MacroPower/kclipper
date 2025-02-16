@@ -33,7 +33,7 @@ func (c *ChartPkg) AddChart(chart *kclchart.ChartConfig) error {
 	}
 
 	chartDir := path.Join(absBasePath, chart.GetSnakeCaseName())
-	if err := os.MkdirAll(chartDir, 0o755); err != nil {
+	if err := os.MkdirAll(chartDir, 0o750); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
 
@@ -135,7 +135,7 @@ func generateAndWriteValuesSchemaFiles(
 
 	switch chart.SchemaGenerator {
 	case jsonschema.NoGeneratorType:
-		break
+		return nil
 
 	case jsonschema.URLGeneratorType, jsonschema.LocalPathGeneratorType:
 		schemaPath, err := pathutil.ResolveFilePathOrURL(basePath, repoRoot, chart.SchemaPath, []string{"http", "https"})

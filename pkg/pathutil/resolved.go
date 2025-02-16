@@ -158,15 +158,15 @@ func ResolveFileOrDirectoryPath(currentPath, repoRoot, dir string) (ResolvedFile
 func ResolveFilePathOrURL(currentPath, repoRoot, file string, allowedURLSchemes []string) (ResolvedFilePath, error) {
 	// A file can be specified as an URL to a remote resource.
 	// We only allow certain URL schemes for remote files.
-	url, err := url.Parse(file)
+	u, err := url.Parse(file)
 	if err == nil {
 		// If scheme is empty, it means we parsed a path only.
-		if url.Scheme != "" {
-			if isURLSchemeAllowed(url.Scheme, allowedURLSchemes) {
-				return ResolvedFilePath{path: file, url: url}, nil
+		if u.Scheme != "" {
+			if isURLSchemeAllowed(u.Scheme, allowedURLSchemes) {
+				return ResolvedFilePath{path: file, url: u}, nil
 			}
 
-			return ResolvedFilePath{}, fmt.Errorf("%w: %s", ErrURLSchemeNotAllowed, url.Scheme)
+			return ResolvedFilePath{}, fmt.Errorf("%w: %s", ErrURLSchemeNotAllowed, u.Scheme)
 		}
 	}
 
@@ -178,9 +178,7 @@ func ResolveFilePathOrURL(currentPath, repoRoot, file string, allowedURLSchemes 
 	return ResolvedFilePath{path: path}, nil
 }
 
-func resolveFileOrDirectory(
-	currentPath, repoRoot, fileOrDirectory string, allowResolveToRoot bool,
-) (string, error) {
+func resolveFileOrDirectory(currentPath, repoRoot, fileOrDirectory string, allowResolveToRoot bool) (string, error) {
 	// Ensure that our repository root is absolute.
 	absRepoPath, err := filepath.Abs(repoRoot)
 	if err != nil {

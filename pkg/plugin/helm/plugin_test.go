@@ -11,15 +11,12 @@ import (
 	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 
-	"github.com/MacroPower/kclipper/pkg/log"
 	helmplugin "github.com/MacroPower/kclipper/pkg/plugin/helm"
 )
 
 var testDataDir string
 
 func init() {
-	log.SetLogLevel("warn")
-
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
 	testDataDir = filepath.Join(dir, "testdata")

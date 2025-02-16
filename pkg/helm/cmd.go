@@ -51,7 +51,7 @@ func NewCmdWithVersion(workDir, proxy, noProxy string) (*Cmd, error) {
 	}, nil
 }
 
-func (c *Cmd) Fetch(chart, version, destination string, repo *helmrepo.Repo) (string, error) {
+func (c *Cmd) Fetch(chartName, version, destination string, repo *helmrepo.Repo) (string, error) {
 	ap := action.NewPullWithOpts(action.WithConfig(&action.Configuration{
 		RegistryClient: c.rc,
 	}))
@@ -74,7 +74,7 @@ func (c *Cmd) Fetch(chart, version, destination string, repo *helmrepo.Repo) (st
 		ap.InsecureSkipTLSverify = repo.InsecureSkipVerify
 	}
 
-	out, err := ap.Run(chart)
+	out, err := ap.Run(chartName)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch chart: %w", err)
 	}
@@ -206,9 +206,9 @@ func (c *Cmd) Template(chartPath string, opts *CmdTemplateOpts) (string, string,
 	return manifest, release.Name, nil
 }
 
-func removeSchemasFromObject(chart *chart.Chart) {
-	chart.Schema = nil
-	for _, d := range chart.Dependencies() {
+func removeSchemasFromObject(c *chart.Chart) {
+	c.Schema = nil
+	for _, d := range c.Dependencies() {
 		removeSchemasFromObject(d)
 	}
 }

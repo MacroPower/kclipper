@@ -1,8 +1,10 @@
 package jsonschema
 
-var DefaultNoGenerator = NewNoGenerator()
+var (
+	DefaultNoGenerator = NewNoGenerator()
 
-var _ FileGenerator = DefaultNoGenerator
+	_ FileGenerator = DefaultNoGenerator
+)
 
 type NoGenerator struct{}
 

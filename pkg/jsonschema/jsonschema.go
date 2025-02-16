@@ -6,11 +6,10 @@ import (
 	"strings"
 )
 
-type FileGenerator interface {
-	FromPaths(paths ...string) ([]byte, error)
-}
-
-type GeneratorType string
+type (
+	GeneratorType string
+	ValidatorType string
+)
 
 const (
 	DefaultGeneratorType        GeneratorType = ""
@@ -20,28 +19,33 @@ const (
 	ChartPathGeneratorType      GeneratorType = "CHART-PATH"
 	LocalPathGeneratorType      GeneratorType = "LOCAL-PATH"
 	NoGeneratorType             GeneratorType = "NONE"
-)
 
-var GeneratorTypeEnum = []any{
-	AutoGeneratorType,
-	ValueInferenceGeneratorType,
-	URLGeneratorType,
-	ChartPathGeneratorType,
-	LocalPathGeneratorType,
-	NoGeneratorType,
-}
-
-type ValidatorType string
-
-const (
 	DefaultValidatorType ValidatorType = ""
 	KCLValidatorType     ValidatorType = "KCL"
 	HelmValidatorType    ValidatorType = "HELM"
 )
 
-var ValidatorTypeEnum = []any{
-	KCLValidatorType,
-	HelmValidatorType,
+var (
+	GeneratorTypeEnum = []any{
+		AutoGeneratorType,
+		ValueInferenceGeneratorType,
+		URLGeneratorType,
+		ChartPathGeneratorType,
+		LocalPathGeneratorType,
+		NoGeneratorType,
+	}
+
+	ValidatorTypeEnum = []any{
+		KCLValidatorType,
+		HelmValidatorType,
+	}
+
+	jsonOrYAMLValuesRegex = regexp.MustCompile(`(\.json|values.*\.ya?ml)$`)
+	yamlValuesRegex       = regexp.MustCompile(`values.*\.ya?ml$`)
+)
+
+type FileGenerator interface {
+	FromPaths(paths ...string) ([]byte, error)
 }
 
 // GetGenerator returns a [FileGenerator] for the given [GeneratorType].
@@ -91,11 +95,6 @@ func GetValidatorType(t string) ValidatorType {
 		return DefaultValidatorType
 	}
 }
-
-var (
-	jsonOrYAMLValuesRegex = regexp.MustCompile(`(\.json|values.*\.ya?ml)$`)
-	yamlValuesRegex       = regexp.MustCompile(`values.*\.ya?ml$`)
-)
 
 func GetFileFilter(t GeneratorType) func(string) bool {
 	switch t {

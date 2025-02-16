@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -17,8 +18,8 @@ import (
 )
 
 func init() {
-	log.SetLogFormat("text")
-	log.SetLogLevel("warn")
+	h := log.CreateHandler("warn", "text")
+	slog.SetDefault(slog.New(h))
 }
 
 const (
@@ -43,7 +44,12 @@ func main() {
 	cli.RegisterEnabledPlugins()
 
 	cmd := cli.NewRootCmd(cmdName, shortDesc, longDesc)
-	bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
+
+	err := bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
+		os.Exit(1)
+	}
 
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
@@ -52,28 +58,28 @@ func main() {
 }
 
 // executeRunCmd the run command for the root command.
-func executeRunCmd(args []string) {
+func executeRunCmd(args []string) error {
 	cmd := kclcmd.NewRunCmd()
 	cmd.SetArgs(args)
 
 	if err := cmd.Execute(); err != nil {
-		os.Exit(1)
+		return fmt.Errorf("error executing run command: %w", err)
 	}
 
-	os.Exit(0)
+	return nil
 }
 
 func isHelpOrVersionFlag(flag string) bool {
 	return flag == "-h" || flag == "--help" || flag == "-v" || flag == "--version"
 }
 
-func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) {
+func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) error {
 	if pluginHandler == nil {
-		return
+		return nil
 	}
 
 	if len(os.Args) <= 1 {
-		return
+		return nil
 	}
 
 	cmdPathPieces := os.Args[1:]
@@ -82,14 +88,12 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 	// the specified command does not already exist.
 	// Flags cannot be placed before plugin name.
 	if strings.HasPrefix(cmdPathPieces[0], "-") && !isHelpOrVersionFlag(cmdPathPieces[0]) {
-		executeRunCmd(cmdPathPieces)
-
-		return
+		return executeRunCmd(cmdPathPieces)
 	}
 
 	foundCmd, _, err := cmd.Find(cmdPathPieces)
 	if err == nil {
-		return
+		return nil
 	}
 
 	// Also check the commands that will be added by Cobra.
@@ -121,11 +125,12 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 	default:
 		if !builtinSubCmdExist {
 			if err := plugin.HandlePluginCommand(pluginHandler, cmdPathPieces, false); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				return fmt.Errorf("error handling plugin command: %w", err)
 			}
 
-			executeRunCmd(cmdPathPieces)
+			return executeRunCmd(cmdPathPieces)
 		}
 	}
+
+	return nil
 }

@@ -27,7 +27,7 @@ func init() {
 	if err := os.RemoveAll(tempDir); err != nil {
 		panic(err)
 	}
-	if err := os.MkdirAll(tempDir, 0o755); err != nil {
+	if err := os.MkdirAll(tempDir, 0o750); err != nil {
 		panic(err)
 	}
 }

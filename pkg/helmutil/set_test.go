@@ -18,7 +18,7 @@ func TestChartPkg_Set(t *testing.T) {
 	basePath := "testdata/got/set"
 	chartPath := path.Join(basePath, "charts")
 	_ = os.RemoveAll(chartPath)
-	err := os.MkdirAll(chartPath, 0o755)
+	err := os.MkdirAll(chartPath, 0o750)
 	require.NoError(t, err)
 
 	ca := helmutil.NewChartPkg(chartPath, nil)

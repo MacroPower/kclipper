@@ -13,8 +13,8 @@ import (
 
 // All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`.
 type Chart struct {
-	HelmChart `json:",inline"`
-	ChartBase `json:",inline"`
+	HelmChart
+	ChartBase
 }
 
 func (c *Chart) GetSnakeCaseName() string {

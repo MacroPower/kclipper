@@ -16,12 +16,14 @@ import (
 	"github.com/MacroPower/kclipper/pkg/syncutil"
 )
 
-var globalLock = syncutil.NewKeyLock()
+var (
+	globalLock = syncutil.NewKeyLock()
 
-var DefaultClient = MustNewClient(
-	pathutil.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), pathutil.NewBase64PathEncoder()),
-	os.Getenv("ARGOCD_APP_PROJECT_NAME"),
-	"10M",
+	DefaultClient = MustNewClient(
+		pathutil.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), pathutil.NewBase64PathEncoder()),
+		os.Getenv("ARGOCD_APP_PROJECT_NAME"),
+		"10M",
+	)
 )
 
 type PathCacher interface {
@@ -89,6 +91,7 @@ func (c *Client) PullAndExtract(chart, repo, version string, repos helmrepo.Gett
 	return c.pull(chart, repo, version, true, repos)
 }
 
+//nolint:revive // TODO: Refactor this.
 func (c *Client) pull(chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
 	hr, err := repos.Get(repo)
 	if err != nil {
@@ -199,6 +202,7 @@ func (c *Client) extractChart(chart, srcPath string) (string, io.Closer, error) 
 		return "", nil, fmt.Errorf("error creating temporary destination directory: %w", err)
 	}
 
+	//nolint:gosec // G304 checked by repo resolver.
 	reader, err := os.Open(srcPath)
 	if err != nil {
 		return "", nil, fmt.Errorf("error opening chart path %q: %w", srcPath, err)

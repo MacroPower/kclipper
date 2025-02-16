@@ -71,10 +71,10 @@ func Test_resolveSymlinkRecursive(t *testing.T) {
 	})
 }
 
-var allowedRemoteProtocols = []string{"http", "https"}
-
 func Test_resolveFilePath(t *testing.T) {
 	t.Parallel()
+
+	allowedRemoteProtocols := []string{"http", "https"}
 
 	t.Run("Resolve normal relative path into absolute path", func(t *testing.T) {
 		t.Parallel()

@@ -1,7 +1,6 @@
 package log
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -11,13 +10,6 @@ const (
 	JSONFormat = "json"
 	TextFormat = "text"
 )
-
-// NewWithCurrentConfig creates a [slog.Logger] by using current configuration.
-func NewWithCurrentConfig() *slog.Logger {
-	h := CreateHandler(os.Getenv("ARGOCD_LOG_LEVEL"), os.Getenv("ARGOCD_LOG_FORMAT"))
-
-	return slog.New(h)
-}
 
 // CreateHandler creates a [slog.Handler] by strings.
 func CreateHandler(logLevel, logFormat string) slog.Handler {
@@ -52,25 +44,4 @@ func GetLevel(level string) slog.Level {
 	default:
 		return slog.LevelInfo
 	}
-}
-
-// SetLogFormat sets a log/slog format.
-func SetLogFormat(logFormat string) {
-	switch strings.ToLower(logFormat) {
-	case JSONFormat:
-		os.Setenv("ARGOCD_LOG_FORMAT", JSONFormat)
-	case TextFormat, "":
-		os.Setenv("ARGOCD_LOG_FORMAT", TextFormat)
-	default:
-		panic(fmt.Errorf("unknown log format %q", logFormat))
-	}
-
-	slog.SetDefault(NewWithCurrentConfig())
-}
-
-// SetLogLevel parses and sets a log/slog level.
-func SetLogLevel(logLevel string) {
-	level := GetLevel(logLevel)
-	os.Setenv("ARGOCD_LOG_LEVEL", level.String())
-	slog.SetLogLoggerLevel(level)
 }

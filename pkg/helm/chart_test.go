@@ -13,12 +13,9 @@ import (
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/helmtest"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
-	"github.com/MacroPower/kclipper/pkg/log"
 )
 
 func init() {
-	log.SetLogLevel("warn")
-
 	err := helmrepo.DefaultManager.Add(&helmrepo.RepoOpts{
 		Name:            "chartmuseum",
 		URL:             "http://localhost:8080",

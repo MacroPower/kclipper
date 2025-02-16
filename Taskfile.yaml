@@ -63,12 +63,12 @@ tasks:
   go-format:
     desc: Formats Go code including imports
     cmds:
-      - golangci-lint run --fix --disable=godot
+      - golangci-lint run --fix --exclude-use-default=false --disable=godot
 
   go-lint:
     desc: Lints Go code
     cmds:
-      - golangci-lint run
+      - golangci-lint run --exclude-use-default=false
 
   go-test:
     desc: Tests Go code

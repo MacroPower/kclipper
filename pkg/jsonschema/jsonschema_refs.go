@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path"
 	"strings"
@@ -161,11 +162,20 @@ func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helm
 }
 
 func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer string) error {
+	//nolint:gosec // G304 not relevant for client-side generation.
 	file, err := os.Open(relPath)
 	if err != nil {
 		return fmt.Errorf("error opening file %q: %w", relPath, err)
 	}
-	defer file.Close()
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			slog.Error("failed to close file",
+				slog.String("file", relPath),
+				slog.Any("err", err),
+			)
+		}
+	}()
 
 	byteValue, err := io.ReadAll(file)
 	if err != nil {
@@ -233,6 +243,7 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 }
 
 func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error {
+	//nolint:revive // Boolean literal used due to SchemaOrBool type.
 	if schema.AdditionalProperties == nil || schema.AdditionalProperties == true || schema.AdditionalProperties == false {
 		return nil
 	}

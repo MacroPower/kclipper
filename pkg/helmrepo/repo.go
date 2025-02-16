@@ -10,9 +10,9 @@ import (
 	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
-var DefaultManager = NewManager()
-
 var (
+	DefaultManager = NewManager()
+
 	ErrRepoNameEmpty       = errors.New("repo name cannot be empty")
 	ErrRepoURLEmpty        = errors.New("repo URL cannot be empty")
 	ErrFailedToResolveURL  = errors.New("failed to resolve URL")

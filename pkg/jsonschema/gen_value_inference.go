@@ -20,15 +20,17 @@ import (
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
 )
 
-var defaultValuesFileRegex = regexp.MustCompile(`^(.*/)?values\.ya?ml$`)
+var (
+	// DefaultValueInferenceGenerator is an opinionated [ValueInferenceGenerator].
+	DefaultValueInferenceGenerator = NewValueInferenceGenerator(ValueInferenceConfig{
+		SkipRequired:             true,
+		SkipAdditionalProperties: true,
+	})
 
-// DefaultValueInferenceGenerator is an opinionated [ValueInferenceGenerator].
-var DefaultValueInferenceGenerator = NewValueInferenceGenerator(ValueInferenceConfig{
-	SkipRequired:             true,
-	SkipAdditionalProperties: true,
-})
+	defaultValuesFileRegex = regexp.MustCompile(`^(.*/)?values\.ya?ml$`)
 
-var _ FileGenerator = DefaultValueInferenceGenerator
+	_ FileGenerator = DefaultValueInferenceGenerator
+)
 
 type ValueInferenceConfig struct {
 	// DefaultFileRegex matches files that set the `default` attribute in the JSON Schema.
@@ -119,6 +121,7 @@ func (g *ValueInferenceGenerator) FromData(data []byte) ([]byte, error) {
 }
 
 func (g *ValueInferenceGenerator) schemaFromFilePath(path string) (*helmschema.Schema, error) {
+	//nolint:gosec // G304 not relevant for client-side generation.
 	valuesFile, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening values file: %w", err)
@@ -427,6 +430,7 @@ func intersectStringSlices(a, b []string) []string {
 }
 
 func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults bool) error {
+	//nolint:revive // Boolean literal used due to SchemaOrBool type.
 	if src.AdditionalProperties == true || src.AdditionalProperties == false {
 		dest.AdditionalProperties = src.AdditionalProperties
 

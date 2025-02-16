@@ -50,6 +50,7 @@ func (c *TestClient) PullAndExtract(chart, repo, version string, repos helmrepo.
 	return c.pull(chart, repo, version, true, repos)
 }
 
+//nolint:revive // TODO: Refactor this.
 func (c *TestClient) pull(chart, repo, version string, extract bool, repos helmrepo.Getter) (string, io.Closer, error) {
 	if extract {
 		chartPath, closer, err := c.BaseClient.PullAndExtract(chart, repo, version, repos)

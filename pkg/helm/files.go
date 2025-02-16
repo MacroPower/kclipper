@@ -3,8 +3,10 @@ package helm
 import (
 	"archive/tar"
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"math"
 	"os"
 	"path"
@@ -12,7 +14,14 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-multierror"
 	"github.com/klauspost/compress/gzip"
+)
+
+var (
+	ErrFailedFileRead  = errors.New("failed to read file")
+	ErrFailedFileWrite = errors.New("failed to write file")
+	ErrFailedFileClose = errors.New("failed to close file")
 )
 
 // gunzip will loop over the tar reader creating the file structure at dstPath.
@@ -27,9 +36,16 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 
 	gzr, err := gzip.NewReader(r)
 	if err != nil {
-		return fmt.Errorf("error reading file: %w", err)
+		return fmt.Errorf("%w: %w", ErrFailedFileRead, err)
 	}
-	defer gzr.Close()
+	defer func() {
+		err = gzr.Close()
+		if err != nil {
+			slog.Error("failed to close gzip reader",
+				slog.Any("err", err),
+			)
+		}
+	}()
 
 	var tr *tar.Reader
 
@@ -63,7 +79,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			var mode os.FileMode = 0o755
+			var mode os.FileMode = 0o750
 
 			if preserveFileMode {
 				if header.Mode < 0 || header.Mode > math.MaxUint32 {
@@ -109,11 +125,12 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 				mode = os.FileMode(header.Mode)
 			}
 
-			err := os.MkdirAll(filepath.Dir(target), 0o755)
+			err := os.MkdirAll(filepath.Dir(target), 0o750)
 			if err != nil {
 				return fmt.Errorf("error creating nested folders: %w", err)
 			}
 
+			//nolint:gosec // G304 checked by [inbound].
 			f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 			if err != nil {
 				return fmt.Errorf("error creating file %q: %w", target, err)
@@ -122,12 +139,20 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 			w := bufio.NewWriter(f)
 			//nolint:gosec // G115 mitigated by [io.LimitReader].
 			if _, err := io.Copy(w, tr); err != nil {
-				f.Close()
+				merr := fmt.Errorf("%w: %w", ErrFailedFileWrite, err)
 
-				return fmt.Errorf("error writing tgz file: %w", err)
+				errClose := f.Close()
+				if errClose != nil {
+					merr = multierror.Append(merr, fmt.Errorf("%w: %w", ErrFailedFileClose, errClose))
+				}
+
+				return fmt.Errorf("error on file %q: %w", target, merr)
 			}
 
-			f.Close()
+			err = f.Close()
+			if err != nil {
+				return fmt.Errorf("%w %q: %w", ErrFailedFileClose, target, err)
+			}
 		}
 	}
 
@@ -175,7 +200,7 @@ func createTempDir(baseDir string) (string, error) {
 	}
 
 	tempDir := path.Join(base, newUUID.String())
-	if err := os.MkdirAll(tempDir, 0o755); err != nil {
+	if err := os.MkdirAll(tempDir, 0o750); err != nil {
 		return "", fmt.Errorf("error creating tempDir: %w", err)
 	}
 
@@ -194,8 +219,8 @@ func fileExists(filePath string) (bool, error) {
 	return true, nil
 }
 
-func dirExists(path string) bool {
-	fi, err := os.Lstat(path)
+func dirExists(dirPath string) bool {
+	fi, err := os.Lstat(dirPath)
 	if err != nil || !fi.IsDir() {
 		return false
 	}
