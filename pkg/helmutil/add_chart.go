@@ -2,11 +2,15 @@ package helmutil
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 
+	"github.com/hashicorp/go-multierror"
+	"golang.org/x/sync/semaphore"
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
@@ -93,7 +97,7 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 			return fmt.Errorf("failed to get CRDs: %w", err)
 		}
 
-		if err := writeCRDFiles(crds, chartDir); err != nil {
+		if err := c.writeCRDFiles(crds, chartDir); err != nil {
 			return err
 		}
 	}
@@ -189,12 +193,39 @@ func writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
 	return nil
 }
 
-func writeCRDFiles(crds [][]byte, chartDir string) error {
+func (c *ChartPkg) writeCRDFiles(crds [][]byte, chartDir string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	defer cancel()
+
+	workerCount := int64(runtime.GOMAXPROCS(0))
+	crdCount := len(crds)
+	sem := semaphore.NewWeighted(workerCount)
+	errChan := make(chan error, crdCount)
+
 	for _, crd := range crds {
-		err := kclutil.GenerateKCLFromCRD(crd, chartDir)
-		if err != nil {
-			return fmt.Errorf("failed to generate KCL from CRD: %w", err)
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return fmt.Errorf("failed to acquire worker: %w", err)
 		}
+		go func() {
+			defer sem.Release(1)
+
+			errChan <- kclutil.GenOpenAPI.FromCRD(crd, chartDir)
+		}()
+	}
+
+	if err := sem.Acquire(ctx, workerCount); err != nil {
+		return fmt.Errorf("failed to generate KCL from CRD: %w", err)
+	}
+
+	close(errChan)
+	var merr error
+	for err := range errChan {
+		if err != nil {
+			merr = multierror.Append(merr, err)
+		}
+	}
+	if merr != nil {
+		return fmt.Errorf("failed to generate KCL from CRD: %w", merr)
 	}
 
 	return nil
