@@ -1,12 +1,20 @@
 package cli
 
 import (
+	"sync"
+
 	"github.com/spf13/cobra"
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 )
 
+// Global lock for KCL command creation.
+var mu sync.Mutex
+
 func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
+	mu.Lock()
+	defer mu.Unlock()
+
 	cmd := &cobra.Command{
 		Use:           name,
 		Short:         shortDesc,
