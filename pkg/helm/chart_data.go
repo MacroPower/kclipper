@@ -2,6 +2,7 @@ package helm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"path/filepath"
@@ -20,6 +21,11 @@ import (
 
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/kube"
+)
+
+var (
+	ErrChartWorkerFailed         = errors.New("chart worker failed")
+	ErrFailedChartDependencyLoad = errors.New("failed to load chart dependency")
 )
 
 type TemplateOpts struct {
@@ -115,9 +121,8 @@ func (c *Chart) templateData(ctx context.Context, chartPath string) ([]byte, err
 	if err := c.setChartDependencies(ctx, loadedChart, sem); err != nil {
 		return nil, fmt.Errorf("failed to set chart dependencies: %w", err)
 	}
-	err = sem.Acquire(ctx, workerCount)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load chart dependencies: %w", err)
+	if err := sem.Acquire(ctx, workerCount); err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
 	}
 
 	// Fail open instead of blocking the template.
@@ -199,17 +204,17 @@ func (c *Chart) setChartDependencies(ctx context.Context, target *chart.Chart, s
 		err   error
 	}
 
-	depCount := len(target.Metadata.Dependencies)
+	depCount := int64(len(target.Metadata.Dependencies))
 	resultCh := make(chan loadResult, depCount)
 	// The smaller semaphore of sem and innerSem will block.
-	innerSem := semaphore.NewWeighted(int64(depCount))
+	innerSem := semaphore.NewWeighted(depCount)
 
 	for _, chartDep := range target.Metadata.Dependencies {
 		if err := sem.Acquire(ctx, 1); err != nil {
-			return fmt.Errorf("failed to acquire semaphore: %w", err)
+			return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
 		}
 		if err := innerSem.Acquire(ctx, 1); err != nil {
-			return fmt.Errorf("failed to acquire semaphore: %w", err)
+			return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
 		}
 		go func() {
 			defer sem.Release(1)
@@ -217,7 +222,7 @@ func (c *Chart) setChartDependencies(ctx context.Context, target *chart.Chart, s
 
 			dep, err := c.loadChartDependency(ctx, target, chartDep)
 			if err != nil {
-				resultCh <- loadResult{err: fmt.Errorf("failed to load chart dependency for %q: %w", target.Name(), err)}
+				resultCh <- loadResult{err: fmt.Errorf("%q: %w: %w", target.Name(), ErrFailedChartDependencyLoad, err)}
 
 				return
 			}
@@ -226,13 +231,11 @@ func (c *Chart) setChartDependencies(ctx context.Context, target *chart.Chart, s
 		}()
 	}
 
-	err := innerSem.Acquire(ctx, int64(depCount))
-	if err != nil {
-		return fmt.Errorf("failed to acquire semaphore: %w", err)
+	if err := innerSem.Acquire(ctx, depCount); err != nil {
+		return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
 	}
 
 	close(resultCh)
-
 	var merr error
 	for result := range resultCh {
 		if result.err != nil {
@@ -242,13 +245,13 @@ func (c *Chart) setChartDependencies(ctx context.Context, target *chart.Chart, s
 		}
 
 		if err := c.setChartDependencies(ctx, result.chart, sem); err != nil {
-			return fmt.Errorf("failed to load chart dependencies: %w", err)
+			return fmt.Errorf("%w: %w", ErrFailedChartDependencyLoad, err)
 		}
 
 		loadedDeps = append(loadedDeps, result.chart)
 	}
 	if merr != nil {
-		return fmt.Errorf("failed to load chart dependencies: %w", merr)
+		return fmt.Errorf("%w: %w", ErrFailedChartDependencyLoad, merr)
 	}
 
 	target.SetDependencies(loadedDeps...)

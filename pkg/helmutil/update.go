@@ -3,6 +3,7 @@ package helmutil
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"path/filepath"
@@ -17,9 +18,18 @@ import (
 	"github.com/MacroPower/kclipper/pkg/kclchart"
 )
 
+var (
+	ErrUpdateWorkerFailed = errors.New("update worker failed")
+	ErrChartUpdateFailed  = errors.New("chart update failed")
+	ErrKCLExecutionFailed = errors.New("kcl execution failed")
+)
+
 // Update loads the chart configurations defined in charts.k and calls Add to
 // generate all required chart packages.
 func (c *ChartPkg) Update(charts ...string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
+	defer cancel()
+
 	svc := native.NewNativeServiceClient()
 
 	absBasePath, err := filepath.Abs(c.BasePath)
@@ -51,12 +61,12 @@ func (c *ChartPkg) Update(charts ...string) error {
 		ExternalPkgs:  externalPkgs,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to execute kcl: %w", err)
+		return fmt.Errorf("%w: %w", ErrKCLExecutionFailed, err)
 	}
 
 	errMsg := mainOutput.GetErrMessage()
 	if errMsg != "" {
-		return fmt.Errorf("failed to execute kcl: %s", errMsg)
+		return fmt.Errorf("%w: %s", ErrKCLExecutionFailed, errMsg)
 	}
 
 	mainData := mainOutput.GetJsonResult()
@@ -67,12 +77,9 @@ func (c *ChartPkg) Update(charts ...string) error {
 	}
 
 	workerCount := int64(runtime.GOMAXPROCS(0))
-	chartCount := int64(len(chartData.Charts))
-	if workerCount > chartCount {
-		workerCount = chartCount
-	}
+	chartCount := len(chartData.Charts)
 	sem := semaphore.NewWeighted(workerCount)
-	errChan := make(chan error, len(chartData.Charts))
+	errChan := make(chan error, chartCount)
 
 	for _, k := range chartData.GetSortedKeys() {
 		chart := chartData.Charts[k]
@@ -83,9 +90,8 @@ func (c *ChartPkg) Update(charts ...string) error {
 			slog.String("chart_key", k),
 		)
 
-		err = sem.Acquire(context.Background(), 1)
-		if err != nil {
-			return fmt.Errorf("failed to acquire worker: %w", err)
+		if err := sem.Acquire(ctx, 1); err != nil {
+			return fmt.Errorf("%w: %w", ErrUpdateWorkerFailed, err)
 		}
 		go func(chart kclchart.ChartConfig, logger *slog.Logger) {
 			defer sem.Release(1)
@@ -100,7 +106,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 			err := c.AddChart(k, &chart)
 			if err != nil {
-				errChan <- fmt.Errorf("failed to update chart %q: %w", k, err)
+				errChan <- fmt.Errorf("%q: %w: %w", k, ErrChartUpdateFailed, err)
 
 				return
 			}
@@ -109,12 +115,8 @@ func (c *ChartPkg) Update(charts ...string) error {
 		}(chart, chartSlog)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
-	defer cancel()
-
-	err = sem.Acquire(ctx, workerCount)
-	if err != nil {
-		return fmt.Errorf("failed to update charts: %w", ctx.Err())
+	if err := sem.Acquire(ctx, workerCount); err != nil {
+		return fmt.Errorf("%w: %w", ErrUpdateWorkerFailed, err)
 	}
 
 	close(errChan)
@@ -123,7 +125,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 		merr = multierror.Append(merr, err)
 	}
 	if merr != nil {
-		return fmt.Errorf("failed to update charts: %w", err)
+		return fmt.Errorf("%w: %w", ErrChartUpdateFailed, err)
 	}
 
 	slog.Info("update complete")
