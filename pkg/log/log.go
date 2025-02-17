@@ -1,6 +1,7 @@
 package log
 
 import (
+	"errors"
 	"log/slog"
 	"os"
 	"strings"
@@ -11,37 +12,44 @@ const (
 	TextFormat = "text"
 )
 
+var (
+	ErrUnknownLogLevel  = errors.New("unknown log level")
+	ErrUnknownLogFormat = errors.New("unknown log format")
+)
+
 // CreateHandler creates a [slog.Handler] by strings.
-func CreateHandler(logLevel, logFormat string) slog.Handler {
-	level := GetLevel(logLevel)
+func CreateHandler(logLevel, logFormat string) (slog.Handler, error) {
+	level, err := GetLevel(logLevel)
+	if err != nil {
+		return nil, err
+	}
+
+	opts := &slog.HandlerOptions{
+		AddSource: true,
+		Level:     level,
+	}
 
 	switch strings.ToLower(logFormat) {
 	case JSONFormat:
-		return slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: level})
+		return slog.NewJSONHandler(os.Stderr, opts), nil
 	case TextFormat:
-		return slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})
-	default:
-		return slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})
+		return slog.NewTextHandler(os.Stderr, opts), nil
 	}
+
+	return nil, ErrUnknownLogFormat
 }
 
-func GetLevel(level string) slog.Level {
+func GetLevel(level string) (slog.Level, error) {
 	switch strings.ToLower(level) {
-	case "panic":
-		return slog.LevelError
-	case "fatal":
-		return slog.LevelError
 	case "error":
-		return slog.LevelError
+		return slog.LevelError, nil
 	case "warn", "warning":
-		return slog.LevelWarn
+		return slog.LevelWarn, nil
 	case "info":
-		return slog.LevelInfo
+		return slog.LevelInfo, nil
 	case "debug":
-		return slog.LevelDebug
-	case "trace":
-		return slog.LevelDebug
-	default:
-		return slog.LevelInfo
+		return slog.LevelDebug, nil
 	}
+
+	return 0, ErrUnknownLogLevel
 }

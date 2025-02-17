@@ -75,8 +75,6 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 			if match(relPath) {
 				// Append the unmodified/absolute path to the matched files.
 				matchedFiles = append(matchedFiles, path)
-			} else {
-				slog.Debug("skipping file", slog.String("file", relPath))
 			}
 
 			return nil
@@ -123,8 +121,6 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 			if match(relPath) {
 				// Append the unmodified/absolute path to the matched files.
 				matchedFiles = append(matchedFiles, path)
-			} else {
-				slog.Debug("skipping file", slog.String("file", relPath))
 			}
 
 			return nil

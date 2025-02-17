@@ -104,6 +104,8 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 				return
 			}
+
+			logger.Info("finished updating chart")
 		}(chart, chartSlog)
 	}
 
@@ -112,7 +114,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 	err = sem.Acquire(ctx, workerCount)
 	if err != nil {
-		return fmt.Errorf("failed to update charts: %w", err)
+		return fmt.Errorf("failed to update charts: %w", ctx.Err())
 	}
 
 	close(errChan)
