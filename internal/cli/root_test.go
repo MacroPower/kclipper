@@ -20,13 +20,16 @@ func init() {
 	testDataDir = filepath.Join(dir, "testdata")
 }
 
-func TestRun(t *testing.T) {
+func TestRunCmd(t *testing.T) {
 	t.Parallel()
 
-	tc := cli.NewRootCmd("test", "", "")
+	err := os.RemoveAll(filepath.Join(testDataDir, "got/run_cmd"))
+	require.NoError(t, err)
+
+	tc := cli.NewRootCmd("test_run", "", "")
 	out := bytes.NewBufferString("")
-	outFile := filepath.Join(testDataDir, "got/simple.json")
-	err := os.MkdirAll(filepath.Dir(outFile), 0o750)
+	outFile := filepath.Join(testDataDir, "got/run_cmd/simple.json")
+	err = os.MkdirAll(filepath.Dir(outFile), 0o750)
 	require.NoError(t, err)
 
 	tc.SetArgs([]string{"run", filepath.Join(testDataDir, "simple.k"), "--format=json", "--output", outFile})
@@ -44,9 +47,7 @@ func TestRun(t *testing.T) {
 
 func BenchmarkRun(b *testing.B) {
 	for range b.N {
-		tc := cli.NewRootCmd("test", "", "")
-
-		// plugin.RegisterPlugin(helm.HelmPlugin)
+		tc := cli.NewRootCmd("bench_run", "", "")
 
 		out := bytes.NewBufferString("")
 
