@@ -53,7 +53,7 @@ func NewChartCmd() *cobra.Command {
 		panic(err)
 	}
 
-	cmd.PersistentFlags().DurationP("timeout", "t", 5*time.Minute, "Timeout for the command")
+	cmd.PersistentFlags().Duration("timeout", 5*time.Minute, "Timeout for the command")
 
 	cmd.AddCommand(NewChartInitCmd())
 	cmd.AddCommand(NewChartAddCmd())
