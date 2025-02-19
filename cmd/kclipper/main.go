@@ -4,18 +4,15 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"strings"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 	"kcl-lang.io/cli/pkg/plugin"
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 
 	"github.com/MacroPower/kclipper/internal/cli"
-	"github.com/MacroPower/kclipper/pkg/log"
 )
 
 const (
@@ -40,37 +37,6 @@ func main() {
 	cli.RegisterEnabledPlugins()
 
 	cmd := cli.NewRootCmd(cmdName, shortDesc, longDesc)
-
-	cmd.PersistentFlags().String("log.level", "warn", "Set the log level")
-	cmd.PersistentFlags().String("log.format", "text", "Set the log format")
-
-	cmd.PersistentPreRunE = func(cc *cobra.Command, _ []string) error {
-		flags := cc.Flags()
-
-		var merr error
-
-		logLevel, err := flags.GetString("log.level")
-		if err != nil {
-			merr = multierror.Append(merr, err)
-		}
-
-		logFormat, err := flags.GetString("log.format")
-		if err != nil {
-			merr = multierror.Append(merr, err)
-		}
-
-		if merr != nil {
-			return fmt.Errorf("invalid argument: %w", merr)
-		}
-
-		h, err := log.CreateHandler(logLevel, logFormat)
-		if err != nil {
-			return fmt.Errorf("failed creating log handler: %w", err)
-		}
-		slog.SetDefault(slog.New(h))
-
-		return nil
-	}
 
 	ok, err := bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
 	if err != nil {
