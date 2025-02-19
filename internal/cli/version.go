@@ -19,9 +19,8 @@ func NewVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
 		Short: "Show version of the kclipper CLI",
-		Run: func(*cobra.Command, []string) {
-			fmt.Println(GetVersionString())
+		Run: func(cc *cobra.Command, _ []string) {
+			cc.Println(GetVersionString())
 		},
-		SilenceUsage: true,
 	}
 }
