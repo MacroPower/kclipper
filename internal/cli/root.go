@@ -5,11 +5,12 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/MacroPower/kclipper/pkg/log"
 	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
+
+	"github.com/MacroPower/kclipper/pkg/log"
 )
 
 // Global lock for KCL command creation.
