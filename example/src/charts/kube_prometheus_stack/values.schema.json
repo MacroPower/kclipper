@@ -977,6 +977,13 @@
                   "title": "hostnames",
                   "type": "array"
                 },
+                "httpsRedirect": {
+                  "default": false,
+                  "description": "create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)\n# Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.\n# matches, filters and additionalRules will be ignored if this is set to true. Be are",
+                  "required": [],
+                  "title": "httpsRedirect",
+                  "type": "boolean"
+                },
                 "kind": {
                   "default": "HTTPRoute",
                   "description": "Set the route kind\nValid options are GRPCRoute, HTTPRoute, TCPRoute, TLSRoute, UDPRoute",
@@ -9009,6 +9016,13 @@
               "title": "scrapeConfigSelectorNilUsesHelmValues",
               "type": "boolean"
             },
+            "scrapeFailureLogFile": {
+              "default": "",
+              "description": "# File to which scrape failures are logged.\n# Reloading the configuration will reopen the file.\n# Defaults to empty (disabled)\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.Prometheus\n#",
+              "required": [],
+              "title": "scrapeFailureLogFile",
+              "type": "string"
+            },
             "scrapeInterval": {
               "default": "",
               "description": "# Interval between consecutive scrapes.\n# Defaults to 30s.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/release-0.44/pkg/prometheus/promcfg.go#L180-L183\n#",
@@ -9252,6 +9266,13 @@
                   "required": [],
                   "title": "hostnames",
                   "type": "array"
+                },
+                "httpsRedirect": {
+                  "default": false,
+                  "description": "create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)\n# Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.\n# matches, filters and additionalRules will be ignored if this is set to true. Be are",
+                  "required": [],
+                  "title": "httpsRedirect",
+                  "type": "boolean"
                 },
                 "kind": {
                   "default": "HTTPRoute",
@@ -13466,7 +13487,7 @@
               "type": "string"
             },
             "tag": {
-              "default": "1.28.0",
+              "default": "1.30.0",
               "required": [],
               "title": "tag",
               "type": "string"
@@ -14113,6 +14134,13 @@
                   "required": [],
                   "title": "hostnames",
                   "type": "array"
+                },
+                "httpsRedirect": {
+                  "default": false,
+                  "description": "create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)\n# Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.\n# matches, filters and additionalRules will be ignored if this is set to true. Be are",
+                  "required": [],
+                  "title": "httpsRedirect",
+                  "type": "boolean"
                 },
                 "kind": {
                   "default": "HTTPRoute",
@@ -14946,6 +14974,21 @@
       },
       "required": [],
       "title": "updateStrategy",
+      "type": "object"
+    },
+    "upgradeJob": {
+      "additionalProperties": true,
+      "description": "# Check out kube-prometheus-stack/values.yaml for more information\n# on this parameter",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "title": "upgradeJob",
       "type": "object"
     },
     "useStatefulSet": {
