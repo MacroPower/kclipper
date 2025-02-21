@@ -4,7 +4,7 @@ go 1.23.5
 
 require (
 	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
-	github.com/dadav/helm-schema v0.0.0-20241230184257-6f2eeb34f592
+	github.com/dadav/helm-schema v0.0.0-20250122083607-0f182120235b
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/iancoleman/strcase v0.3.0
