@@ -446,6 +446,9 @@ schema Values:
         # Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     updateStrategy : ValuesUpdateStrategy, optional
         # Customize the updateStrategy if set
+    upgradeJob : ValuesUpgradeJob, optional
+        # Check out kube-prometheus-stack/values.yaml for more information
+        # on this parameter
     useStatefulSet : bool, optional, default is False
     version : str, optional, default is ""
         Override version of app, required if image.tag is defined and does not follow semver
@@ -608,6 +611,7 @@ schema Values:
     tolerations?: [ValuesTolerationsItems0]
     topologySpreadConstraints?: [any]
     updateStrategy?: ValuesUpdateStrategy
+    upgradeJob?: ValuesUpgradeJob
     useStatefulSet?: bool
     version?: str
     verticalPodAutoscaler?: ValuesVerticalPodAutoscaler
@@ -1562,6 +1566,10 @@ schema ValuesAlertmanagerRouteMain:
     filters : [any], optional
         # Filters define the filters that are applied to requests that match this rule.
     hostnames : [any], optional
+    httpsRedirect : bool, optional, default is False
+        create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)
+        # Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.
+        # matches, filters and additionalRules will be ignored if this is set to true. Be are
     kind : str, optional, default is "HTTPRoute"
         Set the route kind
         Valid options are GRPCRoute, HTTPRoute, TCPRoute, TLSRoute, UDPRoute
@@ -1577,6 +1585,7 @@ schema ValuesAlertmanagerRouteMain:
     enabled?: bool
     filters?: [any]
     hostnames?: [any]
+    httpsRedirect?: bool
     kind?: str
     labels?: ValuesAlertmanagerRouteMainLabels
     matches?: [ValuesAlertmanagerRouteMainMatchesItems0]
@@ -9676,6 +9685,12 @@ schema ValuesPrometheusPrometheusSpec:
         # If null and scrapeConfigSelector is also null, exclude field from the prometheusSpec
         # (keeping downward compatibility with older versions of CRD)
         #
+    scrapeFailureLogFile : str, optional, default is ""
+        # File to which scrape failures are logged.
+        # Reloading the configuration will reopen the file.
+        # Defaults to empty (disabled)
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.Prometheus
+        #
     scrapeInterval : str, optional, default is ""
         # Interval between consecutive scrapes.
         # Defaults to 30s.
@@ -9842,6 +9857,7 @@ schema ValuesPrometheusPrometheusSpec:
     scrapeConfigNamespaceSelector?: ValuesPrometheusPrometheusSpecScrapeConfigNamespaceSelector
     scrapeConfigSelector?: ValuesPrometheusPrometheusSpecScrapeConfigSelector
     scrapeConfigSelectorNilUsesHelmValues?: bool
+    scrapeFailureLogFile?: str
     scrapeInterval?: str
     scrapeTimeout?: str
     secrets?: [any]
@@ -10201,6 +10217,10 @@ schema ValuesPrometheusRouteMain:
     filters : [any], optional
         # Filters define the filters that are applied to requests that match this rule.
     hostnames : [any], optional
+    httpsRedirect : bool, optional, default is False
+        create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)
+        # Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.
+        # matches, filters and additionalRules will be ignored if this is set to true. Be are
     kind : str, optional, default is "HTTPRoute"
         Set the route kind
         Valid options are GRPCRoute, HTTPRoute, TCPRoute, TLSRoute, UDPRoute
@@ -10216,6 +10236,7 @@ schema ValuesPrometheusRouteMain:
     enabled?: bool
     filters?: [any]
     hostnames?: [any]
+    httpsRedirect?: bool
     kind?: str
     labels?: ValuesPrometheusRouteMainLabels
     matches?: [ValuesPrometheusRouteMainMatchesItems0]
@@ -12008,7 +12029,7 @@ schema ValuesSidecarImage:
         The Docker registry
     repository : str, optional, default is "kiwigrid/k8s-sidecar"
     sha : str, optional, default is ""
-    tag : str, optional, default is "1.28.0"
+    tag : str, optional, default is "1.30.0"
     """
 
     registry?: str
@@ -12593,6 +12614,10 @@ schema ValuesThanosRulerRouteMain:
     filters : [any], optional
         # Filters define the filters that are applied to requests that match this rule.
     hostnames : [any], optional
+    httpsRedirect : bool, optional, default is False
+        create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)
+        # Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.
+        # matches, filters and additionalRules will be ignored if this is set to true. Be are
     kind : str, optional, default is "HTTPRoute"
         Set the route kind
         Valid options are GRPCRoute, HTTPRoute, TCPRoute, TLSRoute, UDPRoute
@@ -12608,6 +12633,7 @@ schema ValuesThanosRulerRouteMain:
     enabled?: bool
     filters?: [any]
     hostnames?: [any]
+    httpsRedirect?: bool
     kind?: str
     labels?: ValuesThanosRulerRouteMainLabels
     matches?: [ValuesThanosRulerRouteMainMatchesItems0]
@@ -13340,6 +13366,19 @@ schema ValuesUpdateStrategyRollingUpdate:
     """
 
     maxUnavailable?: int
+
+schema ValuesUpgradeJob:
+    r"""
+    # Check out kube-prometheus-stack/values.yaml for more information
+    # on this parameter
+
+    Attributes
+    ----------
+    enabled : bool, optional, default is False
+    """
+
+    enabled?: bool
+    [...str]: any
 
 schema ValuesVerticalPodAutoscaler:
     r"""
