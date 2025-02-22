@@ -901,6 +901,129 @@
           "title": "ingressPerReplica",
           "type": "object"
         },
+        "networkPolicy": {
+          "description": "# Network Policy configuration\n#",
+          "properties": {
+            "additionalIngress": {
+              "description": "Additional custom ingress rules\n#",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "additionalIngress",
+              "type": "array"
+            },
+            "egress": {
+              "description": "Configure egress rules\n#",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Enable egress rules. When enabled, policyTypes will include Egress\n#",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "rules": {
+                  "description": "Custom egress rules\n#",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "rules",
+                  "type": "array"
+                }
+              },
+              "required": [],
+              "title": "egress",
+              "type": "object"
+            },
+            "enableClusterRules": {
+              "default": true,
+              "description": "Enable rules for alertmanager cluster traffic\n#",
+              "required": [],
+              "title": "enableClusterRules",
+              "type": "boolean"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Enable network policy for Alertmanager",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "gateway": {
+              "description": "Gateway (formerly ingress controller) configuration\n#",
+              "properties": {
+                "namespace": {
+                  "default": "ingress-nginx",
+                  "description": "Gateway namespace\n#",
+                  "required": [],
+                  "title": "namespace",
+                  "type": "string"
+                },
+                "podLabels": {
+                  "description": "Gateway pod labels\n#",
+                  "properties": {
+                    "app.kubernetes.io/name": {
+                      "default": "ingress-nginx",
+                      "required": [],
+                      "title": "app.kubernetes.io/name",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "podLabels",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "gateway",
+              "type": "object"
+            },
+            "monitoringRules": {
+              "description": "Configure monitoring component rules\n#",
+              "properties": {
+                "configReloader": {
+                  "default": true,
+                  "description": "Enable ingress for config reloader metrics\n#",
+                  "required": [],
+                  "title": "configReloader",
+                  "type": "boolean"
+                },
+                "loki": {
+                  "default": true,
+                  "description": "Enable ingress from Loki\n#",
+                  "required": [],
+                  "title": "loki",
+                  "type": "boolean"
+                },
+                "prometheus": {
+                  "default": true,
+                  "description": "Enable ingress from Prometheus\n#",
+                  "required": [],
+                  "title": "prometheus",
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "title": "monitoringRules",
+              "type": "object"
+            },
+            "policyTypes": {
+              "description": "Define policy types. If egress is enabled, both Ingress and Egress will be used\nValid values are [\"Ingress\"] or [\"Ingress\", \"Egress\"]\n#",
+              "items": {
+                "required": [],
+                "type": "string"
+              },
+              "required": [],
+              "title": "policyTypes",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "networkPolicy",
+          "type": "object"
+        },
         "podDisruptionBudget": {
           "description": "# Configure pod disruption budgets for Alertmanager\n# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget\n#",
           "properties": {
@@ -3808,7 +3931,7 @@
             "datasources": {
               "properties": {
                 "alertmanager": {
-                  "description": "datasourceUid: Jaeger\ntraceIdLabelName: trace_id",
+                  "description": "datasourceUid: Jaeger\ntraceIdLabelName: trace_id\nurlDisplayLabel: View traces",
                   "properties": {
                     "enabled": {
                       "default": true,

@@ -807,6 +807,9 @@ schema ValuesAlertmanager:
         # Configuration for creating an Ingress that will map to each Alertmanager replica service
         # alertmanager.servicePerReplica must be enabled
         #
+    networkPolicy : ValuesAlertmanagerNetworkPolicy, optional
+        # Network Policy configuration
+        #
     podDisruptionBudget : ValuesAlertmanagerPodDisruptionBudget, optional
         # Configure pod disruption budgets for Alertmanager
         # ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
@@ -870,6 +873,7 @@ schema ValuesAlertmanager:
     forceDeployDashboards?: bool
     ingress?: ValuesAlertmanagerIngress
     ingressPerReplica?: ValuesAlertmanagerIngressPerReplica
+    networkPolicy?: ValuesAlertmanagerNetworkPolicy
     podDisruptionBudget?: ValuesAlertmanagerPodDisruptionBudget
     route?: ValuesAlertmanagerRoute
     secret?: ValuesAlertmanagerSecret
@@ -1516,6 +1520,114 @@ schema ValuesAlertmanagerIngressPerReplicaTlsSecretPerReplica:
 
     enabled?: bool
     prefix?: str
+
+schema ValuesAlertmanagerNetworkPolicy:
+    r"""
+    # Network Policy configuration
+    #
+
+    Attributes
+    ----------
+    additionalIngress : [any], optional
+        Additional custom ingress rules
+        #
+    egress : ValuesAlertmanagerNetworkPolicyEgress, optional
+        Configure egress rules
+        #
+    enableClusterRules : bool, optional, default is True
+        Enable rules for alertmanager cluster traffic
+        #
+    enabled : bool, optional, default is False
+        Enable network policy for Alertmanager
+    gateway : ValuesAlertmanagerNetworkPolicyGateway, optional
+        Gateway (formerly ingress controller) configuration
+        #
+    monitoringRules : ValuesAlertmanagerNetworkPolicyMonitoringRules, optional
+        Configure monitoring component rules
+        #
+    policyTypes : [str], optional
+        Define policy types. If egress is enabled, both Ingress and Egress will be used
+        Valid values are ["Ingress"] or ["Ingress", "Egress"]
+        #
+    """
+
+    additionalIngress?: [any]
+    egress?: ValuesAlertmanagerNetworkPolicyEgress
+    enableClusterRules?: bool
+    enabled?: bool
+    gateway?: ValuesAlertmanagerNetworkPolicyGateway
+    monitoringRules?: ValuesAlertmanagerNetworkPolicyMonitoringRules
+    policyTypes?: [str]
+
+schema ValuesAlertmanagerNetworkPolicyEgress:
+    r"""
+    Configure egress rules
+    #
+
+    Attributes
+    ----------
+    enabled : bool, optional, default is False
+        Enable egress rules. When enabled, policyTypes will include Egress
+        #
+    rules : [any], optional
+        Custom egress rules
+        #
+    """
+
+    enabled?: bool
+    rules?: [any]
+
+schema ValuesAlertmanagerNetworkPolicyGateway:
+    r"""
+    Gateway (formerly ingress controller) configuration
+    #
+
+    Attributes
+    ----------
+    namespace : str, optional, default is "ingress-nginx"
+        Gateway namespace
+        #
+    podLabels : ValuesAlertmanagerNetworkPolicyGatewayPodLabels, optional
+        Gateway pod labels
+        #
+    """
+
+    namespace?: str
+    podLabels?: ValuesAlertmanagerNetworkPolicyGatewayPodLabels
+
+schema ValuesAlertmanagerNetworkPolicyGatewayPodLabels:
+    r"""
+    Gateway pod labels
+    #
+
+    Attributes
+    ----------
+    "app.kubernetes.io/name" : str, optional, default is "ingress-nginx"
+    """
+
+    "app.kubernetes.io/name"?: str
+
+schema ValuesAlertmanagerNetworkPolicyMonitoringRules:
+    r"""
+    Configure monitoring component rules
+    #
+
+    Attributes
+    ----------
+    configReloader : bool, optional, default is True
+        Enable ingress for config reloader metrics
+        #
+    loki : bool, optional, default is True
+        Enable ingress from Loki
+        #
+    prometheus : bool, optional, default is True
+        Enable ingress from Prometheus
+        #
+    """
+
+    configReloader?: bool
+    loki?: bool
+    prometheus?: bool
 
 schema ValuesAlertmanagerPodDisruptionBudget:
     r"""
@@ -4129,6 +4241,7 @@ schema ValuesGrafanaSidecarDatasources:
     alertmanager : ValuesGrafanaSidecarDatasourcesAlertmanager, optional
         datasourceUid: Jaeger
         traceIdLabelName: trace_id
+        urlDisplayLabel: View traces
     annotations : ValuesGrafanaSidecarDatasourcesAnnotations, optional
         # Annotations for Grafana datasource configmaps
         #
@@ -4168,6 +4281,7 @@ schema ValuesGrafanaSidecarDatasourcesAlertmanager:
     r"""
     datasourceUid: Jaeger
     traceIdLabelName: trace_id
+    urlDisplayLabel: View traces
 
     Attributes
     ----------
