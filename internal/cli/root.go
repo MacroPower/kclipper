@@ -37,12 +37,12 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 
 		var merr error
 
-		logLevel, err := flags.GetString("log.level")
+		logLevel, err := flags.GetString("log_level")
 		if err != nil {
 			merr = multierror.Append(merr, err)
 		}
 
-		logFormat, err := flags.GetString("log.format")
+		logFormat, err := flags.GetString("log_format")
 		if err != nil {
 			merr = multierror.Append(merr, err)
 		}
