@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
 	"path/filepath"
 	"runtime"
-	"slices"
 
 	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/semaphore"
@@ -76,6 +76,22 @@ func (c *ChartPkg) Update(charts ...string) error {
 		return fmt.Errorf("failed to unmarshal output: %w", err)
 	}
 
+	if len(charts) > 0 {
+		matchedCharts := map[string]kclchart.ChartConfig{}
+		for _, chart := range charts {
+			vk, ok := chartData.GetByKey(chart)
+			vn := chartData.FilterByName(chart)
+			if !ok && len(vn) == 0 {
+				return fmt.Errorf("chart %q not found", chart)
+			}
+			maps.Copy(matchedCharts, vn)
+			if ok {
+				matchedCharts[chart] = vk
+			}
+		}
+		chartData.Charts = matchedCharts
+	}
+
 	workerCount := int64(runtime.GOMAXPROCS(0))
 	chartCount := len(chartData.Charts)
 	sem := semaphore.NewWeighted(workerCount)
@@ -96,17 +112,11 @@ func (c *ChartPkg) Update(charts ...string) error {
 		go func(chart kclchart.ChartConfig, logger *slog.Logger) {
 			defer sem.Release(1)
 
-			if len(charts) > 0 && !slices.Contains(charts, chartName) && !slices.Contains(charts, k) {
-				chartSlog.Info("skipping chart")
-
-				return
-			}
-
 			logger.Info("updating chart")
 
 			err := c.AddChart(k, &chart)
 			if err != nil {
-				errChan <- fmt.Errorf("%q: %w: %w", k, ErrChartUpdateFailed, err)
+				errChan <- fmt.Errorf("update %q: %w", k, err)
 
 				return
 			}
@@ -125,7 +135,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 		merr = multierror.Append(merr, err)
 	}
 	if merr != nil {
-		return fmt.Errorf("%w: %w", ErrChartUpdateFailed, err)
+		return merr
 	}
 
 	slog.Info("update complete")
