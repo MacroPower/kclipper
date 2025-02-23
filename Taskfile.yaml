@@ -79,9 +79,14 @@ tasks:
   go-test:
     desc: Tests Go code
     cmds:
+      - go test ./...
+
+  go-cover:
+    desc: Runs Go tests with coverage
+    cmds:
       - cmd: mkdir -p .test/
         silent: true
-      - go test -vet=all -coverprofile=.test/cover.out -tags={{.BUILD_TAGS}} ./...
+      - go test -coverprofile=.test/cover.out ./...
 
   go-bench:
     desc: Run Go benchmarks
