@@ -3,9 +3,11 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
@@ -202,6 +204,14 @@ func NewChartUpdateCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			logLevel, err := flags.GetString("log_level")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			quiet, err := flags.GetBool("quiet")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 
 			if merr != nil {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
@@ -212,12 +222,17 @@ func NewChartUpdateCmd() *cobra.Command {
 				helmutil.WithTimeout(timeout),
 			)
 
-			return c.Update(charts...)
+			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
+				return c.Update(charts...)
+			}
+
+			return c.UpdateTUI(logLevel, charts...)
 		},
 		SilenceUsage: true,
 	}
 	cmd.Flags().StringSliceP("chart", "c", []string{}, "Helm chart to update (if unset, updates all charts)")
 	cmd.Flags().BoolP("vendor", "V", false, "Run in vendor mode")
+	cmd.Flags().BoolP("quiet", "q", false, "Run in quiet mode")
 
 	return cmd
 }
