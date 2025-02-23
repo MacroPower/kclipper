@@ -29,8 +29,8 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 		Version:       GetVersionString(),
 	}
 
-	cmd.PersistentFlags().String("log.level", "warn", "Set the log level")
-	cmd.PersistentFlags().String("log.format", "text", "Set the log format")
+	cmd.PersistentFlags().String("log_level", "warn", "Set the log level")
+	cmd.PersistentFlags().String("log_format", "text", "Set the log format")
 
 	cmd.PersistentPreRunE = func(cc *cobra.Command, _ []string) error {
 		flags := cc.Flags()
