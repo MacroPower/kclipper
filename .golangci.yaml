@@ -215,3 +215,6 @@ issues:
     - source: "= `"
       linters:
         - grouper
+    - text: "\\*github\\.com/hashicorp/go-multierror\\.Error"
+      linters:
+        - wrapcheck

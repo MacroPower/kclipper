@@ -12,7 +12,10 @@ import (
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 )
 
-var ErrNoMatcher = errors.New("no matcher provided")
+var (
+	ErrNoMatcher        = errors.New("no matcher provided")
+	ErrChartPullExtract = errors.New("error pulling and extracting chart")
+)
 
 type JSONSchemaGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
@@ -39,7 +42,7 @@ func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts *Template
 
 	chartPath, closer, err := client.PullAndExtract(ctx, opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
 	if err != nil {
-		return nil, fmt.Errorf("error pulling helm chart: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrChartPullExtract, err)
 	}
 
 	return &ChartFiles{
@@ -64,12 +67,12 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 	err := filepath.Walk(c.path,
 		func(path string, _ os.FileInfo, err error) error {
 			if err != nil {
-				return fmt.Errorf("error walking helm chart directory: %w", err)
+				return fmt.Errorf("walk helm chart directory: %w", err)
 			}
 
 			relPath, err := filepath.Rel(c.path, path)
 			if err != nil {
-				return fmt.Errorf("error getting relative path: %w", err)
+				return fmt.Errorf("get relative path: %w", err)
 			}
 			// Use the relative path to match against the provided filter.
 			if match(relPath) {
@@ -80,7 +83,7 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 			return nil
 		})
 	if err != nil {
-		return nil, fmt.Errorf("error reading helm chart directory: %w", err)
+		return nil, fmt.Errorf("read helm chart directory: %w", err)
 	}
 
 	if len(matchedFiles) == 0 {
@@ -94,7 +97,7 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 
 	jsonSchema, err := gen.FromPaths(matchedFiles...)
 	if err != nil {
-		return nil, fmt.Errorf("error converting values schema to JSON Schema: %w", err)
+		return nil, fmt.Errorf("convert values to json schema: %w", err)
 	}
 
 	return jsonSchema, nil
@@ -110,12 +113,12 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 	err := filepath.Walk(c.path,
 		func(path string, _ os.FileInfo, err error) error {
 			if err != nil {
-				return fmt.Errorf("error walking helm chart directory: %w", err)
+				return fmt.Errorf("walk helm chart directory: %w", err)
 			}
 
 			relPath, err := filepath.Rel(c.path, path)
 			if err != nil {
-				return fmt.Errorf("error getting relative path: %w", err)
+				return fmt.Errorf("get relative path: %w", err)
 			}
 			// Use the relative path to match against the provided filter.
 			if match(relPath) {
@@ -126,7 +129,7 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 			return nil
 		})
 	if err != nil {
-		return nil, fmt.Errorf("error reading helm chart directory: %w", err)
+		return nil, fmt.Errorf("read helm chart directory: %w", err)
 	}
 
 	crdBytes := [][]byte{}
@@ -144,7 +147,7 @@ func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
 		//nolint:gosec // G304 not relevant for client-side generation.
 		b, err := os.ReadFile(f)
 		if err != nil {
-			return nil, fmt.Errorf("error reading CRD file: %w", err)
+			return nil, fmt.Errorf("read crd file: %w", err)
 		}
 
 		crdBytes = append(crdBytes, b)

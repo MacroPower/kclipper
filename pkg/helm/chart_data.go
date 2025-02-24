@@ -24,8 +24,12 @@ import (
 )
 
 var (
-	ErrChartWorkerFailed         = errors.New("chart worker failed")
-	ErrFailedChartDependencyLoad = errors.New("failed to load chart dependency")
+	ErrChartPull          = errors.New("error pulling chart")
+	ErrChartTemplate      = errors.New("error templating chart")
+	ErrChartTemplateParse = errors.New("error parsing chart template output")
+	ErrChartDependency    = errors.New("error in chart dependency")
+	ErrChartLoad          = errors.New("error loading chart")
+	ErrChartWorkerFailed  = errors.New("chart worker failed")
 )
 
 type TemplateOpts struct {
@@ -82,17 +86,17 @@ func (c *Chart) Template(ctx context.Context) ([]*unstructured.Unstructured, err
 		c.Repos,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error pulling helm chart: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrChartPull, err)
 	}
 
 	out, err := c.templateData(ctx, chartPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %w", ErrChartTemplate, err)
 	}
 
 	objs, err := kube.SplitYAML(out)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing helm template output: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrChartTemplateParse, err)
 	}
 
 	return objs, nil
@@ -103,7 +107,7 @@ func (c *Chart) templateData(ctx context.Context, chartPath string) ([]byte, err
 
 	loadedChart, err := loader.Load(filepath.Clean(chartPath))
 	if err != nil {
-		return nil, fmt.Errorf("failed to load chart: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrChartLoad, err)
 	}
 
 	// Keeping the schema in the charts will cause downstream templating to load
@@ -119,7 +123,7 @@ func (c *Chart) templateData(ctx context.Context, chartPath string) ([]byte, err
 	workerCount := int64(runtime.GOMAXPROCS(0))
 	sem := semaphore.NewWeighted(workerCount)
 	if err := c.setChartDependencies(ctx, loadedChart, sem); err != nil {
-		return nil, fmt.Errorf("failed to set chart dependencies: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrChartDependency, err)
 	}
 	if err := sem.Acquire(ctx, workerCount); err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
@@ -134,7 +138,7 @@ func (c *Chart) templateData(ctx context.Context, chartPath string) ([]byte, err
 	if c.TemplateOpts.KubeVersion != "" {
 		kv, err = chartutil.ParseKubeVersion(c.TemplateOpts.KubeVersion)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse kube version: %w", err)
+			return nil, fmt.Errorf("parse kube version: %w", err)
 		}
 	}
 
@@ -175,7 +179,7 @@ func (c *Chart) templateData(ctx context.Context, chartPath string) ([]byte, err
 
 	release, err := ta.RunWithContext(ctx, loadedChart, c.TemplateOpts.ValuesObject)
 	if err != nil {
-		return nil, fmt.Errorf("failed to run install action: %w", err)
+		return nil, fmt.Errorf("execute helm install: %w", err)
 	}
 
 	manifest := release.Manifest
@@ -220,9 +224,9 @@ func (c *Chart) setChartDependencies(ctx context.Context, target *chart.Chart, s
 			defer sem.Release(1)
 			defer innerSem.Release(1)
 
-			dep, err := c.loadChartDependency(ctx, target, chartDep)
+			dep, err := c.getChartDependency(ctx, target, chartDep)
 			if err != nil {
-				resultCh <- loadResult{err: fmt.Errorf("%q: %w: %w", target.Name(), ErrFailedChartDependencyLoad, err)}
+				resultCh <- loadResult{err: fmt.Errorf("get dependency %q: %w", target.Name(), err)}
 
 				return
 			}
@@ -245,13 +249,13 @@ func (c *Chart) setChartDependencies(ctx context.Context, target *chart.Chart, s
 		}
 
 		if err := c.setChartDependencies(ctx, result.chart, sem); err != nil {
-			return fmt.Errorf("%w: %w", ErrFailedChartDependencyLoad, err)
+			return fmt.Errorf("%w: %w", ErrChartDependency, err)
 		}
 
 		loadedDeps = append(loadedDeps, result.chart)
 	}
 	if merr != nil {
-		return fmt.Errorf("%w: %w", ErrFailedChartDependencyLoad, merr)
+		return merr
 	}
 
 	target.SetDependencies(loadedDeps...)
@@ -259,7 +263,7 @@ func (c *Chart) setChartDependencies(ctx context.Context, target *chart.Chart, s
 	return nil
 }
 
-func (c *Chart) loadChartDependency(ctx context.Context, parentChart *chart.Chart, dep *chart.Dependency) (*chart.Chart, error) {
+func (c *Chart) getChartDependency(ctx context.Context, parentChart *chart.Chart, dep *chart.Dependency) (*chart.Chart, error) {
 	// Check if the dependency is already loaded.
 	for _, includedDep := range parentChart.Dependencies() {
 		if includedDep.Name() == dep.Name {
@@ -268,17 +272,17 @@ func (c *Chart) loadChartDependency(ctx context.Context, parentChart *chart.Char
 	}
 
 	if dep.Repository == "" {
-		return nil, fmt.Errorf("dependency has no repository: %#v", dep)
+		return nil, fmt.Errorf("chart dependency has no repository: %#v", dep)
 	}
 
 	depPath, err := c.Client.Pull(ctx, dep.Name, dep.Repository, dep.Version, c.Repos)
 	if err != nil {
-		return nil, fmt.Errorf("failed to pull dependency: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrChartPull, err)
 	}
 
 	depChart, err := loader.Load(depPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load dependency: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrChartLoad, err)
 	}
 
 	if c.TemplateOpts.SkipSchemaValidation {
