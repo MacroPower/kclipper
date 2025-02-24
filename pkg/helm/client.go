@@ -59,17 +59,17 @@ type Client struct {
 func NewClient(paths PathCacher, project, maxExtractSize string) (*Client, error) {
 	maxExtractSizeResource, err := resource.ParseQuantity(maxExtractSize)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse quantity %q: %w", maxExtractSize, err)
+		return nil, fmt.Errorf("parse quantity %q: %w", maxExtractSize, err)
 	}
 
 	rc, err := registry.NewClient(registry.ClientOptEnableCache(true))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create registry client: %w", err)
+		return nil, fmt.Errorf("create registry client: %w", err)
 	}
 
 	tmpDir, err := os.MkdirTemp("", "helm")
 	if err != nil {
-		return nil, fmt.Errorf("failed to create temporary directory for helm: %w", err)
+		return nil, fmt.Errorf("create temporary directory for helm: %w", err)
 	}
 
 	return &Client{
@@ -99,13 +99,13 @@ func MustNewClient(paths PathCacher, project, maxExtractSize string) *Client {
 func (c *Client) Pull(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, error) {
 	hr, err := repos.Get(repo)
 	if err != nil {
-		return "", fmt.Errorf("error getting repo %q: %w", repo, err)
+		return "", fmt.Errorf("get repo: %q: %w", repo, err)
 	}
 
 	if hr.IsLocal() {
 		chartPath, err := c.getLocalChart(chart, hr)
 		if err != nil {
-			return "", fmt.Errorf("error getting local chart: %w", err)
+			return "", fmt.Errorf("get local chart: %w", err)
 		}
 
 		return chartPath, err
@@ -113,7 +113,7 @@ func (c *Client) Pull(ctx context.Context, chart, repo, version string, repos he
 
 	chartPath, err := c.getCachedOrRemoteChart(ctx, chart, version, hr)
 	if err != nil {
-		return "", fmt.Errorf("error pulling helm chart: %w", err)
+		return "", fmt.Errorf("get cached or remote chart: %w", err)
 	}
 
 	return chartPath, err
@@ -129,7 +129,7 @@ func (c *Client) PullAndExtract(ctx context.Context, chart, repo, version string
 
 	chartPath, err := c.Pull(ctx, chart, repo, version, repos)
 	if err != nil {
-		return "", nil, fmt.Errorf("error pulling helm chart: %w", err)
+		return "", nil, fmt.Errorf("pull chart: %w", err)
 	}
 
 	// If the chart is already extracted, return the path to the extracted chart.
@@ -139,7 +139,7 @@ func (c *Client) PullAndExtract(ctx context.Context, chart, repo, version string
 
 	chartPath, closer, err = c.extractChart(chart, chartPath)
 	if err != nil {
-		return "", nil, fmt.Errorf("error extracting helm chart: %w", err)
+		return "", nil, fmt.Errorf("extract chart: %w", err)
 	}
 
 	return chartPath, closer, nil
@@ -157,7 +157,7 @@ func (c *Client) getLocalChart(chart string, repo *helmrepo.Repo) (string, error
 func (c *Client) getCachedOrRemoteChart(ctx context.Context, chart, version string, repo *helmrepo.Repo) (string, error) {
 	cachedChartPath, err := c.getCachedChartPath(chart, repo.URL.String(), version)
 	if err != nil {
-		return "", fmt.Errorf("error getting cached chart path: %w", err)
+		return "", fmt.Errorf("get cached chart path: %w", err)
 	}
 
 	c.RepoLock.Lock(cachedChartPath)
@@ -166,13 +166,13 @@ func (c *Client) getCachedOrRemoteChart(ctx context.Context, chart, version stri
 	// Check if chart tar is already downloaded.
 	exists, err := fileExists(cachedChartPath)
 	if err != nil {
-		return "", fmt.Errorf("error checking existence of cached chart path: %w", err)
+		return "", fmt.Errorf("check cached chart path: %w", err)
 	}
 
 	if !exists {
 		err := c.pullRemoteChart(ctx, chart, version, cachedChartPath, repo)
 		if err != nil {
-			return "", fmt.Errorf("error pulling helm chart: %w", err)
+			return "", fmt.Errorf("pull remote chart: %w", err)
 		}
 	}
 
@@ -183,7 +183,7 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	// Create empty temp directory to extract chart from the registry.
 	tempDest, err := createTempDir(os.TempDir())
 	if err != nil {
-		return fmt.Errorf("error creating temporary destination directory: %w", err)
+		return fmt.Errorf("create temporary destination directory: %w", err)
 	}
 	defer func() { _ = os.RemoveAll(tempDest) }()
 
@@ -222,10 +222,10 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf("failed to pull helm chart: %w", ctx.Err())
+		return fmt.Errorf("execute helm pull: %w", ctx.Err())
 	case err := <-done:
 		if err != nil {
-			return fmt.Errorf("failed to pull helm chart: %w", err)
+			return fmt.Errorf("execute helm pull: %w", err)
 		}
 	}
 
@@ -233,7 +233,7 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	// to where we want it, if the pull was successful.
 	infos, err := os.ReadDir(tempDest)
 	if err != nil {
-		return fmt.Errorf("error reading directory %q: %w", tempDest, err)
+		return fmt.Errorf("read directory %q: %w", tempDest, err)
 	}
 	if len(infos) != 1 {
 		return fmt.Errorf("expected 1 file, found %v", len(infos))
@@ -242,7 +242,7 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	chartFilePath := filepath.Join(tempDest, infos[0].Name())
 	err = os.Rename(chartFilePath, dstPath)
 	if err != nil {
-		return fmt.Errorf("error renaming file from %q to %q: %w", chartFilePath, dstPath, err)
+		return fmt.Errorf("rename file from %q to %q: %w", chartFilePath, dstPath, err)
 	}
 
 	return nil
@@ -251,20 +251,20 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 func (c *Client) extractChart(chart, srcPath string) (string, io.Closer, error) {
 	tempDest, err := createTempDir(os.TempDir())
 	if err != nil {
-		return "", nil, fmt.Errorf("error creating temporary destination directory: %w", err)
+		return "", nil, fmt.Errorf("create temporary directory: %w", err)
 	}
 
 	//nolint:gosec // G304 checked by repo resolver.
 	reader, err := os.Open(srcPath)
 	if err != nil {
-		return "", nil, fmt.Errorf("error opening chart path %q: %w", srcPath, err)
+		return "", nil, fmt.Errorf("open chart path %q: %w", srcPath, err)
 	}
 
 	err = gunzip(tempDest, reader, c.MaxExtractSize.Value(), false)
 	if err != nil {
 		_ = os.RemoveAll(tempDest)
 
-		return "", nil, fmt.Errorf("error untarring chart: %w", err)
+		return "", nil, fmt.Errorf("gunzip chart: %w", err)
 	}
 
 	return filepath.Join(tempDest, normalizeChartName(chart)), newInlineCloser(func() error {
@@ -275,11 +275,11 @@ func (c *Client) extractChart(chart, srcPath string) (string, io.Closer, error) 
 func (c *Client) CleanChartCache(chart, repo, version string) error {
 	cachePath, err := c.getCachedChartPath(chart, repo, version)
 	if err != nil {
-		return fmt.Errorf("error getting cached chart path: %w", err)
+		return fmt.Errorf("get cached chart path: %w", err)
 	}
 
 	if err := os.RemoveAll(cachePath); err != nil {
-		return fmt.Errorf("error removing chart cache at %q: %w", cachePath, err)
+		return fmt.Errorf("remove chart cache at %q: %w", cachePath, err)
 	}
 
 	return nil
@@ -288,12 +288,12 @@ func (c *Client) CleanChartCache(chart, repo, version string) error {
 func (c *Client) getCachedChartPath(chart, repo, version string) (string, error) {
 	keyData, err := json.Marshal(map[string]string{"url": repo, "chart": chart, "version": version, "project": c.Project})
 	if err != nil {
-		return "", fmt.Errorf("error marshaling cache key data: %w", err)
+		return "", fmt.Errorf("marshal key data: %w", err)
 	}
 
 	chartPath, err := c.Paths.GetPath(string(keyData))
 	if err != nil {
-		return "", fmt.Errorf("error getting chart cache path: %w", err)
+		return "", fmt.Errorf("get path: %w", err)
 	}
 
 	return chartPath, nil

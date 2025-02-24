@@ -72,7 +72,8 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		PassCredentials: chart.PassCredentials,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to create chart handler for %q: %w", chart.Chart, err)
+		//nolint:wrapcheck // Error wrapped downstream.
+		return err
 	}
 	defer helmChart.Dispose()
 
