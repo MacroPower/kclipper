@@ -28,7 +28,7 @@
     {
       matchManagers: ["custom.regex"],
       postUpgradeTasks: {
-        commands: ['kcl chart update --chart="{{depName}}" --path="{{packageFileDir}}"'],
+        commands: ['kcl chart update -q --chart="{{depName}}" --path="{{packageFileDir}}"'],
         executionMode: "update",
       },
     },
