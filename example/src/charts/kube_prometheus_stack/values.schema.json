@@ -901,6 +901,129 @@
           "title": "ingressPerReplica",
           "type": "object"
         },
+        "networkPolicy": {
+          "description": "# Network Policy configuration\n#",
+          "properties": {
+            "additionalIngress": {
+              "description": "Additional custom ingress rules\n#",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "additionalIngress",
+              "type": "array"
+            },
+            "egress": {
+              "description": "Configure egress rules\n#",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Enable egress rules. When enabled, policyTypes will include Egress\n#",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "rules": {
+                  "description": "Custom egress rules\n#",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "rules",
+                  "type": "array"
+                }
+              },
+              "required": [],
+              "title": "egress",
+              "type": "object"
+            },
+            "enableClusterRules": {
+              "default": true,
+              "description": "Enable rules for alertmanager cluster traffic\n#",
+              "required": [],
+              "title": "enableClusterRules",
+              "type": "boolean"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Enable network policy for Alertmanager",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "gateway": {
+              "description": "Gateway (formerly ingress controller) configuration\n#",
+              "properties": {
+                "namespace": {
+                  "default": "ingress-nginx",
+                  "description": "Gateway namespace\n#",
+                  "required": [],
+                  "title": "namespace",
+                  "type": "string"
+                },
+                "podLabels": {
+                  "description": "Gateway pod labels\n#",
+                  "properties": {
+                    "app.kubernetes.io/name": {
+                      "default": "ingress-nginx",
+                      "required": [],
+                      "title": "app.kubernetes.io/name",
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "title": "podLabels",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "gateway",
+              "type": "object"
+            },
+            "monitoringRules": {
+              "description": "Configure monitoring component rules\n#",
+              "properties": {
+                "configReloader": {
+                  "default": true,
+                  "description": "Enable ingress for config reloader metrics\n#",
+                  "required": [],
+                  "title": "configReloader",
+                  "type": "boolean"
+                },
+                "loki": {
+                  "default": true,
+                  "description": "Enable ingress from Loki\n#",
+                  "required": [],
+                  "title": "loki",
+                  "type": "boolean"
+                },
+                "prometheus": {
+                  "default": true,
+                  "description": "Enable ingress from Prometheus\n#",
+                  "required": [],
+                  "title": "prometheus",
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "title": "monitoringRules",
+              "type": "object"
+            },
+            "policyTypes": {
+              "description": "Define policy types. If egress is enabled, both Ingress and Egress will be used\nValid values are [\"Ingress\"] or [\"Ingress\", \"Egress\"]\n#",
+              "items": {
+                "required": [],
+                "type": "string"
+              },
+              "required": [],
+              "title": "policyTypes",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "networkPolicy",
+          "type": "object"
+        },
         "podDisruptionBudget": {
           "description": "# Configure pod disruption budgets for Alertmanager\n# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget\n#",
           "properties": {
@@ -1546,18 +1669,6 @@
     "commonLabels": {
       "additionalProperties": true,
       "description": "# Labels to apply to all resources\n#",
-      "properties": {
-        "baz": {
-          "required": [],
-          "title": "baz",
-          "type": "string"
-        },
-        "foo": {
-          "required": [],
-          "title": "foo",
-          "type": "string"
-        }
-      },
       "required": [],
       "title": "commonLabels",
       "type": "object"
@@ -3269,8 +3380,7 @@
     "extraManifests": {
       "description": "# Extra manifests to deploy as an array",
       "items": {
-        "required": [],
-        "type": "string"
+        "required": []
       },
       "required": [],
       "title": "extraManifests",
@@ -3808,7 +3918,7 @@
             "datasources": {
               "properties": {
                 "alertmanager": {
-                  "description": "datasourceUid: Jaeger\ntraceIdLabelName: trace_id",
+                  "description": "datasourceUid: Jaeger\ntraceIdLabelName: trace_id\nurlDisplayLabel: View traces",
                   "properties": {
                     "enabled": {
                       "default": true,
@@ -7247,31 +7357,9 @@
         "ingress": {
           "default": true,
           "description": "#\n# The Policy model to apply. When set to false, only pods with the correct\n# client label will have network access to  grafana port defined.\n# When true, grafana will accept connections from any source\n# (with the correct destination port).\n#",
-          "items": {
-            "properties": {
-              "ports": {
-                "items": {
-                  "properties": {
-                    "port": {
-                      "required": [],
-                      "title": "port",
-                      "type": "integer"
-                    }
-                  },
-                  "required": [],
-                  "type": "object"
-                },
-                "required": [],
-                "title": "ports",
-                "type": "array"
-              }
-            },
-            "required": [],
-            "type": "object"
-          },
           "required": [],
           "title": "ingress",
-          "type": "array"
+          "type": "boolean"
         }
       },
       "required": [],
@@ -7484,19 +7572,9 @@
       "additionalProperties": true,
       "description": "Extra labels to be added to windows exporter pods",
       "properties": {
-        "baz": {
-          "required": [],
-          "title": "baz",
-          "type": "string"
-        },
         "customLableA": {
           "required": [],
           "title": "customLableA",
-          "type": "string"
-        },
-        "foo": {
-          "required": [],
-          "title": "foo",
           "type": "string"
         }
       },
@@ -8694,7 +8772,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v3.1.0",
+                  "default": "v3.2.0",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -12736,18 +12814,6 @@
           "type": "string"
         },
         "labels": {
-          "properties": {
-            "baz": {
-              "required": [],
-              "title": "baz",
-              "type": "string"
-            },
-            "foo": {
-              "required": [],
-              "title": "foo",
-              "type": "string"
-            }
-          },
           "required": [],
           "title": "labels",
           "type": "object"
@@ -12967,6 +13033,13 @@
       "required": [],
       "title": "serviceMonitor",
       "type": "object"
+    },
+    "shareProcessNamespace": {
+      "default": false,
+      "description": "When process namespace sharing is enabled, processes in a container are visible to all other containers in the same pod\nThis parameter is added because the ldap reload api is not working https://grafana.com/docs/grafana/latest/developers/http_api/admin/#reload-ldap-configuration\nTo allow an extraContainer to restart the Grafana container",
+      "required": [],
+      "title": "shareProcessNamespace",
+      "type": "boolean"
     },
     "sidecar": {
       "additionalProperties": true,
