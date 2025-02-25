@@ -180,7 +180,7 @@ schema Values:
         #
     extraLabels : ValuesExtraLabels, optional
         Apply extra labels to common labels.
-    extraManifests : [str], optional
+    extraManifests : [any], optional
         # Extra manifests to deploy as an array
     extraObjects : [ValuesExtraObjectsItems0], optional
         Create a dynamic manifests via values:
@@ -404,6 +404,10 @@ schema Values:
         # Service configuration
     serviceAccount : ValuesServiceAccount, optional
     serviceMonitor : ValuesServiceMonitor, optional
+    shareProcessNamespace : bool, optional, default is False
+        When process namespace sharing is enabled, processes in a container are visible to all other containers in the same pod
+        This parameter is added because the ldap reload api is not working https://grafana.com/docs/grafana/latest/developers/http_api/admin/#reload-ldap-configuration
+        To allow an extraContainer to restart the Grafana container
     sidecar : ValuesSidecar, optional
         # Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
         # Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
@@ -516,7 +520,7 @@ schema Values:
     extraHostVolumeMounts?: [any]
     extraInitContainers?: [any]
     extraLabels?: ValuesExtraLabels
-    extraManifests?: [str]
+    extraManifests?: [any]
     extraObjects?: [ValuesExtraObjectsItems0]
     extraSecretMounts?: [any]
     extraVolumeMounts?: [any]
@@ -597,6 +601,7 @@ schema Values:
     service?: ValuesService
     serviceAccount?: ValuesServiceAccount
     serviceMonitor?: ValuesServiceMonitor
+    shareProcessNamespace?: bool
     sidecar?: ValuesSidecar
     sidecarHostVolumeMounts?: [any]
     sidecarVolumeMount?: [any]
@@ -807,6 +812,9 @@ schema ValuesAlertmanager:
         # Configuration for creating an Ingress that will map to each Alertmanager replica service
         # alertmanager.servicePerReplica must be enabled
         #
+    networkPolicy : ValuesAlertmanagerNetworkPolicy, optional
+        # Network Policy configuration
+        #
     podDisruptionBudget : ValuesAlertmanagerPodDisruptionBudget, optional
         # Configure pod disruption budgets for Alertmanager
         # ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
@@ -870,6 +878,7 @@ schema ValuesAlertmanager:
     forceDeployDashboards?: bool
     ingress?: ValuesAlertmanagerIngress
     ingressPerReplica?: ValuesAlertmanagerIngressPerReplica
+    networkPolicy?: ValuesAlertmanagerNetworkPolicy
     podDisruptionBudget?: ValuesAlertmanagerPodDisruptionBudget
     route?: ValuesAlertmanagerRoute
     secret?: ValuesAlertmanagerSecret
@@ -1517,6 +1526,114 @@ schema ValuesAlertmanagerIngressPerReplicaTlsSecretPerReplica:
     enabled?: bool
     prefix?: str
 
+schema ValuesAlertmanagerNetworkPolicy:
+    r"""
+    # Network Policy configuration
+    #
+
+    Attributes
+    ----------
+    additionalIngress : [any], optional
+        Additional custom ingress rules
+        #
+    egress : ValuesAlertmanagerNetworkPolicyEgress, optional
+        Configure egress rules
+        #
+    enableClusterRules : bool, optional, default is True
+        Enable rules for alertmanager cluster traffic
+        #
+    enabled : bool, optional, default is False
+        Enable network policy for Alertmanager
+    gateway : ValuesAlertmanagerNetworkPolicyGateway, optional
+        Gateway (formerly ingress controller) configuration
+        #
+    monitoringRules : ValuesAlertmanagerNetworkPolicyMonitoringRules, optional
+        Configure monitoring component rules
+        #
+    policyTypes : [str], optional
+        Define policy types. If egress is enabled, both Ingress and Egress will be used
+        Valid values are ["Ingress"] or ["Ingress", "Egress"]
+        #
+    """
+
+    additionalIngress?: [any]
+    egress?: ValuesAlertmanagerNetworkPolicyEgress
+    enableClusterRules?: bool
+    enabled?: bool
+    gateway?: ValuesAlertmanagerNetworkPolicyGateway
+    monitoringRules?: ValuesAlertmanagerNetworkPolicyMonitoringRules
+    policyTypes?: [str]
+
+schema ValuesAlertmanagerNetworkPolicyEgress:
+    r"""
+    Configure egress rules
+    #
+
+    Attributes
+    ----------
+    enabled : bool, optional, default is False
+        Enable egress rules. When enabled, policyTypes will include Egress
+        #
+    rules : [any], optional
+        Custom egress rules
+        #
+    """
+
+    enabled?: bool
+    rules?: [any]
+
+schema ValuesAlertmanagerNetworkPolicyGateway:
+    r"""
+    Gateway (formerly ingress controller) configuration
+    #
+
+    Attributes
+    ----------
+    namespace : str, optional, default is "ingress-nginx"
+        Gateway namespace
+        #
+    podLabels : ValuesAlertmanagerNetworkPolicyGatewayPodLabels, optional
+        Gateway pod labels
+        #
+    """
+
+    namespace?: str
+    podLabels?: ValuesAlertmanagerNetworkPolicyGatewayPodLabels
+
+schema ValuesAlertmanagerNetworkPolicyGatewayPodLabels:
+    r"""
+    Gateway pod labels
+    #
+
+    Attributes
+    ----------
+    "app.kubernetes.io/name" : str, optional, default is "ingress-nginx"
+    """
+
+    "app.kubernetes.io/name"?: str
+
+schema ValuesAlertmanagerNetworkPolicyMonitoringRules:
+    r"""
+    Configure monitoring component rules
+    #
+
+    Attributes
+    ----------
+    configReloader : bool, optional, default is True
+        Enable ingress for config reloader metrics
+        #
+    loki : bool, optional, default is True
+        Enable ingress from Loki
+        #
+    prometheus : bool, optional, default is True
+        Enable ingress from Prometheus
+        #
+    """
+
+    configReloader?: bool
+    loki?: bool
+    prometheus?: bool
+
 schema ValuesAlertmanagerPodDisruptionBudget:
     r"""
     # Configure pod disruption budgets for Alertmanager
@@ -1990,15 +2107,8 @@ schema ValuesCommonLabels:
     r"""
     # Labels to apply to all resources
     #
-
-    Attributes
-    ----------
-    baz : str, optional
-    foo : str, optional
     """
 
-    baz?: str
-    foo?: str
     [...str]: any
 
 schema ValuesContainerSecurityContext:
@@ -4129,6 +4239,7 @@ schema ValuesGrafanaSidecarDatasources:
     alertmanager : ValuesGrafanaSidecarDatasourcesAlertmanager, optional
         datasourceUid: Jaeger
         traceIdLabelName: trace_id
+        urlDisplayLabel: View traces
     annotations : ValuesGrafanaSidecarDatasourcesAnnotations, optional
         # Annotations for Grafana datasource configmaps
         #
@@ -4168,6 +4279,7 @@ schema ValuesGrafanaSidecarDatasourcesAlertmanager:
     r"""
     datasourceUid: Jaeger
     traceIdLabelName: trace_id
+    urlDisplayLabel: View traces
 
     Attributes
     ----------
@@ -6475,7 +6587,7 @@ schema ValuesNetworkPolicy:
         Can be:
         * kubernetes for networking.k8s.io/v1/NetworkPolicy
         * cilium     for cilium.io/v2/CiliumNetworkPolicy
-    ingress : [ValuesNetworkPolicyIngressItems0], optional, default is True
+    ingress : bool, optional, default is True
         #
         # The Policy model to apply. When set to false, only pods with the correct
         # client label will have network access to  grafana port defined.
@@ -6489,7 +6601,7 @@ schema ValuesNetworkPolicy:
     enabled?: bool
     explicitNamespacesSelector?: ValuesNetworkPolicyExplicitNamespacesSelector
     flavor?: str
-    ingress?: [ValuesNetworkPolicyIngressItems0]
+    ingress?: bool
     [...str]: any
 
 schema ValuesNetworkPolicyEgress:
@@ -6545,28 +6657,6 @@ schema ValuesNetworkPolicyExplicitNamespacesSelector:
     """
 
     [...str]: any
-
-schema ValuesNetworkPolicyIngressItems0:
-    r"""
-    ValuesNetworkPolicyIngressItems0
-
-    Attributes
-    ----------
-    ports : [ValuesNetworkPolicyIngressItems0PortsItems0], optional
-    """
-
-    ports?: [ValuesNetworkPolicyIngressItems0PortsItems0]
-
-schema ValuesNetworkPolicyIngressItems0PortsItems0:
-    r"""
-    ValuesNetworkPolicyIngressItems0PortsItems0
-
-    Attributes
-    ----------
-    port : int, optional
-    """
-
-    port?: int
 
 schema ValuesNodeExporter:
     r"""
@@ -6751,14 +6841,10 @@ schema ValuesPodLabels:
 
     Attributes
     ----------
-    baz : str, optional
     customLableA : str, optional
-    foo : str, optional
     """
 
-    baz?: str
     customLableA?: str
-    foo?: str
     [...str]: any
 
 schema ValuesPodSecurityPolicy:
@@ -9967,7 +10053,7 @@ schema ValuesPrometheusPrometheusSpecImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "prometheus/prometheus"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v3.1.0"
+    tag : str, optional, default is "v3.2.0"
     """
 
     registry?: str
@@ -11405,15 +11491,9 @@ schema ValuesServiceIpDualStack:
 schema ValuesServiceLabels:
     r"""
     ValuesServiceLabels
-
-    Attributes
-    ----------
-    baz : str, optional
-    foo : str, optional
     """
 
-    baz?: str
-    foo?: str
+    [...str]: any
 
 schema ValuesServiceMonitor:
     r"""
