@@ -140,6 +140,14 @@ func NewChartAddCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			logLevel, err := flags.GetString("log_level")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			quiet, err := flags.GetBool("quiet")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 
 			if merr != nil {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
@@ -164,7 +172,11 @@ func NewChartAddCmd() *cobra.Command {
 				},
 			}
 
-			return c.AddChart(cConfig.GetSnakeCaseName(), cConfig)
+			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
+				return c.AddChart(cConfig.GetSnakeCaseName(), cConfig)
+			}
+
+			return c.AddChartTUI(cConfig.GetSnakeCaseName(), logLevel, cConfig)
 		},
 		SilenceUsage: true,
 	}
@@ -176,6 +188,7 @@ func NewChartAddCmd() *cobra.Command {
 	cmd.Flags().String("schema_path", "", "Chart schema path")
 	cmd.Flags().String("crd_path", "", "CRD path")
 	cmd.Flags().BoolP("vendor", "V", false, "Run in vendor mode")
+	cmd.Flags().BoolP("quiet", "q", false, "Run in quiet mode")
 
 	return cmd
 }
