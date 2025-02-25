@@ -2,14 +2,21 @@ package log
 
 import (
 	"errors"
+	"io"
 	"log/slog"
 	"os"
 	"strings"
+
+	"github.com/mattn/go-isatty"
+	"github.com/muesli/termenv"
+
+	charmlog "github.com/charmbracelet/log"
 )
 
 const (
-	JSONFormat = "json"
-	TextFormat = "text"
+	FormatJSON   string = "json"
+	FormatLogfmt string = "logfmt"
+	FormatText   string = "text"
 )
 
 var (
@@ -18,22 +25,25 @@ var (
 )
 
 // CreateHandler creates a [slog.Handler] by strings.
-func CreateHandler(logLevel, logFormat string) (slog.Handler, error) {
+func CreateHandler(w io.Writer, logLevel, logFormat string) (slog.Handler, error) {
 	level, err := GetLevel(logLevel)
 	if err != nil {
 		return nil, err
 	}
 
-	opts := &slog.HandlerOptions{
-		AddSource: true,
-		Level:     level,
-	}
-
 	switch strings.ToLower(logFormat) {
-	case JSONFormat:
-		return slog.NewJSONHandler(os.Stderr, opts), nil
-	case TextFormat:
-		return slog.NewTextHandler(os.Stderr, opts), nil
+	case FormatJSON:
+		return slog.NewJSONHandler(w, &slog.HandlerOptions{
+			AddSource: true,
+			Level:     level,
+		}), nil
+	case FormatLogfmt:
+		return slog.NewTextHandler(w, &slog.HandlerOptions{
+			AddSource: true,
+			Level:     level,
+		}), nil
+	case FormatText:
+		return newCharmLogHandler(w, level), nil
 	}
 
 	return nil, ErrUnknownLogFormat
@@ -52,4 +62,20 @@ func GetLevel(level string) (slog.Level, error) {
 	}
 
 	return 0, ErrUnknownLogLevel
+}
+
+func newCharmLogHandler(w io.Writer, level slog.Level) slog.Handler {
+	//nolint:gosec // G115: input from GetLevel.
+	lvl := int32(level)
+
+	logger := charmlog.NewWithOptions(w, charmlog.Options{
+		Level:        charmlog.Level(lvl),
+		Formatter:    charmlog.TextFormatter,
+		ReportCaller: true,
+	})
+	if isatty.IsTerminal(os.Stdout.Fd()) {
+		logger.SetColorProfile(termenv.ANSI256)
+	}
+
+	return logger
 }

@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"log/slog"
+	"os"
 	"sync"
 
 	"github.com/hashicorp/go-multierror"
@@ -29,8 +30,8 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 		Version:       GetVersionString(),
 	}
 
-	cmd.PersistentFlags().String("log_level", "warn", "Set the log level")
-	cmd.PersistentFlags().String("log_format", "text", "Set the log format")
+	cmd.PersistentFlags().String("log_level", "warn", "Set the log level (debug, info, warn, error)")
+	cmd.PersistentFlags().String("log_format", "text", "Set the log format (text, logfmt, json)")
 
 	cmd.PersistentPreRunE = func(cc *cobra.Command, _ []string) error {
 		flags := cc.Flags()
@@ -51,7 +52,7 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 			return fmt.Errorf("invalid argument: %w", merr)
 		}
 
-		h, err := log.CreateHandler(logLevel, logFormat)
+		h, err := log.CreateHandler(os.Stderr, logLevel, logFormat)
 		if err != nil {
 			return fmt.Errorf("failed creating log handler: %w", err)
 		}
