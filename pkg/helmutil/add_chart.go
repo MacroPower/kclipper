@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,11 +14,14 @@ import (
 	"golang.org/x/sync/semaphore"
 	"kcl-lang.io/kcl-go"
 
+	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/log"
 	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
@@ -25,6 +29,33 @@ const initialChartContents = `import helm
 
 charts: helm.Charts = {}
 `
+
+func (c *ChartPkg) AddChartTUI(key, logLevel string, chart *kclchart.ChartConfig) error {
+	c.p = tea.NewProgram(newAddTUI(key))
+
+	logger, err := log.CreateHandler(c, logLevel, log.FormatText)
+	if err != nil {
+		return fmt.Errorf("failed to create log handler: %w", err)
+	}
+
+	slog.SetDefault(slog.New(logger))
+
+	go func() {
+		if err := c.AddChart(key, chart); err != nil {
+			c.SendUpdate(fmt.Errorf("%w: %w", ErrChartUpdateFailed, err))
+
+			return
+		}
+
+		c.SendUpdate(teaMsgAddedChart{})
+	}()
+
+	if _, err := c.p.Run(); err != nil {
+		return fmt.Errorf("failed to launch tui: %w", err)
+	}
+
+	return nil
+}
 
 func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	if err := c.Init(); err != nil {
@@ -77,15 +108,20 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	}
 	defer helmChart.Dispose()
 
-	if err := generateAndWriteChartKCL(&kclchart.Chart{ChartBase: chart.ChartBase}, chartDir); err != nil {
+	logger := slog.With(
+		slog.String("chart", chart.Chart),
+	)
+
+	if err := generateAndWriteChartKCL(&kclchart.Chart{ChartBase: chart.ChartBase}, chartDir, logger); err != nil {
 		return err
 	}
 
-	if err := generateAndWriteValuesSchemaFiles(chart, helmChart, pkgPath, repoRoot, chartDir); err != nil {
+	if err := generateAndWriteValuesSchemaFiles(chart, helmChart, pkgPath, repoRoot, chartDir, logger); err != nil {
 		return err
 	}
 
 	if chart.CRDPath != "" {
+		logger.Debug("getting crd files")
 		crds, err := helmChart.GetCRDs(func(s string) bool {
 			match, err := filepath.Match(chart.CRDPath, s)
 			if err != nil {
@@ -106,10 +142,12 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	chartsFile := filepath.Join(c.BasePath, "charts.k")
 	chartsSpec := kclutil.SpecPathJoin("charts", key)
 
+	slog.Debug("updating charts.k")
 	if err := c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec); err != nil {
 		return fmt.Errorf("failed to update %q: %w", chartsFile, err)
 	}
 
+	slog.Debug("formatting kcl files", slog.String("path", c.BasePath))
 	if _, err := kcl.FormatPath(c.BasePath); err != nil {
 		return fmt.Errorf("failed to format kcl files: %w", err)
 	}
@@ -117,12 +155,15 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	return nil
 }
 
-func generateAndWriteChartKCL(hc *kclchart.Chart, chartDir string) error {
+func generateAndWriteChartKCL(hc *kclchart.Chart, chartDir string, logger *slog.Logger) error {
 	kclChart := &bytes.Buffer{}
+
+	logger.Debug("generating chart.k")
 	if err := hc.GenerateKCL(kclChart); err != nil {
 		return fmt.Errorf("failed to generate chart.k: %w", err)
 	}
 
+	logger.Debug("writing chart.k")
 	if err := os.WriteFile(path.Join(chartDir, "chart.k"), kclChart.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("failed to write chart.k: %w", err)
 	}
@@ -131,15 +172,17 @@ func generateAndWriteChartKCL(hc *kclchart.Chart, chartDir string) error {
 }
 
 func generateAndWriteValuesSchemaFiles(
-	chart *kclchart.ChartConfig, chartFiles *helm.ChartFiles, basePath, repoRoot, chartDir string,
+	chart *kclchart.ChartConfig, chartFiles *helm.ChartFiles, basePath, repoRoot, chartDir string, logger *slog.Logger,
 ) error {
 	var (
 		jsonSchemaBytes []byte
 		err             error
 	)
 
+	logger.Debug("generating values.schema.json")
 	switch chart.SchemaGenerator {
 	case jsonschema.DefaultGeneratorType, jsonschema.NoGeneratorType:
+		logger.Info("no schema generator specified, values validation will be skipped")
 		jsonSchemaBytes = []byte(jsonschema.EmptySchema)
 
 	case jsonschema.URLGeneratorType, jsonschema.LocalPathGeneratorType:
@@ -169,6 +212,7 @@ func generateAndWriteValuesSchemaFiles(
 	}
 
 	if len(jsonSchemaBytes) != 0 {
+		logger.Debug("writing values.schema.json")
 		if err := writeValuesSchemaFiles(jsonSchemaBytes, chartDir); err != nil {
 			return err
 		}
