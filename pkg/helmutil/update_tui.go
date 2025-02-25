@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -29,25 +28,6 @@ type updateTUI struct {
 	done            bool
 }
 
-var (
-	currentChartNameStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("211"))
-	doneStyle             = lipgloss.NewStyle().Margin(1, 2)
-	errStyle              = lipgloss.NewStyle().Margin(1, 2)
-	progressStyle         = lipgloss.NewStyle().Margin(1, 2)
-	checkMark             = lipgloss.NewStyle().Foreground(lipgloss.Color("42")).SetString("✓")
-	errorMark             = lipgloss.NewStyle().Foreground(lipgloss.Color("196")).SetString("✗")
-)
-
-type (
-	teaMsgUpdatingChart string
-	teaMsgUpdatedChart  struct {
-		err   error
-		chart string
-	}
-	teaMsgSetChartTotal int
-	teaMsgWriteLog      string
-)
-
 func newUpdateTUI() *updateTUI {
 	p := progress.New(
 		progress.WithDefaultGradient(),
@@ -56,7 +36,7 @@ func newUpdateTUI() *updateTUI {
 	)
 
 	s := spinner.New()
-	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("63"))
+	s.Style = spinnerStyle
 
 	return &updateTUI{
 		startedCharts:   []string{},
@@ -85,11 +65,7 @@ func (m *updateTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case teaMsgWriteLog:
-		logMsg := string(msg)
-		logMsg = strings.Trim(logMsg, "\r\n")
-		logMsg = lipgloss.NewStyle().Width(max(0, m.width-2)).Render(logMsg)
-
-		return m, tea.Println(logMsg)
+		return m, writeLog(msg, m.width)
 
 	case teaMsgSetChartTotal:
 		m.mu.Lock()
@@ -164,10 +140,7 @@ func (m *updateTUI) View() string {
 	defer m.mu.RUnlock()
 
 	if m.err != nil {
-		errMsg := fmt.Sprintf("%v", m.err)
-		errMsg = strings.Trim(errMsg, "\r\n")
-
-		return errStyle.Width(max(0, m.width-2)).Render(errMsg + "\n")
+		return getErrorMessage(m.err, m.width)
 	}
 
 	completedCount := len(m.completedCharts)
@@ -214,10 +187,4 @@ func differenceStringSlices(a, b []string) []string {
 	}
 
 	return difference
-}
-
-func finalPause() tea.Cmd {
-	return tea.Tick(time.Millisecond*500, func(_ time.Time) tea.Msg {
-		return nil
-	})
 }
