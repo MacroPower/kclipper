@@ -28,6 +28,23 @@ func (cd *ChartData) GetSortedKeys() []string {
 	return names
 }
 
+func (cd *ChartData) GetByKey(k string) (ChartConfig, bool) {
+	c, ok := cd.Charts[k]
+
+	return c, ok
+}
+
+func (cd *ChartData) FilterByName(name string) map[string]ChartConfig {
+	m := map[string]ChartConfig{}
+	for k := range cd.Charts {
+		if cd.Charts[k].Chart == name {
+			m[k] = cd.Charts[k]
+		}
+	}
+
+	return m
+}
+
 // All possible chart configuration that can be defined in `charts.k`,
 // inheriting from `helm.ChartConfig(helm.ChartBase)`.
 type ChartConfig struct {
