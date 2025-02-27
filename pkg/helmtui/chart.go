@@ -49,13 +49,12 @@ func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
 	c.p = tea.NewProgram(NewAddChartModel(key))
 
 	go func() {
-		if err := c.pkg.AddChart(key, chart); err != nil {
+		err := c.pkg.AddChart(key, chart)
+		c.broadcastEvent(helmutil.EventAddedChart{Err: err})
+
+		if err != nil {
 			c.broadcastEvent(fmt.Errorf("%w: %w", helmutil.ErrChartUpdateFailed, err))
-
-			return
 		}
-
-		c.broadcastEvent(helmutil.EventAddedChart{})
 	}()
 
 	if _, err := c.p.Run(); err != nil {
