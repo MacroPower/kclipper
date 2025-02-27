@@ -77,9 +77,20 @@ tasks:
       - golangci-lint run --exclude-use-default=false
 
   go-test:
-    desc: Tests Go code
+    desc: Run Go tests
+    summary: |
+      Run Go tests
+
+      Args:
+        PKG: Go package to test (default: ./...)
+        FLAGS: Additional flags to pass to `go test` (default: "")
+        PKG_FLAGS: Additional flags to pass to test packages (default: "")
+    vars:
+      PKG: '{{.PKG | default "./..."}}'
+      FLAGS: '{{.FLAGS | default ""}}'
+      PKG_FLAGS: '{{.PKG_FLAGS | default ""}}'
     cmds:
-      - go test ./...
+      - go test {{.FLAGS}} {{.PKG}} {{.PKG_FLAGS}}
 
   go-cover:
     desc: Runs Go tests with coverage

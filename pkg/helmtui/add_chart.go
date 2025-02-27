@@ -50,6 +50,12 @@ func (m *AddChartModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, writeLog(msg, m.width)
 
 	case helmutil.EventAddedChart:
+		if msg.Err != nil {
+			return m, tea.Sequence(
+				tea.Printf("%s %s", errorMark, m.chart),
+			)
+		}
+
 		m.done = true
 
 		return m, tea.Sequence(

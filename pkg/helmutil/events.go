@@ -2,7 +2,9 @@ package helmutil
 
 type (
 	// Sent when a chart has been added.
-	EventAddedChart struct{}
+	EventAddedChart struct {
+		Err error
+	}
 
 	// Sent to update the total chart count.
 	EventSetChartTotal int
