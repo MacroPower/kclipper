@@ -15,10 +15,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 
-	tea "github.com/charmbracelet/bubbletea"
-
 	"github.com/MacroPower/kclipper/pkg/kclchart"
-	"github.com/MacroPower/kclipper/pkg/log"
 )
 
 var (
@@ -26,30 +23,6 @@ var (
 	ErrChartUpdateFailed  = errors.New("chart update failed")
 	ErrKCLExecutionFailed = errors.New("kcl execution failed")
 )
-
-func (c *ChartPkg) UpdateTUI(logLevel string, charts ...string) error {
-	c.p = tea.NewProgram(newUpdateTUI())
-
-	logger, err := log.CreateHandler(c, logLevel, log.FormatText)
-	if err != nil {
-		return fmt.Errorf("failed to create log handler: %w", err)
-	}
-
-	slog.SetDefault(slog.New(logger))
-
-	go func() {
-		err := c.Update(charts...)
-		if err != nil {
-			c.SendUpdate(fmt.Errorf("%w: %w", ErrChartUpdateFailed, err))
-		}
-	}()
-
-	if _, err := c.p.Run(); err != nil {
-		return fmt.Errorf("failed to launch tui: %w", err)
-	}
-
-	return nil
-}
 
 // Update loads the chart configurations defined in charts.k and calls Add to
 // generate all required chart packages.
@@ -124,7 +97,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 	sem := semaphore.NewWeighted(workerCount)
 	errChan := make(chan error, chartCount)
 
-	c.SendUpdate(teaMsgSetChartTotal(chartCount))
+	c.broadcastEvent(EventSetChartTotal(chartCount))
 
 	for _, k := range chartData.GetSortedKeys() {
 		chart := chartData.Charts[k]
@@ -138,7 +111,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 		if err := sem.Acquire(ctx, 1); err != nil {
 			return fmt.Errorf("%w: %w", ErrUpdateWorkerFailed, err)
 		}
-		c.SendUpdate(teaMsgUpdatingChart(k))
+		c.broadcastEvent(EventUpdatingChart(k))
 		go func(chart kclchart.ChartConfig, logger *slog.Logger) {
 			defer sem.Release(1)
 
@@ -146,13 +119,13 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 			err := c.AddChart(k, &chart)
 			if err != nil {
-				c.SendUpdate(teaMsgUpdatedChart{chart: k, err: err})
+				c.broadcastEvent(EventUpdatedChart{Chart: k, Err: err})
 				errChan <- fmt.Errorf("update %q: %w", k, err)
 
 				return
 			}
 
-			c.SendUpdate(teaMsgUpdatedChart{chart: k})
+			c.broadcastEvent(EventUpdatedChart{Chart: k})
 
 			logger.Info("finished updating chart")
 		}(chart, chartSlog)

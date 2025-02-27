@@ -1,4 +1,4 @@
-package helmutil
+package helmtui
 
 import (
 	"fmt"
@@ -23,21 +23,6 @@ var (
 type (
 	// Sent to write a log message.
 	teaMsgWriteLog string
-
-	// Sent when a chart has been added.
-	teaMsgAddedChart struct{}
-
-	// Sent to update the total chart count.
-	teaMsgSetChartTotal int
-
-	// Sent when a chart update has started.
-	teaMsgUpdatingChart string
-
-	// Sent when a chart has been updated, or when a fatal error occurs during an update.
-	teaMsgUpdatedChart struct {
-		err   error
-		chart string
-	}
 )
 
 func finalPause() tea.Cmd {

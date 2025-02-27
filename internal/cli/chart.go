@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
+	"github.com/MacroPower/kclipper/pkg/helmtui"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
@@ -176,7 +177,12 @@ func NewChartAddCmd() *cobra.Command {
 				return c.AddChart(cConfig.GetSnakeCaseName(), cConfig)
 			}
 
-			return c.AddChartTUI(cConfig.GetSnakeCaseName(), logLevel, cConfig)
+			ct, err := helmtui.NewChartTUI(c, logLevel)
+			if err != nil {
+				return fmt.Errorf("failed to create tui: %w", err)
+			}
+
+			return ct.AddChart(cConfig.GetSnakeCaseName(), cConfig)
 		},
 		SilenceUsage: true,
 	}
@@ -239,7 +245,12 @@ func NewChartUpdateCmd() *cobra.Command {
 				return c.Update(charts...)
 			}
 
-			return c.UpdateTUI(logLevel, charts...)
+			ct, err := helmtui.NewChartTUI(c, logLevel)
+			if err != nil {
+				return fmt.Errorf("failed to create tui: %w", err)
+			}
+
+			return ct.Update(charts...)
 		},
 		SilenceUsage: true,
 	}

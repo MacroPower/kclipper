@@ -14,14 +14,11 @@ import (
 	"golang.org/x/sync/semaphore"
 	"kcl-lang.io/kcl-go"
 
-	tea "github.com/charmbracelet/bubbletea"
-
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
-	"github.com/MacroPower/kclipper/pkg/log"
 	"github.com/MacroPower/kclipper/pkg/pathutil"
 )
 
@@ -29,33 +26,6 @@ const initialChartContents = `import helm
 
 charts: helm.Charts = {}
 `
-
-func (c *ChartPkg) AddChartTUI(key, logLevel string, chart *kclchart.ChartConfig) error {
-	c.p = tea.NewProgram(newAddTUI(key))
-
-	logger, err := log.CreateHandler(c, logLevel, log.FormatText)
-	if err != nil {
-		return fmt.Errorf("failed to create log handler: %w", err)
-	}
-
-	slog.SetDefault(slog.New(logger))
-
-	go func() {
-		if err := c.AddChart(key, chart); err != nil {
-			c.SendUpdate(fmt.Errorf("%w: %w", ErrChartUpdateFailed, err))
-
-			return
-		}
-
-		c.SendUpdate(teaMsgAddedChart{})
-	}()
-
-	if _, err := c.p.Run(); err != nil {
-		return fmt.Errorf("failed to launch tui: %w", err)
-	}
-
-	return nil
-}
 
 func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	if err := c.Init(); err != nil {

@@ -8,16 +8,14 @@ import (
 
 	"kcl-lang.io/kcl-go"
 
-	tea "github.com/charmbracelet/bubbletea"
-
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 type ChartPkg struct {
 	Client   helm.ChartFileClient
-	p        *tea.Program
 	BasePath string
+	subs     []func(any)
 	Timeout  time.Duration
 	mu       sync.RWMutex
 	Vendor   bool
@@ -31,6 +29,7 @@ func NewChartPkg(basePath string, client helm.ChartFileClient, opts ...ChartPkgO
 		BasePath: basePath,
 		Client:   client,
 		Timeout:  5 * time.Minute,
+		subs:     []func(any){},
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -68,16 +67,14 @@ func fileExists(path string) bool {
 	return true
 }
 
-func (c *ChartPkg) SendUpdate(msg tea.Msg) {
-	if c.p != nil {
-		c.p.Send(msg)
+func (c *ChartPkg) broadcastEvent(evt any) {
+	for _, sub := range c.subs {
+		sub(evt)
 	}
 }
 
-func (c *ChartPkg) Write(p []byte) (int, error) {
-	c.SendUpdate(teaMsgWriteLog(string(p)))
-
-	return len(p), nil
+func (c *ChartPkg) Subscribe(f func(any)) {
+	c.subs = append(c.subs, f)
 }
 
 func (c *ChartPkg) updateFile(automation kclutil.Automation, kclFile, initialContents, specPath string) error {
