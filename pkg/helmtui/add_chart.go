@@ -1,4 +1,4 @@
-package helmutil
+package helmtui
 
 import (
 	"strings"
@@ -7,9 +7,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/MacroPower/kclipper/pkg/helmutil"
 )
 
-type addTUI struct {
+type AddChartModel struct {
 	err     error
 	chart   string
 	spinner spinner.Model
@@ -18,22 +20,22 @@ type addTUI struct {
 	done    bool
 }
 
-func newAddTUI(chart string) *addTUI {
+func NewAddChartModel(chart string) *AddChartModel {
 	s := spinner.New()
 	s.Style = spinnerStyle
 
-	return &addTUI{
+	return &AddChartModel{
 		spinner: s,
 		chart:   chart,
 	}
 }
 
-func (m *addTUI) Init() tea.Cmd {
+func (m *AddChartModel) Init() tea.Cmd {
 	return m.spinner.Tick
 }
 
 //nolint:ireturn // Third-party.
-func (m *addTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *AddChartModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -47,7 +49,7 @@ func (m *addTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case teaMsgWriteLog:
 		return m, writeLog(msg, m.width)
 
-	case teaMsgAddedChart:
+	case helmutil.EventAddedChart:
 		m.done = true
 
 		return m, tea.Sequence(
@@ -75,7 +77,7 @@ func (m *addTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *addTUI) View() string {
+func (m *AddChartModel) View() string {
 	if m.err != nil {
 		return getErrorMessage(m.err, m.width)
 	}

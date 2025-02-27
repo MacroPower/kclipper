@@ -1,4 +1,4 @@
-package helmutil
+package helmtui
 
 import (
 	"fmt"
@@ -12,9 +12,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/MacroPower/kclipper/pkg/helmutil"
 )
 
-type updateTUI struct {
+type UpdateModel struct {
 	err             error
 	startedCharts   []string
 	completedCharts []string
@@ -28,7 +30,7 @@ type updateTUI struct {
 	done            bool
 }
 
-func newUpdateTUI() *updateTUI {
+func NewUpdateModel() *UpdateModel {
 	p := progress.New(
 		progress.WithDefaultGradient(),
 		progress.WithWidth(40),
@@ -38,7 +40,7 @@ func newUpdateTUI() *updateTUI {
 	s := spinner.New()
 	s.Style = spinnerStyle
 
-	return &updateTUI{
+	return &UpdateModel{
 		startedCharts:   []string{},
 		completedCharts: []string{},
 		erroredCharts:   []string{},
@@ -48,12 +50,12 @@ func newUpdateTUI() *updateTUI {
 	}
 }
 
-func (m *updateTUI) Init() tea.Cmd {
+func (m *UpdateModel) Init() tea.Cmd {
 	return tea.Batch(m.spinner.Tick, m.progress.SetPercent(0))
 }
 
 //nolint:ireturn // Third-party.
-func (m *updateTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *UpdateModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -67,30 +69,30 @@ func (m *updateTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case teaMsgWriteLog:
 		return m, writeLog(msg, m.width)
 
-	case teaMsgSetChartTotal:
+	case helmutil.EventSetChartTotal:
 		m.mu.Lock()
 		defer m.mu.Unlock()
 
 		m.totalCharts = int(msg)
 
-	case teaMsgUpdatingChart:
+	case helmutil.EventUpdatingChart:
 		m.mu.Lock()
 		defer m.mu.Unlock()
 
 		chart := string(msg)
 		m.startedCharts = append(m.startedCharts, chart)
 
-	case teaMsgUpdatedChart:
+	case helmutil.EventUpdatedChart:
 		m.mu.Lock()
 		defer m.mu.Unlock()
 
 		icon := checkMark
-		if msg.err != nil {
-			m.erroredCharts = append(m.erroredCharts, msg.chart)
+		if msg.Err != nil {
+			m.erroredCharts = append(m.erroredCharts, msg.Chart)
 			icon = errorMark
 		}
 
-		m.completedCharts = append(m.completedCharts, msg.chart)
+		m.completedCharts = append(m.completedCharts, msg.Chart)
 		completedCount := len(m.completedCharts)
 		progressCmd := m.progress.SetPercent(float64(completedCount) / float64(m.totalCharts))
 
@@ -98,7 +100,7 @@ func (m *updateTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.done = true
 
 			return m, tea.Sequence(
-				tea.Printf("%s %s", icon, msg.chart),
+				tea.Printf("%s %s", icon, msg.Chart),
 				finalPause(),
 				tea.Quit,
 			)
@@ -106,7 +108,7 @@ func (m *updateTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, tea.Batch(
 			progressCmd,
-			tea.Printf("%s %s", icon, msg.chart),
+			tea.Printf("%s %s", icon, msg.Chart),
 		)
 
 	case spinner.TickMsg:
@@ -135,7 +137,7 @@ func (m *updateTUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *updateTUI) View() string {
+func (m *UpdateModel) View() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
