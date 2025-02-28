@@ -35,6 +35,14 @@ func TestUpdateModel_OneSuccess(t *testing.T) {
 	)
 
 	tm.Send(helmutil.EventUpdatedChart{Chart: "test"})
+	teatest.WaitFor(
+		t, tm.Output(),
+		func(bts []byte) bool {
+			return bytes.Contains(bts, []byte("✓ test"))
+		},
+	)
+
+	tm.Send(helmutil.EventDone{})
 
 	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(10*time.Second)))
 	require.NoError(t, err)
@@ -63,7 +71,14 @@ func TestUpdateModel_OneError(t *testing.T) {
 	)
 
 	tm.Send(helmutil.EventUpdatedChart{Chart: "test", Err: errors.New("test error")})
-	tm.Send(errors.New("test error"))
+	teatest.WaitFor(
+		t, tm.Output(),
+		func(bts []byte) bool {
+			return bytes.Contains(bts, []byte("✗ test"))
+		},
+	)
+
+	tm.Send(helmutil.EventDone{Err: errors.New("test error")})
 
 	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(10*time.Second)))
 	require.NoError(t, err)
@@ -110,6 +125,14 @@ func TestUpdateModel_MultipleSuccess(t *testing.T) {
 	)
 
 	tm.Send(helmutil.EventUpdatedChart{Chart: "test2"})
+	teatest.WaitFor(
+		t, tm.Output(),
+		func(bts []byte) bool {
+			return bytes.Contains(bts, []byte("✓ test2"))
+		},
+	)
+
+	tm.Send(helmutil.EventDone{})
 
 	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(10*time.Second)))
 	require.NoError(t, err)
@@ -149,7 +172,14 @@ func TestUpdateModel_MultipleWithError(t *testing.T) {
 	)
 
 	tm.Send(helmutil.EventUpdatedChart{Chart: "test2", Err: errors.New("test error")})
-	tm.Send(errors.New("test error"))
+	teatest.WaitFor(
+		t, tm.Output(),
+		func(bts []byte) bool {
+			return bytes.Contains(bts, []byte("✗ test2"))
+		},
+	)
+
+	tm.Send(helmutil.EventDone{Err: errors.New("test error")})
 
 	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(10*time.Second)))
 	require.NoError(t, err)

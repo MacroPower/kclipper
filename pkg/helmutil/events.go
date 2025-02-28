@@ -1,8 +1,13 @@
 package helmutil
 
 type (
-	// Sent when a chart has been added.
-	EventAddedChart struct {
+	// Sent when initialization has completed.
+	EventInit struct {
+		Err error
+	}
+
+	// Sent when an item has been added.
+	EventAdded struct {
 		Err error
 	}
 
@@ -17,5 +22,10 @@ type (
 	EventUpdatedChart struct {
 		Err   error
 		Chart string
+	}
+
+	// Sent when all work has completed.
+	EventDone struct {
+		Err error
 	}
 )

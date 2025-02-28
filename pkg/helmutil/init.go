@@ -12,13 +12,13 @@ import (
 	"github.com/MacroPower/kclipper/internal/version"
 )
 
-func (c *ChartPkg) Init() error {
+func (c *ChartPkg) Init() (bool, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	path := c.BasePath
 	if err := os.MkdirAll(path, 0o750); err != nil {
-		return fmt.Errorf("failed to create charts directory: %w", err)
+		return false, fmt.Errorf("failed to create charts directory: %w", err)
 	}
 
 	source := downloader.Source{
@@ -40,12 +40,12 @@ func (c *ChartPkg) Init() error {
 
 	exists, err := kclpkg.ModFileExists(path)
 	if err != nil {
-		return fmt.Errorf("error checking for kcl.mod existence: %w", err)
+		return false, fmt.Errorf("error checking for kcl.mod existence: %w", err)
 	}
 
 	if exists {
 		// `kcl.mod` already exists, nothing to do.
-		return nil
+		return false, nil
 	}
 
 	pkg := kclpkg.NewKclPkg(&opt.InitOptions{
@@ -60,12 +60,12 @@ func (c *ChartPkg) Init() error {
 	})
 
 	if err := pkg.ModFile.StoreModFile(); err != nil {
-		return fmt.Errorf("failed to store mod file: %w", err)
+		return false, fmt.Errorf("failed to store mod file: %w", err)
 	}
 
 	if err := pkg.UpdateModAndLockFile(); err != nil {
-		return fmt.Errorf("failed to update kcl.mod: %w", err)
+		return false, fmt.Errorf("failed to update kcl.mod: %w", err)
 	}
 
-	return nil
+	return true, nil
 }

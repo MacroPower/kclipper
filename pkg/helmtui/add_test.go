@@ -14,10 +14,10 @@ import (
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 )
 
-func TestAddChartModel_Success(t *testing.T) {
+func TestAddModel_Success(t *testing.T) {
 	t.Parallel()
 
-	m := helmtui.NewAddChartModel("test")
+	m := helmtui.NewAddModel("chart", "test")
 	tm := teatest.NewTestModel(
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
@@ -31,21 +31,26 @@ func TestAddChartModel_Success(t *testing.T) {
 		},
 	)
 
-	tm.Send(helmutil.EventAddedChart{})
+	tm.Send(helmutil.EventAdded{})
+	teatest.WaitFor(
+		t, tm.Output(),
+		func(bts []byte) bool {
+			return bytes.Contains(bts, []byte("✓ test"))
+		},
+	)
 
-	_, err := io.ReadAll(tm.Output())
-	require.NoError(t, err)
+	tm.Send(helmutil.EventDone{})
 
-	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(10*time.Second)))
+	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(1*time.Second)))
 	require.NoError(t, err)
 
 	teatest.RequireEqualOutput(t, out)
 }
 
-func TestAddChartModel_Error(t *testing.T) {
+func TestAddModel_Error(t *testing.T) {
 	t.Parallel()
 
-	m := helmtui.NewAddChartModel("test")
+	m := helmtui.NewAddModel("chart", "test")
 	tm := teatest.NewTestModel(
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
@@ -59,7 +64,7 @@ func TestAddChartModel_Error(t *testing.T) {
 		},
 	)
 
-	tm.Send(helmutil.EventAddedChart{Err: errors.New("test error")})
+	tm.Send(helmutil.EventAdded{Err: errors.New("test error")})
 	teatest.WaitFor(
 		t, tm.Output(),
 		func(bts []byte) bool {
@@ -67,9 +72,9 @@ func TestAddChartModel_Error(t *testing.T) {
 		},
 	)
 
-	tm.Send(errors.New("test error"))
+	tm.Send(helmutil.EventDone{Err: errors.New("test error")})
 
-	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(10*time.Second)))
+	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(1*time.Second)))
 	require.NoError(t, err)
 
 	teatest.RequireEqualOutput(t, out)
