@@ -28,7 +28,7 @@ func TestHelmChartAdd(t *testing.T) {
 
 	ca := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
 
-	err := ca.Init()
+	_, err := ca.Init()
 	require.NoError(t, err)
 
 	tcs := map[string]struct {

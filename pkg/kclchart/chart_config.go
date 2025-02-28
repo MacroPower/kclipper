@@ -1,11 +1,13 @@
 package kclchart
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"reflect"
 	"sort"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/iancoleman/strcase"
 
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
@@ -54,6 +56,20 @@ type ChartConfig struct {
 
 func (c *ChartConfig) GetSnakeCaseName() string {
 	return strcase.ToSnake(c.Chart)
+}
+
+func (c *ChartConfig) Validate() error {
+	var merr error
+
+	if c.Chart == "" {
+		merr = multierror.Append(merr, errors.New("chart name is required"))
+	}
+
+	if c.RepoURL == "" {
+		merr = multierror.Append(merr, errors.New("repository URL is required"))
+	}
+
+	return merr
 }
 
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {

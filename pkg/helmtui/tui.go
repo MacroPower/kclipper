@@ -11,13 +11,13 @@ import (
 )
 
 var (
-	currentChartNameStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("211"))
-	doneStyle             = lipgloss.NewStyle().Margin(1, 2)
-	errStyle              = lipgloss.NewStyle().Margin(1, 2)
-	progressStyle         = lipgloss.NewStyle().Margin(1, 2)
-	spinnerStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color("63"))
-	checkMark             = lipgloss.NewStyle().Foreground(lipgloss.Color("42")).SetString("✓")
-	errorMark             = lipgloss.NewStyle().Foreground(lipgloss.Color("196")).SetString("✗")
+	currentNameStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("211"))
+	doneStyle        = lipgloss.NewStyle().Margin(1, 2)
+	errStyle         = lipgloss.NewStyle().Margin(1, 2)
+	progressStyle    = lipgloss.NewStyle().Margin(1, 2)
+	spinnerStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("63"))
+	checkMark        = lipgloss.NewStyle().Foreground(lipgloss.Color("42")).SetString("✓")
+	errorMark        = lipgloss.NewStyle().Foreground(lipgloss.Color("196")).SetString("✗")
 )
 
 type (
@@ -25,10 +25,22 @@ type (
 	teaMsgWriteLog string
 )
 
-func finalPause() tea.Cmd {
-	return tea.Tick(time.Millisecond*500, func(_ time.Time) tea.Msg {
-		return nil
-	})
+func teaQuit() tea.Cmd {
+	return tea.Sequence(
+		tea.Tick(time.Millisecond*500, func(_ time.Time) tea.Msg {
+			return nil
+		}),
+		tea.Quit,
+	)
+}
+
+func keyExits(msg tea.KeyMsg) bool {
+	switch msg.String() {
+	case "ctrl+c", "esc", "q":
+		return true
+	}
+
+	return false
 }
 
 func writeLog(msg teaMsgWriteLog, width int) tea.Cmd {

@@ -1,6 +1,7 @@
 package helmtui
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -8,6 +9,7 @@ import (
 
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
+	"github.com/MacroPower/kclipper/pkg/kclhelm"
 	"github.com/MacroPower/kclipper/pkg/log"
 )
 
@@ -45,16 +47,32 @@ func (c *ChartTUI) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
+func (c *ChartTUI) Init() (bool, error) {
+	c.p = tea.NewProgram(NewInitModel())
+
+	go func() {
+		_, err := c.pkg.Init()
+		c.broadcastEvent(helmutil.EventDone{Err: err})
+	}()
+
+	if _, err := c.p.Run(); err != nil {
+		return false, fmt.Errorf("failed to launch tui: %w", err)
+	}
+
+	return true, nil
+}
+
 func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
-	c.p = tea.NewProgram(NewAddChartModel(key))
+	if key == "" {
+		return errors.New("chart key is required")
+	}
+
+	c.p = tea.NewProgram(NewAddModel("chart", key))
 
 	go func() {
 		err := c.pkg.AddChart(key, chart)
-		c.broadcastEvent(helmutil.EventAddedChart{Err: err})
-
-		if err != nil {
-			c.broadcastEvent(fmt.Errorf("%w: %w", helmutil.ErrChartUpdateFailed, err))
-		}
+		c.broadcastEvent(helmutil.EventAdded{Err: err})
+		c.broadcastEvent(helmutil.EventDone{Err: err})
 	}()
 
 	if _, err := c.p.Run(); err != nil {
@@ -64,14 +82,39 @@ func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
 	return nil
 }
 
+func (c *ChartTUI) AddRepo(repo *kclhelm.ChartRepo) error {
+	c.p = tea.NewProgram(NewAddModel("repo", repo.Name))
+
+	go func() {
+		err := c.pkg.AddRepo(repo)
+		c.broadcastEvent(helmutil.EventAdded{Err: err})
+		c.broadcastEvent(helmutil.EventDone{Err: err})
+	}()
+
+	if _, err := c.p.Run(); err != nil {
+		return fmt.Errorf("failed to launch tui: %w", err)
+	}
+
+	return nil
+}
+
+func (c *ChartTUI) Set(chart, keyValueOverrides string) error {
+	err := c.pkg.Set(chart, keyValueOverrides)
+	if err != nil {
+		return fmt.Errorf("failed to set chart arguments: %w", err)
+	}
+
+	fmt.Printf("Updated %s.\n", chart)
+
+	return nil
+}
+
 func (c *ChartTUI) Update(charts ...string) error {
 	c.p = tea.NewProgram(NewUpdateModel())
 
 	go func() {
 		err := c.pkg.Update(charts...)
-		if err != nil {
-			c.broadcastEvent(fmt.Errorf("%w: %w", helmutil.ErrChartUpdateFailed, err))
-		}
+		c.broadcastEvent(helmutil.EventDone{Err: err})
 	}()
 
 	if _, err := c.p.Run(); err != nil {

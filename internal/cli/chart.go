@@ -57,6 +57,7 @@ func NewChartCmd() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().Duration("timeout", 5*time.Minute, "Timeout for the command")
+	cmd.PersistentFlags().BoolP("quiet", "q", false, "Run in quiet mode")
 
 	cmd.AddCommand(NewChartInitCmd())
 	cmd.AddCommand(NewChartAddCmd())
@@ -72,14 +73,48 @@ func NewChartInitCmd() *cobra.Command {
 		Use:   "init",
 		Short: "Initialize the current module",
 		RunE: func(cc *cobra.Command, _ []string) error {
+			var merr error
+
 			flags := cc.Flags()
 			basePath, err := flags.GetString("path")
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrInvalidArgument, err)
+				merr = multierror.Append(merr, err)
 			}
+			logLevel, err := flags.GetString("log_level")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			quiet, err := flags.GetBool("quiet")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+
+			if merr != nil {
+				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
+			}
+
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
 
-			return c.Init()
+			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
+				_, err := c.Init()
+				if err != nil {
+					return fmt.Errorf("init failed: %w", err)
+				}
+
+				return nil
+			}
+
+			ct, err := helmtui.NewChartTUI(c, logLevel)
+			if err != nil {
+				return fmt.Errorf("failed to create tui: %w", err)
+			}
+
+			_, err = ct.Init()
+			if err != nil {
+				return fmt.Errorf("init failed: %w", err)
+			}
+
+			return nil
 		},
 		SilenceUsage: true,
 	}
@@ -194,7 +229,9 @@ func NewChartAddCmd() *cobra.Command {
 	cmd.Flags().String("schema_path", "", "Chart schema path")
 	cmd.Flags().String("crd_path", "", "CRD path")
 	cmd.Flags().BoolP("vendor", "V", false, "Run in vendor mode")
-	cmd.Flags().BoolP("quiet", "q", false, "Run in quiet mode")
+
+	must(cmd.MarkFlagRequired("chart"))
+	must(cmd.MarkFlagRequired("repo_url"))
 
 	return cmd
 }
@@ -256,7 +293,6 @@ func NewChartUpdateCmd() *cobra.Command {
 	}
 	cmd.Flags().StringSliceP("chart", "c", []string{}, "Helm chart to update (if unset, updates all charts)")
 	cmd.Flags().BoolP("vendor", "V", false, "Run in vendor mode")
-	cmd.Flags().BoolP("quiet", "q", false, "Run in quiet mode")
 
 	return cmd
 }
@@ -281,6 +317,14 @@ func NewChartSetCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			logLevel, err := flags.GetString("log_level")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			quiet, err := flags.GetBool("quiet")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 
 			if merr != nil {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
@@ -288,20 +332,24 @@ func NewChartSetCmd() *cobra.Command {
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
 
-			return c.Set(chart, overrides)
+			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
+				return c.Set(chart, overrides)
+			}
+
+			ct, err := helmtui.NewChartTUI(c, logLevel)
+			if err != nil {
+				return fmt.Errorf("failed to create tui: %w", err)
+			}
+
+			return ct.Set(chart, overrides)
 		},
 		SilenceUsage: true,
 	}
 	cmd.Flags().StringP("chart", "c", "", "Specify the Helm chart name (required)")
 	cmd.Flags().StringP("overrides", "O", "", "Specify the configuration override path and value (required)")
 
-	if err := cmd.MarkFlagRequired("chart"); err != nil {
-		panic(err)
-	}
-
-	if err := cmd.MarkFlagRequired("overrides"); err != nil {
-		panic(err)
-	}
+	must(cmd.MarkFlagRequired("chart"))
+	must(cmd.MarkFlagRequired("overrides"))
 
 	return cmd
 }
@@ -370,14 +418,21 @@ func NewChartRepoAddCmd() *cobra.Command {
 			if err != nil {
 				merr = multierror.Append(merr, err)
 			}
+			logLevel, err := flags.GetString("log_level")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
+			quiet, err := flags.GetBool("quiet")
+			if err != nil {
+				merr = multierror.Append(merr, err)
+			}
 
 			if merr != nil {
 				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
 			}
 
 			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-
-			return c.AddRepo(&kclhelm.ChartRepo{
+			cr := &kclhelm.ChartRepo{
 				Name:                  name,
 				URL:                   url,
 				UsernameEnv:           usernameEnv,
@@ -387,7 +442,18 @@ func NewChartRepoAddCmd() *cobra.Command {
 				TLSClientCertKeyPath:  tlsClientCertKeyPath,
 				InsecureSkipVerify:    insecureSkipVerify,
 				PassCredentials:       passCredentials,
-			})
+			}
+
+			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
+				return c.AddRepo(cr)
+			}
+
+			ct, err := helmtui.NewChartTUI(c, logLevel)
+			if err != nil {
+				return fmt.Errorf("failed to create tui: %w", err)
+			}
+
+			return ct.AddRepo(cr)
 		},
 		SilenceUsage: true,
 	}
@@ -401,5 +467,14 @@ func NewChartRepoAddCmd() *cobra.Command {
 	cmd.Flags().Bool("insecure_skip_verify", false, "Skip SSL certificate verification")
 	cmd.Flags().Bool("pass_credentials", false, "Pass credentials to the Helm chart repository")
 
+	must(cmd.MarkFlagRequired("name"))
+	must(cmd.MarkFlagRequired("url"))
+
 	return cmd
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

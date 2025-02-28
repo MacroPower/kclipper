@@ -28,7 +28,11 @@ charts: helm.Charts = {}
 `
 
 func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
-	if err := c.Init(); err != nil {
+	if err := chart.Validate(); err != nil {
+		return fmt.Errorf("invalid config: %w", err)
+	}
+
+	if _, err := c.Init(); err != nil {
 		return fmt.Errorf("failed to init before add: %w", err)
 	}
 
