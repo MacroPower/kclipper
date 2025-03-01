@@ -3,10 +3,10 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 
@@ -39,10 +39,20 @@ const (
 `
 )
 
-var ErrInvalidArgument = errors.New("invalid argument")
+var (
+	ErrArgument           = errors.New("argument error")
+	ErrChartCommandFailed = errors.New("chart command failed")
+	ErrChartInitFailed    = errors.New("chart init failed")
+	ErrChartAddFailed     = errors.New("chart add failed")
+	ErrChartUpdateFailed  = errors.New("chart update failed")
+	ErrChartSetFailed     = errors.New("chart set failed")
+	ErrChartRepoAddFailed = errors.New("chart repo add failed")
+)
 
 // NewChartCmd returns the chart command.
-func NewChartCmd() *cobra.Command {
+func NewChartCmd(arg *RootArgs) *cobra.Command {
+	args := NewChartArgs(arg)
+
 	cmd := &cobra.Command{
 		Use:          "chart",
 		Short:        "Helm chart management",
@@ -51,67 +61,37 @@ func NewChartCmd() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	cmd.PersistentFlags().StringP("path", "p", "charts", "Base path for the charts package")
+	cmd.PersistentFlags().StringVarP(args.path, "path", "p", "charts", "Base path for the charts package")
 	if err := cmd.MarkPersistentFlagDirname("path"); err != nil {
 		panic(err)
 	}
 
-	cmd.PersistentFlags().Duration("timeout", 5*time.Minute, "Timeout for the command")
-	cmd.PersistentFlags().BoolP("quiet", "q", false, "Run in quiet mode")
+	cmd.PersistentFlags().DurationVar(args.timeout, "timeout", 5*time.Minute, "Timeout for the command")
+	cmd.PersistentFlags().BoolVarP(args.quiet, "quiet", "q", false, "Run in quiet mode")
+	cmd.PersistentFlags().BoolVarP(args.vendor, "vendor", "V", false, "Run in vendor mode")
 
-	cmd.AddCommand(NewChartInitCmd())
-	cmd.AddCommand(NewChartAddCmd())
-	cmd.AddCommand(NewChartUpdateCmd())
-	cmd.AddCommand(NewChartSetCmd())
-	cmd.AddCommand(NewChartRepoCmd())
+	cmd.AddCommand(NewChartInitCmd(args))
+	cmd.AddCommand(NewChartAddCmd(args))
+	cmd.AddCommand(NewChartUpdateCmd(args))
+	cmd.AddCommand(NewChartSetCmd(args))
+	cmd.AddCommand(NewChartRepoCmd(args))
 
 	return cmd
 }
 
-func NewChartInitCmd() *cobra.Command {
+func NewChartInitCmd(args *ChartArgs) *cobra.Command {
 	return &cobra.Command{
 		Use:   "init",
 		Short: "Initialize the current module",
-		RunE: func(cc *cobra.Command, _ []string) error {
-			var merr error
-
-			flags := cc.Flags()
-			basePath, err := flags.GetString("path")
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			cc, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				merr = multierror.Append(merr, err)
+				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
-			logLevel, err := flags.GetString("log_level")
+
+			_, err = cc.Init()
 			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			quiet, err := flags.GetBool("quiet")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-
-			if merr != nil {
-				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
-			}
-
-			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-
-			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
-				_, err := c.Init()
-				if err != nil {
-					return fmt.Errorf("init failed: %w", err)
-				}
-
-				return nil
-			}
-
-			ct, err := helmtui.NewChartTUI(c, logLevel)
-			if err != nil {
-				return fmt.Errorf("failed to create tui: %w", err)
-			}
-
-			_, err = ct.Init()
-			if err != nil {
-				return fmt.Errorf("init failed: %w", err)
+				return fmt.Errorf("%w: %w", ErrChartInitFailed, err)
 			}
 
 			return nil
@@ -120,115 +100,58 @@ func NewChartInitCmd() *cobra.Command {
 	}
 }
 
-func NewChartAddCmd() *cobra.Command {
+func NewChartAddCmd(args *ChartArgs) *cobra.Command {
+	chart := new(string)
+	repoURL := new(string)
+	targetRevision := new(string)
+	schemaGenerator := new(string)
+	schemaValidator := new(string)
+	schemaPath := new(string)
+	crdPath := new(string)
+
 	cmd := &cobra.Command{
 		Use:   "add",
 		Short: "Add a new chart",
-		RunE: func(cc *cobra.Command, _ []string) error {
-			var merr error
-			if err := cc.MarkFlagRequired("chart"); err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			if err := cc.MarkFlagRequired("repo_url"); err != nil {
-				merr = multierror.Append(merr, err)
-			}
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			schemaGeneratorType := jsonschema.GetGeneratorType(*schemaGenerator)
+			schemaValidatorType := jsonschema.GetValidatorType(*schemaValidator)
 
-			flags := cc.Flags()
-			basePath, err := flags.GetString("path")
+			cc, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				merr = multierror.Append(merr, err)
+				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
-			timeout, err := flags.GetDuration("timeout")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			chart, err := flags.GetString("chart")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			repoURL, err := flags.GetString("repo_url")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			targetRevision, err := flags.GetString("target_revision")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			schemaGeneratorString, err := flags.GetString("schema_generator")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			schemaGenerator := jsonschema.GetGeneratorType(schemaGeneratorString)
-			schemaValidatorString, err := flags.GetString("schema_validator")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			schemaValidator := jsonschema.GetValidatorType(schemaValidatorString)
-			schemaPath, err := flags.GetString("schema_path")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			crdPath, err := flags.GetString("crd_path")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			vendor, err := flags.GetBool("vendor")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			logLevel, err := flags.GetString("log_level")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			quiet, err := flags.GetBool("quiet")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-
-			if merr != nil {
-				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
-			}
-
-			c := helmutil.NewChartPkg(basePath, helm.DefaultClient,
-				helmutil.WithVendor(vendor),
-				helmutil.WithTimeout(timeout),
-			)
 
 			cConfig := &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
-					Chart:           chart,
-					RepoURL:         repoURL,
-					TargetRevision:  targetRevision,
-					SchemaValidator: schemaValidator,
+					Chart:           *chart,
+					RepoURL:         *repoURL,
+					TargetRevision:  *targetRevision,
+					SchemaValidator: schemaValidatorType,
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
-					SchemaGenerator: schemaGenerator,
-					SchemaPath:      schemaPath,
-					CRDPath:         crdPath,
+					SchemaGenerator: schemaGeneratorType,
+					SchemaPath:      *schemaPath,
+					CRDPath:         *crdPath,
 				},
 			}
 
-			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
-				return c.AddChart(cConfig.GetSnakeCaseName(), cConfig)
-			}
-
-			ct, err := helmtui.NewChartTUI(c, logLevel)
+			err = cc.AddChart(cConfig.GetSnakeCaseName(), cConfig)
 			if err != nil {
-				return fmt.Errorf("failed to create tui: %w", err)
+				return fmt.Errorf("%w: %w", ErrChartAddFailed, err)
 			}
 
-			return ct.AddChart(cConfig.GetSnakeCaseName(), cConfig)
+			return nil
 		},
 		SilenceUsage: true,
 	}
-	cmd.Flags().StringP("chart", "c", "", "Helm chart name (required)")
-	cmd.Flags().StringP("repo_url", "r", "", "URL of the Helm chart repository (required)")
-	cmd.Flags().StringP("target_revision", "t", "", "Semver tag for the chart's version")
-	cmd.Flags().String("schema_generator", "", "Chart schema generator")
-	cmd.Flags().String("schema_validator", "KCL", "Chart schema validator")
-	cmd.Flags().String("schema_path", "", "Chart schema path")
-	cmd.Flags().String("crd_path", "", "CRD path")
-	cmd.Flags().BoolP("vendor", "V", false, "Run in vendor mode")
+
+	cmd.Flags().StringVarP(chart, "chart", "c", "", "Helm chart name (required)")
+	cmd.Flags().StringVarP(repoURL, "repo_url", "r", "", "URL of the Helm chart repository (required)")
+	cmd.Flags().StringVarP(targetRevision, "target_revision", "t", "", "Semver tag for the chart's version")
+	cmd.Flags().StringVar(schemaGenerator, "schema_generator", "", "Chart schema generator")
+	cmd.Flags().StringVar(schemaValidator, "schema_validator", "KCL", "Chart schema validator")
+	cmd.Flags().StringVar(schemaPath, "schema_path", "", "Chart schema path")
+	cmd.Flags().StringVar(crdPath, "crd_path", "", "CRD path")
 
 	must(cmd.MarkFlagRequired("chart"))
 	must(cmd.MarkFlagRequired("repo_url"))
@@ -236,117 +159,58 @@ func NewChartAddCmd() *cobra.Command {
 	return cmd
 }
 
-func NewChartUpdateCmd() *cobra.Command {
+func NewChartUpdateCmd(args *ChartArgs) *cobra.Command {
+	charts := new([]string)
+
 	cmd := &cobra.Command{
 		Use:   "update",
 		Short: "Update charts",
-		RunE: func(cc *cobra.Command, _ []string) error {
-			var merr error
-
-			flags := cc.Flags()
-			basePath, err := flags.GetString("path")
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			cc, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			timeout, err := flags.GetDuration("timeout")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			charts, err := flags.GetStringSlice("chart")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			vendor, err := flags.GetBool("vendor")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			logLevel, err := flags.GetString("log_level")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			quiet, err := flags.GetBool("quiet")
-			if err != nil {
-				merr = multierror.Append(merr, err)
+				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
 
-			if merr != nil {
-				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
-			}
-
-			c := helmutil.NewChartPkg(basePath, helm.DefaultClient,
-				helmutil.WithVendor(vendor),
-				helmutil.WithTimeout(timeout),
-			)
-
-			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
-				return c.Update(charts...)
-			}
-
-			ct, err := helmtui.NewChartTUI(c, logLevel)
+			err = cc.Update(*charts...)
 			if err != nil {
-				return fmt.Errorf("failed to create tui: %w", err)
+				return fmt.Errorf("%w: %w", ErrChartUpdateFailed, err)
 			}
 
-			return ct.Update(charts...)
+			return nil
 		},
 		SilenceUsage: true,
 	}
-	cmd.Flags().StringSliceP("chart", "c", []string{}, "Helm chart to update (if unset, updates all charts)")
-	cmd.Flags().BoolP("vendor", "V", false, "Run in vendor mode")
+
+	cmd.Flags().StringSliceVarP(charts, "chart", "c", []string{}, "Helm chart to update (if unset, updates all charts)")
 
 	return cmd
 }
 
-func NewChartSetCmd() *cobra.Command {
+func NewChartSetCmd(args *ChartArgs) *cobra.Command {
+	chart := new(string)
+	overrides := new(string)
+
 	cmd := &cobra.Command{
 		Use:   "set",
 		Short: "Set chart configuration",
-		RunE: func(cc *cobra.Command, _ []string) error {
-			var merr error
-
-			flags := cc.Flags()
-			basePath, err := flags.GetString("path")
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			cc, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			chart, err := flags.GetString("chart")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			overrides, err := flags.GetString("overrides")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			logLevel, err := flags.GetString("log_level")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			quiet, err := flags.GetBool("quiet")
-			if err != nil {
-				merr = multierror.Append(merr, err)
+				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
 
-			if merr != nil {
-				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
-			}
-
-			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
-
-			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
-				return c.Set(chart, overrides)
-			}
-
-			ct, err := helmtui.NewChartTUI(c, logLevel)
+			err = cc.Set(*chart, *overrides)
 			if err != nil {
-				return fmt.Errorf("failed to create tui: %w", err)
+				return fmt.Errorf("%w: %w", ErrChartSetFailed, err)
 			}
 
-			return ct.Set(chart, overrides)
+			return nil
 		},
 		SilenceUsage: true,
 	}
-	cmd.Flags().StringP("chart", "c", "", "Specify the Helm chart name (required)")
-	cmd.Flags().StringP("overrides", "O", "", "Specify the configuration override path and value (required)")
+
+	cmd.Flags().StringVarP(chart, "chart", "c", "", "Specify the Helm chart name (required)")
+	cmd.Flags().StringVarP(overrides, "overrides", "O", "", "Specify the configuration override path and value (required)")
 
 	must(cmd.MarkFlagRequired("chart"))
 	must(cmd.MarkFlagRequired("overrides"))
@@ -354,123 +218,134 @@ func NewChartSetCmd() *cobra.Command {
 	return cmd
 }
 
-func NewChartRepoCmd() *cobra.Command {
+func NewChartRepoCmd(args *ChartArgs) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "repo",
 		Short: "Helm chart repository management",
 	}
-	cmd.AddCommand(NewChartRepoAddCmd())
+	cmd.AddCommand(NewChartRepoAddCmd(args))
 
 	return cmd
 }
 
-func NewChartRepoAddCmd() *cobra.Command {
+func NewChartRepoAddCmd(args *ChartArgs) *cobra.Command {
+	name := new(string)
+	url := new(string)
+	usernameEnv := new(string)
+	passwordEnv := new(string)
+	caPath := new(string)
+	tlsClientCertDataPath := new(string)
+	tlsClientCertKeyPath := new(string)
+	insecureSkipVerify := new(bool)
+	passCredentials := new(bool)
+
 	cmd := &cobra.Command{
 		Use:   "add",
 		Short: "Add a new chart repository",
-		RunE: func(cc *cobra.Command, _ []string) error {
-			var merr error
-			if err := cc.MarkFlagRequired("name"); err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			if err := cc.MarkFlagRequired("url"); err != nil {
-				merr = multierror.Append(merr, err)
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			cc, err := newChartCommander(cmd.OutOrStdout(), args)
+			if err != nil {
+				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
 
-			flags := cc.Flags()
-			basePath, err := flags.GetString("path")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			name, err := flags.GetString("name")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			url, err := flags.GetString("url")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			usernameEnv, err := flags.GetString("username_env")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			passwordEnv, err := flags.GetString("password_env")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			caPath, err := flags.GetString("ca_path")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			tlsClientCertDataPath, err := flags.GetString("tls_client_cert_data_path")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			tlsClientCertKeyPath, err := flags.GetString("tls_client_cert_key_path")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			insecureSkipVerify, err := flags.GetBool("insecure_skip_verify")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			passCredentials, err := flags.GetBool("pass_credentials")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			logLevel, err := flags.GetString("log_level")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-			quiet, err := flags.GetBool("quiet")
-			if err != nil {
-				merr = multierror.Append(merr, err)
-			}
-
-			if merr != nil {
-				return fmt.Errorf("%w: %w", ErrInvalidArgument, merr)
-			}
-
-			c := helmutil.NewChartPkg(basePath, helm.DefaultClient)
 			cr := &kclhelm.ChartRepo{
-				Name:                  name,
-				URL:                   url,
-				UsernameEnv:           usernameEnv,
-				PasswordEnv:           passwordEnv,
-				CAPath:                caPath,
-				TLSClientCertDataPath: tlsClientCertDataPath,
-				TLSClientCertKeyPath:  tlsClientCertKeyPath,
-				InsecureSkipVerify:    insecureSkipVerify,
-				PassCredentials:       passCredentials,
+				Name:                  *name,
+				URL:                   *url,
+				UsernameEnv:           *usernameEnv,
+				PasswordEnv:           *passwordEnv,
+				CAPath:                *caPath,
+				TLSClientCertDataPath: *tlsClientCertDataPath,
+				TLSClientCertKeyPath:  *tlsClientCertKeyPath,
+				InsecureSkipVerify:    *insecureSkipVerify,
+				PassCredentials:       *passCredentials,
 			}
 
-			if quiet || !isatty.IsTerminal(os.Stdout.Fd()) {
-				return c.AddRepo(cr)
-			}
-
-			ct, err := helmtui.NewChartTUI(c, logLevel)
+			err = cc.AddRepo(cr)
 			if err != nil {
-				return fmt.Errorf("failed to create tui: %w", err)
+				return fmt.Errorf("%w: %w", ErrChartRepoAddFailed, err)
 			}
 
-			return ct.AddRepo(cr)
+			return nil
 		},
 		SilenceUsage: true,
 	}
-	cmd.Flags().StringP("name", "n", "", "Helm chart repository name (required)")
-	cmd.Flags().StringP("url", "u", "", "URL of the Helm chart repository (required)")
-	cmd.Flags().StringP("username_env", "U", "", "Basic authentication username environment variable")
-	cmd.Flags().StringP("password_env", "P", "", "Basic authentication password environment variable")
-	cmd.Flags().String("ca_path", "", "CA file path")
-	cmd.Flags().String("tls_client_cert_data_path", "", "TLS client certificate data path")
-	cmd.Flags().String("tls_client_cert_key_path", "", "TLS client certificate key path")
-	cmd.Flags().Bool("insecure_skip_verify", false, "Skip SSL certificate verification")
-	cmd.Flags().Bool("pass_credentials", false, "Pass credentials to the Helm chart repository")
+
+	cmd.Flags().StringVarP(name, "name", "n", "", "Helm chart repository name (required)")
+	cmd.Flags().StringVarP(url, "url", "u", "", "URL of the Helm chart repository (required)")
+	cmd.Flags().StringVarP(usernameEnv, "username_env", "U", "", "Basic authentication username environment variable")
+	cmd.Flags().StringVarP(passwordEnv, "password_env", "P", "", "Basic authentication password environment variable")
+	cmd.Flags().StringVar(caPath, "ca_path", "", "CA file path")
+	cmd.Flags().StringVar(tlsClientCertDataPath, "tls_client_cert_data_path", "", "TLS client certificate data path")
+	cmd.Flags().StringVar(tlsClientCertKeyPath, "tls_client_cert_key_path", "", "TLS client certificate key path")
+	cmd.Flags().BoolVar(insecureSkipVerify, "insecure_skip_verify", false, "Skip SSL certificate verification")
+	cmd.Flags().BoolVar(passCredentials, "pass_credentials", false, "Pass credentials to the Helm chart repository")
 
 	must(cmd.MarkFlagRequired("name"))
 	must(cmd.MarkFlagRequired("url"))
 
 	return cmd
+}
+
+type chartCommander interface {
+	Init() (bool, error)
+	AddChart(key string, chart *kclchart.ChartConfig) error
+	AddRepo(repo *kclhelm.ChartRepo) error
+	Set(chart, keyValueOverrides string) error
+	Update(charts ...string) error
+	Subscribe(f func(any))
+}
+
+//nolint:ireturn // Multiple concrete types.
+func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
+	cc := helmutil.NewChartPkg(args.GetPath(), helm.DefaultClient,
+		helmutil.WithTimeout(args.GetTimeout()),
+		helmutil.WithVendor(args.GetVendor()),
+	)
+
+	if args.GetQuiet() || !isatty.IsTerminal(os.Stdout.Fd()) {
+		return cc, nil
+	}
+
+	ct, err := helmtui.NewChartTUI(w, args.GetLogLevel(), cc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create tui: %w", err)
+	}
+
+	return ct, nil
+}
+
+type ChartArgs struct {
+	path    *string
+	timeout *time.Duration
+	quiet   *bool
+	vendor  *bool
+	*RootArgs
+}
+
+func NewChartArgs(args *RootArgs) *ChartArgs {
+	return &ChartArgs{
+		path:     new(string),
+		timeout:  new(time.Duration),
+		quiet:    new(bool),
+		vendor:   new(bool),
+		RootArgs: args,
+	}
+}
+
+func (a *ChartArgs) GetPath() string {
+	return *a.path
+}
+
+func (a *ChartArgs) GetTimeout() time.Duration {
+	return *a.timeout
+}
+
+func (a *ChartArgs) GetQuiet() bool {
+	return *a.quiet
+}
+
+func (a *ChartArgs) GetVendor() bool {
+	return *a.vendor
 }
 
 func must(err error) {

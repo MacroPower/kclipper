@@ -1,6 +1,7 @@
 package kclhelm
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -36,6 +37,17 @@ type ChartRepo struct {
 	// Set to `True` to allow credentials to be used in chart dependencies defined
 	// by charts in this repository.
 	PassCredentials bool `json:"passCredentials,omitempty"`
+}
+
+func (c *ChartRepo) Validate() error {
+	if c.Name == "" {
+		return errors.New("name is required")
+	}
+	if c.URL == "" {
+		return errors.New("url is required")
+	}
+
+	return nil
 }
 
 func (c *ChartRepo) GetSnakeCaseName() string {
