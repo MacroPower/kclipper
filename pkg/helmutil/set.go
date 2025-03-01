@@ -3,6 +3,7 @@ package helmutil
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -17,6 +18,11 @@ func (c *ChartPkg) Set(chart, keyValueOverrides string) error {
 	if chart == "" {
 		return errors.New("chart name cannot be empty")
 	}
+
+	logger := slog.With(
+		slog.String("cmd", "chart_set"),
+		slog.String("chart_key", chart),
+	)
 
 	hc := kclchart.Chart{
 		ChartBase: kclchart.ChartBase{
@@ -41,11 +47,16 @@ func (c *ChartPkg) Set(chart, keyValueOverrides string) error {
 	chartsFile := filepath.Join(c.BasePath, "charts.k")
 	chartsSpec := kclutil.SpecPathJoin("charts", hc.GetSnakeCaseName())
 
+	logger.Info("updating charts.k",
+		slog.String("spec", chartsSpec),
+		slog.String("path", chartsFile),
+	)
 	err := c.updateFile(setAutomation, chartsFile, initialChartContents, chartsSpec)
 	if err != nil {
 		return fmt.Errorf("failed to update %q: %w", chartsFile, err)
 	}
 
+	logger.Info("formatting kcl files", slog.String("path", c.BasePath))
 	_, err = kcl.FormatPath(c.BasePath)
 	if err != nil {
 		return fmt.Errorf("failed to format kcl files: %w", err)

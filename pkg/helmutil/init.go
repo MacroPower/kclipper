@@ -24,11 +24,11 @@ func (c *ChartPkg) Init() (bool, error) {
 		slog.String("path", path),
 	)
 
-	logger.Debug("initializing charts package")
-
+	logger.Debug("ensure package directory")
 	if err := os.MkdirAll(path, 0o750); err != nil {
 		return false, fmt.Errorf("failed to create charts directory: %w", err)
 	}
+	logger.Debug("ensured package directory")
 
 	source := downloader.Source{
 		Local: &downloader.Local{
@@ -53,11 +53,12 @@ func (c *ChartPkg) Init() (bool, error) {
 	}
 
 	if exists {
-		slog.Debug("kcl.mod already exists, nothing to do")
+		logger.Debug("kcl.mod already exists, nothing to do")
 
 		return false, nil
 	}
 
+	logger.Info("creating new kcl.mod file")
 	pkg := kclpkg.NewKclPkg(&opt.InitOptions{
 		InitPath: path,
 		Name:     "charts",
@@ -68,13 +69,11 @@ func (c *ChartPkg) Init() (bool, error) {
 		Version: chartPkgVersion,
 		Source:  source,
 	})
-
-	slog.Debug("writing kcl.mod file")
 	if err := pkg.ModFile.StoreModFile(); err != nil {
 		return false, fmt.Errorf("failed to store mod file: %w", err)
 	}
 
-	slog.Debug("updating kcl.mod and kcl.mod.lock")
+	logger.Info("updating kcl.mod and kcl.mod.lock")
 	if err := pkg.UpdateModAndLockFile(); err != nil {
 		return false, fmt.Errorf("failed to update kcl.mod: %w", err)
 	}
