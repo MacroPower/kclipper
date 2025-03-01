@@ -64,7 +64,7 @@ func (c *ChartTUI) Subscribe(f func(any)) {
 }
 
 func (c *ChartTUI) Init() (bool, error) {
-	c.p = tea.NewProgram(NewInitModel(), tea.WithOutput(c.w))
+	c.p = tea.NewProgram(NewActionModel("initialization", "initializing"), tea.WithOutput(c.w))
 
 	go func() {
 		_, err := c.pkg.Init()
@@ -115,14 +115,15 @@ func (c *ChartTUI) AddRepo(repo *kclhelm.ChartRepo) error {
 }
 
 func (c *ChartTUI) Set(chart, keyValueOverrides string) error {
-	err := c.pkg.Set(chart, keyValueOverrides)
-	if err != nil {
-		return fmt.Errorf("failed to set chart arguments: %w", err)
-	}
+	c.p = tea.NewProgram(NewActionModel("update", "updating"), tea.WithOutput(c.w))
 
-	_, err = fmt.Fprintf(c.w, "Updated %s.\n", chart)
-	if err != nil {
-		return fmt.Errorf("failed to write to output: %w", err)
+	go func() {
+		err := c.pkg.Set(chart, keyValueOverrides)
+		c.broadcastEvent(helmutil.EventDone{Err: err})
+	}()
+
+	if _, err := c.p.Run(); err != nil {
+		return fmt.Errorf("failed to launch tui: %w", err)
 	}
 
 	return nil

@@ -14,10 +14,10 @@ import (
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 )
 
-func TestInitModel_Success(t *testing.T) {
+func TestActionModel_Success(t *testing.T) {
 	t.Parallel()
 
-	m := helmtui.NewInitModel()
+	m := helmtui.NewActionModel("initialization", "initializing")
 	tm := teatest.NewTestModel(
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
@@ -39,10 +39,10 @@ func TestInitModel_Success(t *testing.T) {
 	teatest.RequireEqualOutput(t, out)
 }
 
-func TestInitModel_Error(t *testing.T) {
+func TestActionModel_Error(t *testing.T) {
 	t.Parallel()
 
-	m := helmtui.NewInitModel()
+	m := helmtui.NewActionModel("initialization", "initializing")
 	tm := teatest.NewTestModel(
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
