@@ -2,6 +2,7 @@ package helmutil
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
 	"kcl-lang.io/kpm/pkg/downloader"
@@ -17,6 +18,14 @@ func (c *ChartPkg) Init() (bool, error) {
 	defer c.mu.Unlock()
 
 	path := c.BasePath
+
+	logger := slog.With(
+		slog.String("cmd", "init"),
+		slog.String("path", path),
+	)
+
+	logger.Debug("initializing charts package")
+
 	if err := os.MkdirAll(path, 0o750); err != nil {
 		return false, fmt.Errorf("failed to create charts directory: %w", err)
 	}
@@ -44,7 +53,8 @@ func (c *ChartPkg) Init() (bool, error) {
 	}
 
 	if exists {
-		// `kcl.mod` already exists, nothing to do.
+		slog.Debug("kcl.mod already exists, nothing to do")
+
 		return false, nil
 	}
 
@@ -59,10 +69,12 @@ func (c *ChartPkg) Init() (bool, error) {
 		Source:  source,
 	})
 
+	slog.Debug("writing kcl.mod file")
 	if err := pkg.ModFile.StoreModFile(); err != nil {
 		return false, fmt.Errorf("failed to store mod file: %w", err)
 	}
 
+	slog.Debug("updating kcl.mod and kcl.mod.lock")
 	if err := pkg.UpdateModAndLockFile(); err != nil {
 		return false, fmt.Errorf("failed to update kcl.mod: %w", err)
 	}

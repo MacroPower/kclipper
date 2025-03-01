@@ -1,12 +1,11 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
-	"os"
 	"sync"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
@@ -14,12 +13,38 @@ import (
 	"github.com/MacroPower/kclipper/pkg/log"
 )
 
-// Global lock for KCL command creation.
-var mu sync.Mutex
+var (
+	// Global lock for KCL command creation.
+	mu sync.Mutex
+
+	ErrLoggerInitFailed = errors.New("logger init failed")
+)
+
+type RootArgs struct {
+	logLevel  *string
+	logFormat *string
+}
+
+func NewRootArgs() *RootArgs {
+	return &RootArgs{
+		logLevel:  new(string),
+		logFormat: new(string),
+	}
+}
+
+func (a *RootArgs) GetLogLevel() string {
+	return *a.logLevel
+}
+
+func (a *RootArgs) GetLogFormat() string {
+	return *a.logFormat
+}
 
 func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	mu.Lock()
 	defer mu.Unlock()
+
+	args := NewRootArgs()
 
 	cmd := &cobra.Command{
 		Use:           name,
@@ -30,31 +55,13 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 		Version:       GetVersionString(),
 	}
 
-	cmd.PersistentFlags().String("log_level", "warn", "Set the log level (debug, info, warn, error)")
-	cmd.PersistentFlags().String("log_format", "text", "Set the log format (text, logfmt, json)")
+	cmd.PersistentFlags().StringVar(args.logLevel, "log_level", "warn", "Set the log level (debug, info, warn, error)")
+	cmd.PersistentFlags().StringVar(args.logFormat, "log_format", "text", "Set the log format (text, logfmt, json)")
 
 	cmd.PersistentPreRunE = func(cc *cobra.Command, _ []string) error {
-		flags := cc.Flags()
-
-		var merr error
-
-		logLevel, err := flags.GetString("log_level")
+		h, err := log.CreateHandler(cc.OutOrStderr(), args.GetLogLevel(), args.GetLogFormat())
 		if err != nil {
-			merr = multierror.Append(merr, err)
-		}
-
-		logFormat, err := flags.GetString("log_format")
-		if err != nil {
-			merr = multierror.Append(merr, err)
-		}
-
-		if merr != nil {
-			return fmt.Errorf("invalid argument: %w", merr)
-		}
-
-		h, err := log.CreateHandler(os.Stderr, logLevel, logFormat)
-		if err != nil {
-			return fmt.Errorf("failed creating log handler: %w", err)
+			return fmt.Errorf("%w: %w", ErrLoggerInitFailed, err)
 		}
 		slog.SetDefault(slog.New(h))
 
@@ -73,7 +80,7 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	cmd.AddCommand(kclcmd.NewRegistryCmd())
 	cmd.AddCommand(kclcmd.NewServerCmd())
 	cmd.AddCommand(NewVersionCmd())
-	cmd.AddCommand(NewChartCmd())
+	cmd.AddCommand(NewChartCmd(args))
 
 	return cmd
 }

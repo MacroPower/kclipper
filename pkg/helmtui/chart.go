@@ -3,6 +3,7 @@ package helmtui
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,13 +15,24 @@ import (
 )
 
 type ChartTUI struct {
-	pkg *helmutil.ChartPkg
+	pkg ChartCommander
 	p   *tea.Program
+	w   io.Writer
 }
 
-func NewChartTUI(pkg *helmutil.ChartPkg, logLevel string) (*ChartTUI, error) {
+type ChartCommander interface {
+	Init() (bool, error)
+	AddChart(key string, chart *kclchart.ChartConfig) error
+	AddRepo(repo *kclhelm.ChartRepo) error
+	Set(chart, keyValueOverrides string) error
+	Update(charts ...string) error
+	Subscribe(f func(any))
+}
+
+func NewChartTUI(w io.Writer, logLevel string, pkg ChartCommander) (*ChartTUI, error) {
 	c := &ChartTUI{
 		pkg: pkg,
+		w:   w,
 	}
 
 	c.pkg.Subscribe(c.broadcastEvent)
@@ -47,8 +59,12 @@ func (c *ChartTUI) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
+func (c *ChartTUI) Subscribe(f func(any)) {
+	c.pkg.Subscribe(f)
+}
+
 func (c *ChartTUI) Init() (bool, error) {
-	c.p = tea.NewProgram(NewInitModel())
+	c.p = tea.NewProgram(NewInitModel(), tea.WithOutput(c.w))
 
 	go func() {
 		_, err := c.pkg.Init()
@@ -67,7 +83,7 @@ func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
 		return errors.New("chart key is required")
 	}
 
-	c.p = tea.NewProgram(NewAddModel("chart", key))
+	c.p = tea.NewProgram(NewAddModel("chart", key), tea.WithOutput(c.w))
 
 	go func() {
 		err := c.pkg.AddChart(key, chart)
@@ -83,7 +99,7 @@ func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
 }
 
 func (c *ChartTUI) AddRepo(repo *kclhelm.ChartRepo) error {
-	c.p = tea.NewProgram(NewAddModel("repo", repo.Name))
+	c.p = tea.NewProgram(NewAddModel("repo", repo.Name), tea.WithOutput(c.w))
 
 	go func() {
 		err := c.pkg.AddRepo(repo)
@@ -104,13 +120,16 @@ func (c *ChartTUI) Set(chart, keyValueOverrides string) error {
 		return fmt.Errorf("failed to set chart arguments: %w", err)
 	}
 
-	fmt.Printf("Updated %s.\n", chart)
+	_, err = fmt.Fprintf(c.w, "Updated %s.\n", chart)
+	if err != nil {
+		return fmt.Errorf("failed to write to output: %w", err)
+	}
 
 	return nil
 }
 
 func (c *ChartTUI) Update(charts ...string) error {
-	c.p = tea.NewProgram(NewUpdateModel())
+	c.p = tea.NewProgram(NewUpdateModel(), tea.WithOutput(c.w))
 
 	go func() {
 		err := c.pkg.Update(charts...)
