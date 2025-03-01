@@ -32,6 +32,13 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		return fmt.Errorf("invalid config: %w", err)
 	}
 
+	logger := slog.With(
+		slog.String("cmd", "chart_add"),
+		slog.String("chart_key", key),
+		slog.String("chart", chart.Chart),
+	)
+
+	logger.Info("check init before add")
 	if _, err := c.Init(); err != nil {
 		return fmt.Errorf("failed to init before add: %w", err)
 	}
@@ -42,23 +49,37 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	}
 
 	chartDir := path.Join(absBasePath, key)
+	logger.Debug("ensure chart directory", slog.String("path", chartDir))
 	if err := os.MkdirAll(chartDir, 0o750); err != nil {
 		return fmt.Errorf("failed to create charts directory: %w", err)
 	}
+	logger.Debug("ensured chart directory", slog.String("path", chartDir))
 
+	logger.Debug("looking for repository root", slog.String("path", c.BasePath))
 	repoRoot, err := kclutil.FindRepoRoot(c.BasePath)
 	if err != nil {
 		return fmt.Errorf("failed to find repository root: %w", err)
 	}
+	logger.Debug("found repository root", slog.String("path", repoRoot))
 
+	logger.Debug("looking for topmost kcl.mod file",
+		slog.String("begin", absBasePath),
+		slog.String("end", repoRoot),
+	)
 	pkgPath, err := kclutil.FindTopPkgRoot(repoRoot, c.BasePath)
 	if err != nil {
 		return fmt.Errorf("failed to find package root: %w", err)
 	}
+	logger.Debug("found topmost kcl.mod file", slog.String("path", pkgPath))
 
+	logger.Info("loading helm repositories")
 	repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(pkgPath, repoRoot))
-
 	for _, repo := range chart.Repositories {
+		logger.Debug("adding helm repository",
+			slog.String("name", repo.Name),
+			slog.String("url", repo.URL),
+		)
+
 		hr, err := repo.GetHelmRepo()
 		if err != nil {
 			return fmt.Errorf("failed to add Helm repository: %w", err)
@@ -69,6 +90,7 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		}
 	}
 
+	logger.Info("loading helm chart files")
 	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, &helm.TemplateOpts{
 		ChartName:       chart.Chart,
 		TargetRevision:  chart.TargetRevision,
@@ -82,10 +104,6 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	}
 	defer helmChart.Dispose()
 
-	logger := slog.With(
-		slog.String("chart", chart.Chart),
-	)
-
 	if err := generateAndWriteChartKCL(&kclchart.Chart{ChartBase: chart.ChartBase}, chartDir, logger); err != nil {
 		return err
 	}
@@ -95,7 +113,7 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	}
 
 	if chart.CRDPath != "" {
-		logger.Debug("getting crd files")
+		logger.Info("getting crd files")
 		crds, err := helmChart.GetCRDs(func(s string) bool {
 			match, err := filepath.Match(chart.CRDPath, s)
 			if err != nil {
@@ -116,12 +134,15 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 	chartsFile := filepath.Join(c.BasePath, "charts.k")
 	chartsSpec := kclutil.SpecPathJoin("charts", key)
 
-	slog.Debug("updating charts.k")
+	logger.Info("updating charts.k",
+		slog.String("spec", chartsSpec),
+		slog.String("path", chartsFile),
+	)
 	if err := c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec); err != nil {
 		return fmt.Errorf("failed to update %q: %w", chartsFile, err)
 	}
 
-	slog.Debug("formatting kcl files", slog.String("path", c.BasePath))
+	logger.Info("formatting kcl files", slog.String("path", c.BasePath))
 	if _, err := kcl.FormatPath(c.BasePath); err != nil {
 		return fmt.Errorf("failed to format kcl files: %w", err)
 	}

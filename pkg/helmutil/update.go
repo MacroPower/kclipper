@@ -30,6 +30,10 @@ func (c *ChartPkg) Update(charts ...string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 
+	logger := slog.With(
+		slog.String("cmd", "chart_update"),
+	)
+
 	svc := native.NewNativeServiceClient()
 
 	absBasePath, err := filepath.Abs(c.BasePath)
@@ -37,8 +41,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 		return fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
-	slog.Debug("updating kcl dependencies")
-
+	logger.Debug("updating kcl dependencies")
 	depOutput, err := svc.UpdateDependencies(&gpyrpc.UpdateDependencies_Args{
 		ManifestPath: absBasePath,
 		Vendor:       c.Vendor,
@@ -49,11 +52,10 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 	externalPkgs := depOutput.GetExternalPkgs()
 
-	slog.Debug("running kcl",
+	logger.Debug("running kcl",
 		slog.String("path", c.BasePath),
 		slog.String("deps", fmt.Sprint(externalPkgs)),
 	)
-
 	mainOutput, err := svc.ExecProgram(&gpyrpc.ExecProgram_Args{
 		WorkDir:       absBasePath,
 		KFilenameList: []string{"."},
@@ -103,7 +105,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 		chart := chartData.Charts[k]
 		chartName := chart.Chart
 
-		chartSlog := slog.With(
+		chartLogger := logger.With(
 			slog.String("chart_name", chartName),
 			slog.String("chart_key", k),
 		)
@@ -112,10 +114,10 @@ func (c *ChartPkg) Update(charts ...string) error {
 			return fmt.Errorf("%w: %w", ErrUpdateWorkerFailed, err)
 		}
 		c.broadcastEvent(EventUpdatingChart(k))
-		go func(chart kclchart.ChartConfig, logger *slog.Logger) {
+		go func() {
 			defer sem.Release(1)
 
-			logger.Info("updating chart")
+			chartLogger.Info("updating chart")
 
 			err := c.AddChart(k, &chart)
 			if err != nil {
@@ -127,8 +129,8 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 			c.broadcastEvent(EventUpdatedChart{Chart: k})
 
-			logger.Info("finished updating chart")
-		}(chart, chartSlog)
+			chartLogger.Info("finished updating chart")
+		}()
 	}
 
 	if err := sem.Acquire(ctx, workerCount); err != nil {
@@ -144,7 +146,7 @@ func (c *ChartPkg) Update(charts ...string) error {
 		return merr
 	}
 
-	slog.Info("update complete")
+	logger.Info("update complete")
 
 	return nil
 }
