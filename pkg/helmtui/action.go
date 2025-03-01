@@ -7,14 +7,18 @@ import (
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 )
 
-type InitModel struct {
+type ActionModel struct {
 	err     error
+	noun    string
+	verb    string
 	spinner spinner.Model
 	width   int
 	height  int
@@ -23,24 +27,33 @@ type InitModel struct {
 	done    bool
 }
 
-func NewInitModel() *InitModel {
+// NewActionModel creates an [ActionModel] used to display the status of a
+// simple action. It renders a spinner which is replaced with a result. If any
+// logs are written, they will be displayed in the terminal above the spinner.
+// `noun`: the outcome or instance of the action (e.g., "update").
+// `verb`: the ongoing action using present participle tense (e.g., "updating").
+func NewActionModel(noun, verb string) *ActionModel {
 	s := spinner.New()
 	s.Style = spinnerStyle
 
-	return &InitModel{
+	caser := cases.Title(language.English)
+
+	return &ActionModel{
+		noun:    caser.String(noun),
+		verb:    caser.String(verb),
 		spinner: s,
 		mu:      sync.RWMutex{},
 	}
 }
 
-func (m *InitModel) Init() tea.Cmd {
+func (m *ActionModel) Init() tea.Cmd {
 	m.working = true
 
 	return m.spinner.Tick
 }
 
 //nolint:ireturn // Third-party.
-func (m *InitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *ActionModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -79,7 +92,7 @@ func (m *InitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *InitModel) View() string {
+func (m *ActionModel) View() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -88,14 +101,14 @@ func (m *InitModel) View() string {
 	}
 
 	if m.done {
-		return doneStyle.Render("Initialization complete.\n")
+		return doneStyle.Render(m.noun + " complete.\n")
 	}
 
 	if m.working {
 		spin := m.spinner.View() + " "
 		cellsAvail := max(0, m.width-lipgloss.Width(spin))
 
-		info := lipgloss.NewStyle().MaxWidth(cellsAvail).Render("Initializing")
+		info := lipgloss.NewStyle().MaxWidth(cellsAvail).Render(m.verb)
 
 		cellsRemaining := max(0, m.width-lipgloss.Width(spin+info))
 		gap := strings.Repeat(" ", cellsRemaining) + "\n"
