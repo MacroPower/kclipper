@@ -59,7 +59,11 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	cmd.PersistentFlags().StringVar(args.logFormat, "log_format", "text", "Set the log format (text, logfmt, json)")
 
 	cmd.PersistentPreRunE = func(cc *cobra.Command, _ []string) error {
-		h, err := log.CreateHandler(cc.OutOrStderr(), args.GetLogLevel(), args.GetLogFormat())
+		h, err := log.CreateHandlerWithStrings(
+			cc.OutOrStderr(),
+			args.GetLogLevel(),
+			args.GetLogFormat(),
+		)
 		if err != nil {
 			return fmt.Errorf("%w: %w", ErrLogHandlerFailed, err)
 		}

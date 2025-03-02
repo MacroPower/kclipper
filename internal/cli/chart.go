@@ -16,6 +16,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
 	"github.com/MacroPower/kclipper/pkg/kclhelm"
+	"github.com/MacroPower/kclipper/pkg/log"
 )
 
 const (
@@ -306,12 +307,13 @@ func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
 		return cc, nil
 	}
 
-	ct, err := helmtui.NewChartTUI(w, args.GetLogLevel(), cc)
+	lvl, err := log.GetLevel(args.GetLogLevel())
 	if err != nil {
-		return nil, fmt.Errorf("failed to create tui: %w", err)
+		// Should not be possible due to root's PersistentPreRunE.
+		return nil, fmt.Errorf("%w: %w", ErrArgument, err)
 	}
 
-	return ct, nil
+	return helmtui.NewChartTUI(w, lvl, cc), nil
 }
 
 type ChartArgs struct {

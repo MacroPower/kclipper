@@ -29,7 +29,7 @@ type ChartCommander interface {
 	Subscribe(f func(any))
 }
 
-func NewChartTUI(w io.Writer, logLevel string, pkg ChartCommander) (*ChartTUI, error) {
+func NewChartTUI(w io.Writer, lvl slog.Level, pkg ChartCommander) *ChartTUI {
 	c := &ChartTUI{
 		pkg: pkg,
 		w:   w,
@@ -37,14 +37,11 @@ func NewChartTUI(w io.Writer, logLevel string, pkg ChartCommander) (*ChartTUI, e
 
 	c.pkg.Subscribe(c.broadcastEvent)
 
-	logger, err := log.CreateHandler(c, logLevel, log.FormatText)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create log handler: %w", err)
-	}
+	slog.SetDefault(
+		slog.New(log.CreateHandler(c, lvl, log.FormatText)),
+	)
 
-	slog.SetDefault(slog.New(logger))
-
-	return c, nil
+	return c
 }
 
 func (c *ChartTUI) broadcastEvent(evt any) {
