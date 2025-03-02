@@ -70,3 +70,75 @@ func BenchmarkRun(b *testing.B) {
 		assert.Empty(b, stdout.String(), "stdout should be empty")
 	}
 }
+
+func TestRootCmdArgs(t *testing.T) {
+	t.Parallel()
+
+	tcs := map[string]struct {
+		logLevel  string
+		logFormat string
+		wantErr   error
+	}{
+		"default config": {
+			logLevel:  "warn",
+			logFormat: "text",
+		},
+		"json format": {
+			logLevel:  "info",
+			logFormat: "json",
+		},
+		"debug level": {
+			logLevel:  "debug",
+			logFormat: "text",
+		},
+		"invalid log level": {
+			logLevel:  "invalid",
+			logFormat: "text",
+			wantErr:   cli.ErrLogHandlerFailed,
+		},
+		"invalid log format": {
+			logLevel:  "warn",
+			logFormat: "invalid",
+			wantErr:   cli.ErrLogHandlerFailed,
+		},
+	}
+
+	for name, tc := range tcs {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			rootCmd := cli.NewRootCmd("test_logger", "", "")
+			stdout := &bytes.Buffer{}
+			stderr := &bytes.Buffer{}
+
+			rootCmd.SetArgs([]string{
+				"--log_level", tc.logLevel,
+				"--log_format", tc.logFormat,
+				"version",
+			})
+			rootCmd.SetOut(stdout)
+			rootCmd.SetErr(stderr)
+
+			err := rootCmd.Execute()
+
+			if tc.wantErr != nil {
+				require.Error(t, err)
+				assert.ErrorIs(t, err, tc.wantErr)
+			} else {
+				require.NoError(t, err)
+				assert.Regexp(t, `\d+\.\d+\.\d+`, stdout.String())
+			}
+		})
+	}
+}
+
+func TestRootCmdArgPointers(t *testing.T) {
+	t.Parallel()
+
+	args := cli.NewRootArgs()
+
+	// Test default values
+	assert.Equal(t, "", args.GetLogLevel())
+	assert.Equal(t, "", args.GetLogFormat())
+}

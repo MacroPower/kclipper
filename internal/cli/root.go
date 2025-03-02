@@ -17,7 +17,7 @@ var (
 	// Global lock for KCL command creation.
 	mu sync.Mutex
 
-	ErrLoggerInitFailed = errors.New("logger init failed")
+	ErrLogHandlerFailed = errors.New("log handler failed")
 )
 
 type RootArgs struct {
@@ -61,7 +61,7 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	cmd.PersistentPreRunE = func(cc *cobra.Command, _ []string) error {
 		h, err := log.CreateHandler(cc.OutOrStderr(), args.GetLogLevel(), args.GetLogFormat())
 		if err != nil {
-			return fmt.Errorf("%w: %w", ErrLoggerInitFailed, err)
+			return fmt.Errorf("%w: %w", ErrLogHandlerFailed, err)
 		}
 		slog.SetDefault(slog.New(h))
 
