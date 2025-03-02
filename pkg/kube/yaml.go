@@ -31,6 +31,11 @@ import (
 	kubeyaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 
+var (
+	ErrInvalidYAML         = errors.New("invalid yaml")
+	ErrInvalidKubeResource = errors.New("invalid kubernetes resource")
+)
+
 // SplitYAML splits a YAML file into unstructured objects. Returns list of all unstructured objects
 // found in the yaml. If an error occurs, returns objects that have been parsed so far too.
 func SplitYAML(yamlData []byte) ([]*unstructured.Unstructured, error) {
@@ -38,13 +43,13 @@ func SplitYAML(yamlData []byte) ([]*unstructured.Unstructured, error) {
 
 	ymls, err := SplitYAMLToString(yamlData)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("split yaml to strings: %w", err)
 	}
 
 	for _, yml := range ymls {
 		u := &unstructured.Unstructured{}
 		if err := yaml.Unmarshal([]byte(yml), u); err != nil {
-			return objs, fmt.Errorf("failed to unmarshal manifest: %w", err)
+			return objs, fmt.Errorf("%w: %w", ErrInvalidKubeResource, err)
 		}
 
 		objs = append(objs, u)
@@ -71,7 +76,7 @@ func SplitYAMLToString(yamlData []byte) ([]string, error) {
 				break
 			}
 
-			return objs, fmt.Errorf("failed to unmarshal manifest: %w", err)
+			return objs, fmt.Errorf("%w: %w", ErrInvalidYAML, err)
 		}
 
 		ext.Raw = bytes.TrimSpace(ext.Raw)
