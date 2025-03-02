@@ -75,9 +75,9 @@ func TestRootCmdArgs(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
+		wantErr   error
 		logLevel  string
 		logFormat string
-		wantErr   error
 	}{
 		"default config": {
 			logLevel:  "warn",
@@ -104,7 +104,6 @@ func TestRootCmdArgs(t *testing.T) {
 	}
 
 	for name, tc := range tcs {
-		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 

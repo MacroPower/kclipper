@@ -2,9 +2,11 @@ package log
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/mattn/go-isatty"
@@ -13,40 +15,52 @@ import (
 	charmlog "github.com/charmbracelet/log"
 )
 
+type Format string
+
 const (
-	FormatJSON   string = "json"
-	FormatLogfmt string = "logfmt"
-	FormatText   string = "text"
+	FormatJSON   Format = "json"
+	FormatLogfmt Format = "logfmt"
+	FormatText   Format = "text"
 )
 
 var (
+	ErrInvalidArgument  = errors.New("invalid argument")
 	ErrUnknownLogLevel  = errors.New("unknown log level")
 	ErrUnknownLogFormat = errors.New("unknown log format")
 )
 
-// CreateHandler creates a [slog.Handler] by strings.
-func CreateHandler(w io.Writer, logLevel, logFormat string) (slog.Handler, error) {
-	level, err := GetLevel(logLevel)
+// CreateHandlerWithStrings creates a [slog.Handler] by strings.
+func CreateHandlerWithStrings(w io.Writer, logLevel, logFormat string) (slog.Handler, error) {
+	logLvl, err := GetLevel(logLevel)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %w", ErrInvalidArgument, err)
 	}
 
-	switch strings.ToLower(logFormat) {
+	logFmt, err := GetFormat(logFormat)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrInvalidArgument, err)
+	}
+
+	return CreateHandler(w, logLvl, logFmt), nil
+}
+
+func CreateHandler(w io.Writer, logLvl slog.Level, logFmt Format) slog.Handler {
+	switch logFmt {
 	case FormatJSON:
 		return slog.NewJSONHandler(w, &slog.HandlerOptions{
 			AddSource: true,
-			Level:     level,
-		}), nil
+			Level:     logLvl,
+		})
 	case FormatLogfmt:
 		return slog.NewTextHandler(w, &slog.HandlerOptions{
 			AddSource: true,
-			Level:     level,
-		}), nil
+			Level:     logLvl,
+		})
 	case FormatText:
-		return newCharmLogHandler(w, level), nil
+		return newCharmLogHandler(w, logLvl)
 	}
 
-	return nil, ErrUnknownLogFormat
+	return nil
 }
 
 func GetLevel(level string) (slog.Level, error) {
@@ -62,6 +76,15 @@ func GetLevel(level string) (slog.Level, error) {
 	}
 
 	return 0, ErrUnknownLogLevel
+}
+
+func GetFormat(format string) (Format, error) {
+	logFmt := Format(strings.ToLower(format))
+	if slices.Contains([]Format{FormatJSON, FormatLogfmt, FormatText}, logFmt) {
+		return logFmt, nil
+	}
+
+	return "", ErrUnknownLogFormat
 }
 
 func newCharmLogHandler(w io.Writer, level slog.Level) slog.Handler {

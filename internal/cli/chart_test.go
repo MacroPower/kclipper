@@ -135,8 +135,8 @@ func TestChartArgPointers(t *testing.T) {
 	assert.Equal(t, "", args.GetPath())
 	assert.Equal(t, "", args.GetLogLevel())
 	assert.Equal(t, "", args.GetLogFormat())
-	assert.Equal(t, false, args.GetQuiet())
-	assert.Equal(t, false, args.GetVendor())
+	assert.False(t, args.GetQuiet())
+	assert.False(t, args.GetVendor())
 }
 
 func TestChartCmdRequiredFlagErrors(t *testing.T) {
