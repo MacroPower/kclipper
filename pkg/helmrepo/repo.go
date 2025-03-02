@@ -17,7 +17,24 @@ var (
 	ErrRepoURLEmpty        = errors.New("repo URL cannot be empty")
 	ErrFailedToResolveURL  = errors.New("failed to resolve URL")
 	ErrFailedToResolveFile = errors.New("failed to resolve file path")
+	ErrInvalidRepoURL      = errors.New("invalid repository URL")
 )
+
+type DuplicateRepoError struct {
+	Name string
+}
+
+func (err DuplicateRepoError) Error() string {
+	return fmt.Sprintf("repo with name %q already exists", err.Name)
+}
+
+type RepoNotFoundError struct {
+	Name string
+}
+
+func (err RepoNotFoundError) Error() string {
+	return fmt.Sprintf("repo with name %q not found", err.Name)
+}
 
 type Repo struct {
 	// Helm chart repository name for reference by `@name`.
@@ -71,7 +88,6 @@ type Getter interface {
 // Manager manages a collection of [Repo]s.
 type Manager struct {
 	reposByName       map[string]*Repo
-	reposByURL        map[string]*Repo
 	currentPath       string
 	repoRoot          string
 	allowedURLSchemes []string
@@ -82,7 +98,6 @@ type Manager struct {
 func NewManager(opt ...ManagerOpt) *Manager {
 	m := &Manager{
 		reposByName:       make(map[string]*Repo),
-		reposByURL:        make(map[string]*Repo),
 		allowedURLSchemes: []string{"http", "https", "oci"},
 		currentPath:       ".",
 		repoRoot:          ".",
@@ -171,21 +186,14 @@ func (m *Manager) Add(repoOpts *RepoOpts) error {
 	}
 
 	repoName := repo.Name
-	repoURL := repo.URL.String()
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	if _, ok := m.reposByName[repoName]; ok {
-		return fmt.Errorf("repo with name %q already exists", repoName)
+		return DuplicateRepoError{Name: repoName}
 	}
-
-	if _, ok := m.reposByURL[repoURL]; ok {
-		return fmt.Errorf("repo with URL %q already exists", repoURL)
-	}
-
 	m.reposByName[repoName] = repo
-	m.reposByURL[repoURL] = repo
 
 	return nil
 }
@@ -208,7 +216,7 @@ func (m *Manager) GetByName(name string) (*Repo, error) {
 
 	repo, ok := m.reposByName[name]
 	if !ok {
-		return nil, fmt.Errorf("repo with name %q not found", name)
+		return nil, RepoNotFoundError{Name: name}
 	}
 
 	return repo, nil
@@ -222,12 +230,12 @@ func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
 
 	u, err := url.Parse(repoURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse URL %q: %w", repoURL, err)
+		return nil, fmt.Errorf("%q: %w: %w", repoURL, ErrInvalidRepoURL, err)
 	}
 
 	repoURL = u.String()
 
-	if repo, ok := m.reposByURL[repoURL]; ok {
+	if repo, err := m.GetByName(repoURL); err == nil {
 		return repo, nil
 	}
 
