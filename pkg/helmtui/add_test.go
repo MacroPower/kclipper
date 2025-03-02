@@ -22,7 +22,6 @@ func TestAddModel_Success(t *testing.T) {
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
 	)
-	time.Sleep(100 * time.Millisecond)
 
 	teatest.WaitFor(
 		t, tm.Output(),
@@ -55,7 +54,6 @@ func TestAddModel_Error(t *testing.T) {
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
 	)
-	time.Sleep(100 * time.Millisecond)
 
 	teatest.WaitFor(
 		t, tm.Output(),
