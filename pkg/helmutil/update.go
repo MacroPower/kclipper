@@ -38,16 +38,19 @@ func (c *ChartPkg) Update(charts ...string) error {
 
 	absBasePath, err := filepath.Abs(c.BasePath)
 	if err != nil {
-		return fmt.Errorf("failed to get absolute path: %w", err)
+		return fmt.Errorf("failed to get absolute path for %q: %w", c.BasePath, err)
 	}
 
-	logger.Debug("updating kcl dependencies")
+	logger.Debug("updating kcl dependencies",
+		slog.String("path", absBasePath),
+		slog.Bool("vendor", c.Vendor),
+	)
 	depOutput, err := svc.UpdateDependencies(&gpyrpc.UpdateDependencies_Args{
 		ManifestPath: absBasePath,
 		Vendor:       c.Vendor,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to update dependencies: %w", err)
+		return fmt.Errorf("failed to update dependencies at %q: %w", absBasePath, err)
 	}
 
 	externalPkgs := depOutput.GetExternalPkgs()
