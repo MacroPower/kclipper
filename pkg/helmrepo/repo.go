@@ -87,17 +87,16 @@ type Getter interface {
 
 // Manager manages a collection of [Repo]s.
 type Manager struct {
-	reposByName       map[string]*Repo
+	reposByName       sync.Map
 	currentPath       string
 	repoRoot          string
 	allowedURLSchemes []string
-	mu                sync.RWMutex
 }
 
 // NewManager creates a new [Manager].
 func NewManager(opt ...ManagerOpt) *Manager {
 	m := &Manager{
-		reposByName:       make(map[string]*Repo),
+		reposByName:       sync.Map{},
 		allowedURLSchemes: []string{"http", "https", "oci"},
 		currentPath:       ".",
 		repoRoot:          ".",
@@ -185,15 +184,14 @@ func (m *Manager) Add(repoOpts *RepoOpts) error {
 		return err
 	}
 
-	repoName := repo.Name
+	return m.addByName(repo.Name, repo)
+}
 
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, ok := m.reposByName[repoName]; ok {
-		return DuplicateRepoError{Name: repoName}
+func (m *Manager) addByName(name string, repo *Repo) error {
+	if _, ok := m.reposByName.Load(name); ok {
+		return DuplicateRepoError{Name: name}
 	}
-	m.reposByName[repoName] = repo
+	m.reposByName.Store(name, repo)
 
 	return nil
 }
@@ -211,23 +209,16 @@ func (m *Manager) Get(repo string) (*Repo, error) {
 // GetByName returns a repo by its name. If the repo does not exist in the
 // [Manager], an error is returned.
 func (m *Manager) GetByName(name string) (*Repo, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	repo, ok := m.reposByName[name]
-	if !ok {
-		return nil, RepoNotFoundError{Name: name}
+	if repo, ok := m.reposByName.Load(name); ok {
+		return repo.(*Repo), nil
 	}
 
-	return repo, nil
+	return nil, RepoNotFoundError{Name: name}
 }
 
 // GetByURL returns a [Repo] by its URL. If the [Repo] does not exist in the
 // [Manager], a new [Repo] is created with the URL as the name.
 func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
 	u, err := url.Parse(repoURL)
 	if err != nil {
 		return nil, fmt.Errorf("%q: %w: %w", repoURL, ErrInvalidRepoURL, err)
