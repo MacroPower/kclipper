@@ -105,7 +105,7 @@ func TestGetInvalidURL(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err = manager.Get(tc.query)
+			_, err := manager.Get(tc.query)
 			require.Error(t, err)
 			require.ErrorIs(t, err, tc.err)
 		})
