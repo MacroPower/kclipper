@@ -210,7 +210,12 @@ func (m *Manager) Get(repo string) (*Repo, error) {
 // [Manager], an error is returned.
 func (m *Manager) GetByName(name string) (*Repo, error) {
 	if repo, ok := m.reposByName.Load(name); ok {
-		return repo.(*Repo), nil
+		rr, ok := repo.(*Repo)
+		if !ok {
+			panic(fmt.Sprintf("repo with name %q is not a *Repo", name))
+		}
+
+		return rr, nil
 	}
 
 	return nil, RepoNotFoundError{Name: name}
