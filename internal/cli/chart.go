@@ -150,7 +150,7 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 	cmd.Flags().StringVarP(repoURL, "repo_url", "r", "", "URL of the Helm chart repository (required)")
 	cmd.Flags().StringVarP(targetRevision, "target_revision", "t", "", "Semver tag for the chart's version")
 	cmd.Flags().StringVar(schemaGenerator, "schema_generator", "", "Chart schema generator")
-	cmd.Flags().StringVar(schemaValidator, "schema_validator", "KCL", "Chart schema validator")
+	cmd.Flags().StringVar(schemaValidator, "schema_validator", "", "Chart schema validator")
 	cmd.Flags().StringVar(schemaPath, "schema_path", "", "Chart schema path")
 	cmd.Flags().StringVar(crdPath, "crd_path", "", "CRD path")
 
