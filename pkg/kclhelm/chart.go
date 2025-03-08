@@ -9,8 +9,6 @@ import (
 
 // Defines a Helm chart.
 type Chart struct {
-	// Helm values to be passed to Helm template. These take precedence over valueFiles.
-	Values any `json:"values,omitempty"`
 	// Lambda function to modify the Helm template output. Evaluated for each resource in the Helm template output.
 	PostRenderer any `json:"postRenderer,omitempty"`
 	// Helm value files to be passed to Helm template.

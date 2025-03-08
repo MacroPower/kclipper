@@ -9,6 +9,8 @@ schema ChartBase:
 
     Attributes
     ----------
+    values : any, optional
+        Helm values to be passed to Helm template. These take precedence over valueFiles.
     chart : str, required
         Helm chart name.
     repoURL : str, required
@@ -31,6 +33,7 @@ schema ChartBase:
         Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
     """
 
+    values?: any
     chart: str
     repoURL: str
     targetRevision?: str

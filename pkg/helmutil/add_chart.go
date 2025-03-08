@@ -90,6 +90,15 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		}
 	}
 
+	chartValues := map[string]any{}
+	if chart.Values != nil {
+		var ok bool
+		chartValues, ok = chart.Values.(map[string]any)
+		if !ok {
+			return fmt.Errorf("invalid values type: %T", chart.Values)
+		}
+	}
+
 	logger.Info("loading helm chart files")
 	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, &helm.TemplateOpts{
 		ChartName:       chart.Chart,
@@ -97,6 +106,7 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		RepoURL:         chart.RepoURL,
 		SkipCRDs:        chart.SkipCRDs,
 		PassCredentials: chart.PassCredentials,
+		ValuesObject:    chartValues,
 	})
 	if err != nil {
 		//nolint:wrapcheck // Error wrapped downstream.

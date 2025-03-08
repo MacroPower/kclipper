@@ -30,6 +30,8 @@ type ChartBase struct {
 	SkipHooks bool `json:"skipHooks,omitempty"`
 	// Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).
 	PassCredentials bool `json:"passCredentials,omitempty"`
+	// Helm values to be passed to Helm template. These take precedence over valueFiles.
+	Values any `json:"values,omitempty"`
 }
 
 func (c *ChartBase) GenerateKCL(w io.Writer) error {

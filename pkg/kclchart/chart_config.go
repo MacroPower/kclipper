@@ -128,6 +128,11 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		jsonschema.WithType("null"),
 		jsonschema.WithNoItems(),
 	)
+	js.SetOrRemoveProperty(
+		"values", c.ChartBase.Values != nil,
+		jsonschema.WithDefault(c.ChartBase.Values),
+		jsonschema.WithType("null"),
+	)
 
 	err = js.GenerateKCL(w, genOptFixChartRepo)
 	if err != nil {

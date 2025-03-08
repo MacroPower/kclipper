@@ -9,15 +9,12 @@ schema Chart(ChartBase):
 
     Attributes
     ----------
-    values : any, optional
-        Helm values to be passed to Helm template. These take precedence over valueFiles.
     postRenderer : (Resource) -> Resource, optional
         Lambda function to modify the Helm template output. Evaluated for each resource in the Helm template output.
     valueFiles : [str], optional
         Helm value files to be passed to Helm template.
     """
 
-    values?: any
     postRenderer?: (Resource) -> Resource
     valueFiles?: [str]
 

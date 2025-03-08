@@ -33,7 +33,7 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 	js.SetProperty("chart", jsonschema.WithDefault(c.ChartBase.Chart))
 	js.SetProperty("repoURL", jsonschema.WithDefault(c.ChartBase.RepoURL))
 	js.SetProperty("targetRevision", jsonschema.WithDefault(c.ChartBase.TargetRevision))
-	js.SetProperty("values", jsonschema.WithType("null"))
+	js.SetProperty("values", jsonschema.WithDefault(c.ChartBase.Values), jsonschema.WithType("null"))
 
 	js.SetOrRemoveProperty(
 		"namespace", c.ChartBase.Namespace != "",
