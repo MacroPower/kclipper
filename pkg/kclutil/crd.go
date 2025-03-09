@@ -10,8 +10,25 @@ import (
 	swaggergen "kcl-lang.io/kcl-openapi/pkg/swagger/generator"
 )
 
-// GenCRD is a concurrency-safe KCL generator.
-var GenOpenAPI = &genOpenAPI{}
+type CRDGeneratorType string
+
+const (
+	CRDGeneratorTypeDefault   CRDGeneratorType = ""
+	CRDGeneratorTypeTemplate  CRDGeneratorType = "TEMPLATE"
+	CRDGeneratorTypeChartPath CRDGeneratorType = "CHART-PATH"
+	CRDGeneratorTypeNone      CRDGeneratorType = "NONE"
+)
+
+var (
+	// GenCRD is a concurrency-safe KCL generator.
+	GenOpenAPI = &genOpenAPI{}
+
+	CRDGeneratorTypeEnum = []any{
+		CRDGeneratorTypeTemplate,
+		CRDGeneratorTypeChartPath,
+		CRDGeneratorTypeNone,
+	}
+)
 
 type genOpenAPI struct {
 	mu sync.Mutex

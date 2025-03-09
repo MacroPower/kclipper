@@ -83,7 +83,7 @@ charts: helm.Charts = {
     my_chart: {
         chart = "my-chart"
         repoURL = "./my-charts/"
-        crdPath = "**/crds/*.yaml"
+        crdGenerator = "TEMPLATE"
     }
 }
 ```
@@ -332,6 +332,39 @@ The following schema generators are currently available:
 `AUTO` is generally the best option. It currently looks for `values.schema.json` files in the chart directory (i.e. `CHART-PATH` with `schemaPath: "values.schema.json"`), and falls back `VALUE-INFERENCE` if none are found.
 
 [helm-schema]: https://github.com/dadav/helm-schema
+
+### CRD Schema Generators
+
+The following CRD schema generators are currently available:
+
+| Name           | Description                                                       | Parameters |
+| :------------- | :---------------------------------------------------------------- | ---------: |
+| NONE (default) | Do not use a CRD generator.                                       |            |
+| TEMPLATE       | Use CRD resources from the helm template output.                  |            |
+| CHART-PATH     | Use CRD files located at a specified path within the chart files. |  `crdPath` |
+
+The `TEMPLATE` generator will use global values defined in `charts.k`. If needed, you can use these to set any required values for the chart:
+
+```py
+charts: {
+    external_secrets: {
+        chart = "external-secrets"
+        repoURL = "https://charts.external-secrets.io/"
+        targetRevision = "0.14.3"
+        schemaGenerator = "AUTO"
+        crdGenerator = "TEMPLATE"
+        values: {
+            installCRDs = True
+            crds: {
+                createClusterExternalSecret = False
+                createClusterGenerator = False
+                createClusterSecretStore = False
+                createPushSecret = True
+            }
+        }
+    }
+}
+```
 
 ### Referencing Values
 

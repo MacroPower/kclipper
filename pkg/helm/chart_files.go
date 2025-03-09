@@ -9,30 +9,31 @@ import (
 	"os"
 	"path/filepath"
 
+	"gopkg.in/yaml.v3"
+	"k8s.io/apimachinery/pkg/api/resource"
+
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
+	"github.com/MacroPower/kclipper/pkg/kube"
 )
 
 var (
-	ErrNoMatcher        = errors.New("no matcher provided")
-	ErrChartPullExtract = errors.New("error pulling and extracting chart")
+	ErrNoMatcher    = errors.New("no matcher provided")
+	ErrChartExtract = errors.New("error extracting chart")
 )
 
 type JSONSchemaGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }
 
-type ChartFileClient interface {
-	PullAndExtract(ctx context.Context, chartName, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
-}
-
 type ChartFiles struct {
-	Client       ChartFileClient
+	Client       ChartClient
 	closer       io.Closer
 	TemplateOpts *TemplateOpts
+	pulledChart  *PulledChart
 	path         string
 }
 
-func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts *TemplateOpts) (*ChartFiles, error) {
+func NewChartFiles(client ChartClient, repos helmrepo.Getter, maxSize *resource.Quantity, opts *TemplateOpts) (*ChartFiles, error) {
 	cancel := func() {}
 	ctx := context.Background()
 	if opts.Timeout > 0 {
@@ -40,15 +41,21 @@ func NewChartFiles(client ChartFileClient, repos helmrepo.Getter, opts *Template
 	}
 	defer cancel()
 
-	chartPath, closer, err := client.PullAndExtract(ctx, opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
+	pulledChart, err := client.Pull(ctx, opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrChartPullExtract, err)
+		return nil, fmt.Errorf("%w: %w", ErrChartPull, err)
+	}
+
+	chartPath, closer, err := pulledChart.Extract(maxSize)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrChartExtract, err)
 	}
 
 	return &ChartFiles{
 		Client:       client,
 		TemplateOpts: opts,
 		path:         chartPath,
+		pulledChart:  pulledChart,
 		closer:       closer,
 	}, nil
 }
@@ -103,7 +110,38 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 	return jsonSchema, nil
 }
 
-func (c *ChartFiles) GetCRDs(match func(string) bool) ([][]byte, error) {
+func (c *ChartFiles) GetCRDOutput() ([][]byte, error) {
+	loadedChart, err := c.pulledChart.Load(context.Background(), c.TemplateOpts.SkipSchemaValidation)
+	if err != nil {
+		return nil, fmt.Errorf("load chart: %w", err)
+	}
+
+	out, err := templateData(context.Background(), loadedChart, c.TemplateOpts)
+	if err != nil {
+		return nil, fmt.Errorf("template: %w", err)
+	}
+
+	resources, err := kube.SplitYAML(out)
+	if err != nil {
+		return nil, fmt.Errorf("split yaml: %w", err)
+	}
+
+	crdBytes := [][]byte{}
+
+	for _, r := range resources {
+		if r.GetKind() == "CustomResourceDefinition" {
+			data, err := yaml.Marshal(r.UnstructuredContent())
+			if err != nil {
+				return nil, fmt.Errorf("marshal crd object: %w", err)
+			}
+			crdBytes = append(crdBytes, data)
+		}
+	}
+
+	return crdBytes, nil
+}
+
+func (c *ChartFiles) GetCRDFiles(match func(string) bool) ([][]byte, error) {
 	if match == nil {
 		return nil, ErrNoMatcher
 	}

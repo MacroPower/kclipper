@@ -123,6 +123,11 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		jsonschema.WithEnum(jsonschema.GeneratorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
+		"crdGenerator", c.HelmChartConfig.CRDGenerator != kclutil.CRDGeneratorTypeDefault,
+		jsonschema.WithDefault(c.HelmChartConfig.CRDGenerator),
+		jsonschema.WithEnum(kclutil.CRDGeneratorTypeEnum),
+	)
+	js.SetOrRemoveProperty(
 		"repositories", len(c.ChartBase.Repositories) > 0,
 		jsonschema.WithDefault(c.ChartBase.Repositories),
 		jsonschema.WithType("null"),
@@ -156,5 +161,6 @@ func (c *ChartConfig) ToAutomation() kclutil.Automation {
 		"crdPath":         kclutil.NewString(c.CRDPath),
 		"schemaValidator": kclutil.NewString(string(c.SchemaValidator)),
 		"schemaGenerator": kclutil.NewString(string(c.SchemaGenerator)),
+		"crdGenerator":    kclutil.NewString(string(c.CRDGenerator)),
 	}
 }

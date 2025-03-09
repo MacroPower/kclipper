@@ -98,7 +98,7 @@ var Plugin = plugin.Plugin{
 				}
 
 				tempPaths := pathutil.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), pathutil.NewBase64PathEncoder())
-				helmClient, err := helm.NewClient(tempPaths, project, "10M")
+				helmClient, err := helm.NewClient(tempPaths, project)
 				if err != nil {
 					return nil, fmt.Errorf("failed to create helm client: %w", err)
 				}
