@@ -127,6 +127,24 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 			},
 		},
+		"grafana_operator_oci": {
+			chart: &kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
+					Chart:          "grafana-operator",
+					RepoURL:        "oci://ghcr.io/grafana/helm-charts/grafana-operator",
+					TargetRevision: "v5.16.0",
+					Values: map[string]any{
+						"rbac": map[string]any{
+							"create": false,
+						},
+					},
+				},
+				HelmChartConfig: kclchart.HelmChartConfig{
+					SchemaGenerator: jsonschema.AutoGeneratorType,
+					CRDGenerator:    kclutil.CRDGeneratorTypeTemplate,
+				},
+			},
+		},
 	}
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {

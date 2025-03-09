@@ -190,6 +190,10 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	}
 	defer func() { _ = os.RemoveAll(tempDest) }()
 
+	logger := slog.With(
+		slog.String("chart", chart),
+	)
+
 	ap := action.NewPullWithOpts(action.WithConfig(&action.Configuration{
 		RegistryClient: c.rc,
 		Log: func(msg string, kv ...any) {
@@ -207,7 +211,14 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	}
 
 	if repo != nil {
-		ap.RepoURL = repo.URL.String()
+		if u, ok := repo.URL.URL(); ok {
+			if u.Scheme == "oci" {
+				chart = repo.URL.String()
+			} else {
+				ap.RepoURL = repo.URL.String()
+			}
+		}
+
 		ap.Username = repo.Username
 		ap.Password = repo.Password
 		ap.CaFile = repo.CAPath.String()
@@ -216,6 +227,15 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 		ap.PassCredentialsAll = repo.PassCredentials
 		ap.InsecureSkipTLSverify = repo.InsecureSkipVerify
 	}
+
+	logger.InfoContext(ctx, "pulling chart",
+		slog.String("chart_ref", chart),
+		slog.String("version", ap.Version),
+		slog.String("destination", ap.DestDir),
+		slog.String("repo_url", ap.RepoURL),
+		slog.Bool("insecure_skip_tls_verify", ap.InsecureSkipTLSverify),
+		slog.Bool("pass_credentials_all", ap.PassCredentialsAll),
+	)
 
 	done := make(chan error, 1)
 	go func() {
@@ -232,6 +252,8 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 		}
 	}
 
+	logger.DebugContext(ctx, "chart pull complete")
+
 	// 'helm pull/fetch' file downloads chart into the tgz file and we move that
 	// to where we want it, if the pull was successful.
 	infos, err := os.ReadDir(tempDest)
@@ -243,6 +265,10 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	}
 
 	chartFilePath := filepath.Join(tempDest, infos[0].Name())
+	logger.DebugContext(ctx, "moving pulled chart",
+		slog.String("src", chartFilePath),
+		slog.String("dst", dstPath),
+	)
 	err = os.Rename(chartFilePath, dstPath)
 	if err != nil {
 		return fmt.Errorf("rename file from %q to %q: %w", chartFilePath, dstPath, err)
