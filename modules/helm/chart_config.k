@@ -14,11 +14,15 @@ schema ChartConfig(ChartBase):
         Schema generator to use for the Values schema.
     schemaPath : str, optional
         Path to the schema to use, when relevant for the selected schemaGenerator.
+    crdGenerator : "TEMPLATE" | "CHART-PATH" | "NONE", optional
+        CRD generator to use for CRDs schemas.
     crdPath : str, optional
-        Path to any CRDs to import as schemas. Glob patterns are supported.
+        Path to any CRDs to import as schemas, when relevant for the selected
+        crdGenerator. Glob patterns are supported.
     """
 
     schemaGenerator?: "AUTO" | "VALUE-INFERENCE" | "URL" | "CHART-PATH" | "LOCAL-PATH" | "NONE"
     schemaPath?: str
+    crdGenerator?: "TEMPLATE" | "CHART-PATH" | "NONE"
     crdPath?: str
 

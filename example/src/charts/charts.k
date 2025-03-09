@@ -25,6 +25,7 @@ charts: helm.Charts = {
     }
     kube_prometheus_stack: {
         chart = "kube-prometheus-stack"
+        crdGenerator = "CHART-PATH"
         crdPath = "**/crds/crds/*.yaml"
         repoURL = "https://prometheus-community.github.io/helm-charts"
         schemaGenerator = "AUTO"
@@ -34,5 +35,21 @@ charts: helm.Charts = {
         chart = "simple-chart"
         repoURL = "@local"
         repositories = [repos.local]
+    }
+    external_secrets: {
+        chart = "external-secrets"
+        repoURL = "https://charts.external-secrets.io/"
+        schemaGenerator = "AUTO"
+        targetRevision = "0.14.3"
+        crdGenerator = "TEMPLATE"
+        values: {
+            installCRDs = True
+            crds: {
+                createClusterExternalSecret = False
+                createClusterGenerator = False
+                createClusterSecretStore = False
+                createPushSecret = True
+            }
+        }
     }
 }

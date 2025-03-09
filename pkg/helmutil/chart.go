@@ -13,7 +13,7 @@ import (
 )
 
 type ChartPkg struct {
-	Client   helm.ChartFileClient
+	Client   helm.ChartClient
 	BasePath string
 	subs     []func(any)
 	Timeout  time.Duration
@@ -22,7 +22,7 @@ type ChartPkg struct {
 	FastEval bool
 }
 
-func NewChartPkg(basePath string, client helm.ChartFileClient, opts ...ChartPkgOpts) *ChartPkg {
+func NewChartPkg(basePath string, client helm.ChartClient, opts ...ChartPkgOpts) *ChartPkg {
 	c := &ChartPkg{
 		Vendor:   false,
 		FastEval: true,

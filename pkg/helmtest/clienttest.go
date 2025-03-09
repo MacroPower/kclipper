@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"go/build"
-	"io"
 	"path/filepath"
 	"time"
 
@@ -32,22 +31,19 @@ func init() {
 		BaseClient: helm.MustNewClient(
 			pathutil.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}),
 			"test",
-			"10M",
 		),
 	}
 	SlowTestClient = &TestClient{
 		BaseClient: helm.MustNewClient(
 			pathutil.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}),
 			"test",
-			"10M",
 		),
 		Latency: 1 * time.Second,
 	}
 }
 
 type ChartClient interface {
-	Pull(ctx context.Context, chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, error)
-	PullAndExtract(ctx context.Context, chart, repoURL, targetRevision string, repos helmrepo.Getter) (string, io.Closer, error)
+	Pull(ctx context.Context, chart, repoURL, targetRevision string, repos helmrepo.Getter) (*helm.PulledChart, error)
 }
 
 type TestClient struct {
@@ -55,24 +51,13 @@ type TestClient struct {
 	Latency    time.Duration
 }
 
-func (c *TestClient) Pull(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, error) {
+func (c *TestClient) Pull(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (*helm.PulledChart, error) {
 	time.Sleep(c.Latency)
 
-	chartPath, err := c.BaseClient.Pull(ctx, chart, repo, version, repos)
+	pulledChart, err := c.BaseClient.Pull(ctx, chart, repo, version, repos)
 	if err != nil {
-		return "", fmt.Errorf("%w: %w", ErrTestClient, err)
+		return nil, fmt.Errorf("%w: %w", ErrTestClient, err)
 	}
 
-	return chartPath, nil
-}
-
-func (c *TestClient) PullAndExtract(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (string, io.Closer, error) {
-	time.Sleep(c.Latency)
-
-	chartPath, closer, err := c.BaseClient.PullAndExtract(ctx, chart, repo, version, repos)
-	if err != nil {
-		return "", nil, fmt.Errorf("%w: %w", ErrTestClient, err)
-	}
-
-	return chartPath, closer, nil
+	return pulledChart, nil
 }

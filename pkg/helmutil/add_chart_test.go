@@ -14,6 +14,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
 	"github.com/MacroPower/kclipper/pkg/kclhelm"
+	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 const (
@@ -48,7 +49,7 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 			},
 		},
-		"app-template": {
+		"app_template": {
 			chart: &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:          "app-template",
@@ -61,7 +62,7 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 			},
 		},
-		"prometheus": {
+		"prometheus_crd_file": {
 			chart: &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:          "kube-prometheus-stack",
@@ -76,11 +77,25 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.AutoGeneratorType,
+					CRDGenerator:    kclutil.CRDGeneratorTypeChartPath,
 					CRDPath:         "**/crds/crds/*.yaml",
 				},
 			},
 		},
-		"simple-chart-rel": {
+		"prometheus_crd_template": {
+			chart: &kclchart.ChartConfig{
+				ChartBase: kclchart.ChartBase{
+					Chart:          "kube-prometheus-stack",
+					RepoURL:        "https://prometheus-community.github.io/helm-charts",
+					TargetRevision: "67.9.0",
+				},
+				HelmChartConfig: kclchart.HelmChartConfig{
+					SchemaGenerator: jsonschema.AutoGeneratorType,
+					CRDGenerator:    kclutil.CRDGeneratorTypeTemplate,
+				},
+			},
+		},
+		"simple_chart_relative": {
 			chart: &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:   "simple-chart",
@@ -92,7 +107,7 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 			},
 		},
-		"simple-chart-abs": {
+		"simple_chart_absolute": {
 			chart: &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:   "simple-chart",
@@ -104,7 +119,7 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 			},
 		},
-		"simple-chart-no-config": {
+		"simple_chart_no_config": {
 			chart: &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:   "simple-chart",
@@ -117,7 +132,7 @@ func TestHelmChartAdd(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			err := ca.AddChart(tc.chart.GetSnakeCaseName(), tc.chart)
+			err := ca.AddChart(name, tc.chart)
 			require.NoError(t, err)
 
 			depsOpt, err := options.LoadDepsFrom(chartPath, true)

@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/semaphore"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
@@ -99,8 +100,10 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		}
 	}
 
+	maxSize := resource.NewQuantity(100000000, resource.BinarySI)
+
 	logger.Info("loading helm chart files")
-	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, &helm.TemplateOpts{
+	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, maxSize, &helm.TemplateOpts{
 		ChartName:       chart.Chart,
 		TargetRevision:  chart.TargetRevision,
 		RepoURL:         chart.RepoURL,
@@ -122,9 +125,18 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		return err
 	}
 
-	if chart.CRDPath != "" {
+	crds := [][]byte{}
+	switch chart.CRDGenerator {
+	case kclutil.CRDGeneratorTypeDefault, kclutil.CRDGeneratorTypeTemplate:
+		logger.Info("rendering crd resources")
+		crdResources, err := helmChart.GetCRDOutput()
+		if err != nil {
+			return fmt.Errorf("failed to render CRD resources: %w", err)
+		}
+		crds = append(crds, crdResources...)
+	case kclutil.CRDGeneratorTypeChartPath:
 		logger.Info("getting crd files")
-		crds, err := helmChart.GetCRDs(func(s string) bool {
+		crdFiles, err := helmChart.GetCRDFiles(func(s string) bool {
 			match, err := filepath.Match(chart.CRDPath, s)
 			if err != nil {
 				return false
@@ -133,9 +145,13 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 			return match
 		})
 		if err != nil {
-			return fmt.Errorf("failed to get CRDs: %w", err)
+			return fmt.Errorf("failed to get CRD files: %w", err)
 		}
-
+		crds = append(crds, crdFiles...)
+	case kclutil.CRDGeneratorTypeNone:
+		logger.Debug("skipping crd generation")
+	}
+	if len(crds) > 0 {
 		if err := c.writeCRDFiles(crds, chartDir); err != nil {
 			return err
 		}

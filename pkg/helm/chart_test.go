@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
+	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
@@ -43,6 +44,8 @@ func init() {
 
 func TestHelmChart(t *testing.T) {
 	t.Parallel()
+
+	maxSize := resource.NewQuantity(100000000, resource.BinarySI)
 
 	tcs := map[string]struct {
 		gen          jsonschema.FileGenerator
@@ -222,14 +225,14 @@ func TestHelmChart(t *testing.T) {
 		t.Run(name+"_chartfiles", func(t *testing.T) {
 			t.Parallel()
 
-			cf, err := helm.NewChartFiles(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
+			cf, err := helm.NewChartFiles(helmtest.DefaultTestClient, helmrepo.DefaultManager, maxSize, tc.opts)
 			require.NoError(t, err)
 			defer cf.Dispose()
 
 			schema, err := cf.GetValuesJSONSchema(tc.gen, tc.match)
 			require.NoError(t, err)
 
-			crds, err := cf.GetCRDs(func(s string) bool {
+			crds, err := cf.GetCRDFiles(func(s string) bool {
 				return filepath.Base(filepath.Dir(s)) == "crds" && filepath.Base(s) != "Chart.yaml" && filepath.Ext(s) == ".yaml"
 			})
 			require.NoError(t, err)
