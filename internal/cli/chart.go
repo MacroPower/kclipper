@@ -9,6 +9,7 @@ import (
 
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmtui"
@@ -42,6 +43,7 @@ const (
 
 var (
 	ErrArgument           = errors.New("argument error")
+	ErrInvalidArgument    = errors.New("invalid argument")
 	ErrChartCommandFailed = errors.New("chart command failed")
 	ErrChartInitFailed    = errors.New("chart init failed")
 	ErrChartAddFailed     = errors.New("chart add failed")
@@ -70,6 +72,15 @@ func NewChartCmd(arg *RootArgs) *cobra.Command {
 	cmd.PersistentFlags().DurationVar(args.timeout, "timeout", 5*time.Minute, "Timeout for the command")
 	cmd.PersistentFlags().BoolVarP(args.quiet, "quiet", "q", false, "Run in quiet mode")
 	cmd.PersistentFlags().BoolVarP(args.vendor, "vendor", "V", false, "Run in vendor mode")
+	cmd.PersistentFlags().StringVar(args.maxExtractSize, "max_extract_size", "10Mi", "Maximum size of extracted charts")
+
+	cmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+		if _, err := resource.ParseQuantity(*args.maxExtractSize); err != nil {
+			return fmt.Errorf("%w: %w: max_extract_size: %w", ErrArgument, ErrInvalidArgument, err)
+		}
+
+		return nil
+	}
 
 	cmd.AddCommand(NewChartInitCmd(args))
 	cmd.AddCommand(NewChartAddCmd(args))
@@ -301,6 +312,7 @@ func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
 	cc := helmutil.NewChartPkg(args.GetPath(), helm.DefaultClient,
 		helmutil.WithTimeout(args.GetTimeout()),
 		helmutil.WithVendor(args.GetVendor()),
+		helmutil.WithMaxExtractSize(args.GetMaxExtractSize()),
 	)
 
 	if args.GetQuiet() || !isatty.IsTerminal(os.Stdout.Fd()) {
@@ -317,25 +329,36 @@ func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
 }
 
 type ChartArgs struct {
-	path    *string
-	timeout *time.Duration
-	quiet   *bool
-	vendor  *bool
+	path           *string
+	maxExtractSize *string
+	timeout        *time.Duration
+	quiet          *bool
+	vendor         *bool
 	*RootArgs
 }
 
 func NewChartArgs(args *RootArgs) *ChartArgs {
 	return &ChartArgs{
-		path:     new(string),
-		timeout:  new(time.Duration),
-		quiet:    new(bool),
-		vendor:   new(bool),
-		RootArgs: args,
+		path:           new(string),
+		maxExtractSize: new(string),
+		timeout:        new(time.Duration),
+		quiet:          new(bool),
+		vendor:         new(bool),
+		RootArgs:       args,
 	}
 }
 
 func (a *ChartArgs) GetPath() string {
 	return *a.path
+}
+
+func (a *ChartArgs) GetMaxExtractSize() *resource.Quantity {
+	size, err := resource.ParseQuantity(*a.maxExtractSize)
+	if err != nil {
+		panic(err)
+	}
+
+	return &size
 }
 
 func (a *ChartArgs) GetTimeout() time.Duration {

@@ -57,6 +57,7 @@ func TestChartCmd(t *testing.T) {
 		"--target_revision=6.7.0",
 		"--repo_url=https://stefanprodan.github.io/podinfo",
 		"--timeout=60s",
+		"--max_extract_size=1Mi",
 		"--quiet",
 	})
 	tc.SetOut(stdout)
@@ -94,6 +95,7 @@ func TestChartCmd(t *testing.T) {
 		"--name=stefanprodan",
 		"--url=https://stefanprodan.github.io/podinfo",
 		"--timeout=60s",
+		"--max_extract_size=1Mi",
 		"--quiet",
 	})
 	tc.SetOut(stdout)
@@ -111,6 +113,7 @@ func TestChartCmd(t *testing.T) {
 		"chart", "update",
 		"--path", basePath,
 		"--timeout=60s",
+		"--max_extract_size=1Mi",
 		"--quiet",
 	})
 	tc.SetOut(stdout)
@@ -207,6 +210,12 @@ func TestChartCmdInvalidArgErrors(t *testing.T) {
 			args: []string{
 				"chart", "init",
 				"--timeout=invalid",
+			},
+		},
+		"invalid max_extract_size value": {
+			args: []string{
+				"chart", "init",
+				"--max_extract_size=invalid",
 			},
 		},
 	}

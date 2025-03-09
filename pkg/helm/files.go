@@ -22,7 +22,18 @@ var (
 	ErrFailedFileRead  = errors.New("failed to read file")
 	ErrFailedFileWrite = errors.New("failed to write file")
 	ErrFailedFileClose = errors.New("failed to close file")
+	ErrIteratingTar    = errors.New("error iterating on tar reader")
 )
+
+type LimitReaderUnexpectedEOFError struct {
+	MaxSize int64
+}
+
+func (l LimitReaderUnexpectedEOFError) Error() string {
+	return fmt.Sprintf(
+		"unexpected EOF, the extracted content was likely greater than your defined limit of %d bytes", l.MaxSize,
+	)
+}
 
 // gunzip will loop over the tar reader creating the file structure at dstPath.
 // Callers must make sure dstPath is:
@@ -63,7 +74,11 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 				break
 			}
 
-			return fmt.Errorf("error while iterating on tar reader: %w", err)
+			if maxSize != 0 && errors.Is(err, io.ErrUnexpectedEOF) {
+				return fmt.Errorf("%w: %w", ErrIteratingTar, LimitReaderUnexpectedEOFError{maxSize})
+			}
+
+			return fmt.Errorf("%w: %w", ErrIteratingTar, err)
 		}
 
 		if header == nil || header.Name == "." {
@@ -140,6 +155,10 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 			//nolint:gosec // G115 mitigated by [io.LimitReader].
 			if _, err := io.Copy(w, tr); err != nil {
 				merr := fmt.Errorf("%w: %w", ErrFailedFileWrite, err)
+
+				if maxSize != 0 && errors.Is(err, io.ErrUnexpectedEOF) {
+					merr = fmt.Errorf("%w: %w", ErrFailedFileWrite, LimitReaderUnexpectedEOFError{maxSize})
+				}
 
 				errClose := f.Close()
 				if errClose != nil {

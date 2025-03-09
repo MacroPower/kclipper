@@ -12,7 +12,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/semaphore"
-	"k8s.io/apimachinery/pkg/api/resource"
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
@@ -100,10 +99,8 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		}
 	}
 
-	maxSize := resource.NewQuantity(100000000, resource.BinarySI)
-
 	logger.Info("loading helm chart files")
-	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, maxSize, &helm.TemplateOpts{
+	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, c.MaxExtractSize, &helm.TemplateOpts{
 		ChartName:       chart.Chart,
 		TargetRevision:  chart.TargetRevision,
 		RepoURL:         chart.RepoURL,

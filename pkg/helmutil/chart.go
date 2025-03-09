@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"k8s.io/apimachinery/pkg/api/resource"
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
@@ -13,23 +14,25 @@ import (
 )
 
 type ChartPkg struct {
-	Client   helm.ChartClient
-	BasePath string
-	subs     []func(any)
-	Timeout  time.Duration
-	mu       sync.RWMutex
-	Vendor   bool
-	FastEval bool
+	Client         helm.ChartClient
+	MaxExtractSize *resource.Quantity
+	BasePath       string
+	subs           []func(any)
+	Timeout        time.Duration
+	mu             sync.RWMutex
+	Vendor         bool
+	FastEval       bool
 }
 
 func NewChartPkg(basePath string, client helm.ChartClient, opts ...ChartPkgOpts) *ChartPkg {
 	c := &ChartPkg{
-		Vendor:   false,
-		FastEval: true,
-		BasePath: basePath,
-		Client:   client,
-		Timeout:  5 * time.Minute,
-		subs:     []func(any){},
+		Vendor:         false,
+		FastEval:       true,
+		BasePath:       basePath,
+		Client:         client,
+		MaxExtractSize: resource.NewQuantity(10485760, resource.BinarySI), // 10Mi.
+		Timeout:        5 * time.Minute,
+		subs:           []func(any){},
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -55,6 +58,12 @@ func WithFastEval(fastEval bool) ChartPkgOpts {
 func WithTimeout(timeout time.Duration) ChartPkgOpts {
 	return func(c *ChartPkg) {
 		c.Timeout = timeout
+	}
+}
+
+func WithMaxExtractSize(size *resource.Quantity) ChartPkgOpts {
+	return func(c *ChartPkg) {
+		c.MaxExtractSize = size
 	}
 }
 
