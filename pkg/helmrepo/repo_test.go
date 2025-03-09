@@ -135,6 +135,26 @@ func TestLocalRepo(t *testing.T) {
 	assert.True(t, retrievedRepo.IsLocal())
 }
 
+func TestOCIRepo(t *testing.T) {
+	t.Parallel()
+
+	manager := helmrepo.NewManager()
+
+	repo := &helmrepo.RepoOpts{
+		Name: "grafana",
+		URL:  "oci://ghcr.io/grafana/helm-charts/grafana-operator",
+	}
+
+	err := manager.Add(repo)
+	require.NoError(t, err)
+
+	retrievedRepo, err := manager.Get("@grafana")
+	require.NoError(t, err)
+
+	assert.Equal(t, "oci://ghcr.io/grafana/helm-charts/grafana-operator", retrievedRepo.URL.String())
+	assert.False(t, retrievedRepo.IsLocal())
+}
+
 func TestInvalidRepo(t *testing.T) {
 	t.Parallel()
 
