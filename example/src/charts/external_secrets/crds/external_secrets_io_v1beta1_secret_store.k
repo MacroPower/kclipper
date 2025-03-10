@@ -3061,7 +3061,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisical:
     auth : ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalAuth, default is Undefined, required
         auth
     hostAPI : str, default is "https://app.infisical.com/api", optional
-        host API
+        HostAPI specifies the base URL of the Infisical API. If not provided, it defaults to "https://app.infisical.com/api".
     secretsScope : ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalSecretsScope, default is Undefined, required
         secrets scope
     """
@@ -3182,22 +3182,26 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalAuthUniversalAuth
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalSecretsScope:
     r"""
-    external secrets io v1beta1 secret store spec provider infisical secrets scope
+    SecretsScope defines the scope of the secrets within the workspace
 
     Attributes
     ----------
     environmentSlug : str, default is Undefined, required
-        environment slug
+        EnvironmentSlug is the required slug identifier for the environment.
+    expandSecretReferences : bool, default is True, optional
+        ExpandSecretReferences indicates whether secret references should be expanded. Defaults to true if not provided.
     projectSlug : str, default is Undefined, required
-        project slug
+        ProjectSlug is the required slug identifier for the project.
     recursive : bool, default is Undefined, optional
-        recursive
+        Recursive indicates whether the secrets should be fetched recursively. Defaults to false if not provided.
     secretsPath : str, default is "/", optional
-        secrets path
+        SecretsPath specifies the path to the secrets within the workspace. Defaults to "/" if not provided.
     """
 
 
     environmentSlug: str
+
+    expandSecretReferences?: bool = True
 
     projectSlug: str
 
@@ -4701,7 +4705,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVault:
 
     Attributes
     ----------
-    auth : ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuth, default is Undefined, required
+    auth : ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuth, default is Undefined, optional
         auth
     caBundle : str, default is Undefined, optional
         PEM encoded CA bundle used to validate Vault server certificate. Only used
@@ -4741,7 +4745,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVault:
     """
 
 
-    auth: ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuth
+    auth?: ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuth
 
     caBundle?: str
 
