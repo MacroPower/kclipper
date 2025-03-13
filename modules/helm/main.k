@@ -65,7 +65,7 @@ template = lambda chart: Chart -> [Resource] {
 
     _skipSchemaValidation = True
     if _chart.schemaValidator:
-      _skipSchemaValidation = _chart.schemaValidator == "HELM"
+      _skipSchemaValidation = _chart.schemaValidator != "HELM"
 
     _resources = helm_plugin.template(
         chart=_chart.chart,
