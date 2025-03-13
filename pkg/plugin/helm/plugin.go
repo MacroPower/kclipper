@@ -15,6 +15,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/kclhelm"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 	"github.com/MacroPower/kclipper/pkg/pathutil"
+	"github.com/hashicorp/go-multierror"
 )
 
 func Register() {
@@ -43,9 +44,18 @@ var Plugin = plugin.Plugin{
 			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
 				safeArgs := kclutil.SafeMethodArgs{Args: args}
 
+				var merr error
+
+				if !safeArgs.Exists("chart") {
+					merr = multierror.Append(merr, fmt.Errorf("missing required argument: chart"))
+				}
+				if !safeArgs.Exists("repo_url") {
+					merr = multierror.Append(merr, fmt.Errorf("missing required argument: repo_url"))
+				}
+
 				chartName := args.StrKwArg("chart")
-				targetRevision := args.StrKwArg("target_revision")
 				repoURL := args.StrKwArg("repo_url")
+				targetRevision := safeArgs.StrKwArg("target_revision", "")
 				repos := safeArgs.ListKwArg("repositories", []any{})
 
 				// https://argo-cd.readthedocs.io/en/stable/user-guide/build-environment/
@@ -61,7 +71,11 @@ var Plugin = plugin.Plugin{
 				}
 				timeout, err := time.ParseDuration(timeoutStr)
 				if err != nil {
-					return nil, fmt.Errorf("failed to parse timeout: %w", err)
+					merr = multierror.Append(merr, fmt.Errorf("failed to parse timeout: %w", err))
+				}
+
+				if merr != nil {
+					return nil, merr
 				}
 
 				cwd := os.Getenv("ARGOCD_APP_SOURCE_PATH")
