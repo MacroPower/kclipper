@@ -23,7 +23,7 @@ require (
 	golang.org/x/text v0.23.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.17.1
-	k8s.io/apimachinery v0.32.2
+	k8s.io/apimachinery v0.32.3
 	kcl-lang.io/cli v0.11.1
 	kcl-lang.io/kcl-go v0.11.1
 	kcl-lang.io/kcl-openapi v0.10.0
