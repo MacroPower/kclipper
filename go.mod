@@ -27,7 +27,7 @@ require (
 	kcl-lang.io/cli v0.11.1
 	kcl-lang.io/kcl-go v0.11.1
 	kcl-lang.io/kcl-openapi v0.10.0
-	kcl-lang.io/kpm v0.11.1
+	kcl-lang.io/kpm v0.11.2-0.20250307114424-40302f0f790c
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -196,7 +196,7 @@ require (
 	github.com/oasdiff/yaml3 v0.0.0-20241210130736-a94c01f36349 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/image-spec v1.1.0 // indirect
+	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
