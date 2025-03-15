@@ -4,12 +4,16 @@ import (
 	"os"
 	"strings"
 
+	filepathplugin "github.com/MacroPower/kclipper/pkg/plugin/filepath"
 	helmplugin "github.com/MacroPower/kclipper/pkg/plugin/helm"
 )
 
 func RegisterEnabledPlugins() {
-	if !envTrue("KCLX_HELM_PLUGIN_DISABLED") {
+	if !envTrue("KCLIPPER_HELM_PLUGIN_DISABLED") {
 		helmplugin.Register()
+	}
+	if !envTrue("KCLIPPER_FILEPATH_PLUGIN_DISABLED") {
+		filepathplugin.Register()
 	}
 }
 
