@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"sync"
 
 	"github.com/spf13/cobra"
 
@@ -13,12 +12,7 @@ import (
 	"github.com/MacroPower/kclipper/pkg/log"
 )
 
-var (
-	// Global lock for KCL command creation.
-	mu sync.Mutex
-
-	ErrLogHandlerFailed = errors.New("log handler failed")
-)
+var ErrLogHandlerFailed = errors.New("log handler failed")
 
 type RootArgs struct {
 	logLevel  *string
@@ -41,9 +35,6 @@ func (a *RootArgs) GetLogFormat() string {
 }
 
 func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
-	mu.Lock()
-	defer mu.Unlock()
-
 	args := NewRootArgs()
 
 	cmd := &cobra.Command{

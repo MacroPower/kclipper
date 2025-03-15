@@ -11,8 +11,6 @@ import (
 )
 
 func TestVersionCmd(t *testing.T) {
-	t.Parallel()
-
 	tc := cli.NewRootCmd("test_version", "", "")
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}

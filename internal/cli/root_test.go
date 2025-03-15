@@ -22,8 +22,6 @@ func init() {
 }
 
 func TestRunCmd(t *testing.T) {
-	t.Parallel()
-
 	err := os.RemoveAll(filepath.Join(testDataDir, "got/run_cmd"))
 	require.NoError(t, err)
 
@@ -72,8 +70,6 @@ func BenchmarkRun(b *testing.B) {
 }
 
 func TestRootCmdArgs(t *testing.T) {
-	t.Parallel()
-
 	tcs := map[string]struct {
 		wantErr   error
 		logLevel  string
@@ -105,8 +101,6 @@ func TestRootCmdArgs(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
 			rootCmd := cli.NewRootCmd("test_logger", "", "")
 			stdout := &bytes.Buffer{}
 			stderr := &bytes.Buffer{}
@@ -133,8 +127,6 @@ func TestRootCmdArgs(t *testing.T) {
 }
 
 func TestRootCmdArgPointers(t *testing.T) {
-	t.Parallel()
-
 	args := cli.NewRootArgs()
 
 	// Test default values

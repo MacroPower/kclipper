@@ -13,8 +13,6 @@ import (
 )
 
 func TestChartCmd(t *testing.T) {
-	t.Parallel()
-
 	basePath := filepath.Join(testDataDir, "got/chart_cmd")
 
 	err := os.RemoveAll(basePath)
@@ -129,8 +127,6 @@ func TestChartCmd(t *testing.T) {
 }
 
 func TestChartArgPointers(t *testing.T) {
-	t.Parallel()
-
 	rootArgs := cli.NewRootArgs()
 	args := cli.NewChartArgs(rootArgs)
 
@@ -143,8 +139,6 @@ func TestChartArgPointers(t *testing.T) {
 }
 
 func TestChartCmdRequiredFlagErrors(t *testing.T) {
-	t.Parallel()
-
 	tcs := map[string]struct {
 		args []string
 	}{
@@ -188,8 +182,6 @@ func TestChartCmdRequiredFlagErrors(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
 			rootCmd := cli.NewRootCmd("test_chart_errors", "", "")
 			rootCmd.SetArgs(tc.args)
 
@@ -201,8 +193,6 @@ func TestChartCmdRequiredFlagErrors(t *testing.T) {
 }
 
 func TestChartCmdInvalidArgErrors(t *testing.T) {
-	t.Parallel()
-
 	tcs := map[string]struct {
 		args []string
 	}{
@@ -222,8 +212,6 @@ func TestChartCmdInvalidArgErrors(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
 			rootCmd := cli.NewRootCmd("test_chart_errors", "", "")
 			rootCmd.SetArgs(tc.args)
 
