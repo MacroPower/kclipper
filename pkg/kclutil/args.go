@@ -1,6 +1,10 @@
 package kclutil
 
-import "kcl-lang.io/kcl-go/pkg/plugin"
+import (
+	"fmt"
+
+	"kcl-lang.io/kcl-go/pkg/plugin"
+)
 
 type SafeMethodArgs struct {
 	Args *plugin.MethodArgs
@@ -42,4 +46,40 @@ func (sma *SafeMethodArgs) ListKwArg(name string, defaultValue []any) []any {
 	}
 
 	return defaultValue
+}
+
+func (sma *SafeMethodArgs) StrArg(idx int) (string, error) {
+	if len(sma.Args.Args) <= idx {
+		return "", fmt.Errorf("expected at least %d argument(s), got %d", idx+1, len(sma.Args.Args))
+	}
+
+	arg := sma.Args.Arg(idx)
+	result, ok := arg.(string)
+	if !ok {
+		return "", fmt.Errorf("expected string argument, got %T", arg)
+	}
+
+	return result, nil
+}
+
+func (sma *SafeMethodArgs) ListStrArg(idx int) ([]string, error) {
+	if len(sma.Args.Args) <= idx {
+		return nil, fmt.Errorf("expected at least %d argument(s), got %d", idx+1, len(sma.Args.Args))
+	}
+
+	arg := sma.Args.Arg(idx)
+	result, ok := arg.([]any)
+	if !ok {
+		return nil, fmt.Errorf("expected []string argument, got %T", arg)
+	}
+
+	strResult := make([]string, len(result))
+	for i, v := range result {
+		strResult[i], ok = v.(string)
+		if !ok {
+			return nil, fmt.Errorf("expected string at index %d, got %T", i, v)
+		}
+	}
+
+	return strResult, nil
 }
