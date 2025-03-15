@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
@@ -15,7 +16,20 @@ import (
 	"github.com/MacroPower/kclipper/pkg/kclhelm"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 	"github.com/MacroPower/kclipper/pkg/pathutil"
-	"github.com/hashicorp/go-multierror"
+)
+
+const (
+	argChart                string = "chart"
+	argRepoURL              string = "repo_url"
+	argTargetRevision       string = "target_revision"
+	argReleaseName          string = "release_name"
+	argNamespace            string = "namespace"
+	argSkipCRDs             string = "skip_crds"
+	argSkipSchemaValidation string = "skip_schema_validation"
+	argSkipHooks            string = "skip_hooks"
+	argPassCredentials      string = "pass_credentials"
+	argRepositories         string = "repositories"
+	argValues               string = "values"
 )
 
 func Register() {
@@ -28,16 +42,17 @@ var Plugin = plugin.Plugin{
 		"template": {
 			Type: &plugin.MethodType{
 				KwArgsType: map[string]string{
-					"chart":                  "str",
-					"target_revision":        "str",
-					"repo_url":               "str",
-					"release_name":           "str",
-					"namespace":              "str",
-					"skip_crds":              "bool",
-					"skip_schema_validation": "bool",
-					"skip_hooks":             "bool",
-					"pass_credentials":       "bool",
-					"values":                 "{str:any}",
+					argChart:                "str",
+					argTargetRevision:       "str",
+					argRepoURL:              "str",
+					argReleaseName:          "str",
+					argNamespace:            "str",
+					argSkipCRDs:             "bool",
+					argSkipSchemaValidation: "bool",
+					argSkipHooks:            "bool",
+					argPassCredentials:      "bool",
+					argRepositories:         "[any]",
+					argValues:               "{str:any}",
 				},
 				ResultType: "[{str:any}]",
 			},
@@ -46,22 +61,22 @@ var Plugin = plugin.Plugin{
 
 				var merr error
 
-				if !safeArgs.Exists("chart") {
-					merr = multierror.Append(merr, fmt.Errorf("missing required argument: chart"))
+				if !safeArgs.Exists(argChart) {
+					merr = multierror.Append(merr, fmt.Errorf("missing required argument: %s", argChart))
 				}
-				if !safeArgs.Exists("repo_url") {
-					merr = multierror.Append(merr, fmt.Errorf("missing required argument: repo_url"))
+				if !safeArgs.Exists(argRepoURL) {
+					merr = multierror.Append(merr, fmt.Errorf("missing required argument: %s", argRepoURL))
 				}
 
-				chartName := args.StrKwArg("chart")
-				repoURL := args.StrKwArg("repo_url")
-				targetRevision := safeArgs.StrKwArg("target_revision", "")
-				repos := safeArgs.ListKwArg("repositories", []any{})
+				chartName := args.StrKwArg(argChart)
+				repoURL := args.StrKwArg(argRepoURL)
+				targetRevision := safeArgs.StrKwArg(argTargetRevision, "")
+				repos := safeArgs.ListKwArg(argRepositories, []any{})
 
 				// https://argo-cd.readthedocs.io/en/stable/user-guide/build-environment/
 				// https://github.com/argoproj/argo-cd/pull/15186
 				project := os.Getenv("ARGOCD_APP_PROJECT_NAME")
-				namespace := safeArgs.StrKwArg("namespace", os.Getenv("ARGOCD_APP_NAMESPACE"))
+				namespace := safeArgs.StrKwArg(argNamespace, os.Getenv("ARGOCD_APP_NAMESPACE"))
 				kubeVersion := os.Getenv("KUBE_VERSION")
 				kubeAPIVersions := os.Getenv("KUBE_API_VERSIONS")
 
@@ -121,13 +136,13 @@ var Plugin = plugin.Plugin{
 					ChartName:            chartName,
 					TargetRevision:       targetRevision,
 					RepoURL:              repoURL,
-					ReleaseName:          safeArgs.StrKwArg("release_name", chartName),
+					ReleaseName:          safeArgs.StrKwArg(argReleaseName, chartName),
 					Namespace:            namespace,
-					SkipCRDs:             safeArgs.BoolKwArg("skip_crds", false),
-					SkipSchemaValidation: safeArgs.BoolKwArg("skip_schema_validation", true),
-					SkipHooks:            safeArgs.BoolKwArg("skip_hooks", false),
-					PassCredentials:      safeArgs.BoolKwArg("pass_credentials", false),
-					ValuesObject:         safeArgs.MapKwArg("values", map[string]any{}),
+					SkipCRDs:             safeArgs.BoolKwArg(argSkipCRDs, false),
+					SkipSchemaValidation: safeArgs.BoolKwArg(argSkipSchemaValidation, true),
+					SkipHooks:            safeArgs.BoolKwArg(argSkipHooks, false),
+					PassCredentials:      safeArgs.BoolKwArg(argPassCredentials, false),
+					ValuesObject:         safeArgs.MapKwArg(argValues, map[string]any{}),
 					KubeVersion:          kubeVersion,
 					APIVersions:          strings.Split(kubeAPIVersions, ","),
 					Timeout:              timeout,
