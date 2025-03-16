@@ -13,9 +13,15 @@ schema Values:
     backend : any, optional, default is ""
     backends : [any], optional
     cache : str, optional, default is ""
-        Redis address in the format <host>:<port>
+        Redis address in the format tcp://<host>:<port>
     certificate : ValuesCertificate, optional
         create a certificate manager certificate (cert-manager required)
+    config : ValuesConfig, optional
+        config file settings
+    extraArgs : [any], optional
+        Additional command line arguments to pass to podinfo container
+    extraEnvs : [any], optional
+        Extra environment variables for the podinfo container
     faults : ValuesFaults, optional
         failure conditions
     global : ValuesGlobal, optional
@@ -31,6 +37,12 @@ schema Values:
     logLevel : str, optional, default is "info"
     nodeSelector : ValuesNodeSelector, optional
     podAnnotations : ValuesPodAnnotations, optional
+    podDisruptionBudget : ValuesPodDisruptionBudget, optional
+        Disruption budget will be configured only when the replicaCount is greater than 1
+    podSecurityContext : ValuesPodSecurityContext, optional
+        set pod security context
+    probes : ValuesProbes, optional
+        https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     redis : ValuesRedis, optional
         Redis deployment
     replicaCount : int, optional, default is 1
@@ -45,6 +57,8 @@ schema Values:
     tls : ValuesTls, optional
         enable tls on the podinfo service
     tolerations : [any], optional
+    topologySpreadConstraints : [any], optional
+        https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     ui : ValuesUi, optional
     """
 
@@ -53,6 +67,9 @@ schema Values:
     backends?: [any]
     cache?: str
     certificate?: ValuesCertificate
+    config?: ValuesConfig
+    extraArgs?: [any]
+    extraEnvs?: [any]
     faults?: ValuesFaults
     global?: ValuesGlobal
     h2c?: ValuesH2C
@@ -64,6 +81,9 @@ schema Values:
     logLevel?: str
     nodeSelector?: ValuesNodeSelector
     podAnnotations?: ValuesPodAnnotations
+    podDisruptionBudget?: ValuesPodDisruptionBudget
+    podSecurityContext?: ValuesPodSecurityContext
+    probes?: ValuesProbes
     redis?: ValuesRedis
     replicaCount?: int
     resources?: ValuesResources
@@ -73,6 +93,7 @@ schema Values:
     serviceMonitor?: ValuesServiceMonitor
     tls?: ValuesTls
     tolerations?: [any]
+    topologySpreadConstraints?: [any]
     ui?: ValuesUi
     [...str]: any
 
@@ -113,6 +134,23 @@ schema ValuesCertificateIssuerRef:
 
     kind?: str
     name?: str
+    [...str]: any
+
+schema ValuesConfig:
+    r"""
+    config file settings
+
+    Attributes
+    ----------
+    name : str, optional, default is ""
+        config file name
+    path : str, optional, default is ""
+        config file path
+    """
+
+    name?: str
+    path?: str
+    [...str]: any
 
 schema ValuesFaults:
     r"""
@@ -186,7 +224,7 @@ schema ValuesImage:
     ----------
     pullPolicy : str, optional, default is "IfNotPresent"
     repository : str, optional, default is "ghcr.io/stefanprodan/podinfo"
-    tag : str, optional, default is "5.2.1"
+    tag : str, optional, default is "6.8.0"
     """
 
     pullPolicy?: str
@@ -200,21 +238,29 @@ schema ValuesIngress:
 
     Attributes
     ----------
+    additionalLabels : ValuesIngressAdditionalLabels, optional
     annotations : ValuesIngressAnnotations, optional
+    className : str, optional, default is ""
     enabled : bool, optional, default is False
-    hosts : [any], optional
-    path : str, optional, default is "/*"
+    hosts : [ValuesIngressHostsItems0], optional
         kubernetes.io/ingress.class: nginx
         kubernetes.io/tls-acme: "true"
     tls : [any], optional
-         - podinfo.local
     """
 
+    additionalLabels?: ValuesIngressAdditionalLabels
     annotations?: ValuesIngressAnnotations
+    className?: str
     enabled?: bool
-    hosts?: [any]
-    path?: str
+    hosts?: [ValuesIngressHostsItems0]
     tls?: [any]
+    [...str]: any
+
+schema ValuesIngressAdditionalLabels:
+    r"""
+    ValuesIngressAdditionalLabels
+    """
+
     [...str]: any
 
 schema ValuesIngressAnnotations:
@@ -223,6 +269,32 @@ schema ValuesIngressAnnotations:
     """
 
     [...str]: any
+
+schema ValuesIngressHostsItems0:
+    r"""
+    ValuesIngressHostsItems0
+
+    Attributes
+    ----------
+    host : str, optional, default is "podinfo.local"
+    paths : [ValuesIngressHostsItems0PathsItems0], optional
+    """
+
+    host?: str
+    paths?: [ValuesIngressHostsItems0PathsItems0]
+
+schema ValuesIngressHostsItems0PathsItems0:
+    r"""
+    ValuesIngressHostsItems0PathsItems0
+
+    Attributes
+    ----------
+    path : str, optional, default is "/"
+    pathType : str, optional, default is "ImplementationSpecific"
+    """
+
+    path?: str
+    pathType?: str
 
 schema ValuesLinkerd:
     r"""
@@ -246,6 +318,7 @@ schema ValuesLinkerdProfile:
     """
 
     enabled?: bool
+    [...str]: any
 
 schema ValuesNodeSelector:
     r"""
@@ -261,6 +334,98 @@ schema ValuesPodAnnotations:
 
     [...str]: any
 
+schema ValuesPodDisruptionBudget:
+    r"""
+    Disruption budget will be configured only when the replicaCount is greater than 1
+    """
+
+    [...str]: any
+
+schema ValuesPodSecurityContext:
+    r"""
+    set pod security context
+    """
+
+    [...str]: any
+
+schema ValuesProbes:
+    r"""
+    https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+
+    Attributes
+    ----------
+    liveness : ValuesProbesLiveness, optional
+    readiness : ValuesProbesReadiness, optional
+    startup : ValuesProbesStartup, optional
+    """
+
+    liveness?: ValuesProbesLiveness
+    readiness?: ValuesProbesReadiness
+    startup?: ValuesProbesStartup
+    [...str]: any
+
+schema ValuesProbesLiveness:
+    r"""
+    ValuesProbesLiveness
+
+    Attributes
+    ----------
+    failureThreshold : int, optional, default is 3
+    initialDelaySeconds : int, optional, default is 1
+    periodSeconds : int, optional, default is 10
+    successThreshold : int, optional, default is 1
+    timeoutSeconds : int, optional, default is 5
+    """
+
+    failureThreshold?: int
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    timeoutSeconds?: int
+    [...str]: any
+
+schema ValuesProbesReadiness:
+    r"""
+    ValuesProbesReadiness
+
+    Attributes
+    ----------
+    failureThreshold : int, optional, default is 3
+    initialDelaySeconds : int, optional, default is 1
+    periodSeconds : int, optional, default is 10
+    successThreshold : int, optional, default is 1
+    timeoutSeconds : int, optional, default is 5
+    """
+
+    failureThreshold?: int
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    timeoutSeconds?: int
+    [...str]: any
+
+schema ValuesProbesStartup:
+    r"""
+    ValuesProbesStartup
+
+    Attributes
+    ----------
+    enable : bool, optional, default is False
+    failureThreshold : int, optional, default is 20
+    initialDelaySeconds : int, optional, default is 10
+    periodSeconds : int, optional, default is 10
+    successThreshold : int, optional, default is 1
+    timeoutSeconds : int, optional, default is 5
+    """
+
+    enable?: bool
+    failureThreshold?: int
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    timeoutSeconds?: int
+    [...str]: any
+
 schema ValuesRedis:
     r"""
     Redis deployment
@@ -269,7 +434,7 @@ schema ValuesRedis:
     ----------
     enabled : bool, optional, default is False
     repository : str, optional, default is "redis"
-    tag : str, optional, default is "6.0.8"
+    tag : str, optional, default is "7.0.7"
     """
 
     enabled?: bool
@@ -301,6 +466,7 @@ schema ValuesResourcesLimits:
     """
 
     memory?: str
+    [...str]: any
 
 schema ValuesResourcesRequests:
     r"""
@@ -314,6 +480,7 @@ schema ValuesResourcesRequests:
 
     cpu?: str
     memory?: str
+    [...str]: any
 
 schema ValuesSecurityContext:
     r"""
@@ -363,12 +530,15 @@ schema ValuesServiceAccount:
     ----------
     enabled : bool, optional, default is False
         Specifies whether a service account should be created
+    imagePullSecrets : [any], optional
+        List of image pull secrets if pulling from private registries
     name : any, optional, default is ""
         The name of the service account to use.
         If not set and create is true, a name is generated using the fullname template
     """
 
     enabled?: bool
+    imagePullSecrets?: [any]
     name?: any
     [...str]: any
 
