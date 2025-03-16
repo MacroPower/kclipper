@@ -1,9 +1,10 @@
 FROM debian:12-slim
 
 ENV LANG=en_US.utf8 \
-    KCL_LIB_HOME=/tmp \
-    KCL_PKG_PATH=/tmp \
-    KCL_CACHE_PATH=/tmp \
+    XDG_CACHE_HOME=/tmp/xdg_cache \
+    KCL_LIB_HOME=/tmp/kcl_lib \
+    KCL_PKG_PATH=/tmp/kcl_pkg \
+    KCL_CACHE_PATH=/tmp/kcl_cache \
     KCL_FAST_EVAL=1
 
 ARG TARGETOS
