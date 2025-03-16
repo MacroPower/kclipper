@@ -9,6 +9,6 @@ repos: helm.ChartRepos = {
     }
     local: {
         name = "local"
-        url = "/example/src/my-local-charts"
+        url = "/docs/examples/src/my-local-charts"
     }
 }
