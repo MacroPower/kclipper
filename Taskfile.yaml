@@ -162,17 +162,17 @@ tasks:
           FLAGS: "--single-target"
       - task: pull-upstream
     vars:
-      KCLX_BIN: ../dist/kclipper_{{OS}}_{{ARCH}}*/kcl
+      KCLX_BIN: ../../dist/kclipper_{{OS}}_{{ARCH}}*/kcl
       KCL_CODE: no-charts.k
       KCL_HELM: 10-charts.k
       KCL_HELM_VALUES: 10-charts-with-values.k
     cmds:
-      - cp ./.tmp/bin/kcl ./benchmarks/kcl
-      - defer: rm ./benchmarks/kcl
+      - cp ./.tmp/bin/kcl ./docs/benchmarks/kcl
+      - defer: rm ./docs/benchmarks/kcl
       - |-
-        cd benchmarks
+        cd docs/benchmarks
         hyperfine --warmup=50 --min-runs=1000 \
-          --export-markdown ./README.md \
+          --export-markdown ../README.md \
           --command-name "kcl(ipper) -V {{.KCL_CODE}}" \
           --command-name "kcl(ipper) -V {{.KCL_HELM}}" \
           --command-name "kcl(ipper) -V {{.KCL_HELM_VALUES}}" \
@@ -184,7 +184,7 @@ tasks:
   bench-diff-docker:
     desc: Compares benchmark results
     vars:
-      DOCKER_MOUNTS: "-v ./.tmp:/tmp -v ./benchmarks:/opt/benchmarks"
+      DOCKER_MOUNTS: "-v ./.tmp:/tmp -v ./docs/benchmarks:/opt/benchmarks"
       KCL_CODE: benchmarks/no-charts.k
       KCL_HELM: benchmarks/10-charts.k
     cmds:

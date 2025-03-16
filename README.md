@@ -107,7 +107,7 @@ Also works with [Renovate](https://github.com/renovatebot/renovate)! You can fin
 
 > Approximate values from my Mac Mini M2.
 
-See [benchmarks](./benchmarks) for more details.
+See [benchmarks](./docs/benchmarks) for more details.
 
 ---
 
