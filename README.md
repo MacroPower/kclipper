@@ -171,7 +171,7 @@ Binaries are posted in [releases](https://github.com/MacroPower/kclipper/release
 
 The binary name for kclipper is still just `kcl`, so it can be used as a drop-in replacement for official KCL binaries. Versions are tagged independently of upstream KCL, e.g. kclipper `v0.1.0` maps to kcl `v0.11.0`, but kclipper releases still follow semver with consideration for upstream KCL changes.
 
-To use kclipper with Argo CD, you can follow [this guide](https://www.kcl-lang.io/docs/user_docs/guides/gitops/gitops-quick-start) to set up the KCL ConfigManagementPlugin. You just need to substitute the official kcl image with a kclipper image.
+To use kclipper with Argo CD, see the [Argo CD Config Management Plugin](./docs/argo_cd_cmp.md) docs.
 
 ## Usage
 
