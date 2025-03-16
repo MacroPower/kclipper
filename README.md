@@ -24,7 +24,7 @@ import helm
 import manifests
 import regex
 import charts.podinfo
-import charts.kube_prometheus_stack.crds as prometheus_crds
+import charts.kube_prometheus_stack.api.v1 as prometheusv1
 
 env = option("env")
 
@@ -43,7 +43,7 @@ _podinfo = helm.template(podinfo.Chart {
     }
 })
 
-_serviceMonitor = prometheus_crds.ServiceMonitor {
+_serviceMonitor = prometheusv1.ServiceMonitor {
     metadata.name = "podinfo"
     spec.selector.matchLabels = {
         app = "podinfo"

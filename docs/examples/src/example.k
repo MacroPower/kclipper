@@ -1,6 +1,6 @@
 import helm
 import charts.podinfo
-import charts.kube_prometheus_stack.crds as prometheus_crds
+import charts.kube_prometheus_stack.api.v1 as prometheusv1
 import charts.simple_chart
 import regex
 
@@ -19,8 +19,8 @@ import regex
         }
     })
     "helm.template(local)": helm.template(simple_chart.Chart {})
-    "helm.crd": prometheus_crds.Alertmanager{
-      spec: prometheus_crds.MonitoringCoreosComV1AlertmanagerSpec{
+    "helm.crd": prometheusv1.Alertmanager{
+      spec: prometheusv1.MonitoringCoreosComV1AlertmanagerSpec{
         replicas: 2
       }
     }
