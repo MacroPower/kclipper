@@ -39,6 +39,8 @@ schema Values:
     podAnnotations : ValuesPodAnnotations, optional
     podDisruptionBudget : ValuesPodDisruptionBudget, optional
         Disruption budget will be configured only when the replicaCount is greater than 1
+    podSecurityContext : ValuesPodSecurityContext, optional
+        set pod security context
     probes : ValuesProbes, optional
         https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     redis : ValuesRedis, optional
@@ -80,6 +82,7 @@ schema Values:
     nodeSelector?: ValuesNodeSelector
     podAnnotations?: ValuesPodAnnotations
     podDisruptionBudget?: ValuesPodDisruptionBudget
+    podSecurityContext?: ValuesPodSecurityContext
     probes?: ValuesProbes
     redis?: ValuesRedis
     replicaCount?: int
@@ -131,6 +134,7 @@ schema ValuesCertificateIssuerRef:
 
     kind?: str
     name?: str
+    [...str]: any
 
 schema ValuesConfig:
     r"""
@@ -220,7 +224,7 @@ schema ValuesImage:
     ----------
     pullPolicy : str, optional, default is "IfNotPresent"
     repository : str, optional, default is "ghcr.io/stefanprodan/podinfo"
-    tag : str, optional, default is "6.7.1"
+    tag : str, optional, default is "6.8.0"
     """
 
     pullPolicy?: str
@@ -314,6 +318,7 @@ schema ValuesLinkerdProfile:
     """
 
     enabled?: bool
+    [...str]: any
 
 schema ValuesNodeSelector:
     r"""
@@ -332,6 +337,13 @@ schema ValuesPodAnnotations:
 schema ValuesPodDisruptionBudget:
     r"""
     Disruption budget will be configured only when the replicaCount is greater than 1
+    """
+
+    [...str]: any
+
+schema ValuesPodSecurityContext:
+    r"""
+    set pod security context
     """
 
     [...str]: any
@@ -370,6 +382,7 @@ schema ValuesProbesLiveness:
     periodSeconds?: int
     successThreshold?: int
     timeoutSeconds?: int
+    [...str]: any
 
 schema ValuesProbesReadiness:
     r"""
@@ -389,6 +402,7 @@ schema ValuesProbesReadiness:
     periodSeconds?: int
     successThreshold?: int
     timeoutSeconds?: int
+    [...str]: any
 
 schema ValuesProbesStartup:
     r"""
@@ -410,6 +424,7 @@ schema ValuesProbesStartup:
     periodSeconds?: int
     successThreshold?: int
     timeoutSeconds?: int
+    [...str]: any
 
 schema ValuesRedis:
     r"""
@@ -451,6 +466,7 @@ schema ValuesResourcesLimits:
     """
 
     memory?: str
+    [...str]: any
 
 schema ValuesResourcesRequests:
     r"""
@@ -464,6 +480,7 @@ schema ValuesResourcesRequests:
 
     cpu?: str
     memory?: str
+    [...str]: any
 
 schema ValuesSecurityContext:
     r"""
