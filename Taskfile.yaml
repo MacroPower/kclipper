@@ -46,6 +46,10 @@ tasks:
     desc: Runs all test targets
     deps: [go-test]
 
+  pre-commit:
+    desc: Runs all pre-commit targets
+    deps: [lint, test]
+
   build:
     desc: Runs all build targets
     deps: [go-build]
@@ -289,3 +293,16 @@ tasks:
     desc: Lints GoReleaser configuration
     cmds:
       - goreleaser check
+
+  install-hooks:
+    desc: Install git hooks
+    vars:
+      PRE_COMMIT_FILE: "{{.ROOT_DIR}}/.git/hooks/pre-commit"
+    env:
+      PRE_COMMIT: |-
+        #!/bin/bash
+
+        devbox run -- task pre-commit
+    cmds:
+      - echo "${PRE_COMMIT}" > {{.PRE_COMMIT_FILE}}
+      - chmod u+x {{.PRE_COMMIT_FILE}}
