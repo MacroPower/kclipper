@@ -12,7 +12,7 @@ import (
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 
-	"github.com/MacroPower/kclipper/internal/cli"
+	"github.com/MacroPower/kclipper/cmd/kclipper/commands"
 )
 
 const (
@@ -34,9 +34,9 @@ The KCL website: https://kcl-lang.io
 )
 
 func main() {
-	cli.RegisterEnabledPlugins()
+	commands.RegisterEnabledPlugins()
 
-	cmd := cli.NewRootCmd(cmdName, shortDesc, longDesc)
+	cmd := commands.NewRootCmd(cmdName, shortDesc, longDesc)
 
 	ok, err := bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
 	if err != nil {

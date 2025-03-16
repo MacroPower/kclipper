@@ -1,4 +1,4 @@
-package cli
+package commands
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 
 	kclversion "kcl-lang.io/cli/pkg/version"
 
-	"github.com/MacroPower/kclipper/internal/version"
+	"github.com/MacroPower/kclipper/pkg/version"
 )
 
 func GetVersionString() string {

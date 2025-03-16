@@ -1,4 +1,4 @@
-package cli_test
+package commands_test
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/internal/cli"
+	"github.com/MacroPower/kclipper/cmd/kclipper/commands"
 )
 
 func TestChartCmd(t *testing.T) {
@@ -18,7 +18,7 @@ func TestChartCmd(t *testing.T) {
 	err := os.RemoveAll(basePath)
 	require.NoError(t, err)
 
-	tc := cli.NewRootCmd("test_chart", "", "")
+	tc := commands.NewRootCmd("test_chart", "", "")
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
@@ -43,7 +43,7 @@ func TestChartCmd(t *testing.T) {
 	require.NoError(t, err)
 	modData = bytes.ReplaceAll(modData,
 		[]byte(`helm = { path = "../modules/helm" }`),
-		[]byte(`helm = { path = "../../../../../modules/helm" }`),
+		[]byte(`helm = { path = "../../../../../../modules/helm" }`),
 	)
 	err = os.WriteFile(modFile, modData, 0o600)
 	require.NoError(t, err)
@@ -127,8 +127,8 @@ func TestChartCmd(t *testing.T) {
 }
 
 func TestChartArgPointers(t *testing.T) {
-	rootArgs := cli.NewRootArgs()
-	args := cli.NewChartArgs(rootArgs)
+	rootArgs := commands.NewRootArgs()
+	args := commands.NewChartArgs(rootArgs)
 
 	// Test default values
 	assert.Equal(t, "", args.GetPath())
@@ -182,7 +182,7 @@ func TestChartCmdRequiredFlagErrors(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			rootCmd := cli.NewRootCmd("test_chart_errors", "", "")
+			rootCmd := commands.NewRootCmd("test_chart_errors", "", "")
 			rootCmd.SetArgs(tc.args)
 
 			err := rootCmd.Execute()
@@ -212,7 +212,7 @@ func TestChartCmdInvalidArgErrors(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			rootCmd := cli.NewRootCmd("test_chart_errors", "", "")
+			rootCmd := commands.NewRootCmd("test_chart_errors", "", "")
 			rootCmd.SetArgs(tc.args)
 
 			err := rootCmd.Execute()

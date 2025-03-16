@@ -10,7 +10,7 @@ import (
 
 	kclpkg "kcl-lang.io/kpm/pkg/package"
 
-	"github.com/MacroPower/kclipper/internal/version"
+	"github.com/MacroPower/kclipper/pkg/version"
 )
 
 func (c *ChartPkg) Init() (bool, error) {

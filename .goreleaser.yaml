@@ -35,10 +35,10 @@ builds:
         {{- if and (eq .Os "darwin") (eq .Arch "arm64") -}} CXX={{ .Env.CXX_DARWIN_ARM64 }} {{- end -}}
     ldflags:
       - -s -w
-      - -X github.com/MacroPower/kclipper/internal/version.Version={{.Version}}
-      - -X github.com/MacroPower/kclipper/internal/version.Branch={{.Branch}}
-      - -X github.com/MacroPower/kclipper/internal/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
-      - -X github.com/MacroPower/kclipper/internal/version.BuildDate={{.Date}}
+      - -X github.com/MacroPower/kclipper/pkg/version.Version={{.Version}}
+      - -X github.com/MacroPower/kclipper/pkg/version.Branch={{.Branch}}
+      - -X github.com/MacroPower/kclipper/pkg/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
+      - -X github.com/MacroPower/kclipper/pkg/version.BuildDate={{.Date}}
     flags:
       - -trimpath
       - -tags={{ .Env.BUILD_TAGS }}

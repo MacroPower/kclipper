@@ -1,4 +1,4 @@
-package cli_test
+package commands_test
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/internal/cli"
+	"github.com/MacroPower/kclipper/cmd/kclipper/commands"
 )
 
 var testDataDir string
@@ -25,7 +25,7 @@ func TestRunCmd(t *testing.T) {
 	err := os.RemoveAll(filepath.Join(testDataDir, "got/run_cmd"))
 	require.NoError(t, err)
 
-	tc := cli.NewRootCmd("test_run", "", "")
+	tc := commands.NewRootCmd("test_run", "", "")
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
@@ -54,7 +54,7 @@ func TestRunCmd(t *testing.T) {
 
 func BenchmarkRun(b *testing.B) {
 	for range b.N {
-		tc := cli.NewRootCmd("bench_run", "", "")
+		tc := commands.NewRootCmd("bench_run", "", "")
 		stdout := &bytes.Buffer{}
 		stderr := &bytes.Buffer{}
 
@@ -90,18 +90,18 @@ func TestRootCmdArgs(t *testing.T) {
 		"invalid log level": {
 			logLevel:  "invalid",
 			logFormat: "text",
-			wantErr:   cli.ErrLogHandlerFailed,
+			wantErr:   commands.ErrLogHandlerFailed,
 		},
 		"invalid log format": {
 			logLevel:  "warn",
 			logFormat: "invalid",
-			wantErr:   cli.ErrLogHandlerFailed,
+			wantErr:   commands.ErrLogHandlerFailed,
 		},
 	}
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			rootCmd := cli.NewRootCmd("test_logger", "", "")
+			rootCmd := commands.NewRootCmd("test_logger", "", "")
 			stdout := &bytes.Buffer{}
 			stderr := &bytes.Buffer{}
 
@@ -127,7 +127,7 @@ func TestRootCmdArgs(t *testing.T) {
 }
 
 func TestRootCmdArgPointers(t *testing.T) {
-	args := cli.NewRootArgs()
+	args := commands.NewRootArgs()
 
 	// Test default values
 	assert.Equal(t, "", args.GetLogLevel())

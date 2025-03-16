@@ -1,4 +1,4 @@
-package cli_test
+package commands_test
 
 import (
 	"bytes"
@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/internal/cli"
+	"github.com/MacroPower/kclipper/cmd/kclipper/commands"
 )
 
 func TestVersionCmd(t *testing.T) {
-	tc := cli.NewRootCmd("test_version", "", "")
+	tc := commands.NewRootCmd("test_version", "", "")
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 

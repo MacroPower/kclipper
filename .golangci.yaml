@@ -217,6 +217,6 @@ issues:
     - text: "\\*github\\.com/hashicorp/go-multierror\\.Error"
       linters:
         - wrapcheck
-    - path: internal/cli/.*_test\.go
+    - path: cmd/kclipper/commands/.*_test\.go
       linters:
         - paralleltest # Testing CMD initialization.
