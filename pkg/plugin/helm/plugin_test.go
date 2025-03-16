@@ -22,14 +22,12 @@ func init() {
 	testDataDir = filepath.Join(dir, "testdata")
 }
 
+//nolint:paralleltest // Due to t.Chdir.
 func TestPluginHelmTemplate(t *testing.T) {
-	t.Parallel()
-
 	helmplugin.Register()
 
 	workDir := testDataDir
-	err := os.Chdir(workDir)
-	require.NoError(t, err)
+	t.Chdir(workDir)
 
 	tcs := map[string]struct {
 		kclFile     string

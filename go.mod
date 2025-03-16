@@ -1,6 +1,6 @@
 module github.com/MacroPower/kclipper
 
-go 1.23.5
+go 1.24.1
 
 require (
 	github.com/charmbracelet/bubbles v0.20.0

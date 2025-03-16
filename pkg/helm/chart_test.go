@@ -197,7 +197,7 @@ func TestHelmChart(t *testing.T) {
 			c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
 			require.NoError(t, err)
 
-			results, err := c.Template(context.Background())
+			results, err := c.Template(t.Context())
 			require.NoError(t, err)
 
 			if tc.objectCount >= 0 {
@@ -270,7 +270,7 @@ func TestHelmChartTimeout(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	_, err = c.Template(context.Background())
+	_, err = c.Template(t.Context())
 	require.Error(t, err)
 	assert.ErrorIs(t, err, context.DeadlineExceeded)
 }
@@ -288,7 +288,7 @@ func TestHelmChartAPIVersions(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		objs, err := c.Template(context.Background())
+		objs, err := c.Template(t.Context())
 		require.NoError(t, err)
 		require.Len(t, objs, 1)
 		assert.Equal(t, "sample/v1", objs[0].GetAPIVersion())
@@ -304,7 +304,7 @@ func TestHelmChartAPIVersions(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		objs, err := c.Template(context.Background())
+		objs, err := c.Template(t.Context())
 		require.NoError(t, err)
 		require.Len(t, objs, 1)
 		assert.Equal(t, "sample/v2", objs[0].GetAPIVersion())
@@ -318,13 +318,13 @@ func BenchmarkHelmChart(b *testing.B) {
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
 	})
 	require.NoError(b, err)
-	_, err = c.Template(context.Background())
+	_, err = c.Template(b.Context())
 	require.NoError(b, err)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			_, err := c.Template(context.Background())
+			_, err := c.Template(b.Context())
 			require.NoError(b, err)
 		}
 	})
@@ -338,13 +338,13 @@ func BenchmarkAppTemplateHelmChart(b *testing.B) {
 		SkipSchemaValidation: true,
 	})
 	require.NoError(b, err)
-	_, err = c.Template(context.Background())
+	_, err = c.Template(b.Context())
 	require.NoError(b, err)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			_, err := c.Template(context.Background())
+			_, err := c.Template(b.Context())
 			require.NoError(b, err)
 		}
 	})

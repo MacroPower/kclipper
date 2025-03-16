@@ -2,7 +2,6 @@ package kclhelm_test
 
 import (
 	"bytes"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,16 +10,14 @@ import (
 	"github.com/MacroPower/kclipper/pkg/kclhelm"
 )
 
+//nolint:paralleltest // Due to t.Chdir.
 func TestGenerateHelmModule(t *testing.T) {
-	t.Parallel()
-
-	err := os.Chdir("../../")
-	require.NoError(t, err)
+	t.Chdir("../../")
 
 	b := &bytes.Buffer{}
 
 	cb := kclhelm.ChartBase{}
-	err = cb.GenerateKCL(b)
+	err := cb.GenerateKCL(b)
 	require.NoError(t, err)
 	assert.NotEmpty(t, b.String())
 	// assert.Equal(t, "", b.String())
