@@ -3,6 +3,7 @@ package helm
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -57,6 +58,12 @@ var Plugin = plugin.Plugin{
 				ResultType: "[{str:any}]",
 			},
 			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
+				logger := slog.With(
+					slog.String("plugin", "helm"),
+					slog.String("method", "template"),
+				)
+				logger.Debug("invoking kcl plugin")
+
 				safeArgs := kclutil.SafeMethodArgs{Args: args}
 
 				var merr error
@@ -69,9 +76,19 @@ var Plugin = plugin.Plugin{
 				}
 
 				chartName := args.StrKwArg(argChart)
+				logger = logger.With(
+					slog.String(argChart, chartName),
+				)
+
 				repoURL := args.StrKwArg(argRepoURL)
 				targetRevision := safeArgs.StrKwArg(argTargetRevision, "")
 				repos := safeArgs.ListKwArg(argRepositories, []any{})
+				releaseName := safeArgs.StrKwArg(argReleaseName, chartName)
+				skipCRDs := safeArgs.BoolKwArg(argSkipCRDs, false)
+				skipSchemaValidation := safeArgs.BoolKwArg(argSkipSchemaValidation, true)
+				skipHooks := safeArgs.BoolKwArg(argSkipHooks, false)
+				passCredentials := safeArgs.BoolKwArg(argPassCredentials, false)
+				values := safeArgs.MapKwArg(argValues, map[string]any{})
 
 				// https://argo-cd.readthedocs.io/en/stable/user-guide/build-environment/
 				// https://github.com/argoproj/argo-cd/pull/15186
@@ -106,6 +123,24 @@ var Plugin = plugin.Plugin{
 					return nil, fmt.Errorf("failed to find package root: %w", err)
 				}
 
+				logger.Debug("set arguments",
+					slog.String(argRepoURL, repoURL),
+					slog.String(argTargetRevision, targetRevision),
+					slog.String(argNamespace, namespace),
+					slog.String(argReleaseName, releaseName),
+					slog.Bool(argSkipCRDs, skipCRDs),
+					slog.Bool(argSkipSchemaValidation, skipSchemaValidation),
+					slog.Bool(argSkipHooks, skipHooks),
+					slog.Bool(argPassCredentials, passCredentials),
+					slog.String("project", project),
+					slog.String("kube_version", kubeVersion),
+					slog.String("kube_api_versions", kubeAPIVersions),
+					slog.String("cwd", cwd),
+					slog.String("pkg_path", pkgPath),
+					slog.String("repo_root", repoRoot),
+					slog.String("timeout", timeout.String()),
+				)
+
 				repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(pkgPath, repoRoot))
 				for _, repo := range repos {
 					var pcr kclhelm.ChartRepo
@@ -136,13 +171,13 @@ var Plugin = plugin.Plugin{
 					ChartName:            chartName,
 					TargetRevision:       targetRevision,
 					RepoURL:              repoURL,
-					ReleaseName:          safeArgs.StrKwArg(argReleaseName, chartName),
+					ReleaseName:          releaseName,
 					Namespace:            namespace,
-					SkipCRDs:             safeArgs.BoolKwArg(argSkipCRDs, false),
-					SkipSchemaValidation: safeArgs.BoolKwArg(argSkipSchemaValidation, true),
-					SkipHooks:            safeArgs.BoolKwArg(argSkipHooks, false),
-					PassCredentials:      safeArgs.BoolKwArg(argPassCredentials, false),
-					ValuesObject:         safeArgs.MapKwArg(argValues, map[string]any{}),
+					SkipCRDs:             skipCRDs,
+					SkipSchemaValidation: skipSchemaValidation,
+					SkipHooks:            skipHooks,
+					PassCredentials:      passCredentials,
+					ValuesObject:         values,
 					KubeVersion:          kubeVersion,
 					APIVersions:          strings.Split(kubeAPIVersions, ","),
 					Timeout:              timeout,
@@ -151,10 +186,14 @@ var Plugin = plugin.Plugin{
 					return nil, fmt.Errorf("failed to create chart handler for %q: %w", chartName, err)
 				}
 
+				logger.Info("execute helm template")
 				objs, err := helmChart.Template(context.Background())
 				if err != nil {
 					return nil, fmt.Errorf("failed to template %q: %w", chartName, err)
 				}
+				logger.Info("helm template complete")
+
+				logger.Debug("returning results")
 
 				return &plugin.MethodResult{V: objs}, nil
 			},
