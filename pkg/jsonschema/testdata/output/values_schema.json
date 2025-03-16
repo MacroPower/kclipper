@@ -32,6 +32,20 @@
           "required": [],
           "title": "key",
           "type": "string"
+        },
+        "obj": {
+          "additionalProperties": true,
+          "properties": {
+            "key": {
+              "default": "value",
+              "required": [],
+              "title": "key",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "obj",
+          "type": "object"
         }
       },
       "required": [],

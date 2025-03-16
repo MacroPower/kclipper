@@ -1,6 +1,8 @@
 key: value
 nested:
   key: nestedValue
+  obj:
+    key: value
 array:
   - item1
   - item2

@@ -200,7 +200,7 @@ func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error)
 	}
 
 	for _, v := range s.Properties {
-		if err := fn(v); err != nil {
+		if err := updateHelmSchema(v, fn); err != nil {
 			return err
 		}
 	}
@@ -213,7 +213,7 @@ func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error)
 
 	if s.AnyOf != nil {
 		for _, v := range s.AnyOf {
-			if err := fn(v); err != nil {
+			if err := updateHelmSchema(v, fn); err != nil {
 				return err
 			}
 		}
@@ -221,7 +221,7 @@ func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error)
 
 	if s.OneOf != nil {
 		for _, v := range s.OneOf {
-			if err := fn(v); err != nil {
+			if err := updateHelmSchema(v, fn); err != nil {
 				return err
 			}
 		}
@@ -229,7 +229,7 @@ func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error)
 
 	if s.AllOf != nil {
 		for _, v := range s.AllOf {
-			if err := fn(v); err != nil {
+			if err := updateHelmSchema(v, fn); err != nil {
 				return err
 			}
 		}
