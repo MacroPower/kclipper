@@ -9,7 +9,7 @@
 
 [KCL](https://github.com/kcl-lang/kcl) is a constraint-based record & functional language mainly used in cloud-native configuration and policy scenarios. It is hosted by the Cloud Native Computing Foundation (CNCF) as a Sandbox Project. The KCL website can be found [here](https://kcl-lang.io/).
 
-Kclipper combines [KCL](https://github.com/kcl-lang/kcl) and [Helm](https://helm.sh/) by wrapping KCL with additional [plugins](https://www.kcl-lang.io/docs/next/reference/plugin/overview) and commands, and by providing [packages](https://www.kcl-lang.io/docs/next/user_docs/concepts/package-and-module) which act as friendly plugin interfaces.
+Kclipper combines [KCL](https://github.com/kcl-lang/kcl) and [Helm](https://helm.sh/) by wrapping KCL with additional [plugins](https://www.kcl-lang.io/docs/next/reference/plugin/overview) and commands, and by providing [modules](./modules/) which act as friendly plugin interfaces.
 
 Learn how kclipper compares to Holos and other KCL Helm plugins [here](docs/comparison.md).
 
