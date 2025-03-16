@@ -8,6 +8,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/mattn/go-isatty"
 	"github.com/muesli/termenv"
@@ -92,9 +93,11 @@ func newCharmLogHandler(w io.Writer, level slog.Level) slog.Handler {
 	lvl := int32(level)
 
 	logger := charmlog.NewWithOptions(w, charmlog.Options{
-		Level:        charmlog.Level(lvl),
-		Formatter:    charmlog.TextFormatter,
-		ReportCaller: true,
+		Level:           charmlog.Level(lvl),
+		Formatter:       charmlog.TextFormatter,
+		ReportTimestamp: true,
+		ReportCaller:    true,
+		TimeFormat:      time.StampMilli,
 	})
 	if isatty.IsTerminal(os.Stdout.Fd()) {
 		logger.SetColorProfile(termenv.ANSI256)
