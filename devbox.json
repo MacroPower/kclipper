@@ -14,7 +14,8 @@
     "zizmor": "1.4.1",
     "darwin.libresolv": {
       "platforms": ["aarch64-darwin", "x86_64-darwin"]
-    }
+    },
+    "conform": "0.1.0-alpha.29"
   },
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"]

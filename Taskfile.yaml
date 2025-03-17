@@ -298,11 +298,18 @@ tasks:
     desc: Install git hooks
     vars:
       PRE_COMMIT_FILE: "{{.ROOT_DIR}}/.git/hooks/pre-commit"
+      COMMIT_MSG_FILE: "{{.ROOT_DIR}}/.git/hooks/commit-msg"
     env:
       PRE_COMMIT: |-
         #!/bin/bash
 
         devbox run -- task pre-commit
+      COMMIT_MSG: |-
+        #!/bin/bash
+
+        devbox run -- conform enforce --commit-msg-file $1
     cmds:
       - echo "${PRE_COMMIT}" > {{.PRE_COMMIT_FILE}}
       - chmod u+x {{.PRE_COMMIT_FILE}}
+      - echo "${COMMIT_MSG}" > {{.COMMIT_MSG_FILE}}
+      - chmod u+x {{.COMMIT_MSG_FILE}}
