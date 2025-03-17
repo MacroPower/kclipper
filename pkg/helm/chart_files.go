@@ -9,8 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/kube"
@@ -110,7 +110,7 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 	return jsonSchema, nil
 }
 
-func (c *ChartFiles) GetCRDOutput() ([][]byte, error) {
+func (c *ChartFiles) GetCRDOutput() ([]*unstructured.Unstructured, error) {
 	loadedChart, err := c.pulledChart.Load(context.Background(), c.TemplateOpts.SkipSchemaValidation)
 	if err != nil {
 		return nil, fmt.Errorf("load chart: %w", err)
@@ -126,22 +126,18 @@ func (c *ChartFiles) GetCRDOutput() ([][]byte, error) {
 		return nil, fmt.Errorf("split yaml: %w", err)
 	}
 
-	crdBytes := [][]byte{}
+	crdFiles := []*unstructured.Unstructured{}
 
 	for _, r := range resources {
 		if r.GetKind() == "CustomResourceDefinition" {
-			data, err := yaml.Marshal(r.UnstructuredContent())
-			if err != nil {
-				return nil, fmt.Errorf("marshal crd object: %w", err)
-			}
-			crdBytes = append(crdBytes, data)
+			crdFiles = append(crdFiles, r)
 		}
 	}
 
-	return crdBytes, nil
+	return crdFiles, nil
 }
 
-func (c *ChartFiles) GetCRDFiles(match func(string) bool) ([][]byte, error) {
+func (c *ChartFiles) GetCRDFiles(match func(string) bool) ([]*unstructured.Unstructured, error) {
 	if match == nil {
 		return nil, ErrNoMatcher
 	}
@@ -170,7 +166,7 @@ func (c *ChartFiles) GetCRDFiles(match func(string) bool) ([][]byte, error) {
 		return nil, fmt.Errorf("read helm chart directory: %w", err)
 	}
 
-	crdBytes := [][]byte{}
+	crdFiles := []*unstructured.Unstructured{}
 
 	if len(matchedFiles) == 0 {
 		slog.Warn("no input files found for the CRD schema generator",
@@ -178,7 +174,7 @@ func (c *ChartFiles) GetCRDFiles(match func(string) bool) ([][]byte, error) {
 			slog.String("path", c.path),
 		)
 
-		return crdBytes, nil
+		return crdFiles, nil
 	}
 
 	for _, f := range matchedFiles {
@@ -188,10 +184,19 @@ func (c *ChartFiles) GetCRDFiles(match func(string) bool) ([][]byte, error) {
 			return nil, fmt.Errorf("read crd file: %w", err)
 		}
 
-		crdBytes = append(crdBytes, b)
+		crds, err := kube.SplitYAML(b)
+		if err != nil {
+			return nil, fmt.Errorf("parse crd file: %w", err)
+		}
+
+		for _, crd := range crds {
+			if crd.GetKind() == "CustomResourceDefinition" {
+				crdFiles = append(crdFiles, crd)
+			}
+		}
 	}
 
-	return crdBytes, nil
+	return crdFiles, nil
 }
 
 func (c *ChartFiles) Dispose() {

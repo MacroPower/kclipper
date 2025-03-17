@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/semaphore"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"kcl-lang.io/kcl-go"
 
 	"github.com/MacroPower/kclipper/pkg/helm"
@@ -122,7 +123,7 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		return err
 	}
 
-	crds := [][]byte{}
+	crds := []*unstructured.Unstructured{}
 	switch chart.CRDGenerator {
 	case kclutil.CRDGeneratorTypeDefault, kclutil.CRDGeneratorTypeTemplate:
 		logger.Info("rendering crd resources")
@@ -256,7 +257,7 @@ func writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
 	return nil
 }
 
-func (c *ChartPkg) writeCRDFiles(crds [][]byte, chartDir string) error {
+func (c *ChartPkg) writeCRDFiles(crds []*unstructured.Unstructured, chartDir string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 
@@ -272,7 +273,7 @@ func (c *ChartPkg) writeCRDFiles(crds [][]byte, chartDir string) error {
 		go func() {
 			defer sem.Release(1)
 
-			errChan <- kclutil.GenOpenAPI.FromCRD(crd, chartDir)
+			errChan <- kclutil.GenOpenAPI.FromCRD(crd, filepath.Join(chartDir, "api"))
 		}()
 	}
 
