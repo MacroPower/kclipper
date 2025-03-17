@@ -6,6 +6,7 @@ vars:
   SDK_PATH: ".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
   FRAMEWORK_PATH: "{{.SDK_PATH}}/System/Library/Frameworks"
   C_ENV: "{{OS | upper}}_{{ARCH | upper}}"
+  PRETTIER_TARGETS: "*.{yaml,md,json} **/*.{yaml,md,json}"
 
 env:
   HOSTNAME:
@@ -41,6 +42,7 @@ tasks:
       - renovate-lint
       - actions-lint
       - goreleaser-lint
+      - prettier-lint
 
   test:
     desc: Runs all test targets
@@ -145,7 +147,12 @@ tasks:
   prettier-format:
     desc: Formats YAML, JSON, and Markdown files
     cmds:
-      - prettier --config ./.prettierrc.yaml -w *.{yaml,md,json} **/*.{yaml,md,json}
+      - prettier --config ./.prettierrc.yaml -w {{.PRETTIER_TARGETS}}
+
+  prettier-lint:
+    desc: Lints YAML, JSON, and Markdown files
+    cmds:
+      - prettier --config ./.prettierrc.yaml --check {{.PRETTIER_TARGETS}}
 
   pull-upstream:
     desc: Pulls upstream KCL CLI
