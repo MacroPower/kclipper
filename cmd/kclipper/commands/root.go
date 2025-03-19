@@ -15,7 +15,14 @@ import (
 	"github.com/MacroPower/kclipper/pkg/log"
 )
 
-var ErrLogHandlerFailed = errors.New("log handler failed")
+var (
+	ErrLogHandlerFailed = errors.New("log handler failed")
+
+	heapProfile   *pprof.Profile
+	allocsProfile *pprof.Profile
+	blockProfile  *pprof.Profile
+	mutexProfile  *pprof.Profile
+)
 
 func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	args := NewRootArgs()
@@ -43,36 +50,24 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	}
 
 	cmd.PersistentFlags().StringVar(args.memProfile, "memprofile", "", "Write a memory profile to this file")
-	cmd.PersistentFlags().IntVar(args.memProfileRate, "memprofile_rate", 0, "Memory profiling rate as a fraction")
+	cmd.PersistentFlags().IntVar(args.memProfileRate, "memprofile_rate", 512*1024, "Memory profiling rate as a fraction")
 	if err := cmd.MarkPersistentFlagFilename("memprofile"); err != nil {
 		panic(err)
 	}
 
 	cmd.PersistentFlags().StringVar(args.blockProfile, "blockprofile", "", "Write a block profile to this file")
-	cmd.PersistentFlags().IntVar(args.blockProfileRate, "blockprofile_rate", 0, "Block profiling rate as a fraction")
+	cmd.PersistentFlags().IntVar(args.blockProfileRate, "blockprofile_rate", 1, "Block profiling rate as a fraction")
 	if err := cmd.MarkPersistentFlagFilename("blockprofile"); err != nil {
 		panic(err)
 	}
 
 	cmd.PersistentFlags().StringVar(args.mutexProfile, "mutexprofile", "", "Write a mutex profile to this file")
-	cmd.PersistentFlags().IntVar(args.mutexProfileRate, "mutexprofile_rate", 0, "Mutex profiling rate as a fraction")
+	cmd.PersistentFlags().IntVar(args.mutexProfileRate, "mutexprofile_rate", 1, "Mutex profiling rate as a fraction")
 	if err := cmd.MarkPersistentFlagFilename("mutexprofile"); err != nil {
 		panic(err)
 	}
 
 	cmd.PersistentPreRunE = func(cc *cobra.Command, _ []string) error {
-		if args.GetMemProfileRate() > 0 {
-			runtime.MemProfileRate = args.GetMemProfileRate()
-		}
-
-		if args.GetBlockProfileRate() > 0 {
-			runtime.SetBlockProfileRate(args.GetBlockProfileRate())
-		}
-
-		if args.GetMutexProfileRate() > 0 {
-			runtime.SetMutexProfileFraction(args.GetMutexProfileRate())
-		}
-
 		// Start CPU profiling if file is specified.
 		if args.GetCPUProfile() != "" {
 			f, err := os.Create(args.GetCPUProfile())
@@ -84,6 +79,28 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 
 				return fmt.Errorf("failed to start CPU profile: %w", err)
 			}
+		}
+
+		if args.GetHeapProfile() != "" || args.GetMemProfile() != "" {
+			runtime.MemProfileRate = args.GetMemProfileRate()
+		}
+
+		if args.GetHeapProfile() != "" {
+			heapProfile = pprof.Lookup("heap")
+		}
+
+		if args.GetMemProfile() != "" {
+			allocsProfile = pprof.Lookup("allocs")
+		}
+
+		if args.GetBlockProfile() != "" {
+			runtime.SetBlockProfileRate(args.GetBlockProfileRate())
+			blockProfile = pprof.Lookup("block")
+		}
+
+		if args.GetMutexProfile() != "" {
+			runtime.SetMutexProfileFraction(args.GetMutexProfileRate())
+			mutexProfile = pprof.Lookup("mutex")
 		}
 
 		h, err := log.CreateHandlerWithStrings(
@@ -110,52 +127,52 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 		}
 
 		// Write heap profile if file is specified.
-		if args.GetHeapProfile() != "" {
+		if heapProfile != nil {
 			f, err := os.Create(args.GetHeapProfile())
 			if err != nil {
 				return fmt.Errorf("failed to create heap profile: %w", err)
 			}
-			defer must(f.Close())
-			if err := pprof.Lookup("heap").WriteTo(f, 0); err != nil {
+			if err := heapProfile.WriteTo(f, 0); err != nil {
 				return fmt.Errorf("failed to write heap profile: %w", err)
 			}
+			must(f.Close())
 		}
 
 		// Write memory profile if file is specified.
-		if args.GetMemProfile() != "" {
+		if allocsProfile != nil {
 			f, err := os.Create(args.GetMemProfile())
 			if err != nil {
 				return fmt.Errorf("failed to create memory profile: %w", err)
 			}
-			defer must(f.Close())
 			runtime.GC() //nolint:revive // Get up-to-date statistics for the profile.
-			if err := pprof.Lookup("allocs").WriteTo(f, 0); err != nil {
+			if err := allocsProfile.WriteTo(f, 0); err != nil {
 				return fmt.Errorf("failed to write memory profile: %w", err)
 			}
+			must(f.Close())
 		}
 
 		// Write block profile if file is specified.
-		if args.GetBlockProfile() != "" {
+		if blockProfile != nil {
 			f, err := os.Create(args.GetBlockProfile())
 			if err != nil {
 				return fmt.Errorf("failed to create block profile: %w", err)
 			}
-			defer must(f.Close())
-			if err := pprof.Lookup("block").WriteTo(f, 0); err != nil {
+			if err := blockProfile.WriteTo(f, 0); err != nil {
 				return fmt.Errorf("failed to write block profile: %w", err)
 			}
+			must(f.Close())
 		}
 
 		// Write mutex profile if file is specified.
-		if args.GetMutexProfile() != "" {
+		if mutexProfile != nil {
 			f, err := os.Create(args.GetMutexProfile())
 			if err != nil {
 				return fmt.Errorf("failed to create mutex profile: %w", err)
 			}
-			defer must(f.Close())
-			if err := pprof.Lookup("mutex").WriteTo(f, 0); err != nil {
+			if err := mutexProfile.WriteTo(f, 0); err != nil {
 				return fmt.Errorf("failed to write mutex profile: %w", err)
 			}
+			must(f.Close())
 		}
 
 		return nil
