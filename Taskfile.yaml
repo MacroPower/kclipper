@@ -310,7 +310,22 @@ tasks:
       PRE_COMMIT: |-
         #!/bin/bash
 
-        devbox run -- task pre-commit
+        git stash --keep-index --include-untracked --quiet
+
+        exitCode=0
+
+        devbox run -- task {{.TASK}} || exitCode=$?
+        devbox run -- task pre-commit || exitCode=$?
+
+        if [ $exitCode -eq 0 ]; then
+          git add .
+        else
+          git stash --keep-index --include-untracked --quiet && git stash drop --quiet
+        fi
+
+        git stash pop --quiet
+
+        exit $exitCode
       COMMIT_MSG: |-
         #!/bin/bash
 
