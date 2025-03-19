@@ -164,6 +164,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProvider:
         bitwardensecretsmanager
     chef : ExternalSecretsIoV1beta1SecretStoreSpecProviderChef, default is Undefined, optional
         chef
+    cloudrusm : ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusm, default is Undefined, optional
+        cloudrusm
     conjur : ExternalSecretsIoV1beta1SecretStoreSpecProviderConjur, default is Undefined, optional
         conjur
     delinea : ExternalSecretsIoV1beta1SecretStoreSpecProviderDelinea, default is Undefined, optional
@@ -234,6 +236,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProvider:
     bitwardensecretsmanager?: ExternalSecretsIoV1beta1SecretStoreSpecProviderBitwardensecretsmanager
 
     chef?: ExternalSecretsIoV1beta1SecretStoreSpecProviderChef
+
+    cloudrusm?: ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusm
 
     conjur?: ExternalSecretsIoV1beta1SecretStoreSpecProviderConjur
 
@@ -1892,6 +1896,128 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderChefAuthSecretRefPrivateKe
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 
+schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusm:
+    r"""
+    CloudruSM configures this store to sync secrets using the Cloud.ru Secret Manager provider
+
+    Attributes
+    ----------
+    auth : ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuth, default is Undefined, required
+        auth
+    projectID : str, default is Undefined, optional
+        ProjectID is the project, which the secrets are stored in.
+    """
+
+
+    auth: ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuth
+
+    projectID?: str
+
+
+schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuth:
+    r"""
+    CSMAuth contains a secretRef for credentials.
+
+    Attributes
+    ----------
+    secretRef : ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRef, default is Undefined, optional
+        secret ref
+    """
+
+
+    secretRef?: ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRef
+
+
+schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRef:
+    r"""
+    CSMAuthSecretRef holds secret references for Cloud.ru credentials.
+
+    Attributes
+    ----------
+    accessKeyIDSecretRef : ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAccessKeyIDSecretRef, default is Undefined, required
+        access key ID secret ref
+    accessKeySecretSecretRef : ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAccessKeySecretSecretRef, default is Undefined, required
+        access key secret secret ref
+    """
+
+
+    accessKeyIDSecretRef: ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAccessKeyIDSecretRef
+
+    accessKeySecretSecretRef: ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAccessKeySecretSecretRef
+
+
+schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAccessKeyIDSecretRef:
+    r"""
+    The AccessKeyID is used for authentication
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        A key in the referenced Secret.
+        Some instances of this field may be defaulted, in others it may be required.
+    name : str, default is Undefined, optional
+        The name of the Secret resource being referred to.
+    namespace : str, default is Undefined, optional
+        The namespace of the Secret resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+
+
+    key?: str
+
+    name?: str
+
+    namespace?: str
+
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253 if name
+        len(name) >= 1 if name
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+
+schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAccessKeySecretSecretRef:
+    r"""
+    The AccessKeySecret is used for authentication
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        A key in the referenced Secret.
+        Some instances of this field may be defaulted, in others it may be required.
+    name : str, default is Undefined, optional
+        The name of the Secret resource being referred to.
+    namespace : str, default is Undefined, optional
+        The namespace of the Secret resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+
+
+    key?: str
+
+    name?: str
+
+    namespace?: str
+
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253 if name
+        len(name) >= 1 if name
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjur:
     r"""
     Conjur configures this store to sync secrets using conjur provider
@@ -3061,7 +3187,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisical:
     auth : ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalAuth, default is Undefined, required
         auth
     hostAPI : str, default is "https://app.infisical.com/api", optional
-        host API
+        HostAPI specifies the base URL of the Infisical API. If not provided, it defaults to "https://app.infisical.com/api".
     secretsScope : ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalSecretsScope, default is Undefined, required
         secrets scope
     """
@@ -3182,22 +3308,26 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalAuthUniversalAuth
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalSecretsScope:
     r"""
-    external secrets io v1beta1 secret store spec provider infisical secrets scope
+    SecretsScope defines the scope of the secrets within the workspace
 
     Attributes
     ----------
     environmentSlug : str, default is Undefined, required
-        environment slug
+        EnvironmentSlug is the required slug identifier for the environment.
+    expandSecretReferences : bool, default is True, optional
+        ExpandSecretReferences indicates whether secret references should be expanded. Defaults to true if not provided.
     projectSlug : str, default is Undefined, required
-        project slug
+        ProjectSlug is the required slug identifier for the project.
     recursive : bool, default is Undefined, optional
-        recursive
+        Recursive indicates whether the secrets should be fetched recursively. Defaults to false if not provided.
     secretsPath : str, default is "/", optional
-        secrets path
+        SecretsPath specifies the path to the secrets within the workspace. Defaults to "/" if not provided.
     """
 
 
     environmentSlug: str
+
+    expandSecretReferences?: bool = True
 
     projectSlug: str
 
@@ -4701,7 +4831,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVault:
 
     Attributes
     ----------
-    auth : ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuth, default is Undefined, required
+    auth : ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuth, default is Undefined, optional
         auth
     caBundle : str, default is Undefined, optional
         PEM encoded CA bundle used to validate Vault server certificate. Only used
@@ -4741,7 +4871,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVault:
     """
 
 
-    auth: ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuth
+    auth?: ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuth
 
     caBundle?: str
 
