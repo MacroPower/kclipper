@@ -1,0 +1,2 @@
+schema Bar:
+    baz: str

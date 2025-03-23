@@ -1,0 +1,5 @@
+# yaml-language-server: $schema=./got/export_cmd/schema.json
+
+a: "1"
+c:
+  b: "2"
