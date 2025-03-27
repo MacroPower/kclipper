@@ -9,7 +9,7 @@ require (
 	github.com/charmbracelet/log v0.4.1
 	github.com/charmbracelet/x/exp/teatest v0.0.0-20250324105510-c72bdbf70572
 	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
-	github.com/dadav/helm-schema v0.0.0-20241230184257-6f2eeb34f592
+	github.com/dadav/helm-schema v0.0.0-20250122083607-0f182120235b
 	github.com/getkin/kin-openapi v0.131.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
