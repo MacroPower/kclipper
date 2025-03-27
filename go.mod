@@ -10,6 +10,7 @@ require (
 	github.com/charmbracelet/x/exp/teatest v0.0.0-20250313150240-c09addb0e197
 	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
 	github.com/dadav/helm-schema v0.0.0-20241230184257-6f2eeb34f592
+	github.com/getkin/kin-openapi v0.129.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/iancoleman/strcase v0.3.0
@@ -104,7 +105,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
-	github.com/getkin/kin-openapi v0.129.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.6.2 // indirect
