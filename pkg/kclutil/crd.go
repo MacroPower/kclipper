@@ -9,6 +9,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"kcl-lang.io/kcl-go"
 
 	crdgen "kcl-lang.io/kcl-openapi/pkg/kube_resource/generator"
 	swaggergen "kcl-lang.io/kcl-openapi/pkg/swagger/generator"
@@ -107,6 +108,11 @@ func (g *genOpenAPI) fromCRDVersion(crd *unstructured.Unstructured, dstPath, ver
 	err = os.RemoveAll(filepath.Join(opts.Target, opts.ModelPackage, "k8s"))
 	if err != nil {
 		return fmt.Errorf("failed to remove temp 'k8s' model package: %w", err)
+	}
+
+	// Format the generated KCL files.
+	if _, err := kcl.FormatPath(filepath.Join(dstPath, version)); err != nil {
+		return fmt.Errorf("failed to format kcl files: %w", err)
 	}
 
 	return nil
