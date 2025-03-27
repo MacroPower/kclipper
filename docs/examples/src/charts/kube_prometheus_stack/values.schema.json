@@ -49,6 +49,7 @@
       "description": "# Assign a group of affinity scheduling rules\n#",
       "properties": {
         "podAntiAffinity": {
+          "additionalProperties": true,
           "properties": {
             "preferredDuringSchedulingIgnoredDuringExecution": {
               "items": {
@@ -164,9 +165,11 @@
       "description": "# Configuration for alertmanager\n# ref: https://prometheus.io/docs/alerting/alertmanager/\n#",
       "properties": {
         "alertmanagerSpec": {
+          "additionalProperties": true,
           "description": "# Settings affecting alertmanagerSpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#alertmanagerspec\n#",
           "properties": {
             "additionalConfig": {
+              "additionalProperties": true,
               "description": "# Additional configuration which is not covered by the properties above. (passed through tpl)",
               "required": [],
               "title": "additionalConfig",
@@ -189,30 +192,35 @@
               "type": "array"
             },
             "affinity": {
+              "additionalProperties": true,
               "description": "# Assign custom affinity rules to the alertmanager instance\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/\n#",
               "required": [],
               "title": "affinity",
               "type": "object"
             },
             "alertmanagerConfigMatcherStrategy": {
+              "additionalProperties": true,
               "description": "# Defines the strategy used by AlertmanagerConfig objects to match alerts. eg:\n#",
               "required": [],
               "title": "alertmanagerConfigMatcherStrategy",
               "type": "object"
             },
             "alertmanagerConfigNamespaceSelector": {
+              "additionalProperties": true,
               "description": "# Namespaces to be selected for AlertmanagerConfig discovery. If nil, only check own namespace.\n#",
               "required": [],
               "title": "alertmanagerConfigNamespaceSelector",
               "type": "object"
             },
             "alertmanagerConfigSelector": {
+              "additionalProperties": true,
               "description": "# AlertmanagerConfigs to be selected to merge and configure Alertmanager with.\n#",
               "required": [],
               "title": "alertmanagerConfigSelector",
               "type": "object"
             },
             "alertmanagerConfiguration": {
+              "additionalProperties": true,
               "description": "# AlermanagerConfig to be used as top level configuration\n#",
               "required": [],
               "title": "alertmanagerConfiguration",
@@ -293,6 +301,7 @@
               "type": "boolean"
             },
             "image": {
+              "additionalProperties": true,
               "description": "# Image of Alertmanager\n#",
               "properties": {
                 "registry": {
@@ -314,7 +323,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v0.28.0",
+                  "default": "v0.28.1",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -362,6 +371,7 @@
               "type": "integer"
             },
             "nodeSelector": {
+              "additionalProperties": true,
               "description": "# Define which Nodes the Pods are scheduled on.\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n#",
               "required": [],
               "title": "nodeSelector",
@@ -375,6 +385,7 @@
               "type": "boolean"
             },
             "persistentVolumeClaimRetentionPolicy": {
+              "additionalProperties": true,
               "description": "# Statefulset's persistent volume claim retention policy\n# whenDeleted and whenScaled determine whether\n# statefulset's PVCs are deleted (true) or retained (false)\n# on scaling down and deleting statefulset, respectively.\n# Requires Kubernetes version 1.27.0+.\n# Ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention",
               "required": [],
               "title": "persistentVolumeClaimRetentionPolicy",
@@ -395,6 +406,7 @@
               "type": "string"
             },
             "podMetadata": {
+              "additionalProperties": true,
               "description": "# Standard object's metadata. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#metadata\n# Metadata Labels and Annotations gets propagated to the Alertmanager pods.\n#",
               "required": [],
               "title": "podMetadata",
@@ -422,6 +434,7 @@
               "type": "integer"
             },
             "resources": {
+              "additionalProperties": true,
               "description": "# Define resources requests and limits for single Pods.\n# ref: https://kubernetes.io/docs/user-guide/compute-resources/\n#",
               "required": [],
               "title": "resources",
@@ -458,6 +471,7 @@
               "type": "array"
             },
             "securityContext": {
+              "additionalProperties": true,
               "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
               "properties": {
                 "fsGroup": {
@@ -485,6 +499,7 @@
                   "type": "integer"
                 },
                 "seccompProfile": {
+                  "additionalProperties": true,
                   "properties": {
                     "type": {
                       "default": "RuntimeDefault",
@@ -503,12 +518,14 @@
               "type": "object"
             },
             "storage": {
-              "description": "# Storage is the definition of how storage will be used by the Alertmanager instances.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md\n#",
+              "additionalProperties": true,
+              "description": "# Storage is the definition of how storage will be used by the Alertmanager instances.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md\n#",
               "required": [],
               "title": "storage",
               "type": "object"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "description": "# tlsConfig: TLS configuration to use when connect to the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
@@ -558,6 +575,7 @@
               "type": "array"
             },
             "web": {
+              "additionalProperties": true,
               "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#alertmanagerwebspec",
               "required": [],
               "title": "web",
@@ -569,6 +587,7 @@
           "type": "object"
         },
         "annotations": {
+          "additionalProperties": true,
           "description": "# Annotations for Alertmanager\n#",
           "required": [],
           "title": "annotations",
@@ -582,9 +601,11 @@
           "type": "string"
         },
         "config": {
+          "additionalProperties": true,
           "description": "# Alertmanager configuration directives\n# ref: https://prometheus.io/docs/alerting/configuration/#configuration-file\n#      https://prometheus.io/webtools/alerting/routing-tree-editor/\n#",
           "properties": {
             "global": {
+              "additionalProperties": true,
               "properties": {
                 "resolve_timeout": {
                   "default": "5m",
@@ -653,6 +674,7 @@
               "type": "array"
             },
             "route": {
+              "additionalProperties": true,
               "properties": {
                 "group_by": {
                   "items": {
@@ -749,15 +771,18 @@
           "type": "boolean"
         },
         "extraSecret": {
+          "additionalProperties": true,
           "description": "# ExtraSecret can be used to store various data in an extra secret\n# (use it for example to store hashed basic auth credentials)",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "# if not set, name will be auto generated\nname: \"\"",
               "required": [],
               "title": "annotations",
               "type": "object"
             },
             "data": {
+              "additionalProperties": true,
               "required": [],
               "title": "data",
               "type": "object"
@@ -775,8 +800,10 @@
           "type": "boolean"
         },
         "ingress": {
+          "additionalProperties": true,
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "For Kubernetes \u003e= 1.18 you should specify the ingress-controller via the field ingressClassName\nSee https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress\ningressClassName: nginx",
               "required": [],
               "title": "annotations",
@@ -798,6 +825,7 @@
               "type": "array"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -826,9 +854,11 @@
           "type": "object"
         },
         "ingressPerReplica": {
+          "additionalProperties": true,
           "description": "# Configuration for creating an Ingress that will map to each Alertmanager replica service\n# alertmanager.servicePerReplica must be enabled\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "For Kubernetes \u003e= 1.18 you should specify the ingress-controller via the field ingressClassName\nSee https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress\ningressClassName: nginx",
               "required": [],
               "title": "annotations",
@@ -855,6 +885,7 @@
               "type": "string"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -876,6 +907,7 @@
               "type": "string"
             },
             "tlsSecretPerReplica": {
+              "additionalProperties": true,
               "description": "# Separated secret for each per replica Ingress. Can be used together with cert-manager\n#",
               "properties": {
                 "enabled": {
@@ -901,7 +933,121 @@
           "title": "ingressPerReplica",
           "type": "object"
         },
+        "networkPolicy": {
+          "additionalProperties": true,
+          "description": "# Network Policy configuration\n#",
+          "properties": {
+            "additionalIngress": {
+              "description": "Additional custom ingress rules\n#",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "additionalIngress",
+              "type": "array"
+            },
+            "egress": {
+              "additionalProperties": true,
+              "description": "Configure egress rules\n#",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Enable egress rules. When enabled, policyTypes will include Egress\n#",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "rules": {
+                  "description": "Custom egress rules\n#",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "rules",
+                  "type": "array"
+                }
+              },
+              "required": [],
+              "title": "egress",
+              "type": "object"
+            },
+            "enableClusterRules": {
+              "default": true,
+              "description": "Enable rules for alertmanager cluster traffic\n#",
+              "required": [],
+              "title": "enableClusterRules",
+              "type": "boolean"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Enable network policy for Alertmanager",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "gateway": {
+              "additionalProperties": true,
+              "description": "Gateway (formerly ingress controller) configuration\n#",
+              "properties": {
+                "namespace": {
+                  "default": "",
+                  "description": "Gateway namespace\n#",
+                  "required": [],
+                  "title": "namespace",
+                  "type": "string"
+                },
+                "podLabels": {
+                  "additionalProperties": true,
+                  "description": "Gateway pod labels\n#",
+                  "required": [],
+                  "title": "podLabels",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "gateway",
+              "type": "object"
+            },
+            "monitoringRules": {
+              "additionalProperties": true,
+              "description": "Configure monitoring component rules\n#",
+              "properties": {
+                "configReloader": {
+                  "default": true,
+                  "description": "Enable ingress for config reloader metrics\n#",
+                  "required": [],
+                  "title": "configReloader",
+                  "type": "boolean"
+                },
+                "prometheus": {
+                  "default": true,
+                  "description": "Enable ingress from Prometheus\n#",
+                  "required": [],
+                  "title": "prometheus",
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "title": "monitoringRules",
+              "type": "object"
+            },
+            "policyTypes": {
+              "description": "Define policy types. If egress is enabled, both Ingress and Egress will be used\nValid values are [\"Ingress\"] or [\"Ingress\", \"Egress\"]\n#",
+              "items": {
+                "required": [],
+                "type": "string"
+              },
+              "required": [],
+              "title": "policyTypes",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "networkPolicy",
+          "type": "object"
+        },
         "podDisruptionBudget": {
+          "additionalProperties": true,
           "description": "# Configure pod disruption budgets for Alertmanager\n# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget\n#",
           "properties": {
             "enabled": {
@@ -928,9 +1074,11 @@
           "type": "object"
         },
         "route": {
+          "additionalProperties": true,
           "description": "BETA: Configure the gateway routes for the chart here.\nMore routes can be added by adding a dictionary key like the 'main' route.\nBe aware that this is an early beta of this feature,\nkube-prometheus-stack does not guarantee this works and is subject to change.\nBeing BETA this can/will change in the future without notice, do not use unless you want to take that risk\n[[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)",
           "properties": {
             "main": {
+              "additionalProperties": true,
               "properties": {
                 "additionalRules": {
                   "description": "# Additional custom rules that can be added to the route",
@@ -942,6 +1090,7 @@
                   "type": "array"
                 },
                 "annotations": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "annotations",
                   "type": "object"
@@ -992,6 +1141,7 @@
                   "type": "string"
                 },
                 "labels": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "labels",
                   "type": "object"
@@ -1046,9 +1196,11 @@
           "type": "object"
         },
         "secret": {
+          "additionalProperties": true,
           "description": "# Configuration for Alertmanager secret\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -1059,6 +1211,7 @@
           "type": "object"
         },
         "service": {
+          "additionalProperties": true,
           "description": "# Configuration for Alertmanager service\n#",
           "properties": {
             "additionalPorts": {
@@ -1071,6 +1224,7 @@
               "type": "array"
             },
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -1097,6 +1251,7 @@
               "type": "string"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -1125,6 +1280,7 @@
               "type": "object"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -1165,9 +1321,11 @@
               "type": "string"
             },
             "sessionAffinityConfig": {
+              "additionalProperties": true,
               "description": "# If you want to modify the ClientIP sessionAffinity timeout\n# The value must be \u003e0 \u0026\u0026 \u003c=86400(for 1 day) if ServiceAffinity == \"ClientIP\"\n#",
               "properties": {
                 "clientIP": {
+                  "additionalProperties": true,
                   "properties": {
                     "timeoutSeconds": {
                       "default": 10800,
@@ -1187,7 +1345,7 @@
             },
             "targetPort": {
               "default": 9093,
-              "description": "# To be used with a proxy extraContainer port\n#",
+              "description": "# Port for Alertmanager cluster communication\n#\nclusterPort: 9094\n# To be used with a proxy extraContainer port\n#",
               "required": [],
               "title": "targetPort",
               "type": "integer"
@@ -1205,9 +1363,11 @@
           "type": "object"
         },
         "serviceAccount": {
+          "additionalProperties": true,
           "description": "# Service account for Alertmanager to use.\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -1236,6 +1396,7 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "description": "# Configuration for creating a ServiceMonitor for AlertManager\n#",
           "properties": {
             "additionalEndpoints": {
@@ -1248,6 +1409,7 @@
               "type": "array"
             },
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -1348,6 +1510,7 @@
               "type": "integer"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
@@ -1359,9 +1522,11 @@
           "type": "object"
         },
         "servicePerReplica": {
+          "additionalProperties": true,
           "description": "# Configuration for creating a separate Service for each statefulset Alertmanager replica\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -1429,6 +1594,7 @@
           "type": "string"
         },
         "templateFiles": {
+          "additionalProperties": true,
           "description": "# Alertmanager template files to format alerts\n# By default, templateFiles are placed in /etc/alertmanager/config/ and if\n# they have a .tmpl file suffix will be loaded. See config.templates above\n# to change, add other suffixes. If adding other suffixes, be sure to update\n# config.templates above to include those suffixes.\n# ref: https://prometheus.io/docs/alerting/notifications/\n#      https://prometheus.io/docs/alerting/notification_examples/\n#",
           "required": [],
           "title": "templateFiles",
@@ -1472,6 +1638,7 @@
       "description": "# Create HorizontalPodAutoscaler object for deployment type\n",
       "properties": {
         "behavior": {
+          "additionalProperties": true,
           "required": [],
           "title": "behavior",
           "type": "object"
@@ -1546,18 +1713,6 @@
     "commonLabels": {
       "additionalProperties": true,
       "description": "# Labels to apply to all resources\n#",
-      "properties": {
-        "baz": {
-          "required": [],
-          "title": "baz",
-          "type": "string"
-        },
-        "foo": {
-          "required": [],
-          "title": "foo",
-          "type": "string"
-        }
-      },
       "required": [],
       "title": "commonLabels",
       "type": "object"
@@ -1588,6 +1743,7 @@
           "type": "boolean"
         },
         "capabilities": {
+          "additionalProperties": true,
           "properties": {
             "drop": {
               "items": {
@@ -1610,6 +1766,7 @@
           "type": "boolean"
         },
         "seccompProfile": {
+          "additionalProperties": true,
           "properties": {
             "type": {
               "default": "RuntimeDefault",
@@ -1647,6 +1804,7 @@
           "type": "boolean"
         },
         "service": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": true,
@@ -1655,6 +1813,7 @@
               "type": "boolean"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -1700,8 +1859,10 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -1787,6 +1948,7 @@
               "type": "integer"
             },
             "selector": {
+              "additionalProperties": true,
               "required": [],
               "title": "selector",
               "type": "object"
@@ -1828,21 +1990,25 @@
           "type": "boolean"
         },
         "upgradeJob": {
+          "additionalProperties": true,
           "description": "# The CRD upgrade job mitigates the limitation of helm not being able to upgrade CRDs.\n# The job will apply the CRDs to the cluster before the operator is deployed, using helm hooks.\n# It deploy a corresponding clusterrole, clusterrolebinding and serviceaccount to apply the CRDs.\n# This feature is in preview, off by default and may change in the future.",
           "properties": {
             "affinity": {
+              "additionalProperties": true,
               "description": "# Assign custom affinity rules to the upgrade-crd job\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/\n#",
               "required": [],
               "title": "affinity",
               "type": "object"
             },
             "annotations": {
+              "additionalProperties": true,
               "description": "# Annotations to add to the upgrade-crd job\n#",
               "required": [],
               "title": "annotations",
               "type": "object"
             },
             "containerSecurityContext": {
+              "additionalProperties": true,
               "description": "# Container-specific security context configuration\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
               "properties": {
                 "allowPrivilegeEscalation": {
@@ -1852,6 +2018,7 @@
                   "type": "boolean"
                 },
                 "capabilities": {
+                  "additionalProperties": true,
                   "properties": {
                     "drop": {
                       "items": {
@@ -1885,6 +2052,7 @@
               "type": "boolean"
             },
             "env": {
+              "additionalProperties": true,
               "required": [],
               "title": "env",
               "type": "object"
@@ -1914,8 +2082,10 @@
               "type": "boolean"
             },
             "image": {
+              "additionalProperties": true,
               "properties": {
                 "busybox": {
+                  "additionalProperties": true,
                   "properties": {
                     "pullPolicy": {
                       "default": "IfNotPresent",
@@ -1953,6 +2123,7 @@
                   "type": "object"
                 },
                 "kubectl": {
+                  "additionalProperties": true,
                   "properties": {
                     "pullPolicy": {
                       "default": "IfNotPresent",
@@ -1995,36 +2166,35 @@
               "type": "object"
             },
             "labels": {
+              "additionalProperties": true,
               "description": "## Labels to add to the upgrade-crd job\n##",
               "required": [],
               "title": "labels",
               "type": "object"
             },
             "nodeSelector": {
+              "additionalProperties": true,
               "description": "# Define which Nodes the Pods are scheduled on.\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n#",
               "required": [],
               "title": "nodeSelector",
               "type": "object"
             },
             "podAnnotations": {
+              "additionalProperties": true,
               "description": "# Annotations to add to the upgrade-crd pod\n#",
               "required": [],
               "title": "podAnnotations",
               "type": "object"
             },
             "podLabels": {
+              "additionalProperties": true,
               "description": "# Labels to add to the upgrade-crd pod\n#",
               "required": [],
               "title": "podLabels",
               "type": "object"
             },
-            "resources": {
-              "description": "# Define resources requests and limits for single Pods.\n# ref: https://kubernetes.io/docs/user-guide/compute-resources/\n#",
-              "required": [],
-              "title": "resources",
-              "type": "object"
-            },
-            "securityContext": {
+            "podSecurityContext": {
+              "additionalProperties": true,
               "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
               "properties": {
                 "fsGroup": {
@@ -2052,6 +2222,7 @@
                   "type": "integer"
                 },
                 "seccompProfile": {
+                  "additionalProperties": true,
                   "properties": {
                     "type": {
                       "default": "RuntimeDefault",
@@ -2066,13 +2237,22 @@
                 }
               },
               "required": [],
-              "title": "securityContext",
+              "title": "podSecurityContext",
+              "type": "object"
+            },
+            "resources": {
+              "additionalProperties": true,
+              "description": "# Define resources requests and limits for single Pods.\n# ref: https://kubernetes.io/docs/user-guide/compute-resources/\n#",
+              "required": [],
+              "title": "resources",
               "type": "object"
             },
             "serviceAccount": {
+              "additionalProperties": true,
               "description": "# Service account for upgrade crd job to use.\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/\n#",
               "properties": {
                 "annotations": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "annotations",
                   "type": "object"
@@ -2090,6 +2270,7 @@
                   "type": "boolean"
                 },
                 "labels": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "labels",
                   "type": "object"
@@ -2152,6 +2333,7 @@
       "description": "Enabling support for customResourceState, will create a configMap including your config that will be read from kube-state-metrics",
       "properties": {
         "config": {
+          "additionalProperties": true,
           "description": "Add (Cluster)Role permissions to list/watch the customResources defined in the config to rbac.extraRules",
           "required": [],
           "title": "config",
@@ -2187,6 +2369,7 @@
       "description": "# Configure grafana dashboard providers\n# ref: http://docs.grafana.org/administration/provisioning/#dashboards\n#\n# `path` must be /var/lib/grafana/dashboards/\u003cprovider_name\u003e\n#",
       "properties": {
         "dashboardproviders.yaml": {
+          "additionalProperties": true,
           "properties": {
             "apiVersion": {
               "required": [],
@@ -2266,8 +2449,10 @@
       "description": "# Configure grafana dashboard to import\n# NOTE: To use dashboards you must also enable/configure dashboardProviders\n# ref: https://grafana.com/dashboards\n#\n# dashboards per provider, use provider name as key.\n#",
       "properties": {
         "my-provider": {
+          "additionalProperties": true,
           "properties": {
             "my-awesome-dashboard": {
+              "additionalProperties": true,
               "properties": {
                 "datasource": {
                   "required": [],
@@ -2332,170 +2517,204 @@
           "type": "array"
         },
         "additionalRuleAnnotations": {
+          "additionalProperties": true,
           "description": "# Additional annotations for PrometheusRule alerts",
           "required": [],
           "title": "additionalRuleAnnotations",
           "type": "object"
         },
         "additionalRuleGroupAnnotations": {
+          "additionalProperties": true,
           "description": "# Additional annotations for specific PrometheusRule alerts groups",
           "properties": {
             "alertmanager": {
+              "additionalProperties": true,
               "required": [],
               "title": "alertmanager",
               "type": "object"
             },
             "configReloaders": {
+              "additionalProperties": true,
               "required": [],
               "title": "configReloaders",
               "type": "object"
             },
             "etcd": {
+              "additionalProperties": true,
               "required": [],
               "title": "etcd",
               "type": "object"
             },
             "general": {
+              "additionalProperties": true,
               "required": [],
               "title": "general",
               "type": "object"
             },
             "k8sContainerCpuUsageSecondsTotal": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerCpuUsageSecondsTotal",
               "type": "object"
             },
             "k8sContainerMemoryCache": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerMemoryCache",
               "type": "object"
             },
             "k8sContainerMemoryRss": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerMemoryRss",
               "type": "object"
             },
             "k8sContainerMemorySwap": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerMemorySwap",
               "type": "object"
             },
             "k8sContainerResource": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerResource",
               "type": "object"
             },
             "k8sPodOwner": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sPodOwner",
               "type": "object"
             },
             "kubeApiserverAvailability": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeApiserverAvailability",
               "type": "object"
             },
             "kubeApiserverBurnrate": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeApiserverBurnrate",
               "type": "object"
             },
             "kubeApiserverHistogram": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeApiserverHistogram",
               "type": "object"
             },
             "kubeApiserverSlos": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeApiserverSlos",
               "type": "object"
             },
             "kubeControllerManager": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeControllerManager",
               "type": "object"
             },
             "kubePrometheusGeneral": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubePrometheusGeneral",
               "type": "object"
             },
             "kubePrometheusNodeRecording": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubePrometheusNodeRecording",
               "type": "object"
             },
             "kubeProxy": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeProxy",
               "type": "object"
             },
             "kubeSchedulerAlerting": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeSchedulerAlerting",
               "type": "object"
             },
             "kubeSchedulerRecording": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeSchedulerRecording",
               "type": "object"
             },
             "kubeStateMetrics": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeStateMetrics",
               "type": "object"
             },
             "kubelet": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubelet",
               "type": "object"
             },
             "kubernetesApps": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubernetesApps",
               "type": "object"
             },
             "kubernetesResources": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubernetesResources",
               "type": "object"
             },
             "kubernetesStorage": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubernetesStorage",
               "type": "object"
             },
             "kubernetesSystem": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubernetesSystem",
               "type": "object"
             },
             "network": {
+              "additionalProperties": true,
               "required": [],
               "title": "network",
               "type": "object"
             },
             "node": {
+              "additionalProperties": true,
               "required": [],
               "title": "node",
               "type": "object"
             },
             "nodeExporterAlerting": {
+              "additionalProperties": true,
               "required": [],
               "title": "nodeExporterAlerting",
               "type": "object"
             },
             "nodeExporterRecording": {
+              "additionalProperties": true,
               "required": [],
               "title": "nodeExporterRecording",
               "type": "object"
             },
             "prometheus": {
+              "additionalProperties": true,
               "required": [],
               "title": "prometheus",
               "type": "object"
             },
             "prometheusOperator": {
+              "additionalProperties": true,
               "required": [],
               "title": "prometheusOperator",
               "type": "object"
@@ -2506,164 +2725,197 @@
           "type": "object"
         },
         "additionalRuleGroupLabels": {
+          "additionalProperties": true,
           "description": "# Additional labels for specific PrometheusRule alert groups",
           "properties": {
             "alertmanager": {
+              "additionalProperties": true,
               "required": [],
               "title": "alertmanager",
               "type": "object"
             },
             "configReloaders": {
+              "additionalProperties": true,
               "required": [],
               "title": "configReloaders",
               "type": "object"
             },
             "etcd": {
+              "additionalProperties": true,
               "required": [],
               "title": "etcd",
               "type": "object"
             },
             "general": {
+              "additionalProperties": true,
               "required": [],
               "title": "general",
               "type": "object"
             },
             "k8sContainerCpuUsageSecondsTotal": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerCpuUsageSecondsTotal",
               "type": "object"
             },
             "k8sContainerMemoryCache": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerMemoryCache",
               "type": "object"
             },
             "k8sContainerMemoryRss": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerMemoryRss",
               "type": "object"
             },
             "k8sContainerMemorySwap": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerMemorySwap",
               "type": "object"
             },
             "k8sContainerResource": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sContainerResource",
               "type": "object"
             },
             "k8sPodOwner": {
+              "additionalProperties": true,
               "required": [],
               "title": "k8sPodOwner",
               "type": "object"
             },
             "kubeApiserverAvailability": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeApiserverAvailability",
               "type": "object"
             },
             "kubeApiserverBurnrate": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeApiserverBurnrate",
               "type": "object"
             },
             "kubeApiserverHistogram": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeApiserverHistogram",
               "type": "object"
             },
             "kubeApiserverSlos": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeApiserverSlos",
               "type": "object"
             },
             "kubeControllerManager": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeControllerManager",
               "type": "object"
             },
             "kubePrometheusGeneral": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubePrometheusGeneral",
               "type": "object"
             },
             "kubePrometheusNodeRecording": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubePrometheusNodeRecording",
               "type": "object"
             },
             "kubeProxy": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeProxy",
               "type": "object"
             },
             "kubeSchedulerAlerting": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeSchedulerAlerting",
               "type": "object"
             },
             "kubeSchedulerRecording": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeSchedulerRecording",
               "type": "object"
             },
             "kubeStateMetrics": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubeStateMetrics",
               "type": "object"
             },
             "kubelet": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubelet",
               "type": "object"
             },
             "kubernetesApps": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubernetesApps",
               "type": "object"
             },
             "kubernetesResources": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubernetesResources",
               "type": "object"
             },
             "kubernetesStorage": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubernetesStorage",
               "type": "object"
             },
             "kubernetesSystem": {
+              "additionalProperties": true,
               "required": [],
               "title": "kubernetesSystem",
               "type": "object"
             },
             "network": {
+              "additionalProperties": true,
               "required": [],
               "title": "network",
               "type": "object"
             },
             "node": {
+              "additionalProperties": true,
               "required": [],
               "title": "node",
               "type": "object"
             },
             "nodeExporterAlerting": {
+              "additionalProperties": true,
               "required": [],
               "title": "nodeExporterAlerting",
               "type": "object"
             },
             "nodeExporterRecording": {
+              "additionalProperties": true,
               "required": [],
               "title": "nodeExporterRecording",
               "type": "object"
             },
             "prometheus": {
+              "additionalProperties": true,
               "required": [],
               "title": "prometheus",
               "type": "object"
             },
             "prometheusOperator": {
+              "additionalProperties": true,
               "required": [],
               "title": "prometheusOperator",
               "type": "object"
@@ -2674,12 +2926,14 @@
           "type": "object"
         },
         "additionalRuleLabels": {
+          "additionalProperties": true,
           "description": "# Additional labels for PrometheusRule alerts",
           "required": [],
           "title": "additionalRuleLabels",
           "type": "object"
         },
         "annotations": {
+          "additionalProperties": true,
           "description": "# Annotations for default rules",
           "required": [],
           "title": "annotations",
@@ -2699,6 +2953,7 @@
           "type": "boolean"
         },
         "disabled": {
+          "additionalProperties": true,
           "description": "# Disabled PrometheusRule alerts",
           "required": [],
           "title": "disabled",
@@ -2712,12 +2967,14 @@
           "type": "string"
         },
         "labels": {
+          "additionalProperties": true,
           "description": "# Labels for default rules",
           "required": [],
           "title": "labels",
           "type": "object"
         },
         "node": {
+          "additionalProperties": true,
           "properties": {
             "fsSelector": {
               "default": "fstype!=\"\"",
@@ -2731,6 +2988,7 @@
           "type": "object"
         },
         "rules": {
+          "additionalProperties": true,
           "properties": {
             "alertmanager": {
               "default": true,
@@ -2986,6 +3244,7 @@
       "additionalProperties": true,
       "properties": {
         "env": {
+          "additionalProperties": true,
           "required": [],
           "title": "env",
           "type": "object"
@@ -2997,16 +3256,19 @@
           "type": "string"
         },
         "envValueFrom": {
+          "additionalProperties": true,
           "required": [],
           "title": "envValueFrom",
           "type": "object"
         },
         "resources": {
+          "additionalProperties": true,
           "required": [],
           "title": "resources",
           "type": "object"
         },
         "securityContext": {
+          "additionalProperties": true,
           "properties": {
             "allowPrivilegeEscalation": {
               "default": false,
@@ -3015,6 +3277,7 @@
               "type": "boolean"
             },
             "capabilities": {
+              "additionalProperties": true,
               "properties": {
                 "drop": {
                   "items": {
@@ -3031,6 +3294,7 @@
               "type": "object"
             },
             "seccompProfile": {
+              "additionalProperties": true,
               "properties": {
                 "type": {
                   "default": "RuntimeDefault",
@@ -3269,8 +3533,7 @@
     "extraManifests": {
       "description": "# Extra manifests to deploy as an array",
       "items": {
-        "required": [],
-        "type": "string"
+        "required": []
       },
       "required": [],
       "title": "extraManifests",
@@ -3403,6 +3666,7 @@
           "type": "string"
         },
         "rbac": {
+          "additionalProperties": true,
           "properties": {
             "create": {
               "default": true,
@@ -3418,6 +3682,7 @@
               "type": "boolean"
             },
             "pspAnnotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "pspAnnotations",
               "type": "object"
@@ -3483,6 +3748,13 @@
           "title": "defaultDashboardsEnabled",
           "type": "boolean"
         },
+        "defaultDashboardsInterval": {
+          "default": "1m",
+          "description": "# Default interval for Grafana dashboards\n#",
+          "required": [],
+          "title": "defaultDashboardsInterval",
+          "type": "string"
+        },
         "defaultDashboardsTimezone": {
           "default": "utc",
           "description": "# Timezone for the default dashboards\n# Other options are: browser or a specific timezone, i.e. Europe/Luxembourg\n#",
@@ -3527,8 +3799,10 @@
           "type": "boolean"
         },
         "ingress": {
+          "additionalProperties": true,
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "# Annotations for Grafana Ingress\n#",
               "required": [],
               "title": "annotations",
@@ -3551,6 +3825,7 @@
               "type": "array"
             },
             "labels": {
+              "additionalProperties": true,
               "description": "# Labels to be added to the Ingress\n#",
               "required": [],
               "title": "labels",
@@ -3591,6 +3866,7 @@
           "type": "boolean"
         },
         "rbac": {
+          "additionalProperties": true,
           "properties": {
             "pspEnabled": {
               "default": false,
@@ -3605,6 +3881,7 @@
           "type": "object"
         },
         "service": {
+          "additionalProperties": true,
           "description": "# Passed to grafana subchart and used by servicemonitor below\n#",
           "properties": {
             "ipFamilies": {
@@ -3633,6 +3910,7 @@
           "type": "object"
         },
         "serviceAccount": {
+          "additionalProperties": true,
           "description": "# To make Grafana persistent (Using Statefulset)\n#\npersistence:\n  enabled: true\n  type: sts\n  storageClassName: \"storageClassName\"\n  accessModes:\n    - ReadWriteOnce\n  size: 20Gi\n  finalizers:\n    - kubernetes.io/pvc-protection",
           "properties": {
             "autoMount": {
@@ -3653,6 +3931,7 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": true,
@@ -3669,6 +3948,7 @@
               "type": "string"
             },
             "labels": {
+              "additionalProperties": true,
               "description": "labels for the ServiceMonitor",
               "required": [],
               "title": "labels",
@@ -3703,6 +3983,7 @@
               "type": "string"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "required": [],
               "title": "tlsConfig",
               "type": "object"
@@ -3713,10 +3994,13 @@
           "type": "object"
         },
         "sidecar": {
+          "additionalProperties": true,
           "properties": {
             "dashboards": {
+              "additionalProperties": true,
               "properties": {
                 "annotations": {
+                  "additionalProperties": true,
                   "description": "# Annotations for Grafana dashboard configmaps\n#",
                   "required": [],
                   "title": "annotations",
@@ -3748,8 +4032,10 @@
                   "type": "string"
                 },
                 "multicluster": {
+                  "additionalProperties": true,
                   "properties": {
                     "etcd": {
+                      "additionalProperties": true,
                       "properties": {
                         "enabled": {
                           "default": false,
@@ -3763,6 +4049,7 @@
                       "type": "object"
                     },
                     "global": {
+                      "additionalProperties": true,
                       "properties": {
                         "enabled": {
                           "default": false,
@@ -3781,6 +4068,7 @@
                   "type": "object"
                 },
                 "provider": {
+                  "additionalProperties": true,
                   "properties": {
                     "allowUiUpdates": {
                       "default": false,
@@ -3806,9 +4094,11 @@
               "type": "object"
             },
             "datasources": {
+              "additionalProperties": true,
               "properties": {
                 "alertmanager": {
-                  "description": "datasourceUid: Jaeger\ntraceIdLabelName: trace_id",
+                  "additionalProperties": true,
+                  "description": "datasourceUid: Jaeger\ntraceIdLabelName: trace_id\nurlDisplayLabel: View traces",
                   "properties": {
                     "enabled": {
                       "default": true,
@@ -3846,6 +4136,7 @@
                   "type": "object"
                 },
                 "annotations": {
+                  "additionalProperties": true,
                   "description": "# Annotations for Grafana datasource configmaps\n#",
                   "required": [],
                   "title": "annotations",
@@ -3871,6 +4162,7 @@
                   "type": "boolean"
                 },
                 "exemplarTraceIdDestinations": {
+                  "additionalProperties": true,
                   "description": "# Field with internal link pointing to existing data source in Grafana.\n# Can be provisioned via additionalDataSources",
                   "required": [],
                   "title": "exemplarTraceIdDestinations",
@@ -3933,6 +4225,7 @@
       "description": "# Grafana's primary configuration\n# NOTE: values in map will be converted to ini format\n# ref: http://docs.grafana.org/installation/configuration/\n#",
       "properties": {
         "analytics": {
+          "additionalProperties": true,
           "properties": {
             "check_for_updates": {
               "default": true,
@@ -3946,6 +4239,7 @@
           "type": "object"
         },
         "grafana_net": {
+          "additionalProperties": true,
           "properties": {
             "url": {
               "default": "https://grafana.net",
@@ -3959,6 +4253,7 @@
           "type": "object"
         },
         "log": {
+          "additionalProperties": true,
           "properties": {
             "mode": {
               "default": "console",
@@ -3972,6 +4267,7 @@
           "type": "object"
         },
         "paths": {
+          "additionalProperties": true,
           "properties": {
             "data": {
               "default": "/var/lib/grafana/",
@@ -4003,6 +4299,7 @@
           "type": "object"
         },
         "server": {
+          "additionalProperties": true,
           "properties": {
             "domain": {
               "default": "{{ if (and .Values.ingress.enabled .Values.ingress.hosts) }}{{ tpl (.Values.ingress.hosts | first) . }}{{ else }}''{{ end }}",
@@ -4181,6 +4478,7 @@
       "description": "# Add a seperate remote image renderer deployment/service",
       "properties": {
         "affinity": {
+          "additionalProperties": true,
           "description": "# Affinity for pod assignment (evaluated as template)\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity\n#",
           "required": [],
           "title": "affinity",
@@ -4193,8 +4491,10 @@
           "type": "boolean"
         },
         "autoscaling": {
+          "additionalProperties": true,
           "properties": {
             "behavior": {
+              "additionalProperties": true,
               "required": [],
               "title": "behavior",
               "type": "object"
@@ -4235,6 +4535,7 @@
           "type": "object"
         },
         "containerSecurityContext": {
+          "additionalProperties": true,
           "description": "image-renderer deployment container securityContext",
           "properties": {
             "allowPrivilegeEscalation": {
@@ -4244,6 +4545,7 @@
               "type": "boolean"
             },
             "capabilities": {
+              "additionalProperties": true,
               "properties": {
                 "drop": {
                   "items": {
@@ -4266,6 +4568,7 @@
               "type": "boolean"
             },
             "seccompProfile": {
+              "additionalProperties": true,
               "properties": {
                 "type": {
                   "default": "RuntimeDefault",
@@ -4284,6 +4587,7 @@
           "type": "object"
         },
         "deploymentStrategy": {
+          "additionalProperties": true,
           "required": [],
           "title": "deploymentStrategy",
           "type": "object"
@@ -4296,6 +4600,7 @@
           "type": "boolean"
         },
         "env": {
+          "additionalProperties": true,
           "description": "extra environment variables",
           "properties": {
             "HTTP_HOST": {
@@ -4333,6 +4638,7 @@
           "type": "object"
         },
         "envValueFrom": {
+          "additionalProperties": true,
           "description": "# \"valueFrom\" environment variable references that will be added to deployment pods. Name is templated.\n# ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvarsource-v1-core\n# Renders in container spec as:\n#   env:\n#     ...\n#     - name: \u003ckey\u003e\n#       valueFrom:\n#         \u003cvalue rendered as YAML\u003e",
           "required": [],
           "title": "envValueFrom",
@@ -4470,6 +4776,7 @@
           "type": "array"
         },
         "image": {
+          "additionalProperties": true,
           "properties": {
             "pullPolicy": {
               "default": "Always",
@@ -4512,6 +4819,7 @@
           "type": "object"
         },
         "networkPolicy": {
+          "additionalProperties": true,
           "properties": {
             "extraIngressSelectors": {
               "description": "Allow additional services to access image-renderer (eg. Prometheus operator when ServiceMonitor is enabled)",
@@ -4542,18 +4850,21 @@
           "type": "object"
         },
         "nodeSelector": {
+          "additionalProperties": true,
           "description": "  limits:\n    cpu: 100m\n    memory: 100Mi\n  requests:\n    cpu: 50m\n    memory: 50Mi\n# Node labels for pod assignment\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n",
           "required": [],
           "title": "nodeSelector",
           "type": "object"
         },
         "podAnnotations": {
+          "additionalProperties": true,
           "description": "# image-renderer pod annotation",
           "required": [],
           "title": "podAnnotations",
           "type": "object"
         },
         "podLabels": {
+          "additionalProperties": true,
           "properties": {
             "customLableB": {
               "required": [],
@@ -4593,8 +4904,10 @@
           "type": "integer"
         },
         "resources": {
+          "additionalProperties": true,
           "properties": {
             "limits": {
+              "additionalProperties": true,
               "properties": {
                 "cpu": {
                   "required": [],
@@ -4612,6 +4925,7 @@
               "type": "object"
             },
             "requests": {
+              "additionalProperties": true,
               "properties": {
                 "cpu": {
                   "required": [],
@@ -4641,6 +4955,7 @@
           "type": "integer"
         },
         "securityContext": {
+          "additionalProperties": true,
           "description": "image-renderer deployment securityContext",
           "required": [],
           "title": "securityContext",
@@ -4654,6 +4969,7 @@
           "type": "string"
         },
         "service": {
+          "additionalProperties": true,
           "properties": {
             "appProtocol": {
               "default": "",
@@ -4702,6 +5018,7 @@
           "type": "string"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": false,
@@ -4717,6 +5034,7 @@
               "type": "string"
             },
             "labels": {
+              "additionalProperties": true,
               "description": " namespace: monitoring  (defaults to use the namespace this chart is deployed to)",
               "required": [],
               "title": "labels",
@@ -4758,6 +5076,7 @@
               "type": "array"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "required": [],
               "title": "tlsConfig",
               "type": "object"
@@ -4785,6 +5104,7 @@
       "additionalProperties": true,
       "properties": {
         "annotations": {
+          "additionalProperties": true,
           "description": "For Kubernetes \u003e= 1.18 you should specify the ingress-controller via the field ingressClassName\nSee https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress\ningressClassName: nginx\nValues can be templated",
           "required": [],
           "title": "annotations",
@@ -4815,6 +5135,7 @@
           "type": "array"
         },
         "labels": {
+          "additionalProperties": true,
           "description": "kubernetes.io/ingress.class: nginx\nkubernetes.io/tls-acme: \"true\"",
           "required": [],
           "title": "labels",
@@ -4857,6 +5178,7 @@
           "type": "boolean"
         },
         "image": {
+          "additionalProperties": true,
           "description": "# initChownData container image\n#",
           "properties": {
             "pullPolicy": {
@@ -4896,15 +5218,18 @@
           "type": "object"
         },
         "resources": {
+          "additionalProperties": true,
           "description": "# initChownData resource requests and limits\n# Ref: http://kubernetes.io/docs/user-guide/compute-resources/\n#",
           "required": [],
           "title": "resources",
           "type": "object"
         },
         "securityContext": {
+          "additionalProperties": true,
           "description": " limits:\n   cpu: 100m\n   memory: 128Mi\n requests:\n   cpu: 100m\n   memory: 128Mi",
           "properties": {
             "capabilities": {
+              "additionalProperties": true,
               "properties": {
                 "add": {
                   "items": {
@@ -4933,6 +5258,7 @@
               "type": "integer"
             },
             "seccompProfile": {
+              "additionalProperties": true,
               "properties": {
                 "type": {
                   "default": "RuntimeDefault",
@@ -4975,8 +5301,10 @@
           "type": "string"
         },
         "prometheus": {
+          "additionalProperties": true,
           "properties": {
             "monitor": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": true,
@@ -5084,6 +5412,7 @@
           "type": "boolean"
         },
         "rbac": {
+          "additionalProperties": true,
           "properties": {
             "create": {
               "default": true,
@@ -5103,6 +5432,7 @@
           "type": "boolean"
         },
         "selfMonitor": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": false,
@@ -5131,12 +5461,20 @@
           "type": "boolean"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
               "type": "object"
+            },
+            "enabled": {
+              "default": true,
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
             },
             "interval": {
               "default": "",
@@ -5229,8 +5567,10 @@
               "type": "integer"
             },
             "selector": {
+              "additionalProperties": true,
               "properties": {
                 "matchLabels": {
+                  "additionalProperties": true,
                   "properties": {
                     "component": {
                       "default": "apiserver",
@@ -5276,6 +5616,7 @@
           "type": "object"
         },
         "tlsConfig": {
+          "additionalProperties": true,
           "properties": {
             "insecureSkipVerify": {
               "default": false,
@@ -5319,6 +5660,7 @@
           "type": "array"
         },
         "service": {
+          "additionalProperties": true,
           "description": "# If using kubeControllerManager.endpoints only the port and targetPort are used\n#",
           "properties": {
             "enabled": {
@@ -5328,6 +5670,7 @@
               "type": "boolean"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -5374,8 +5717,10 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -5475,6 +5820,7 @@
               "type": "integer"
             },
             "selector": {
+              "additionalProperties": true,
               "required": [],
               "title": "selector",
               "type": "object"
@@ -5523,8 +5869,10 @@
           "type": "boolean"
         },
         "service": {
+          "additionalProperties": true,
           "properties": {
             "dnsmasq": {
+              "additionalProperties": true,
               "properties": {
                 "port": {
                   "default": 10054,
@@ -5544,6 +5892,7 @@
               "type": "object"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -5572,6 +5921,7 @@
               "type": "object"
             },
             "skydns": {
+              "additionalProperties": true,
               "properties": {
                 "port": {
                   "default": 10055,
@@ -5596,8 +5946,10 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -5688,6 +6040,7 @@
               "type": "integer"
             },
             "selector": {
+              "additionalProperties": true,
               "required": [],
               "title": "selector",
               "type": "object"
@@ -5738,6 +6091,7 @@
           "type": "array"
         },
         "service": {
+          "additionalProperties": true,
           "description": "# Etcd service. If using kubeEtcd.endpoints only the port and targetPort are used\n#",
           "properties": {
             "enabled": {
@@ -5747,6 +6101,7 @@
               "type": "boolean"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -5792,9 +6147,11 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "description": "# Configure secure access to the etcd cluster by loading a secret into prometheus and\n# specifying security configuration below. For example, with a secret named etcd-client-cert\n#\n# serviceMonitor:\n#   scheme: https\n#   insecureSkipVerify: false\n#   serverName: localhost\n#   caFile: /etc/prometheus/secrets/etcd-client-cert/etcd-ca\n#   certFile: /etc/prometheus/secrets/etcd-client-cert/etcd-client\n#   keyFile: /etc/prometheus/secrets/etcd-client-cert/etcd-client-key\n#",
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -5910,6 +6267,7 @@
               "type": "string"
             },
             "selector": {
+              "additionalProperties": true,
               "required": [],
               "title": "selector",
               "type": "object"
@@ -5966,6 +6324,7 @@
           "type": "array"
         },
         "service": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": true,
@@ -5974,6 +6333,7 @@
               "type": "boolean"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -6019,8 +6379,10 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -6113,6 +6475,7 @@
               "type": "integer"
             },
             "selector": {
+              "additionalProperties": true,
               "required": [],
               "title": "selector",
               "type": "object"
@@ -6148,6 +6511,7 @@
       "description": "Configure kube-rbac-proxy. When enabled, creates a kube-rbac-proxy to protect the node-exporter http endpoint.\nThe requests are served through the same service but requests are HTTPS.",
       "properties": {
         "containerSecurityContext": {
+          "additionalProperties": true,
           "description": "# Specify security settings for a Container\n# Allows overrides and additional options compared to (Pod) securityContext\n# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
           "properties": {
             "allowPrivilegeEscalation": {
@@ -6157,6 +6521,7 @@
               "type": "boolean"
             },
             "capabilities": {
+              "additionalProperties": true,
               "properties": {
                 "drop": {
                   "items": {
@@ -6204,6 +6569,7 @@
           "type": "boolean"
         },
         "env": {
+          "additionalProperties": true,
           "description": "# Set environment variables as name/value pairs",
           "required": [],
           "title": "env",
@@ -6228,6 +6594,7 @@
           "type": "array"
         },
         "image": {
+          "additionalProperties": true,
           "description": "VARIABLE: value",
           "properties": {
             "pullPolicy": {
@@ -6287,11 +6654,13 @@
           "type": "integer"
         },
         "resources": {
+          "additionalProperties": true,
           "required": [],
           "title": "resources",
           "type": "object"
         },
         "tls": {
+          "additionalProperties": true,
           "description": "# tls enables using TLS resources from a volume on secret referred to in tlsSecret below.\n# When enabling tlsClientAuth, client CA certificate must be set in tlsSecret.caItem.\n# Ref. https://github.com/brancz/kube-rbac-proxy/issues/187",
           "properties": {
             "enabled": {
@@ -6345,6 +6714,7 @@
           "type": "array"
         },
         "service": {
+          "additionalProperties": true,
           "description": "# If using kubeScheduler.endpoints only the port and targetPort are used\n#",
           "properties": {
             "enabled": {
@@ -6354,6 +6724,7 @@
               "type": "boolean"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -6400,8 +6771,10 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -6501,6 +6874,7 @@
               "type": "integer"
             },
             "selector": {
+              "additionalProperties": true,
               "required": [],
               "title": "selector",
               "type": "object"
@@ -6606,14 +6980,17 @@
           "type": "string"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
               "type": "object"
             },
             "attachMetadata": {
+              "additionalProperties": true,
               "description": "# Attach metadata to discovered targets. Requires Prometheus v2.45 for endpoints created by the operator.\n#",
               "properties": {
                 "node": {
@@ -6706,6 +7083,12 @@
               "required": [],
               "title": "cAdvisorRelabelings",
               "type": "array"
+            },
+            "enabled": {
+              "default": true,
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
             },
             "honorLabels": {
               "default": true,
@@ -7048,6 +7431,7 @@
           "type": "integer"
         },
         "httpGet": {
+          "additionalProperties": true,
           "properties": {
             "httpHeaders": {
               "items": {
@@ -7185,6 +7569,7 @@
           "type": "boolean"
         },
         "egress": {
+          "additionalProperties": true,
           "description": "#\n#\n#\n#\n#\n#",
           "properties": {
             "blockDNSResolution": {
@@ -7232,6 +7617,7 @@
           "type": "boolean"
         },
         "explicitNamespacesSelector": {
+          "additionalProperties": true,
           "description": "#\n# If explicitNamespacesSelector is missing or set to {}, only client Pods that are in the networkPolicy's namespace\n# and that match other criteria, the ones that have the good label, can reach the grafana.\n# But sometimes, we want the grafana to be accessible to clients from other namespaces, in this case, we can use this\n# LabelSelector to select these namespaces, note that the networkPolicy's namespace should also be explicitly added.\n#\n# Example:\n# explicitNamespacesSelector:\n#   matchLabels:\n#     role: frontend\n#   matchExpressions:\n#    - {key: role, operator: In, values: [frontend]}\n#",
           "required": [],
           "title": "explicitNamespacesSelector",
@@ -7247,31 +7633,9 @@
         "ingress": {
           "default": true,
           "description": "#\n# The Policy model to apply. When set to false, only pods with the correct\n# client label will have network access to  grafana port defined.\n# When true, grafana will accept connections from any source\n# (with the correct destination port).\n#",
-          "items": {
-            "properties": {
-              "ports": {
-                "items": {
-                  "properties": {
-                    "port": {
-                      "required": [],
-                      "title": "port",
-                      "type": "integer"
-                    }
-                  },
-                  "required": [],
-                  "type": "object"
-                },
-                "required": [],
-                "title": "ports",
-                "type": "array"
-              }
-            },
-            "required": [],
-            "type": "object"
-          },
           "required": [],
           "title": "ingress",
-          "type": "array"
+          "type": "boolean"
         }
       },
       "required": [],
@@ -7296,8 +7660,10 @@
           "type": "boolean"
         },
         "operatingSystems": {
+          "additionalProperties": true,
           "properties": {
             "aix": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": true,
@@ -7311,6 +7677,7 @@
               "type": "object"
             },
             "darwin": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": true,
@@ -7324,6 +7691,7 @@
               "type": "object"
             },
             "linux": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": true,
@@ -7395,6 +7763,7 @@
           "type": "boolean"
         },
         "extraPvcLabels": {
+          "additionalProperties": true,
           "description": "selectorLabels: {}\n# Sub-directory of the PV to mount. Can be templated.\nsubPath: \"\"\n# Name of an existing PVC. Can be templated.\nexistingClaim:\n# Extra labels to apply to a PVC.",
           "required": [],
           "title": "extraPvcLabels",
@@ -7411,6 +7780,7 @@
           "type": "array"
         },
         "inMemory": {
+          "additionalProperties": true,
           "description": "# If persistence is not enabled, this allows to mount the\n# local storage in-memory to improve performance\n#",
           "properties": {
             "enabled": {
@@ -7484,19 +7854,9 @@
       "additionalProperties": true,
       "description": "Extra labels to be added to windows exporter pods",
       "properties": {
-        "baz": {
-          "required": [],
-          "title": "baz",
-          "type": "string"
-        },
         "customLableA": {
           "required": [],
           "title": "customLableA",
-          "type": "string"
-        },
-        "foo": {
-          "required": [],
-          "title": "foo",
           "type": "string"
         }
       },
@@ -7524,6 +7884,7 @@
           "type": "array"
         },
         "annotations": {
+          "additionalProperties": true,
           "required": [],
           "title": "annotations",
           "type": "object"
@@ -7576,6 +7937,7 @@
           "type": "boolean"
         },
         "annotations": {
+          "additionalProperties": true,
           "description": "# Annotations for Prometheus\n#",
           "required": [],
           "title": "annotations",
@@ -7588,15 +7950,18 @@
           "type": "boolean"
         },
         "extraSecret": {
+          "additionalProperties": true,
           "description": "# ExtraSecret can be used to store various data in an extra secret\n# (use it for example to store hashed basic auth credentials)",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "# if not set, name will be auto generated\nname: \"\"",
               "required": [],
               "title": "annotations",
               "type": "object"
             },
             "data": {
+              "additionalProperties": true,
               "required": [],
               "title": "data",
               "type": "object"
@@ -7607,8 +7972,10 @@
           "type": "object"
         },
         "ingress": {
+          "additionalProperties": true,
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "For Kubernetes \u003e= 1.18 you should specify the ingress-controller via the field ingressClassName\nSee https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress\ningressClassName: nginx",
               "required": [],
               "title": "annotations",
@@ -7630,6 +7997,7 @@
               "type": "array"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -7658,9 +8026,11 @@
           "type": "object"
         },
         "ingressPerReplica": {
+          "additionalProperties": true,
           "description": "# Configuration for creating an Ingress that will map to each Prometheus replica service\n# prometheus.servicePerReplica must be enabled\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "For Kubernetes \u003e= 1.18 you should specify the ingress-controller via the field ingressClassName\nSee https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress\ningressClassName: nginx",
               "required": [],
               "title": "annotations",
@@ -7687,6 +8057,7 @@
               "type": "string"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -7708,6 +8079,7 @@
               "type": "string"
             },
             "tlsSecretPerReplica": {
+              "additionalProperties": true,
               "description": "# Separated secret for each per replica Ingress. Can be used together with cert-manager\n#",
               "properties": {
                 "enabled": {
@@ -7734,13 +8106,16 @@
           "type": "object"
         },
         "monitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "required": [],
               "title": "additionalLabels",
               "type": "object"
             },
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -7753,6 +8128,7 @@
               "type": "string"
             },
             "attachMetadata": {
+              "additionalProperties": true,
               "description": "# Attach node metadata to discovered targets. Requires Prometheus v2.35.0 and above.\n#",
               "properties": {
                 "node": {
@@ -7767,6 +8143,7 @@
               "type": "object"
             },
             "basicAuth": {
+              "additionalProperties": true,
               "required": [],
               "title": "basicAuth",
               "type": "object"
@@ -7784,6 +8161,7 @@
               "type": "boolean"
             },
             "http": {
+              "additionalProperties": true,
               "description": "# kube-state-metrics endpoint",
               "properties": {
                 "bearerTokenFile": {
@@ -7794,6 +8172,7 @@
                   "type": "string"
                 },
                 "bearerTokenSecret": {
+                  "additionalProperties": true,
                   "description": "# Secret to mount to read bearer token for scraping targets. The secret needs\n# to be in the same namespace as the service monitor and accessible by the\n# Prometheus Operator",
                   "required": [],
                   "title": "bearerTokenSecret",
@@ -7853,6 +8232,7 @@
                   "type": "string"
                 },
                 "tlsConfig": {
+                  "additionalProperties": true,
                   "description": "name: secret-name\nkey:  key-name",
                   "required": [],
                   "title": "tlsConfig",
@@ -7905,6 +8285,7 @@
               "type": "array"
             },
             "metrics": {
+              "additionalProperties": true,
               "description": "# selfMonitor endpoint",
               "properties": {
                 "bearerTokenFile": {
@@ -7915,6 +8296,7 @@
                   "type": "string"
                 },
                 "bearerTokenSecret": {
+                  "additionalProperties": true,
                   "description": "# Secret to mount to read bearer token for scraping targets. The secret needs\n# to be in the same namespace as the service monitor and accessible by the\n# Prometheus Operator",
                   "required": [],
                   "title": "bearerTokenSecret",
@@ -7974,6 +8356,7 @@
                   "type": "string"
                 },
                 "tlsConfig": {
+                  "additionalProperties": true,
                   "description": "name: secret-name\nkey:  key-name",
                   "required": [],
                   "title": "tlsConfig",
@@ -7999,7 +8382,7 @@
               "type": "array"
             },
             "podTargetLabels": {
-              "description": "List of pod labels to add to windows exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "List of pod labels to add to windows exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -8042,13 +8425,14 @@
               "type": "string"
             },
             "selectorOverride": {
+              "additionalProperties": true,
               "description": "# Override serviceMonitor selector\n#",
               "required": [],
               "title": "selectorOverride",
               "type": "object"
             },
             "targetLabels": {
-              "description": "List of target labels to add to node exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "List of target labels to add to node exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -8064,6 +8448,7 @@
               "type": "integer"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "required": [],
               "title": "tlsConfig",
               "type": "object"
@@ -8074,6 +8459,7 @@
           "type": "object"
         },
         "networkPolicy": {
+          "additionalProperties": true,
           "description": "# Configure network policy for the prometheus",
           "properties": {
             "enabled": {
@@ -8095,6 +8481,7 @@
           "type": "object"
         },
         "podDisruptionBudget": {
+          "additionalProperties": true,
           "description": "# Configure pod disruption budgets for Prometheus\n# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget\n#",
           "properties": {
             "enabled": {
@@ -8121,9 +8508,11 @@
           "type": "object"
         },
         "podMonitor": {
-          "description": "PodMonitor defines monitoring for a set of pods.\nref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.PodMonitor\nUsing a PodMonitor may be preferred in some environments where there is very large number\nof Windows Exporter endpoints (1000+) behind a single service.\nThe PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,\nthe time series resulting from the configuration through PodMonitor may have different labels.\nFor instance, there will not be the service label any longer which might\naffect PromQL queries selecting that label.",
+          "additionalProperties": true,
+          "description": "PodMonitor defines monitoring for a set of pods.\nref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#podmonitor\nUsing a PodMonitor may be preferred in some environments where there is very large number\nof Windows Exporter endpoints (1000+) behind a single service.\nThe PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,\nthe time series resulting from the configuration through PodMonitor may have different labels.\nFor instance, there will not be the service label any longer which might\naffect PromQL queries selecting that label.",
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "Additional labels, e.g. setting a label for pod monitor selector as set in prometheus",
               "required": [],
               "title": "additionalLabels",
@@ -8137,6 +8526,7 @@
               "type": "string"
             },
             "attachMetadata": {
+              "additionalProperties": true,
               "description": "Attach node metadata to discovered targets. Requires Prometheus v2.35.0 and above.",
               "properties": {
                 "node": {
@@ -8151,18 +8541,21 @@
               "type": "object"
             },
             "authorization": {
-              "description": "Authorization section for this endpoint.\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.SafeAuthorization",
+              "additionalProperties": true,
+              "description": "Authorization section for this endpoint.\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#safeauthorization",
               "required": [],
               "title": "authorization",
               "type": "object"
             },
             "basicAuth": {
+              "additionalProperties": true,
               "description": "BasicAuth allow an endpoint to authenticate over basic authentication.\nMore info: https://prometheus.io/docs/operating/configuration/#endpoint",
               "required": [],
               "title": "basicAuth",
               "type": "object"
             },
             "bearerTokenSecret": {
+              "additionalProperties": true,
               "description": "Secret to mount to read bearer token for scraping targets.\nThe secret needs to be in the same namespace as the pod monitor and accessible by the Prometheus Operator.\nhttps://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#secretkeyselector-v1-core",
               "required": [],
               "title": "bearerTokenSecret",
@@ -8261,12 +8654,14 @@
               "type": "string"
             },
             "oauth2": {
-              "description": "OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.OAuth2",
+              "additionalProperties": true,
+              "description": "OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#oauth2",
               "required": [],
               "title": "oauth2",
               "type": "object"
             },
             "params": {
+              "additionalProperties": true,
               "description": "Optional HTTP URL parameters",
               "required": [],
               "title": "params",
@@ -8326,6 +8721,7 @@
               "type": "string"
             },
             "selectorOverride": {
+              "additionalProperties": true,
               "description": "Override pod selector to select pod objects.",
               "required": [],
               "title": "selectorOverride",
@@ -8339,6 +8735,7 @@
               "type": "integer"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "description": "TLS configuration to use when scraping the endpoint.",
               "required": [],
               "title": "tlsConfig",
@@ -8350,6 +8747,7 @@
           "type": "object"
         },
         "podSecurityPolicy": {
+          "additionalProperties": true,
           "description": "# Configure additional options for default pod security policy for Prometheus\n# ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/",
           "properties": {
             "allowedCapabilities": {
@@ -8382,6 +8780,7 @@
           "type": "object"
         },
         "prometheusSpec": {
+          "additionalProperties": true,
           "description": "# Settings affecting prometheusSpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#prometheusspec\n#",
           "properties": {
             "additionalAlertManagerConfigs": {
@@ -8394,6 +8793,7 @@
               "type": "array"
             },
             "additionalAlertManagerConfigsSecret": {
+              "additionalProperties": true,
               "description": "# If additional alertmanager configurations are already deployed in a single secret, or you want to manage\n# them separately from the helm deployment, you can use this section.\n# Expected values are the secret name and key\n# Cannot be used with additionalAlertManagerConfigs",
               "required": [],
               "title": "additionalAlertManagerConfigsSecret",
@@ -8409,6 +8809,7 @@
               "type": "array"
             },
             "additionalAlertRelabelConfigsSecret": {
+              "additionalProperties": true,
               "description": "# If additional alert relabel configurations are already deployed in a single secret, or you want to manage\n# them separately from the helm deployment, you can use this section.\n# Expected values are the secret name and key\n# Cannot be used with additionalAlertRelabelConfigs",
               "required": [],
               "title": "additionalAlertRelabelConfigsSecret",
@@ -8424,6 +8825,7 @@
               "type": "array"
             },
             "additionalConfig": {
+              "additionalProperties": true,
               "description": "# Additional configuration which is not covered by the properties above. (passed through tpl)",
               "required": [],
               "title": "additionalConfig",
@@ -8437,6 +8839,7 @@
               "type": "string"
             },
             "additionalPrometheusSecretsAnnotations": {
+              "additionalProperties": true,
               "description": "# additionalPrometheusSecretsAnnotations allows to add annotations to the kubernetes secret. This can be useful\n# when deploying via spinnaker to disable versioning on the secret, strategy.spinnaker.io/versioned: 'false'",
               "required": [],
               "title": "additionalPrometheusSecretsAnnotations",
@@ -8470,12 +8873,14 @@
               "type": "array"
             },
             "additionalScrapeConfigsSecret": {
+              "additionalProperties": true,
               "description": "# If additional scrape configurations are already deployed in a single secret file you can use this section.\n# Expected values are the secret name and key\n# Cannot be used with additionalScrapeConfigs",
               "required": [],
               "title": "additionalScrapeConfigsSecret",
               "type": "object"
             },
             "affinity": {
+              "additionalProperties": true,
               "description": "# Assign custom affinity rules to the prometheus instance\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/\n#",
               "required": [],
               "title": "affinity",
@@ -8498,6 +8903,7 @@
               "type": "boolean"
             },
             "apiserverConfig": {
+              "additionalProperties": true,
               "description": "# APIServerConfig\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#apiserverconfig\n#",
               "required": [],
               "title": "apiserverConfig",
@@ -8631,12 +9037,14 @@
               "type": "array"
             },
             "exemplars": {
+              "additionalProperties": true,
               "description": "# Exemplars related settings that are runtime reloadable.\n# It requires to enable the exemplar storage feature to be effective.",
               "required": [],
               "title": "exemplars",
               "type": "object"
             },
             "externalLabels": {
+              "additionalProperties": true,
               "description": "# External labels to add to any time series or alerts when communicating with external systems\n#",
               "required": [],
               "title": "externalLabels",
@@ -8673,6 +9081,7 @@
               "type": "boolean"
             },
             "image": {
+              "additionalProperties": true,
               "description": "# Image of Prometheus.\n#",
               "properties": {
                 "registry": {
@@ -8694,7 +9103,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v3.1.0",
+                  "default": "v3.2.1",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -8748,7 +9157,15 @@
               "title": "minReadySeconds",
               "type": "integer"
             },
+            "nameValidationScheme": {
+              "default": "",
+              "description": "# Specifies the validation scheme for metric and label names.\n# Supported values are: Legacy, UTF8",
+              "required": [],
+              "title": "nameValidationScheme",
+              "type": "string"
+            },
             "nodeSelector": {
+              "additionalProperties": true,
               "description": "# Define which Nodes the Pods are scheduled on.\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n#",
               "required": [],
               "title": "nodeSelector",
@@ -8776,6 +9193,7 @@
               "type": "boolean"
             },
             "persistentVolumeClaimRetentionPolicy": {
+              "additionalProperties": true,
               "description": "# Statefulset's persistent volume claim retention policy\n# whenDeleted and whenScaled determine whether\n# statefulset's PVCs are deleted (true) or retained (false)\n# on scaling down and deleting statefulset, respectively.\n# Requires Kubernetes version 1.27.0+.\n# Ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention",
               "required": [],
               "title": "persistentVolumeClaimRetentionPolicy",
@@ -8796,18 +9214,21 @@
               "type": "string"
             },
             "podMetadata": {
+              "additionalProperties": true,
               "description": "# Standard object's metadata. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#metadata\n# Metadata Labels and Annotations gets propagated to the prometheus pods.\n#",
               "required": [],
               "title": "podMetadata",
               "type": "object"
             },
             "podMonitorNamespaceSelector": {
+              "additionalProperties": true,
               "description": "# If nil, select own namespace. Namespaces to be selected for PodMonitor discovery.",
               "required": [],
               "title": "podMonitorNamespaceSelector",
               "type": "object"
             },
             "podMonitorSelector": {
+              "additionalProperties": true,
               "description": "# PodMonitors to be selected for target discovery.\n# If {}, select all PodMonitors\n#",
               "required": [],
               "title": "podMonitorSelector",
@@ -8835,12 +9256,14 @@
               "type": "string"
             },
             "probeNamespaceSelector": {
+              "additionalProperties": true,
               "description": "# If nil, select own namespace. Namespaces to be selected for Probe discovery.",
               "required": [],
               "title": "probeNamespaceSelector",
               "type": "object"
             },
             "probeSelector": {
+              "additionalProperties": true,
               "description": "# Probes to be selected for target discovery.\n# If {}, select all Probes\n#",
               "required": [],
               "title": "probeSelector",
@@ -8877,6 +9300,7 @@
               "type": "array"
             },
             "query": {
+              "additionalProperties": true,
               "description": "# QuerySpec defines the query command line flags when starting Prometheus.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#queryspec\n#",
               "required": [],
               "title": "query",
@@ -8936,6 +9360,7 @@
               "type": "integer"
             },
             "resources": {
+              "additionalProperties": true,
               "description": "# Resource limits \u0026 requests\n#",
               "required": [],
               "title": "resources",
@@ -8963,12 +9388,14 @@
               "type": "string"
             },
             "ruleNamespaceSelector": {
+              "additionalProperties": true,
               "description": "# If nil, select own namespace. Namespaces to be selected for PrometheusRules discovery.",
               "required": [],
               "title": "ruleNamespaceSelector",
               "type": "object"
             },
             "ruleSelector": {
+              "additionalProperties": true,
               "description": "# PrometheusRules to be selected for target discovery.\n# If {}, select all PrometheusRules\n#",
               "required": [],
               "title": "ruleSelector",
@@ -8998,12 +9425,14 @@
               "type": "array"
             },
             "scrapeConfigNamespaceSelector": {
+              "additionalProperties": true,
               "description": "# If nil, select own namespace. Namespaces to be selected for scrapeConfig discovery.\n# If null, exclude the field from the prometheusSpec (keeping downward compatibility with older versions of CRD)",
               "required": [],
               "title": "scrapeConfigNamespaceSelector",
               "type": "object"
             },
             "scrapeConfigSelector": {
+              "additionalProperties": true,
               "description": "# scrapeConfigs to be selected for target discovery.\n# If {}, select all scrapeConfigs\n#",
               "required": [],
               "title": "scrapeConfigSelector",
@@ -9047,6 +9476,7 @@
               "type": "array"
             },
             "securityContext": {
+              "additionalProperties": true,
               "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 1000 and gid 2000.\n# https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md\n#",
               "properties": {
                 "fsGroup": {
@@ -9074,6 +9504,7 @@
                   "type": "integer"
                 },
                 "seccompProfile": {
+                  "additionalProperties": true,
                   "properties": {
                     "type": {
                       "default": "RuntimeDefault",
@@ -9099,12 +9530,14 @@
               "type": "string"
             },
             "serviceMonitorNamespaceSelector": {
+              "additionalProperties": true,
               "description": "# Namespaces to be selected for ServiceMonitor discovery.\n#",
               "required": [],
               "title": "serviceMonitorNamespaceSelector",
               "type": "object"
             },
             "serviceMonitorSelector": {
+              "additionalProperties": true,
               "description": "# ServiceMonitors to be selected for target discovery.\n# If {}, select all ServiceMonitors\n#",
               "required": [],
               "title": "serviceMonitorSelector",
@@ -9125,12 +9558,14 @@
               "type": "integer"
             },
             "storageSpec": {
-              "description": "# Prometheus StorageSpec for persistent data\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md\n#",
+              "additionalProperties": true,
+              "description": "# Prometheus StorageSpec for persistent data\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md\n#",
               "required": [],
               "title": "storageSpec",
               "type": "object"
             },
             "thanos": {
+              "additionalProperties": true,
               "description": "# Thanos configuration allows configuring various aspects of a Prometheus server in a Thanos environment.\n# This section is experimental, it may change significantly without deprecation notice in any release.\n# This is experimental and may change significantly without backward compatibility in any release.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#thanosspec\n#",
               "required": [],
               "title": "thanos",
@@ -9155,12 +9590,14 @@
               "type": "array"
             },
             "tracingConfig": {
+              "additionalProperties": true,
               "description": "# TracingConfig configures tracing in Prometheus.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#prometheustracingconfig",
               "required": [],
               "title": "tracingConfig",
               "type": "object"
             },
             "tsdb": {
+              "additionalProperties": true,
               "description": "# Allow out-of-order/out-of-bounds samples ingested into Prometheus for a specified duration\n# See https://prometheus.io/docs/prometheus/latest/configuration/configuration/#tsdb",
               "properties": {
                 "outOfOrderTimeWindow": {
@@ -9207,6 +9644,7 @@
               "type": "boolean"
             },
             "web": {
+              "additionalProperties": true,
               "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#webtlsconfig",
               "required": [],
               "title": "web",
@@ -9218,9 +9656,11 @@
           "type": "object"
         },
         "route": {
+          "additionalProperties": true,
           "description": "BETA: Configure the gateway routes for the chart here.\nMore routes can be added by adding a dictionary key like the 'main' route.\nBe aware that this is an early beta of this feature,\nkube-prometheus-stack does not guarantee this works and is subject to change.\nBeing BETA this can/will change in the future without notice, do not use unless you want to take that risk\n[[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)",
           "properties": {
             "main": {
+              "additionalProperties": true,
               "properties": {
                 "additionalRules": {
                   "description": "# Additional custom rules that can be added to the route",
@@ -9232,6 +9672,7 @@
                   "type": "array"
                 },
                 "annotations": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "annotations",
                   "type": "object"
@@ -9282,6 +9723,7 @@
                   "type": "string"
                 },
                 "labels": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "labels",
                   "type": "object"
@@ -9336,6 +9778,7 @@
           "type": "object"
         },
         "service": {
+          "additionalProperties": true,
           "description": "# Configuration for Prometheus service\n#",
           "properties": {
             "additionalPorts": {
@@ -9348,6 +9791,7 @@
               "type": "array"
             },
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -9375,6 +9819,7 @@
               "type": "string"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -9403,6 +9848,7 @@
               "type": "object"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -9458,9 +9904,11 @@
               "type": "string"
             },
             "sessionAffinityConfig": {
+              "additionalProperties": true,
               "description": "# If you want to modify the ClientIP sessionAffinity timeout\n# The value must be \u003e0 \u0026\u0026 \u003c=86400(for 1 day) if ServiceAffinity == \"ClientIP\"\n#",
               "properties": {
                 "clientIP": {
+                  "additionalProperties": true,
                   "properties": {
                     "timeoutSeconds": {
                       "default": 10800,
@@ -9498,9 +9946,11 @@
           "type": "object"
         },
         "serviceAccount": {
+          "additionalProperties": true,
           "description": "# Service account for Prometheuses to use.\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -9529,6 +9979,7 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "properties": {
             "additionalEndpoints": {
               "description": "# Additional Endpoints\n#",
@@ -9540,6 +9991,7 @@
               "type": "array"
             },
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -9626,6 +10078,7 @@
               "type": "integer"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
@@ -9637,9 +10090,11 @@
           "type": "object"
         },
         "servicePerReplica": {
+          "additionalProperties": true,
           "description": "# Configuration for creating a separate Service for each statefulset Prometheus replica\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -9658,6 +10113,7 @@
               "type": "string"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "description": "# Service dual stack\n#",
               "properties": {
                 "enabled": {
@@ -9729,9 +10185,11 @@
           "type": "object"
         },
         "thanosIngress": {
+          "additionalProperties": true,
           "description": "Ingress exposes thanos sidecar outside the cluster",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "For Kubernetes \u003e= 1.18 you should specify the ingress-controller via the field ingressClassName\nSee https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress\ningressClassName: nginx",
               "required": [],
               "title": "annotations",
@@ -9753,6 +10211,7 @@
               "type": "array"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -9794,9 +10253,11 @@
           "type": "object"
         },
         "thanosService": {
+          "additionalProperties": true,
           "description": "Service for thanos service discovery on sidecar\nEnable this can make Thanos Query can use\n`--store=dnssrv+_grpc._tcp.${kube-prometheus-stack.fullname}-thanos-discovery.${namespace}.svc.cluster.local` to discovery\nThanos sidecar on prometheus nodes\n(Please remember to change ${kube-prometheus-stack.fullname} and ${namespace}. Not just copy and paste!)",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -9841,6 +10302,7 @@
               "type": "string"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "description": "# Service dual stack\n#",
               "properties": {
                 "enabled": {
@@ -9870,6 +10332,7 @@
               "type": "object"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -9919,9 +10382,11 @@
           "type": "object"
         },
         "thanosServiceExternal": {
+          "additionalProperties": true,
           "description": "Service for external access to sidecar\nEnabling this creates a service to expose thanos-sidecar outside the cluster.",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -9959,6 +10424,7 @@
               "type": "string"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -10022,9 +10488,11 @@
           "type": "object"
         },
         "thanosServiceMonitor": {
+          "additionalProperties": true,
           "description": "ServiceMonitor to scrape Sidecar metrics\nNeeds thanosService to be enabled as well",
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -10074,6 +10542,7 @@
               "type": "string"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
@@ -10109,6 +10578,7 @@
           "type": "string"
         },
         "podLabels": {
+          "additionalProperties": true,
           "properties": {
             "jobLabel": {
               "default": "node-exporter",
@@ -10123,8 +10593,10 @@
           "type": "object"
         },
         "prometheus": {
+          "additionalProperties": true,
           "properties": {
             "monitor": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": true,
@@ -10223,6 +10695,7 @@
           "type": "object"
         },
         "rbac": {
+          "additionalProperties": true,
           "properties": {
             "pspEnabled": {
               "default": false,
@@ -10243,8 +10716,10 @@
           "type": "boolean"
         },
         "service": {
+          "additionalProperties": true,
           "properties": {
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -10273,6 +10748,7 @@
               "type": "object"
             },
             "labels": {
+              "additionalProperties": true,
               "properties": {
                 "jobLabel": {
                   "default": "node-exporter",
@@ -10313,6 +10789,7 @@
           "type": "string"
         },
         "podLabels": {
+          "additionalProperties": true,
           "description": "# Set job label to 'windows-exporter' as required by the default Prometheus rules and Grafana dashboards\n#",
           "properties": {
             "jobLabel": {
@@ -10327,9 +10804,11 @@
           "type": "object"
         },
         "prometheus": {
+          "additionalProperties": true,
           "description": "# Enable ServiceMonitor and set Kubernetes label to use as a job label\n#",
           "properties": {
             "monitor": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": true,
@@ -10369,9 +10848,11 @@
       "description": "# Manages Prometheus and Alertmanager components\n#",
       "properties": {
         "admissionWebhooks": {
+          "additionalProperties": true,
           "description": "# Admission webhook support for PrometheusRules resources added in Prometheus Operator 0.30 can be enabled to prevent incorrectly formatted\n# rules from making their way into prometheus and potentially preventing the container from starting",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "# If enabled, generate a self-signed certificate, then patch the webhook configurations with the generated data.\n# On chart upgrades (or if the secret exists) the cert will not be re-generated. You can use this to provide your own\n# certs ahead of time if you wish.\n#",
               "required": [],
               "title": "annotations",
@@ -10385,15 +10866,24 @@
               "type": "string"
             },
             "certManager": {
+              "additionalProperties": true,
               "description": "Use certmanager to generate webhook certs",
               "properties": {
                 "admissionCert": {
+                  "additionalProperties": true,
                   "properties": {
                     "duration": {
                       "default": "",
                       "required": [],
                       "title": "duration",
                       "type": "string"
+                    },
+                    "revisionHistoryLimit": {
+                      "default": "",
+                      "description": "Set the revisionHistoryLimit on the Certificate. See\nhttps://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec\nDefaults to nil.",
+                      "required": [],
+                      "title": "revisionHistoryLimit",
+                      "type": "null"
                     }
                   },
                   "required": [],
@@ -10407,6 +10897,7 @@
                   "type": "boolean"
                 },
                 "rootCert": {
+                  "additionalProperties": true,
                   "description": "self-signed root certificate",
                   "properties": {
                     "duration": {
@@ -10414,6 +10905,13 @@
                       "required": [],
                       "title": "duration",
                       "type": "string"
+                    },
+                    "revisionHistoryLimit": {
+                      "default": "",
+                      "description": "Set the revisionHistoryLimit on the Certificate. See\nhttps://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec\nDefaults to nil.",
+                      "required": [],
+                      "title": "revisionHistoryLimit",
+                      "type": "null"
                     }
                   },
                   "required": [],
@@ -10426,9 +10924,11 @@
               "type": "object"
             },
             "createSecretJob": {
+              "additionalProperties": true,
               "description": "Security context for create job container",
               "properties": {
                 "securityContext": {
+                  "additionalProperties": true,
                   "properties": {
                     "allowPrivilegeEscalation": {
                       "default": false,
@@ -10437,6 +10937,7 @@
                       "type": "boolean"
                     },
                     "capabilities": {
+                      "additionalProperties": true,
                       "properties": {
                         "drop": {
                           "items": {
@@ -10469,14 +10970,17 @@
               "type": "object"
             },
             "deployment": {
+              "additionalProperties": true,
               "properties": {
                 "affinity": {
+                  "additionalProperties": true,
                   "description": "# Assign custom affinity rules to the prometheus operator\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/\n#",
                   "required": [],
                   "title": "affinity",
                   "type": "object"
                 },
                 "annotations": {
+                  "additionalProperties": true,
                   "description": "# Annotations to add to the operator webhook deployment\n#",
                   "required": [],
                   "title": "annotations",
@@ -10490,6 +10994,7 @@
                   "type": "boolean"
                 },
                 "containerSecurityContext": {
+                  "additionalProperties": true,
                   "description": "# Container-specific security context configuration\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
                   "properties": {
                     "allowPrivilegeEscalation": {
@@ -10499,6 +11004,7 @@
                       "type": "boolean"
                     },
                     "capabilities": {
+                      "additionalProperties": true,
                       "properties": {
                         "drop": {
                           "items": {
@@ -10526,6 +11032,7 @@
                   "type": "object"
                 },
                 "dnsConfig": {
+                  "additionalProperties": true,
                   "description": "nodeAffinity:\n  requiredDuringSchedulingIgnoredDuringExecution:\n    nodeSelectorTerms:\n    - matchExpressions:\n      - key: kubernetes.io/e2e-az-name\n        operator: In\n        values:\n        - e2e-az1\n        - e2e-az2",
                   "required": [],
                   "title": "dnsConfig",
@@ -10545,6 +11052,7 @@
                   "type": "boolean"
                 },
                 "image": {
+                  "additionalProperties": true,
                   "description": "# Prometheus-operator webhook image\n#",
                   "properties": {
                     "pullPolicy": {
@@ -10584,12 +11092,14 @@
                   "type": "object"
                 },
                 "labels": {
+                  "additionalProperties": true,
                   "description": "## Labels to add to the operator webhook deployment\n##",
                   "required": [],
                   "title": "labels",
                   "type": "object"
                 },
                 "livenessProbe": {
+                  "additionalProperties": true,
                   "description": "# Liveness probe\n#",
                   "properties": {
                     "enabled": {
@@ -10634,30 +11144,35 @@
                   "type": "object"
                 },
                 "nodeSelector": {
+                  "additionalProperties": true,
                   "description": "# Define which Nodes the Pods are scheduled on.\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n#",
                   "required": [],
                   "title": "nodeSelector",
                   "type": "object"
                 },
                 "podAnnotations": {
+                  "additionalProperties": true,
                   "description": "# Annotations to add to the operator webhook pod\n#",
                   "required": [],
                   "title": "podAnnotations",
                   "type": "object"
                 },
                 "podDisruptionBudget": {
+                  "additionalProperties": true,
                   "description": "Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/",
                   "required": [],
                   "title": "podDisruptionBudget",
                   "type": "object"
                 },
                 "podLabels": {
+                  "additionalProperties": true,
                   "description": "# Labels to add to the operator webhook pod\n#",
                   "required": [],
                   "title": "podLabels",
                   "type": "object"
                 },
                 "readinessProbe": {
+                  "additionalProperties": true,
                   "description": "# Readiness probe\n#",
                   "properties": {
                     "enabled": {
@@ -10709,6 +11224,7 @@
                   "type": "integer"
                 },
                 "resources": {
+                  "additionalProperties": true,
                   "description": "# Resource limits \u0026 requests\n#",
                   "required": [],
                   "title": "resources",
@@ -10722,6 +11238,7 @@
                   "type": "integer"
                 },
                 "securityContext": {
+                  "additionalProperties": true,
                   "description": "nameservers:\n  - 1.2.3.4\nsearches:\n  - ns1.svc.cluster-domain.example\n  - my.dns.search.suffix\noptions:\n  - name: ndots\n    value: \"2\"\n  - name: edns0",
                   "properties": {
                     "fsGroup": {
@@ -10749,6 +11266,7 @@
                       "type": "integer"
                     },
                     "seccompProfile": {
+                      "additionalProperties": true,
                       "properties": {
                         "type": {
                           "default": "RuntimeDefault",
@@ -10767,6 +11285,7 @@
                   "type": "object"
                 },
                 "service": {
+                  "additionalProperties": true,
                   "description": "# Configuration for Prometheus operator Webhook service\n#",
                   "properties": {
                     "additionalPorts": {
@@ -10779,6 +11298,7 @@
                       "type": "array"
                     },
                     "annotations": {
+                      "additionalProperties": true,
                       "required": [],
                       "title": "annotations",
                       "type": "object"
@@ -10806,6 +11326,7 @@
                       "type": "string"
                     },
                     "ipDualStack": {
+                      "additionalProperties": true,
                       "properties": {
                         "enabled": {
                           "default": false,
@@ -10834,6 +11355,7 @@
                       "type": "object"
                     },
                     "labels": {
+                      "additionalProperties": true,
                       "required": [],
                       "title": "labels",
                       "type": "object"
@@ -10879,9 +11401,11 @@
                   "type": "object"
                 },
                 "serviceAccount": {
+                  "additionalProperties": true,
                   "description": "# Service account for Prometheus Operator Webhook to use.\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/\n#",
                   "properties": {
                     "annotations": {
+                      "additionalProperties": true,
                       "required": [],
                       "title": "annotations",
                       "type": "object"
@@ -10910,12 +11434,14 @@
                   "type": "object"
                 },
                 "strategy": {
+                  "additionalProperties": true,
                   "description": "# Strategy of the deployment\n#",
                   "required": [],
                   "title": "strategy",
                   "type": "object"
                 },
                 "tls": {
+                  "additionalProperties": true,
                   "description": "# Prometheus-Operator v0.39.0 and later support TLS natively.\n#",
                   "properties": {
                     "enabled": {
@@ -10971,8 +11497,10 @@
               "type": "string"
             },
             "mutatingWebhookConfiguration": {
+              "additionalProperties": true,
               "properties": {
                 "annotations": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "annotations",
                   "type": "object"
@@ -10983,23 +11511,28 @@
               "type": "object"
             },
             "namespaceSelector": {
+              "additionalProperties": true,
               "required": [],
               "title": "namespaceSelector",
               "type": "object"
             },
             "objectSelector": {
+              "additionalProperties": true,
               "required": [],
               "title": "objectSelector",
               "type": "object"
             },
             "patch": {
+              "additionalProperties": true,
               "properties": {
                 "affinity": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "affinity",
                   "type": "object"
                 },
                 "annotations": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "annotations",
                   "type": "object"
@@ -11011,6 +11544,7 @@
                   "type": "boolean"
                 },
                 "image": {
+                  "additionalProperties": true,
                   "properties": {
                     "pullPolicy": {
                       "default": "IfNotPresent",
@@ -11048,11 +11582,13 @@
                   "type": "object"
                 },
                 "nodeSelector": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "nodeSelector",
                   "type": "object"
                 },
                 "podAnnotations": {
+                  "additionalProperties": true,
                   "description": "  argocd.argoproj.io/hook: PreSync\n  argocd.argoproj.io/hook-delete-policy: HookSucceeded",
                   "required": [],
                   "title": "podAnnotations",
@@ -11066,11 +11602,13 @@
                   "type": "string"
                 },
                 "resources": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "resources",
                   "type": "object"
                 },
                 "securityContext": {
+                  "additionalProperties": true,
                   "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 2000 and gid 2000. *v1.PodSecurityContext  false\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
                   "properties": {
                     "runAsGroup": {
@@ -11092,6 +11630,7 @@
                       "type": "integer"
                     },
                     "seccompProfile": {
+                      "additionalProperties": true,
                       "properties": {
                         "type": {
                           "default": "RuntimeDefault",
@@ -11110,9 +11649,11 @@
                   "type": "object"
                 },
                 "serviceAccount": {
+                  "additionalProperties": true,
                   "description": "# Service account for Prometheus Operator Webhook Job Patch to use.\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/\n#",
                   "properties": {
                     "annotations": {
+                      "additionalProperties": true,
                       "required": [],
                       "title": "annotations",
                       "type": "object"
@@ -11154,8 +11695,10 @@
               "type": "object"
             },
             "patchWebhookJob": {
+              "additionalProperties": true,
               "properties": {
                 "securityContext": {
+                  "additionalProperties": true,
                   "properties": {
                     "allowPrivilegeEscalation": {
                       "default": false,
@@ -11164,6 +11707,7 @@
                       "type": "boolean"
                     },
                     "capabilities": {
+                      "additionalProperties": true,
                       "properties": {
                         "drop": {
                           "items": {
@@ -11203,8 +11747,10 @@
               "type": "integer"
             },
             "validatingWebhookConfiguration": {
+              "additionalProperties": true,
               "properties": {
                 "annotations": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "annotations",
                   "type": "object"
@@ -11220,6 +11766,7 @@
           "type": "object"
         },
         "affinity": {
+          "additionalProperties": true,
           "description": "# Assign custom affinity rules to the prometheus operator\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/\n#",
           "required": [],
           "title": "affinity",
@@ -11250,6 +11797,7 @@
           "type": "string"
         },
         "annotations": {
+          "additionalProperties": true,
           "description": "# Annotations to add to the operator deployment\n#",
           "required": [],
           "title": "annotations",
@@ -11263,6 +11811,7 @@
           "type": "boolean"
         },
         "containerSecurityContext": {
+          "additionalProperties": true,
           "description": "# Container-specific security context configuration\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
           "properties": {
             "allowPrivilegeEscalation": {
@@ -11272,6 +11821,7 @@
               "type": "boolean"
             },
             "capabilities": {
+              "additionalProperties": true,
               "properties": {
                 "drop": {
                   "items": {
@@ -11308,6 +11858,7 @@
           "type": "array"
         },
         "dnsConfig": {
+          "additionalProperties": true,
           "description": "nodeAffinity:\n  requiredDuringSchedulingIgnoredDuringExecution:\n    nodeSelectorTerms:\n    - matchExpressions:\n      - key: kubernetes.io/e2e-az-name\n        operator: In\n        values:\n        - e2e-az1\n        - e2e-az2",
           "required": [],
           "title": "dnsConfig",
@@ -11320,6 +11871,7 @@
           "type": "boolean"
         },
         "env": {
+          "additionalProperties": true,
           "description": "# Operator Environment\n#  env:\n#    VARIABLE: value",
           "properties": {
             "GOGC": {
@@ -11375,6 +11927,7 @@
           "type": "boolean"
         },
         "image": {
+          "additionalProperties": true,
           "description": "# Prometheus-operator image\n#",
           "properties": {
             "pullPolicy": {
@@ -11428,6 +11981,7 @@
           "type": "boolean"
         },
         "kubeletService": {
+          "additionalProperties": true,
           "description": "# Decrease log verbosity to errors only\nlogLevel: error",
           "properties": {
             "enabled": {
@@ -11462,18 +12016,21 @@
           "type": "object"
         },
         "labels": {
+          "additionalProperties": true,
           "description": "## Labels to add to the operator deployment\n##",
           "required": [],
           "title": "labels",
           "type": "object"
         },
         "lifecycle": {
+          "additionalProperties": true,
           "description": "Specify lifecycle hooks for the  controller",
           "required": [],
           "title": "lifecycle",
           "type": "object"
         },
         "livenessProbe": {
+          "additionalProperties": true,
           "description": "# Liveness probe for the prometheusOperator deployment\n#",
           "properties": {
             "enabled": {
@@ -11518,12 +12075,14 @@
           "type": "object"
         },
         "namespaces": {
+          "additionalProperties": true,
           "description": "# Namespaces to scope the interaction of the Prometheus Operator and the apiserver (allow list).\n# This is mutually exclusive with denyNamespaces. Setting this to an empty object will disable the configuration\n#",
           "required": [],
           "title": "namespaces",
           "type": "object"
         },
         "networkPolicy": {
+          "additionalProperties": true,
           "description": "# The clusterDomain value will be added to the cluster.peer option of the alertmanager.\n# Without this specified option cluster.peer will have value alertmanager-monitoring-alertmanager-0.alertmanager-operated:9094 (default value)\n# With this specified option cluster.peer will have value alertmanager-monitoring-alertmanager-0.alertmanager-operated.namespace.svc.cluster-domain:9094\n#\nclusterDomain: \"cluster.local\"",
           "properties": {
             "enabled": {
@@ -11546,24 +12105,28 @@
           "type": "object"
         },
         "nodeSelector": {
+          "additionalProperties": true,
           "description": "# Define which Nodes the Pods are scheduled on.\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n#",
           "required": [],
           "title": "nodeSelector",
           "type": "object"
         },
         "podAnnotations": {
+          "additionalProperties": true,
           "description": "# Annotations to add to the operator pod\n#",
           "required": [],
           "title": "podAnnotations",
           "type": "object"
         },
         "podLabels": {
+          "additionalProperties": true,
           "description": "# Labels to add to the operator pod\n#",
           "required": [],
           "title": "podLabels",
           "type": "object"
         },
         "prometheusConfigReloader": {
+          "additionalProperties": true,
           "description": "# Prometheus-config-reloader\n#",
           "properties": {
             "enableProbe": {
@@ -11574,6 +12137,7 @@
               "type": "boolean"
             },
             "image": {
+              "additionalProperties": true,
               "properties": {
                 "registry": {
                   "default": "quay.io",
@@ -11606,6 +12170,7 @@
               "type": "object"
             },
             "resources": {
+              "additionalProperties": true,
               "description": "resource config for prometheusConfigReloader",
               "required": [],
               "title": "resources",
@@ -11632,6 +12197,7 @@
           "type": "string"
         },
         "readinessProbe": {
+          "additionalProperties": true,
           "description": "# Readiness probe for the prometheusOperator deployment\n#",
           "properties": {
             "enabled": {
@@ -11676,6 +12242,7 @@
           "type": "object"
         },
         "resources": {
+          "additionalProperties": true,
           "description": "# Resource limits \u0026 requests\n#",
           "required": [],
           "title": "resources",
@@ -11696,6 +12263,7 @@
           "type": "string"
         },
         "securityContext": {
+          "additionalProperties": true,
           "description": "nameservers:\n  - 1.2.3.4\nsearches:\n  - ns1.svc.cluster-domain.example\n  - my.dns.search.suffix\noptions:\n  - name: ndots\n    value: \"2\"\n  - name: edns0",
           "properties": {
             "fsGroup": {
@@ -11723,6 +12291,7 @@
               "type": "integer"
             },
             "seccompProfile": {
+              "additionalProperties": true,
               "properties": {
                 "type": {
                   "default": "RuntimeDefault",
@@ -11741,6 +12310,7 @@
           "type": "object"
         },
         "service": {
+          "additionalProperties": true,
           "description": "# Configuration for Prometheus operator service\n#",
           "properties": {
             "additionalPorts": {
@@ -11753,6 +12323,7 @@
               "type": "array"
             },
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -11780,6 +12351,7 @@
               "type": "string"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -11808,6 +12380,7 @@
               "type": "object"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -11852,9 +12425,11 @@
           "type": "object"
         },
         "serviceAccount": {
+          "additionalProperties": true,
           "description": "# Service account for Prometheus Operator to use.\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -11883,9 +12458,11 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "description": "# Create a servicemonitor for the operator\n#",
           "properties": {
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Labels for ServiceMonitor",
               "required": [],
               "title": "additionalLabels",
@@ -11971,6 +12548,7 @@
           "type": "object"
         },
         "strategy": {
+          "additionalProperties": true,
           "description": "# Strategy of the deployment\n#",
           "required": [],
           "title": "strategy",
@@ -11984,6 +12562,7 @@
           "type": "integer"
         },
         "thanosImage": {
+          "additionalProperties": true,
           "description": "# Thanos side-car image when configured\n#",
           "properties": {
             "registry": {
@@ -12031,6 +12610,7 @@
           "type": "string"
         },
         "tls": {
+          "additionalProperties": true,
           "description": "# Prometheus-Operator v0.39.0 and later support TLS natively.\n#",
           "properties": {
             "enabled": {
@@ -12068,6 +12648,7 @@
           "type": "array"
         },
         "verticalPodAutoscaler": {
+          "additionalProperties": true,
           "description": "Enable vertical pod autoscaler support for prometheus-operator",
           "properties": {
             "controlledResources": {
@@ -12086,18 +12667,21 @@
               "type": "boolean"
             },
             "maxAllowed": {
+              "additionalProperties": true,
               "description": "Define the max allowed resources for the pod",
               "required": [],
               "title": "maxAllowed",
               "type": "object"
             },
             "minAllowed": {
+              "additionalProperties": true,
               "description": "cpu: 200m\nmemory: 100Mi\nDefine the min allowed resources for the pod",
               "required": [],
               "title": "minAllowed",
               "type": "object"
             },
             "updatePolicy": {
+              "additionalProperties": true,
               "properties": {
                 "updateMode": {
                   "default": "Auto",
@@ -12171,6 +12755,7 @@
           "type": "boolean"
         },
         "pspAnnotations": {
+          "additionalProperties": true,
           "required": [],
           "title": "pspAnnotations",
           "type": "object"
@@ -12211,6 +12796,7 @@
           "type": "integer"
         },
         "httpGet": {
+          "additionalProperties": true,
           "properties": {
             "httpHeaders": {
               "items": {
@@ -12317,6 +12903,7 @@
       "description": "BETA: Configure the gateway routes for the chart here.\nMore routes can be added by adding a dictionary key like the 'main' route.\nBe aware that this is an early beta of this feature,\nkube-prometheus-stack does not guarantee this works and is subject to change.\nBeing BETA this can/will change in the future without notice, do not use unless you want to take that risk\n[[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)",
       "properties": {
         "main": {
+          "additionalProperties": true,
           "properties": {
             "additionalRules": {
               "description": "# Additional custom rules that can be added to the route",
@@ -12403,6 +12990,7 @@
               "type": "array"
             },
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -12483,6 +13071,7 @@
               "type": "string"
             },
             "labels": {
+              "additionalProperties": true,
               "properties": {
                 "app": {
                   "required": [],
@@ -12586,6 +13175,7 @@
           "type": "integer"
         },
         "seccompProfile": {
+          "additionalProperties": true,
           "properties": {
             "type": {
               "default": "RuntimeDefault",
@@ -12599,6 +13189,7 @@
           "type": "object"
         },
         "windowsOptions": {
+          "additionalProperties": true,
           "properties": {
             "hostProcess": {
               "default": true,
@@ -12649,6 +13240,7 @@
       "description": "# Service configuration",
       "properties": {
         "annotations": {
+          "additionalProperties": true,
           "description": "# Additional annotations and labels for the service.",
           "properties": {
             "prometheus.io/scrape": {
@@ -12691,6 +13283,7 @@
           "type": "string"
         },
         "ipDualStack": {
+          "additionalProperties": true,
           "description": "# Dual stack settings for the service\n# https://kubernetes.io/docs/concepts/services-networking/dual-stack/#services",
           "properties": {
             "enabled": {
@@ -12736,18 +13329,7 @@
           "type": "string"
         },
         "labels": {
-          "properties": {
-            "baz": {
-              "required": [],
-              "title": "baz",
-              "type": "string"
-            },
-            "foo": {
-              "required": [],
-              "title": "foo",
-              "type": "string"
-            }
-          },
+          "additionalProperties": true,
           "required": [],
           "title": "labels",
           "type": "object"
@@ -12837,6 +13419,7 @@
       "additionalProperties": true,
       "properties": {
         "annotations": {
+          "additionalProperties": true,
           "description": "ServiceAccount annotations.\nUse case: AWS EKS IAM roles for service accounts\nref: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html",
           "required": [],
           "title": "annotations",
@@ -12866,6 +13449,7 @@
           "type": "array"
         },
         "labels": {
+          "additionalProperties": true,
           "description": "# ServiceAccount labels.",
           "required": [],
           "title": "labels",
@@ -12893,6 +13477,7 @@
       "additionalProperties": true,
       "properties": {
         "basicAuth": {
+          "additionalProperties": true,
           "required": [],
           "title": "basicAuth",
           "type": "object"
@@ -12911,6 +13496,7 @@
           "type": "string"
         },
         "labels": {
+          "additionalProperties": true,
           "description": " namespace: monitoring  (defaults to use the namespace this chart is deployed to)",
           "required": [],
           "title": "labels",
@@ -12959,6 +13545,7 @@
           "type": "array"
         },
         "tlsConfig": {
+          "additionalProperties": true,
           "required": [],
           "title": "tlsConfig",
           "type": "object"
@@ -12968,11 +13555,19 @@
       "title": "serviceMonitor",
       "type": "object"
     },
+    "shareProcessNamespace": {
+      "default": false,
+      "description": "When process namespace sharing is enabled, processes in a container are visible to all other containers in the same pod\nThis parameter is added because the ldap reload api is not working https://grafana.com/docs/grafana/latest/developers/http_api/admin/#reload-ldap-configuration\nTo allow an extraContainer to restart the Grafana container",
+      "required": [],
+      "title": "shareProcessNamespace",
+      "type": "boolean"
+    },
     "sidecar": {
       "additionalProperties": true,
       "description": "# Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders\n# Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards",
       "properties": {
         "alerts": {
+          "additionalProperties": true,
           "description": "Log level default for all sidecars. Can be one of: DEBUG, INFO, WARN, ERROR, CRITICAL. Defaults to INFO\nlogLevel: INFO",
           "properties": {
             "enabled": {
@@ -12982,6 +13577,7 @@
               "type": "boolean"
             },
             "env": {
+              "additionalProperties": true,
               "description": "Additional environment variables for the alerts sidecar",
               "required": [],
               "title": "env",
@@ -13046,6 +13642,7 @@
               "type": "null"
             },
             "sizeLimit": {
+              "additionalProperties": true,
               "description": "Sets the size limit of the alert sidecar emptyDir volume",
               "required": [],
               "title": "sizeLimit",
@@ -13070,6 +13667,7 @@
           "type": "object"
         },
         "dashboards": {
+          "additionalProperties": true,
           "properties": {
             "SCProvider": {
               "default": true,
@@ -13092,17 +13690,21 @@
               "type": "boolean"
             },
             "env": {
+              "additionalProperties": true,
               "description": "Additional environment variables for the dashboards sidecar",
               "required": [],
               "title": "env",
               "type": "object"
             },
             "envValueFrom": {
+              "additionalProperties": true,
               "description": "# \"valueFrom\" environment variable references that will be added to deployment pods. Name is templated.\n# ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvarsource-v1-core\n# Renders in container spec as:\n#   env:\n#     ...\n#     - name: \u003ckey\u003e\n#       valueFrom:\n#         \u003cvalue rendered as YAML\u003e",
               "properties": {
                 "VAR1": {
+                  "additionalProperties": true,
                   "properties": {
                     "configMapKeyRef": {
+                      "additionalProperties": true,
                       "properties": {
                         "key": {
                           "required": [],
@@ -13125,8 +13727,10 @@
                   "type": "object"
                 },
                 "VAR2": {
+                  "additionalProperties": true,
                   "properties": {
                     "secretKeyRef": {
+                      "additionalProperties": true,
                       "properties": {
                         "key": {
                           "required": [],
@@ -13191,6 +13795,7 @@
               "type": "string"
             },
             "provider": {
+              "additionalProperties": true,
               "description": "watchServerTimeout: request to the server, asking it to cleanly close the connection after that.\ndefaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S\nwatchServerTimeout: 3600\n\nwatchClientTimeout: is a client-side timeout, configuring your local socket.\nIf you have a network outage dropping all packets with no RST/FIN,\nthis is how long your client waits before realizing \u0026 dropping the connection.\ndefaults to 66sec (sic!)\nwatchClientTimeout: 60\n\nprovider configuration that lets grafana manage the dashboards",
               "properties": {
                 "allowUiUpdates": {
@@ -13283,6 +13888,7 @@
               "type": "null"
             },
             "sizeLimit": {
+              "additionalProperties": true,
               "description": "Sets the size limit of the dashboard sidecar emptyDir volume",
               "required": [],
               "title": "sizeLimit",
@@ -13307,6 +13913,7 @@
           "type": "object"
         },
         "datasources": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": false,
@@ -13315,17 +13922,21 @@
               "type": "boolean"
             },
             "env": {
+              "additionalProperties": true,
               "description": "Additional environment variables for the datasourcessidecar",
               "required": [],
               "title": "env",
               "type": "object"
             },
             "envValueFrom": {
+              "additionalProperties": true,
               "description": "# \"valueFrom\" environment variable references that will be added to deployment pods. Name is templated.\n# ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvarsource-v1-core\n# Renders in container spec as:\n#   env:\n#     ...\n#     - name: \u003ckey\u003e\n#       valueFrom:\n#         \u003cvalue rendered as YAML\u003e",
               "properties": {
                 "VAR1": {
+                  "additionalProperties": true,
                   "properties": {
                     "configMapKeyRef": {
+                      "additionalProperties": true,
                       "properties": {
                         "key": {
                           "required": [],
@@ -13348,8 +13959,10 @@
                   "type": "object"
                 },
                 "VAR2": {
+                  "additionalProperties": true,
                   "properties": {
                     "secretKeyRef": {
+                      "additionalProperties": true,
                       "properties": {
                         "key": {
                           "required": [],
@@ -13435,6 +14048,7 @@
               "type": "null"
             },
             "sizeLimit": {
+              "additionalProperties": true,
               "description": "Sets the size limit of the datasource sidecar emptyDir volume",
               "required": [],
               "title": "sizeLimit",
@@ -13466,6 +14080,7 @@
           "type": "boolean"
         },
         "image": {
+          "additionalProperties": true,
           "properties": {
             "registry": {
               "default": "quay.io",
@@ -13504,11 +14119,13 @@
           "type": "string"
         },
         "livenessProbe": {
+          "additionalProperties": true,
           "required": [],
           "title": "livenessProbe",
           "type": "object"
         },
         "notifiers": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": false,
@@ -13517,6 +14134,7 @@
               "type": "boolean"
             },
             "env": {
+              "additionalProperties": true,
               "description": "Additional environment variables for the notifierssidecar",
               "required": [],
               "title": "env",
@@ -13581,6 +14199,7 @@
               "type": "null"
             },
             "sizeLimit": {
+              "additionalProperties": true,
               "description": "Sets the size limit of the notifier sidecar emptyDir volume",
               "required": [],
               "title": "sizeLimit",
@@ -13605,6 +14224,7 @@
           "type": "object"
         },
         "plugins": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": false,
@@ -13613,6 +14233,7 @@
               "type": "boolean"
             },
             "env": {
+              "additionalProperties": true,
               "description": "Additional environment variables for the plugins sidecar",
               "required": [],
               "title": "env",
@@ -13677,6 +14298,7 @@
               "type": "null"
             },
             "sizeLimit": {
+              "additionalProperties": true,
               "description": "Sets the size limit of the plugin sidecar emptyDir volume",
               "required": [],
               "title": "sizeLimit",
@@ -13701,16 +14323,19 @@
           "type": "object"
         },
         "readinessProbe": {
+          "additionalProperties": true,
           "required": [],
           "title": "readinessProbe",
           "type": "object"
         },
         "resources": {
+          "additionalProperties": true,
           "required": [],
           "title": "resources",
           "type": "object"
         },
         "securityContext": {
+          "additionalProperties": true,
           "description": "  limits:\n    cpu: 100m\n    memory: 100Mi\n  requests:\n    cpu: 50m\n    memory: 50Mi",
           "properties": {
             "allowPrivilegeEscalation": {
@@ -13720,6 +14345,7 @@
               "type": "boolean"
             },
             "capabilities": {
+              "additionalProperties": true,
               "properties": {
                 "drop": {
                   "items": {
@@ -13736,6 +14362,7 @@
               "type": "object"
             },
             "seccompProfile": {
+              "additionalProperties": true,
               "properties": {
                 "type": {
                   "default": "RuntimeDefault",
@@ -13830,6 +14457,7 @@
           "type": "integer"
         },
         "httpGet": {
+          "additionalProperties": true,
           "properties": {
             "httpHeaders": {
               "items": {
@@ -13925,6 +14553,7 @@
           "type": "boolean"
         },
         "image": {
+          "additionalProperties": true,
           "description": "# The type of Helm hook used to run this test. Defaults to test.\n# ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks\n#\nhookType: test",
           "properties": {
             "registry": {
@@ -13958,11 +14587,13 @@
           "type": "string"
         },
         "resources": {
+          "additionalProperties": true,
           "required": [],
           "title": "resources",
           "type": "object"
         },
         "securityContext": {
+          "additionalProperties": true,
           "required": [],
           "title": "securityContext",
           "type": "object"
@@ -13977,6 +14608,7 @@
       "description": "# Configuration for thanosRuler\n# ref: https://thanos.io/tip/components/rule.md/\n#",
       "properties": {
         "annotations": {
+          "additionalProperties": true,
           "description": "# Annotations for ThanosRuler\n#",
           "required": [],
           "title": "annotations",
@@ -13990,15 +14622,18 @@
           "type": "boolean"
         },
         "extraSecret": {
+          "additionalProperties": true,
           "description": "# ExtraSecret can be used to store various data in an extra secret\n# (use it for example to store hashed basic auth credentials)",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "# if not set, name will be auto generated\nname: \"\"",
               "required": [],
               "title": "annotations",
               "type": "object"
             },
             "data": {
+              "additionalProperties": true,
               "required": [],
               "title": "data",
               "type": "object"
@@ -14009,8 +14644,10 @@
           "type": "object"
         },
         "ingress": {
+          "additionalProperties": true,
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "description": "For Kubernetes \u003e= 1.18 you should specify the ingress-controller via the field ingressClassName\nSee https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress\ningressClassName: nginx",
               "required": [],
               "title": "annotations",
@@ -14032,6 +14669,7 @@
               "type": "array"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -14060,6 +14698,7 @@
           "type": "object"
         },
         "podDisruptionBudget": {
+          "additionalProperties": true,
           "description": "# Configure pod disruption budgets for ThanosRuler\n# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget\n#",
           "properties": {
             "enabled": {
@@ -14086,9 +14725,11 @@
           "type": "object"
         },
         "route": {
+          "additionalProperties": true,
           "description": "BETA: Configure the gateway routes for the chart here.\nMore routes can be added by adding a dictionary key like the 'main' route.\nBe aware that this is an early beta of this feature,\nkube-prometheus-stack does not guarantee this works and is subject to change.\nBeing BETA this can/will change in the future without notice, do not use unless you want to take that risk\n[[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)",
           "properties": {
             "main": {
+              "additionalProperties": true,
               "properties": {
                 "additionalRules": {
                   "description": "# Additional custom rules that can be added to the route",
@@ -14100,6 +14741,7 @@
                   "type": "array"
                 },
                 "annotations": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "annotations",
                   "type": "object"
@@ -14150,6 +14792,7 @@
                   "type": "string"
                 },
                 "labels": {
+                  "additionalProperties": true,
                   "required": [],
                   "title": "labels",
                   "type": "object"
@@ -14204,6 +14847,7 @@
           "type": "object"
         },
         "service": {
+          "additionalProperties": true,
           "description": "# Configuration for ThanosRuler service\n#",
           "properties": {
             "additionalPorts": {
@@ -14216,6 +14860,7 @@
               "type": "array"
             },
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -14242,6 +14887,7 @@
               "type": "string"
             },
             "ipDualStack": {
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "default": false,
@@ -14270,6 +14916,7 @@
               "type": "object"
             },
             "labels": {
+              "additionalProperties": true,
               "required": [],
               "title": "labels",
               "type": "object"
@@ -14322,9 +14969,11 @@
           "type": "object"
         },
         "serviceAccount": {
+          "additionalProperties": true,
           "description": "# Service account for ThanosRuler to use.\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/\n#",
           "properties": {
             "annotations": {
+              "additionalProperties": true,
               "required": [],
               "title": "annotations",
               "type": "object"
@@ -14347,6 +14996,7 @@
           "type": "object"
         },
         "serviceMonitor": {
+          "additionalProperties": true,
           "description": "# Configuration for creating a ServiceMonitor for the ThanosRuler service\n#",
           "properties": {
             "additionalEndpoints": {
@@ -14359,6 +15009,7 @@
               "type": "array"
             },
             "additionalLabels": {
+              "additionalProperties": true,
               "description": "# Additional labels\n#",
               "required": [],
               "title": "additionalLabels",
@@ -14452,6 +15103,7 @@
               "type": "integer"
             },
             "tlsConfig": {
+              "additionalProperties": true,
               "description": "# tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.\n# Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig",
               "required": [],
               "title": "tlsConfig",
@@ -14463,6 +15115,7 @@
           "type": "object"
         },
         "thanosRulerSpec": {
+          "additionalProperties": true,
           "description": "# Settings affecting thanosRulerpec\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#thanosrulerspec\n#",
           "properties": {
             "additionalArgs": {
@@ -14475,6 +15128,7 @@
               "type": "array"
             },
             "additionalConfig": {
+              "additionalProperties": true,
               "description": "# Additional configuration which is not covered by the properties above. (passed through tpl)",
               "required": [],
               "title": "additionalConfig",
@@ -14488,6 +15142,7 @@
               "type": "string"
             },
             "affinity": {
+              "additionalProperties": true,
               "description": "# Assign custom affinity rules to the thanosRuler instance\n# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/\n#",
               "required": [],
               "title": "affinity",
@@ -14503,15 +15158,18 @@
               "type": "array"
             },
             "alertmanagersConfig": {
+              "additionalProperties": true,
               "description": "# AlertmanagerConfig define configuration for connecting to alertmanager.\n# Only available with Thanos v0.10.0 and higher. Maps to the alertmanagers.config Thanos Ruler arg.",
               "properties": {
                 "existingSecret": {
+                  "additionalProperties": true,
                   "description": "use existing secret, if configured, alertmanagersConfig.secret will not be used",
                   "required": [],
                   "title": "existingSecret",
                   "type": "object"
                 },
                 "secret": {
+                  "additionalProperties": true,
                   "description": "name: \"\"\nkey: \"\"\nwill render alertmanagersConfig secret data and configure it to be used by Thanos Ruler custom resource, ignored when alertmanagersConfig.existingSecret is set\nhttps://thanos.io/tip/components/rule.md/#alertmanager",
                   "required": [],
                   "title": "secret",
@@ -14553,6 +15211,7 @@
               "type": "boolean"
             },
             "image": {
+              "additionalProperties": true,
               "description": "# Image of ThanosRuler\n#",
               "properties": {
                 "registry": {
@@ -14594,6 +15253,7 @@
               "type": "array"
             },
             "labels": {
+              "additionalProperties": true,
               "description": "# Labels configure the external label pairs to ThanosRuler. A default replica\n# label `thanos_ruler_replica` will be always added as a label with the value\n# of the pod's name and it will be dropped in the alerts.",
               "required": [],
               "title": "labels",
@@ -14621,21 +15281,25 @@
               "type": "string"
             },
             "nodeSelector": {
+              "additionalProperties": true,
               "description": "# Define which Nodes the Pods are scheduled on.\n# ref: https://kubernetes.io/docs/user-guide/node-selection/\n#",
               "required": [],
               "title": "nodeSelector",
               "type": "object"
             },
             "objectStorageConfig": {
+              "additionalProperties": true,
               "description": "# ObjectStorageConfig configures object storage in Thanos",
               "properties": {
                 "existingSecret": {
+                  "additionalProperties": true,
                   "description": "use existing secret, if configured, objectStorageConfig.secret will not be used",
                   "required": [],
                   "title": "existingSecret",
                   "type": "object"
                 },
                 "secret": {
+                  "additionalProperties": true,
                   "description": "name: \"\"\nkey: \"\"\nwill render objectStorageConfig secret data and configure it to be used by Thanos Ruler custom resource, ignored when objectStorageConfig.existingSecret is set\nhttps://thanos.io/tip/thanos/storage.md/#s3",
                   "required": [],
                   "title": "secret",
@@ -14668,6 +15332,7 @@
               "type": "string"
             },
             "podMetadata": {
+              "additionalProperties": true,
               "description": "# Standard object's metadata. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#metadata\n# Metadata Labels and Annotations gets propagated to the ThanosRuler pods.\n#",
               "required": [],
               "title": "podMetadata",
@@ -14688,15 +15353,18 @@
               "type": "string"
             },
             "queryConfig": {
+              "additionalProperties": true,
               "description": "# Define configuration for connecting to thanos query instances. If this is defined, the queryEndpoints field will be ignored.\n# Maps to the query.config CLI argument. Only available with thanos v0.11.0 and higher.",
               "properties": {
                 "existingSecret": {
+                  "additionalProperties": true,
                   "description": "use existing secret, if configured, queryConfig.secret will not be used",
                   "required": [],
                   "title": "existingSecret",
                   "type": "object"
                 },
                 "secret": {
+                  "additionalProperties": true,
                   "description": "name: \"\"\nkey: \"\"\nrender queryConfig secret data and configure it to be used by Thanos Ruler custom resource, ignored when queryConfig.existingSecret is set\nhttps://thanos.io/tip/components/rule.md/#query-api",
                   "required": [],
                   "title": "secret",
@@ -14724,6 +15392,7 @@
               "type": "integer"
             },
             "resources": {
+              "additionalProperties": true,
               "description": "# Define resources requests and limits for single Pods.\n# ref: https://kubernetes.io/docs/user-guide/compute-resources/\n#",
               "required": [],
               "title": "resources",
@@ -14744,12 +15413,14 @@
               "type": "string"
             },
             "ruleNamespaceSelector": {
+              "additionalProperties": true,
               "description": "# Namespaces to be selected for PrometheusRules discovery.\n# If nil, select own namespace. Namespaces to be selected for ServiceMonitor discovery.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#namespaceselector for usage\n#",
               "required": [],
               "title": "ruleNamespaceSelector",
               "type": "object"
             },
             "ruleSelector": {
+              "additionalProperties": true,
               "description": "# PrometheusRules to be selected for target discovery.\n# If {}, select all PrometheusRules\n#",
               "required": [],
               "title": "ruleSelector",
@@ -14763,6 +15434,7 @@
               "type": "boolean"
             },
             "securityContext": {
+              "additionalProperties": true,
               "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
               "properties": {
                 "fsGroup": {
@@ -14790,6 +15462,7 @@
                   "type": "integer"
                 },
                 "seccompProfile": {
+                  "additionalProperties": true,
                   "properties": {
                     "type": {
                       "default": "RuntimeDefault",
@@ -14808,7 +15481,8 @@
               "type": "object"
             },
             "storage": {
-              "description": "# Storage is the definition of how storage will be used by the ThanosRuler instances.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md\n#",
+              "additionalProperties": true,
+              "description": "# Storage is the definition of how storage will be used by the ThanosRuler instances.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md\n#",
               "required": [],
               "title": "storage",
               "type": "object"
@@ -14850,6 +15524,7 @@
               "type": "array"
             },
             "web": {
+              "additionalProperties": true,
               "description": "# WebTLSConfig defines the TLS parameters for HTTPS\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#thanosrulerwebspec",
               "required": [],
               "title": "web",
@@ -14953,6 +15628,7 @@
       "description": "# Customize the updateStrategy if set",
       "properties": {
         "rollingUpdate": {
+          "additionalProperties": true,
           "properties": {
             "maxUnavailable": {
               "default": 1,
@@ -15024,12 +15700,14 @@
           "type": "boolean"
         },
         "maxAllowed": {
+          "additionalProperties": true,
           "description": "Define the max allowed resources for the pod",
           "required": [],
           "title": "maxAllowed",
           "type": "object"
         },
         "minAllowed": {
+          "additionalProperties": true,
           "description": "cpu: 200m\nmemory: 100Mi\nDefine the min allowed resources for the pod",
           "required": [],
           "title": "minAllowed",
