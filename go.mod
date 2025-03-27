@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/x/exp/teatest v0.0.0-20250313150240-c09addb0e197
 	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
 	github.com/dadav/helm-schema v0.0.0-20241230184257-6f2eeb34f592
-	github.com/getkin/kin-openapi v0.129.0
+	github.com/getkin/kin-openapi v0.131.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/iancoleman/strcase v0.3.0
@@ -194,8 +194,8 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/norwoodj/helm-docs v1.14.2 // indirect
-	github.com/oasdiff/yaml v0.0.0-20241210131133-6b86fb107d80 // indirect
-	github.com/oasdiff/yaml3 v0.0.0-20241210130736-a94c01f36349 // indirect
+	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 // indirect
+	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
