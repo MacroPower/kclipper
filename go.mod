@@ -28,7 +28,7 @@ require (
 	kcl-lang.io/cli v0.11.1
 	kcl-lang.io/kcl-go v0.11.1
 	kcl-lang.io/kcl-openapi v0.10.0
-	kcl-lang.io/kpm v0.11.2-0.20250312155554-864635a78384
+	kcl-lang.io/kpm v0.11.2-0.20250326024157-d1503884fb99
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -41,7 +41,7 @@ require (
 	dario.cat/mergo v1.0.1 // indirect
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
-	github.com/BurntSushi/toml v1.4.0 // indirect
+	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
