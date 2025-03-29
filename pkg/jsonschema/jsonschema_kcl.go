@@ -2,6 +2,7 @@ package jsonschema
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	"gopkg.in/yaml.v3"
@@ -10,6 +11,18 @@ import (
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
 
 	"github.com/MacroPower/kclipper/pkg/kclutil"
+)
+
+// Error types for the jsonschema package.
+var (
+	// ErrUnmarshalSchema indicates an error occurred while unmarshaling the JSON Schema.
+	ErrUnmarshalSchema = errors.New("failed to unmarshal JSON Schema")
+
+	// ErrSchemaToJSON indicates an error occurred while converting a schema to JSON.
+	ErrSchemaToJSON = errors.New("failed to convert schema to JSON")
+
+	// ErrGenerateKCL indicates an error occurred during KCL schema generation.
+	ErrGenerateKCL = errors.New("failed to generate KCL schema")
 )
 
 // ConvertToKCLSchema converts a JSON schema to a KCL schema.
@@ -26,7 +39,7 @@ func ConvertToKCLSchema(jsonSchemaData []byte, removeDefaults bool) ([]byte, err
 		UseIntegersForNumbers: true,
 		RemoveDefaults:        removeDefaults,
 	}); err != nil {
-		return nil, fmt.Errorf("failed to generate kcl schema: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrGenerateKCL, err)
 	}
 
 	return kclSchema.Bytes(), nil
@@ -39,12 +52,12 @@ func ConvertToKCLCompatibleJSONSchema(jsonSchemaData []byte) ([]byte, error) {
 	// the Unmarshaler for JSON.
 	var jsonNode yaml.Node
 	if err := yaml.Unmarshal(jsonSchemaData, &jsonNode); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrUnmarshalSchema, err)
 	}
 
 	hs := &helmschema.Schema{}
 	if err := hs.UnmarshalYAML(&jsonNode); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrUnmarshalSchema, err)
 	}
 
 	// Remove the ID to keep KCL schema naming consistent.
@@ -57,7 +70,7 @@ func ConvertToKCLCompatibleJSONSchema(jsonSchemaData []byte) ([]byte, error) {
 
 	fixedJSONSchema, err := mhs.ToJson()
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrSchemaToJSON, err)
 	}
 
 	return fixedJSONSchema, nil
