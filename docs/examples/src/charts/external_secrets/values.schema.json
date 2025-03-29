@@ -335,6 +335,10 @@
           "required": [],
           "type": "boolean"
         },
+        "createClusterPushSecret": {
+          "required": [],
+          "type": "boolean"
+        },
         "createClusterSecretStore": {
           "required": [],
           "type": "boolean"
@@ -531,6 +535,10 @@
       "required": [],
       "type": "object"
     },
+    "openshiftFinalizers": {
+      "required": [],
+      "type": "boolean"
+    },
     "podAnnotations": {
       "required": [],
       "type": "object"
@@ -572,6 +580,10 @@
       "type": "string"
     },
     "processClusterExternalSecret": {
+      "required": [],
+      "type": "boolean"
+    },
+    "processClusterPushSecret": {
       "required": [],
       "type": "boolean"
     },
@@ -817,7 +829,7 @@
                 },
                 "revisionHistoryLimit": {
                   "required": [],
-                  "type": "string"
+                  "type": "integer"
                 }
               },
               "required": [],

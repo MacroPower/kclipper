@@ -39,6 +39,7 @@ schema Values:
     nameOverride : str, optional
     namespaceOverride : str, optional
     nodeSelector : ValuesNodeSelector, optional
+    openshiftFinalizers : bool, optional
     podAnnotations : ValuesPodAnnotations, optional
     podDisruptionBudget : ValuesPodDisruptionBudget, optional
     podLabels : ValuesPodLabels, optional
@@ -46,6 +47,7 @@ schema Values:
     podSpecExtra : ValuesPodSpecExtra, optional
     priorityClassName : str, optional
     processClusterExternalSecret : bool, optional
+    processClusterPushSecret : bool, optional
     processClusterStore : bool, optional
     processPushSecret : bool, optional
     rbac : ValuesRbac, optional
@@ -93,6 +95,7 @@ schema Values:
     nameOverride?: str
     namespaceOverride?: str
     nodeSelector?: ValuesNodeSelector
+    openshiftFinalizers?: bool
     podAnnotations?: ValuesPodAnnotations
     podDisruptionBudget?: ValuesPodDisruptionBudget
     podLabels?: ValuesPodLabels
@@ -100,6 +103,7 @@ schema Values:
     podSpecExtra?: ValuesPodSpecExtra
     priorityClassName?: str
     processClusterExternalSecret?: bool
+    processClusterPushSecret?: bool
     processClusterStore?: bool
     processPushSecret?: bool
     rbac?: ValuesRbac
@@ -471,6 +475,7 @@ schema ValuesCrds:
     conversion : ValuesCrdsConversion, optional
     createClusterExternalSecret : bool, optional
     createClusterGenerator : bool, optional
+    createClusterPushSecret : bool, optional
     createClusterSecretStore : bool, optional
     createPushSecret : bool, optional
     """
@@ -479,6 +484,7 @@ schema ValuesCrds:
     conversion?: ValuesCrdsConversion
     createClusterExternalSecret?: bool
     createClusterGenerator?: bool
+    createClusterPushSecret?: bool
     createClusterSecretStore?: bool
     createPushSecret?: bool
 
@@ -974,7 +980,7 @@ schema ValuesWebhookCertManagerCert:
     duration : str, optional
     issuerRef : ValuesWebhookCertManagerCertIssuerRef, optional
     renewBefore : str, optional
-    revisionHistoryLimit : str, optional
+    revisionHistoryLimit : int, optional
     """
 
     annotations?: ValuesWebhookCertManagerCertAnnotations
@@ -982,7 +988,7 @@ schema ValuesWebhookCertManagerCert:
     duration?: str
     issuerRef?: ValuesWebhookCertManagerCertIssuerRef
     renewBefore?: str
-    revisionHistoryLimit?: str
+    revisionHistoryLimit?: int
 
 schema ValuesWebhookCertManagerCertAnnotations:
     r"""
