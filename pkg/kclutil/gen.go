@@ -16,6 +16,7 @@ type gen struct {
 	mu sync.Mutex
 }
 
+// GenKclOptions contains options for KCL generation.
 type GenKclOptions struct {
 	Mode                  kclgen.Mode
 	CastingOption         kclgen.CastingOption
@@ -23,6 +24,7 @@ type GenKclOptions struct {
 	RemoveDefaults        bool
 }
 
+// GenKcl generates KCL schema with the provided options.
 func (g *gen) GenKcl(w io.Writer, filename string, src any, opts *GenKclOptions) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -35,12 +37,12 @@ func (g *gen) GenKcl(w io.Writer, filename string, src any, opts *GenKclOptions)
 	}
 
 	if err := kclgen.GenKcl(kclSchemaBuf, filename, src, kgo); err != nil {
-		return fmt.Errorf("failed to generate kcl: %w", err)
+		return fmt.Errorf("%w: %w", ErrGenerateKCL, err)
 	}
 
 	kclSchema := FixKCLSchema(kclSchemaBuf.String(), opts.RemoveDefaults)
 	if _, err := w.Write([]byte(kclSchema)); err != nil {
-		return fmt.Errorf("failed to write KCL schema: %w", err)
+		return fmt.Errorf("%w: %w", ErrWrite, err)
 	}
 
 	return nil

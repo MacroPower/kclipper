@@ -278,7 +278,7 @@ func (c *ChartPkg) writeCRDFiles(crds []*unstructured.Unstructured, chartDir str
 	}
 
 	if err := sem.Acquire(ctx, workerCount); err != nil {
-		return fmt.Errorf("failed to generate KCL from CRD: %w", err)
+		return fmt.Errorf("failed to generate KCL from CRDs: %w", err)
 	}
 
 	close(errChan)
@@ -289,7 +289,7 @@ func (c *ChartPkg) writeCRDFiles(crds []*unstructured.Unstructured, chartDir str
 		}
 	}
 	if merr != nil {
-		return fmt.Errorf("failed to generate KCL from CRD: %w", merr)
+		return fmt.Errorf("failed to generate KCL from CRDs: %w", merr)
 	}
 
 	return nil

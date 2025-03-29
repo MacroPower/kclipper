@@ -6,19 +6,23 @@ import (
 	"strings"
 )
 
+// MapValue represents a value that can be either a string or a boolean.
 type MapValue struct {
 	s *string
 	b *bool
 }
 
+// IsString returns true if the value is a string.
 func (s MapValue) IsString() bool {
 	return s.s != nil
 }
 
+// IsBool returns true if the value is a boolean.
 func (s MapValue) IsBool() bool {
 	return s.b != nil
 }
 
+// GetValue returns the string representation of the value.
 func (s MapValue) GetValue() string {
 	if s.IsString() {
 		if *s.s != "" {
@@ -39,14 +43,17 @@ func (s MapValue) GetValue() string {
 	return ""
 }
 
+// NewString creates a new MapValue from a string.
 func NewString(s string) MapValue {
 	return MapValue{s: &s}
 }
 
+// NewBool creates a new MapValue from a boolean.
 func NewBool(b bool) MapValue {
 	return MapValue{b: &b}
 }
 
+// Automation represents a collection of keys and their associated values for automation.
 type Automation map[string]MapValue
 
 // GetSpecs returns a sorted list of specs which can be passed to [kcl-lang.io/kcl-go.OverrideFile].
@@ -55,7 +62,7 @@ func (a Automation) GetSpecs(specPath string) ([]string, error) {
 
 	for k, v := range a {
 		if k == "" {
-			return nil, fmt.Errorf("invalid key in KCL automation: %#v", a)
+			return nil, fmt.Errorf("%w: empty key in KCL automation", ErrInvalidFormat)
 		}
 
 		val := v.GetValue()
@@ -71,6 +78,7 @@ func (a Automation) GetSpecs(specPath string) ([]string, error) {
 	return specs, nil
 }
 
+// SpecPathJoin joins path components with dots, splitting any components that already contain dots.
 func SpecPathJoin(path ...string) string {
 	pathParts := []string{}
 	for _, p := range path {

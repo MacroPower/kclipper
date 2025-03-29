@@ -14,21 +14,22 @@ func TestExporter_ExportSchemaToJSON(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		wantErr    error
+		err        error
 		validate   func(t *testing.T, data []byte)
 		pkgPath    string
 		schemaName string
 	}{
-		"schema_not_found": {
-			pkgPath:    "testdata/export",
+		"schema not found": {
+			pkgPath:    "testdata/export/submod",
 			schemaName: "NonExistentSchema",
-			wantErr:    kclutil.ErrSchemaNotFound,
+			err:        kclutil.ErrSchemaNotFound,
 		},
-		"successful_export": {
+		"successful export": {
 			pkgPath:    "testdata/export/submod",
 			schemaName: "Config",
 			validate: func(t *testing.T, data []byte) {
 				t.Helper()
+
 				var schema map[string]any
 				err := json.Unmarshal(data, &schema)
 				require.NoError(t, err)
@@ -55,8 +56,9 @@ func TestExporter_ExportSchemaToJSON(t *testing.T) {
 			t.Parallel()
 
 			data, err := kclutil.Export.KCLSchemaToJSONSchema(tc.pkgPath, tc.schemaName)
-			if tc.wantErr != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
+			if tc.err != nil {
+				require.Error(t, err)
+				assert.ErrorIs(t, err, tc.err)
 
 				return
 			}
