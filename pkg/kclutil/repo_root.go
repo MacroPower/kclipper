@@ -1,16 +1,10 @@
 package kclutil
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-)
-
-var (
-	ErrFileNotFound        = errors.New("file not found")
-	ErrResolvedOutsideRepo = errors.New("file resolved to outside repository root")
 )
 
 // FindTopPkgRoot finds the topmost `kcl.mod` file for the provided path. It is
@@ -82,12 +76,12 @@ func FindRepoRoot(path string) (string, error) {
 func findTopFile(root, path string, test func(string) (bool, error)) (string, error) {
 	rootAbs, err := filepath.Abs(root)
 	if err != nil {
-		return "", fmt.Errorf("failed to get absolute path: %w", err)
+		return "", fmt.Errorf("get absolute path: %w", err)
 	}
 
 	pathAbs, err := filepath.Abs(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to get absolute path: %w", err)
+		return "", fmt.Errorf("get absolute path: %w", err)
 	}
 	if !strings.HasPrefix(pathAbs, rootAbs) {
 		return "", ErrResolvedOutsideRepo
@@ -95,11 +89,11 @@ func findTopFile(root, path string, test func(string) (bool, error)) (string, er
 
 	pathRel, err := filepath.Rel(rootAbs, pathAbs)
 	if err != nil {
-		return "", fmt.Errorf("failed to get relative path: %w", err)
+		return "", fmt.Errorf("get relative path: %w", err)
 	}
 
 	currentDir := rootAbs
-	for _, part := range strings.Split(pathRel, "/") {
+	for part := range strings.SplitSeq(pathRel, "/") {
 		currentDir = filepath.Join(currentDir, part)
 		if match, err := test(currentDir); err == nil && match {
 			return currentDir, nil

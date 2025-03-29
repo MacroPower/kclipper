@@ -2,7 +2,6 @@ package kclutil
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"maps"
 	"strings"
@@ -13,13 +12,8 @@ import (
 	kclgen "kcl-lang.io/kcl-go/pkg/tools/gen"
 )
 
-var (
-	ErrSchemaNotFound = errors.New("schema not found")
-	ErrInvalidFormat  = errors.New("invalid format")
-
-	// Export is a concurrency-safe KCL exporter.
-	Export = &export{}
-)
+// Export is a concurrency-safe KCL exporter.
+var Export = &export{}
 
 // Exporter handles exporting KCL schemas to other formats.
 type export struct {
@@ -45,17 +39,17 @@ func (e *export) KCLSchemaToJSONSchema(pkgPath, schemaName string) ([]byte, erro
 
 	ref, ok := spec.Components.Schemas[schemaName]
 	if !ok {
-		return nil, fmt.Errorf("%w: schema %q not found in available schemas: %v", ErrSchemaNotFound, schemaName, schemaKeys)
+		return nil, fmt.Errorf("%w: available schemas: %v", ErrSchemaNotFound, schemaKeys)
 	}
 
 	requiredDefinitions, err := getRequiredDefinitions(ref, spec)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to get required definitions from available schemas: %v", err, schemaKeys)
+		return nil, fmt.Errorf("missing required definitions: %w: available schemas: %v", err, schemaKeys)
 	}
 
 	refYAMLAny, err := ref.Value.MarshalYAML()
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal schema to YAML: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrYAMLMarshal, err)
 	}
 
 	refYAML, ok := refYAMLAny.(map[string]any)
@@ -65,14 +59,13 @@ func (e *export) KCLSchemaToJSONSchema(pkgPath, schemaName string) ([]byte, erro
 
 	// Add definitions to the schema for complete reference.
 	refYAML["definitions"] = requiredDefinitions
-
 	// Add $schema to the root of the schema to indicate it's a JSON Schema.
 	refYAML["$schema"] = "http://json-schema.org/draft-07/schema#"
 
 	// Format as JSON with proper indentation.
 	jsonData, err := json.MarshalIndent(refYAML, "", "  ")
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal JSON: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrJSONMarshal, err)
 	}
 
 	// Replace `"type": "bool"` with `"type": "boolean"` for compatibility with JSON Schema spec.
@@ -95,15 +88,16 @@ func getRequiredDefinitions(ref *openapi3.SchemaRef, spec *openapi3.T) (map[stri
 			id := getDefinitionID(v.Ref)
 			def, ok := spec.Components.Schemas[id]
 			if !ok {
-				return nil, fmt.Errorf("%w: schema %q not found", ErrSchemaNotFound, id)
+				return nil, fmt.Errorf("schema %q: %w", id, ErrSchemaNotFound)
 			}
 			requiredDefinitions[id] = def
 		}
+
 		if v.Value.Items != nil && v.Value.Items.Ref != "" {
 			id := getDefinitionID(v.Value.Items.Ref)
 			def, ok := spec.Components.Schemas[id]
 			if !ok {
-				return nil, fmt.Errorf("%w: schema %q not found", ErrSchemaNotFound, id)
+				return nil, fmt.Errorf("schema %q: %w", id, ErrSchemaNotFound)
 			}
 			requiredDefinitions[id] = def
 		}
@@ -130,7 +124,7 @@ func (e *export) safeExportSwaggerV2Spec(pkgPath string) (*kclgen.SwaggerV2Spec,
 
 	spec, err := kclgen.ExportSwaggerV2Spec(pkgPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to export Swagger v2 spec: %w", err)
+		return nil, fmt.Errorf("export Swagger v2 spec: %w", err)
 	}
 
 	return spec, nil
