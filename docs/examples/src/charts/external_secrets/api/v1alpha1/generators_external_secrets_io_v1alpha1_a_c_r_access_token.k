@@ -9,7 +9,7 @@ _regex_match = regex.match
 
 schema ACRAccessToken:
     r"""
-    ACRAccessToken returns a Azure Container Registry token
+    ACRAccessToken returns an Azure Container Registry token
     that can be used for pushing/pulling images.
     Note: by default it will return an ACR Refresh Token with full access
     (depending on the identity).
