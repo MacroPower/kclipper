@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/api/resource"
 
+	"github.com/MacroPower/kclipper/pkg/crd"
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmtui"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
@@ -119,7 +120,7 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 	schemaGenerator := new(string)
 	schemaValidator := new(string)
 	schemaPath := new(string)
-	crdPath := new(string)
+	crdGenerator := new(string)
 
 	cmd := &cobra.Command{
 		Use:   "add",
@@ -127,6 +128,7 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			schemaGeneratorType := jsonschema.GetGeneratorType(*schemaGenerator)
 			schemaValidatorType := jsonschema.GetValidatorType(*schemaValidator)
+			crdGeneratorType := crd.GetGeneratorType(*crdGenerator)
 
 			cc, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
@@ -143,7 +145,7 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: schemaGeneratorType,
 					SchemaPath:      *schemaPath,
-					CRDPath:         *crdPath,
+					CRDGenerator:    crdGeneratorType,
 				},
 			}
 
@@ -163,7 +165,7 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 	cmd.Flags().StringVar(schemaGenerator, "schema_generator", "", "Chart schema generator")
 	cmd.Flags().StringVar(schemaValidator, "schema_validator", "", "Chart schema validator")
 	cmd.Flags().StringVar(schemaPath, "schema_path", "", "Chart schema path")
-	cmd.Flags().StringVar(crdPath, "crd_path", "", "CRD path")
+	cmd.Flags().StringVar(crdGenerator, "crd_generator", "", "CRD generator")
 
 	must(cmd.MarkFlagRequired("chart"))
 	must(cmd.MarkFlagRequired("repo_url"))
@@ -309,11 +311,14 @@ type chartCommander interface {
 
 //nolint:ireturn // Multiple concrete types.
 func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
-	cc := helmutil.NewChartPkg(args.GetPath(), helm.DefaultClient,
+	cc, err := helmutil.NewChartPkg(args.GetPath(), helm.DefaultClient,
 		helmutil.WithTimeout(args.GetTimeout()),
 		helmutil.WithVendor(args.GetVendor()),
 		helmutil.WithMaxExtractSize(args.GetMaxExtractSize()),
 	)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrChartInitFailed, err)
+	}
 
 	if args.GetQuiet() || !isatty.IsTerminal(os.Stdout.Fd()) {
 		return cc, nil

@@ -117,11 +117,6 @@ func TestKCLConversion(t *testing.T) {
 		},
 	}
 
-	// Create an invalid JSON file for testing error case
-	invalidJSONPath := filepath.Join(testDataDir, "input/invalid.json")
-	err := os.WriteFile(invalidJSONPath, []byte("{invalid json}"), 0o600)
-	require.NoError(t, err)
-
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()

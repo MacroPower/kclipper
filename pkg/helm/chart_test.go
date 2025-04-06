@@ -12,6 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/resource"
 
+	"github.com/MacroPower/kclipper/pkg/crd"
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
 	"github.com/MacroPower/kclipper/pkg/helmtest"
@@ -232,7 +233,7 @@ func TestHelmChart(t *testing.T) {
 			schema, err := cf.GetValuesJSONSchema(tc.gen, tc.match)
 			require.NoError(t, err)
 
-			crds, err := cf.GetCRDFiles(func(s string) bool {
+			crds, err := cf.GetCRDFiles(crd.DefaultFileGenerator, func(s string) bool {
 				return filepath.Base(filepath.Dir(s)) == "crds" && filepath.Base(s) != "Chart.yaml" && filepath.Ext(s) == ".yaml"
 			})
 			require.NoError(t, err)

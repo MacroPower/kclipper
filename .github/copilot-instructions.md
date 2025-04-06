@@ -33,6 +33,11 @@ if err != nil {
 }
 ```
 
+For this reason, keep error messages short and to the point, since they may be wrapped many times. They should not contain the words `failed` or `error` except in the root context. This is important to reduce redundancy in the final error message. Some examples of good error messages are:
+
+- `chart add failed: get "foo": resource not found`
+- `chart update failed: generate schema "foo": parse "schema.json": invalid token at line 1:1`
+
 When combining multiple errors, we use `github.com/hashicorp/go-multierror`. For example:
 
 ```go
@@ -67,8 +72,14 @@ tcs := map[string]struct {
 	input string
 	want  string
 }{
-	"case1": {input: "foo", want: "bar"},
-	"case2": {input: "baz", want: "qux"},
+	"test case one": {
+		input: "foo",
+		want: "bar",
+	},
+	"test case two": {
+		input: "baz",
+		want: "qux",
+	},
 }
 for name, tc := range tcs {
 	t.Run(name, func(t *testing.T) {
@@ -78,3 +89,5 @@ for name, tc := range tcs {
 	})
 }
 ```
+
+We use Go 1.24, so you can use features from that version. Notably, you do not need to use `tc := tc` since Go 1.24 does not require it.

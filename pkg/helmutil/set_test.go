@@ -21,7 +21,8 @@ func TestChartPkg_Set(t *testing.T) {
 	err := os.MkdirAll(chartPath, 0o750)
 	require.NoError(t, err)
 
-	ca := helmutil.NewChartPkg(chartPath, nil)
+	ca, err := helmutil.NewChartPkg(chartPath, nil)
+	require.NoError(t, err)
 
 	tests := map[string]struct {
 		expectedError     error

@@ -41,21 +41,21 @@ Configuration that can be defined in `charts.k`, in addition to those specified 
 
 #### Attributes
 
-| name                   | type                                                                           | description                                                                                    | default value |
-| ---------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ------------- |
-| **chart** `required`   | str                                                                            | Helm chart name.                                                                               |               |
-| **crdPath**            | str                                                                            | Path to any CRDs to import as schemas. Glob patterns are supported.                            |               |
-| **namespace**          | str                                                                            | Optional namespace to template with.                                                           |               |
-| **passCredentials**    | bool                                                                           | Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).                |               |
-| **releaseName**        | str                                                                            | Helm release name to use. If omitted the chart name will be used.                              |               |
-| **repoURL** `required` | str                                                                            | URL of the Helm chart repository.                                                              |               |
-| **repositories**       | [[ChartRepo](#chartrepo)]                                                      | Helm chart repositories.                                                                       |               |
-| **schemaGenerator**    | "AUTO" \| "VALUE-INFERENCE" \| "URL" \| "CHART-PATH" \| "LOCAL-PATH" \| "NONE" | Schema generator to use for the Values schema.                                                 |               |
-| **schemaPath**         | str                                                                            | Path to the schema to use, when relevant for the selected schemaGenerator.                     |               |
-| **schemaValidator**    | "KCL" \| "HELM"                                                                | Validator to use for the Values schema.                                                        |               |
-| **skipCRDs**           | bool                                                                           | Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`). |               |
-| **skipHooks**          | bool                                                                           | Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).                  |               |
-| **targetRevision**     | str                                                                            | Semver tag for the chart's version. May be omitted for local charts.                           |               |
+| name                   | type                                                                           | description                                                                                        | default value |
+| ---------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | ------------- |
+| **chart** `required`   | str                                                                            | Helm chart name.                                                                                   |               |
+| **crdPaths**           | [str]                                                                          | Paths to any CRDs to import as schemas. Can be file and/or URL paths. Glob patterns are supported. |               |
+| **namespace**          | str                                                                            | Optional namespace to template with.                                                               |               |
+| **passCredentials**    | bool                                                                           | Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).                    |               |
+| **releaseName**        | str                                                                            | Helm release name to use. If omitted the chart name will be used.                                  |               |
+| **repoURL** `required` | str                                                                            | URL of the Helm chart repository.                                                                  |               |
+| **repositories**       | [[ChartRepo](#chartrepo)]                                                      | Helm chart repositories.                                                                           |               |
+| **schemaGenerator**    | "AUTO" \| "VALUE-INFERENCE" \| "URL" \| "CHART-PATH" \| "LOCAL-PATH" \| "NONE" | Schema generator to use for the Values schema.                                                     |               |
+| **schemaPath**         | str                                                                            | Path to the schema to use, when relevant for the selected schemaGenerator.                         |               |
+| **schemaValidator**    | "KCL" \| "HELM"                                                                | Validator to use for the Values schema.                                                            |               |
+| **skipCRDs**           | bool                                                                           | Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).     |               |
+| **skipHooks**          | bool                                                                           | Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).                      |               |
+| **targetRevision**     | str                                                                            | Semver tag for the chart's version. May be omitted for local charts.                               |               |
 
 ### ChartRepo
 

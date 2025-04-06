@@ -6,8 +6,8 @@ import (
 	"io"
 	"reflect"
 
+	"github.com/MacroPower/kclipper/pkg/crd"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
-	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 // Configuration that can be defined in `charts.k`, in addition to those
@@ -18,10 +18,10 @@ type ChartConfig struct {
 	// Path to the schema to use, when relevant for the selected schemaGenerator.
 	SchemaPath string `json:"schemaPath,omitempty"`
 	// CRD generator to use for CRDs schemas.
-	CRDGenerator kclutil.CRDGeneratorType `json:"crdGenerator,omitempty"`
-	// Path to any CRDs to import as schemas, when relevant for the selected
-	// crdGenerator. Glob patterns are supported.
-	CRDPath string `json:"crdPath,omitempty"`
+	CRDGenerator crd.GeneratorType `json:"crdGenerator,omitempty"`
+	// Paths to any CRDs to import as schemas, when relevant for the selected
+	// crdGenerator. Can be file and/or URL paths. Glob patterns are supported.
+	CRDPaths []string `json:"crdPaths,omitempty"`
 }
 
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {
@@ -33,7 +33,7 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	js := r.Reflect(reflect.TypeOf(ChartConfig{}))
 
 	js.SetProperty("schemaGenerator", jsonschema.WithEnum(jsonschema.GeneratorTypeEnum))
-	js.SetProperty("crdGenerator", jsonschema.WithEnum(kclutil.CRDGeneratorTypeEnum))
+	js.SetProperty("crdGenerator", jsonschema.WithEnum(crd.GeneratorTypeEnum))
 
 	b := &bytes.Buffer{}
 	err = js.GenerateKCL(b, genOptInheritChartBase)
