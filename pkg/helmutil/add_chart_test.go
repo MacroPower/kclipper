@@ -9,12 +9,12 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
+	"github.com/MacroPower/kclipper/pkg/crd"
 	"github.com/MacroPower/kclipper/pkg/helmtest"
 	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclchart"
 	"github.com/MacroPower/kclipper/pkg/kclhelm"
-	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
 
 const (
@@ -27,9 +27,10 @@ func TestHelmChartAdd(t *testing.T) {
 	chartPath := path.Join(addBasePath, "charts")
 	os.RemoveAll(chartPath)
 
-	ca := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
+	ca, err := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
+	require.NoError(t, err)
 
-	_, err := ca.Init()
+	_, err = ca.Init()
 	require.NoError(t, err)
 
 	tcs := map[string]struct {
@@ -77,8 +78,8 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.AutoGeneratorType,
-					CRDGenerator:    kclutil.CRDGeneratorTypeChartPath,
-					CRDPath:         "**/crds/crds/*.yaml",
+					CRDGenerator:    crd.GeneratorTypeChartPath,
+					CRDPaths:        []string{"**/crds/crds/*.yaml"},
 				},
 			},
 		},
@@ -91,7 +92,7 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.AutoGeneratorType,
-					CRDGenerator:    kclutil.CRDGeneratorTypeTemplate,
+					CRDGenerator:    crd.GeneratorTypeTemplate,
 				},
 			},
 		},
@@ -141,7 +142,7 @@ func TestHelmChartAdd(t *testing.T) {
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
 					SchemaGenerator: jsonschema.AutoGeneratorType,
-					CRDGenerator:    kclutil.CRDGeneratorTypeTemplate,
+					CRDGenerator:    crd.GeneratorTypeTemplate,
 				},
 			},
 		},

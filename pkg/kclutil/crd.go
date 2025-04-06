@@ -5,10 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hashicorp/go-multierror"
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"kcl-lang.io/kcl-go"
 
 	crdgen "kcl-lang.io/kcl-openapi/pkg/kube_resource/generator"
 	swaggergen "kcl-lang.io/kcl-openapi/pkg/swagger/generator"
@@ -16,70 +14,27 @@ import (
 	"github.com/MacroPower/kclipper/pkg/syncutil"
 )
 
-// CRDGeneratorType defines the type of CRD generator to use.
-type CRDGeneratorType string
-
-const (
-	// CRDGeneratorTypeDefault is the default generator type.
-	CRDGeneratorTypeDefault CRDGeneratorType = ""
-	// CRDGeneratorTypeTemplate uses a template-based generator.
-	CRDGeneratorTypeTemplate CRDGeneratorType = "TEMPLATE"
-	// CRDGeneratorTypeChartPath uses a chart path-based generator.
-	CRDGeneratorTypeChartPath CRDGeneratorType = "CHART-PATH"
-	// CRDGeneratorTypeNone skips CRD generation.
-	CRDGeneratorTypeNone CRDGeneratorType = "NONE"
-)
-
-var (
-	// GenOpenAPI is a concurrency-safe KCL OpenAPI/CRD generator.
-	GenOpenAPI = &genOpenAPI{
-		locker: syncutil.NewKeyLock(),
-	}
-
-	// CRDGeneratorTypeEnum lists all valid CRD generator types.
-	CRDGeneratorTypeEnum = []any{
-		CRDGeneratorTypeTemplate,
-		CRDGeneratorTypeChartPath,
-		CRDGeneratorTypeNone,
-	}
-)
+// GenOpenAPI is a concurrency-safe KCL OpenAPI/CRD generator.
+var GenOpenAPI = mustNewGenOpenAPI()
 
 // genOpenAPI is a concurrency-safe KCL OpenAPI/CRD generator implementation.
 type genOpenAPI struct {
 	locker *syncutil.KeyLock
 }
 
-// FromCRD generates KCL schemas from a Kubernetes CRD and saves them to the destination path.
-func (g *genOpenAPI) FromCRD(crd *unstructured.Unstructured, dstPath string) error {
-	opts := new(swaggergen.GenOpts)
-	if err := opts.EnsureDefaults(); err != nil {
-		return fmt.Errorf("failed to ensure default generator options: %w", err)
+func mustNewGenOpenAPI() *genOpenAPI {
+	return &genOpenAPI{
+		locker: syncutil.NewKeyLock(),
 	}
-
-	crdVersions, err := splitCRDVersions(crd)
-	if err != nil {
-		return fmt.Errorf("failed to split CRD versions: %w", err)
-	}
-
-	var merr error
-	for version, v := range crdVersions {
-		if err := g.fromCRDVersion(&v, dstPath, version, opts); err != nil {
-			merr = multierror.Append(merr, fmt.Errorf("%s: %w", v.GetAPIVersion(), err))
-		}
-	}
-	if merr != nil {
-		return multierror.Prefix(merr, ErrGenerateKCL.Error()+":") //nolint:wrapcheck // Multierror
-	}
-
-	// Format the generated KCL files.
-	if _, err := kcl.FormatPath(filepath.Join(dstPath, "...")); err != nil {
-		return fmt.Errorf("failed to format kcl files: %w", err)
-	}
-
-	return nil
 }
 
-func (g *genOpenAPI) fromCRDVersion(crd *unstructured.Unstructured, dstPath, version string, opts *swaggergen.GenOpts) error {
+// FromCRDVersion generates a new KCL module from a Kubernetes CRD and writes it
+// to the provided `dstPath`. The provided `crd` must only contain a single
+// version, specified with `version`, since otherwise the KCL module will
+// re-define the same schemas for each version in the same module. This function
+// is concurrency-safe and will lock using `APIVersion` to prevent concurrent
+// writes to the same KCL module.
+func (g *genOpenAPI) FromCRDVersion(crd *unstructured.Unstructured, dstPath, version string) error {
 	apiVersion := crd.GetAPIVersion()
 	g.locker.Lock(apiVersion)
 	defer g.locker.Unlock(apiVersion)
@@ -117,6 +72,10 @@ func (g *genOpenAPI) fromCRDVersion(crd *unstructured.Unstructured, dstPath, ver
 		_ = os.Remove(filepath.Join(filepath.Base(spec), "k8s.json"))
 	}()
 
+	opts := new(swaggergen.GenOpts)
+	if err := opts.EnsureDefaults(); err != nil {
+		return fmt.Errorf("failed to ensure default generator options: %w", err)
+	}
 	opts.Spec = spec
 	opts.Target = dstPath
 	opts.ModelPackage = version
@@ -133,41 +92,4 @@ func (g *genOpenAPI) fromCRDVersion(crd *unstructured.Unstructured, dstPath, ver
 	}
 
 	return nil
-}
-
-// splitCRDVersions separates a CRD with multiple versions into individual CRDs.
-func splitCRDVersions(crd *unstructured.Unstructured) (map[string]unstructured.Unstructured, error) {
-	spec, ok := crd.Object["spec"].(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("%w: invalid spec field", ErrInvalidFormat)
-	}
-
-	versions, ok := spec["versions"].([]any)
-	if !ok {
-		return nil, fmt.Errorf("%w: invalid spec.versions field", ErrInvalidFormat)
-	}
-
-	crdVersions := make(map[string]unstructured.Unstructured, len(versions))
-	for _, version := range versions {
-		version, ok := version.(map[string]any)
-		if !ok {
-			return nil, fmt.Errorf("%w: invalid spec.versions[] field", ErrInvalidFormat)
-		}
-
-		versionName, ok := version["name"].(string)
-		if !ok {
-			return nil, fmt.Errorf("%w: invalid spec.versions[].name field", ErrInvalidFormat)
-		}
-
-		crdVersion := crd.DeepCopy()
-		versionSpec, ok := crdVersion.Object["spec"].(map[string]any)
-		if !ok {
-			return nil, fmt.Errorf("%w: invalid spec field after deep copy", ErrInvalidFormat)
-		}
-
-		versionSpec["versions"] = []any{version}
-		crdVersions[versionName] = *crdVersion
-	}
-
-	return crdVersions, nil
 }

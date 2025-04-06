@@ -1,8 +1,11 @@
 package helmutil
 
 import (
+	"errors"
 	"fmt"
+	"log/slog"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -17,6 +20,9 @@ type ChartPkg struct {
 	Client         helm.ChartClient
 	MaxExtractSize *resource.Quantity
 	BasePath       string
+	absBasePath    string
+	pkgPath        string
+	repoRoot       string
 	subs           []func(any)
 	Timeout        time.Duration
 	mu             sync.RWMutex
@@ -24,11 +30,25 @@ type ChartPkg struct {
 	FastEval       bool
 }
 
-func NewChartPkg(basePath string, client helm.ChartClient, opts ...ChartPkgOpts) *ChartPkg {
+func NewChartPkg(basePath string, client helm.ChartClient, opts ...ChartPkgOpts) (*ChartPkg, error) {
+	absBasePath, err := filepath.Abs(basePath)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to get absolute path: %w", ErrPathResolution, err)
+	}
+
+	slog.Debug("looking for repository root", slog.String("path", basePath))
+	repoRoot, err := kclutil.FindRepoRoot(basePath)
+	if err != nil {
+		return nil, fmt.Errorf("%w: failed to find repository root: %w", ErrPathResolution, err)
+	}
+	slog.Debug("found repository root", slog.String("path", repoRoot))
+
 	c := &ChartPkg{
 		Vendor:         false,
 		FastEval:       true,
 		BasePath:       basePath,
+		absBasePath:    absBasePath,
+		repoRoot:       repoRoot,
 		Client:         client,
 		MaxExtractSize: resource.NewQuantity(10485760, resource.BinarySI), // 10Mi.
 		Timeout:        5 * time.Minute,
@@ -38,7 +58,28 @@ func NewChartPkg(basePath string, client helm.ChartClient, opts ...ChartPkgOpts)
 		opt(c)
 	}
 
-	return c
+	slog.Debug("looking for topmost kcl.mod file",
+		slog.String("begin", absBasePath),
+		slog.String("end", repoRoot),
+	)
+	pkgPath, err := kclutil.FindTopPkgRoot(repoRoot, basePath)
+	if errors.Is(err, kclutil.ErrFileNotFound) {
+		slog.Warn("kcl.mod file not found, creating a new one")
+		_, err = c.Init()
+		if err != nil {
+			return nil, fmt.Errorf("call chart init: %w", err)
+		}
+		pkgPath, err = kclutil.FindTopPkgRoot(repoRoot, basePath)
+		if err != nil {
+			return nil, fmt.Errorf("%w: failed to find package root; could not recover after init: %w", ErrPathResolution, err)
+		}
+	} else if err != nil {
+		return nil, fmt.Errorf("%w: failed to find package root: %w", ErrPathResolution, err)
+	}
+	slog.Debug("found topmost kcl.mod file", slog.String("path", pkgPath))
+	c.pkgPath = pkgPath
+
+	return c, nil
 }
 
 type ChartPkgOpts func(*ChartPkg)

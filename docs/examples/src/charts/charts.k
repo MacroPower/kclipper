@@ -26,7 +26,7 @@ charts: helm.Charts = {
     kube_prometheus_stack: {
         chart = "kube-prometheus-stack"
         crdGenerator = "CHART-PATH"
-        crdPath = "**/crds/crds/*.yaml"
+        crdPaths = ["**/crds/crds/*.yaml"]
         repoURL = "https://prometheus-community.github.io/helm-charts"
         schemaGenerator = "AUTO"
         targetRevision = "69.3.3"

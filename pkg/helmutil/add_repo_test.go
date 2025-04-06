@@ -24,9 +24,10 @@ func TestHelmChartAddRepo(t *testing.T) {
 	chartPath := path.Join(addRepoBasePath, "charts")
 	os.RemoveAll(chartPath)
 
-	ca := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
+	ca, err := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
+	require.NoError(t, err)
 
-	_, err := ca.Init()
+	_, err = ca.Init()
 	require.NoError(t, err)
 
 	tcs := map[string]struct {

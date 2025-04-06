@@ -22,9 +22,10 @@ func TestHelmChartUpdate(t *testing.T) {
 	chartPath := path.Join(updateBasePath, "charts")
 	os.RemoveAll(path.Join(chartPath, "podinfo"))
 
-	chartPkg := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
+	chartPkg, err := helmutil.NewChartPkg(chartPath, helmtest.DefaultTestClient)
+	require.NoError(t, err)
 
-	_, err := chartPkg.Init()
+	_, err = chartPkg.Init()
 	require.NoError(t, err)
 
 	err = chartPkg.AddChart("podinfo", &kclchart.ChartConfig{

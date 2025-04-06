@@ -337,11 +337,13 @@ The following schema generators are currently available:
 
 The following CRD schema generators are currently available:
 
-| Name           | Description                                                       | Parameters |
-| :------------- | :---------------------------------------------------------------- | ---------: |
-| NONE (default) | Do not use a CRD generator.                                       |            |
-| TEMPLATE       | Use CRD resources from the helm template output.                  |            |
-| CHART-PATH     | Use CRD files located at a specified path within the chart files. |  `crdPath` |
+| Name           | Description                                                            | Parameters |
+| :------------- | :--------------------------------------------------------------------- | ---------: |
+| NONE (default) | Do not use a CRD generator.                                            |            |
+| AUTO           | Try to automatically select the best CRD generator for the chart.      |            |
+| TEMPLATE       | Use CRD resources from the helm template output.                       |            |
+| CHART-PATH     | Use CRD files located at specified paths within the chart files.       | `crdPaths` |
+| PATH           | Use CRD files from file and/or URL paths. Glob patterns are supported. | `crdPaths` |
 
 The `TEMPLATE` generator will use global values defined in `charts.k`. If needed, you can use these to set any required values for the chart:
 

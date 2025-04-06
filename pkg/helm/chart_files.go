@@ -25,6 +25,10 @@ type JSONSchemaGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }
 
+type CRDGenerator interface {
+	FromPaths(paths ...string) ([]*unstructured.Unstructured, error)
+}
+
 type ChartFiles struct {
 	Client       ChartClient
 	closer       io.Closer
@@ -137,7 +141,7 @@ func (c *ChartFiles) GetCRDOutput() ([]*unstructured.Unstructured, error) {
 	return crdFiles, nil
 }
 
-func (c *ChartFiles) GetCRDFiles(match func(string) bool) ([]*unstructured.Unstructured, error) {
+func (c *ChartFiles) GetCRDFiles(gen CRDGenerator, match func(string) bool) ([]*unstructured.Unstructured, error) {
 	if match == nil {
 		return nil, ErrNoMatcher
 	}
@@ -177,23 +181,9 @@ func (c *ChartFiles) GetCRDFiles(match func(string) bool) ([]*unstructured.Unstr
 		return crdFiles, nil
 	}
 
-	for _, f := range matchedFiles {
-		//nolint:gosec // G304 not relevant for client-side generation.
-		b, err := os.ReadFile(f)
-		if err != nil {
-			return nil, fmt.Errorf("read crd file: %w", err)
-		}
-
-		crds, err := kube.SplitYAML(b)
-		if err != nil {
-			return nil, fmt.Errorf("parse crd file: %w", err)
-		}
-
-		for _, crd := range crds {
-			if crd.GetKind() == "CustomResourceDefinition" {
-				crdFiles = append(crdFiles, crd)
-			}
-		}
+	crdFiles, err = gen.FromPaths(matchedFiles...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch CRDs from matched files: %w", err)
 	}
 
 	return crdFiles, nil

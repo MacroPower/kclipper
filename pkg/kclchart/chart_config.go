@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/iancoleman/strcase"
 
+	"github.com/MacroPower/kclipper/pkg/crd"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
 	"github.com/MacroPower/kclipper/pkg/kclutil"
 )
@@ -109,8 +110,8 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		jsonschema.WithDefault(c.HelmChartConfig.SchemaPath),
 	)
 	js.SetOrRemoveProperty(
-		"crdPath", c.HelmChartConfig.CRDPath != "",
-		jsonschema.WithDefault(c.HelmChartConfig.CRDPath),
+		"crdPath", len(c.HelmChartConfig.CRDPaths) > 0,
+		jsonschema.WithDefault(c.HelmChartConfig.CRDPaths),
 	)
 	js.SetOrRemoveProperty(
 		"schemaValidator", c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType,
@@ -123,9 +124,9 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		jsonschema.WithEnum(jsonschema.GeneratorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
-		"crdGenerator", c.HelmChartConfig.CRDGenerator != kclutil.CRDGeneratorTypeDefault,
+		"crdGenerator", c.HelmChartConfig.CRDGenerator != crd.GeneratorTypeDefault,
 		jsonschema.WithDefault(c.HelmChartConfig.CRDGenerator),
-		jsonschema.WithEnum(kclutil.CRDGeneratorTypeEnum),
+		jsonschema.WithEnum(crd.GeneratorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
 		"repositories", len(c.ChartBase.Repositories) > 0,
@@ -158,7 +159,6 @@ func (c *ChartConfig) ToAutomation() kclutil.Automation {
 		"skipHooks":       kclutil.NewBool(c.SkipHooks),
 		"passCredentials": kclutil.NewBool(c.PassCredentials),
 		"schemaPath":      kclutil.NewString(c.SchemaPath),
-		"crdPath":         kclutil.NewString(c.CRDPath),
 		"schemaValidator": kclutil.NewString(string(c.SchemaValidator)),
 		"schemaGenerator": kclutil.NewString(string(c.SchemaGenerator)),
 		"crdGenerator":    kclutil.NewString(string(c.CRDGenerator)),
