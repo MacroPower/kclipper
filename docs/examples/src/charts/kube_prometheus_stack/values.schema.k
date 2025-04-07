@@ -179,10 +179,10 @@ schema Values:
         #
     extraLabels : ValuesExtraLabels, optional
         Apply extra labels to common labels.
-    extraManifests : [str], optional
+    extraManifests : [any], optional
         # Extra manifests to deploy as an array
     extraObjects : [ValuesExtraObjectsItems0], optional
-        Create a dynamic manifests via values:
+        extraObjects could be utilized to add dynamic manifests via values
     extraSecretMounts : [any], optional
         # Additional grafana server secret mounts
         Defines additional mounts with secrets. Secrets must be manually created in the namespace.
@@ -403,6 +403,10 @@ schema Values:
         # Service configuration
     serviceAccount : ValuesServiceAccount, optional
     serviceMonitor : ValuesServiceMonitor, optional
+    shareProcessNamespace : bool, optional, default is False
+        When process namespace sharing is enabled, processes in a container are visible to all other containers in the same pod
+        This parameter is added because the ldap reload api is not working https://grafana.com/docs/grafana/latest/developers/http_api/admin/#reload-ldap-configuration
+        To allow an extraContainer to restart the Grafana container
     sidecar : ValuesSidecar, optional
         # Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
         # Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
@@ -515,7 +519,7 @@ schema Values:
     extraHostVolumeMounts?: [any]
     extraInitContainers?: [any]
     extraLabels?: ValuesExtraLabels
-    extraManifests?: [str]
+    extraManifests?: [any]
     extraObjects?: [ValuesExtraObjectsItems0]
     extraSecretMounts?: [any]
     extraVolumeMounts?: [any]
@@ -596,6 +600,7 @@ schema Values:
     service?: ValuesService
     serviceAccount?: ValuesServiceAccount
     serviceMonitor?: ValuesServiceMonitor
+    shareProcessNamespace?: bool
     sidecar?: ValuesSidecar
     sidecarHostVolumeMounts?: [any]
     sidecarVolumeMount?: [any]
@@ -801,6 +806,9 @@ schema ValuesAlertmanager:
         # Configuration for creating an Ingress that will map to each Alertmanager replica service
         # alertmanager.servicePerReplica must be enabled
         #
+    networkPolicy : ValuesAlertmanagerNetworkPolicy, optional
+        # Network Policy configuration
+        #
     podDisruptionBudget : ValuesAlertmanagerPodDisruptionBudget, optional
         # Configure pod disruption budgets for Alertmanager
         # ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
@@ -811,7 +819,7 @@ schema ValuesAlertmanager:
         Be aware that this is an early beta of this feature,
         kube-prometheus-stack does not guarantee this works and is subject to change.
         Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
-        [[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)
+        [[ref]](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1alpha2)
     secret : ValuesAlertmanagerSecret, optional
         # Configuration for Alertmanager secret
         #
@@ -864,6 +872,7 @@ schema ValuesAlertmanager:
     forceDeployDashboards?: bool
     ingress?: ValuesAlertmanagerIngress
     ingressPerReplica?: ValuesAlertmanagerIngressPerReplica
+    networkPolicy?: ValuesAlertmanagerNetworkPolicy
     podDisruptionBudget?: ValuesAlertmanagerPodDisruptionBudget
     route?: ValuesAlertmanagerRoute
     secret?: ValuesAlertmanagerSecret
@@ -894,7 +903,7 @@ schema ValuesAlertmanagerAlertmanagerSpec:
         #
     affinity : ValuesAlertmanagerAlertmanagerSpecAffinity, optional
         # Assign custom affinity rules to the alertmanager instance
-        # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
         #
     alertmanagerConfigMatcherStrategy : ValuesAlertmanagerAlertmanagerSpecAlertmanagerConfigMatcherStrategy, optional
         # Defines the strategy used by AlertmanagerConfig objects to match alerts. eg:
@@ -959,7 +968,7 @@ schema ValuesAlertmanagerAlertmanagerSpec:
         # be considered available. Defaults to 0 (pod will be considered available as soon as it is ready).
     nodeSelector : ValuesAlertmanagerAlertmanagerSpecNodeSelector, optional
         # Define which Nodes the Pods are scheduled on.
-        # ref: https://kubernetes.io/docs/user-guide/node-selection/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
         #
     paused : bool, optional, default is False
         # If set to true all actions on the underlying managed objects are not going to be performed, except for delete actions.
@@ -996,7 +1005,7 @@ schema ValuesAlertmanagerAlertmanagerSpec:
         # running cluster equal to the expected size.
     resources : ValuesAlertmanagerAlertmanagerSpecResources, optional
         # Define resources requests and limits for single Pods.
-        # ref: https://kubernetes.io/docs/user-guide/compute-resources/
+        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         #
     retention : str, optional, default is "120h"
         # Time duration Alertmanager shall retain data for. Default is '120h', and must match the regular expression
@@ -1017,20 +1026,22 @@ schema ValuesAlertmanagerAlertmanagerSpec:
         # This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false
         # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
         #
+    serviceName : any, optional, default is ""
+        #
     storage : ValuesAlertmanagerAlertmanagerSpecStorage, optional
         # Storage is the definition of how storage will be used by the Alertmanager instances.
-        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md
         #
     tlsConfig : ValuesAlertmanagerAlertmanagerSpecTlsConfig, optional
         # tlsConfig: TLS configuration to use when connect to the endpoint. For example if using istio mTLS.
-        # Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
+        # Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
     tolerations : [any], optional
         # If specified, the pod's tolerations.
-        # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
         #
     topologySpreadConstraints : [any], optional
         # If specified, the pod's topology spread constraints.
-        # ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
         #
     useExistingSecret : bool, optional, default is False
         # If true then the user will be responsible to provide a secret with alertmanager configuration
@@ -1084,6 +1095,7 @@ schema ValuesAlertmanagerAlertmanagerSpec:
     scheme?: str
     secrets?: [any]
     securityContext?: ValuesAlertmanagerAlertmanagerSpecSecurityContext
+    serviceName?: any
     storage?: ValuesAlertmanagerAlertmanagerSpecStorage
     tlsConfig?: ValuesAlertmanagerAlertmanagerSpecTlsConfig
     tolerations?: [any]
@@ -1102,7 +1114,7 @@ schema ValuesAlertmanagerAlertmanagerSpecAdditionalConfig:
 schema ValuesAlertmanagerAlertmanagerSpecAffinity:
     r"""
     # Assign custom affinity rules to the alertmanager instance
-    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
     #
     """
     [...str]: any
@@ -1145,7 +1157,7 @@ schema ValuesAlertmanagerAlertmanagerSpecImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "prometheus/alertmanager"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v0.28.0"
+    tag : str, optional, default is "v0.28.1"
     """
     [...str]: any
     registry?: str
@@ -1156,7 +1168,7 @@ schema ValuesAlertmanagerAlertmanagerSpecImage:
 schema ValuesAlertmanagerAlertmanagerSpecNodeSelector:
     r"""
     # Define which Nodes the Pods are scheduled on.
-    # ref: https://kubernetes.io/docs/user-guide/node-selection/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
     #
     """
     [...str]: any
@@ -1183,7 +1195,7 @@ schema ValuesAlertmanagerAlertmanagerSpecPodMetadata:
 schema ValuesAlertmanagerAlertmanagerSpecResources:
     r"""
     # Define resources requests and limits for single Pods.
-    # ref: https://kubernetes.io/docs/user-guide/compute-resources/
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     #
     """
     [...str]: any
@@ -1224,7 +1236,7 @@ schema ValuesAlertmanagerAlertmanagerSpecSecurityContextSeccompProfile:
 schema ValuesAlertmanagerAlertmanagerSpecStorage:
     r"""
     # Storage is the definition of how storage will be used by the Alertmanager instances.
-    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
+    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md
     #
     """
     [...str]: any
@@ -1232,7 +1244,7 @@ schema ValuesAlertmanagerAlertmanagerSpecStorage:
 schema ValuesAlertmanagerAlertmanagerSpecTlsConfig:
     r"""
     # tlsConfig: TLS configuration to use when connect to the endpoint. For example if using istio mTLS.
-    # Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
+    # Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
     """
     [...str]: any
 
@@ -1490,6 +1502,105 @@ schema ValuesAlertmanagerIngressPerReplicaTlsSecretPerReplica:
     enabled?: bool
     prefix?: str
 
+schema ValuesAlertmanagerNetworkPolicy:
+    r"""
+    # Network Policy configuration
+    #
+
+    Attributes
+    ----------
+    additionalIngress : [any], optional
+        Additional custom ingress rules
+        #
+    egress : ValuesAlertmanagerNetworkPolicyEgress, optional
+        Configure egress rules
+        #
+    enableClusterRules : bool, optional, default is True
+        Enable rules for alertmanager cluster traffic
+        #
+    enabled : bool, optional, default is False
+        Enable network policy for Alertmanager
+    gateway : ValuesAlertmanagerNetworkPolicyGateway, optional
+        Gateway (formerly ingress controller) configuration
+        #
+    monitoringRules : ValuesAlertmanagerNetworkPolicyMonitoringRules, optional
+        Configure monitoring component rules
+        #
+    policyTypes : [str], optional
+        Define policy types. If egress is enabled, both Ingress and Egress will be used
+        Valid values are ["Ingress"] or ["Ingress", "Egress"]
+        #
+    """
+    [...str]: any
+    additionalIngress?: [any]
+    egress?: ValuesAlertmanagerNetworkPolicyEgress
+    enableClusterRules?: bool
+    enabled?: bool
+    gateway?: ValuesAlertmanagerNetworkPolicyGateway
+    monitoringRules?: ValuesAlertmanagerNetworkPolicyMonitoringRules
+    policyTypes?: [str]
+
+schema ValuesAlertmanagerNetworkPolicyEgress:
+    r"""
+    Configure egress rules
+    #
+
+    Attributes
+    ----------
+    enabled : bool, optional, default is False
+        Enable egress rules. When enabled, policyTypes will include Egress
+        #
+    rules : [any], optional
+        Custom egress rules
+        #
+    """
+    [...str]: any
+    enabled?: bool
+    rules?: [any]
+
+schema ValuesAlertmanagerNetworkPolicyGateway:
+    r"""
+    Gateway (formerly ingress controller) configuration
+    #
+
+    Attributes
+    ----------
+    namespace : str, optional, default is ""
+        Gateway namespace
+        #
+    podLabels : ValuesAlertmanagerNetworkPolicyGatewayPodLabels, optional
+        Gateway pod labels
+        #
+    """
+    [...str]: any
+    namespace?: str
+    podLabels?: ValuesAlertmanagerNetworkPolicyGatewayPodLabels
+
+schema ValuesAlertmanagerNetworkPolicyGatewayPodLabels:
+    r"""
+    Gateway pod labels
+    #
+    """
+    [...str]: any
+
+schema ValuesAlertmanagerNetworkPolicyMonitoringRules:
+    r"""
+    Configure monitoring component rules
+    #
+
+    Attributes
+    ----------
+    configReloader : bool, optional, default is True
+        Enable ingress for config reloader metrics
+        #
+    prometheus : bool, optional, default is True
+        Enable ingress from Prometheus
+        #
+    """
+    [...str]: any
+    configReloader?: bool
+    prometheus?: bool
+
 schema ValuesAlertmanagerPodDisruptionBudget:
     r"""
     # Configure pod disruption budgets for Alertmanager
@@ -1514,7 +1625,7 @@ schema ValuesAlertmanagerRoute:
     Be aware that this is an early beta of this feature,
     kube-prometheus-stack does not guarantee this works and is subject to change.
     Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
-    [[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)
+    [[ref]](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1alpha2)
 
     Attributes
     ----------
@@ -1630,6 +1741,7 @@ schema ValuesAlertmanagerService:
         #
     annotations : ValuesAlertmanagerServiceAnnotations, optional
     clusterIP : str, optional, default is ""
+    enabled : bool, optional, default is True
     externalIPs : [any], optional
     externalTrafficPolicy : str, optional, default is "Cluster"
         # Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
@@ -1654,6 +1766,9 @@ schema ValuesAlertmanagerService:
         # The value must be >0 && <=86400(for 1 day) if ServiceAffinity == "ClientIP"
         #
     targetPort : int, optional, default is 9093
+        # Port for Alertmanager cluster communication
+        #
+        clusterPort: 9094
         # To be used with a proxy extraContainer port
         #
     $type : str, optional, default is "ClusterIP"
@@ -1664,6 +1779,7 @@ schema ValuesAlertmanagerService:
     additionalPorts?: [any]
     annotations?: ValuesAlertmanagerServiceAnnotations
     clusterIP?: str
+    enabled?: bool
     externalIPs?: [any]
     externalTrafficPolicy?: str
     ipDualStack?: ValuesAlertmanagerServiceIpDualStack
@@ -1782,7 +1898,7 @@ schema ValuesAlertmanagerServiceMonitor:
         #
     tlsConfig : ValuesAlertmanagerServiceMonitorTlsConfig, optional
         # tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.
-        # Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
+        # Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
     """
     [...str]: any
     additionalEndpoints?: [any]
@@ -1812,7 +1928,7 @@ schema ValuesAlertmanagerServiceMonitorAdditionalLabels:
 schema ValuesAlertmanagerServiceMonitorTlsConfig:
     r"""
     # tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.
-    # Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
+    # Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
     """
     [...str]: any
 
@@ -1949,15 +2065,8 @@ schema ValuesCommonLabels:
     r"""
     # Labels to apply to all resources
     #
-
-    Attributes
-    ----------
-    baz : str, optional
-    foo : str, optional
     """
     [...str]: any
-    baz?: str
-    foo?: str
 
 schema ValuesContainerSecurityContext:
     r"""
@@ -2155,7 +2264,7 @@ schema ValuesCrdsUpgradeJob:
     ----------
     affinity : ValuesCrdsUpgradeJobAffinity, optional
         # Assign custom affinity rules to the upgrade-crd job
-        # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
         #
     annotations : ValuesCrdsUpgradeJobAnnotations, optional
         # Annotations to add to the upgrade-crd job
@@ -2179,7 +2288,7 @@ schema ValuesCrdsUpgradeJob:
         ##
     nodeSelector : ValuesCrdsUpgradeJobNodeSelector, optional
         # Define which Nodes the Pods are scheduled on.
-        # ref: https://kubernetes.io/docs/user-guide/node-selection/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
         #
     podAnnotations : ValuesCrdsUpgradeJobPodAnnotations, optional
         # Annotations to add to the upgrade-crd pod
@@ -2187,14 +2296,14 @@ schema ValuesCrdsUpgradeJob:
     podLabels : ValuesCrdsUpgradeJobPodLabels, optional
         # Labels to add to the upgrade-crd pod
         #
-    resources : ValuesCrdsUpgradeJobResources, optional
-        # Define resources requests and limits for single Pods.
-        # ref: https://kubernetes.io/docs/user-guide/compute-resources/
-        #
-    securityContext : ValuesCrdsUpgradeJobSecurityContext, optional
+    podSecurityContext : ValuesCrdsUpgradeJobPodSecurityContext, optional
         # SecurityContext holds pod-level security attributes and common container settings.
         # This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false
         # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+        #
+    resources : ValuesCrdsUpgradeJobResources, optional
+        # Define resources requests and limits for single Pods.
+        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         #
     serviceAccount : ValuesCrdsUpgradeJobServiceAccount, optional
         # Service account for upgrade crd job to use.
@@ -2202,11 +2311,11 @@ schema ValuesCrdsUpgradeJob:
         #
     tolerations : [any], optional
         # If specified, the pod's tolerations.
-        # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
         #
     topologySpreadConstraints : [any], optional
         # If specified, the pod's topology spread constraints.
-        # ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
         #
     """
     [...str]: any
@@ -2223,8 +2332,8 @@ schema ValuesCrdsUpgradeJob:
     nodeSelector?: ValuesCrdsUpgradeJobNodeSelector
     podAnnotations?: ValuesCrdsUpgradeJobPodAnnotations
     podLabels?: ValuesCrdsUpgradeJobPodLabels
+    podSecurityContext?: ValuesCrdsUpgradeJobPodSecurityContext
     resources?: ValuesCrdsUpgradeJobResources
-    securityContext?: ValuesCrdsUpgradeJobSecurityContext
     serviceAccount?: ValuesCrdsUpgradeJobServiceAccount
     tolerations?: [any]
     topologySpreadConstraints?: [any]
@@ -2232,7 +2341,7 @@ schema ValuesCrdsUpgradeJob:
 schema ValuesCrdsUpgradeJobAffinity:
     r"""
     # Assign custom affinity rules to the upgrade-crd job
-    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
     #
     """
     [...str]: any
@@ -2339,7 +2448,7 @@ schema ValuesCrdsUpgradeJobLabels:
 schema ValuesCrdsUpgradeJobNodeSelector:
     r"""
     # Define which Nodes the Pods are scheduled on.
-    # ref: https://kubernetes.io/docs/user-guide/node-selection/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
     #
     """
     [...str]: any
@@ -2358,15 +2467,7 @@ schema ValuesCrdsUpgradeJobPodLabels:
     """
     [...str]: any
 
-schema ValuesCrdsUpgradeJobResources:
-    r"""
-    # Define resources requests and limits for single Pods.
-    # ref: https://kubernetes.io/docs/user-guide/compute-resources/
-    #
-    """
-    [...str]: any
-
-schema ValuesCrdsUpgradeJobSecurityContext:
+schema ValuesCrdsUpgradeJobPodSecurityContext:
     r"""
     # SecurityContext holds pod-level security attributes and common container settings.
     # This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false
@@ -2379,18 +2480,18 @@ schema ValuesCrdsUpgradeJobSecurityContext:
     runAsGroup : int, optional, default is 65534
     runAsNonRoot : bool, optional, default is True
     runAsUser : int, optional, default is 65534
-    seccompProfile : ValuesCrdsUpgradeJobSecurityContextSeccompProfile, optional
+    seccompProfile : ValuesCrdsUpgradeJobPodSecurityContextSeccompProfile, optional
     """
     [...str]: any
     fsGroup?: int
     runAsGroup?: int
     runAsNonRoot?: bool
     runAsUser?: int
-    seccompProfile?: ValuesCrdsUpgradeJobSecurityContextSeccompProfile
+    seccompProfile?: ValuesCrdsUpgradeJobPodSecurityContextSeccompProfile
 
-schema ValuesCrdsUpgradeJobSecurityContextSeccompProfile:
+schema ValuesCrdsUpgradeJobPodSecurityContextSeccompProfile:
     r"""
-    ValuesCrdsUpgradeJobSecurityContextSeccompProfile
+    ValuesCrdsUpgradeJobPodSecurityContextSeccompProfile
 
     Attributes
     ----------
@@ -2398,6 +2499,14 @@ schema ValuesCrdsUpgradeJobSecurityContextSeccompProfile:
     """
     [...str]: any
     $type?: str
+
+schema ValuesCrdsUpgradeJobResources:
+    r"""
+    # Define resources requests and limits for single Pods.
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    #
+    """
+    [...str]: any
 
 schema ValuesCrdsUpgradeJobServiceAccount:
     r"""
@@ -3524,7 +3633,7 @@ schema ValuesGlobal:
         # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
         #
     imageRegistry : str, optional, default is ""
-        # Global image registry to use if it needs to be overriden for some specific use cases (e.g local registries, custom images, ...)
+        # Global image registry to use if it needs to be overridden for some specific use cases (e.g local registries, custom images, ...)
         #
     rbac : ValuesGlobalRbac, optional
     """
@@ -3568,7 +3677,7 @@ schema ValuesGrafana:
     ----------
     additionalDataSources : [any], optional
         # Configure additional grafana datasources (passed through tpl)
-        # ref: http://docs.grafana.org/administration/provisioning/#datasources
+        # ref: https://grafana.com/docs/grafana/latest/administration/provisioning/#datasources
     adminPassword : str, optional, default is "prom-operator"
     adminUser : str, optional, default is "admin"
     defaultDashboardsEditable : bool, optional, default is True
@@ -3576,6 +3685,9 @@ schema ValuesGrafana:
         #
     defaultDashboardsEnabled : bool, optional, default is True
         # Deploy default dashboards
+        #
+    defaultDashboardsInterval : str, optional, default is "1m"
+        # Default interval for Grafana dashboards
         #
     defaultDashboardsTimezone : str, optional, default is "utc"
         # Timezone for the default dashboards
@@ -3595,7 +3707,7 @@ schema ValuesGrafana:
     prune : bool, optional, default is False
         Flag to mark provisioned data sources for deletion if they are no longer configured.
         It takes no effect if data sources are already listed in the deleteDatasources section.
-        ref: https://grafana.com/docs/grafana/latest/administration/provisioning/#example-data-source-config-file
+        ref: https://grafana.com/docs/grafana/latest/administration/provisioning/#example-data-source-configuration-file
     rbac : ValuesGrafanaRbac, optional
     service : ValuesGrafanaService, optional
         # Passed to grafana subchart and used by servicemonitor below
@@ -3621,6 +3733,7 @@ schema ValuesGrafana:
     adminUser?: str
     defaultDashboardsEditable?: bool
     defaultDashboardsEnabled?: bool
+    defaultDashboardsInterval?: str
     defaultDashboardsTimezone?: str
     deleteDatasources?: [any]
     enabled?: bool
@@ -3829,7 +3942,7 @@ schema ValuesGrafanaServiceMonitor:
     ----------
     enabled : bool, optional, default is True
         If true, a ServiceMonitor CRD is created for a prometheus operator
-        https://github.com/coreos/prometheus-operator
+        https://github.com/prometheus-operator/prometheus-operator
 
     interval : str, optional, default is ""
         Scrape interval. If not set, the Prometheus default scrape interval is used.
@@ -3973,13 +4086,15 @@ schema ValuesGrafanaSidecarDatasources:
     alertmanager : ValuesGrafanaSidecarDatasourcesAlertmanager, optional
         datasourceUid: Jaeger
         traceIdLabelName: trace_id
+        urlDisplayLabel: View traces
     annotations : ValuesGrafanaSidecarDatasourcesAnnotations, optional
         # Annotations for Grafana datasource configmaps
         #
     createPrometheusReplicasDatasources : bool, optional, default is False
         # Create datasource for each Pod of Prometheus StatefulSet;
-        # this uses headless service `prometheus-operated` which is
-        # created by Prometheus Operator
+        # this uses by default the headless service `prometheus-operated` which is
+        # created by Prometheus Operator. In case you deployed your own Service for your
+        # Prometheus instance, you can specifiy it with the field `prometheusServiceName`
         # ref: https://github.com/prometheus-operator/prometheus-operator/blob/0fee93e12dc7c2ea1218f19ae25ec6b893460590/pkg/prometheus/statefulset.go#L255-L286
     defaultDatasourceEnabled : bool, optional, default is True
     enabled : bool, optional, default is True
@@ -3992,6 +4107,7 @@ schema ValuesGrafanaSidecarDatasources:
     label : str, optional, default is "grafana_datasource"
     labelValue : str, optional, default is "1"
     name : str, optional, default is "Prometheus"
+    prometheusServiceName : str, optional, default is "prometheus-operated"
     uid : str, optional, default is "prometheus"
     """
     [...str]: any
@@ -4006,12 +4122,14 @@ schema ValuesGrafanaSidecarDatasources:
     label?: str
     labelValue?: str
     name?: str
+    prometheusServiceName?: str
     uid?: str
 
 schema ValuesGrafanaSidecarDatasourcesAlertmanager:
     r"""
     datasourceUid: Jaeger
     traceIdLabelName: trace_id
+    urlDisplayLabel: View traces
 
     Attributes
     ----------
@@ -4773,6 +4891,7 @@ schema ValuesKubeApiServerServiceMonitor:
     additionalLabels : ValuesKubeApiServerServiceMonitorAdditionalLabels, optional
         # Additional labels
         #
+    enabled : bool, optional, default is True
     interval : str, optional, default is ""
         # Scrape interval. If not set, the Prometheus default scrape interval is used.
         #
@@ -4810,6 +4929,7 @@ schema ValuesKubeApiServerServiceMonitor:
     """
     [...str]: any
     additionalLabels?: ValuesKubeApiServerServiceMonitorAdditionalLabels
+    enabled?: bool
     interval?: str
     jobLabel?: str
     labelLimit?: int
@@ -4837,7 +4957,7 @@ schema ValuesKubeApiServerServiceMonitorMetricRelabelingsItems0:
     Attributes
     ----------
     action : str, optional, default is "drop"
-    regex : str, optional, default is "(etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\\.15|0\\.2|0\\.3|0\\.35|0\\.4|0\\.45|0\\.6|0\\.7|0\\.8|0\\.9|1\\.25|1\\.5|1\\.75|2|3|3\\.5|4|4\\.5|6|7|8|9|15|20|30|40|45|50)(\\.0)?"
+    regex : str, optional, default is "(etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\\.15|0\\.2|0\\.3|0\\.35|0\\.4|0\\.45|0\\.6|0\\.7|0\\.8|0\\.9|1\\.25|1\\.5|1\\.75|2|3|3\\.5|4|4\\.5|6|7|8|9|15|20|40|45|50)(\\.0)?"
     sourceLabels : [str], optional
     """
     [...str]: any
@@ -5588,7 +5708,7 @@ schema ValuesKubeRbacproxyImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "brancz/kube-rbac-proxy"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v0.18.2"
+    tag : str, optional, default is "v0.19.0"
     """
     [...str]: any
     pullPolicy?: str
@@ -5929,6 +6049,7 @@ schema ValuesKubeletServiceMonitor:
         # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig
         #
         # metrics_path is required to match upstream rules and charts
+    enabled : bool, optional, default is True
     honorLabels : bool, optional, default is True
         # If true, Prometheus use (respect) labels provided by exporter.
         #
@@ -6016,6 +6137,7 @@ schema ValuesKubeletServiceMonitor:
     cAdvisorInterval?: str
     cAdvisorMetricRelabelings?: [ValuesKubeletServiceMonitorCAdvisorMetricRelabelingsItems0]
     cAdvisorRelabelings?: [ValuesKubeletServiceMonitorCAdvisorRelabelingsItems0]
+    enabled?: bool
     honorLabels?: bool
     honorTimestamps?: bool
     https?: bool
@@ -6269,7 +6391,7 @@ schema ValuesNetworkPolicy:
         Can be:
         * kubernetes for networking.k8s.io/v1/NetworkPolicy
         * cilium     for cilium.io/v2/CiliumNetworkPolicy
-    ingress : [ValuesNetworkPolicyIngressItems0], optional, default is True
+    ingress : bool, optional, default is True
         #
         # The Policy model to apply. When set to false, only pods with the correct
         # client label will have network access to  grafana port defined.
@@ -6283,7 +6405,7 @@ schema ValuesNetworkPolicy:
     enabled?: bool
     explicitNamespacesSelector?: ValuesNetworkPolicyExplicitNamespacesSelector
     flavor?: str
-    ingress?: [ValuesNetworkPolicyIngressItems0]
+    ingress?: bool
 
 schema ValuesNetworkPolicyEgress:
     r"""
@@ -6337,28 +6459,6 @@ schema ValuesNetworkPolicyExplicitNamespacesSelector:
     #
     """
     [...str]: any
-
-schema ValuesNetworkPolicyIngressItems0:
-    r"""
-    ValuesNetworkPolicyIngressItems0
-
-    Attributes
-    ----------
-    ports : [ValuesNetworkPolicyIngressItems0PortsItems0], optional
-    """
-    [...str]: any
-    ports?: [ValuesNetworkPolicyIngressItems0PortsItems0]
-
-schema ValuesNetworkPolicyIngressItems0PortsItems0:
-    r"""
-    ValuesNetworkPolicyIngressItems0PortsItems0
-
-    Attributes
-    ----------
-    port : int, optional
-    """
-    [...str]: any
-    port?: int
 
 schema ValuesNodeExporter:
     r"""
@@ -6536,14 +6636,10 @@ schema ValuesPodLabels:
 
     Attributes
     ----------
-    baz : str, optional
     customLableA : str, optional
-    foo : str, optional
     """
     [...str]: any
-    baz?: str
     customLableA?: str
-    foo?: str
 
 schema ValuesPodSecurityPolicy:
     r"""
@@ -6585,7 +6681,7 @@ schema ValuesPrometheus:
     agentMode : bool, optional, default is False
         # Toggle prometheus into agent mode
         # Note many of features described below (e.g. rules, query, alerting, remote read, thanos) will not work in agent mode.
-        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/designs/prometheus-agent.md
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/prometheus-agent.md
         #
     annotations : ValuesPrometheusAnnotations, optional
         # Annotations for Prometheus
@@ -6608,7 +6704,7 @@ schema ValuesPrometheus:
         #
     podMonitor : ValuesPrometheusPodMonitor, optional
         PodMonitor defines monitoring for a set of pods.
-        ref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.PodMonitor
+        ref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#podmonitor
         Using a PodMonitor may be preferred in some environments where there is very large number
         of Windows Exporter endpoints (1000+) behind a single service.
         The PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,
@@ -6617,7 +6713,7 @@ schema ValuesPrometheus:
         affect PromQL queries selecting that label.
     podSecurityPolicy : ValuesPrometheusPodSecurityPolicy, optional
         # Configure additional options for default pod security policy for Prometheus
-        # ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+        # ref: https://kubernetes.io/docs/concepts/security/pod-security-policy/
     prometheusSpec : ValuesPrometheusPrometheusSpec, optional
         # Settings affecting prometheusSpec
         # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#prometheusspec
@@ -6628,7 +6724,7 @@ schema ValuesPrometheus:
         Be aware that this is an early beta of this feature,
         kube-prometheus-stack does not guarantee this works and is subject to change.
         Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
-        [[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)
+        [[ref]](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1alpha2)
     service : ValuesPrometheusService, optional
         # Configuration for Prometheus service
         #
@@ -6874,7 +6970,7 @@ schema ValuesPrometheusMonitor:
     namespaceSelector : [any], optional
     podTargetLabels : [any], optional
         List of pod labels to add to windows exporter metrics
-        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor
+        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor
     proxyUrl : str, optional, default is ""
         # proxyUrl: URL of a proxy that should be used for scraping.
         #
@@ -6889,7 +6985,7 @@ schema ValuesPrometheusMonitor:
         #
     targetLabels : [any], optional
         List of target labels to add to node exporter metrics
-        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor
+        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor
     targetLimit : int, optional, default is 0
         # TargetLimit defines a limit on the number of scraped targets that will be accepted.
         #
@@ -7259,7 +7355,7 @@ schema ValuesPrometheusOperator:
         # rules from making their way into prometheus and potentially preventing the container from starting
     affinity : ValuesPrometheusOperatorAffinity, optional
         # Assign custom affinity rules to the prometheus operator
-        # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
         #
     alertmanagerConfigNamespaces : [any], optional
     alertmanagerInstanceNamespaces : [any], optional
@@ -7298,7 +7394,7 @@ schema ValuesPrometheusOperator:
         #    VARIABLE: value
     extraArgs : [any], optional
         # Extra arguments to pass to prometheusOperator
-        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/operator.md
+        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/operator.md
     extraVolumeMounts : [any], optional
         # Additional volume mounts
         #
@@ -7341,7 +7437,7 @@ schema ValuesPrometheusOperator:
         clusterDomain: "cluster.local"
     nodeSelector : ValuesPrometheusOperatorNodeSelector, optional
         # Define which Nodes the Pods are scheduled on.
-        # ref: https://kubernetes.io/docs/user-guide/node-selection/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
         #
     podAnnotations : ValuesPrometheusOperatorPodAnnotations, optional
         # Annotations to add to the operator pod
@@ -7404,7 +7500,7 @@ schema ValuesPrometheusOperator:
         #
     tolerations : [any], optional
         # Tolerations for use with node taints
-        # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
         #
     verticalPodAutoscaler : ValuesPrometheusOperatorVerticalPodAutoscaler, optional
         Enable vertical pod autoscaler support for prometheus-operator
@@ -7540,9 +7636,14 @@ schema ValuesPrometheusOperatorAdmissionWebhooksCertManagerAdmissionCert:
     Attributes
     ----------
     duration : str, optional, default is ""
+    revisionHistoryLimit : any, optional, default is ""
+        Set the revisionHistoryLimit on the Certificate. See
+        https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec
+        Defaults to nil.
     """
     [...str]: any
     duration?: str
+    revisionHistoryLimit?: any
 
 schema ValuesPrometheusOperatorAdmissionWebhooksCertManagerRootCert:
     r"""
@@ -7551,9 +7652,14 @@ schema ValuesPrometheusOperatorAdmissionWebhooksCertManagerRootCert:
     Attributes
     ----------
     duration : str, optional, default is ""
+    revisionHistoryLimit : any, optional, default is ""
+        Set the revisionHistoryLimit on the Certificate. See
+        https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec
+        Defaults to nil.
     """
     [...str]: any
     duration?: str
+    revisionHistoryLimit?: any
 
 schema ValuesPrometheusOperatorAdmissionWebhooksCreateSecretJob:
     r"""
@@ -7600,7 +7706,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksDeployment:
     ----------
     affinity : ValuesPrometheusOperatorAdmissionWebhooksDeploymentAffinity, optional
         # Assign custom affinity rules to the prometheus operator
-        # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
         #
     annotations : ValuesPrometheusOperatorAdmissionWebhooksDeploymentAnnotations, optional
         # Annotations to add to the operator webhook deployment
@@ -7638,7 +7744,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksDeployment:
         #
     nodeSelector : ValuesPrometheusOperatorAdmissionWebhooksDeploymentNodeSelector, optional
         # Define which Nodes the Pods are scheduled on.
-        # ref: https://kubernetes.io/docs/user-guide/node-selection/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
         #
     podAnnotations : ValuesPrometheusOperatorAdmissionWebhooksDeploymentPodAnnotations, optional
         # Annotations to add to the operator webhook pod
@@ -7685,7 +7791,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksDeployment:
         #
     tolerations : [any], optional
         # Tolerations for use with node taints
-        # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
         #
     """
     [...str]: any
@@ -7717,7 +7823,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksDeployment:
 schema ValuesPrometheusOperatorAdmissionWebhooksDeploymentAffinity:
     r"""
     # Assign custom affinity rules to the prometheus operator
-    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
     #
     """
     [...str]: any
@@ -7824,7 +7930,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksDeploymentLivenessProbe:
 schema ValuesPrometheusOperatorAdmissionWebhooksDeploymentNodeSelector:
     r"""
     # Define which Nodes the Pods are scheduled on.
-    # ref: https://kubernetes.io/docs/user-guide/node-selection/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
     #
     """
     [...str]: any
@@ -7931,7 +8037,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksDeploymentService:
     clusterIP : str, optional, default is ""
     externalIPs : [any], optional
         # List of IP addresses at which the Prometheus server service is available
-        # Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
+        # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
         #
     externalTrafficPolicy : str, optional, default is "Cluster"
         # Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
@@ -8037,7 +8143,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksDeploymentTls:
     internalPort : int, optional, default is 10250
         The default webhook port is 10250 in order to work out-of-the-box in GKE private clusters and avoid adding firewall rules.
     tlsMinVersion : str, optional, default is "VersionTLS13"
-        Value must match version names from https://golang.org/pkg/crypto/tls/#pkg-constants
+        Value must match version names from https://pkg.go.dev/crypto/tls#pkg-constants
     """
     [...str]: any
     enabled?: bool
@@ -8139,7 +8245,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksPatchImage:
     registry : str, optional, default is "registry.k8s.io"
     repository : str, optional, default is "ingress-nginx/kube-webhook-certgen"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v1.5.1"
+    tag : str, optional, default is "v1.5.2"
     """
     [...str]: any
     pullPolicy?: str
@@ -8278,7 +8384,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksValidatingWebhookConfigurationAn
 schema ValuesPrometheusOperatorAffinity:
     r"""
     # Assign custom affinity rules to the prometheus operator
-    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
     #
     """
     [...str]: any
@@ -8457,7 +8563,7 @@ schema ValuesPrometheusOperatorNetworkPolicy:
 schema ValuesPrometheusOperatorNodeSelector:
     r"""
     # Define which Nodes the Pods are scheduled on.
-    # ref: https://kubernetes.io/docs/user-guide/node-selection/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
     #
     """
     [...str]: any
@@ -8600,7 +8706,7 @@ schema ValuesPrometheusOperatorService:
     clusterIP : str, optional, default is ""
     externalIPs : [any], optional
         # List of IP addresses at which the Prometheus server service is available
-        # Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
+        # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
         #
     externalTrafficPolicy : str, optional, default is "Cluster"
         # Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
@@ -8779,7 +8885,7 @@ schema ValuesPrometheusOperatorTls:
     internalPort : int, optional, default is 10250
         The default webhook port is 10250 in order to work out-of-the-box in GKE private clusters and avoid adding firewall rules.
     tlsMinVersion : str, optional, default is "VersionTLS13"
-        Value must match version names from https://golang.org/pkg/crypto/tls/#pkg-constants
+        Value must match version names from https://pkg.go.dev/crypto/tls#pkg-constants
     """
     [...str]: any
     enabled?: bool
@@ -8859,7 +8965,7 @@ schema ValuesPrometheusPodDisruptionBudget:
 schema ValuesPrometheusPodMonitor:
     r"""
     PodMonitor defines monitoring for a set of pods.
-    ref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.PodMonitor
+    ref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#podmonitor
     Using a PodMonitor may be preferred in some environments where there is very large number
     of Windows Exporter endpoints (1000+) behind a single service.
     The PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,
@@ -8877,7 +8983,7 @@ schema ValuesPrometheusPodMonitor:
         Attach node metadata to discovered targets. Requires Prometheus v2.35.0 and above.
     authorization : ValuesPrometheusPodMonitorAuthorization, optional
         Authorization section for this endpoint.
-        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.SafeAuthorization
+        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#safeauthorization
     basicAuth : ValuesPrometheusPodMonitorBasicAuth, optional
         BasicAuth allow an endpoint to authenticate over basic authentication.
         More info: https://prometheus.io/docs/operating/configuration/#endpoint
@@ -8916,7 +9022,7 @@ schema ValuesPrometheusPodMonitor:
         Namespace in which to deploy the pod monitor. Defaults to the release namespace.
     oauth2 : ValuesPrometheusPodMonitorOauth2, optional
         OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.
-        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.OAuth2
+        https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#oauth2
     params : ValuesPrometheusPodMonitorParams, optional
         Optional HTTP URL parameters
     path : str, optional, default is "/metrics"
@@ -8997,7 +9103,7 @@ schema ValuesPrometheusPodMonitorAttachMetadata:
 schema ValuesPrometheusPodMonitorAuthorization:
     r"""
     Authorization section for this endpoint.
-    https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.SafeAuthorization
+    https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#safeauthorization
     """
     [...str]: any
 
@@ -9019,7 +9125,7 @@ schema ValuesPrometheusPodMonitorBearerTokenSecret:
 schema ValuesPrometheusPodMonitorOauth2:
     r"""
     OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.
-    https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.OAuth2
+    https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#oauth2
     """
     [...str]: any
 
@@ -9044,7 +9150,7 @@ schema ValuesPrometheusPodMonitorTlsConfig:
 schema ValuesPrometheusPodSecurityPolicy:
     r"""
     # Configure additional options for default pod security policy for Prometheus
-    # ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+    # ref: https://kubernetes.io/docs/concepts/security/pod-security-policy/
 
     Attributes
     ----------
@@ -9067,7 +9173,7 @@ schema ValuesPrometheusPrometheusSpec:
     ----------
     additionalAlertManagerConfigs : [any], optional
         # AdditionalAlertManagerConfigs allows for manual configuration of alertmanager jobs in the form as specified
-        # in the official Prometheus documentation https://prometheus.io/docs/prometheus/latest/configuration/configuration/#<alertmanager_config>.
+        # in the official Prometheus documentation https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alertmanager_config.
         # AlertManager configurations specified are appended to the configurations generated by the Prometheus Operator.
         # As AlertManager configs are appended, the user is responsible to make sure it is valid. Note that using this
         # feature may expose the possibility to break upgrades of Prometheus. It is advised to review Prometheus release
@@ -9128,7 +9234,7 @@ schema ValuesPrometheusPrometheusSpec:
         # Cannot be used with additionalScrapeConfigs
     affinity : ValuesPrometheusPrometheusSpecAffinity, optional
         # Assign custom affinity rules to the prometheus instance
-        # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
         #
     alertingEndpoints : [any], optional
         # Alertmanagers to which alerts will be sent
@@ -9168,7 +9274,7 @@ schema ValuesPrometheusPrometheusSpec:
         #
     enableFeatures : [any], optional
         EnableFeatures API enables access to Prometheus disabled features.
-        ref: https://prometheus.io/docs/prometheus/latest/disabled_features/
+        ref: https://prometheus.io/docs/prometheus/latest/feature_flags/
     enableRemoteWriteReceiver : bool, optional, default is False
         # enable --web.enable-remote-write-receiver flag on prometheus-server
         #
@@ -9255,9 +9361,12 @@ schema ValuesPrometheusPrometheusSpec:
     minReadySeconds : int, optional, default is 0
         # Minimum number of seconds for which a newly created pod should be ready without any of its container crashing for it to
         # be considered available. Defaults to 0 (pod will be considered available as soon as it is ready).
+    nameValidationScheme : str, optional, default is ""
+        # Specifies the validation scheme for metric and label names.
+        # Supported values are: Legacy, UTF8
     nodeSelector : ValuesPrometheusPrometheusSpecNodeSelector, optional
         # Define which Nodes the Pods are scheduled on.
-        # ref: https://kubernetes.io/docs/user-guide/node-selection/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
         #
     overrideHonorLabels : bool, optional, default is False
         # OverrideHonorLabels if set to true overrides all user configured honor_labels. If HonorLabels is set in ServiceMonitor
@@ -9438,6 +9547,8 @@ schema ValuesPrometheusPrometheusSpec:
         # prometheus resource to be created with selectors based on values in the helm deployment,
         # which will also match the servicemonitors created
         #
+    serviceName : any, optional, default is ""
+        #
     shards : int, optional, default is 1
         # EXPERIMENTAL: Number of shards to distribute targets onto.
         # Number of replicas multiplied by shards is the total number of Pods created.
@@ -9448,7 +9559,7 @@ schema ValuesPrometheusPrometheusSpec:
         #
     storageSpec : ValuesPrometheusPrometheusSpecStorageSpec, optional
         # Prometheus StorageSpec for persistent data
-        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md
         #
     thanos : ValuesPrometheusPrometheusSpecThanos, optional
         # Thanos configuration allows configuring various aspects of a Prometheus server in a Thanos environment.
@@ -9458,11 +9569,11 @@ schema ValuesPrometheusPrometheusSpec:
         #
     tolerations : [any], optional
         # Tolerations for use with node taints
-        # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
         #
     topologySpreadConstraints : [any], optional
         # If specified, the pod's topology spread constraints.
-        # ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
         #
     tracingConfig : ValuesPrometheusPrometheusSpecTracingConfig, optional
         # TracingConfig configures tracing in Prometheus.
@@ -9531,6 +9642,7 @@ schema ValuesPrometheusPrometheusSpec:
     logLevel?: str
     maximumStartupDurationSeconds?: int
     minReadySeconds?: int
+    nameValidationScheme?: str
     nodeSelector?: ValuesPrometheusPrometheusSpecNodeSelector
     overrideHonorLabels?: bool
     overrideHonorTimestamps?: bool
@@ -9579,6 +9691,7 @@ schema ValuesPrometheusPrometheusSpec:
     serviceMonitorNamespaceSelector?: ValuesPrometheusPrometheusSpecServiceMonitorNamespaceSelector
     serviceMonitorSelector?: ValuesPrometheusPrometheusSpecServiceMonitorSelector
     serviceMonitorSelectorNilUsesHelmValues?: bool
+    serviceName?: any
     shards?: int
     storageSpec?: ValuesPrometheusPrometheusSpecStorageSpec
     thanos?: ValuesPrometheusPrometheusSpecThanos
@@ -9634,7 +9747,7 @@ schema ValuesPrometheusPrometheusSpecAdditionalScrapeConfigsSecret:
 schema ValuesPrometheusPrometheusSpecAffinity:
     r"""
     # Assign custom affinity rules to the prometheus instance
-    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
     #
     """
     [...str]: any
@@ -9671,7 +9784,7 @@ schema ValuesPrometheusPrometheusSpecImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "prometheus/prometheus"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v3.1.0"
+    tag : str, optional, default is "v3.2.1"
     """
     [...str]: any
     registry?: str
@@ -9682,7 +9795,7 @@ schema ValuesPrometheusPrometheusSpecImage:
 schema ValuesPrometheusPrometheusSpecNodeSelector:
     r"""
     # Define which Nodes the Pods are scheduled on.
-    # ref: https://kubernetes.io/docs/user-guide/node-selection/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
     #
     """
     [...str]: any
@@ -9829,7 +9942,7 @@ schema ValuesPrometheusPrometheusSpecServiceMonitorSelector:
 schema ValuesPrometheusPrometheusSpecStorageSpec:
     r"""
     # Prometheus StorageSpec for persistent data
-    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
+    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md
     #
     """
     [...str]: any
@@ -9877,7 +9990,7 @@ schema ValuesPrometheusRoute:
     Be aware that this is an early beta of this feature,
     kube-prometheus-stack does not guarantee this works and is subject to change.
     Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
-    [[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)
+    [[ref]](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1alpha2)
 
     Attributes
     ----------
@@ -9975,9 +10088,10 @@ schema ValuesPrometheusService:
         #
     annotations : ValuesPrometheusServiceAnnotations, optional
     clusterIP : str, optional, default is ""
+    enabled : bool, optional, default is True
     externalIPs : [any], optional
         # List of IP addresses at which the Prometheus server service is available
-        # Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
+        # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
         #
     externalTrafficPolicy : str, optional, default is "Cluster"
         # Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
@@ -10019,6 +10133,7 @@ schema ValuesPrometheusService:
     additionalPorts?: [any]
     annotations?: ValuesPrometheusServiceAnnotations
     clusterIP?: str
+    enabled?: bool
     externalIPs?: [any]
     externalTrafficPolicy?: str
     ipDualStack?: ValuesPrometheusServiceIpDualStack
@@ -10464,9 +10579,12 @@ schema ValuesPrometheusThanosServiceMonitor:
         # relabel configs to apply to samples before ingestion.
     scheme : str, optional, default is ""
         # scheme: HTTP scheme to use for scraping. Can be used with `tlsConfig` for example if using istio mTLS.
+    scrapeProtocols : [any], optional
+        # Set default scrapeProtocols for Prometheus instances
+        # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#scrapeprotocolstring-alias
     tlsConfig : ValuesPrometheusThanosServiceMonitorTlsConfig, optional
         # tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.
-        # Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
+        # Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
     """
     [...str]: any
     additionalLabels?: ValuesPrometheusThanosServiceMonitorAdditionalLabels
@@ -10476,6 +10594,7 @@ schema ValuesPrometheusThanosServiceMonitor:
     metricRelabelings?: [any]
     relabelings?: [any]
     scheme?: str
+    scrapeProtocols?: [any]
     tlsConfig?: ValuesPrometheusThanosServiceMonitorTlsConfig
 
 schema ValuesPrometheusThanosServiceMonitorAdditionalLabels:
@@ -10488,7 +10607,7 @@ schema ValuesPrometheusThanosServiceMonitorAdditionalLabels:
 schema ValuesPrometheusThanosServiceMonitorTlsConfig:
     r"""
     # tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.
-    # Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
+    # Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
     """
     [...str]: any
 
@@ -11060,15 +11179,8 @@ schema ValuesServiceIpDualStack:
 schema ValuesServiceLabels:
     r"""
     ValuesServiceLabels
-
-    Attributes
-    ----------
-    baz : str, optional
-    foo : str, optional
     """
     [...str]: any
-    baz?: str
-    foo?: str
 
 schema ValuesServiceMonitor:
     r"""
@@ -11185,9 +11297,9 @@ schema ValuesSidecarAlerts:
     label : str, optional, default is "grafana_alert"
         Do not reprocess already processed unchanged resources on k8s API reconnect.
         ignoreAlreadyProcessed: true
-        label that the configmaps with alert are marked with
+        label that the configmaps with alert are marked with (can be templated)
     labelValue : str, optional, default is ""
-        value of label that the configmaps with alert are set to
+        value of label that the configmaps with alert are set to (can be templated)
     reloadURL : str, optional, default is "http://localhost:3000/api/admin/provisioning/alerting/reload"
         watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
         defaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S
@@ -11297,9 +11409,9 @@ schema ValuesSidecarDashboards:
         If specified, the sidecar will look for annotation with this name to create folder and put graph here.
         You can use this parameter together with `provider.foldersFromFilesStructure`to annotate configmaps and create folder structure.
     label : str, optional, default is "grafana_dashboard"
-        label that the configmaps with dashboards are marked with
+        label that the configmaps with dashboards are marked with (can be templated)
     labelValue : str, optional, default is ""
-        value of label that the configmaps with dashboards are set to
+        value of label that the configmaps with dashboards are set to (can be templated)
     provider : ValuesSidecarDashboardsProvider, optional
         watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
         defaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S
@@ -11519,9 +11631,9 @@ schema ValuesSidecarDatasources:
              key: value_key
         Do not reprocess already processed unchanged resources on k8s API reconnect.
         ignoreAlreadyProcessed: true
-        label that the configmaps with datasources are marked with
+        label that the configmaps with datasources are marked with (can be templated)
     labelValue : str, optional, default is ""
-        value of label that the configmaps with datasources are set to
+        value of label that the configmaps with datasources are set to (can be templated)
     reloadURL : str, optional, default is "http://localhost:3000/api/admin/provisioning/datasources/reload"
         watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
         defaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S
@@ -11704,9 +11816,9 @@ schema ValuesSidecarNotifiers:
     label : str, optional, default is "grafana_notifier"
         Do not reprocess already processed unchanged resources on k8s API reconnect.
         ignoreAlreadyProcessed: true
-        label that the configmaps with notifiers are marked with
+        label that the configmaps with notifiers are marked with (can be templated)
     labelValue : str, optional, default is ""
-        value of label that the configmaps with notifiers are set to
+        value of label that the configmaps with notifiers are set to (can be templated)
     reloadURL : str, optional, default is "http://localhost:3000/api/admin/provisioning/notifications/reload"
         watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
         defaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S
@@ -11796,9 +11908,9 @@ schema ValuesSidecarPlugins:
     label : str, optional, default is "grafana_plugin"
         Do not reprocess already processed unchanged resources on k8s API reconnect.
         ignoreAlreadyProcessed: true
-        label that the configmaps with plugins are marked with
+        label that the configmaps with plugins are marked with (can be templated)
     labelValue : str, optional, default is ""
-        value of label that the configmaps with plugins are set to
+        value of label that the configmaps with plugins are set to (can be templated)
     reloadURL : str, optional, default is "http://localhost:3000/api/admin/provisioning/plugins/reload"
         watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
         defaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S
@@ -12005,6 +12117,7 @@ schema ValuesTestFramework:
 
     Attributes
     ----------
+    containerSecurityContext : ValuesTestFrameworkContainerSecurityContext, optional
     enabled : bool, optional, default is True
     image : ValuesTestFrameworkImage, optional
         # The type of Helm hook used to run this test. Defaults to test.
@@ -12016,11 +12129,18 @@ schema ValuesTestFramework:
     securityContext : ValuesTestFrameworkSecurityContext, optional
     """
     [...str]: any
+    containerSecurityContext?: ValuesTestFrameworkContainerSecurityContext
     enabled?: bool
     image?: ValuesTestFrameworkImage
     imagePullPolicy?: str
     resources?: ValuesTestFrameworkResources
     securityContext?: ValuesTestFrameworkSecurityContext
+
+schema ValuesTestFrameworkContainerSecurityContext:
+    r"""
+    ValuesTestFrameworkContainerSecurityContext
+    """
+    [...str]: any
 
 schema ValuesTestFrameworkImage:
     r"""
@@ -12081,7 +12201,7 @@ schema ValuesThanosRuler:
         Be aware that this is an early beta of this feature,
         kube-prometheus-stack does not guarantee this works and is subject to change.
         Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
-        [[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)
+        [[ref]](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1alpha2)
     service : ValuesThanosRulerService, optional
         # Configuration for ThanosRuler service
         #
@@ -12214,7 +12334,7 @@ schema ValuesThanosRulerRoute:
     Be aware that this is an early beta of this feature,
     kube-prometheus-stack does not guarantee this works and is subject to change.
     Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
-    [[ref]](https://gateway-api.sigs.k8s.io/references/spec/#gateway.networking.k8s.io%2fv1alpha2)
+    [[ref]](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1alpha2)
 
     Attributes
     ----------
@@ -12311,6 +12431,7 @@ schema ValuesThanosRulerService:
         # Additional ports to open for ThanosRuler service
     annotations : ValuesThanosRulerServiceAnnotations, optional
     clusterIP : str, optional, default is ""
+    enabled : bool, optional, default is True
     externalIPs : [any], optional
     externalTrafficPolicy : str, optional, default is "Cluster"
         # Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
@@ -12337,6 +12458,7 @@ schema ValuesThanosRulerService:
     additionalPorts?: [any]
     annotations?: ValuesThanosRulerServiceAnnotations
     clusterIP?: str
+    enabled?: bool
     externalIPs?: [any]
     externalTrafficPolicy?: str
     ipDualStack?: ValuesThanosRulerServiceIpDualStack
@@ -12448,7 +12570,7 @@ schema ValuesThanosRulerServiceMonitor:
         #
     tlsConfig : ValuesThanosRulerServiceMonitorTlsConfig, optional
         # tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.
-        # Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
+        # Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
     """
     [...str]: any
     additionalEndpoints?: [any]
@@ -12477,7 +12599,7 @@ schema ValuesThanosRulerServiceMonitorAdditionalLabels:
 schema ValuesThanosRulerServiceMonitorTlsConfig:
     r"""
     # tlsConfig: TLS configuration to use when scraping the endpoint. For example if using istio mTLS.
-    # Of type: https://github.com/coreos/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
+    # Of type: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#tlsconfig
     """
     [...str]: any
 
@@ -12500,7 +12622,7 @@ schema ValuesThanosRulerThanosRulerSpec:
         # Useful, if you need advanced templating
     affinity : ValuesThanosRulerThanosRulerSpecAffinity, optional
         # Assign custom affinity rules to the thanosRuler instance
-        # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
         #
     alertDropLabels : [any], optional
         # Labels by name to drop before sending to alertmanager
@@ -12542,7 +12664,7 @@ schema ValuesThanosRulerThanosRulerSpec:
         #
     nodeSelector : ValuesThanosRulerThanosRulerSpecNodeSelector, optional
         # Define which Nodes the Pods are scheduled on.
-        # ref: https://kubernetes.io/docs/user-guide/node-selection/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
         #
     objectStorageConfig : ValuesThanosRulerThanosRulerSpecObjectStorageConfig, optional
         # ObjectStorageConfig configures object storage in Thanos
@@ -12580,7 +12702,7 @@ schema ValuesThanosRulerThanosRulerSpec:
         # running cluster equal to the expected size.
     resources : ValuesThanosRulerThanosRulerSpecResources, optional
         # Define resources requests and limits for single Pods.
-        # ref: https://kubernetes.io/docs/user-guide/compute-resources/
+        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         #
     retention : str, optional, default is "24h"
         # Time duration ThanosRuler shall retain data for. Default is '24h', and must match the regular expression
@@ -12609,17 +12731,19 @@ schema ValuesThanosRulerThanosRulerSpec:
         # This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false
         # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
         #
+    serviceName : any, optional, default is ""
+        #
     storage : ValuesThanosRulerThanosRulerSpecStorage, optional
         # Storage is the definition of how storage will be used by the ThanosRuler instances.
-        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md
         #
     tolerations : [any], optional
         # If specified, the pod's tolerations.
-        # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
         #
     topologySpreadConstraints : [any], optional
         # If specified, the pod's topology spread constraints.
-        # ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+        # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
         #
     volumeMounts : [any], optional
         Additional VolumeMounts on the output StatefulSet definition.
@@ -12664,6 +12788,7 @@ schema ValuesThanosRulerThanosRulerSpec:
     ruleSelector?: ValuesThanosRulerThanosRulerSpecRuleSelector
     ruleSelectorNilUsesHelmValues?: bool
     securityContext?: ValuesThanosRulerThanosRulerSpecSecurityContext
+    serviceName?: any
     storage?: ValuesThanosRulerThanosRulerSpecStorage
     tolerations?: [any]
     topologySpreadConstraints?: [any]
@@ -12680,7 +12805,7 @@ schema ValuesThanosRulerThanosRulerSpecAdditionalConfig:
 schema ValuesThanosRulerThanosRulerSpecAffinity:
     r"""
     # Assign custom affinity rules to the thanosRuler instance
-    # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
     #
     """
     [...str]: any
@@ -12748,7 +12873,7 @@ schema ValuesThanosRulerThanosRulerSpecLabels:
 schema ValuesThanosRulerThanosRulerSpecNodeSelector:
     r"""
     # Define which Nodes the Pods are scheduled on.
-    # ref: https://kubernetes.io/docs/user-guide/node-selection/
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
     #
     """
     [...str]: any
@@ -12831,7 +12956,7 @@ schema ValuesThanosRulerThanosRulerSpecQueryConfigSecret:
 schema ValuesThanosRulerThanosRulerSpecResources:
     r"""
     # Define resources requests and limits for single Pods.
-    # ref: https://kubernetes.io/docs/user-guide/compute-resources/
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     #
     """
     [...str]: any
@@ -12889,7 +13014,7 @@ schema ValuesThanosRulerThanosRulerSpecSecurityContextSeccompProfile:
 schema ValuesThanosRulerThanosRulerSpecStorage:
     r"""
     # Storage is the definition of how storage will be used by the ThanosRuler instances.
-    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
+    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md
     #
     """
     [...str]: any

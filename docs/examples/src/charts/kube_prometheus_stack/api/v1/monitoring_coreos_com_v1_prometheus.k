@@ -154,6 +154,8 @@ schema MonitoringCoreosComV1PrometheusSpec:
         For more information see https://prometheus.io/docs/prometheus/latest/querying/api/#remote-write-receiver
 
         It requires Prometheus >= v2.33.0.
+    enableServiceLinks : bool, default is Undefined, optional
+        Indicates whether information about services should be injected into pod's environment variables
     enforcedBodySizeLimit : str, default is Undefined, optional
         When defined, enforcedBodySizeLimit specifies a global limit on the size
         of uncompressed response body that will be accepted by Prometheus.
@@ -558,8 +560,10 @@ schema MonitoringCoreosComV1PrometheusSpec:
         See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
     sha : str, default is Undefined, optional
         Deprecated: use 'spec.image' instead. The image's digest can be specified as part of the image name.
+    shardRetentionPolicy : MonitoringCoreosComV1PrometheusSpecShardRetentionPolicy, default is Undefined, optional
+        shard retention policy
     shards : int, default is Undefined, optional
-        Number of shards to distribute scraped targets onto.
+        Number of shards to distribute the scraped targets onto.
 
         `spec.replicas` multiplied by `spec.shards` is the total number of Pods
         being created.
@@ -569,11 +573,11 @@ schema MonitoringCoreosComV1PrometheusSpec:
         Note that scaling down shards will not reshard data onto the remaining
         instances, it must be manually moved. Increasing shards will not reshard
         data either but it will continue to be available from the same
-        instances. To query globally, use Thanos sidecar and Thanos querier or
-        remote write data to a central location.
-        Alerting and recording rules
+        instances. To query globally, use either
+        * Thanos sidecar + querier for query federation and Thanos Ruler for rules.
+        * Remote-write to send metrics to a central location.
 
-        By default, the sharding is performed on:
+        By default, the sharding of targets is performed on:
         * The `__address__` target's metadata label for PodMonitor,
         ServiceMonitor and ScrapeConfig resources.
         * The `__param_target__` label for Probe resources.
@@ -647,6 +651,7 @@ schema MonitoringCoreosComV1PrometheusSpec:
     enableFeatures?: [str]
     enableOTLPReceiver?: bool
     enableRemoteWriteReceiver?: bool
+    enableServiceLinks?: bool
     enforcedBodySizeLimit?: str
     enforcedKeepDroppedTargets?: int
     enforcedLabelLimit?: int
@@ -726,6 +731,7 @@ schema MonitoringCoreosComV1PrometheusSpec:
     serviceMonitorSelector?: MonitoringCoreosComV1PrometheusSpecServiceMonitorSelector
     serviceName?: str
     sha?: str
+    shardRetentionPolicy?: MonitoringCoreosComV1PrometheusSpecShardRetentionPolicy
     shards?: int
     storage?: MonitoringCoreosComV1PrometheusSpecStorage
     tag?: str
@@ -6676,6 +6682,19 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0:
         queue config
     remoteTimeout : str, default is Undefined, optional
         Timeout for requests to the remote write endpoint.
+    roundRobinDNS : bool, default is Undefined, optional
+        When enabled:
+            - The remote-write mechanism will resolve the hostname via DNS.
+            - It will randomly select one of the resolved IP addresses and connect to it.
+
+        When disabled (default behavior):
+            - The Go standard library will handle hostname resolution.
+            - It will attempt connections to each resolved IP address sequentially.
+
+        Note: The connection timeout applies to the entire resolution and connection process.
+              If disabled, the timeout is distributed across all connection attempts.
+
+        It requires Prometheus >= v3.1.0.
     sendExemplars : bool, default is Undefined, optional
         Enables sending of exemplars over remote write. Note that
         exemplar-storage itself must be enabled using the `spec.enableFeatures`
@@ -6714,6 +6733,7 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0:
     proxyUrl?: str
     queueConfig?: MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0QueueConfig
     remoteTimeout?: str
+    roundRobinDNS?: bool
     sendExemplars?: bool
     sendNativeHistograms?: bool
     sigv4?: MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Sigv4
@@ -8671,6 +8691,26 @@ schema MonitoringCoreosComV1PrometheusSpecServiceMonitorSelectorMatchExpressions
     operator: str
 
     values?: [str]
+
+schema MonitoringCoreosComV1PrometheusSpecShardRetentionPolicy:
+    r"""
+    ShardRetentionPolicy defines the retention policy for the Prometheus shards.
+    (Alpha) Using this field requires the 'PrometheusShardRetentionPolicy' feature gate to be enabled.
+
+    The final goals for this feature can be seen at https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/proposals/202310-shard-autoscaling.md#graceful-scale-down-of-prometheus-servers,
+    however, the feature is not yet fully implemented in this PR. The limitation being:
+    * Retention duration is not settable, for now, shards are retained forever.
+
+    Attributes
+    ----------
+    whenScaled : str, default is Undefined, optional
+        Defines the retention policy when the Prometheus shards are scaled down.
+        * `Delete`, the operator will delete the pods from the scaled-down shard(s).
+        * `Retain`, the operator will keep the pods from the scaled-down shard(s), so the data can still be queried.
+
+        If not defined, the operator assumes the `Delete` value.
+    """
+    whenScaled?: "Retain" | "Delete"
 
 schema MonitoringCoreosComV1PrometheusSpecStorage:
     r"""
