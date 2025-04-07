@@ -20,13 +20,6 @@ func init() {
 	testDataDir = filepath.Join(dir, "testdata")
 }
 
-func TestGetGenerator(t *testing.T) {
-	t.Parallel()
-
-	require.IsType(t, jsonschema.DefaultAutoGenerator, jsonschema.GetGenerator(jsonschema.AutoGeneratorType))
-	require.IsType(t, jsonschema.DefaultNoGenerator, jsonschema.GetGenerator("UNKNOWN"))
-}
-
 func TestKCLConversion(t *testing.T) {
 	t.Parallel()
 

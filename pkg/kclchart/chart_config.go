@@ -132,7 +132,7 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		"repositories", len(c.ChartBase.Repositories) > 0,
 		jsonschema.WithDefault(c.ChartBase.Repositories),
 		jsonschema.WithType("null"),
-		jsonschema.WithNoItems(),
+		jsonschema.WithNoContent(),
 	)
 	js.SetOrRemoveProperty(
 		"values", c.ChartBase.Values != nil,

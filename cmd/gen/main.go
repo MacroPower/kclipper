@@ -75,5 +75,19 @@ func generate(path string) error {
 		return fmt.Errorf("failed to close file: %w", err)
 	}
 
+	//nolint:gosec // G304 not relevant for client-side generation.
+	fvc, err := os.Create(filepath.Join(modPath, "value_inference_config.k"))
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	pvc := &kclhelm.ValueInferenceConfig{}
+	if err = pvc.GenerateKCL(fvc); err != nil {
+		return fmt.Errorf("failed to generate KCL: %w", err)
+	}
+	err = fvc.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close file: %w", err)
+	}
+
 	return nil
 }

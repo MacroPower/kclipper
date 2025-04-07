@@ -142,9 +142,10 @@ func WithType(t string) PropertyOpt {
 	}
 }
 
-func WithNoItems() PropertyOpt {
+func WithNoContent() PropertyOpt {
 	return func(s *invopopjsonschema.Schema) {
 		s.Items = nil
+		s.Properties = nil
 	}
 }
 

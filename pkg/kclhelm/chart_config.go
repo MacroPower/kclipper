@@ -17,6 +17,9 @@ type ChartConfig struct {
 	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator,omitempty"`
 	// Path to the schema to use, when relevant for the selected schemaGenerator.
 	SchemaPath string `json:"schemaPath,omitempty"`
+	// Configuration for value inference via dadav/helm-schema. Requires
+	// schemaGenerator to be set to `VALUE-INFERENCE`.
+	ValueInference *ValueInferenceConfig `json:"valueInference,omitempty"`
 	// CRD generator to use for CRDs schemas.
 	CRDGenerator crd.GeneratorType `json:"crdGenerator,omitempty"`
 	// Paths to any CRDs to import as schemas, when relevant for the selected
@@ -34,9 +37,10 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 
 	js.SetProperty("schemaGenerator", jsonschema.WithEnum(jsonschema.GeneratorTypeEnum))
 	js.SetProperty("crdGenerator", jsonschema.WithEnum(crd.GeneratorTypeEnum))
+	js.SetProperty("valueInference", jsonschema.WithType("null"), jsonschema.WithNoContent())
 
 	b := &bytes.Buffer{}
-	err = js.GenerateKCL(b, genOptInheritChartBase)
+	err = js.GenerateKCL(b, genOptInheritChartBase, genOptFixValueInference)
 	if err != nil {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}

@@ -43,7 +43,7 @@ func (c *ChartBase) GenerateKCL(w io.Writer) error {
 	js := r.Reflect(reflect.TypeOf(ChartBase{}))
 
 	js.SetProperty("schemaValidator", jsonschema.WithEnum(jsonschema.ValidatorTypeEnum))
-	js.SetProperty("repositories", jsonschema.WithType("null"), jsonschema.WithNoItems())
+	js.SetProperty("repositories", jsonschema.WithType("null"), jsonschema.WithNoContent())
 
 	err = js.GenerateKCL(w, genOptFixChartRepo)
 	if err != nil {
