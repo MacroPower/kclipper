@@ -38,6 +38,8 @@ schema Values:
     podAnnotations : ValuesPodAnnotations, optional
     podDisruptionBudget : ValuesPodDisruptionBudget, optional
         Disruption budget will be configured only when the replicaCount is greater than 1
+    podSecurityContext : ValuesPodSecurityContext, optional
+        set pod security context
     probes : ValuesProbes, optional
         https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     redis : ValuesRedis, optional
@@ -79,6 +81,7 @@ schema Values:
     nodeSelector?: ValuesNodeSelector
     podAnnotations?: ValuesPodAnnotations
     podDisruptionBudget?: ValuesPodDisruptionBudget
+    podSecurityContext?: ValuesPodSecurityContext
     probes?: ValuesProbes
     redis?: ValuesRedis
     replicaCount?: int
@@ -211,7 +214,7 @@ schema ValuesImage:
     ----------
     pullPolicy : str, optional, default is "IfNotPresent"
     repository : str, optional, default is "ghcr.io/stefanprodan/podinfo"
-    tag : str, optional, default is "6.7.1"
+    tag : str, optional, default is "6.8.0"
     """
     [...str]: any
     pullPolicy?: str
@@ -316,6 +319,12 @@ schema ValuesPodAnnotations:
 schema ValuesPodDisruptionBudget:
     r"""
     Disruption budget will be configured only when the replicaCount is greater than 1
+    """
+    [...str]: any
+
+schema ValuesPodSecurityContext:
+    r"""
+    set pod security context
     """
     [...str]: any
 

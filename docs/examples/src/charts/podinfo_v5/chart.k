@@ -13,12 +13,12 @@ schema Chart(helm.Chart):
     values : Values | any, optional
     chart : str, required, default is "podinfo"
     repoURL : str, required, default is "https://stefanprodan.github.io/podinfo"
-    targetRevision : str, optional, default is "5.2.1"
+    targetRevision : str, optional, default is "6.8.0"
     schemaValidator : "KCL" | "HELM", optional, default is "KCL"
     """
     values?: Values | any
     chart: str = "podinfo"
     repoURL: str = "https://stefanprodan.github.io/podinfo"
-    targetRevision?: str = "5.2.1"
+    targetRevision?: str = "6.8.0"
     schemaValidator?: "KCL" | "HELM" = "KCL"
 
