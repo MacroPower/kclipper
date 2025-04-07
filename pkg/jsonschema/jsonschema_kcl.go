@@ -5,11 +5,10 @@ import (
 	"fmt"
 
 	"gopkg.in/yaml.v3"
-	"kcl-lang.io/kcl-go/pkg/tools/gen"
 
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
 
-	"github.com/MacroPower/kclipper/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/kclgen"
 )
 
 // ConvertToKCLSchema converts a JSON schema to a KCL schema.
@@ -20,9 +19,9 @@ func ConvertToKCLSchema(jsonSchemaData []byte, removeDefaults bool) ([]byte, err
 	}
 
 	kclSchema := &bytes.Buffer{}
-	if err := kclutil.Gen.GenKcl(kclSchema, "values", fixedJSONSchema, &kclutil.GenKclOptions{
-		Mode:                  gen.ModeJsonSchema,
-		CastingOption:         gen.OriginalName,
+	if err := kclgen.Gen.GenKcl(kclSchema, "values", fixedJSONSchema, &kclgen.GenKclOptions{
+		Mode:                  kclgen.ModeJSONSchema,
+		CastingOption:         kclgen.OriginalName,
 		UseIntegersForNumbers: true,
 		RemoveDefaults:        removeDefaults,
 	}); err != nil {

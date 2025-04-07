@@ -11,13 +11,13 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/api/resource"
 
+	"github.com/MacroPower/kclipper/pkg/chartcmd"
+	"github.com/MacroPower/kclipper/pkg/charttui"
 	"github.com/MacroPower/kclipper/pkg/crd"
 	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/helmtui"
-	"github.com/MacroPower/kclipper/pkg/helmutil"
 	"github.com/MacroPower/kclipper/pkg/jsonschema"
-	"github.com/MacroPower/kclipper/pkg/kclchart"
-	"github.com/MacroPower/kclipper/pkg/kclhelm"
+	"github.com/MacroPower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/MacroPower/kclipper/pkg/kclmodule/kclhelm"
 	"github.com/MacroPower/kclipper/pkg/log"
 )
 
@@ -311,10 +311,10 @@ type chartCommander interface {
 
 //nolint:ireturn // Multiple concrete types.
 func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
-	cc, err := helmutil.NewChartPkg(args.GetPath(), helm.DefaultClient,
-		helmutil.WithTimeout(args.GetTimeout()),
-		helmutil.WithVendor(args.GetVendor()),
-		helmutil.WithMaxExtractSize(args.GetMaxExtractSize()),
+	cc, err := chartcmd.NewKCLPackage(args.GetPath(), helm.DefaultClient,
+		chartcmd.WithTimeout(args.GetTimeout()),
+		chartcmd.WithVendor(args.GetVendor()),
+		chartcmd.WithMaxExtractSize(args.GetMaxExtractSize()),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrChartInitFailed, err)
@@ -330,7 +330,7 @@ func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
 		return nil, fmt.Errorf("%w: %w", ErrArgument, err)
 	}
 
-	return helmtui.NewChartTUI(w, lvl, cc), nil
+	return charttui.NewChartTUI(w, lvl, cc), nil
 }
 
 type ChartArgs struct {

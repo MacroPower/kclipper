@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/MacroPower/kclipper/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/kclexport"
 )
 
 const (
@@ -44,7 +44,7 @@ func NewExportCmd(arg *RootArgs) *cobra.Command {
 				pkgPath = pArgs[0]
 			}
 
-			js, err := kclutil.Export.KCLSchemaToJSONSchema(pkgPath, args.GetSchema())
+			js, err := kclexport.Export.KCLSchemaToJSONSchema(pkgPath, args.GetSchema())
 			if err != nil {
 				return fmt.Errorf("failed to export schema: %w", err)
 			}

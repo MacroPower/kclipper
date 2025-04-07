@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/pathutil"
+	"github.com/MacroPower/kclipper/pkg/paths"
 )
 
 func TestAddRepo(t *testing.T) {
@@ -93,7 +93,7 @@ func TestGetInvalidURL(t *testing.T) {
 	}{
 		"out of bounds": {
 			query: "../../example",
-			err:   pathutil.ErrResolvedOutsideRepo,
+			err:   paths.ErrResolvedOutsideRepo,
 		},
 		"invalid schema": {
 			query: "''://example.com/charts",
@@ -189,14 +189,14 @@ func TestInvalidRepo(t *testing.T) {
 				Name: "test-repo",
 				URL:  "../../example",
 			},
-			err: pathutil.ErrResolvedOutsideRepo,
+			err: paths.ErrResolvedOutsideRepo,
 		},
 		"repo at repo root": {
 			repo: &helmrepo.RepoOpts{
 				Name: "test-repo",
 				URL:  "../",
 			},
-			err: pathutil.ErrResolvedToRepoRoot,
+			err: paths.ErrResolvedToRepoRoot,
 		},
 		"invalid scheme": {
 			repo: &helmrepo.RepoOpts{
@@ -211,7 +211,7 @@ func TestInvalidRepo(t *testing.T) {
 				URL:    "https://example.com/charts",
 				CAPath: "../../example",
 			},
-			err: pathutil.ErrResolvedOutsideRepo,
+			err: paths.ErrResolvedOutsideRepo,
 		},
 		"invalid client cert key": {
 			repo: &helmrepo.RepoOpts{
@@ -219,7 +219,7 @@ func TestInvalidRepo(t *testing.T) {
 				URL:                  "https://example.com/charts",
 				TLSClientCertKeyPath: "../../example",
 			},
-			err: pathutil.ErrResolvedOutsideRepo,
+			err: paths.ErrResolvedOutsideRepo,
 		},
 		"invalid client cert data": {
 			repo: &helmrepo.RepoOpts{
@@ -227,7 +227,7 @@ func TestInvalidRepo(t *testing.T) {
 				URL:                   "https://example.com/charts",
 				TLSClientCertDataPath: "../../example",
 			},
-			err: pathutil.ErrResolvedOutsideRepo,
+			err: paths.ErrResolvedOutsideRepo,
 		},
 	}
 	for name, tc := range tcs {

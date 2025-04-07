@@ -4,8 +4,8 @@ import (
 	"os"
 	"strings"
 
-	filepathplugin "github.com/MacroPower/kclipper/pkg/plugin/filepath"
-	helmplugin "github.com/MacroPower/kclipper/pkg/plugin/helm"
+	filepathplugin "github.com/MacroPower/kclipper/pkg/kclplugin/filepath"
+	helmplugin "github.com/MacroPower/kclipper/pkg/kclplugin/helm"
 )
 
 func RegisterEnabledPlugins() {

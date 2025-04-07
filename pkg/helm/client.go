@@ -14,15 +14,15 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/pathutil"
-	"github.com/MacroPower/kclipper/pkg/syncutil"
+	"github.com/MacroPower/kclipper/pkg/paths"
+	"github.com/MacroPower/kclipper/pkg/syncs"
 )
 
 var (
-	globalLock = syncutil.NewKeyLock()
+	globalLock = syncs.NewKeyLock()
 
 	DefaultClient = MustNewClient(
-		pathutil.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), pathutil.NewBase64PathEncoder()),
+		paths.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), paths.NewBase64PathEncoder()),
 		os.Getenv("ARGOCD_APP_PROJECT_NAME"),
 	)
 )
@@ -56,7 +56,7 @@ type Client struct {
 	NoProxy        string
 }
 
-func NewClient(paths PathCacher, project string) (*Client, error) {
+func NewClient(pc PathCacher, project string) (*Client, error) {
 	rc, err := registry.NewClient(registry.ClientOptEnableCache(true))
 	if err != nil {
 		return nil, fmt.Errorf("create registry client: %w", err)
@@ -68,7 +68,7 @@ func NewClient(paths PathCacher, project string) (*Client, error) {
 	}
 
 	return &Client{
-		Paths:    paths,
+		Paths:    pc,
 		RepoLock: globalLock,
 		rc:       rc,
 		helmHome: tmpDir,
@@ -77,8 +77,8 @@ func NewClient(paths PathCacher, project string) (*Client, error) {
 }
 
 // MustNewClient runs [NewClient] and panics on any errors.
-func MustNewClient(paths PathCacher, project string) *Client {
-	c, err := NewClient(paths, project)
+func MustNewClient(pc PathCacher, project string) *Client {
+	c, err := NewClient(pc, project)
 	if err != nil {
 		panic(err)
 	}

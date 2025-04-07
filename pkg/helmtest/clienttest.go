@@ -10,7 +10,7 @@ import (
 
 	"github.com/MacroPower/kclipper/pkg/helm"
 	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/pathutil"
+	"github.com/MacroPower/kclipper/pkg/paths"
 )
 
 var (
@@ -29,13 +29,13 @@ func init() {
 	testDataDir := filepath.Join(pkg.Dir, "testdata")
 	DefaultTestClient = &TestClient{
 		BaseClient: helm.MustNewClient(
-			pathutil.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}),
+			paths.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}),
 			"test",
 		),
 	}
 	SlowTestClient = &TestClient{
 		BaseClient: helm.MustNewClient(
-			pathutil.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}),
+			paths.NewStaticTempPaths(filepath.Join(testDataDir, "charts"), &TestPathEncoder{}),
 			"test",
 		),
 		Latency: 1 * time.Second,

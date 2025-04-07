@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/MacroPower/kclipper/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/kclgen"
 )
 
 // KCLPackage represents a KCL package that contains CRD schemas.
@@ -95,7 +95,7 @@ func (s *KCLPackage) writeToKCLSchema(uCRD *unstructured.Unstructured) error {
 
 	var merr error
 	for version, v := range crdVersions {
-		if err := kclutil.GenOpenAPI.FromCRDVersion(&v, s.path, version); err != nil {
+		if err := kclgen.GenOpenAPI.FromCRDVersion(&v, s.path, version); err != nil {
 			merr = multierror.Append(merr, fmt.Errorf("%s: %w", v.GetAPIVersion(), err))
 		}
 	}

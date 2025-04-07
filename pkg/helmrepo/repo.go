@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/MacroPower/kclipper/pkg/pathutil"
+	"github.com/MacroPower/kclipper/pkg/paths"
 )
 
 var (
@@ -39,12 +39,12 @@ func (err RepoNotFoundError) Error() string {
 type Repo struct {
 	// Helm chart repository name for reference by `@name`.
 	Name                  string
-	URL                   pathutil.ResolvedFilePath
+	URL                   paths.ResolvedFilePath
 	Username              string
 	Password              string
-	CAPath                pathutil.ResolvedFileOrDirectoryPath
-	TLSClientCertDataPath pathutil.ResolvedFileOrDirectoryPath
-	TLSClientCertKeyPath  pathutil.ResolvedFileOrDirectoryPath
+	CAPath                paths.ResolvedFileOrDirectoryPath
+	TLSClientCertDataPath paths.ResolvedFileOrDirectoryPath
+	TLSClientCertKeyPath  paths.ResolvedFileOrDirectoryPath
 	InsecureSkipVerify    bool
 	PassCredentials       bool
 }
@@ -138,7 +138,7 @@ func (m *Manager) resolveRepo(repoOpts *RepoOpts) (*Repo, error) {
 		PassCredentials:    repoOpts.PassCredentials,
 	}
 
-	p, err := pathutil.ResolveFilePathOrURL(m.currentPath, m.repoRoot, repoOpts.URL, m.allowedURLSchemes)
+	p, err := paths.ResolveFilePathOrURL(m.currentPath, m.repoRoot, repoOpts.URL, m.allowedURLSchemes)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrFailedToResolveURL, err)
 	}
@@ -146,7 +146,7 @@ func (m *Manager) resolveRepo(repoOpts *RepoOpts) (*Repo, error) {
 	repo.URL = p
 
 	if repoOpts.CAPath != "" {
-		p, err := pathutil.ResolveFileOrDirectoryPath(m.currentPath, m.repoRoot, repoOpts.CAPath)
+		p, err := paths.ResolveFileOrDirectoryPath(m.currentPath, m.repoRoot, repoOpts.CAPath)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %w", ErrFailedToResolveFile, err)
 		}
@@ -155,7 +155,7 @@ func (m *Manager) resolveRepo(repoOpts *RepoOpts) (*Repo, error) {
 	}
 
 	if repoOpts.TLSClientCertDataPath != "" {
-		p, err := pathutil.ResolveFileOrDirectoryPath(m.currentPath, m.repoRoot, repoOpts.TLSClientCertDataPath)
+		p, err := paths.ResolveFileOrDirectoryPath(m.currentPath, m.repoRoot, repoOpts.TLSClientCertDataPath)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %w", ErrFailedToResolveFile, err)
 		}
@@ -164,7 +164,7 @@ func (m *Manager) resolveRepo(repoOpts *RepoOpts) (*Repo, error) {
 	}
 
 	if repoOpts.TLSClientCertKeyPath != "" {
-		p, err := pathutil.ResolveFileOrDirectoryPath(m.currentPath, m.repoRoot, repoOpts.TLSClientCertKeyPath)
+		p, err := paths.ResolveFileOrDirectoryPath(m.currentPath, m.repoRoot, repoOpts.TLSClientCertKeyPath)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %w", ErrFailedToResolveFile, err)
 		}
@@ -235,7 +235,7 @@ func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
 		return repo, nil
 	}
 
-	p, err := pathutil.ResolveFilePathOrURL(m.currentPath, m.repoRoot, repoURL, m.allowedURLSchemes)
+	p, err := paths.ResolveFilePathOrURL(m.currentPath, m.repoRoot, repoURL, m.allowedURLSchemes)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrFailedToResolveURL, err)
 	}

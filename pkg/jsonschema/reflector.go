@@ -7,11 +7,9 @@ import (
 	"reflect"
 	"regexp"
 
-	"kcl-lang.io/kcl-go/pkg/tools/gen"
-
 	invopopjsonschema "github.com/invopop/jsonschema"
 
-	"github.com/MacroPower/kclipper/pkg/kclutil"
+	"github.com/MacroPower/kclipper/pkg/kclgen"
 )
 
 type Reflector struct {
@@ -67,9 +65,9 @@ func (r *Reflected) GenerateKCL(w io.Writer, opts ...GenOpt) error {
 	}
 
 	b := &bytes.Buffer{}
-	if err := kclutil.Gen.GenKcl(b, "chart", jsBytes, &kclutil.GenKclOptions{
-		Mode:          gen.ModeJsonSchema,
-		CastingOption: gen.OriginalName,
+	if err := kclgen.Gen.GenKcl(b, "chart", jsBytes, &kclgen.GenKclOptions{
+		Mode:          kclgen.ModeJSONSchema,
+		CastingOption: kclgen.OriginalName,
 	}); err != nil {
 		return fmt.Errorf("failed to generate kcl schema: %w", err)
 	}
