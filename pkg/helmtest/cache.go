@@ -24,11 +24,11 @@ func (*TestPathEncoder) Encode(s string) string {
 
 	key := fmt.Sprintf("%s__%s__%s__%s", o.Chart, o.Project, o.URL, o.Version)
 
-	return url.PathEscape(key)
+	return url.QueryEscape(key)
 }
 
 func (*TestPathEncoder) Decode(s string) (string, error) {
-	d, err := url.PathUnescape(s)
+	d, err := url.QueryUnescape(s)
 	attrs := strings.Split(d, "__")
 	key := fmt.Sprintf(`{"chart":%q,"project":%q,"url":%q,"version":%q}`, attrs[0], attrs[1], attrs[2], attrs[3])
 
