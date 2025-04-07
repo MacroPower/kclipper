@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema ExternalSecret:
     r"""
@@ -24,18 +24,13 @@ schema ExternalSecret:
     status : ExternalSecretsIoV1alpha1ExternalSecretStatus, default is Undefined, optional
         status
     """
-
-
     apiVersion: "external-secrets.io/v1alpha1" = "external-secrets.io/v1alpha1"
 
     kind: "ExternalSecret" = "ExternalSecret"
 
     metadata?: v1.ObjectMeta
-
     spec?: ExternalSecretsIoV1alpha1ExternalSecretSpec
-
     status?: ExternalSecretsIoV1alpha1ExternalSecretStatus
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpec:
     r"""
@@ -57,18 +52,12 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpec:
     target : ExternalSecretsIoV1alpha1ExternalSecretSpecTarget, default is Undefined, required
         target
     """
-
-
     data?: [ExternalSecretsIoV1alpha1ExternalSecretSpecDataItems0]
-
     dataFrom?: [ExternalSecretsIoV1alpha1ExternalSecretSpecDataFromItems0]
-
     refreshInterval?: str = "1h"
-
     secretStoreRef: ExternalSecretsIoV1alpha1ExternalSecretSpecSecretStoreRef
 
     target: ExternalSecretsIoV1alpha1ExternalSecretSpecTarget
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecDataFromItems0:
     r"""
@@ -85,16 +74,11 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecDataFromItems0:
     version : str, default is Undefined, optional
         Used to select a specific version of the Provider value, if supported
     """
-
-
     conversionStrategy?: "Default" | "Unicode" = "Default"
-
     key: str
 
     property?: str
-
     version?: str
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecDataItems0:
     r"""
@@ -107,18 +91,14 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecDataItems0:
     secretKey : str, default is Undefined, required
         The key in the Kubernetes Secret to store the value.
     """
-
-
     remoteRef: ExternalSecretsIoV1alpha1ExternalSecretSpecDataItems0RemoteRef
 
     secretKey: str
-
 
     check:
         len(secretKey) <= 253
         len(secretKey) >= 1
         _regex_match(str(secretKey), r"^[-._a-zA-Z0-9]+$")
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecDataItems0RemoteRef:
     r"""
@@ -135,16 +115,11 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecDataItems0RemoteRef:
     version : str, default is Undefined, optional
         Used to select a specific version of the Provider value, if supported
     """
-
-
     conversionStrategy?: "Default" | "Unicode" = "Default"
-
     key: str
 
     property?: str
-
     version?: str
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecSecretStoreRef:
     r"""
@@ -158,18 +133,13 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecSecretStoreRef:
     name : str, default is Undefined, optional
         Name of the SecretStore resource
     """
-
-
     kind?: "SecretStore" | "ClusterSecretStore"
-
     name?: str
-
 
     check:
         len(name) <= 253 if name
         len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecTarget:
     r"""
@@ -189,22 +159,15 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecTarget:
     template : ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplate, default is Undefined, optional
         template
     """
-
-
     creationPolicy?: "Owner" | "Merge" | "None" = "Owner"
-
     immutable?: bool
-
     name?: str
-
     template?: ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplate
-
 
     check:
         len(name) <= 253 if name
         len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplate:
     r"""
@@ -225,18 +188,11 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplate:
     $type : str, default is Undefined, optional
         type
     """
-
-
     data?: {str:str}
-
     engineVersion?: "v1" | "v2" = "v1"
-
     metadata?: ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateMetadata
-
     templateFrom?: [ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0]
-
     $type?: str
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateMetadata:
     r"""
@@ -249,12 +205,8 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateMetadata:
     labels : {str:str}, default is Undefined, optional
         labels
     """
-
-
     annotations?: {str:str}
-
     labels?: {str:str}
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0:
     r"""
@@ -267,12 +219,8 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItem
     secret : ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0Secret, default is Undefined, optional
         secret
     """
-
-
     configMap?: ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMap
-
     secret?: ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0Secret
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMap:
     r"""
@@ -285,18 +233,14 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItem
     name : str, default is Undefined, required
         The name of the ConfigMap/Secret resource
     """
-
-
     items: [ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMapItemsItems0]
 
     name: str
-
 
     check:
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMapItemsItems0:
     r"""
@@ -307,16 +251,12 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItem
     key : str, default is Undefined, required
         A key in the ConfigMap/Secret
     """
-
-
     key: str
-
 
     check:
         len(key) <= 253
         len(key) >= 1
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$")
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0Secret:
     r"""
@@ -329,18 +269,14 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItem
     name : str, default is Undefined, required
         The name of the ConfigMap/Secret resource
     """
-
-
     items: [ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0SecretItemsItems0]
 
     name: str
-
 
     check:
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItems0SecretItemsItems0:
     r"""
@@ -351,16 +287,12 @@ schema ExternalSecretsIoV1alpha1ExternalSecretSpecTargetTemplateTemplateFromItem
     key : str, default is Undefined, required
         A key in the ConfigMap/Secret
     """
-
-
     key: str
-
 
     check:
         len(key) <= 253
         len(key) >= 1
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$")
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretStatus:
     r"""
@@ -378,16 +310,10 @@ schema ExternalSecretsIoV1alpha1ExternalSecretStatus:
     syncedResourceVersion : str, default is Undefined, optional
         SyncedResourceVersion keeps track of the last synced version
     """
-
-
     binding?: ExternalSecretsIoV1alpha1ExternalSecretStatusBinding
-
     conditions?: [ExternalSecretsIoV1alpha1ExternalSecretStatusConditionsItems0]
-
     refreshTime?: str
-
     syncedResourceVersion?: str
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretStatusBinding:
     r"""
@@ -402,10 +328,7 @@ schema ExternalSecretsIoV1alpha1ExternalSecretStatusBinding:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema ExternalSecretsIoV1alpha1ExternalSecretStatusConditionsItems0:
     r"""
@@ -424,16 +347,10 @@ schema ExternalSecretsIoV1alpha1ExternalSecretStatusConditionsItems0:
     $type : str, default is Undefined, required
         type
     """
-
-
     lastTransitionTime?: str
-
     message?: str
-
     reason?: str
-
     status: str
 
     $type: str
-
 

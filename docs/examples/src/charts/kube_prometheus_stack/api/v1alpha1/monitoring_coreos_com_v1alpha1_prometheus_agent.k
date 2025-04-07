@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema PrometheusAgent:
     r"""
@@ -26,18 +26,14 @@ schema PrometheusAgent:
     status : MonitoringCoreosComV1alpha1PrometheusAgentStatus, default is Undefined, optional
         status
     """
-
-
     apiVersion: "monitoring.coreos.com/v1alpha1" = "monitoring.coreos.com/v1alpha1"
 
     kind: "PrometheusAgent" = "PrometheusAgent"
 
     metadata?: v1.ObjectMeta
-
     spec: MonitoringCoreosComV1alpha1PrometheusAgentSpec
 
     status?: MonitoringCoreosComV1alpha1PrometheusAgentStatus
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     r"""
@@ -556,198 +552,103 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     web : MonitoringCoreosComV1alpha1PrometheusAgentSpecWeb, default is Undefined, optional
         web
     """
-
-
     additionalArgs?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAdditionalArgsItems0]
-
     additionalScrapeConfigs?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAdditionalScrapeConfigs
-
     affinity?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinity
-
     apiserverConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfig
-
     arbitraryFSAccessThroughSMs?: MonitoringCoreosComV1alpha1PrometheusAgentSpecArbitraryFSAccessThroughSMs
-
     automountServiceAccountToken?: bool
-
     bodySizeLimit?: str
-
     configMaps?: [str]
-
     containers?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0]
-
     dnsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecDNSConfig
-
     dnsPolicy?: "ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
-
     enableFeatures?: [str]
-
     enableOTLPReceiver?: bool
-
     enableRemoteWriteReceiver?: bool
-
     enforcedBodySizeLimit?: str
-
     enforcedKeepDroppedTargets?: int
-
     enforcedLabelLimit?: int
-
     enforcedLabelNameLengthLimit?: int
-
     enforcedLabelValueLengthLimit?: int
-
     enforcedNamespaceLabel?: str
-
     enforcedSampleLimit?: int
-
     enforcedTargetLimit?: int
-
     excludedFromEnforcement?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecExcludedFromEnforcementItems0]
-
     externalLabels?: {str:str}
-
     externalUrl?: str
-
     hostAliases?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecHostAliasesItems0]
-
     hostNetwork?: bool
-
     ignoreNamespaceSelectors?: bool
-
     image?: str
-
     imagePullPolicy?: "" | "Always" | "Never" | "IfNotPresent"
-
     imagePullSecrets?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecImagePullSecretsItems0]
-
     initContainers?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0]
-
     keepDroppedTargets?: int
-
     labelLimit?: int
-
     labelNameLengthLimit?: int
-
     labelValueLengthLimit?: int
-
     listenLocal?: bool
-
     logFormat?: "" | "logfmt" | "json"
-
     logLevel?: "" | "debug" | "info" | "warn" | "error"
-
     maximumStartupDurationSeconds?: int
-
     minReadySeconds?: int
-
     mode?: "StatefulSet" | "DaemonSet"
-
     nameValidationScheme?: "UTF8" | "Legacy"
-
     nodeSelector?: {str:str}
-
     otlp?: MonitoringCoreosComV1alpha1PrometheusAgentSpecOtlp
-
     overrideHonorLabels?: bool
-
     overrideHonorTimestamps?: bool
-
     paused?: bool
-
     persistentVolumeClaimRetentionPolicy?: MonitoringCoreosComV1alpha1PrometheusAgentSpecPersistentVolumeClaimRetentionPolicy
-
     podMetadata?: MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMetadata
-
     podMonitorNamespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorNamespaceSelector
-
     podMonitorSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorSelector
-
     podTargetLabels?: [str]
-
     portName?: str = "web"
-
     priorityClassName?: str
-
     probeNamespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeNamespaceSelector
-
     probeSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeSelector
-
     prometheusExternalLabelName?: str
-
     reloadStrategy?: "HTTP" | "ProcessSignal"
-
     remoteWrite?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0]
-
     remoteWriteReceiverMessageVersions?: [str]
-
     replicaExternalLabelName?: str
-
     replicas?: int
-
     resources?: MonitoringCoreosComV1alpha1PrometheusAgentSpecResources
-
     routePrefix?: str
-
     runtime?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRuntime
-
     sampleLimit?: int
-
     scrapeClasses?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0]
-
     scrapeConfigNamespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigNamespaceSelector
-
     scrapeConfigSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigSelector
-
     scrapeFailureLogFile?: str
-
     scrapeInterval?: str = "30s"
-
     scrapeProtocols?: [str]
-
     scrapeTimeout?: str
-
     secrets?: [str]
-
     securityContext?: MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContext
-
     serviceAccountName?: str
-
     serviceDiscoveryRole?: "Endpoints" | "EndpointSlice"
-
     serviceMonitorNamespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorNamespaceSelector
-
     serviceMonitorSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorSelector
-
     serviceName?: str
-
     shards?: int
-
     storage?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorage
-
     targetLimit?: int
-
     tolerations?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecTolerationsItems0]
-
     topologySpreadConstraints?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsItems0]
-
     tracingConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfig
-
     tsdb?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTsdb
-
     version?: str
-
     volumeMounts?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumeMountsItems0]
-
     volumes?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0]
-
     walCompression?: bool
-
     web?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWeb
-
 
     check:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
-        all enableFeatures in enableFeatures { len(enableFeatures) >= 1 if enableFeatures not in [None, Undefined] } if enableFeatures
+        all enableFeatures in enableFeatures {len(enableFeatures) >= 1 if enableFeatures not in [None, Undefined]} if enableFeatures
         _regex_match(str(enforcedBodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if enforcedBodySizeLimit
         maximumStartupDurationSeconds >= 60 if maximumStartupDurationSeconds not in [None, Undefined]
         len(remoteWriteReceiverMessageVersions) >= 1 if remoteWriteReceiverMessageVersions
@@ -755,7 +656,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
         len(serviceName) >= 1 if serviceName
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAdditionalArgsItems0:
     r"""
@@ -768,16 +668,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAdditionalArgsItems0:
     value : str, default is Undefined, optional
         Argument value, e.g. 30s. Can be empty for name-only arguments (e.g. --storage.tsdb.no-lockfile)
     """
-
-
     name: str
 
     value?: str
 
-
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAdditionalScrapeConfigs:
     r"""
@@ -806,14 +702,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAdditionalScrapeConfigs:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinity:
     r"""
@@ -828,14 +720,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinity:
     podAntiAffinity : MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinity, default is Undefined, optional
         pod anti affinity
     """
-
-
     nodeAffinity?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinity
-
     podAffinity?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinity
-
     podAntiAffinity?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinity
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinity:
     r"""
@@ -856,12 +743,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution : MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution, default is Undefined, optional
         required during scheduling ignored during execution
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -875,12 +758,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferr
     weight : int, default is Undefined, required
         Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.
     """
-
-
     preference: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference
 
     weight: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference:
     r"""
@@ -893,12 +773,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferr
     matchFields : [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0], default is Undefined, optional
         A list of node selector requirements by node's fields.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0]
-
     matchFields?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0:
     r"""
@@ -919,14 +795,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferr
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0:
     r"""
@@ -947,14 +820,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityPreferr
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution:
     r"""
@@ -969,10 +839,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequire
     nodeSelectorTerms : [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0], default is Undefined, required
         Required. A list of node selector terms. The terms are ORed.
     """
-
-
     nodeSelectorTerms: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0:
     r"""
@@ -987,12 +854,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequire
     matchFields : [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0], default is Undefined, optional
         A list of node selector requirements by node's fields.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0]
-
     matchFields?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0:
     r"""
@@ -1013,14 +876,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequire
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0:
     r"""
@@ -1041,14 +901,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityNodeAffinityRequire
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinity:
     r"""
@@ -1075,12 +932,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinity:
         When there are multiple elements, the lists of nodes corresponding to each
         podAffinityTerm are intersected, i.e. all terms must be satisfied.
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -1094,12 +947,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferre
         weight associated with matching the corresponding podAffinityTerm,
         in the range 1-100.
     """
-
-
     podAffinityTerm: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
 
     weight: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
     r"""
@@ -1143,20 +993,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferre
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
     r"""
@@ -1172,12 +1014,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferre
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
     r"""
@@ -1197,14 +1035,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferre
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
     r"""
@@ -1223,12 +1058,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferre
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1248,14 +1079,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferre
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -1304,20 +1132,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequired
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
     r"""
@@ -1333,12 +1153,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequired
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -1358,14 +1174,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequired
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
     r"""
@@ -1384,12 +1197,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequired
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1409,14 +1218,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequired
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinity:
     r"""
@@ -1443,12 +1249,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinity:
         When there are multiple elements, the lists of nodes corresponding to each
         podAffinityTerm are intersected, i.e. all terms must be satisfied.
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -1462,12 +1264,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPref
         weight associated with matching the corresponding podAffinityTerm,
         in the range 1-100.
     """
-
-
     podAffinityTerm: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
 
     weight: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
     r"""
@@ -1511,20 +1310,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPref
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
     r"""
@@ -1540,12 +1331,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPref
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
     r"""
@@ -1565,14 +1352,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPref
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
     r"""
@@ -1591,12 +1375,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPref
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1616,14 +1396,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPref
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -1672,20 +1449,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequ
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
     r"""
@@ -1701,12 +1470,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequ
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -1726,14 +1491,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequ
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
     r"""
@@ -1752,12 +1514,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequ
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1777,14 +1535,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequ
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfig:
     r"""
@@ -1817,20 +1572,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfig:
     tlsConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuth
-
     bearerToken?: str
-
     bearerTokenFile?: str
-
     host: str
 
     tlsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfig
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigAuthorization:
     r"""
@@ -1852,14 +1600,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigAuthorizatio
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigAuthorizationCredentials
-
     credentialsFile?: str
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigAuthorizationCredentials:
     r"""
@@ -1878,14 +1621,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigAuthorizatio
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuth:
     r"""
@@ -1901,12 +1640,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuth:
     username : MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuthPassword:
     r"""
@@ -1926,14 +1661,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuthPas
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuthUsername:
     r"""
@@ -1953,14 +1684,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuthUse
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfig:
     r"""
@@ -1993,28 +1720,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCa
-
     caFile?: str
-
     cert?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCert
-
     certFile?: str
-
     insecureSkipVerify?: bool
-
     keyFile?: str
-
     keySecret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCa:
     r"""
@@ -2027,12 +1742,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCa:
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCaConfigMap:
     r"""
@@ -2051,14 +1762,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCaC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCaSecret:
     r"""
@@ -2077,14 +1784,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCaS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCert:
     r"""
@@ -2097,12 +1800,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCer
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCertConfigMap:
     r"""
@@ -2121,14 +1820,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCer
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCertSecret:
     r"""
@@ -2147,14 +1842,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigCer
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigKeySecret:
     r"""
@@ -2173,14 +1864,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfigKey
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecArbitraryFSAccessThroughSMs:
     r"""
@@ -2200,10 +1887,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecArbitraryFSAccessThroughSMs
     deny : bool, default is Undefined, optional
         deny
     """
-
-
     deny?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0:
     r"""
@@ -2334,56 +2018,31 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0:
         might be configured in the container image.
         Cannot be updated.
     """
-
-
     args?: [str]
-
     command?: [str]
-
     env?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0]
-
     envFrom?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0]
-
     image?: str
-
     imagePullPolicy?: str
-
     lifecycle?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0Lifecycle
-
     livenessProbe?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbe
-
     name: str
 
     ports?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0PortsItems0]
-
     readinessProbe?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbe
-
     resizePolicy?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ResizePolicyItems0]
-
     resources?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0Resources
-
     restartPolicy?: str
-
     securityContext?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContext
-
     startupProbe?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbe
-
     stdin?: bool
-
     stdinOnce?: bool
-
     terminationMessagePath?: str
-
     terminationMessagePolicy?: str
-
     tty?: bool
-
     volumeDevices?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0VolumeDevicesItems0]
-
     volumeMounts?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0VolumeMountsItems0]
-
     workingDir?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0:
     r"""
@@ -2398,14 +2057,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItem
     secretRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
-
-
     configMapRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0ConfigMapRef
-
     prefix?: str
-
     secretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0SecretRef
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0ConfigMapRef:
     r"""
@@ -2422,12 +2076,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItem
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0SecretRef:
     r"""
@@ -2444,12 +2094,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItem
     optional : bool, default is Undefined, optional
         Specify whether the Secret must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0:
     r"""
@@ -2472,14 +2118,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0:
     valueFrom : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFrom, default is Undefined, optional
         value from
     """
-
-
     name: str
 
     value?: str
-
     valueFrom?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFrom
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFrom:
     r"""
@@ -2496,16 +2138,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0Va
     secretKeyRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromSecretKeyRef, default is Undefined, optional
         secret key ref
     """
-
-
     configMapKeyRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromConfigMapKeyRef
-
     fieldRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromFieldRef
-
     resourceFieldRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromResourceFieldRef
-
     secretKeyRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromSecretKeyRef
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromConfigMapKeyRef:
     r"""
@@ -2524,14 +2160,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0Va
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromFieldRef:
     r"""
@@ -2545,12 +2177,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0Va
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromResourceFieldRef:
     r"""
@@ -2566,18 +2194,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0Va
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0ValueFromSecretKeyRef:
     r"""
@@ -2596,14 +2218,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvItems0Va
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0Lifecycle:
     r"""
@@ -2617,12 +2235,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0Lifecycle:
     preStop : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
     """
-
-
     postStart?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStart
-
     preStop?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStop
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStart:
     r"""
@@ -2642,16 +2256,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePo
     tcpSocket : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartExec
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartHTTPGet
-
     sleep?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartSleep
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartTCPSocket
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartExec:
     r"""
@@ -2666,10 +2274,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePo
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartHTTPGet:
     r"""
@@ -2692,18 +2297,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePo
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
     r"""
@@ -2717,12 +2316,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePo
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartSleep:
     r"""
@@ -2733,10 +2329,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePo
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStartTCPSocket:
     r"""
@@ -2753,12 +2346,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePo
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStop:
     r"""
@@ -2783,16 +2372,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePr
     tcpSocket : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopExec
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopHTTPGet
-
     sleep?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopSleep
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopTCPSocket
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopExec:
     r"""
@@ -2807,10 +2390,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePr
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopHTTPGet:
     r"""
@@ -2833,18 +2413,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePr
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
     r"""
@@ -2858,12 +2432,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePr
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopSleep:
     r"""
@@ -2874,10 +2445,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePr
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStopTCPSocket:
     r"""
@@ -2894,12 +2462,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePr
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbe:
     r"""
@@ -2946,28 +2510,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessPro
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeExec:
     r"""
@@ -2982,10 +2534,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessPro
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeGrpc:
     r"""
@@ -3001,12 +2550,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessPro
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeHTTPGet:
     r"""
@@ -3029,18 +2575,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessPro
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -3054,12 +2594,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessPro
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessProbeTCPSocket:
     r"""
@@ -3074,12 +2611,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LivenessPro
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0PortsItems0:
     r"""
@@ -3105,18 +2638,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0PortsItems0
         Protocol for port. Must be UDP, TCP, or SCTP.
         Defaults to "TCP".
     """
-
-
     containerPort: int
 
     hostIP?: str
-
     hostPort?: int
-
     name?: str
-
     $protocol?: str = "TCP"
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbe:
     r"""
@@ -3163,28 +2690,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessPr
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeExec:
     r"""
@@ -3199,10 +2714,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessPr
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeGrpc:
     r"""
@@ -3218,12 +2730,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessPr
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeHTTPGet:
     r"""
@@ -3246,18 +2755,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessPr
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -3271,12 +2774,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessPr
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessProbeTCPSocket:
     r"""
@@ -3291,12 +2791,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ReadinessPr
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ResizePolicyItems0:
     r"""
@@ -3311,12 +2807,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ResizePolic
         Restart policy to apply when specified resource is resized.
         If not specified, it defaults to NotRequired.
     """
-
-
     resourceName: str
 
     restartPolicy: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0Resources:
     r"""
@@ -3343,19 +2836,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0Resources:
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ResourcesClaimsItems0:
     r"""
@@ -3372,12 +2859,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0ResourcesCl
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContext:
     r"""
@@ -3440,32 +2924,18 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityCon
     windowsOptions : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     allowPrivilegeEscalation?: bool
-
     appArmorProfile?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextAppArmorProfile
-
     capabilities?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextCapabilities
-
     privileged?: bool
-
     procMount?: str
-
     readOnlyRootFilesystem?: bool
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxOptions?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextSeccompProfile
-
     windowsOptions?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextAppArmorProfile:
     r"""
@@ -3487,12 +2957,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityCon
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextCapabilities:
     r"""
@@ -3507,12 +2973,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityCon
     drop : [str], default is Undefined, optional
         Removed capabilities
     """
-
-
     add?: [str]
-
     drop?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextSeLinuxOptions:
     r"""
@@ -3533,16 +2995,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityCon
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextSeccompProfile:
     r"""
@@ -3566,12 +3022,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityCon
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityContextWindowsOptions:
     r"""
@@ -3599,16 +3051,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityCon
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbe:
     r"""
@@ -3658,28 +3104,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProb
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeGrpc
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeExec:
     r"""
@@ -3694,10 +3128,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProb
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeGrpc:
     r"""
@@ -3713,12 +3144,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProb
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeHTTPGet:
     r"""
@@ -3741,18 +3169,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProb
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -3766,12 +3188,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProb
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProbeTCPSocket:
     r"""
@@ -3786,12 +3205,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0StartupProb
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0VolumeDevicesItems0:
     r"""
@@ -3804,12 +3219,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0VolumeDevic
     name : str, default is Undefined, required
         name must match the name of a persistentVolumeClaim in the pod
     """
-
-
     devicePath: str
 
     name: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0VolumeMountsItems0:
     r"""
@@ -3858,22 +3270,15 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0VolumeMount
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecDNSConfig:
     r"""
@@ -3893,19 +3298,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecDNSConfig:
         A list of DNS search domains for host-name lookup.
         This will be appended to the base search paths generated from DNSPolicy.
     """
-
-
     nameservers?: [str]
-
     options?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecDNSConfigOptionsItems0]
-
     searches?: [str]
 
-
     check:
-        all nameservers in nameservers { len(nameservers) >= 1 if nameservers not in [None, Undefined] } if nameservers
-        all searches in searches { len(searches) >= 1 if searches not in [None, Undefined] } if searches
-
+        all nameservers in nameservers {len(nameservers) >= 1 if nameservers not in [None, Undefined]} if nameservers
+        all searches in searches {len(searches) >= 1 if searches not in [None, Undefined]} if searches
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecDNSConfigOptionsItems0:
     r"""
@@ -3918,16 +3317,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecDNSConfigOptionsItems0:
     value : str, default is Undefined, optional
         Value is optional.
     """
-
-
     name: str
 
     value?: str
 
-
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecExcludedFromEnforcementItems0:
     r"""
@@ -3945,20 +3340,14 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecExcludedFromEnforcementItem
     resource : str, default is Undefined, required
         Resource of the referent.
     """
-
-
     group?: "monitoring.coreos.com" = "monitoring.coreos.com"
-
     name?: str
-
     namespace: str
 
     resource: "prometheusrules" | "servicemonitors" | "podmonitors" | "probes" | "scrapeconfigs"
 
-
     check:
         len(namespace) >= 1
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecHostAliasesItems0:
     r"""
@@ -3972,12 +3361,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecHostAliasesItems0:
     ip : str, default is Undefined, required
         IP address of the host file entry.
     """
-
-
     hostnames: [str]
 
     ip: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecImagePullSecretsItems0:
     r"""
@@ -3993,10 +3379,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecImagePullSecretsItems0:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0:
     r"""
@@ -4127,56 +3510,31 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0:
         might be configured in the container image.
         Cannot be updated.
     """
-
-
     args?: [str]
-
     command?: [str]
-
     env?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0]
-
     envFrom?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0]
-
     image?: str
-
     imagePullPolicy?: str
-
     lifecycle?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecycle
-
     livenessProbe?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbe
-
     name: str
 
     ports?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0PortsItems0]
-
     readinessProbe?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbe
-
     resizePolicy?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ResizePolicyItems0]
-
     resources?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Resources
-
     restartPolicy?: str
-
     securityContext?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContext
-
     startupProbe?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbe
-
     stdin?: bool
-
     stdinOnce?: bool
-
     terminationMessagePath?: str
-
     terminationMessagePolicy?: str
-
     tty?: bool
-
     volumeDevices?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0VolumeDevicesItems0]
-
     volumeMounts?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0VolumeMountsItems0]
-
     workingDir?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0:
     r"""
@@ -4191,14 +3549,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFrom
     secretRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
-
-
     configMapRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0ConfigMapRef
-
     prefix?: str
-
     secretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0SecretRef
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0ConfigMapRef:
     r"""
@@ -4215,12 +3568,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFrom
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0SecretRef:
     r"""
@@ -4237,12 +3586,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFrom
     optional : bool, default is Undefined, optional
         Specify whether the Secret must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0:
     r"""
@@ -4265,14 +3610,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItem
     valueFrom : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFrom, default is Undefined, optional
         value from
     """
-
-
     name: str
 
     value?: str
-
     valueFrom?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFrom
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFrom:
     r"""
@@ -4289,16 +3630,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItem
     secretKeyRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef, default is Undefined, optional
         secret key ref
     """
-
-
     configMapKeyRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromConfigMapKeyRef
-
     fieldRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromFieldRef
-
     resourceFieldRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromResourceFieldRef
-
     secretKeyRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromConfigMapKeyRef:
     r"""
@@ -4317,14 +3652,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItem
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromFieldRef:
     r"""
@@ -4338,12 +3669,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItem
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromResourceFieldRef:
     r"""
@@ -4359,18 +3686,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItem
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef:
     r"""
@@ -4389,14 +3710,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvItem
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecycle:
     r"""
@@ -4410,12 +3727,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
     preStop : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
     """
-
-
     postStart?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStart
-
     preStop?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStop
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStart:
     r"""
@@ -4435,16 +3748,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
     tcpSocket : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartExec
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartHTTPGet
-
     sleep?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartSleep
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartTCPSocket
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartExec:
     r"""
@@ -4459,10 +3766,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartHTTPGet:
     r"""
@@ -4485,18 +3789,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
     r"""
@@ -4510,12 +3808,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartSleep:
     r"""
@@ -4526,10 +3821,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStartTCPSocket:
     r"""
@@ -4546,12 +3838,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStop:
     r"""
@@ -4576,16 +3864,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
     tcpSocket : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopExec
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopHTTPGet
-
     sleep?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopSleep
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopTCPSocket
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopExec:
     r"""
@@ -4600,10 +3882,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopHTTPGet:
     r"""
@@ -4626,18 +3905,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
     r"""
@@ -4651,12 +3924,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopSleep:
     r"""
@@ -4667,10 +3937,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStopTCPSocket:
     r"""
@@ -4687,12 +3954,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbe:
     r"""
@@ -4739,28 +4002,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Livenes
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeExec:
     r"""
@@ -4775,10 +4026,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Livenes
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeGrpc:
     r"""
@@ -4794,12 +4042,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Livenes
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeHTTPGet:
     r"""
@@ -4822,18 +4067,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Livenes
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -4847,12 +4086,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Livenes
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LivenessProbeTCPSocket:
     r"""
@@ -4867,12 +4103,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Livenes
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0PortsItems0:
     r"""
@@ -4898,18 +4130,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0PortsIt
         Protocol for port. Must be UDP, TCP, or SCTP.
         Defaults to "TCP".
     """
-
-
     containerPort: int
 
     hostIP?: str
-
     hostPort?: int
-
     name?: str
-
     $protocol?: str = "TCP"
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbe:
     r"""
@@ -4956,28 +4182,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Readine
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeExec:
     r"""
@@ -4992,10 +4206,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Readine
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeGrpc:
     r"""
@@ -5011,12 +4222,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Readine
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeHTTPGet:
     r"""
@@ -5039,18 +4247,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Readine
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -5064,12 +4266,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Readine
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ReadinessProbeTCPSocket:
     r"""
@@ -5084,12 +4283,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Readine
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ResizePolicyItems0:
     r"""
@@ -5104,12 +4299,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ResizeP
         Restart policy to apply when specified resource is resized.
         If not specified, it defaults to NotRequired.
     """
-
-
     resourceName: str
 
     restartPolicy: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Resources:
     r"""
@@ -5136,19 +4328,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Resourc
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0ResourcesClaimsItems0:
     r"""
@@ -5165,12 +4351,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Resourc
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContext:
     r"""
@@ -5233,32 +4416,18 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Securit
     windowsOptions : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     allowPrivilegeEscalation?: bool
-
     appArmorProfile?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextAppArmorProfile
-
     capabilities?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextCapabilities
-
     privileged?: bool
-
     procMount?: str
-
     readOnlyRootFilesystem?: bool
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxOptions?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextSeccompProfile
-
     windowsOptions?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextAppArmorProfile:
     r"""
@@ -5280,12 +4449,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Securit
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextCapabilities:
     r"""
@@ -5300,12 +4465,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Securit
     drop : [str], default is Undefined, optional
         Removed capabilities
     """
-
-
     add?: [str]
-
     drop?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextSeLinuxOptions:
     r"""
@@ -5326,16 +4487,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Securit
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextSeccompProfile:
     r"""
@@ -5359,12 +4514,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Securit
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0SecurityContextWindowsOptions:
     r"""
@@ -5392,16 +4543,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Securit
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbe:
     r"""
@@ -5451,28 +4596,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Startup
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeGrpc
-
     httpGet?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeExec:
     r"""
@@ -5487,10 +4620,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Startup
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeGrpc:
     r"""
@@ -5506,12 +4636,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Startup
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeHTTPGet:
     r"""
@@ -5534,18 +4661,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Startup
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -5559,12 +4680,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Startup
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0StartupProbeTCPSocket:
     r"""
@@ -5579,12 +4697,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Startup
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0VolumeDevicesItems0:
     r"""
@@ -5597,12 +4711,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0VolumeD
     name : str, default is Undefined, required
         name must match the name of a persistentVolumeClaim in the pod
     """
-
-
     devicePath: str
 
     name: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0VolumeMountsItems0:
     r"""
@@ -5651,22 +4762,15 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0VolumeM
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecOtlp:
     r"""
@@ -5687,19 +4791,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecOtlp:
 
         It requires Prometheus >= v3.0.0.
     """
-
-
     keepIdentifyingResourceAttributes?: bool
-
     promoteResourceAttributes?: [str]
-
     translationStrategy?: "NoUTF8EscapingWithSuffixes" | "UnderscoreEscapingWithSuffixes"
-
 
     check:
         len(promoteResourceAttributes) >= 1 if promoteResourceAttributes
-        all promoteResourceAttributes in promoteResourceAttributes { len(promoteResourceAttributes) >= 1 if promoteResourceAttributes not in [None, Undefined] } if promoteResourceAttributes
-
+        all promoteResourceAttributes in promoteResourceAttributes {len(promoteResourceAttributes) >= 1 if promoteResourceAttributes not in [None, Undefined]} if promoteResourceAttributes
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPersistentVolumeClaimRetentionPolicy:
     r"""
@@ -5722,12 +4820,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPersistentVolumeClaimRetent
         `Delete` policy causes the associated PVCs for any excess pods above
         the replica count to be deleted.
     """
-
-
     whenDeleted?: str
-
     whenScaled?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMetadata:
     r"""
@@ -5763,14 +4857,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMetadata:
         Cannot be updated.
         More info: http://kubernetes.io/docs/user-guide/identifiers#names
     """
-
-
     annotations?: {str:str}
-
     labels?: {str:str}
-
     name?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorNamespaceSelector:
     r"""
@@ -5787,12 +4876,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorNamespaceSelector
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -5812,14 +4897,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorNamespaceSelector
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorSelector:
     r"""
@@ -5844,12 +4926,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorSelectorMatchExpressionsItems0:
     r"""
@@ -5869,14 +4947,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMonitorSelectorMatchExpr
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeNamespaceSelector:
     r"""
@@ -5893,12 +4968,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeNamespaceSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -5918,14 +4989,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeNamespaceSelectorMatch
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeSelector:
     r"""
@@ -5950,12 +5018,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeSelectorMatchExpressionsItems0:
     r"""
@@ -5975,14 +5039,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecProbeSelectorMatchExpressio
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0:
     r"""
@@ -6080,62 +5141,36 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0:
     writeRelabelConfigs : [MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0WriteRelabelConfigsItems0], default is Undefined, optional
         The list of remote write relabel configurations.
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Authorization
-
     azureAd?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAd
-
     basicAuth?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuth
-
     bearerToken?: str
-
     bearerTokenFile?: str
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     headers?: {str:str}
-
     messageVersion?: "V1.0" | "V2.0"
-
     metadataConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0MetadataConfig
-
     name?: str
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     queueConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0QueueConfig
-
     remoteTimeout?: str
-
     sendExemplars?: bool
-
     sendNativeHistograms?: bool
-
     sigv4?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4
-
     tlsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfig
-
     url: str
 
     writeRelabelConfigs?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0WriteRelabelConfigsItems0]
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(remoteTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if remoteTimeout
         len(url) >= 1
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Authorization:
     r"""
@@ -6158,14 +5193,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Authorizat
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AuthorizationCredentials
-
     credentialsFile?: str
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AuthorizationCredentials:
     r"""
@@ -6184,14 +5214,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Authorizat
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAd:
     r"""
@@ -6212,16 +5238,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAd:
     sdk : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdSdk, default is Undefined, optional
         sdk
     """
-
-
     cloud?: "AzureChina" | "AzureGovernment" | "AzurePublic"
-
     managedIdentity?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdManagedIdentity
-
     oauth?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdOauth
-
     sdk?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdSdk
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdManagedIdentity:
     r"""
@@ -6233,10 +5253,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdMan
     clientId : str, default is Undefined, required
         The client id
     """
-
-
     clientId: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdOauth:
     r"""
@@ -6254,20 +5271,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdOau
     tenantId : str, default is Undefined, required
         `tenantId` is the tenant ID of the Azure Active Directory application that is being used to authenticate.
     """
-
-
     clientId: str
 
     clientSecret: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdOauthClientSecret
 
     tenantId: str
 
-
     check:
         len(clientId) >= 1
         len(tenantId) >= 1
         _regex_match(str(tenantId), r"^[0-9a-zA-Z-.]+$")
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdOauthClientSecret:
     r"""
@@ -6286,14 +5299,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdOau
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdSdk:
     r"""
@@ -6308,14 +5317,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdSdk
     tenantId : str, default is Undefined, optional
         `tenantId` is the tenant ID of the azure active directory application that is being used to authenticate.
     """
-
-
     tenantId?: str
-
 
     check:
         _regex_match(str(tenantId), r"^[0-9a-zA-Z-.]+$") if tenantId
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuth:
     r"""
@@ -6330,12 +5335,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuth:
     username : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuthPassword:
     r"""
@@ -6355,14 +5356,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuthP
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuthUsername:
     r"""
@@ -6382,14 +5379,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0BasicAuthU
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0MetadataConfig:
     r"""
@@ -6402,16 +5395,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0MetadataCo
     sendInterval : str, default is Undefined, optional
         Defines how frequently metric metadata is sent to the remote storage.
     """
-
-
     send?: bool
-
     sendInterval?: str
-
 
     check:
         _regex_match(str(sendInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if sendInterval
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2:
     r"""
@@ -6454,33 +5442,22 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientID:
     r"""
@@ -6494,12 +5471,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2Clie
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientIDConfigMap:
     r"""
@@ -6518,14 +5491,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientIDSecret:
     r"""
@@ -6544,14 +5513,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientSecret:
     r"""
@@ -6571,14 +5536,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -6597,14 +5558,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2Prox
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfig:
     r"""
@@ -6632,22 +5589,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCa:
     r"""
@@ -6660,12 +5608,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -6684,14 +5628,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -6710,14 +5650,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCert:
     r"""
@@ -6730,12 +5666,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -6754,14 +5686,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -6780,14 +5708,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -6806,14 +5730,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0ProxyConnectHeaderItems0:
     r"""
@@ -6832,14 +5752,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0ProxyConne
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0QueueConfig:
     r"""
@@ -6873,35 +5789,22 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0QueueConfi
         SampleAgeLimit drops samples older than the limit.
         It requires Prometheus >= v2.50.0.
     """
-
-
     batchSendDeadline?: str
-
     capacity?: int
-
     maxBackoff?: str
-
     maxRetries?: int
-
     maxSamplesPerSend?: int
-
     maxShards?: int
-
     minBackoff?: str
-
     minShards?: int
-
     retryOnRateLimit?: bool
-
     sampleAgeLimit?: str
-
 
     check:
         _regex_match(str(batchSendDeadline), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if batchSendDeadline
         _regex_match(str(maxBackoff), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if maxBackoff
         _regex_match(str(minBackoff), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if minBackoff
         _regex_match(str(sampleAgeLimit), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if sampleAgeLimit
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4:
     r"""
@@ -6924,18 +5827,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4:
     secretKey : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4SecretKey, default is Undefined, optional
         secret key
     """
-
-
     accessKey?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4AccessKey
-
     profile?: str
-
     region?: str
-
     roleArn?: str
-
     secretKey?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4SecretKey
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4AccessKey:
     r"""
@@ -6955,14 +5851,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4Acces
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4SecretKey:
     r"""
@@ -6982,14 +5874,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4Secre
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfig:
     r"""
@@ -7022,28 +5910,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCa
-
     caFile?: str
-
     cert?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCert
-
     certFile?: str
-
     insecureSkipVerify?: bool
-
     keyFile?: str
-
     keySecret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCa:
     r"""
@@ -7056,12 +5932,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigC
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCaConfigMap:
     r"""
@@ -7080,14 +5952,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCaSecret:
     r"""
@@ -7106,14 +5974,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCert:
     r"""
@@ -7126,12 +5990,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigC
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCertConfigMap:
     r"""
@@ -7150,14 +6010,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigCertSecret:
     r"""
@@ -7176,14 +6032,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigKeySecret:
     r"""
@@ -7202,14 +6054,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfigK
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0WriteRelabelConfigsItems0:
     r"""
@@ -7252,26 +6100,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0WriteRelab
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecResources:
     r"""
@@ -7296,19 +6134,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecResources:
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecResourcesClaimsItems0:
     r"""
@@ -7325,12 +6157,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecResourcesClaimsItems0:
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRuntime:
     r"""
@@ -7342,14 +6171,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRuntime:
         The Go garbage collection target percentage. Lowering this number may increase the CPU usage.
         See: https://tip.golang.org/doc/gc-guide#GOGC
     """
-
-
     goGC?: int
-
 
     check:
         goGC >= -1 if goGC not in [None, Undefined]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0:
     r"""
@@ -7393,28 +6218,18 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0:
     tlsConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     attachMetadata?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0AttachMetadata
-
     authorization?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0Authorization
-
     default?: bool
-
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
-
     metricRelabelings?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0MetricRelabelingsItems0]
-
     name: str
 
     relabelings?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0RelabelingsItems0]
-
     tlsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfig
-
 
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0AttachMetadata:
     r"""
@@ -7431,10 +6246,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0AttachMe
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
     """
-
-
     node?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0Authorization:
     r"""
@@ -7454,14 +6266,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0Authoriz
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0AuthorizationCredentials
-
     credentialsFile?: str
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0AuthorizationCredentials:
     r"""
@@ -7480,14 +6287,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0Authoriz
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0MetricRelabelingsItems0:
     r"""
@@ -7530,26 +6333,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0MetricRe
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0RelabelingsItems0:
     r"""
@@ -7592,26 +6385,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0Relabeli
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfig:
     r"""
@@ -7648,28 +6431,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCa
-
     caFile?: str
-
     cert?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCert
-
     certFile?: str
-
     insecureSkipVerify?: bool
-
     keyFile?: str
-
     keySecret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCa:
     r"""
@@ -7682,12 +6453,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCaConfigMap:
     r"""
@@ -7706,14 +6473,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCaSecret:
     r"""
@@ -7732,14 +6495,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCert:
     r"""
@@ -7752,12 +6511,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCertConfigMap:
     r"""
@@ -7776,14 +6531,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigCertSecret:
     r"""
@@ -7802,14 +6553,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfigKeySecret:
     r"""
@@ -7828,14 +6575,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigNamespaceSelector:
     r"""
@@ -7854,12 +6597,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigNamespaceSelect
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -7879,14 +6618,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigNamespaceSelect
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigSelector:
     r"""
@@ -7913,12 +6649,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigSelectorMatchExpressionsItems0:
     r"""
@@ -7938,14 +6670,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigSelectorMatchEx
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContext:
     r"""
@@ -8047,34 +6776,19 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContext:
     windowsOptions : MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     appArmorProfile?: MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextAppArmorProfile
-
     fsGroup?: int
-
     fsGroupChangePolicy?: str
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxChangePolicy?: str
-
     seLinuxOptions?: MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSeccompProfile
-
     supplementalGroups?: [int]
-
     supplementalGroupsPolicy?: str
-
     sysctls?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSysctlsItems0]
-
     windowsOptions?: MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextAppArmorProfile:
     r"""
@@ -8095,12 +6809,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextAppArmorProf
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSeLinuxOptions:
     r"""
@@ -8122,16 +6832,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSeLinuxOptio
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSeccompProfile:
     r"""
@@ -8153,12 +6857,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSeccompProfi
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSysctlsItems0:
     r"""
@@ -8171,12 +6871,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextSysctlsItems
     value : str, default is Undefined, required
         Value of a property to set
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextWindowsOptions:
     r"""
@@ -8204,16 +6901,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecSecurityContextWindowsOptio
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorNamespaceSelector:
     r"""
@@ -8230,12 +6921,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorNamespaceSele
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -8255,14 +6942,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorNamespaceSele
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorSelector:
     r"""
@@ -8287,12 +6971,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorSelectorMatchExpressionsItems0:
     r"""
@@ -8312,14 +6992,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorSelectorMatch
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorage:
     r"""
@@ -8336,16 +7013,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorage:
     volumeClaimTemplate : MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     disableMountSubPath?: bool
-
     emptyDir?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEmptyDir
-
     ephemeral?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeral
-
     volumeClaimTemplate?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEmptyDir:
     r"""
@@ -8368,16 +7039,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEmptyDir:
         The default is nil which means that the limit is undefined.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
-
-
     medium?: str
-
     sizeLimit?: int | str
-
 
     check:
         _regex_match(str(sizeLimit), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if sizeLimit
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeral:
     r"""
@@ -8391,10 +7057,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeral:
     volumeClaimTemplate : MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     volumeClaimTemplate?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplate:
     r"""
@@ -8429,12 +7092,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaim
     spec : MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpec, default is Undefined, required
         spec
     """
-
-
     metadata?: any
-
     spec: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpec
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpec:
     r"""
@@ -8478,26 +7137,15 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaim
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecDataSource:
     r"""
@@ -8521,14 +7169,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaim
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -8571,16 +7215,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaim
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecResources:
     r"""
@@ -8601,17 +7241,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaim
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecSelector:
     r"""
@@ -8626,12 +7261,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaim
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -8651,14 +7282,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageEphemeralVolumeClaim
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplate:
     r"""
@@ -8686,18 +7314,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplate:
     status : MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateStatus, default is Undefined, optional
         status
     """
-
-
     apiVersion?: str
-
     kind?: str
-
     metadata?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateMetadata
-
     spec?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpec
-
     status?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateStatus
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateMetadata:
     r"""
@@ -8723,14 +7344,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateM
         Cannot be updated.
         More info: http://kubernetes.io/docs/user-guide/identifiers#names
     """
-
-
     annotations?: {str:str}
-
     labels?: {str:str}
-
     name?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpec:
     r"""
@@ -8772,26 +7388,15 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecDataSource:
     r"""
@@ -8815,14 +7420,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -8865,16 +7466,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecResources:
     r"""
@@ -8895,17 +7492,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecSelector:
     r"""
@@ -8920,12 +7512,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -8945,14 +7533,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateStatus:
     r"""
@@ -9036,29 +7621,18 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
     phase : str, default is Undefined, optional
         phase represents the current phase of PersistentVolumeClaim.
     """
-
-
     accessModes?: [str]
-
     allocatedResourceStatuses?: {str:str}
-
     allocatedResources?: {str:int | str}
-
     capacity?: {str:int | str}
-
     conditions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateStatusConditionsItems0]
-
     currentVolumeAttributesClassName?: str
-
     modifyVolumeStatus?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus
-
     phase?: str
 
-
     check:
-        all _, allocatedResources in allocatedResources { _regex_match(str(allocatedResources), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if allocatedResources } if allocatedResources
-        all _, capacity in capacity { _regex_match(str(capacity), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if capacity } if capacity
-
+        all _, allocatedResources in allocatedResources {_regex_match(str(allocatedResources), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if allocatedResources} if allocatedResources
+        all _, capacity in capacity {_regex_match(str(capacity), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if capacity} if capacity
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateStatusConditionsItems0:
     r"""
@@ -9084,20 +7658,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
         Type is the type of the condition.
         More info: https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#:~:text=set%20to%20%27ResizeStarted%27.-,PersistentVolumeClaimCondition,-contains%20details%20about
     """
-
-
     lastProbeTime?: str
-
     lastTransitionTime?: str
-
     message?: str
-
     reason?: str
-
     status: str
 
     $type: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus:
     r"""
@@ -9121,12 +7688,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateS
     targetVolumeAttributesClassName : str, default is Undefined, optional
         targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being reconciled
     """
-
-
     status: str
 
     targetVolumeAttributesClassName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTolerationsItems0:
     r"""
@@ -9155,18 +7719,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTolerationsItems0:
         Value is the taint value the toleration matches to.
         If the operator is Exists, the value should be empty, otherwise just a regular string.
     """
-
-
     effect?: str
-
     key?: str
-
     operator?: str
-
     tolerationSeconds?: int
-
     value?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsItems0:
     r"""
@@ -9275,26 +7832,17 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsIt
         won't make it *more* imbalanced.
         It's a required field.
     """
-
-
     additionalLabelSelectors?: "OnResource" | "OnShard"
-
     labelSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     maxSkew: int
 
     minDomains?: int
-
     nodeAffinityPolicy?: str
-
     nodeTaintsPolicy?: str
-
     topologyKey: str
 
     whenUnsatisfiable: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsItems0LabelSelector:
     r"""
@@ -9311,12 +7859,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsIt
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -9336,14 +7880,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsIt
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfig:
     r"""
@@ -9371,30 +7912,20 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfig:
     tlsConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     clientType?: "http" | "grpc"
-
     compression?: "gzip"
-
     endpoint: str
 
     headers?: {str:str}
-
     insecure?: bool
-
     samplingFraction?: int | str
-
     timeout?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfig
-
 
     check:
         len(endpoint) >= 1
         _regex_match(str(samplingFraction), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if samplingFraction
         _regex_match(str(timeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if timeout
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfig:
     r"""
@@ -9427,28 +7958,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCa
-
     caFile?: str
-
     cert?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCert
-
     certFile?: str
-
     insecureSkipVerify?: bool
-
     keyFile?: str
-
     keySecret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCa:
     r"""
@@ -9461,12 +7980,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCa:
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCaConfigMap:
     r"""
@@ -9485,14 +8000,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCaCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCaSecret:
     r"""
@@ -9511,14 +8022,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCaSec
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCert:
     r"""
@@ -9531,12 +8038,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCert:
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCertConfigMap:
     r"""
@@ -9555,14 +8058,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCertC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCertSecret:
     r"""
@@ -9581,14 +8080,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigCertS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigKeySecret:
     r"""
@@ -9607,14 +8102,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfigKeySe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTsdb:
     r"""
@@ -9635,14 +8126,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTsdb:
 
         It requires Prometheus >= v2.39.0 or PrometheusAgent >= v2.54.0.
     """
-
-
     outOfOrderTimeWindow?: str
-
 
     check:
         _regex_match(str(outOfOrderTimeWindow), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if outOfOrderTimeWindow
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumeMountsItems0:
     r"""
@@ -9691,22 +8178,15 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0:
     r"""
@@ -9779,70 +8259,38 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0:
     vsphereVolume : MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0VsphereVolume, default is Undefined, optional
         vsphere volume
     """
-
-
     awsElasticBlockStore?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AwsElasticBlockStore
-
     azureDisk?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AzureDisk
-
     azureFile?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AzureFile
-
     cephfs?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Cephfs
-
     cinder?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Cinder
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ConfigMap
-
     csi?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Csi
-
     downwardAPI?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPI
-
     emptyDir?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EmptyDir
-
     ephemeral?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Ephemeral
-
     fc?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Fc
-
     flexVolume?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0FlexVolume
-
     flocker?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Flocker
-
     gcePersistentDisk?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0GcePersistentDisk
-
     gitRepo?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0GitRepo
-
     glusterfs?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Glusterfs
-
     hostPath?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0HostPath
-
     image?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Image
-
     iscsi?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Iscsi
-
     name: str
 
     nfs?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Nfs
-
     persistentVolumeClaim?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PersistentVolumeClaim
-
     photonPersistentDisk?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PhotonPersistentDisk
-
     portworxVolume?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PortworxVolume
-
     projected?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Projected
-
     quobyte?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Quobyte
-
     rbd?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Rbd
-
     scaleIO?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ScaleIO
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Secret
-
     storageos?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Storageos
-
     vsphereVolume?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0VsphereVolume
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AwsElasticBlockStore:
     r"""
@@ -9871,16 +8319,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AwsElasticBloc
         volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume).
         More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
     """
-
-
     fsType?: str
-
     partition?: int
-
     readOnly?: bool
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AzureDisk:
     r"""
@@ -9906,20 +8348,14 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AzureDisk:
         readOnly Defaults to false (read/write). ReadOnly here will force
         the ReadOnly setting in VolumeMounts.
     """
-
-
     cachingMode?: str
-
     diskName: str
 
     diskURI: str
 
     fsType?: str = "ext4"
-
     kind?: str
-
     readOnly?: bool = False
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AzureFile:
     r"""
@@ -9937,14 +8373,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0AzureFile:
     shareName : str, default is Undefined, required
         shareName is the azure share Name
     """
-
-
     readOnly?: bool
-
     secretName: str
 
     shareName: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Cephfs:
     r"""
@@ -9971,20 +8403,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Cephfs:
         user is optional: User is the rados user name, default is admin
         More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
     """
-
-
     monitors: [str]
 
     path?: str
-
     readOnly?: bool
-
     secretFile?: str
-
     secretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CephfsSecretRef
-
     user?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CephfsSecretRef:
     r"""
@@ -10000,10 +8425,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CephfsSecretRe
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Cinder:
     r"""
@@ -10029,16 +8451,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Cinder:
         volumeID used to identify the volume in cinder.
         More info: https://examples.k8s.io/mysql-cinder-pd/README.md
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CinderSecretRef
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CinderSecretRef:
     r"""
@@ -10054,10 +8470,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CinderSecretRe
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ConfigMap:
     r"""
@@ -10090,16 +8503,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ConfigMap:
     optional : bool, default is Undefined, optional
         optional specify whether the ConfigMap or its keys must be defined
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ConfigMapItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ConfigMapItemsItems0:
     r"""
@@ -10122,14 +8529,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ConfigMapItems
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Csi:
     r"""
@@ -10153,18 +8556,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Csi:
         volumeAttributes stores driver-specific properties that are passed to the CSI
         driver. Consult your driver's documentation for supported values.
     """
-
-
     driver: str
 
     fsType?: str
-
     nodePublishSecretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CsiNodePublishSecretRef
-
     readOnly?: bool
-
     volumeAttributes?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CsiNodePublishSecretRef:
     r"""
@@ -10183,10 +8580,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0CsiNodePublish
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPI:
     r"""
@@ -10206,12 +8600,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPI:
     items : [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIItemsItems0], default is Undefined, optional
         Items is a list of downward API volume file
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIItemsItems0]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIItemsItems0:
     r"""
@@ -10233,16 +8623,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIIte
     resourceFieldRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
     """
-
-
     fieldRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIItemsItems0FieldRef
-
     mode?: int
-
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -10255,12 +8640,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIIte
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef:
     r"""
@@ -10276,18 +8657,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0DownwardAPIIte
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EmptyDir:
     r"""
@@ -10309,16 +8684,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EmptyDir:
         The default is nil which means that the limit is undefined.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
-
-
     medium?: str
-
     sizeLimit?: int | str
-
 
     check:
         _regex_match(str(sizeLimit), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if sizeLimit
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Ephemeral:
     r"""
@@ -10352,10 +8722,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Ephemeral:
     volumeClaimTemplate : MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     volumeClaimTemplate?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplate:
     r"""
@@ -10390,12 +8757,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolum
     spec : MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpec, default is Undefined, required
         spec
     """
-
-
     metadata?: any
-
     spec: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpec
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpec:
     r"""
@@ -10439,26 +8802,15 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolum
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSource:
     r"""
@@ -10482,14 +8834,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolum
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -10532,16 +8880,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolum
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecResources:
     r"""
@@ -10562,17 +8906,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolum
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelector:
     r"""
@@ -10587,12 +8926,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolum
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -10612,14 +8947,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0EphemeralVolum
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Fc:
     r"""
@@ -10642,18 +8974,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Fc:
         wwids Optional: FC volume world wide identifiers (wwids)
         Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
     """
-
-
     fsType?: str
-
     lun?: int
-
     readOnly?: bool
-
     targetWWNs?: [str]
-
     wwids?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0FlexVolume:
     r"""
@@ -10677,18 +9002,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0FlexVolume:
     secretRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0FlexVolumeSecretRef, default is Undefined, optional
         secret ref
     """
-
-
     driver: str
 
     fsType?: str
-
     options?: {str:str}
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0FlexVolumeSecretRef
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0FlexVolumeSecretRef:
     r"""
@@ -10707,10 +9026,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0FlexVolumeSecr
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Flocker:
     r"""
@@ -10725,12 +9041,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Flocker:
     datasetUUID : str, default is Undefined, optional
         datasetUUID is the UUID of the dataset. This is unique identifier of a Flocker dataset
     """
-
-
     datasetName?: str
-
     datasetUUID?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0GcePersistentDisk:
     r"""
@@ -10761,16 +9073,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0GcePersistentD
         Defaults to false.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
     """
-
-
     fsType?: str
-
     partition?: int
-
     pdName: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0GitRepo:
     r"""
@@ -10791,14 +9098,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0GitRepo:
     revision : str, default is Undefined, optional
         revision is the commit hash for the specified revision.
     """
-
-
     directory?: str
-
     repository: str
 
     revision?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Glusterfs:
     r"""
@@ -10819,14 +9122,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Glusterfs:
         Defaults to false.
         More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
     """
-
-
     endpoints: str
 
     path: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0HostPath:
     r"""
@@ -10847,12 +9147,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0HostPath:
         Defaults to ""
         More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
     """
-
-
     path: str
 
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Image:
     r"""
@@ -10887,12 +9184,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Image:
         This field is optional to allow higher level config management to default or override
         container images in workload controllers like Deployments and StatefulSets.
     """
-
-
     pullPolicy?: str
-
     reference?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Iscsi:
     r"""
@@ -10934,30 +9227,19 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Iscsi:
         targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port
         is other than default (typically TCP ports 860 and 3260).
     """
-
-
     chapAuthDiscovery?: bool
-
     chapAuthSession?: bool
-
     fsType?: str
-
     initiatorName?: str
-
     iqn: str
 
     iscsiInterface?: str = "default"
-
     lun: int
 
     portals?: [str]
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0IscsiSecretRef
-
     targetPortal: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0IscsiSecretRef:
     r"""
@@ -10972,10 +9254,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0IscsiSecretRef
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Nfs:
     r"""
@@ -10995,14 +9274,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Nfs:
         server is the hostname or IP address of the NFS server.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
     """
-
-
     path: str
 
     readOnly?: bool
-
     server: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PersistentVolumeClaim:
     r"""
@@ -11019,12 +9294,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PersistentVolu
         readOnly Will force the ReadOnly setting in VolumeMounts.
         Default false.
     """
-
-
     claimName: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PhotonPersistentDisk:
     r"""
@@ -11040,12 +9312,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PhotonPersiste
     pdID : str, default is Undefined, required
         pdID is the ID that identifies Photon Controller persistent disk
     """
-
-
     fsType?: str
-
     pdID: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PortworxVolume:
     r"""
@@ -11066,14 +9334,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PortworxVolume
     volumeID : str, default is Undefined, required
         volumeID uniquely identifies a Portworx volume
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Projected:
     r"""
@@ -11092,12 +9355,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Projected:
         sources is the list of volume projections. Each entry in this list
         handles one source.
     """
-
-
     defaultMode?: int
-
     sources?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0:
     r"""
@@ -11117,18 +9376,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
     serviceAccountToken : MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken, default is Undefined, optional
         service account token
     """
-
-
     clusterTrustBundle?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundle
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ConfigMap
-
     downwardAPI?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPI
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0Secret
-
     serviceAccountToken?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundle:
     r"""
@@ -11166,18 +9418,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
         Mutually-exclusive with name.  The contents of all selected
         ClusterTrustBundles will be unified and deduplicated.
     """
-
-
     labelSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector
-
     name?: str
-
     optional?: bool
-
     path: str
 
     signerName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector:
     r"""
@@ -11195,12 +9441,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelectorMatchExpressionsItems0:
     r"""
@@ -11220,14 +9462,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ConfigMap:
     r"""
@@ -11252,14 +9491,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
     optional : bool, default is Undefined, optional
         optional specify whether the ConfigMap or its keys must be defined
     """
-
-
     items?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ConfigMapItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ConfigMapItemsItems0:
     r"""
@@ -11282,14 +9516,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPI:
     r"""
@@ -11300,10 +9530,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
     items : [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0], default is Undefined, optional
         Items is a list of DownwardAPIVolume file
     """
-
-
     items?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0:
     r"""
@@ -11325,16 +9552,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
     resourceFieldRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
     """
-
-
     fieldRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef
-
     mode?: int
-
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -11347,12 +9569,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef:
     r"""
@@ -11368,18 +9586,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0Secret:
     r"""
@@ -11404,14 +9616,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
     optional : bool, default is Undefined, optional
         optional field specify whether the Secret or its key must be defined
     """
-
-
     items?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0SecretItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0SecretItemsItems0:
     r"""
@@ -11434,14 +9641,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken:
     r"""
@@ -11465,14 +9668,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ProjectedSourc
         path is the path relative to the mount point of the file to project the
         token into.
     """
-
-
     audience?: str
-
     expirationSeconds?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Quobyte:
     r"""
@@ -11500,20 +9698,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Quobyte:
     volume : str, default is Undefined, required
         volume is a string that references an already created Quobyte volume by name.
     """
-
-
     group?: str
-
     readOnly?: bool
-
     registry: str
 
     tenant?: str
-
     user?: str
-
     volume: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Rbd:
     r"""
@@ -11553,24 +9744,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Rbd:
         Default is admin.
         More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
     """
-
-
     fsType?: str
-
     image: str
 
     keyring?: str = "/etc/ceph/keyring"
-
     monitors: [str]
 
     pool?: str = "rbd"
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0RbdSecretRef
-
     user?: str = "admin"
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0RbdSecretRef:
     r"""
@@ -11588,10 +9771,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0RbdSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ScaleIO:
     r"""
@@ -11627,28 +9807,19 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ScaleIO:
         volumeName is the name of a volume already created in the ScaleIO system
         that is associated with this volume source.
     """
-
-
     fsType?: str = "xfs"
-
     gateway: str
 
     protectionDomain?: str
-
     readOnly?: bool
-
     secretRef: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ScaleIOSecretRef
 
     sslEnabled?: bool
-
     storageMode?: str = "ThinProvisioned"
-
     storagePool?: str
-
     system: str
 
     volumeName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ScaleIOSecretRef:
     r"""
@@ -11664,10 +9835,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0ScaleIOSecretR
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Secret:
     r"""
@@ -11698,16 +9866,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Secret:
         secretName is the name of the secret in the pod's namespace to use.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0SecretItemsItems0]
-
     optional?: bool
-
     secretName?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0SecretItemsItems0:
     r"""
@@ -11730,14 +9892,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0SecretItemsIte
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Storageos:
     r"""
@@ -11766,18 +9924,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Storageos:
         Set to "default" if you are not using namespaces within StorageOS.
         Namespaces that do not pre-exist within StorageOS will be created.
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0StorageosSecretRef
-
     volumeName?: str
-
     volumeNamespace?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0StorageosSecretRef:
     r"""
@@ -11793,10 +9944,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0StorageosSecre
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0VsphereVolume:
     r"""
@@ -11817,16 +9965,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0VsphereVolume:
     volumePath : str, default is Undefined, required
         volumePath is the path that identifies vSphere volume vmdk
     """
-
-
     fsType?: str
-
     storagePolicyID?: str
-
     storagePolicyName?: str
-
     volumePath: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWeb:
     r"""
@@ -11844,20 +9986,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWeb:
     tlsConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     httpConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebHTTPConfig
-
     maxConnections?: int
-
     pageTitle?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfig
-
 
     check:
         maxConnections >= 0 if maxConnections not in [None, Undefined]
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebHTTPConfig:
     r"""
@@ -11872,12 +10007,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebHTTPConfig:
         When TLSConfig is not configured, HTTP/2 will be disabled.
         Whenever the value of the field changes, a rolling update will be triggered.
     """
-
-
     headers?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebHTTPConfigHeaders
-
     http2?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebHTTPConfigHeaders:
     r"""
@@ -11908,18 +10039,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebHTTPConfigHeaders:
         Unset if blank.
         https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
     """
-
-
     contentSecurityPolicy?: str
-
     strictTransportSecurity?: str
-
     xContentTypeOptions?: "" | "NoSniff"
-
     xFrameOptions?: "" | "Deny" | "SameOrigin"
-
     xXSSProtection?: str
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfig:
     r"""
@@ -11978,32 +10102,18 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfig:
         If true then the server's preference, as expressed in
         the order of elements in cipherSuites, is used.
     """
-
-
     cert?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCert
-
     certFile?: str
-
     cipherSuites?: [str]
-
     clientAuthType?: str
-
     clientCAFile?: str
-
     client_ca?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCa
-
     curvePreferences?: [str]
-
     keyFile?: str
-
     keySecret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigKeySecret
-
     maxVersion?: str
-
     minVersion?: str
-
     preferServerCipherSuites?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCert:
     r"""
@@ -12020,12 +10130,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCert:
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCertConfigMap:
     r"""
@@ -12044,14 +10150,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCertConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCertSecret:
     r"""
@@ -12070,14 +10172,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigCertSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCa:
     r"""
@@ -12093,12 +10191,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCa:
     secret : MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCaSecret
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCaConfigMap:
     r"""
@@ -12117,14 +10211,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCaConfigM
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCaSecret:
     r"""
@@ -12143,14 +10233,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigClientCaSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigKeySecret:
     r"""
@@ -12173,14 +10259,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecWebTLSConfigKeySecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentStatus:
     r"""
@@ -12213,26 +10295,19 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentStatus:
         Total number of non-terminated pods targeted by this Prometheus deployment
         that have the desired version spec.
     """
-
-
     availableReplicas: int
 
     conditions?: [MonitoringCoreosComV1alpha1PrometheusAgentStatusConditionsItems0]
-
     paused: bool
 
     replicas: int
 
     selector?: str
-
     shardStatuses?: [MonitoringCoreosComV1alpha1PrometheusAgentStatusShardStatusesItems0]
-
     shards?: int
-
     unavailableReplicas: int
 
     updatedReplicas: int
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentStatusConditionsItems0:
     r"""
@@ -12258,25 +10333,18 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentStatusConditionsItems0:
     $type : str, default is Undefined, required
         Type of the condition being reported.
     """
-
-
     lastTransitionTime: str
 
     message?: str
-
     observedGeneration?: int
-
     reason?: str
-
     status: str
 
     $type: str
 
-
     check:
         len(status) >= 1
         len($type) >= 1
-
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentStatusShardStatusesItems0:
     r"""
@@ -12297,8 +10365,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentStatusShardStatusesItems0:
         Total number of non-terminated pods targeted by this shard
         that have the desired spec.
     """
-
-
     availableReplicas: int
 
     replicas: int
@@ -12308,5 +10374,4 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentStatusShardStatusesItems0:
     unavailableReplicas: int
 
     updatedReplicas: int
-
 

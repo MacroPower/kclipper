@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema PodMonitor:
     r"""
@@ -29,16 +29,12 @@ schema PodMonitor:
     spec : MonitoringCoreosComV1PodMonitorSpec, default is Undefined, required
         spec
     """
-
-
     apiVersion: "monitoring.coreos.com/v1" = "monitoring.coreos.com/v1"
 
     kind: "PodMonitor" = "PodMonitor"
 
     metadata?: v1.ObjectMeta
-
     spec: MonitoringCoreosComV1PodMonitorSpec
-
 
 schema MonitoringCoreosComV1PodMonitorSpec:
     r"""
@@ -128,54 +124,32 @@ schema MonitoringCoreosComV1PodMonitorSpec:
         `targetLimit` defines a limit on the number of scraped targets that will
         be accepted.
     """
-
-
     attachMetadata?: MonitoringCoreosComV1PodMonitorSpecAttachMetadata
-
     bodySizeLimit?: str
-
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
-
     jobLabel?: str
-
     keepDroppedTargets?: int
-
     labelLimit?: int
-
     labelNameLengthLimit?: int
-
     labelValueLengthLimit?: int
-
     namespaceSelector?: MonitoringCoreosComV1PodMonitorSpecNamespaceSelector
-
     nativeHistogramBucketLimit?: int
-
     nativeHistogramMinBucketFactor?: int | str
-
     podMetricsEndpoints?: [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0]
-
     podTargetLabels?: [str]
-
     sampleLimit?: int
-
     scrapeClass?: str
-
     scrapeClassicHistograms?: bool
-
     scrapeProtocols?: [str]
-
     selector: MonitoringCoreosComV1PodMonitorSpecSelector
 
     selectorMechanism?: "RelabelConfig" | "RoleSelector"
-
     targetLimit?: int
-
 
     check:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
         len(scrapeClass) >= 1 if scrapeClass
-
 
 schema MonitoringCoreosComV1PodMonitorSpecAttachMetadata:
     r"""
@@ -193,10 +167,7 @@ schema MonitoringCoreosComV1PodMonitorSpecAttachMetadata:
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
     """
-
-
     node?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecNamespaceSelector:
     r"""
@@ -211,12 +182,8 @@ schema MonitoringCoreosComV1PodMonitorSpecNamespaceSelector:
     matchNames : [str], default is Undefined, optional
         List of namespace names to select from.
     """
-
-
     any?: bool
-
     matchNames?: [str]
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
     r"""
@@ -309,59 +276,34 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
 
         It requires Prometheus >= v2.48.0.
     """
-
-
     authorization?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BearerTokenSecret
-
     enableHttp2?: bool
-
     filterRunning?: bool
-
     followRedirects?: bool
-
     honorLabels?: bool
-
     honorTimestamps?: bool
-
     interval?: str
-
     metricRelabelings?: [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabelingsItems0]
-
     oauth2?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2
-
     params?: {str:[str]}
-
     path?: str
-
     port?: str
-
     portNumber?: int
-
     proxyUrl?: str
-
     relabelings?: [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsItems0]
-
     scheme?: "http" | "https"
-
     scrapeTimeout?: str
-
     targetPort?: int | str
-
     tlsConfig?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig
-
     trackTimestampsStaleness?: bool
-
 
     check:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
         portNumber <= 65535 if portNumber not in [None, Undefined]
         portNumber >= 1 if portNumber not in [None, Undefined]
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Authorization:
     r"""
@@ -381,12 +323,8 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Authorization
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0AuthorizationCredentials:
     r"""
@@ -405,14 +343,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Authorization
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuth:
     r"""
@@ -428,12 +362,8 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuth:
     username : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthPassword:
     r"""
@@ -453,14 +383,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthPass
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthUsername:
     r"""
@@ -480,14 +406,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthUser
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BearerTokenSecret:
     r"""
@@ -510,14 +432,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BearerTokenSe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabelingsItems0:
     r"""
@@ -560,26 +478,16 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabel
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
     r"""
@@ -622,33 +530,22 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientID:
     r"""
@@ -662,12 +559,8 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientI
     secret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -686,14 +579,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientI
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientIDSecret:
     r"""
@@ -712,14 +601,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientI
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientSecret:
     r"""
@@ -739,14 +624,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -765,14 +646,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ProxyCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfig:
     r"""
@@ -800,22 +677,13 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCa:
     r"""
@@ -828,12 +696,8 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     secret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -852,14 +716,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -878,14 +738,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCert:
     r"""
@@ -898,12 +754,8 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     secret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -922,14 +774,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -948,14 +796,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -974,14 +818,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsItems0:
     r"""
@@ -1024,26 +864,16 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsIt
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig:
     r"""
@@ -1070,22 +900,13 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCa:
     r"""
@@ -1098,12 +919,8 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCa:
     secret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaConfigMap:
     r"""
@@ -1122,14 +939,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaSecret:
     r"""
@@ -1148,14 +961,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaSe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert:
     r"""
@@ -1168,12 +977,8 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert
     secret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCertConfigMap:
     r"""
@@ -1192,14 +997,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCertSecret:
     r"""
@@ -1218,14 +1019,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigKeySecret:
     r"""
@@ -1244,14 +1041,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigKeyS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1PodMonitorSpecSelector:
     r"""
@@ -1266,12 +1059,8 @@ schema MonitoringCoreosComV1PodMonitorSpecSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1PodMonitorSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1PodMonitorSpecSelectorMatchExpressionsItems0:
     r"""
@@ -1291,12 +1080,9 @@ schema MonitoringCoreosComV1PodMonitorSpecSelectorMatchExpressionsItems0:
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 

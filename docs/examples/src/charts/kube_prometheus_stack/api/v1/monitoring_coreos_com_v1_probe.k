@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema Probe:
     r"""
@@ -28,16 +28,12 @@ schema Probe:
     spec : MonitoringCoreosComV1ProbeSpec, default is Undefined, required
         spec
     """
-
-
     apiVersion: "monitoring.coreos.com/v1" = "monitoring.coreos.com/v1"
 
     kind: "Probe" = "Probe"
 
     metadata?: v1.ObjectMeta
-
     spec: MonitoringCoreosComV1ProbeSpec
-
 
 schema MonitoringCoreosComV1ProbeSpec:
     r"""
@@ -117,63 +113,36 @@ schema MonitoringCoreosComV1ProbeSpec:
     tlsConfig : MonitoringCoreosComV1ProbeSpecTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1ProbeSpecAuthorization
-
     basicAuth?: MonitoringCoreosComV1ProbeSpecBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1ProbeSpecBearerTokenSecret
-
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
-
     interval?: str
-
     jobName?: str
-
     keepDroppedTargets?: int
-
     labelLimit?: int
-
     labelNameLengthLimit?: int
-
     labelValueLengthLimit?: int
-
     metricRelabelings?: [MonitoringCoreosComV1ProbeSpecMetricRelabelingsItems0]
-
     module?: str
-
     nativeHistogramBucketLimit?: int
-
     nativeHistogramMinBucketFactor?: int | str
-
     oauth2?: MonitoringCoreosComV1ProbeSpecOauth2
-
     prober?: MonitoringCoreosComV1ProbeSpecProber
-
     sampleLimit?: int
-
     scrapeClass?: str
-
     scrapeClassicHistograms?: bool
-
     scrapeProtocols?: [str]
-
     scrapeTimeout?: str
-
     targetLimit?: int
-
     targets?: MonitoringCoreosComV1ProbeSpecTargets
-
     tlsConfig?: MonitoringCoreosComV1ProbeSpecTLSConfig
-
 
     check:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
         len(scrapeClass) >= 1 if scrapeClass
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
-
 
 schema MonitoringCoreosComV1ProbeSpecAuthorization:
     r"""
@@ -190,12 +159,8 @@ schema MonitoringCoreosComV1ProbeSpecAuthorization:
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1ProbeSpecAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1ProbeSpecAuthorizationCredentials:
     r"""
@@ -214,14 +179,10 @@ schema MonitoringCoreosComV1ProbeSpecAuthorizationCredentials:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecBasicAuth:
     r"""
@@ -235,12 +196,8 @@ schema MonitoringCoreosComV1ProbeSpecBasicAuth:
     username : MonitoringCoreosComV1ProbeSpecBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1ProbeSpecBasicAuthPassword
-
     username?: MonitoringCoreosComV1ProbeSpecBasicAuthUsername
-
 
 schema MonitoringCoreosComV1ProbeSpecBasicAuthPassword:
     r"""
@@ -260,14 +217,10 @@ schema MonitoringCoreosComV1ProbeSpecBasicAuthPassword:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecBasicAuthUsername:
     r"""
@@ -287,14 +240,10 @@ schema MonitoringCoreosComV1ProbeSpecBasicAuthUsername:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecBearerTokenSecret:
     r"""
@@ -315,14 +264,10 @@ schema MonitoringCoreosComV1ProbeSpecBearerTokenSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecMetricRelabelingsItems0:
     r"""
@@ -365,26 +310,16 @@ schema MonitoringCoreosComV1ProbeSpecMetricRelabelingsItems0:
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1ProbeSpecOauth2:
     r"""
@@ -423,33 +358,22 @@ schema MonitoringCoreosComV1ProbeSpecOauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1ProbeSpecOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1ProbeSpecOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1ProbeSpecOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientID:
     r"""
@@ -463,12 +387,8 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ClientID:
     secret : MonitoringCoreosComV1ProbeSpecOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ProbeSpecOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1ProbeSpecOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDConfigMap:
     r"""
@@ -487,14 +407,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDSecret:
     r"""
@@ -513,14 +429,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientSecret:
     r"""
@@ -540,14 +452,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ClientSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ProxyConnectHeaderItems0:
     r"""
@@ -566,14 +474,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ProxyConnectHeaderItems0:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfig:
     r"""
@@ -601,22 +505,13 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCa:
     r"""
@@ -629,12 +524,8 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCa:
     secret : MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaConfigMap:
     r"""
@@ -653,14 +544,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaSecret:
     r"""
@@ -679,14 +566,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCert:
     r"""
@@ -699,12 +582,8 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCert:
     secret : MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertConfigMap:
     r"""
@@ -723,14 +602,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertSecret:
     r"""
@@ -749,14 +624,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigKeySecret:
     r"""
@@ -775,14 +646,10 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigKeySecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecProber:
     r"""
@@ -803,16 +670,10 @@ schema MonitoringCoreosComV1ProbeSpecProber:
     url : str, default is Undefined, required
         Mandatory URL of the prober.
     """
-
-
     path?: str = "/probe"
-
     proxyUrl?: str
-
     scheme?: "http" | "https"
-
     url: str
-
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfig:
     r"""
@@ -839,22 +700,13 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1ProbeSpecTLSConfigCa
-
     cert?: MonitoringCoreosComV1ProbeSpecTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1ProbeSpecTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCa:
     r"""
@@ -867,12 +719,8 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCa:
     secret : MonitoringCoreosComV1ProbeSpecTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ProbeSpecTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1ProbeSpecTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCaConfigMap:
     r"""
@@ -891,14 +739,10 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCaConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCaSecret:
     r"""
@@ -917,14 +761,10 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCaSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCert:
     r"""
@@ -937,12 +777,8 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCert:
     secret : MonitoringCoreosComV1ProbeSpecTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ProbeSpecTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1ProbeSpecTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCertConfigMap:
     r"""
@@ -961,14 +797,10 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCertConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCertSecret:
     r"""
@@ -987,14 +819,10 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCertSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigKeySecret:
     r"""
@@ -1013,14 +841,10 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigKeySecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ProbeSpecTargets:
     r"""
@@ -1033,12 +857,8 @@ schema MonitoringCoreosComV1ProbeSpecTargets:
     staticConfig : MonitoringCoreosComV1ProbeSpecTargetsStaticConfig, default is Undefined, optional
         static config
     """
-
-
     ingress?: MonitoringCoreosComV1ProbeSpecTargetsIngress
-
     staticConfig?: MonitoringCoreosComV1ProbeSpecTargetsStaticConfig
-
 
 schema MonitoringCoreosComV1ProbeSpecTargetsIngress:
     r"""
@@ -1061,14 +881,9 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngress:
     selector : MonitoringCoreosComV1ProbeSpecTargetsIngressSelector, default is Undefined, optional
         selector
     """
-
-
     namespaceSelector?: MonitoringCoreosComV1ProbeSpecTargetsIngressNamespaceSelector
-
     relabelingConfigs?: [MonitoringCoreosComV1ProbeSpecTargetsIngressRelabelingConfigsItems0]
-
     selector?: MonitoringCoreosComV1ProbeSpecTargetsIngressSelector
-
 
 schema MonitoringCoreosComV1ProbeSpecTargetsIngressNamespaceSelector:
     r"""
@@ -1082,12 +897,8 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngressNamespaceSelector:
     matchNames : [str], default is Undefined, optional
         List of namespace names to select from.
     """
-
-
     any?: bool
-
     matchNames?: [str]
-
 
 schema MonitoringCoreosComV1ProbeSpecTargetsIngressRelabelingConfigsItems0:
     r"""
@@ -1130,26 +941,16 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngressRelabelingConfigsItems0:
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1ProbeSpecTargetsIngressSelector:
     r"""
@@ -1164,12 +965,8 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngressSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ProbeSpecTargetsIngressSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ProbeSpecTargetsIngressSelectorMatchExpressionsItems0:
     r"""
@@ -1189,14 +986,11 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngressSelectorMatchExpressionsItems
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfig:
     r"""
@@ -1216,14 +1010,9 @@ schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfig:
     static : [str], default is Undefined, optional
         The list of hosts to probe.
     """
-
-
     labels?: {str:str}
-
     relabelingConfigs?: [MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0]
-
     static?: [str]
-
 
 schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0:
     r"""
@@ -1266,24 +1055,14 @@ schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0:
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 

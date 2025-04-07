@@ -50,6 +50,7 @@
           "type": "array"
         },
         "issuerRef": {
+          "additionalProperties": true,
           "description": "the issuer used to issue the certificate",
           "properties": {
             "kind": {
@@ -219,6 +220,7 @@
       "additionalProperties": true,
       "properties": {
         "annotations": {
+          "additionalProperties": true,
           "required": [],
           "title": "annotations",
           "type": "object"
@@ -262,6 +264,7 @@
       "additionalProperties": true,
       "properties": {
         "profile": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": false,
@@ -334,6 +337,7 @@
       "additionalProperties": true,
       "properties": {
         "limits": {
+          "additionalProperties": true,
           "default": "",
           "properties": {
             "memory": {
@@ -347,6 +351,7 @@
           "type": "null"
         },
         "requests": {
+          "additionalProperties": true,
           "properties": {
             "cpu": {
               "default": "1m",
@@ -382,6 +387,7 @@
       "description": "Kubernetes Service settings",
       "properties": {
         "annotations": {
+          "additionalProperties": true,
           "required": [],
           "title": "annotations",
           "type": "object"
@@ -473,6 +479,7 @@
       "description": "create Prometheus Operator monitor",
       "properties": {
         "additionalLabels": {
+          "additionalProperties": true,
           "required": [],
           "title": "additionalLabels",
           "type": "object"

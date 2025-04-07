@@ -50,6 +50,7 @@
           "type": "array"
         },
         "issuerRef": {
+          "additionalProperties": true,
           "description": "the issuer used to issue the certificate",
           "properties": {
             "kind": {
@@ -260,11 +261,13 @@
       "additionalProperties": true,
       "properties": {
         "additionalLabels": {
+          "additionalProperties": true,
           "required": [],
           "title": "additionalLabels",
           "type": "object"
         },
         "annotations": {
+          "additionalProperties": true,
           "required": [],
           "title": "annotations",
           "type": "object"
@@ -284,6 +287,7 @@
         "hosts": {
           "description": "kubernetes.io/ingress.class: nginx\nkubernetes.io/tls-acme: \"true\"",
           "items": {
+            "additionalProperties": true,
             "properties": {
               "host": {
                 "default": "podinfo.local",
@@ -293,6 +297,7 @@
               },
               "paths": {
                 "items": {
+                  "additionalProperties": true,
                   "properties": {
                     "path": {
                       "default": "/",
@@ -339,6 +344,7 @@
       "additionalProperties": true,
       "properties": {
         "profile": {
+          "additionalProperties": true,
           "properties": {
             "enabled": {
               "default": false,
@@ -386,6 +392,7 @@
       "description": "https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
       "properties": {
         "liveness": {
+          "additionalProperties": true,
           "properties": {
             "failureThreshold": {
               "default": 3,
@@ -423,6 +430,7 @@
           "type": "object"
         },
         "readiness": {
+          "additionalProperties": true,
           "properties": {
             "failureThreshold": {
               "default": 3,
@@ -460,6 +468,7 @@
           "type": "object"
         },
         "startup": {
+          "additionalProperties": true,
           "properties": {
             "enable": {
               "default": false,
@@ -544,6 +553,7 @@
       "additionalProperties": true,
       "properties": {
         "limits": {
+          "additionalProperties": true,
           "default": "",
           "properties": {
             "memory": {
@@ -557,6 +567,7 @@
           "type": "null"
         },
         "requests": {
+          "additionalProperties": true,
           "properties": {
             "cpu": {
               "default": "1m",
@@ -592,6 +603,7 @@
       "description": "Kubernetes Service settings",
       "properties": {
         "annotations": {
+          "additionalProperties": true,
           "required": [],
           "title": "annotations",
           "type": "object"
@@ -692,6 +704,7 @@
       "description": "create Prometheus Operator monitor",
       "properties": {
         "additionalLabels": {
+          "additionalProperties": true,
           "required": [],
           "title": "additionalLabels",
           "type": "object"

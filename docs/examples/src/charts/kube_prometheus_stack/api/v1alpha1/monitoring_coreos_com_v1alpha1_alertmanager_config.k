@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema AlertmanagerConfig:
     r"""
@@ -23,16 +23,12 @@ schema AlertmanagerConfig:
     spec : MonitoringCoreosComV1alpha1AlertmanagerConfigSpec, default is Undefined, required
         spec
     """
-
-
     apiVersion: "monitoring.coreos.com/v1alpha1" = "monitoring.coreos.com/v1alpha1"
 
     kind: "AlertmanagerConfig" = "AlertmanagerConfig"
 
     metadata?: v1.ObjectMeta
-
     spec: MonitoringCoreosComV1alpha1AlertmanagerConfigSpec
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpec:
     r"""
@@ -55,16 +51,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpec:
     route : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRoute, default is Undefined, optional
         route
     """
-
-
     inhibitRules?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0]
-
     muteTimeIntervals?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0]
-
     receivers?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0]
-
     route?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRoute
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0:
     r"""
@@ -85,14 +75,9 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0:
         Matchers that have to be fulfilled in the alerts to be muted. The
         operator enforces that the alert matches the resource's namespace.
     """
-
-
     equal?: [str]
-
     sourceMatch?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0SourceMatchItems0]
-
     targetMatch?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0TargetMatchItems0]
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0SourceMatchItems0:
     r"""
@@ -111,20 +96,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0Source
     value : str, default is Undefined, optional
         Label value to match.
     """
-
-
     matchType?: "!=" | "=" | "=~" | "!~"
-
     name: str
 
     regex?: bool
-
     value?: str
-
 
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0TargetMatchItems0:
     r"""
@@ -143,20 +122,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0Target
     value : str, default is Undefined, optional
         Label value to match.
     """
-
-
     matchType?: "!=" | "=" | "=~" | "!~"
-
     name: str
 
     regex?: bool
-
     value?: str
-
 
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0:
     r"""
@@ -169,12 +142,9 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0:
     timeIntervals : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0], default is Undefined, optional
         TimeIntervals is a list of TimeInterval
     """
-
-
     name: str
 
     timeIntervals?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0]
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0:
     r"""
@@ -193,24 +163,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0T
     years : [str], default is Undefined, optional
         Years is a list of YearRange
     """
-
-
     daysOfMonth?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0DaysOfMonthItems0]
-
     months?: [str]
-
     times?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0TimesItems0]
-
     weekdays?: [str]
-
     years?: [str]
 
-
     check:
-        all months in months { _regex_match(str(months), r"^((?i)january|february|march|april|may|june|july|august|september|october|november|december|1[0-2]|[1-9])(?:((:((?i)january|february|march|april|may|june|july|august|september|october|november|december|1[0-2]|[1-9]))$)|$)") if months } if months
-        all weekdays in weekdays { _regex_match(str(weekdays), r"^((?i)sun|mon|tues|wednes|thurs|fri|satur)day(?:((:(sun|mon|tues|wednes|thurs|fri|satur)day)$)|$)") if weekdays } if weekdays
-        all years in years { _regex_match(str(years), r"^2\d{3}(?::2\d{3}|$)") if years } if years
-
+        all months in months {_regex_match(str(months), r"^((?i)january|february|march|april|may|june|july|august|september|october|november|december|1[0-2]|[1-9])(?:((:((?i)january|february|march|april|may|june|july|august|september|october|november|december|1[0-2]|[1-9]))$)|$)") if months} if months
+        all weekdays in weekdays {_regex_match(str(weekdays), r"^((?i)sun|mon|tues|wednes|thurs|fri|satur)day(?:((:(sun|mon|tues|wednes|thurs|fri|satur)day)$)|$)") if weekdays} if weekdays
+        all years in years {_regex_match(str(years), r"^2\d{3}(?::2\d{3}|$)") if years} if years
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0DaysOfMonthItems0:
     r"""
@@ -223,19 +185,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0T
     start : int, default is Undefined, optional
         Start of the inclusive range
     """
-
-
     end?: int
-
     start?: int
-
 
     check:
         end <= 31 if end not in [None, Undefined]
         end >= -31 if end not in [None, Undefined]
         start <= 31 if start not in [None, Undefined]
         start >= -31 if start not in [None, Undefined]
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0TimesItems0:
     r"""
@@ -248,17 +205,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0T
     startTime : str, default is Undefined, optional
         StartTime is the start time in 24hr format.
     """
-
-
     endTime?: str
-
     startTime?: str
-
 
     check:
         _regex_match(str(endTime), r"^((([01][0-9])|(2[0-3])):[0-5][0-9])$|(^24:00$)") if endTime
         _regex_match(str(startTime), r"^((([01][0-9])|(2[0-3])):[0-5][0-9])$|(^24:00$)") if startTime
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0:
     r"""
@@ -296,40 +248,24 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0:
     wechatConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0], default is Undefined, optional
         List of WeChat configurations.
     """
-
-
     discordConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0]
-
     emailConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0]
-
     msteamsConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0]
-
     name: str
 
     opsgenieConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0]
-
     pagerdutyConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0]
-
     pushoverConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0]
-
     slackConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0]
-
     snsConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0]
-
     telegramConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0]
-
     victoropsConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0]
-
     webexConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0]
-
     webhookConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0]
-
     wechatConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0]
-
 
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0:
     r"""
@@ -349,18 +285,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     title : str, default is Undefined, optional
         The template of the message's title.
     """
-
-
     apiURL: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL
 
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfig
-
     message?: str
-
     sendResolved?: bool
-
     title?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL:
     r"""
@@ -381,14 +311,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfig:
     r"""
@@ -430,34 +356,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -475,12 +387,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -499,14 +407,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -520,12 +424,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -545,14 +445,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -572,14 +468,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -601,14 +493,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2:
     r"""
@@ -647,33 +535,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -687,12 +564,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -711,14 +584,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -737,14 +606,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -764,14 +629,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -790,14 +651,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -825,22 +682,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -853,12 +701,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -877,14 +721,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -903,14 +743,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -923,12 +759,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -947,14 +779,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -973,14 +801,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -999,14 +823,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -1025,14 +845,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -1059,22 +875,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -1087,12 +894,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -1111,14 +914,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -1137,14 +936,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -1157,12 +952,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -1181,14 +972,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -1207,14 +994,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -1233,14 +1016,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0:
     r"""
@@ -1279,36 +1058,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     to : str, default is Undefined, optional
         The email address to send notifications to.
     """
-
-
     authIdentity?: str
-
     authPassword?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthPassword
-
     authSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthSecret
-
     authUsername?: str
-
     from?: str
-
     headers?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0HeadersItems0]
-
     hello?: str
-
     html?: str
-
     requireTLS?: bool
-
     sendResolved?: bool
-
     smarthost?: str
-
     text?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfig
-
     to?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthPassword:
     r"""
@@ -1329,14 +1092,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthSecret:
     r"""
@@ -1357,14 +1116,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0HeadersItems0:
     r"""
@@ -1377,16 +1132,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     value : str, default is Undefined, required
         Value of the tuple.
     """
-
-
     key: str
 
     value: str
 
-
     check:
         len(key) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfig:
     r"""
@@ -1413,22 +1164,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCa:
     r"""
@@ -1441,12 +1183,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -1465,14 +1203,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCaSecret:
     r"""
@@ -1491,14 +1225,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCert:
     r"""
@@ -1511,12 +1241,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -1535,14 +1261,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCertSecret:
     r"""
@@ -1561,14 +1283,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigKeySecret:
     r"""
@@ -1587,14 +1305,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0:
     r"""
@@ -1617,20 +1331,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     webhookUrl : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0WebhookURL, default is Undefined, required
         webhook Url
     """
-
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfig
-
     sendResolved?: bool
-
     summary?: str
-
     text?: str
-
     title?: str
-
     webhookUrl: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0WebhookURL
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfig:
     r"""
@@ -1672,34 +1378,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -1717,12 +1409,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -1741,14 +1429,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -1762,12 +1446,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -1787,14 +1467,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -1814,14 +1490,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -1843,14 +1515,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2:
     r"""
@@ -1889,33 +1557,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -1929,12 +1586,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -1953,14 +1606,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -1979,14 +1628,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -2006,14 +1651,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -2032,14 +1673,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -2067,22 +1704,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -2095,12 +1723,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -2119,14 +1743,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -2145,14 +1765,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -2165,12 +1781,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -2189,14 +1801,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -2215,14 +1823,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -2241,14 +1845,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -2267,14 +1867,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -2301,22 +1897,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -2329,12 +1916,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -2353,14 +1936,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -2379,14 +1958,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -2399,12 +1974,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -2423,14 +1994,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -2449,14 +2016,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -2475,14 +2038,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0WebhookURL:
     r"""
@@ -2501,14 +2060,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0:
     r"""
@@ -2549,38 +2104,21 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
         Whether to update message and description of the alert in OpsGenie if it already exists
         By default, the alert is never updated in OpsGenie, the new message only appears in activity log.
     """
-
-
     actions?: str
-
     apiKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0APIKey
-
     apiURL?: str
-
     description?: str
-
     details?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0DetailsItems0]
-
     entity?: str
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfig
-
     message?: str
-
     note?: str
-
     priority?: str
-
     responders?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0RespondersItems0]
-
     sendResolved?: bool
-
     source?: str
-
     tags?: str
-
     updateAlerts?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0APIKey:
     r"""
@@ -2601,14 +2139,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0DetailsItems0:
     r"""
@@ -2621,16 +2155,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     value : str, default is Undefined, required
         Value of the tuple.
     """
-
-
     key: str
 
     value: str
 
-
     check:
         len(key) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfig:
     r"""
@@ -2672,34 +2202,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -2717,12 +2233,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -2741,14 +2253,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -2762,12 +2270,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -2787,14 +2291,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -2814,14 +2314,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -2843,14 +2339,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2:
     r"""
@@ -2889,33 +2381,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -2929,12 +2410,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -2953,14 +2430,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -2979,14 +2452,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -3006,14 +2475,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -3032,14 +2497,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -3067,22 +2528,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -3095,12 +2547,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -3119,14 +2567,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -3145,14 +2589,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -3165,12 +2605,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -3189,14 +2625,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -3215,14 +2647,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -3241,14 +2669,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -3267,14 +2691,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -3301,22 +2721,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -3329,12 +2740,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -3353,14 +2760,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -3379,14 +2782,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -3399,12 +2798,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -3423,14 +2818,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -3449,14 +2840,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -3475,14 +2862,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0RespondersItems0:
     r"""
@@ -3500,20 +2883,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     username : str, default is Undefined, optional
         Username of the responder.
     """
-
-
     id?: str
-
     name?: str
-
     $type: str
 
     username?: str
 
-
     check:
         len($type) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0:
     r"""
@@ -3555,40 +2932,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     url : str, default is Undefined, optional
         The URL to send requests to.
     """
-
-
     class?: str
-
     client?: str
-
     clientURL?: str
-
     component?: str
-
     description?: str
-
     details?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0DetailsItems0]
-
     group?: str
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfig
-
     pagerDutyImageConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0PagerDutyImageConfigsItems0]
-
     pagerDutyLinkConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0PagerDutyLinkConfigsItems0]
-
     routingKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0RoutingKey
-
     sendResolved?: bool
-
     serviceKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0ServiceKey
-
     severity?: str
-
     source?: str
-
     url?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0DetailsItems0:
     r"""
@@ -3601,16 +2960,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     value : str, default is Undefined, required
         Value of the tuple.
     """
-
-
     key: str
 
     value: str
 
-
     check:
         len(key) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfig:
     r"""
@@ -3652,34 +3007,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -3697,12 +3038,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -3721,14 +3058,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -3742,12 +3075,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -3767,14 +3096,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -3794,14 +3119,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -3823,14 +3144,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2:
     r"""
@@ -3869,33 +3186,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -3909,12 +3215,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -3933,14 +3235,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -3959,14 +3257,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -3986,14 +3280,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -4012,14 +3302,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -4047,22 +3333,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -4075,12 +3352,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -4099,14 +3372,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -4125,14 +3394,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -4145,12 +3410,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -4169,14 +3430,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -4195,14 +3452,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -4221,14 +3474,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -4247,14 +3496,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -4281,22 +3526,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -4309,12 +3545,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -4333,14 +3565,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -4359,14 +3587,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -4379,12 +3603,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -4403,14 +3623,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -4429,14 +3645,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -4455,14 +3667,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0PagerDutyImageConfigsItems0:
     r"""
@@ -4477,14 +3685,9 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     src : str, default is Undefined, optional
         Src of the image being attached to the incident
     """
-
-
     alt?: str
-
     href?: str
-
     src?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0PagerDutyLinkConfigsItems0:
     r"""
@@ -4497,12 +3700,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     href : str, default is Undefined, optional
         Href is the URL of the link to be attached
     """
-
-
     alt?: str
-
     href?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0RoutingKey:
     r"""
@@ -4524,14 +3723,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0ServiceKey:
     r"""
@@ -4554,14 +3749,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0:
     r"""
@@ -4611,48 +3802,28 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
         Either `userKey` or `userKeyFile` is required.
         It requires Alertmanager >= v0.26.0.
     """
-
-
     device?: str
-
     expire?: str
-
     html?: bool
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfig
-
     message?: str
-
     priority?: str
-
     retry?: str
-
     sendResolved?: bool
-
     sound?: str
-
     title?: str
-
     token?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0Token
-
     tokenFile?: str
-
     ttl?: str
-
     url?: str
-
     urlTitle?: str
-
     userKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0UserKey
-
     userKeyFile?: str
-
 
     check:
         _regex_match(str(expire), r"^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$") if expire
         _regex_match(str(retry), r"^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$") if retry
         _regex_match(str(ttl), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if ttl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfig:
     r"""
@@ -4694,34 +3865,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -4739,12 +3896,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -4763,14 +3916,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -4784,12 +3933,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -4809,14 +3954,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -4836,14 +3977,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -4865,14 +4002,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2:
     r"""
@@ -4911,33 +4044,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -4951,12 +4073,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -4975,14 +4093,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -5001,14 +4115,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -5028,14 +4138,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -5054,14 +4160,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -5089,22 +4191,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -5117,12 +4210,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -5141,14 +4230,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -5167,14 +4252,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -5187,12 +4268,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -5211,14 +4288,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -5237,14 +4310,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -5263,14 +4332,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -5289,14 +4354,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -5323,22 +4384,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -5351,12 +4403,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -5375,14 +4423,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -5401,14 +4445,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -5421,12 +4461,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -5445,14 +4481,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -5471,14 +4503,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -5497,14 +4525,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0Token:
     r"""
@@ -5526,14 +4550,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0UserKey:
     r"""
@@ -5555,14 +4575,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0:
     r"""
@@ -5616,52 +4632,28 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     username : str, default is Undefined, optional
         username
     """
-
-
     actions?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0]
-
     apiURL?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0APIURL
-
     callbackId?: str
-
     channel?: str
-
     color?: str
-
     fallback?: str
-
     fields?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0FieldsItems0]
-
     footer?: str
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfig
-
     iconEmoji?: str
-
     iconURL?: str
-
     imageURL?: str
-
     linkNames?: bool
-
     mrkdwnIn?: [str]
-
     pretext?: str
-
     sendResolved?: bool
-
     shortFields?: bool
-
     text?: str
-
     thumbURL?: str
-
     title?: str
-
     titleLink?: str
-
     username?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0APIURL:
     r"""
@@ -5682,14 +4674,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0:
     r"""
@@ -5715,27 +4703,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     value : str, default is Undefined, optional
         value
     """
-
-
     confirm?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0Confirm
-
     name?: str
-
     style?: str
-
     text: str
 
     $type: str
 
     url?: str
-
     value?: str
-
 
     check:
         len(text) >= 1
         len($type) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0Confirm:
     r"""
@@ -5756,20 +4736,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     title : str, default is Undefined, optional
         title
     """
-
-
     dismissText?: str
-
     okText?: str
-
     text: str
 
     title?: str
 
-
     check:
         len(text) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0FieldsItems0:
     r"""
@@ -5787,19 +4761,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     value : str, default is Undefined, required
         value
     """
-
-
     short?: bool
-
     title: str
 
     value: str
 
-
     check:
         len(title) >= 1
         len(value) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfig:
     r"""
@@ -5841,34 +4810,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -5886,12 +4841,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -5910,14 +4861,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -5931,12 +4878,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -5956,14 +4899,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -5983,14 +4922,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -6012,14 +4947,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2:
     r"""
@@ -6058,33 +4989,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -6098,12 +5018,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -6122,14 +5038,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -6148,14 +5060,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -6175,14 +5083,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -6201,14 +5105,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -6236,22 +5136,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -6264,12 +5155,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -6288,14 +5175,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -6314,14 +5197,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -6334,12 +5213,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -6358,14 +5233,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -6384,14 +5255,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -6410,14 +5277,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -6436,14 +5299,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -6470,22 +5329,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -6498,12 +5348,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -6522,14 +5368,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -6548,14 +5390,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -6568,12 +5406,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -6592,14 +5426,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -6618,14 +5448,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -6644,14 +5470,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0:
     r"""
@@ -6685,28 +5507,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
         SNS topic ARN, i.e. arn:aws:sns:us-east-2:698519295917:My-Topic
         If you don't specify this value, you must specify a value for the PhoneNumber or TargetARN.
     """
-
-
     apiURL?: str
-
     attributes?: {str:str}
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfig
-
     message?: str
-
     phoneNumber?: str
-
     sendResolved?: bool
-
     sigv4?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4
-
     subject?: str
-
     targetARN?: str
-
     topicARN?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfig:
     r"""
@@ -6748,34 +5558,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -6793,12 +5589,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -6817,14 +5609,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -6838,12 +5626,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -6863,14 +5647,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -6890,14 +5670,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -6919,14 +5695,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2:
     r"""
@@ -6965,33 +5737,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -7005,12 +5766,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -7029,14 +5786,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -7055,14 +5808,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -7082,14 +5831,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -7108,14 +5853,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -7143,22 +5884,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -7171,12 +5903,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -7195,14 +5923,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -7221,14 +5945,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -7241,12 +5961,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -7265,14 +5981,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -7291,14 +6003,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -7317,14 +6025,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -7343,14 +6047,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -7377,22 +6077,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -7405,12 +6096,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -7429,14 +6116,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -7455,14 +6138,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -7475,12 +6154,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -7499,14 +6174,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -7525,14 +6196,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -7551,14 +6218,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4:
     r"""
@@ -7577,18 +6240,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     secretKey : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4SecretKey, default is Undefined, optional
         secret key
     """
-
-
     accessKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4AccessKey
-
     profile?: str
-
     region?: str
-
     roleArn?: str
-
     secretKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4SecretKey
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4AccessKey:
     r"""
@@ -7608,14 +6264,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4SecretKey:
     r"""
@@ -7635,14 +6287,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0:
     r"""
@@ -7677,28 +6325,17 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     sendResolved : bool, default is Undefined, optional
         Whether to notify about resolved alerts.
     """
-
-
     apiURL?: str
-
     botToken?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0BotToken
-
     botTokenFile?: str
-
     chatID: int
 
     disableNotifications?: bool
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfig
-
     message?: str
-
     messageThreadID?: int
-
     parseMode?: "MarkdownV2" | "Markdown" | "HTML"
-
     sendResolved?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0BotToken:
     r"""
@@ -7721,14 +6358,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfig:
     r"""
@@ -7770,34 +6403,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -7815,12 +6434,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -7839,14 +6454,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -7860,12 +6471,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -7885,14 +6492,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -7912,14 +6515,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -7941,14 +6540,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2:
     r"""
@@ -7987,33 +6582,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -8027,12 +6611,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -8051,14 +6631,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -8077,14 +6653,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -8104,14 +6676,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -8130,14 +6698,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -8165,22 +6729,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -8193,12 +6748,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -8217,14 +6768,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -8243,14 +6790,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -8263,12 +6806,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -8287,14 +6826,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -8313,14 +6848,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -8339,14 +6870,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -8365,14 +6892,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -8399,22 +6922,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -8427,12 +6941,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -8451,14 +6961,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -8477,14 +6983,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -8497,12 +6999,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -8521,14 +7019,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -8547,14 +7041,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -8573,14 +7063,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0:
     r"""
@@ -8610,28 +7096,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     stateMessage : str, default is Undefined, optional
         Contains long explanation of the alerted problem.
     """
-
-
     apiKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0APIKey
-
     apiUrl?: str
-
     customFields?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0CustomFieldsItems0]
-
     entityDisplayName?: str
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfig
-
     messageType?: str
-
     monitoringTool?: str
-
     routingKey?: str
-
     sendResolved?: bool
-
     stateMessage?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0APIKey:
     r"""
@@ -8652,14 +7126,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0CustomFieldsItems0:
     r"""
@@ -8672,16 +7142,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     value : str, default is Undefined, required
         Value of the tuple.
     """
-
-
     key: str
 
     value: str
 
-
     check:
         len(key) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfig:
     r"""
@@ -8723,34 +7189,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -8768,12 +7220,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -8792,14 +7240,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -8813,12 +7257,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -8838,14 +7278,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -8865,14 +7301,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -8894,14 +7326,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2:
     r"""
@@ -8940,33 +7368,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -8980,12 +7397,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -9004,14 +7417,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -9030,14 +7439,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -9057,14 +7462,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -9083,14 +7484,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -9118,22 +7515,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -9146,12 +7534,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -9170,14 +7554,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -9196,14 +7576,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -9216,12 +7592,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -9240,14 +7612,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -9266,14 +7634,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -9292,14 +7656,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -9318,14 +7678,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -9352,22 +7708,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -9380,12 +7727,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -9404,14 +7747,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -9430,14 +7769,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -9450,12 +7785,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -9474,14 +7805,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -9500,14 +7827,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -9526,14 +7849,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0:
     r"""
@@ -9554,23 +7873,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     sendResolved : bool, default is Undefined, optional
         Whether to notify about resolved alerts.
     """
-
-
     apiURL?: str
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfig
-
     message?: str
-
     roomID: str
 
     sendResolved?: bool
 
-
     check:
         _regex_match(str(apiURL), r"^https?://.+$") if apiURL
         len(roomID) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfig:
     r"""
@@ -9613,34 +7925,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -9658,12 +7956,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -9682,14 +7976,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -9703,12 +7993,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -9728,14 +8014,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -9755,14 +8037,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -9784,14 +8062,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2:
     r"""
@@ -9830,33 +8104,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -9870,12 +8133,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -9894,14 +8153,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -9920,14 +8175,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -9947,14 +8198,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -9973,14 +8220,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -10008,22 +8251,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -10036,12 +8270,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -10060,14 +8290,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -10086,14 +8312,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -10106,12 +8328,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -10130,14 +8348,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -10156,14 +8370,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -10182,14 +8392,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -10208,14 +8414,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -10242,22 +8444,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -10270,12 +8463,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -10294,14 +8483,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -10320,14 +8505,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -10340,12 +8521,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -10364,14 +8541,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -10390,14 +8563,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -10416,14 +8585,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0:
     r"""
@@ -10444,22 +8609,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     urlSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0URLSecret, default is Undefined, optional
         url secret
     """
-
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig
-
     maxAlerts?: int
-
     sendResolved?: bool
-
     url?: str
-
     urlSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0URLSecret
-
 
     check:
         maxAlerts >= 0 if maxAlerts not in [None, Undefined]
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig:
     r"""
@@ -10501,34 +8658,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -10546,12 +8689,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -10570,14 +8709,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -10591,12 +8726,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -10616,14 +8747,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -10643,14 +8770,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -10672,14 +8795,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2:
     r"""
@@ -10718,33 +8837,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -10758,12 +8866,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -10782,14 +8886,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -10808,14 +8908,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -10835,14 +8931,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -10861,14 +8953,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -10896,22 +8984,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -10924,12 +9003,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -10948,14 +9023,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -10974,14 +9045,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -10994,12 +9061,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -11018,14 +9081,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -11044,14 +9103,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -11070,14 +9125,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -11096,14 +9147,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -11130,22 +9177,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -11158,12 +9196,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -11182,14 +9216,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -11208,14 +9238,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -11228,12 +9254,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -11252,14 +9274,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -11278,14 +9296,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -11304,14 +9318,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0URLSecret:
     r"""
@@ -11334,14 +9344,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0:
     r"""
@@ -11373,30 +9379,17 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     toUser : str, default is Undefined, optional
         to user
     """
-
-
     agentID?: str
-
     apiSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0APISecret
-
     apiURL?: str
-
     corpID?: str
-
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfig
-
     message?: str
-
     messageType?: str
-
     sendResolved?: bool
-
     toParty?: str
-
     toTag?: str
-
     toUser?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0APISecret:
     r"""
@@ -11417,14 +9410,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfig:
     r"""
@@ -11466,34 +9455,20 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyURL?: str
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -11511,12 +9486,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
@@ -11535,14 +9506,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuth:
     r"""
@@ -11556,12 +9523,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
@@ -11581,14 +9544,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
@@ -11608,14 +9567,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
@@ -11637,14 +9592,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2:
     r"""
@@ -11683,33 +9634,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -11723,12 +9663,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -11747,14 +9683,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
@@ -11773,14 +9705,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
@@ -11800,14 +9728,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -11826,14 +9750,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
@@ -11861,22 +9781,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
@@ -11889,12 +9800,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -11913,14 +9820,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -11939,14 +9842,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
@@ -11959,12 +9858,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -11983,14 +9878,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -12009,14 +9900,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -12035,14 +9922,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -12061,14 +9944,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfig:
     r"""
@@ -12095,22 +9974,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCa:
     r"""
@@ -12123,12 +9993,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -12147,14 +10013,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
@@ -12173,14 +10035,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCert:
     r"""
@@ -12193,12 +10051,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -12217,14 +10071,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
@@ -12243,14 +10093,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
@@ -12269,14 +10115,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRoute:
     r"""
@@ -12328,28 +10170,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRoute:
     routes : [any], default is Undefined, optional
         Child routes.
     """
-
-
     activeTimeIntervals?: [str]
-
     continue?: bool
-
     groupBy?: [str]
-
     groupInterval?: str
-
     groupWait?: str
-
     matchers?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRouteMatchersItems0]
-
     muteTimeIntervals?: [str]
-
     receiver?: str
-
     repeatInterval?: str
-
     routes?: [any]
-
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRouteMatchersItems0:
     r"""
@@ -12368,18 +10198,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRouteMatchersItems0:
     value : str, default is Undefined, optional
         Label value to match.
     """
-
-
     matchType?: "!=" | "=" | "=~" | "!~"
-
     name: str
 
     regex?: bool
-
     value?: str
-
 
     check:
         len(name) >= 1
-
 

@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema ScrapeConfig:
     r"""
@@ -23,16 +23,12 @@ schema ScrapeConfig:
     spec : MonitoringCoreosComV1alpha1ScrapeConfigSpec, default is Undefined, required
         spec
     """
-
-
     apiVersion: "monitoring.coreos.com/v1alpha1" = "monitoring.coreos.com/v1alpha1"
 
     kind: "ScrapeConfig" = "ScrapeConfig"
 
     metadata?: v1.ObjectMeta
-
     spec: MonitoringCoreosComV1alpha1ScrapeConfigSpec
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
     r"""
@@ -196,120 +192,62 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
         Has no effect if `honorTimestamps` is false.
         It requires Prometheus >= v2.48.0.
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAuthorization
-
     azureSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0]
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuth
-
     consulSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0]
-
     digitalOceanSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0]
-
     dnsSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDNSSDConfigsItems0]
-
     dockerSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0]
-
     dockerSwarmSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0]
-
     ec2SDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0]
-
     enableCompression?: bool
-
     enableHTTP2?: bool
-
     eurekaSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0]
-
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
-
     fileSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecFileSDConfigsItems0]
-
     gceSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecGceSDConfigsItems0]
-
     hetznerSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0]
-
     honorLabels?: bool
-
     honorTimestamps?: bool
-
     httpSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0]
-
     ionosSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0]
-
     jobName?: str
-
     keepDroppedTargets?: int
-
     kubernetesSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0]
-
     kumaSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0]
-
     labelLimit?: int
-
     labelNameLengthLimit?: int
-
     labelValueLengthLimit?: int
-
     lightSailSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0]
-
     linodeSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0]
-
     metricRelabelings?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecMetricRelabelingsItems0]
-
     metricsPath?: str
-
     nativeHistogramBucketLimit?: int
-
     nativeHistogramMinBucketFactor?: int | str
-
     noProxy?: str
-
     nomadSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0]
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2
-
     openstackSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0]
-
     ovhcloudSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0]
-
     params?: {str:[str]}
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     puppetDBSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0]
-
     relabelings?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecRelabelingsItems0]
-
     sampleLimit?: int
-
     scalewaySDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0]
-
     scheme?: "HTTP" | "HTTPS"
-
     scrapeClass?: str
-
     scrapeClassicHistograms?: bool
-
     scrapeInterval?: str
-
     scrapeProtocols?: [str]
-
     scrapeTimeout?: str
-
     staticConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecStaticConfigsItems0]
-
     targetLimit?: int
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfig
-
     trackTimestampsStaleness?: bool
-
 
     check:
         len(jobName) >= 1 if jobName
@@ -322,7 +260,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
         len(scrapeProtocols) >= 1 if scrapeProtocols
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAuthorization:
     r"""
@@ -339,12 +276,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAuthorization:
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAuthorizationCredentials:
     r"""
@@ -363,14 +296,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAuthorizationCredentials:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
     r"""
@@ -432,46 +361,26 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authenticationMethod?: "OAuth" | "ManagedIdentity" | "SDK"
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuth
-
     clientID?: str
-
     clientSecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ClientSecret
-
     enableHTTP2?: bool
-
     environment?: str
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     resourceGroup?: str
-
     subscriptionID: str
 
     tenantID?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig
-
 
     check:
         len(clientID) >= 1 if clientID
@@ -483,7 +392,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
         len(resourceGroup) >= 1 if resourceGroup
         len(subscriptionID) >= 1
         len(tenantID) >= 1 if tenantID
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Authorization:
     r"""
@@ -501,12 +409,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Authorizat
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -525,14 +429,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Authorizat
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuth:
     r"""
@@ -547,12 +447,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuth:
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthPassword:
     r"""
@@ -572,14 +468,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthP
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthUsername:
     r"""
@@ -599,14 +491,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0BasicAuthU
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ClientSecret:
     r"""
@@ -625,14 +513,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ClientSecr
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2:
     r"""
@@ -672,33 +556,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientID:
     r"""
@@ -712,12 +585,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2Clie
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -736,14 +605,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -762,14 +627,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -789,14 +650,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -815,14 +672,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2Prox
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -850,22 +703,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -878,12 +722,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -902,14 +742,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -928,14 +764,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -948,12 +780,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -972,14 +800,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -998,14 +822,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -1024,14 +844,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -1050,14 +866,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0ProxyConne
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig:
     r"""
@@ -1084,22 +896,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCa:
     r"""
@@ -1112,12 +915,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -1136,14 +935,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -1162,14 +957,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCert:
     r"""
@@ -1182,12 +973,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -1206,14 +993,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -1232,14 +1015,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -1258,14 +1037,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigK
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuth:
     r"""
@@ -1278,12 +1053,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuth:
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuthPassword:
     r"""
@@ -1303,14 +1074,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuthPassword:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuthUsername:
     r"""
@@ -1330,14 +1097,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuthUsername:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0:
     r"""
@@ -1418,56 +1181,31 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0:
     tokenRef : MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TokenRef, default is Undefined, optional
         token ref
     """
-
-
     allowStale?: bool
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuth
-
     datacenter?: str
-
     enableHTTP2?: bool
-
     $filter?: str
-
     followRedirects?: bool
-
     namespace?: str
-
     noProxy?: str
-
     nodeMeta?: {str:str}
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2
-
     partition?: str
-
     pathPrefix?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     scheme?: "HTTP" | "HTTPS"
-
     server: str
 
     services?: [str]
-
     tagSeparator?: str
-
     tags?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
-
     tokenRef?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TokenRef
-
 
     check:
         len(datacenter) >= 1 if datacenter
@@ -1479,7 +1217,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0:
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
         len(tagSeparator) >= 1 if tagSeparator
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Authorization:
     r"""
@@ -1497,12 +1234,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Authoriza
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -1521,14 +1254,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Authoriza
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuth:
     r"""
@@ -1543,12 +1272,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuth
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuthPassword:
     r"""
@@ -1568,14 +1293,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuthUsername:
     r"""
@@ -1595,14 +1316,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0BasicAuth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2:
     r"""
@@ -1642,33 +1359,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientID:
     r"""
@@ -1682,12 +1388,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2Cli
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -1706,14 +1408,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -1732,14 +1430,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -1759,14 +1453,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -1785,14 +1475,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2Pro
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -1820,22 +1506,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -1848,12 +1525,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -1872,14 +1545,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -1898,14 +1567,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -1918,12 +1583,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -1942,14 +1603,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -1968,14 +1625,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -1994,14 +1647,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -2020,14 +1669,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0ProxyConn
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig:
     r"""
@@ -2054,22 +1699,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCa:
     r"""
@@ -2082,12 +1718,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -2106,14 +1738,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -2132,14 +1760,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCert:
     r"""
@@ -2152,12 +1776,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -2176,14 +1796,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -2202,14 +1818,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -2228,14 +1840,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TokenRef:
     r"""
@@ -2254,14 +1862,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TokenRef:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDNSSDConfigsItems0:
     r"""
@@ -2286,24 +1890,18 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDNSSDConfigsItems0:
         When set to NS, it requires Prometheus >= v2.49.0.
         When set to MX, it requires Prometheus >= v2.38.0
     """
-
-
     names: [str]
 
     port?: int
-
     refreshInterval?: str
-
     $type?: "A" | "AAAA" | "MX" | "NS" | "SRV"
-
 
     check:
         len(names) >= 1
-        all names in names { len(names) >= 1 if names not in [None, Undefined] } if names
+        all names in names {len(names) >= 1 if names not in [None, Undefined]} if names
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0:
     r"""
@@ -2345,37 +1943,23 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Authorization
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfig
-
 
     check:
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Authorization:
     r"""
@@ -2393,12 +1977,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Aut
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -2417,14 +1997,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Aut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2:
     r"""
@@ -2464,33 +2040,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientID:
     r"""
@@ -2504,12 +2069,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -2528,14 +2089,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -2554,14 +2111,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -2581,14 +2134,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -2607,14 +2156,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -2642,22 +2187,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -2670,12 +2206,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -2694,14 +2226,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -2720,14 +2248,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -2740,12 +2264,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -2764,14 +2284,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -2790,14 +2306,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -2816,14 +2328,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -2842,14 +2350,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Pro
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfig:
     r"""
@@ -2876,22 +2380,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCa:
     r"""
@@ -2904,12 +2399,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -2928,14 +2419,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -2954,14 +2441,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCert:
     r"""
@@ -2974,12 +2457,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -2998,14 +2477,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -3024,14 +2499,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -3050,14 +2521,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0:
     r"""
@@ -3112,46 +2579,28 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     filters?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0FiltersItems0]
-
     followRedirects?: bool
-
     host: str
 
     hostNetworkingHost?: str
-
     matchFirstNetwork?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
-
 
     check:
         len(host) >= 1
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Authorization:
     r"""
@@ -3169,12 +2618,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Authoriza
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -3193,14 +2638,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Authoriza
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuth:
     r"""
@@ -3213,12 +2654,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuth
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuthPassword:
     r"""
@@ -3238,14 +2675,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuthUsername:
     r"""
@@ -3265,14 +2698,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0BasicAuth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0FiltersItems0:
     r"""
@@ -3285,17 +2714,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0FiltersIt
     values : [str], default is Undefined, required
         Value to filter on.
     """
-
-
     name: str
 
     values: [str]
 
-
     check:
         len(values) >= 1
-        all values in values { len(values) >= 1 if values not in [None, Undefined] } if values
-
+        all values in values {len(values) >= 1 if values not in [None, Undefined]} if values
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2:
     r"""
@@ -3335,33 +2760,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientID:
     r"""
@@ -3375,12 +2789,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2Cli
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -3399,14 +2809,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -3425,14 +2831,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -3452,14 +2854,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -3478,14 +2876,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2Pro
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -3513,22 +2907,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -3541,12 +2926,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -3565,14 +2946,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -3591,14 +2968,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -3611,12 +2984,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -3635,14 +3004,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -3661,14 +3026,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -3687,14 +3048,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -3713,14 +3070,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0ProxyConn
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig:
     r"""
@@ -3747,22 +3100,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCa:
     r"""
@@ -3775,12 +3119,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -3799,14 +3139,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -3825,14 +3161,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCert:
     r"""
@@ -3845,12 +3177,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -3869,14 +3197,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -3895,14 +3219,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -3921,14 +3241,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0:
     r"""
@@ -3983,38 +3299,23 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     filters?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0FiltersItems0]
-
     followRedirects?: bool
-
     host: str
 
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     role: "Services" | "Tasks" | "Nodes"
 
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfig
-
 
     check:
         _regex_match(str(host), r"^[a-zA-Z][a-zA-Z0-9+.-]*://.+$")
@@ -4022,7 +3323,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0:
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Authorization:
     r"""
@@ -4039,12 +3339,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Auth
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -4063,14 +3359,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Auth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0BasicAuth:
     r"""
@@ -4083,12 +3375,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Basi
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0BasicAuthPassword:
     r"""
@@ -4108,14 +3396,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Basi
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0BasicAuthUsername:
     r"""
@@ -4135,14 +3419,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Basi
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0FiltersItems0:
     r"""
@@ -4155,17 +3435,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Filt
     values : [str], default is Undefined, required
         Value to filter on.
     """
-
-
     name: str
 
     values: [str]
 
-
     check:
         len(values) >= 1
-        all values in values { len(values) >= 1 if values not in [None, Undefined] } if values
-
+        all values in values {len(values) >= 1 if values not in [None, Undefined]} if values
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2:
     r"""
@@ -4205,33 +3481,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientID:
     r"""
@@ -4245,12 +3510,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -4269,14 +3530,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -4295,14 +3552,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -4322,14 +3575,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -4348,14 +3597,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -4383,22 +3628,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -4411,12 +3647,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -4435,14 +3667,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -4461,14 +3689,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -4481,12 +3705,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -4505,14 +3725,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -4531,14 +3747,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -4557,14 +3769,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -4583,14 +3791,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Prox
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfig:
     r"""
@@ -4617,22 +3821,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCa:
     r"""
@@ -4645,12 +3840,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -4669,14 +3860,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -4695,14 +3882,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCert:
     r"""
@@ -4715,12 +3898,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -4739,14 +3918,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -4765,14 +3940,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -4791,14 +3962,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0:
     r"""
@@ -4857,36 +4024,20 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     accessKey?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0AccessKey
-
     enableHTTP2?: bool
-
     filters?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0FiltersItems0]
-
     followRedirects?: bool
-
     noProxy?: str
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     region?: str
-
     roleARN?: str
-
     secretKey?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0SecretKey
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfig
-
 
     check:
         port <= 65535 if port not in [None, Undefined]
@@ -4895,7 +4046,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0:
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(region) >= 1 if region
         len(roleARN) >= 1 if roleARN
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0AccessKey:
     r"""
@@ -4914,14 +4064,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0AccessKey:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0FiltersItems0:
     r"""
@@ -4934,17 +4080,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0FiltersItems
     values : [str], default is Undefined, required
         Value to filter on.
     """
-
-
     name: str
 
     values: [str]
 
-
     check:
         len(values) >= 1
-        all values in values { len(values) >= 1 if values not in [None, Undefined] } if values
-
+        all values in values {len(values) >= 1 if values not in [None, Undefined]} if values
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -4963,14 +4105,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0ProxyConnect
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0SecretKey:
     r"""
@@ -4989,14 +4127,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0SecretKey:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfig:
     r"""
@@ -5024,22 +4158,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCa:
     r"""
@@ -5052,12 +4177,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCa:
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -5076,14 +4197,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCaC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -5102,14 +4219,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCaS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCert:
     r"""
@@ -5122,12 +4235,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCer
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -5146,14 +4255,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCer
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -5172,14 +4277,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCer
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -5198,14 +4299,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigKey
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0:
     r"""
@@ -5249,38 +4346,24 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     server: str
 
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Authorization:
     r"""
@@ -5297,12 +4380,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Authoriza
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -5321,14 +4400,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Authoriza
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuth:
     r"""
@@ -5341,12 +4416,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuth
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuthPassword:
     r"""
@@ -5366,14 +4437,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuthUsername:
     r"""
@@ -5393,14 +4460,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0BasicAuth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2:
     r"""
@@ -5440,33 +4503,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientID:
     r"""
@@ -5480,12 +4532,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2Cli
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -5504,14 +4552,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -5530,14 +4574,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -5557,14 +4597,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -5583,14 +4619,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2Pro
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -5618,22 +4650,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -5646,12 +4669,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -5670,14 +4689,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -5696,14 +4711,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -5716,12 +4727,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -5740,14 +4747,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -5766,14 +4769,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -5792,14 +4791,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -5818,14 +4813,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0ProxyConn
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig:
     r"""
@@ -5852,22 +4843,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCa:
     r"""
@@ -5880,12 +4862,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -5904,14 +4882,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -5930,14 +4904,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCert:
     r"""
@@ -5950,12 +4920,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -5974,14 +4940,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -6000,14 +4962,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -6026,14 +4984,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecFileSDConfigsItems0:
     r"""
@@ -6050,18 +5004,14 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecFileSDConfigsItems0:
     refreshInterval : str, default is Undefined, optional
         RefreshInterval configures the refresh interval at which Prometheus will reload the content of the files.
     """
-
-
     files: [str]
 
     refreshInterval?: str
 
-
     check:
         len(files) >= 1
-        all files in files { _regex_match(str(files), r"^[^*]*(\*[^/]*)?\.(json|yml|yaml|JSON|YML|YAML)$") if files } if files
+        all files in files {_regex_match(str(files), r"^[^*]*(\*[^/]*)?\.(json|yml|yaml|JSON|YML|YAML)$") if files} if files
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecGceSDConfigsItems0:
     r"""
@@ -6097,20 +5047,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecGceSDConfigsItems0:
     zone : str, default is Undefined, required
         The zone of the scrape targets. If you need multiple zones use multiple GCESDConfigs.
     """
-
-
     $filter?: str
-
     port?: int
-
     project: str
 
     refreshInterval?: str
-
     tagSeparator?: str
-
     zone: str
-
 
     check:
         len($filter) >= 1 if $filter
@@ -6120,7 +5063,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecGceSDConfigsItems0:
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(tagSeparator) >= 1 if tagSeparator
         len(zone) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0:
     r"""
@@ -6164,39 +5106,24 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0:
     url : str, default is Undefined, required
         URL from which the targets are fetched.
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfig
-
     url: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(url) >= 1
         _regex_match(str(url), r"^http(s)?://.+$")
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Authorization:
     r"""
@@ -6214,12 +5141,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Authorizati
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -6238,14 +5161,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Authorizati
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuth:
     r"""
@@ -6260,12 +5179,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuth:
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuthPassword:
     r"""
@@ -6285,14 +5200,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuthPa
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuthUsername:
     r"""
@@ -6312,14 +5223,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0BasicAuthUs
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2:
     r"""
@@ -6359,33 +5266,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientID:
     r"""
@@ -6399,12 +5295,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2Clien
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -6423,14 +5315,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2Clien
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -6449,14 +5337,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2Clien
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -6476,14 +5360,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2Clien
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -6502,14 +5382,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2Proxy
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -6537,22 +5413,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -6565,12 +5432,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -6589,14 +5452,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -6615,14 +5474,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -6635,12 +5490,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -6659,14 +5510,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -6685,14 +5532,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -6711,14 +5554,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -6737,14 +5576,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0ProxyConnec
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfig:
     r"""
@@ -6771,22 +5606,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCa:
     r"""
@@ -6799,12 +5625,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCa
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -6823,14 +5645,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCa
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -6849,14 +5667,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCa
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCert:
     r"""
@@ -6869,12 +5683,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCe
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -6893,14 +5703,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCe
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -6919,14 +5725,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -6945,14 +5747,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigKe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0:
     r"""
@@ -6998,39 +5796,24 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     role: "hcloud" | "Hcloud" | "robot" | "Robot"
 
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfig
 
-
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Authorization:
     r"""
@@ -7048,12 +5831,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Authoriz
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -7072,14 +5851,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Authoriz
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAuth:
     r"""
@@ -7093,12 +5868,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAut
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAuthPassword:
     r"""
@@ -7118,14 +5889,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAuthUsername:
     r"""
@@ -7145,14 +5912,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAut
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2:
     r"""
@@ -7192,33 +5955,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientID:
     r"""
@@ -7232,12 +5984,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2Cl
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -7256,14 +6004,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2Cl
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -7282,14 +6026,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2Cl
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -7309,14 +6049,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2Cl
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -7335,14 +6071,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2Pr
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -7370,22 +6102,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -7398,12 +6121,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -7422,14 +6141,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -7448,14 +6163,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -7468,12 +6179,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -7492,14 +6199,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -7518,14 +6221,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -7544,14 +6243,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -7570,14 +6265,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0ProxyCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfig:
     r"""
@@ -7604,22 +6295,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCa:
     r"""
@@ -7632,12 +6314,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -7656,14 +6334,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -7682,14 +6356,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCert:
     r"""
@@ -7702,12 +6372,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -7726,14 +6392,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -7752,14 +6414,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -7778,14 +6436,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0:
     r"""
@@ -7828,32 +6482,20 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Authorization
 
     datacenterID: str
 
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfig
-
 
     check:
         len(datacenterID) >= 1
@@ -7861,7 +6503,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0:
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Authorization:
     r"""
@@ -7878,12 +6519,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Authorizat
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -7902,14 +6539,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Authorizat
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2:
     r"""
@@ -7948,33 +6581,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientID:
     r"""
@@ -7988,12 +6610,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2Clie
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -8012,14 +6630,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -8038,14 +6652,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -8065,14 +6675,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -8091,14 +6697,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2Prox
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -8126,22 +6728,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -8154,12 +6747,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -8178,14 +6767,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -8204,14 +6789,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -8224,12 +6805,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -8248,14 +6825,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -8274,14 +6847,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -8300,14 +6869,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -8326,14 +6891,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0ProxyConne
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfig:
     r"""
@@ -8360,22 +6921,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCa:
     r"""
@@ -8388,12 +6940,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -8412,14 +6960,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -8438,14 +6982,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCert:
     r"""
@@ -8458,12 +6998,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -8482,14 +7018,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -8508,14 +7040,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -8534,14 +7062,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigK
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0:
     r"""
@@ -8596,43 +7120,26 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     apiServer?: str
-
     attachMetadata?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0AttachMetadata
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     namespaces?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Namespaces
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     role: "Pod" | "Endpoints" | "Ingress" | "Service" | "Node" | "EndpointSlice"
 
     selectors?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0SelectorsItems0]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfig
-
 
     check:
         len(apiServer) >= 1 if apiServer
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0AttachMetadata:
     r"""
@@ -8648,10 +7155,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Attac
         `Nodes` objects.
         Only valid for Pod, Endpoint and Endpointslice roles.
     """
-
-
     node?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Authorization:
     r"""
@@ -8669,12 +7173,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Autho
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -8693,14 +7193,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Autho
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0BasicAuth:
     r"""
@@ -8714,12 +7210,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Basic
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0BasicAuthPassword:
     r"""
@@ -8739,14 +7231,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Basic
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0BasicAuthUsername:
     r"""
@@ -8766,14 +7254,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Basic
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Namespaces:
     r"""
@@ -8787,12 +7271,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Names
     ownNamespace : bool, default is Undefined, optional
         Includes the namespace in which the Prometheus pod runs to the list of watched namespaces.
     """
-
-
     names?: [str]
-
     ownNamespace?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2:
     r"""
@@ -8832,33 +7312,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientID:
     r"""
@@ -8872,12 +7341,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -8896,14 +7361,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -8922,14 +7383,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -8949,14 +7406,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -8975,14 +7428,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -9010,22 +7459,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -9038,12 +7478,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -9062,14 +7498,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -9088,14 +7520,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -9108,12 +7536,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -9132,14 +7556,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -9158,14 +7578,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -9184,14 +7600,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -9210,14 +7622,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Proxy
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0SelectorsItems0:
     r"""
@@ -9235,19 +7643,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Selec
         Role specifies the type of Kubernetes resource to limit the service discovery to.
         Accepted values are: Node, Pod, Endpoints, EndpointSlice, Service, Ingress.
     """
-
-
     field?: str
-
     label?: str
-
     role: "Pod" | "Endpoints" | "Ingress" | "Service" | "Node" | "EndpointSlice"
-
 
     check:
         len(field) >= 1 if field
         len(label) >= 1 if label
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfig:
     r"""
@@ -9274,22 +7676,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCa:
     r"""
@@ -9302,12 +7695,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -9326,14 +7715,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -9352,14 +7737,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCert:
     r"""
@@ -9372,12 +7753,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -9396,14 +7773,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -9422,14 +7795,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -9448,14 +7817,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0:
     r"""
@@ -9502,43 +7867,27 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuth
-
     clientID?: str
-
     enableHTTP2?: bool
-
     fetchTimeout?: str
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     server: str
 
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfig
-
 
     check:
         _regex_match(str(fetchTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if fetchTimeout
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Authorization:
     r"""
@@ -9555,12 +7904,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Authorizati
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -9579,14 +7924,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Authorizati
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuth:
     r"""
@@ -9599,12 +7940,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuth:
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuthPassword:
     r"""
@@ -9624,14 +7961,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuthPa
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuthUsername:
     r"""
@@ -9651,14 +7984,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0BasicAuthUs
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2:
     r"""
@@ -9698,33 +8027,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientID:
     r"""
@@ -9738,12 +8056,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2Clien
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -9762,14 +8076,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2Clien
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -9788,14 +8098,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2Clien
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -9815,14 +8121,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2Clien
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -9841,14 +8143,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2Proxy
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -9876,22 +8174,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -9904,12 +8193,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -9928,14 +8213,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -9954,14 +8235,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -9974,12 +8251,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -9998,14 +8271,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -10024,14 +8293,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -10050,14 +8315,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -10076,14 +8337,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0ProxyConnec
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfig:
     r"""
@@ -10110,22 +8367,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCa:
     r"""
@@ -10138,12 +8386,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCa
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -10162,14 +8406,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCa
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -10188,14 +8428,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCa
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCert:
     r"""
@@ -10208,12 +8444,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCe
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -10232,14 +8464,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCe
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -10258,14 +8486,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -10284,14 +8508,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigKe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0:
     r"""
@@ -10345,42 +8565,23 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     accessKey?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0AccessKey
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     endpoint?: str
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     region?: str
-
     roleARN?: str
-
     secretKey?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0SecretKey
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfig
-
 
     check:
         len(endpoint) >= 1 if endpoint
@@ -10389,7 +8590,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(region) >= 1 if region
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0AccessKey:
     r"""
@@ -10408,14 +8608,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Access
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Authorization:
     r"""
@@ -10433,12 +8629,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Author
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -10457,14 +8649,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Author
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicAuth:
     r"""
@@ -10478,12 +8666,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicA
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicAuthPassword:
     r"""
@@ -10503,14 +8687,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicA
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicAuthUsername:
     r"""
@@ -10530,14 +8710,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0BasicA
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2:
     r"""
@@ -10577,33 +8753,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientID:
     r"""
@@ -10617,12 +8782,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -10641,14 +8802,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -10667,14 +8824,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -10694,14 +8847,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -10720,14 +8869,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -10755,22 +8900,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -10783,12 +8919,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -10807,14 +8939,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -10833,14 +8961,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -10853,12 +8977,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -10877,14 +8997,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -10903,14 +9019,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -10929,14 +9041,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -10955,14 +9063,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0ProxyC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0SecretKey:
     r"""
@@ -10981,14 +9085,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Secret
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfig:
     r"""
@@ -11015,22 +9115,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCa:
     r"""
@@ -11043,12 +9134,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -11067,14 +9154,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -11093,14 +9176,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCert:
     r"""
@@ -11113,12 +9192,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -11137,14 +9212,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -11163,14 +9234,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -11189,14 +9256,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0:
     r"""
@@ -11241,34 +9304,19 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Authorization
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     region?: str
-
     tagSeparator?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
-
 
     check:
         port <= 65535 if port not in [None, Undefined]
@@ -11277,7 +9325,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0:
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(region) >= 1 if region
         len(tagSeparator) >= 1 if tagSeparator
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Authorization:
     r"""
@@ -11294,12 +9341,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Authoriza
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -11318,14 +9361,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Authoriza
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2:
     r"""
@@ -11365,33 +9404,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientID:
     r"""
@@ -11405,12 +9433,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2Cli
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -11429,14 +9453,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -11455,14 +9475,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -11482,14 +9498,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2Cli
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -11508,14 +9520,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2Pro
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -11543,22 +9551,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -11571,12 +9570,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -11595,14 +9590,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -11621,14 +9612,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -11641,12 +9628,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -11665,14 +9648,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -11691,14 +9670,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -11717,14 +9692,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -11743,14 +9714,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0ProxyConn
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig:
     r"""
@@ -11777,22 +9744,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCa:
     r"""
@@ -11805,12 +9763,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -11829,14 +9783,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -11855,14 +9805,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCert:
     r"""
@@ -11875,12 +9821,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -11899,14 +9841,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -11925,14 +9863,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -11951,14 +9885,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecMetricRelabelingsItems0:
     r"""
@@ -12001,26 +9931,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecMetricRelabelingsItems0:
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0:
     r"""
@@ -12074,46 +9994,28 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0:
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     """
-
-
     allowStale?: bool
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     namespace?: str
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     region?: str
-
     server: str
 
     tagSeparator?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Authorization:
     r"""
@@ -12130,12 +10032,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Authorizat
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -12154,14 +10052,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Authorizat
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuth:
     r"""
@@ -12174,12 +10068,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuth:
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuthPassword:
     r"""
@@ -12199,14 +10089,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuthP
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuthUsername:
     r"""
@@ -12226,14 +10112,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0BasicAuthU
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2:
     r"""
@@ -12273,33 +10155,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientID:
     r"""
@@ -12313,12 +10184,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2Clie
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -12337,14 +10204,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -12363,14 +10226,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -12390,14 +10249,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2Clie
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -12416,14 +10271,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2Prox
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -12451,22 +10302,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -12479,12 +10321,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -12503,14 +10341,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -12529,14 +10363,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -12549,12 +10379,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -12573,14 +10399,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -12599,14 +10421,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -12625,14 +10443,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -12651,14 +10465,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0ProxyConne
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfig:
     r"""
@@ -12685,22 +10495,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCa:
     r"""
@@ -12713,12 +10514,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -12737,14 +10534,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -12763,14 +10556,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCert:
     r"""
@@ -12783,12 +10572,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigC
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -12807,14 +10592,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -12833,14 +10614,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -12859,14 +10636,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigK
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2:
     r"""
@@ -12905,33 +10678,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientID:
     r"""
@@ -12945,12 +10707,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientID:
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientIDConfigMap:
     r"""
@@ -12969,14 +10727,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientIDConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientIDSecret:
     r"""
@@ -12995,14 +10749,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientIDSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientSecret:
     r"""
@@ -13022,14 +10772,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ProxyConnectHeaderItems0:
     r"""
@@ -13048,14 +10794,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ProxyConnectHeaderItems0
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfig:
     r"""
@@ -13083,22 +10825,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCa:
     r"""
@@ -13111,12 +10844,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCa:
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCaConfigMap:
     r"""
@@ -13135,14 +10864,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCaConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCaSecret:
     r"""
@@ -13161,14 +10886,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCaSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCert:
     r"""
@@ -13181,12 +10902,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCert:
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCertConfigMap:
     r"""
@@ -13205,14 +10922,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCertConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCertSecret:
     r"""
@@ -13231,14 +10944,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCertSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigKeySecret:
     r"""
@@ -13257,14 +10966,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigKeySecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
     r"""
@@ -13323,44 +11028,26 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
         In Identity V3, either userid or a combination of username
         and domainId or domainName are needed
     """
-
-
     allTenants?: bool
-
     applicationCredentialId?: str
-
     applicationCredentialName?: str
-
     applicationCredentialSecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0ApplicationCredentialSecret
-
     availability?: "Public" | "public" | "Admin" | "admin" | "Internal" | "internal"
-
     domainID?: str
-
     domainName?: str
-
     identityEndpoint?: str
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0Password
-
     port?: int
-
     projectID?: str
-
     projectName?: str
-
     refreshInterval?: str
-
     region: str
 
     role: "Instance" | "instance" | "Hypervisor" | "hypervisor"
 
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfig
-
     userid?: str
-
     username?: str
-
 
     check:
         len(applicationCredentialName) >= 1 if applicationCredentialName
@@ -13375,7 +11062,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
         len(region) >= 1
         len(userid) >= 1 if userid
         len(username) >= 1 if username
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0ApplicationCredentialSecret:
     r"""
@@ -13395,14 +11081,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0Applic
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0Password:
     r"""
@@ -13422,14 +11104,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0Passwo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfig:
     r"""
@@ -13456,22 +11134,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCa:
     r"""
@@ -13484,12 +11153,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -13508,14 +11173,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -13534,14 +11195,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCert:
     r"""
@@ -13554,12 +11211,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -13578,14 +11231,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -13604,14 +11253,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -13630,14 +11275,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0:
     r"""
@@ -13659,8 +11300,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0:
     service : str, default is Undefined, required
         Service of the targets to retrieve. Must be `VPS` or `DedicatedServer`.
     """
-
-
     applicationKey: str
 
     applicationSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0ApplicationSecret
@@ -13668,17 +11307,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0:
     consumerKey: MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0ConsumerKey
 
     endpoint?: str
-
     refreshInterval?: str
-
     service: str
-
 
     check:
         len(applicationKey) >= 1
         len(endpoint) >= 1 if endpoint
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0ApplicationSecret:
     r"""
@@ -13697,14 +11332,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0Applica
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0ConsumerKey:
     r"""
@@ -13723,14 +11354,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0Consume
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecProxyConnectHeaderItems0:
     r"""
@@ -13749,14 +11376,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecProxyConnectHeaderItems0:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0:
     r"""
@@ -13808,38 +11431,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0:
     url : str, default is Undefined, required
         The URL of the PuppetDB root query endpoint.
     """
-
-
     authorization?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Authorization
-
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAuth
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     includeParameters?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2
-
     port?: int
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     query: str
 
     refreshInterval?: str
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfig
-
     url: str
-
 
     check:
         port <= 65535 if port not in [None, Undefined]
@@ -13849,7 +11456,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0:
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(url) >= 1
         _regex_match(str(url), r"^http(s)?://.+$")
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Authorization:
     r"""
@@ -13867,12 +11473,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Authori
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0AuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0AuthorizationCredentials:
     r"""
@@ -13891,14 +11493,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Authori
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAuth:
     r"""
@@ -13912,12 +11510,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAu
     username : MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAuthPassword
-
     username?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAuthUsername
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAuthPassword:
     r"""
@@ -13937,14 +11531,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAu
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAuthUsername:
     r"""
@@ -13964,14 +11554,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0BasicAu
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2:
     r"""
@@ -14011,33 +11597,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2:
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientID
 
     clientSecret: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientID:
     r"""
@@ -14051,12 +11626,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2C
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientIDConfigMap:
     r"""
@@ -14075,14 +11646,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2C
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientIDSecret:
     r"""
@@ -14101,14 +11668,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2C
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientSecret:
     r"""
@@ -14128,14 +11691,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2C
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ProxyConnectHeaderItems0:
     r"""
@@ -14154,14 +11713,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2P
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfig:
     r"""
@@ -14189,22 +11744,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCa:
     r"""
@@ -14217,12 +11763,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCaConfigMap:
     r"""
@@ -14241,14 +11783,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCaSecret:
     r"""
@@ -14267,14 +11805,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCert:
     r"""
@@ -14287,12 +11821,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCertConfigMap:
     r"""
@@ -14311,14 +11841,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigCertSecret:
     r"""
@@ -14337,14 +11863,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2TLSConfigKeySecret:
     r"""
@@ -14363,14 +11885,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -14389,14 +11907,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0ProxyCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfig:
     r"""
@@ -14423,22 +11937,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCa:
     r"""
@@ -14451,12 +11956,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -14475,14 +11976,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -14501,14 +11998,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCert:
     r"""
@@ -14521,12 +12014,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -14545,14 +12034,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -14571,14 +12056,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -14597,14 +12078,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecRelabelingsItems0:
     r"""
@@ -14647,26 +12124,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecRelabelingsItems0:
 
         Regex capture groups are available.
     """
-
-
     action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
-
     modulus?: int
-
     regex?: str
-
     replacement?: str
-
     separator?: str
-
     sourceLabels?: [str]
-
     targetLabel?: str
 
-
     check:
-        all sourceLabels in sourceLabels { _regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels } if sourceLabels
-
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0:
     r"""
@@ -14719,42 +12186,27 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0:
     zone : str, default is Undefined, optional
         Zone is the availability zone of your targets (e.g. fr-par-1).
     """
-
-
     accessKey: str
 
     apiURL?: str
-
     enableHTTP2?: bool
-
     followRedirects?: bool
-
     nameFilter?: str
-
     noProxy?: str
-
     port?: int
-
     projectID: str
 
     proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     refreshInterval?: str
-
     role: "Instance" | "Baremetal"
 
     secretKey: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0SecretKey
 
     tagsFilter?: [str]
-
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfig
-
     zone?: str
-
 
     check:
         len(accessKey) >= 1
@@ -14766,9 +12218,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(tagsFilter) >= 1 if tagsFilter
-        all tagsFilter in tagsFilter { len(tagsFilter) >= 1 if tagsFilter not in [None, Undefined] } if tagsFilter
+        all tagsFilter in tagsFilter {len(tagsFilter) >= 1 if tagsFilter not in [None, Undefined]} if tagsFilter
         len(zone) >= 1 if zone
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -14787,14 +12238,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0ProxyCo
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0SecretKey:
     r"""
@@ -14813,14 +12260,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0SecretK
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfig:
     r"""
@@ -14847,22 +12290,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCa:
     r"""
@@ -14875,12 +12309,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCaConfigMap:
     r"""
@@ -14899,14 +12329,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCaSecret:
     r"""
@@ -14925,14 +12351,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCert:
     r"""
@@ -14945,12 +12367,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCertConfigMap:
     r"""
@@ -14969,14 +12387,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigCertSecret:
     r"""
@@ -14995,14 +12409,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConfigKeySecret:
     r"""
@@ -15021,14 +12431,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecStaticConfigsItems0:
     r"""
@@ -15042,16 +12448,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecStaticConfigsItems0:
     targets : [str], default is Undefined, required
         List of targets for this static configuration.
     """
-
-
     labels?: {str:str}
-
     targets: [str]
-
 
     check:
         len(targets) >= 1
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfig:
     r"""
@@ -15078,22 +12479,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCa
-
     cert?: MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCa:
     r"""
@@ -15106,12 +12498,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCa:
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCaConfigMap:
     r"""
@@ -15130,14 +12518,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCaConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCaSecret:
     r"""
@@ -15156,14 +12540,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCaSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCert:
     r"""
@@ -15176,12 +12556,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCert:
     secret : MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCertConfigMap:
     r"""
@@ -15200,14 +12576,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCertConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCertSecret:
     r"""
@@ -15226,14 +12598,10 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCertSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigKeySecret:
     r"""
@@ -15252,12 +12620,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigKeySecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 

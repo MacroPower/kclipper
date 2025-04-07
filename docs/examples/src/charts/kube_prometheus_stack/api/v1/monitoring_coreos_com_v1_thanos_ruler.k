@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema ThanosRuler:
     r"""
@@ -28,18 +28,14 @@ schema ThanosRuler:
     status : MonitoringCoreosComV1ThanosRulerStatus, default is Undefined, optional
         status
     """
-
-
     apiVersion: "monitoring.coreos.com/v1" = "monitoring.coreos.com/v1"
 
     kind: "ThanosRuler" = "ThanosRuler"
 
     metadata?: v1.ObjectMeta
-
     spec: MonitoringCoreosComV1ThanosRulerSpec
 
     status?: MonitoringCoreosComV1ThanosRulerStatus
-
 
 schema MonitoringCoreosComV1ThanosRulerSpec:
     r"""
@@ -236,119 +232,63 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     web : MonitoringCoreosComV1ThanosRulerSpecWeb, default is Undefined, optional
         web
     """
-
-
     additionalArgs?: [MonitoringCoreosComV1ThanosRulerSpecAdditionalArgsItems0]
-
     affinity?: MonitoringCoreosComV1ThanosRulerSpecAffinity
-
     alertDropLabels?: [str]
-
     alertQueryUrl?: str
-
     alertRelabelConfigFile?: str
-
     alertRelabelConfigs?: MonitoringCoreosComV1ThanosRulerSpecAlertRelabelConfigs
-
     alertmanagersConfig?: MonitoringCoreosComV1ThanosRulerSpecAlertmanagersConfig
-
     alertmanagersUrl?: [str]
-
     containers?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0]
-
     dnsConfig?: MonitoringCoreosComV1ThanosRulerSpecDNSConfig
-
     dnsPolicy?: "ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
-
     enforcedNamespaceLabel?: str
-
     evaluationInterval?: str = "15s"
-
     excludedFromEnforcement?: [MonitoringCoreosComV1ThanosRulerSpecExcludedFromEnforcementItems0]
-
     externalPrefix?: str
-
     grpcServerTlsConfig?: MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfig
-
     hostAliases?: [MonitoringCoreosComV1ThanosRulerSpecHostAliasesItems0]
-
     image?: str
-
     imagePullPolicy?: "" | "Always" | "Never" | "IfNotPresent"
-
     imagePullSecrets?: [MonitoringCoreosComV1ThanosRulerSpecImagePullSecretsItems0]
-
     initContainers?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0]
-
     labels?: {str:str}
-
     listenLocal?: bool
-
     logFormat?: "" | "logfmt" | "json"
-
     logLevel?: "" | "debug" | "info" | "warn" | "error"
-
     minReadySeconds?: int
-
     nodeSelector?: {str:str}
-
     objectStorageConfig?: MonitoringCoreosComV1ThanosRulerSpecObjectStorageConfig
-
     objectStorageConfigFile?: str
-
     paused?: bool
-
     podMetadata?: MonitoringCoreosComV1ThanosRulerSpecPodMetadata
-
     portName?: str = "web"
-
     priorityClassName?: str
-
     prometheusRulesExcludedFromEnforce?: [MonitoringCoreosComV1ThanosRulerSpecPrometheusRulesExcludedFromEnforceItems0]
-
     queryConfig?: MonitoringCoreosComV1ThanosRulerSpecQueryConfig
-
     queryEndpoints?: [str]
-
     replicas?: int
-
     resources?: MonitoringCoreosComV1ThanosRulerSpecResources
-
     retention?: str = "24h"
-
     routePrefix?: str
-
     ruleNamespaceSelector?: MonitoringCoreosComV1ThanosRulerSpecRuleNamespaceSelector
-
     ruleSelector?: MonitoringCoreosComV1ThanosRulerSpecRuleSelector
-
     securityContext?: MonitoringCoreosComV1ThanosRulerSpecSecurityContext
-
     serviceAccountName?: str
-
     storage?: MonitoringCoreosComV1ThanosRulerSpecStorage
-
     tolerations?: [MonitoringCoreosComV1ThanosRulerSpecTolerationsItems0]
-
     topologySpreadConstraints?: [MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0]
-
     tracingConfig?: MonitoringCoreosComV1ThanosRulerSpecTracingConfig
-
     tracingConfigFile?: str
-
     version?: str
-
     volumeMounts?: [MonitoringCoreosComV1ThanosRulerSpecVolumeMountsItems0]
-
     volumes?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0]
-
     web?: MonitoringCoreosComV1ThanosRulerSpecWeb
-
 
     check:
         _regex_match(str(evaluationInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if evaluationInterval
         _regex_match(str(retention), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if retention
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAdditionalArgsItems0:
     r"""
@@ -361,16 +301,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecAdditionalArgsItems0:
     value : str, default is Undefined, optional
         Argument value, e.g. 30s. Can be empty for name-only arguments (e.g. --storage.tsdb.no-lockfile)
     """
-
-
     name: str
 
     value?: str
 
-
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinity:
     r"""
@@ -385,14 +321,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinity:
     podAntiAffinity : MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinity, default is Undefined, optional
         pod anti affinity
     """
-
-
     nodeAffinity?: MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinity
-
     podAffinity?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinity
-
     podAntiAffinity?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinity
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinity:
     r"""
@@ -413,12 +344,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution : MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution, default is Undefined, optional
         required during scheduling ignored during execution
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -432,12 +359,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSc
     weight : int, default is Undefined, required
         Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.
     """
-
-
     preference: MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference
 
     weight: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference:
     r"""
@@ -450,12 +374,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSc
     matchFields : [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0], default is Undefined, optional
         A list of node selector requirements by node's fields.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0]
-
     matchFields?: [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0:
     r"""
@@ -476,14 +396,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSc
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0:
     r"""
@@ -504,14 +421,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityPreferredDuringSc
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution:
     r"""
@@ -526,10 +440,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSch
     nodeSelectorTerms : [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0], default is Undefined, required
         Required. A list of node selector terms. The terms are ORed.
     """
-
-
     nodeSelectorTerms: [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0:
     r"""
@@ -544,12 +455,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSch
     matchFields : [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0], default is Undefined, optional
         A list of node selector requirements by node's fields.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0]
-
     matchFields?: [MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0:
     r"""
@@ -570,14 +477,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSch
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0:
     r"""
@@ -598,14 +502,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityNodeAffinityRequiredDuringSch
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinity:
     r"""
@@ -632,12 +533,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinity:
         When there are multiple elements, the lists of nodes corresponding to each
         podAffinityTerm are intersected, i.e. all terms must be satisfied.
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -651,12 +548,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSch
         weight associated with matching the corresponding podAffinityTerm,
         in the range 1-100.
     """
-
-
     podAffinityTerm: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
 
     weight: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
     r"""
@@ -700,20 +594,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSch
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
     r"""
@@ -729,12 +615,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSch
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
     r"""
@@ -754,14 +636,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSch
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
     r"""
@@ -780,12 +659,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSch
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -805,14 +680,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityPreferredDuringSch
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -861,20 +733,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSche
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
     r"""
@@ -890,12 +754,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSche
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -915,14 +775,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSche
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
     r"""
@@ -941,12 +798,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSche
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -966,14 +819,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAffinityRequiredDuringSche
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinity:
     r"""
@@ -1000,12 +850,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinity:
         When there are multiple elements, the lists of nodes corresponding to each
         podAffinityTerm are intersected, i.e. all terms must be satisfied.
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -1019,12 +865,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDurin
         weight associated with matching the corresponding podAffinityTerm,
         in the range 1-100.
     """
-
-
     podAffinityTerm: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
 
     weight: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
     r"""
@@ -1068,20 +911,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDurin
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
     r"""
@@ -1097,12 +932,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDurin
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
     r"""
@@ -1122,14 +953,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDurin
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
     r"""
@@ -1148,12 +976,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDurin
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1173,14 +997,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityPreferredDurin
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -1229,20 +1050,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuring
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
     r"""
@@ -1258,12 +1071,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuring
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -1283,14 +1092,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuring
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
     r"""
@@ -1309,12 +1115,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuring
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1334,14 +1136,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecAffinityPodAntiAffinityRequiredDuring
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAlertRelabelConfigs:
     r"""
@@ -1368,14 +1167,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecAlertRelabelConfigs:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecAlertmanagersConfig:
     r"""
@@ -1402,14 +1197,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecAlertmanagersConfig:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0:
     r"""
@@ -1540,56 +1331,31 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0:
         might be configured in the container image.
         Cannot be updated.
     """
-
-
     args?: [str]
-
     command?: [str]
-
     env?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0]
-
     envFrom?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0]
-
     image?: str
-
     imagePullPolicy?: str
-
     lifecycle?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0Lifecycle
-
     livenessProbe?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbe
-
     name: str
 
     ports?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0PortsItems0]
-
     readinessProbe?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbe
-
     resizePolicy?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0ResizePolicyItems0]
-
     resources?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0Resources
-
     restartPolicy?: str
-
     securityContext?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContext
-
     startupProbe?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbe
-
     stdin?: bool
-
     stdinOnce?: bool
-
     terminationMessagePath?: str
-
     terminationMessagePolicy?: str
-
     tty?: bool
-
     volumeDevices?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0VolumeDevicesItems0]
-
     volumeMounts?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0VolumeMountsItems0]
-
     workingDir?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0:
     r"""
@@ -1604,14 +1370,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0:
     secretRef : MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
-
-
     configMapRef?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0ConfigMapRef
-
     prefix?: str
-
     secretRef?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0SecretRef
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0ConfigMapRef:
     r"""
@@ -1628,12 +1389,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0ConfigMa
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0SecretRef:
     r"""
@@ -1650,12 +1407,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvFromItems0SecretRe
     optional : bool, default is Undefined, optional
         Specify whether the Secret must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0:
     r"""
@@ -1678,14 +1431,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0:
     valueFrom : MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFrom, default is Undefined, optional
         value from
     """
-
-
     name: str
 
     value?: str
-
     valueFrom?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFrom
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFrom:
     r"""
@@ -1702,16 +1451,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFrom:
     secretKeyRef : MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromSecretKeyRef, default is Undefined, optional
         secret key ref
     """
-
-
     configMapKeyRef?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromConfigMapKeyRef
-
     fieldRef?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromFieldRef
-
     resourceFieldRef?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromResourceFieldRef
-
     secretKeyRef?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromSecretKeyRef
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromConfigMapKeyRef:
     r"""
@@ -1730,14 +1473,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromCon
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromFieldRef:
     r"""
@@ -1751,12 +1490,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromFie
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromResourceFieldRef:
     r"""
@@ -1772,18 +1507,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromRes
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromSecretKeyRef:
     r"""
@@ -1802,14 +1531,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0EnvItems0ValueFromSec
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0Lifecycle:
     r"""
@@ -1823,12 +1548,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0Lifecycle:
     preStop : MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
     """
-
-
     postStart?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStart
-
     preStop?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStop
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStart:
     r"""
@@ -1848,16 +1569,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStart:
     tcpSocket : MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartExec
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartHTTPGet
-
     sleep?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartSleep
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartTCPSocket
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartExec:
     r"""
@@ -1872,10 +1587,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartExe
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartHTTPGet:
     r"""
@@ -1898,18 +1610,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartHTT
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
     r"""
@@ -1923,12 +1629,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartHTT
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartSleep:
     r"""
@@ -1939,10 +1642,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartSle
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartTCPSocket:
     r"""
@@ -1959,12 +1659,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePostStartTCP
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStop:
     r"""
@@ -1989,16 +1685,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStop:
     tcpSocket : MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopExec
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopHTTPGet
-
     sleep?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopSleep
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopTCPSocket
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopExec:
     r"""
@@ -2013,10 +1703,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopExec:
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopHTTPGet:
     r"""
@@ -2039,18 +1726,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopHTTPG
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
     r"""
@@ -2064,12 +1745,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopHTTPG
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopSleep:
     r"""
@@ -2080,10 +1758,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopSleep
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopTCPSocket:
     r"""
@@ -2100,12 +1775,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LifecyclePreStopTCPSo
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbe:
     r"""
@@ -2152,28 +1823,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeExec:
     r"""
@@ -2188,10 +1847,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeExec:
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeGrpc:
     r"""
@@ -2207,12 +1863,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeHTTPGet:
     r"""
@@ -2235,18 +1888,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeHTTPGet:
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -2260,12 +1907,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeHTTPGetH
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeTCPSocket:
     r"""
@@ -2280,12 +1924,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0LivenessProbeTCPSocke
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0PortsItems0:
     r"""
@@ -2311,18 +1951,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0PortsItems0:
         Protocol for port. Must be UDP, TCP, or SCTP.
         Defaults to "TCP".
     """
-
-
     containerPort: int
 
     hostIP?: str
-
     hostPort?: int
-
     name?: str
-
     $protocol?: str = "TCP"
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbe:
     r"""
@@ -2369,28 +2003,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeExec:
     r"""
@@ -2405,10 +2027,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeExec:
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeGrpc:
     r"""
@@ -2424,12 +2043,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeHTTPGet:
     r"""
@@ -2452,18 +2068,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeHTTPGet
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -2477,12 +2087,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeHTTPGet
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeTCPSocket:
     r"""
@@ -2497,12 +2104,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ReadinessProbeTCPSock
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ResizePolicyItems0:
     r"""
@@ -2517,12 +2120,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ResizePolicyItems0:
         Restart policy to apply when specified resource is resized.
         If not specified, it defaults to NotRequired.
     """
-
-
     resourceName: str
 
     restartPolicy: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0Resources:
     r"""
@@ -2549,19 +2149,13 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0Resources:
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0ResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ResourcesClaimsItems0:
     r"""
@@ -2578,12 +2172,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ResourcesClaimsItems0
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContext:
     r"""
@@ -2646,32 +2237,18 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContext:
     windowsOptions : MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     allowPrivilegeEscalation?: bool
-
     appArmorProfile?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextAppArmorProfile
-
     capabilities?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextCapabilities
-
     privileged?: bool
-
     procMount?: str
-
     readOnlyRootFilesystem?: bool
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxOptions?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextSeccompProfile
-
     windowsOptions?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextAppArmorProfile:
     r"""
@@ -2693,12 +2270,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextAppArm
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextCapabilities:
     r"""
@@ -2713,12 +2286,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextCapabi
     drop : [str], default is Undefined, optional
         Removed capabilities
     """
-
-
     add?: [str]
-
     drop?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextSeLinuxOptions:
     r"""
@@ -2739,16 +2308,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextSeLinu
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextSeccompProfile:
     r"""
@@ -2772,12 +2335,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextSeccom
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextWindowsOptions:
     r"""
@@ -2805,16 +2364,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContextWindow
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbe:
     r"""
@@ -2864,28 +2417,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeGrpc
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeExec:
     r"""
@@ -2900,10 +2441,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeExec:
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeGrpc:
     r"""
@@ -2919,12 +2457,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeHTTPGet:
     r"""
@@ -2947,18 +2482,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeHTTPGet:
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -2972,12 +2501,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeHTTPGetHT
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeTCPSocket:
     r"""
@@ -2992,12 +2518,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0StartupProbeTCPSocket
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0VolumeDevicesItems0:
     r"""
@@ -3010,12 +2532,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0VolumeDevicesItems0:
     name : str, default is Undefined, required
         name must match the name of a persistentVolumeClaim in the pod
     """
-
-
     devicePath: str
 
     name: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0VolumeMountsItems0:
     r"""
@@ -3064,22 +2583,15 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0VolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecDNSConfig:
     r"""
@@ -3099,19 +2611,13 @@ schema MonitoringCoreosComV1ThanosRulerSpecDNSConfig:
         A list of DNS search domains for host-name lookup.
         This will be appended to the base search paths generated from DNSPolicy.
     """
-
-
     nameservers?: [str]
-
     options?: [MonitoringCoreosComV1ThanosRulerSpecDNSConfigOptionsItems0]
-
     searches?: [str]
 
-
     check:
-        all nameservers in nameservers { len(nameservers) >= 1 if nameservers not in [None, Undefined] } if nameservers
-        all searches in searches { len(searches) >= 1 if searches not in [None, Undefined] } if searches
-
+        all nameservers in nameservers {len(nameservers) >= 1 if nameservers not in [None, Undefined]} if nameservers
+        all searches in searches {len(searches) >= 1 if searches not in [None, Undefined]} if searches
 
 schema MonitoringCoreosComV1ThanosRulerSpecDNSConfigOptionsItems0:
     r"""
@@ -3124,16 +2630,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecDNSConfigOptionsItems0:
     value : str, default is Undefined, optional
         Value is optional.
     """
-
-
     name: str
 
     value?: str
 
-
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecExcludedFromEnforcementItems0:
     r"""
@@ -3151,20 +2653,14 @@ schema MonitoringCoreosComV1ThanosRulerSpecExcludedFromEnforcementItems0:
     resource : str, default is Undefined, required
         Resource of the referent.
     """
-
-
     group?: "monitoring.coreos.com" = "monitoring.coreos.com"
-
     name?: str
-
     namespace: str
 
     resource: "prometheusrules" | "servicemonitors" | "podmonitors" | "probes" | "scrapeconfigs"
 
-
     check:
         len(namespace) >= 1
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfig:
     r"""
@@ -3200,28 +2696,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfig:
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCa
-
     caFile?: str
-
     cert?: MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCert
-
     certFile?: str
-
     insecureSkipVerify?: bool
-
     keyFile?: str
-
     keySecret?: MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCa:
     r"""
@@ -3234,12 +2718,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCa:
     secret : MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCaConfigMap:
     r"""
@@ -3258,14 +2738,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCaConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCaSecret:
     r"""
@@ -3284,14 +2760,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCaSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCert:
     r"""
@@ -3304,12 +2776,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCert:
     secret : MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCertConfigMap:
     r"""
@@ -3328,14 +2796,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCertConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCertSecret:
     r"""
@@ -3354,14 +2818,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigCertSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigKeySecret:
     r"""
@@ -3380,14 +2840,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfigKeySecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecHostAliasesItems0:
     r"""
@@ -3401,12 +2857,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecHostAliasesItems0:
     ip : str, default is Undefined, required
         IP address of the host file entry.
     """
-
-
     hostnames: [str]
 
     ip: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecImagePullSecretsItems0:
     r"""
@@ -3422,10 +2875,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecImagePullSecretsItems0:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0:
     r"""
@@ -3556,56 +3006,31 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0:
         might be configured in the container image.
         Cannot be updated.
     """
-
-
     args?: [str]
-
     command?: [str]
-
     env?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0]
-
     envFrom?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0]
-
     image?: str
-
     imagePullPolicy?: str
-
     lifecycle?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0Lifecycle
-
     livenessProbe?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbe
-
     name: str
 
     ports?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0PortsItems0]
-
     readinessProbe?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbe
-
     resizePolicy?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ResizePolicyItems0]
-
     resources?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0Resources
-
     restartPolicy?: str
-
     securityContext?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContext
-
     startupProbe?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbe
-
     stdin?: bool
-
     stdinOnce?: bool
-
     terminationMessagePath?: str
-
     terminationMessagePolicy?: str
-
     tty?: bool
-
     volumeDevices?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0VolumeDevicesItems0]
-
     volumeMounts?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0VolumeMountsItems0]
-
     workingDir?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0:
     r"""
@@ -3620,14 +3045,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0:
     secretRef : MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
-
-
     configMapRef?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0ConfigMapRef
-
     prefix?: str
-
     secretRef?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0SecretRef
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0ConfigMapRef:
     r"""
@@ -3644,12 +3064,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0Conf
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0SecretRef:
     r"""
@@ -3666,12 +3082,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvFromItems0Secr
     optional : bool, default is Undefined, optional
         Specify whether the Secret must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0:
     r"""
@@ -3694,14 +3106,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0:
     valueFrom : MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFrom, default is Undefined, optional
         value from
     """
-
-
     name: str
 
     value?: str
-
     valueFrom?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFrom
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFrom:
     r"""
@@ -3718,16 +3126,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFro
     secretKeyRef : MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef, default is Undefined, optional
         secret key ref
     """
-
-
     configMapKeyRef?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromConfigMapKeyRef
-
     fieldRef?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromFieldRef
-
     resourceFieldRef?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromResourceFieldRef
-
     secretKeyRef?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromConfigMapKeyRef:
     r"""
@@ -3746,14 +3148,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFro
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromFieldRef:
     r"""
@@ -3767,12 +3165,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFro
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromResourceFieldRef:
     r"""
@@ -3788,18 +3182,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFro
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef:
     r"""
@@ -3818,14 +3206,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0EnvItems0ValueFro
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0Lifecycle:
     r"""
@@ -3839,12 +3223,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0Lifecycle:
     preStop : MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
     """
-
-
     postStart?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStart
-
     preStop?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStop
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStart:
     r"""
@@ -3864,16 +3244,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStar
     tcpSocket : MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartExec
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartHTTPGet
-
     sleep?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartSleep
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartTCPSocket
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartExec:
     r"""
@@ -3888,10 +3262,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStar
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartHTTPGet:
     r"""
@@ -3914,18 +3285,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStar
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
     r"""
@@ -3939,12 +3304,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStar
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartSleep:
     r"""
@@ -3955,10 +3317,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStar
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStartTCPSocket:
     r"""
@@ -3975,12 +3334,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePostStar
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStop:
     r"""
@@ -4005,16 +3360,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStop:
     tcpSocket : MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopExec
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopHTTPGet
-
     sleep?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopSleep
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopTCPSocket
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopExec:
     r"""
@@ -4029,10 +3378,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopE
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopHTTPGet:
     r"""
@@ -4055,18 +3401,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopH
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
     r"""
@@ -4080,12 +3420,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopH
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopSleep:
     r"""
@@ -4096,10 +3433,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopS
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopTCPSocket:
     r"""
@@ -4116,12 +3450,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LifecyclePreStopT
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbe:
     r"""
@@ -4168,28 +3498,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeExec:
     r"""
@@ -4204,10 +3522,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeExec
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeGrpc:
     r"""
@@ -4223,12 +3538,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeGrpc
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeHTTPGet:
     r"""
@@ -4251,18 +3563,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeHTTP
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -4276,12 +3582,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeHTTP
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeTCPSocket:
     r"""
@@ -4296,12 +3599,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0LivenessProbeTCPS
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0PortsItems0:
     r"""
@@ -4327,18 +3626,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0PortsItems0:
         Protocol for port. Must be UDP, TCP, or SCTP.
         Defaults to "TCP".
     """
-
-
     containerPort: int
 
     hostIP?: str
-
     hostPort?: int
-
     name?: str
-
     $protocol?: str = "TCP"
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbe:
     r"""
@@ -4385,28 +3678,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeExec:
     r"""
@@ -4421,10 +3702,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeExe
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeGrpc:
     r"""
@@ -4440,12 +3718,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeGrp
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeHTTPGet:
     r"""
@@ -4468,18 +3743,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeHTT
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -4493,12 +3762,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeHTT
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeTCPSocket:
     r"""
@@ -4513,12 +3779,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ReadinessProbeTCP
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ResizePolicyItems0:
     r"""
@@ -4533,12 +3795,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ResizePolicyItems
         Restart policy to apply when specified resource is resized.
         If not specified, it defaults to NotRequired.
     """
-
-
     resourceName: str
 
     restartPolicy: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0Resources:
     r"""
@@ -4565,19 +3824,13 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0Resources:
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ResourcesClaimsItems0:
     r"""
@@ -4594,12 +3847,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ResourcesClaimsIt
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContext:
     r"""
@@ -4662,32 +3912,18 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContext:
     windowsOptions : MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     allowPrivilegeEscalation?: bool
-
     appArmorProfile?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextAppArmorProfile
-
     capabilities?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextCapabilities
-
     privileged?: bool
-
     procMount?: str
-
     readOnlyRootFilesystem?: bool
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxOptions?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextSeccompProfile
-
     windowsOptions?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextAppArmorProfile:
     r"""
@@ -4709,12 +3945,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextAp
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextCapabilities:
     r"""
@@ -4729,12 +3961,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextCa
     drop : [str], default is Undefined, optional
         Removed capabilities
     """
-
-
     add?: [str]
-
     drop?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextSeLinuxOptions:
     r"""
@@ -4755,16 +3983,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextSe
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextSeccompProfile:
     r"""
@@ -4788,12 +4010,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextSe
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextWindowsOptions:
     r"""
@@ -4821,16 +4039,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContextWi
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbe:
     r"""
@@ -4880,28 +4092,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeGrpc
-
     httpGet?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeExec:
     r"""
@@ -4916,10 +4116,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeExec:
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeGrpc:
     r"""
@@ -4935,12 +4132,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeHTTPGet:
     r"""
@@ -4963,18 +4157,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeHTTPG
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -4988,12 +4176,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeHTTPG
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeTCPSocket:
     r"""
@@ -5008,12 +4193,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0StartupProbeTCPSo
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0VolumeDevicesItems0:
     r"""
@@ -5026,12 +4207,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0VolumeDevicesItem
     name : str, default is Undefined, required
         name must match the name of a persistentVolumeClaim in the pod
     """
-
-
     devicePath: str
 
     name: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0VolumeMountsItems0:
     r"""
@@ -5080,22 +4258,15 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0VolumeMountsItems
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecObjectStorageConfig:
     r"""
@@ -5120,14 +4291,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecObjectStorageConfig:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecPodMetadata:
     r"""
@@ -5160,14 +4327,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecPodMetadata:
         Cannot be updated.
         More info: http://kubernetes.io/docs/user-guide/identifiers#names
     """
-
-
     annotations?: {str:str}
-
     labels?: {str:str}
-
     name?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecPrometheusRulesExcludedFromEnforceItems0:
     r"""
@@ -5182,12 +4344,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecPrometheusRulesExcludedFromEnforceIte
     ruleNamespace : str, default is Undefined, required
         Namespace of the excluded PrometheusRule object.
     """
-
-
     ruleName: str
 
     ruleNamespace: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecQueryConfig:
     r"""
@@ -5214,14 +4373,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecQueryConfig:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecResources:
     r"""
@@ -5247,19 +4402,13 @@ schema MonitoringCoreosComV1ThanosRulerSpecResources:
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1ThanosRulerSpecResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecResourcesClaimsItems0:
     r"""
@@ -5276,12 +4425,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecResourcesClaimsItems0:
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecRuleNamespaceSelector:
     r"""
@@ -5297,12 +4443,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecRuleNamespaceSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecRuleNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecRuleNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -5322,14 +4464,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecRuleNamespaceSelectorMatchExpressions
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecRuleSelector:
     r"""
@@ -5346,12 +4485,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecRuleSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecRuleSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecRuleSelectorMatchExpressionsItems0:
     r"""
@@ -5371,14 +4506,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecRuleSelectorMatchExpressionsItems0:
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecSecurityContext:
     r"""
@@ -5480,34 +4612,19 @@ schema MonitoringCoreosComV1ThanosRulerSpecSecurityContext:
     windowsOptions : MonitoringCoreosComV1ThanosRulerSpecSecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     appArmorProfile?: MonitoringCoreosComV1ThanosRulerSpecSecurityContextAppArmorProfile
-
     fsGroup?: int
-
     fsGroupChangePolicy?: str
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxChangePolicy?: str
-
     seLinuxOptions?: MonitoringCoreosComV1ThanosRulerSpecSecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1ThanosRulerSpecSecurityContextSeccompProfile
-
     supplementalGroups?: [int]
-
     supplementalGroupsPolicy?: str
-
     sysctls?: [MonitoringCoreosComV1ThanosRulerSpecSecurityContextSysctlsItems0]
-
     windowsOptions?: MonitoringCoreosComV1ThanosRulerSpecSecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextAppArmorProfile:
     r"""
@@ -5528,12 +4645,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextAppArmorProfile:
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextSeLinuxOptions:
     r"""
@@ -5555,16 +4668,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextSeLinuxOptions:
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextSeccompProfile:
     r"""
@@ -5586,12 +4693,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextSeccompProfile:
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextSysctlsItems0:
     r"""
@@ -5604,12 +4707,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextSysctlsItems0:
     value : str, default is Undefined, required
         Value of a property to set
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextWindowsOptions:
     r"""
@@ -5637,16 +4737,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecSecurityContextWindowsOptions:
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorage:
     r"""
@@ -5663,16 +4757,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorage:
     volumeClaimTemplate : MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     disableMountSubPath?: bool
-
     emptyDir?: MonitoringCoreosComV1ThanosRulerSpecStorageEmptyDir
-
     ephemeral?: MonitoringCoreosComV1ThanosRulerSpecStorageEphemeral
-
     volumeClaimTemplate?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEmptyDir:
     r"""
@@ -5695,16 +4783,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEmptyDir:
         The default is nil which means that the limit is undefined.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
-
-
     medium?: str
-
     sizeLimit?: int | str
-
 
     check:
         _regex_match(str(sizeLimit), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if sizeLimit
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeral:
     r"""
@@ -5718,10 +4801,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeral:
     volumeClaimTemplate : MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     volumeClaimTemplate?: MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplate:
     r"""
@@ -5756,12 +4836,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplate:
     spec : MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpec, default is Undefined, required
         spec
     """
-
-
     metadata?: any
-
     spec: MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpec
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpec:
     r"""
@@ -5805,26 +4881,15 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSp
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecDataSource:
     r"""
@@ -5848,14 +4913,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSp
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -5898,16 +4959,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSp
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecResources:
     r"""
@@ -5928,17 +4985,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSp
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecSelector:
     r"""
@@ -5953,12 +5005,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSp
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -5978,14 +5026,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSp
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplate:
     r"""
@@ -6013,18 +5058,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplate:
     status : MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatus, default is Undefined, optional
         status
     """
-
-
     apiVersion?: str
-
     kind?: str
-
     metadata?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateMetadata
-
     spec?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpec
-
     status?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatus
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateMetadata:
     r"""
@@ -6050,14 +5088,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateMetadata:
         Cannot be updated.
         More info: http://kubernetes.io/docs/user-guide/identifiers#names
     """
-
-
     annotations?: {str:str}
-
     labels?: {str:str}
-
     name?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpec:
     r"""
@@ -6099,26 +5132,15 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpec:
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecDataSource:
     r"""
@@ -6142,14 +5164,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecDataSou
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -6192,16 +5210,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecDataSou
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecResources:
     r"""
@@ -6222,17 +5236,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecResourc
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecSelector:
     r"""
@@ -6247,12 +5256,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecSelecto
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -6272,14 +5277,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecSelecto
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatus:
     r"""
@@ -6363,29 +5365,18 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatus:
     phase : str, default is Undefined, optional
         phase represents the current phase of PersistentVolumeClaim.
     """
-
-
     accessModes?: [str]
-
     allocatedResourceStatuses?: {str:str}
-
     allocatedResources?: {str:int | str}
-
     capacity?: {str:int | str}
-
     conditions?: [MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatusConditionsItems0]
-
     currentVolumeAttributesClassName?: str
-
     modifyVolumeStatus?: MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus
-
     phase?: str
 
-
     check:
-        all _, allocatedResources in allocatedResources { _regex_match(str(allocatedResources), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if allocatedResources } if allocatedResources
-        all _, capacity in capacity { _regex_match(str(capacity), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if capacity } if capacity
-
+        all _, allocatedResources in allocatedResources {_regex_match(str(allocatedResources), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if allocatedResources} if allocatedResources
+        all _, capacity in capacity {_regex_match(str(capacity), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if capacity} if capacity
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatusConditionsItems0:
     r"""
@@ -6411,20 +5402,13 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatusCondi
         Type is the type of the condition.
         More info: https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#:~:text=set%20to%20%27ResizeStarted%27.-,PersistentVolumeClaimCondition,-contains%20details%20about
     """
-
-
     lastProbeTime?: str
-
     lastTransitionTime?: str
-
     message?: str
-
     reason?: str
-
     status: str
 
     $type: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus:
     r"""
@@ -6448,12 +5432,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatusModif
     targetVolumeAttributesClassName : str, default is Undefined, optional
         targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being reconciled
     """
-
-
     status: str
 
     targetVolumeAttributesClassName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecTolerationsItems0:
     r"""
@@ -6482,18 +5463,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecTolerationsItems0:
         Value is the taint value the toleration matches to.
         If the operator is Exists, the value should be empty, otherwise just a regular string.
     """
-
-
     effect?: str
-
     key?: str
-
     operator?: str
-
     tolerationSeconds?: int
-
     value?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0:
     r"""
@@ -6600,24 +5574,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0:
         won't make it *more* imbalanced.
         It's a required field.
     """
-
-
     labelSelector?: MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     maxSkew: int
 
     minDomains?: int
-
     nodeAffinityPolicy?: str
-
     nodeTaintsPolicy?: str
-
     topologyKey: str
 
     whenUnsatisfiable: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0LabelSelector:
     r"""
@@ -6634,12 +5600,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0LabelS
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -6659,14 +5621,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0LabelS
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecTracingConfig:
     r"""
@@ -6694,14 +5653,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecTracingConfig:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumeMountsItems0:
     r"""
@@ -6750,22 +5705,15 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0:
     r"""
@@ -6838,70 +5786,38 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0:
     vsphereVolume : MonitoringCoreosComV1ThanosRulerSpecVolumesItems0VsphereVolume, default is Undefined, optional
         vsphere volume
     """
-
-
     awsElasticBlockStore?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AwsElasticBlockStore
-
     azureDisk?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AzureDisk
-
     azureFile?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AzureFile
-
     cephfs?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Cephfs
-
     cinder?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Cinder
-
     configMap?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ConfigMap
-
     csi?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Csi
-
     downwardAPI?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPI
-
     emptyDir?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EmptyDir
-
     ephemeral?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Ephemeral
-
     fc?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Fc
-
     flexVolume?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0FlexVolume
-
     flocker?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Flocker
-
     gcePersistentDisk?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0GcePersistentDisk
-
     gitRepo?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0GitRepo
-
     glusterfs?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Glusterfs
-
     hostPath?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0HostPath
-
     image?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Image
-
     iscsi?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Iscsi
-
     name: str
 
     nfs?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Nfs
-
     persistentVolumeClaim?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PersistentVolumeClaim
-
     photonPersistentDisk?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PhotonPersistentDisk
-
     portworxVolume?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PortworxVolume
-
     projected?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Projected
-
     quobyte?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Quobyte
-
     rbd?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Rbd
-
     scaleIO?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ScaleIO
-
     secret?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Secret
-
     storageos?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Storageos
-
     vsphereVolume?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0VsphereVolume
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AwsElasticBlockStore:
     r"""
@@ -6930,16 +5846,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AwsElasticBlockStore:
         volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume).
         More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
     """
-
-
     fsType?: str
-
     partition?: int
-
     readOnly?: bool
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AzureDisk:
     r"""
@@ -6965,20 +5875,14 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AzureDisk:
         readOnly Defaults to false (read/write). ReadOnly here will force
         the ReadOnly setting in VolumeMounts.
     """
-
-
     cachingMode?: str
-
     diskName: str
 
     diskURI: str
 
     fsType?: str = "ext4"
-
     kind?: str
-
     readOnly?: bool = False
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AzureFile:
     r"""
@@ -6996,14 +5900,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0AzureFile:
     shareName : str, default is Undefined, required
         shareName is the azure share Name
     """
-
-
     readOnly?: bool
-
     secretName: str
 
     shareName: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Cephfs:
     r"""
@@ -7030,20 +5930,13 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Cephfs:
         user is optional: User is the rados user name, default is admin
         More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
     """
-
-
     monitors: [str]
 
     path?: str
-
     readOnly?: bool
-
     secretFile?: str
-
     secretRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CephfsSecretRef
-
     user?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CephfsSecretRef:
     r"""
@@ -7059,10 +5952,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CephfsSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Cinder:
     r"""
@@ -7088,16 +5978,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Cinder:
         volumeID used to identify the volume in cinder.
         More info: https://examples.k8s.io/mysql-cinder-pd/README.md
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CinderSecretRef
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CinderSecretRef:
     r"""
@@ -7113,10 +5997,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CinderSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ConfigMap:
     r"""
@@ -7149,16 +6030,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ConfigMap:
     optional : bool, default is Undefined, optional
         optional specify whether the ConfigMap or its keys must be defined
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ConfigMapItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ConfigMapItemsItems0:
     r"""
@@ -7181,14 +6056,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ConfigMapItemsItems0:
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Csi:
     r"""
@@ -7212,18 +6083,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Csi:
         volumeAttributes stores driver-specific properties that are passed to the CSI
         driver. Consult your driver's documentation for supported values.
     """
-
-
     driver: str
 
     fsType?: str
-
     nodePublishSecretRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CsiNodePublishSecretRef
-
     readOnly?: bool
-
     volumeAttributes?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CsiNodePublishSecretRef:
     r"""
@@ -7242,10 +6107,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0CsiNodePublishSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPI:
     r"""
@@ -7265,12 +6127,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPI:
     items : [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0], default is Undefined, optional
         Items is a list of downward API volume file
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0:
     r"""
@@ -7292,16 +6150,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0:
     resourceFieldRef : MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
     """
-
-
     fieldRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0FieldRef
-
     mode?: int
-
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -7314,12 +6167,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0Fi
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef:
     r"""
@@ -7335,18 +6184,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0DownwardAPIItemsItems0Re
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EmptyDir:
     r"""
@@ -7368,16 +6211,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EmptyDir:
         The default is nil which means that the limit is undefined.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
-
-
     medium?: str
-
     sizeLimit?: int | str
-
 
     check:
         _regex_match(str(sizeLimit), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if sizeLimit
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Ephemeral:
     r"""
@@ -7411,10 +6249,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Ephemeral:
     volumeClaimTemplate : MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     volumeClaimTemplate?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplate:
     r"""
@@ -7449,12 +6284,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemp
     spec : MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpec, default is Undefined, required
         spec
     """
-
-
     metadata?: any
-
     spec: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpec
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpec:
     r"""
@@ -7498,26 +6329,15 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemp
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSource:
     r"""
@@ -7541,14 +6361,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemp
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -7591,16 +6407,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemp
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecResources:
     r"""
@@ -7621,17 +6433,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemp
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelector:
     r"""
@@ -7646,12 +6453,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemp
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -7671,14 +6474,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemp
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Fc:
     r"""
@@ -7701,18 +6501,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Fc:
         wwids Optional: FC volume world wide identifiers (wwids)
         Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
     """
-
-
     fsType?: str
-
     lun?: int
-
     readOnly?: bool
-
     targetWWNs?: [str]
-
     wwids?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0FlexVolume:
     r"""
@@ -7736,18 +6529,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0FlexVolume:
     secretRef : MonitoringCoreosComV1ThanosRulerSpecVolumesItems0FlexVolumeSecretRef, default is Undefined, optional
         secret ref
     """
-
-
     driver: str
 
     fsType?: str
-
     options?: {str:str}
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0FlexVolumeSecretRef
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0FlexVolumeSecretRef:
     r"""
@@ -7766,10 +6553,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0FlexVolumeSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Flocker:
     r"""
@@ -7784,12 +6568,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Flocker:
     datasetUUID : str, default is Undefined, optional
         datasetUUID is the UUID of the dataset. This is unique identifier of a Flocker dataset
     """
-
-
     datasetName?: str
-
     datasetUUID?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0GcePersistentDisk:
     r"""
@@ -7820,16 +6600,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0GcePersistentDisk:
         Defaults to false.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
     """
-
-
     fsType?: str
-
     partition?: int
-
     pdName: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0GitRepo:
     r"""
@@ -7850,14 +6625,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0GitRepo:
     revision : str, default is Undefined, optional
         revision is the commit hash for the specified revision.
     """
-
-
     directory?: str
-
     repository: str
 
     revision?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Glusterfs:
     r"""
@@ -7878,14 +6649,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Glusterfs:
         Defaults to false.
         More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
     """
-
-
     endpoints: str
 
     path: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0HostPath:
     r"""
@@ -7906,12 +6674,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0HostPath:
         Defaults to ""
         More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
     """
-
-
     path: str
 
     $type?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Image:
     r"""
@@ -7946,12 +6711,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Image:
         This field is optional to allow higher level config management to default or override
         container images in workload controllers like Deployments and StatefulSets.
     """
-
-
     pullPolicy?: str
-
     reference?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Iscsi:
     r"""
@@ -7993,30 +6754,19 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Iscsi:
         targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port
         is other than default (typically TCP ports 860 and 3260).
     """
-
-
     chapAuthDiscovery?: bool
-
     chapAuthSession?: bool
-
     fsType?: str
-
     initiatorName?: str
-
     iqn: str
 
     iscsiInterface?: str = "default"
-
     lun: int
 
     portals?: [str]
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0IscsiSecretRef
-
     targetPortal: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0IscsiSecretRef:
     r"""
@@ -8031,10 +6781,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0IscsiSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Nfs:
     r"""
@@ -8054,14 +6801,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Nfs:
         server is the hostname or IP address of the NFS server.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
     """
-
-
     path: str
 
     readOnly?: bool
-
     server: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PersistentVolumeClaim:
     r"""
@@ -8078,12 +6821,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PersistentVolumeClaim:
         readOnly Will force the ReadOnly setting in VolumeMounts.
         Default false.
     """
-
-
     claimName: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PhotonPersistentDisk:
     r"""
@@ -8099,12 +6839,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PhotonPersistentDisk:
     pdID : str, default is Undefined, required
         pdID is the ID that identifies Photon Controller persistent disk
     """
-
-
     fsType?: str
-
     pdID: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PortworxVolume:
     r"""
@@ -8125,14 +6861,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PortworxVolume:
     volumeID : str, default is Undefined, required
         volumeID uniquely identifies a Portworx volume
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Projected:
     r"""
@@ -8151,12 +6882,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Projected:
         sources is the list of volume projections. Each entry in this list
         handles one source.
     """
-
-
     defaultMode?: int
-
     sources?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0:
     r"""
@@ -8176,18 +6903,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0:
     serviceAccountToken : MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken, default is Undefined, optional
         service account token
     """
-
-
     clusterTrustBundle?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundle
-
     configMap?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ConfigMap
-
     downwardAPI?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPI
-
     secret?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Secret
-
     serviceAccountToken?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundle:
     r"""
@@ -8225,18 +6945,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Cl
         Mutually-exclusive with name.  The contents of all selected
         ClusterTrustBundles will be unified and deduplicated.
     """
-
-
     labelSelector?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector
-
     name?: str
-
     optional?: bool
-
     path: str
 
     signerName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector:
     r"""
@@ -8254,12 +6968,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Cl
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelectorMatchExpressionsItems0:
     r"""
@@ -8279,14 +6989,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Cl
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ConfigMap:
     r"""
@@ -8311,14 +7018,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Co
     optional : bool, default is Undefined, optional
         optional specify whether the ConfigMap or its keys must be defined
     """
-
-
     items?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ConfigMapItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ConfigMapItemsItems0:
     r"""
@@ -8341,14 +7043,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Co
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPI:
     r"""
@@ -8359,10 +7057,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Do
     items : [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0], default is Undefined, optional
         Items is a list of DownwardAPIVolume file
     """
-
-
     items?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0]
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0:
     r"""
@@ -8384,16 +7079,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Do
     resourceFieldRef : MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
     """
-
-
     fieldRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef
-
     mode?: int
-
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -8406,12 +7096,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Do
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef:
     r"""
@@ -8427,18 +7113,12 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Do
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Secret:
     r"""
@@ -8463,14 +7143,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Se
     optional : bool, default is Undefined, optional
         optional field specify whether the Secret or its key must be defined
     """
-
-
     items?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0SecretItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0SecretItemsItems0:
     r"""
@@ -8493,14 +7168,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Se
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken:
     r"""
@@ -8524,14 +7195,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ProjectedSourcesItems0Se
         path is the path relative to the mount point of the file to project the
         token into.
     """
-
-
     audience?: str
-
     expirationSeconds?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Quobyte:
     r"""
@@ -8559,20 +7225,13 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Quobyte:
     volume : str, default is Undefined, required
         volume is a string that references an already created Quobyte volume by name.
     """
-
-
     group?: str
-
     readOnly?: bool
-
     registry: str
 
     tenant?: str
-
     user?: str
-
     volume: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Rbd:
     r"""
@@ -8612,24 +7271,16 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Rbd:
         Default is admin.
         More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
     """
-
-
     fsType?: str
-
     image: str
 
     keyring?: str = "/etc/ceph/keyring"
-
     monitors: [str]
 
     pool?: str = "rbd"
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0RbdSecretRef
-
     user?: str = "admin"
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0RbdSecretRef:
     r"""
@@ -8647,10 +7298,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0RbdSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ScaleIO:
     r"""
@@ -8686,28 +7334,19 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ScaleIO:
         volumeName is the name of a volume already created in the ScaleIO system
         that is associated with this volume source.
     """
-
-
     fsType?: str = "xfs"
-
     gateway: str
 
     protectionDomain?: str
-
     readOnly?: bool
-
     secretRef: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ScaleIOSecretRef
 
     sslEnabled?: bool
-
     storageMode?: str = "ThinProvisioned"
-
     storagePool?: str
-
     system: str
 
     volumeName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ScaleIOSecretRef:
     r"""
@@ -8723,10 +7362,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0ScaleIOSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Secret:
     r"""
@@ -8757,16 +7393,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Secret:
         secretName is the name of the secret in the pod's namespace to use.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1ThanosRulerSpecVolumesItems0SecretItemsItems0]
-
     optional?: bool
-
     secretName?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0SecretItemsItems0:
     r"""
@@ -8789,14 +7419,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0SecretItemsItems0:
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Storageos:
     r"""
@@ -8825,18 +7451,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Storageos:
         Set to "default" if you are not using namespaces within StorageOS.
         Namespaces that do not pre-exist within StorageOS will be created.
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1ThanosRulerSpecVolumesItems0StorageosSecretRef
-
     volumeName?: str
-
     volumeNamespace?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0StorageosSecretRef:
     r"""
@@ -8852,10 +7471,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0StorageosSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0VsphereVolume:
     r"""
@@ -8876,16 +7492,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0VsphereVolume:
     volumePath : str, default is Undefined, required
         volumePath is the path that identifies vSphere volume vmdk
     """
-
-
     fsType?: str
-
     storagePolicyID?: str
-
     storagePolicyName?: str
-
     volumePath: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWeb:
     r"""
@@ -8898,12 +7508,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecWeb:
     tlsConfig : MonitoringCoreosComV1ThanosRulerSpecWebTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     httpConfig?: MonitoringCoreosComV1ThanosRulerSpecWebHTTPConfig
-
     tlsConfig?: MonitoringCoreosComV1ThanosRulerSpecWebTLSConfig
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebHTTPConfig:
     r"""
@@ -8918,12 +7524,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebHTTPConfig:
         When TLSConfig is not configured, HTTP/2 will be disabled.
         Whenever the value of the field changes, a rolling update will be triggered.
     """
-
-
     headers?: MonitoringCoreosComV1ThanosRulerSpecWebHTTPConfigHeaders
-
     http2?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebHTTPConfigHeaders:
     r"""
@@ -8954,18 +7556,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebHTTPConfigHeaders:
         Unset if blank.
         https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
     """
-
-
     contentSecurityPolicy?: str
-
     strictTransportSecurity?: str
-
     xContentTypeOptions?: "" | "NoSniff"
-
     xFrameOptions?: "" | "Deny" | "SameOrigin"
-
     xXSSProtection?: str
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfig:
     r"""
@@ -9024,32 +7619,18 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfig:
         If true then the server's preference, as expressed in
         the order of elements in cipherSuites, is used.
     """
-
-
     cert?: MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCert
-
     certFile?: str
-
     cipherSuites?: [str]
-
     clientAuthType?: str
-
     clientCAFile?: str
-
     client_ca?: MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCa
-
     curvePreferences?: [str]
-
     keyFile?: str
-
     keySecret?: MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigKeySecret
-
     maxVersion?: str
-
     minVersion?: str
-
     preferServerCipherSuites?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCert:
     r"""
@@ -9066,12 +7647,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCert:
     secret : MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCertConfigMap:
     r"""
@@ -9090,14 +7667,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCertConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCertSecret:
     r"""
@@ -9116,14 +7689,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigCertSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCa:
     r"""
@@ -9139,12 +7708,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCa:
     secret : MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCaConfigMap
-
     secret?: MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCaSecret
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCaConfigMap:
     r"""
@@ -9163,14 +7728,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCaConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCaSecret:
     r"""
@@ -9189,14 +7750,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigClientCaSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigKeySecret:
     r"""
@@ -9219,14 +7776,10 @@ schema MonitoringCoreosComV1ThanosRulerSpecWebTLSConfigKeySecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1ThanosRulerStatus:
     r"""
@@ -9253,12 +7806,9 @@ schema MonitoringCoreosComV1ThanosRulerStatus:
         Total number of non-terminated pods targeted by this ThanosRuler deployment
         that have the desired version spec.
     """
-
-
     availableReplicas: int
 
     conditions?: [MonitoringCoreosComV1ThanosRulerStatusConditionsItems0]
-
     paused: bool
 
     replicas: int
@@ -9266,7 +7816,6 @@ schema MonitoringCoreosComV1ThanosRulerStatus:
     unavailableReplicas: int
 
     updatedReplicas: int
-
 
 schema MonitoringCoreosComV1ThanosRulerStatusConditionsItems0:
     r"""
@@ -9292,23 +7841,16 @@ schema MonitoringCoreosComV1ThanosRulerStatusConditionsItems0:
     $type : str, default is Undefined, required
         Type of the condition being reported.
     """
-
-
     lastTransitionTime: str
 
     message?: str
-
     observedGeneration?: int
-
     reason?: str
-
     status: str
 
     $type: str
 
-
     check:
         len(status) >= 1
         len($type) >= 1
-
 

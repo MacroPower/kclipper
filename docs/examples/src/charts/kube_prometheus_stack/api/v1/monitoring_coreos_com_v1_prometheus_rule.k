@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema PrometheusRule:
     r"""
@@ -24,16 +24,12 @@ schema PrometheusRule:
     spec : MonitoringCoreosComV1PrometheusRuleSpec, default is Undefined, required
         spec
     """
-
-
     apiVersion: "monitoring.coreos.com/v1" = "monitoring.coreos.com/v1"
 
     kind: "PrometheusRule" = "PrometheusRule"
 
     metadata?: v1.ObjectMeta
-
     spec: MonitoringCoreosComV1PrometheusRuleSpec
-
 
 schema MonitoringCoreosComV1PrometheusRuleSpec:
     r"""
@@ -44,10 +40,7 @@ schema MonitoringCoreosComV1PrometheusRuleSpec:
     groups : [MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0], default is Undefined, optional
         Content of Prometheus rule file
     """
-
-
     groups?: [MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0]
-
 
 schema MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0:
     r"""
@@ -81,29 +74,20 @@ schema MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0:
     rules : [MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0RulesItems0], default is Undefined, optional
         List of alerting and recording rules.
     """
-
-
     interval?: str
-
     labels?: {str:str}
-
     limit?: int
-
     name: str
 
     partial_response_strategy?: str
-
     query_offset?: str
-
     rules?: [MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0RulesItems0]
-
 
     check:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
         len(name) >= 1
         _regex_match(str(partial_response_strategy), r"^(?i)(abort|warn)?$") if partial_response_strategy
         _regex_match(str(query_offset), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if query_offset
-
 
 schema MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0RulesItems0:
     r"""
@@ -130,26 +114,17 @@ schema MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0RulesItems0:
         Name of the time series to output to. Must be a valid metric name.
         Only one of `record` and `alert` must be set.
     """
-
-
     alert?: str
-
     annotations?: {str:str}
-
     expr: int | str
 
     $for?: str
-
     keep_firing_for?: str
-
     labels?: {str:str}
-
     record?: str
-
 
     check:
         _regex_match(str($for), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if $for
         len(keep_firing_for) >= 1 if keep_firing_for
         _regex_match(str(keep_firing_for), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if keep_firing_for
-
 

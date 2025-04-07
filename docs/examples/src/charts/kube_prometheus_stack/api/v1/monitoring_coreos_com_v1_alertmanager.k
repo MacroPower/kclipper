@@ -4,8 +4,8 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 """
 import regex
 import k8s.apimachinery.pkg.apis.meta.v1
-_regex_match = regex.match
 
+_regex_match = regex.match
 
 schema Alertmanager:
     r"""
@@ -28,18 +28,14 @@ schema Alertmanager:
     status : MonitoringCoreosComV1AlertmanagerStatus, default is Undefined, optional
         status
     """
-
-
     apiVersion: "monitoring.coreos.com/v1" = "monitoring.coreos.com/v1"
 
     kind: "Alertmanager" = "Alertmanager"
 
     metadata?: v1.ObjectMeta
-
     spec: MonitoringCoreosComV1AlertmanagerSpec
 
     status?: MonitoringCoreosComV1AlertmanagerStatus
-
 
 schema MonitoringCoreosComV1AlertmanagerSpec:
     r"""
@@ -227,119 +223,64 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     web : MonitoringCoreosComV1AlertmanagerSpecWeb, default is Undefined, optional
         web
     """
-
-
     additionalPeers?: [str]
-
     affinity?: MonitoringCoreosComV1AlertmanagerSpecAffinity
-
     alertmanagerConfigMatcherStrategy?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigMatcherStrategy
-
     alertmanagerConfigNamespaceSelector?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigNamespaceSelector
-
     alertmanagerConfigSelector?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigSelector
-
     alertmanagerConfiguration?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfiguration
-
     automountServiceAccountToken?: bool
-
     baseImage?: str
-
     clusterAdvertiseAddress?: str
-
     clusterGossipInterval?: str
-
     clusterLabel?: str
-
     clusterPeerTimeout?: str
-
     clusterPushpullInterval?: str
-
     configMaps?: [str]
-
     configSecret?: str
-
     containers?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0]
-
     dnsConfig?: MonitoringCoreosComV1AlertmanagerSpecDNSConfig
-
     dnsPolicy?: "ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
-
     enableFeatures?: [str]
-
     externalUrl?: str
-
     forceEnableClusterMode?: bool
-
     hostAliases?: [MonitoringCoreosComV1AlertmanagerSpecHostAliasesItems0]
-
     image?: str
-
     imagePullPolicy?: "" | "Always" | "Never" | "IfNotPresent"
-
     imagePullSecrets?: [MonitoringCoreosComV1AlertmanagerSpecImagePullSecretsItems0]
-
     initContainers?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0]
-
     listenLocal?: bool
-
     logFormat?: "" | "logfmt" | "json"
-
     logLevel?: "" | "debug" | "info" | "warn" | "error"
-
     minReadySeconds?: int
-
     nodeSelector?: {str:str}
-
     paused?: bool
-
     persistentVolumeClaimRetentionPolicy?: MonitoringCoreosComV1AlertmanagerSpecPersistentVolumeClaimRetentionPolicy
-
     podMetadata?: MonitoringCoreosComV1AlertmanagerSpecPodMetadata
-
     portName?: str = "web"
-
     priorityClassName?: str
-
     replicas?: int
-
     resources?: MonitoringCoreosComV1AlertmanagerSpecResources
-
     retention?: str = "120h"
-
     routePrefix?: str
-
     secrets?: [str]
-
     securityContext?: MonitoringCoreosComV1AlertmanagerSpecSecurityContext
-
     serviceAccountName?: str
-
     sha?: str
-
     storage?: MonitoringCoreosComV1AlertmanagerSpecStorage
-
     tag?: str
-
     tolerations?: [MonitoringCoreosComV1AlertmanagerSpecTolerationsItems0]
-
     topologySpreadConstraints?: [MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0]
-
     version?: str
-
     volumeMounts?: [MonitoringCoreosComV1AlertmanagerSpecVolumeMountsItems0]
-
     volumes?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0]
-
     web?: MonitoringCoreosComV1AlertmanagerSpecWeb
-
 
     check:
         _regex_match(str(clusterGossipInterval), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterGossipInterval
         _regex_match(str(clusterPeerTimeout), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterPeerTimeout
         _regex_match(str(clusterPushpullInterval), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterPushpullInterval
         _regex_match(str(retention), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if retention
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinity:
     r"""
@@ -354,14 +295,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinity:
     podAntiAffinity : MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinity, default is Undefined, optional
         pod anti affinity
     """
-
-
     nodeAffinity?: MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinity
-
     podAffinity?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinity
-
     podAntiAffinity?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinity
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinity:
     r"""
@@ -382,12 +318,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution : MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution, default is Undefined, optional
         required during scheduling ignored during execution
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -401,12 +333,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringS
     weight : int, default is Undefined, required
         Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.
     """
-
-
     preference: MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference
 
     weight: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0Preference:
     r"""
@@ -419,12 +348,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringS
     matchFields : [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0], default is Undefined, optional
         A list of node selector requirements by node's fields.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0]
-
     matchFields?: [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchExpressionsItems0:
     r"""
@@ -445,14 +370,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringS
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PreferenceMatchFieldsItems0:
     r"""
@@ -473,14 +395,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityPreferredDuringS
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution:
     r"""
@@ -495,10 +414,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSc
     nodeSelectorTerms : [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0], default is Undefined, required
         Required. A list of node selector terms. The terms are ORed.
     """
-
-
     nodeSelectorTerms: [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0:
     r"""
@@ -513,12 +429,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSc
     matchFields : [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0], default is Undefined, optional
         A list of node selector requirements by node's fields.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0]
-
     matchFields?: [MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchExpressionsItems0:
     r"""
@@ -539,14 +451,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSc
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsItems0MatchFieldsItems0:
     r"""
@@ -567,14 +476,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityNodeAffinityRequiredDuringSc
         array must have a single element, which will be interpreted as an integer.
         This array is replaced during a strategic merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinity:
     r"""
@@ -601,12 +507,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinity:
         When there are multiple elements, the lists of nodes corresponding to each
         podAffinityTerm are intersected, i.e. all terms must be satisfied.
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -620,12 +522,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSc
         weight associated with matching the corresponding podAffinityTerm,
         in the range 1-100.
     """
-
-
     podAffinityTerm: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
 
     weight: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
     r"""
@@ -669,20 +568,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSc
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
     r"""
@@ -698,12 +589,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSc
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
     r"""
@@ -723,14 +610,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSc
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
     r"""
@@ -749,12 +633,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSc
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -774,14 +654,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSc
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -830,20 +707,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSch
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
     r"""
@@ -859,12 +728,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSch
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -884,14 +749,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSch
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
     r"""
@@ -910,12 +772,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSch
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -935,14 +793,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSch
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinity:
     r"""
@@ -969,12 +824,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinity:
         When there are multiple elements, the lists of nodes corresponding to each
         podAffinityTerm are intersected, i.e. all terms must be satisfied.
     """
-
-
     preferredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0]
-
     requiredDuringSchedulingIgnoredDuringExecution?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -988,12 +839,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuri
         weight associated with matching the corresponding podAffinityTerm,
         in the range 1-100.
     """
-
-
     podAffinityTerm: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm
 
     weight: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTerm:
     r"""
@@ -1037,20 +885,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuri
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelector:
     r"""
@@ -1066,12 +906,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuri
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermLabelSelectorMatchExpressionsItems0:
     r"""
@@ -1091,14 +927,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuri
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector:
     r"""
@@ -1117,12 +950,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuri
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1142,14 +971,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuri
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0:
     r"""
@@ -1198,20 +1024,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDurin
         selected pods is running.
         Empty topologyKey is not allowed.
     """
-
-
     labelSelector?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     mismatchLabelKeys?: [str]
-
     namespaceSelector?: MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector
-
     namespaces?: [str]
-
     topologyKey: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelector:
     r"""
@@ -1227,12 +1045,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDurin
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -1252,14 +1066,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDurin
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector:
     r"""
@@ -1278,12 +1089,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDurin
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1303,14 +1110,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDurin
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigMatcherStrategy:
     r"""
@@ -1326,10 +1130,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigMatcherStrategy:
 
         The default value is `OnNamespace`.
     """
-
-
     $type?: "OnNamespace" | "None" = "OnNamespace"
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigNamespaceSelector:
     r"""
@@ -1345,12 +1146,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigNamespaceSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigNamespaceSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigNamespaceSelectorMatchExpressionsItems0:
     r"""
@@ -1370,14 +1167,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigNamespaceSelectorM
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigSelector:
     r"""
@@ -1392,12 +1186,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigSelector:
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigSelectorMatchExpressionsItems0:
     r"""
@@ -1417,14 +1207,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigSelectorMatchExpre
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfiguration:
     r"""
@@ -1446,18 +1233,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfiguration:
     templates : [MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0], default is Undefined, optional
         Custom notification templates.
     """
-
-
     global?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobal
-
     name?: str
-
     templates?: [MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0]
-
 
     check:
         len(name) >= 1 if name
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobal:
     r"""
@@ -1482,26 +1263,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobal:
     smtp : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP, default is Undefined, optional
         smtp
     """
-
-
     httpConfig?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfig
-
     opsGenieApiKey?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIKey
-
     opsGenieApiUrl?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIURL
-
     pagerdutyUrl?: str
-
     resolveTimeout?: str
-
     slackApiUrl?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSlackAPIURL
-
     smtp?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP
-
 
     check:
         _regex_match(str(resolveTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if resolveTimeout
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfig:
     r"""
@@ -1539,32 +1310,19 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     tlsConfig : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     authorization?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigAuthorization
-
     basicAuth?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBasicAuth
-
     bearerTokenSecret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBearerTokenSecret
-
     followRedirects?: bool
-
     noProxy?: str
-
     oauth2?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     tlsConfig?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfig
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigAuthorization:
     r"""
@@ -1582,12 +1340,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
 
         Default: "Bearer"
     """
-
-
     credentials?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigAuthorizationCredentials
-
     $type?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigAuthorizationCredentials:
     r"""
@@ -1606,14 +1360,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBasicAuth:
     r"""
@@ -1627,12 +1377,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     username : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBasicAuthUsername, default is Undefined, optional
         username
     """
-
-
     password?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBasicAuthPassword
-
     username?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBasicAuthUsername
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBasicAuthPassword:
     r"""
@@ -1652,14 +1398,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBasicAuthUsername:
     r"""
@@ -1679,14 +1421,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigBearerTokenSecret:
     r"""
@@ -1708,14 +1446,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2:
     r"""
@@ -1754,33 +1488,22 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     tokenUrl : str, default is Undefined, required
         `tokenURL` configures the URL to fetch the token from.
     """
-
-
     clientId: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientID
 
     clientSecret: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientSecret
 
     endpointParams?: {str:str}
-
     noProxy?: str
-
     proxyConnectHeader?: {str:[MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ProxyConnectHeaderItems0]}
-
     proxyFromEnvironment?: bool
-
     proxyUrl?: str
-
     scopes?: [str]
-
     tlsConfig?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfig
-
     tokenUrl: str
-
 
     check:
         _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
         len(tokenUrl) >= 1
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientID:
     r"""
@@ -1794,12 +1517,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     secret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientIDSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientIDConfigMap
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientIDSecret
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientIDConfigMap:
     r"""
@@ -1818,14 +1537,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientIDSecret:
     r"""
@@ -1844,14 +1559,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientSecret:
     r"""
@@ -1871,14 +1582,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ProxyConnectHeaderItems0:
     r"""
@@ -1897,14 +1604,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfig:
     r"""
@@ -1932,22 +1635,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCa
-
     cert?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCa:
     r"""
@@ -1960,12 +1654,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     secret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
@@ -1984,14 +1674,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCaSecret:
     r"""
@@ -2010,14 +1696,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCert:
     r"""
@@ -2030,12 +1712,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     secret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
@@ -2054,14 +1732,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigCertSecret:
     r"""
@@ -2080,14 +1754,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2TLSConfigKeySecret:
     r"""
@@ -2106,14 +1776,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigProxyConnectHeaderItems0:
     r"""
@@ -2132,14 +1798,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfig:
     r"""
@@ -2166,22 +1828,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
-
-
     ca?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCa
-
     cert?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCert
-
     insecureSkipVerify?: bool
-
     keySecret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigKeySecret
-
     maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
-
     serverName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCa:
     r"""
@@ -2194,12 +1847,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     secret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCaConfigMap
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCaSecret
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCaConfigMap:
     r"""
@@ -2218,14 +1867,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCaSecret:
     r"""
@@ -2244,14 +1889,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCert:
     r"""
@@ -2264,12 +1905,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     secret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCertConfigMap:
     r"""
@@ -2288,14 +1925,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigCertSecret:
     r"""
@@ -2314,14 +1947,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfigKeySecret:
     r"""
@@ -2340,14 +1969,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIKey:
     r"""
@@ -2366,14 +1991,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIURL:
     r"""
@@ -2392,14 +2013,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP:
     r"""
@@ -2425,24 +2042,14 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP:
     smartHost : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPSmartHost, default is Undefined, optional
         smart host
     """
-
-
     authIdentity?: str
-
     authPassword?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPAuthPassword
-
     authSecret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPAuthSecret
-
     authUsername?: str
-
     from?: str
-
     hello?: str
-
     requireTLS?: bool
-
     smartHost?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPSmartHost
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPAuthPassword:
     r"""
@@ -2461,14 +2068,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPA
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPAuthSecret:
     r"""
@@ -2487,14 +2090,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPA
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPSmartHost:
     r"""
@@ -2507,17 +2106,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPS
     port : str, default is Undefined, required
         Defines the host's port, it can be a literal port number or a port name.
     """
-
-
     host: str
 
     port: str
 
-
     check:
         len(host) >= 1
         len(port) >= 1
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSlackAPIURL:
     r"""
@@ -2536,14 +2131,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSlack
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0:
     r"""
@@ -2556,12 +2147,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesIt
     secret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0Secret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0ConfigMap
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0Secret
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0ConfigMap:
     r"""
@@ -2580,14 +2167,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesIt
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0Secret:
     r"""
@@ -2606,14 +2189,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesIt
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0:
     r"""
@@ -2744,56 +2323,31 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0:
         might be configured in the container image.
         Cannot be updated.
     """
-
-
     args?: [str]
-
     command?: [str]
-
     env?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0]
-
     envFrom?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0]
-
     image?: str
-
     imagePullPolicy?: str
-
     lifecycle?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0Lifecycle
-
     livenessProbe?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbe
-
     name: str
 
     ports?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0PortsItems0]
-
     readinessProbe?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbe
-
     resizePolicy?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0ResizePolicyItems0]
-
     resources?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0Resources
-
     restartPolicy?: str
-
     securityContext?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContext
-
     startupProbe?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbe
-
     stdin?: bool
-
     stdinOnce?: bool
-
     terminationMessagePath?: str
-
     terminationMessagePolicy?: str
-
     tty?: bool
-
     volumeDevices?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0VolumeDevicesItems0]
-
     volumeMounts?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0VolumeMountsItems0]
-
     workingDir?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0:
     r"""
@@ -2808,14 +2362,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0:
     secretRef : MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
-
-
     configMapRef?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0ConfigMapRef
-
     prefix?: str
-
     secretRef?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0SecretRef
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0ConfigMapRef:
     r"""
@@ -2832,12 +2381,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0ConfigM
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0SecretRef:
     r"""
@@ -2854,12 +2399,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0SecretR
     optional : bool, default is Undefined, optional
         Specify whether the Secret must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0:
     r"""
@@ -2882,14 +2423,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0:
     valueFrom : MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFrom, default is Undefined, optional
         value from
     """
-
-
     name: str
 
     value?: str
-
     valueFrom?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFrom
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFrom:
     r"""
@@ -2906,16 +2443,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFrom:
     secretKeyRef : MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromSecretKeyRef, default is Undefined, optional
         secret key ref
     """
-
-
     configMapKeyRef?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromConfigMapKeyRef
-
     fieldRef?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromFieldRef
-
     resourceFieldRef?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromResourceFieldRef
-
     secretKeyRef?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromSecretKeyRef
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromConfigMapKeyRef:
     r"""
@@ -2934,14 +2465,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromCo
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromFieldRef:
     r"""
@@ -2955,12 +2482,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromFi
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromResourceFieldRef:
     r"""
@@ -2976,18 +2499,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromRe
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromSecretKeyRef:
     r"""
@@ -3006,14 +2523,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromSe
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0Lifecycle:
     r"""
@@ -3027,12 +2540,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0Lifecycle:
     preStop : MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
     """
-
-
     postStart?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStart
-
     preStop?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStop
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStart:
     r"""
@@ -3052,16 +2561,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStart:
     tcpSocket : MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartExec
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHTTPGet
-
     sleep?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartSleep
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartTCPSocket
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartExec:
     r"""
@@ -3076,10 +2579,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartEx
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHTTPGet:
     r"""
@@ -3102,18 +2602,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHT
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
     r"""
@@ -3127,12 +2621,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHT
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartSleep:
     r"""
@@ -3143,10 +2634,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartSl
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartTCPSocket:
     r"""
@@ -3163,12 +2651,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartTC
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStop:
     r"""
@@ -3193,16 +2677,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStop:
     tcpSocket : MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopExec
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTPGet
-
     sleep?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopSleep
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopTCPSocket
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopExec:
     r"""
@@ -3217,10 +2695,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopExec
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTPGet:
     r"""
@@ -3243,18 +2718,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTP
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
     r"""
@@ -3268,12 +2737,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTP
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopSleep:
     r"""
@@ -3284,10 +2750,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopSlee
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopTCPSocket:
     r"""
@@ -3304,12 +2767,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopTCPS
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbe:
     r"""
@@ -3356,28 +2815,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeExec:
     r"""
@@ -3392,10 +2839,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeExec:
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeGrpc:
     r"""
@@ -3411,12 +2855,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGet:
     r"""
@@ -3439,18 +2880,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGet
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -3464,12 +2899,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGet
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeTCPSocket:
     r"""
@@ -3484,12 +2916,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeTCPSock
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0PortsItems0:
     r"""
@@ -3515,18 +2943,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0PortsItems0:
         Protocol for port. Must be UDP, TCP, or SCTP.
         Defaults to "TCP".
     """
-
-
     containerPort: int
 
     hostIP?: str
-
     hostPort?: int
-
     name?: str
-
     $protocol?: str = "TCP"
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbe:
     r"""
@@ -3573,28 +2995,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeExec:
     r"""
@@ -3609,10 +3019,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeExec:
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeGrpc:
     r"""
@@ -3628,12 +3035,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGet:
     r"""
@@ -3656,18 +3060,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGe
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -3681,12 +3079,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGe
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeTCPSocket:
     r"""
@@ -3701,12 +3096,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeTCPSoc
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ResizePolicyItems0:
     r"""
@@ -3721,12 +3112,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ResizePolicyItems0:
         Restart policy to apply when specified resource is resized.
         If not specified, it defaults to NotRequired.
     """
-
-
     resourceName: str
 
     restartPolicy: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0Resources:
     r"""
@@ -3753,19 +3141,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0Resources:
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0ResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ResourcesClaimsItems0:
     r"""
@@ -3782,12 +3164,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ResourcesClaimsItems
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContext:
     r"""
@@ -3850,32 +3229,18 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContext:
     windowsOptions : MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     allowPrivilegeEscalation?: bool
-
     appArmorProfile?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextAppArmorProfile
-
     capabilities?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextCapabilities
-
     privileged?: bool
-
     procMount?: str
-
     readOnlyRootFilesystem?: bool
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxOptions?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextSeccompProfile
-
     windowsOptions?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextAppArmorProfile:
     r"""
@@ -3897,12 +3262,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextAppAr
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextCapabilities:
     r"""
@@ -3917,12 +3278,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextCapab
     drop : [str], default is Undefined, optional
         Removed capabilities
     """
-
-
     add?: [str]
-
     drop?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextSeLinuxOptions:
     r"""
@@ -3943,16 +3300,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextSeLin
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextSeccompProfile:
     r"""
@@ -3976,12 +3327,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextSecco
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextWindowsOptions:
     r"""
@@ -4009,16 +3356,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContextWindo
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbe:
     r"""
@@ -4068,28 +3409,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeGrpc
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeExec:
     r"""
@@ -4104,10 +3433,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeExec:
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeGrpc:
     r"""
@@ -4123,12 +3449,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGet:
     r"""
@@ -4151,18 +3474,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGet:
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -4176,12 +3493,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGetH
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeTCPSocket:
     r"""
@@ -4196,12 +3510,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeTCPSocke
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0VolumeDevicesItems0:
     r"""
@@ -4214,12 +3524,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0VolumeDevicesItems0:
     name : str, default is Undefined, required
         name must match the name of a persistentVolumeClaim in the pod
     """
-
-
     devicePath: str
 
     name: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0VolumeMountsItems0:
     r"""
@@ -4268,22 +3575,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0VolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecDNSConfig:
     r"""
@@ -4303,19 +3603,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecDNSConfig:
         A list of DNS search domains for host-name lookup.
         This will be appended to the base search paths generated from DNSPolicy.
     """
-
-
     nameservers?: [str]
-
     options?: [MonitoringCoreosComV1AlertmanagerSpecDNSConfigOptionsItems0]
-
     searches?: [str]
 
-
     check:
-        all nameservers in nameservers { len(nameservers) >= 1 if nameservers not in [None, Undefined] } if nameservers
-        all searches in searches { len(searches) >= 1 if searches not in [None, Undefined] } if searches
-
+        all nameservers in nameservers {len(nameservers) >= 1 if nameservers not in [None, Undefined]} if nameservers
+        all searches in searches {len(searches) >= 1 if searches not in [None, Undefined]} if searches
 
 schema MonitoringCoreosComV1AlertmanagerSpecDNSConfigOptionsItems0:
     r"""
@@ -4328,16 +3622,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecDNSConfigOptionsItems0:
     value : str, default is Undefined, optional
         Value is optional.
     """
-
-
     name: str
 
     value?: str
 
-
     check:
         len(name) >= 1
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecHostAliasesItems0:
     r"""
@@ -4351,12 +3641,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecHostAliasesItems0:
     ip : str, default is Undefined, required
         IP address of the host file entry.
     """
-
-
     hostnames: [str]
 
     ip: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecImagePullSecretsItems0:
     r"""
@@ -4372,10 +3659,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecImagePullSecretsItems0:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0:
     r"""
@@ -4506,56 +3790,31 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0:
         might be configured in the container image.
         Cannot be updated.
     """
-
-
     args?: [str]
-
     command?: [str]
-
     env?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0]
-
     envFrom?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0]
-
     image?: str
-
     imagePullPolicy?: str
-
     lifecycle?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0Lifecycle
-
     livenessProbe?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbe
-
     name: str
 
     ports?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0PortsItems0]
-
     readinessProbe?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbe
-
     resizePolicy?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ResizePolicyItems0]
-
     resources?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0Resources
-
     restartPolicy?: str
-
     securityContext?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContext
-
     startupProbe?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbe
-
     stdin?: bool
-
     stdinOnce?: bool
-
     terminationMessagePath?: str
-
     terminationMessagePolicy?: str
-
     tty?: bool
-
     volumeDevices?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeDevicesItems0]
-
     volumeMounts?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeMountsItems0]
-
     workingDir?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0:
     r"""
@@ -4570,14 +3829,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0:
     secretRef : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
-
-
     configMapRef?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0ConfigMapRef
-
     prefix?: str
-
     secretRef?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0SecretRef
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0ConfigMapRef:
     r"""
@@ -4594,12 +3848,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0Con
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0SecretRef:
     r"""
@@ -4616,12 +3866,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0Sec
     optional : bool, default is Undefined, optional
         Specify whether the Secret must be defined
     """
-
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0:
     r"""
@@ -4644,14 +3890,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0:
     valueFrom : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFrom, default is Undefined, optional
         value from
     """
-
-
     name: str
 
     value?: str
-
     valueFrom?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFrom
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFrom:
     r"""
@@ -4668,16 +3910,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFr
     secretKeyRef : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef, default is Undefined, optional
         secret key ref
     """
-
-
     configMapKeyRef?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromConfigMapKeyRef
-
     fieldRef?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromFieldRef
-
     resourceFieldRef?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromResourceFieldRef
-
     secretKeyRef?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromConfigMapKeyRef:
     r"""
@@ -4696,14 +3932,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFr
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromFieldRef:
     r"""
@@ -4717,12 +3949,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFr
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromResourceFieldRef:
     r"""
@@ -4738,18 +3966,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFr
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFromSecretKeyRef:
     r"""
@@ -4768,14 +3990,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFr
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0Lifecycle:
     r"""
@@ -4789,12 +4007,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0Lifecycle:
     preStop : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
     """
-
-
     postStart?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStart
-
     preStop?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStart:
     r"""
@@ -4814,16 +4028,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostSta
     tcpSocket : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartExec
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartHTTPGet
-
     sleep?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartSleep
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartTCPSocket
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartExec:
     r"""
@@ -4838,10 +4046,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostSta
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartHTTPGet:
     r"""
@@ -4864,18 +4069,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostSta
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
     r"""
@@ -4889,12 +4088,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostSta
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartSleep:
     r"""
@@ -4905,10 +4101,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostSta
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartTCPSocket:
     r"""
@@ -4925,12 +4118,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostSta
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop:
     r"""
@@ -4955,16 +4144,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
     tcpSocket : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopTCPSocket, default is Undefined, optional
         tcp socket
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopExec
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopHTTPGet
-
     sleep?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopSleep
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopTCPSocket
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopExec:
     r"""
@@ -4979,10 +4162,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopHTTPGet:
     r"""
@@ -5005,18 +4185,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
     r"""
@@ -5030,12 +4204,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopSleep:
     r"""
@@ -5046,10 +4217,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
     seconds : int, default is Undefined, required
         Seconds is the number of seconds to sleep.
     """
-
-
     seconds: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopTCPSocket:
     r"""
@@ -5066,12 +4234,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbe:
     r"""
@@ -5118,28 +4282,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeExec:
     r"""
@@ -5154,10 +4306,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeExe
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeGrpc:
     r"""
@@ -5173,12 +4322,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeGrp
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTTPGet:
     r"""
@@ -5201,18 +4347,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTT
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -5226,12 +4366,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTT
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeTCPSocket:
     r"""
@@ -5246,12 +4383,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeTCP
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0PortsItems0:
     r"""
@@ -5277,18 +4410,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0PortsItems0:
         Protocol for port. Must be UDP, TCP, or SCTP.
         Defaults to "TCP".
     """
-
-
     containerPort: int
 
     hostIP?: str
-
     hostPort?: int
-
     name?: str
-
     $protocol?: str = "TCP"
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbe:
     r"""
@@ -5335,28 +4462,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeGrpc
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeExec:
     r"""
@@ -5371,10 +4486,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeEx
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeGrpc:
     r"""
@@ -5390,12 +4502,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeGr
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHTTPGet:
     r"""
@@ -5418,18 +4527,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHT
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -5443,12 +4546,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHT
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeTCPSocket:
     r"""
@@ -5463,12 +4563,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeTC
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ResizePolicyItems0:
     r"""
@@ -5483,12 +4579,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ResizePolicyItem
         Restart policy to apply when specified resource is resized.
         If not specified, it defaults to NotRequired.
     """
-
-
     resourceName: str
 
     restartPolicy: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0Resources:
     r"""
@@ -5515,19 +4608,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0Resources:
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ResourcesClaimsItems0:
     r"""
@@ -5544,12 +4631,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ResourcesClaimsI
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContext:
     r"""
@@ -5612,32 +4696,18 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContext:
     windowsOptions : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     allowPrivilegeEscalation?: bool
-
     appArmorProfile?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextAppArmorProfile
-
     capabilities?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextCapabilities
-
     privileged?: bool
-
     procMount?: str
-
     readOnlyRootFilesystem?: bool
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxOptions?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextSeccompProfile
-
     windowsOptions?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextAppArmorProfile:
     r"""
@@ -5659,12 +4729,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextA
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextCapabilities:
     r"""
@@ -5679,12 +4745,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextC
     drop : [str], default is Undefined, optional
         Removed capabilities
     """
-
-
     add?: [str]
-
     drop?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextSeLinuxOptions:
     r"""
@@ -5705,16 +4767,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextS
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextSeccompProfile:
     r"""
@@ -5738,12 +4794,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextS
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextWindowsOptions:
     r"""
@@ -5771,16 +4823,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContextW
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbe:
     r"""
@@ -5830,28 +4876,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbe:
         Defaults to 1 second. Minimum value is 1.
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     """
-
-
     exec?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeExec
-
     failureThreshold?: int
-
     grpc?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeGrpc
-
     httpGet?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTPGet
-
     initialDelaySeconds?: int
-
     periodSeconds?: int
-
     successThreshold?: int
-
     tcpSocket?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeTCPSocket
-
     terminationGracePeriodSeconds?: int
-
     timeoutSeconds?: int
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeExec:
     r"""
@@ -5866,10 +4900,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeExec
         a shell, you need to explicitly call out to that shell.
         Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
     """
-
-
     command?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeGrpc:
     r"""
@@ -5885,12 +4916,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeGrpc
 
         If this is not specified, the default behavior is defined by gRPC.
     """
-
-
     port: int
 
     service?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTPGet:
     r"""
@@ -5913,18 +4941,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTP
         Scheme to use for connecting to the host.
         Defaults to HTTP.
     """
-
-
     host?: str
-
     httpHeaders?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTPGetHTTPHeadersItems0]
-
     path?: str
-
     port: int | str
 
     scheme?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
     r"""
@@ -5938,12 +4960,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTP
     value : str, default is Undefined, required
         The header field value
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeTCPSocket:
     r"""
@@ -5958,12 +4977,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeTCPS
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
     """
-
-
     host?: str
-
     port: int | str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeDevicesItems0:
     r"""
@@ -5976,12 +4991,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeDevicesIte
     name : str, default is Undefined, required
         name must match the name of a persistentVolumeClaim in the pod
     """
-
-
     devicePath: str
 
     name: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeMountsItems0:
     r"""
@@ -6030,22 +5042,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeMountsItem
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecPersistentVolumeClaimRetentionPolicy:
     r"""
@@ -6068,12 +5073,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecPersistentVolumeClaimRetentionPolicy
         `Delete` policy causes the associated PVCs for any excess pods above
         the replica count to be deleted.
     """
-
-
     whenDeleted?: str
-
     whenScaled?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecPodMetadata:
     r"""
@@ -6107,14 +5108,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecPodMetadata:
         Cannot be updated.
         More info: http://kubernetes.io/docs/user-guide/identifiers#names
     """
-
-
     annotations?: {str:str}
-
     labels?: {str:str}
-
     name?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecResources:
     r"""
@@ -6139,19 +5135,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecResources:
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     claims?: [MonitoringCoreosComV1AlertmanagerSpecResourcesClaimsItems0]
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecResourcesClaimsItems0:
     r"""
@@ -6168,12 +5158,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecResourcesClaimsItems0:
         If empty, everything from the claim is made available, otherwise
         only the result of this request.
     """
-
-
     name: str
 
     request?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecSecurityContext:
     r"""
@@ -6275,34 +5262,19 @@ schema MonitoringCoreosComV1AlertmanagerSpecSecurityContext:
     windowsOptions : MonitoringCoreosComV1AlertmanagerSpecSecurityContextWindowsOptions, default is Undefined, optional
         windows options
     """
-
-
     appArmorProfile?: MonitoringCoreosComV1AlertmanagerSpecSecurityContextAppArmorProfile
-
     fsGroup?: int
-
     fsGroupChangePolicy?: str
-
     runAsGroup?: int
-
     runAsNonRoot?: bool
-
     runAsUser?: int
-
     seLinuxChangePolicy?: str
-
     seLinuxOptions?: MonitoringCoreosComV1AlertmanagerSpecSecurityContextSeLinuxOptions
-
     seccompProfile?: MonitoringCoreosComV1AlertmanagerSpecSecurityContextSeccompProfile
-
     supplementalGroups?: [int]
-
     supplementalGroupsPolicy?: str
-
     sysctls?: [MonitoringCoreosComV1AlertmanagerSpecSecurityContextSysctlsItems0]
-
     windowsOptions?: MonitoringCoreosComV1AlertmanagerSpecSecurityContextWindowsOptions
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextAppArmorProfile:
     r"""
@@ -6323,12 +5295,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextAppArmorProfile:
           RuntimeDefault - the container runtime's default profile.
           Unconfined - no AppArmor enforcement.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextSeLinuxOptions:
     r"""
@@ -6350,16 +5318,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextSeLinuxOptions:
     user : str, default is Undefined, optional
         User is a SELinux user label that applies to the container.
     """
-
-
     level?: str
-
     role?: str
-
     $type?: str
-
     user?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextSeccompProfile:
     r"""
@@ -6381,12 +5343,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextSeccompProfile:
         RuntimeDefault - the container runtime default profile should be used.
         Unconfined - no profile should be applied.
     """
-
-
     localhostProfile?: str
-
     $type: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextSysctlsItems0:
     r"""
@@ -6399,12 +5357,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextSysctlsItems0:
     value : str, default is Undefined, required
         Value of a property to set
     """
-
-
     name: str
 
     value: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextWindowsOptions:
     r"""
@@ -6432,16 +5387,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecSecurityContextWindowsOptions:
         May also be set in PodSecurityContext. If set in both SecurityContext and
         PodSecurityContext, the value specified in SecurityContext takes precedence.
     """
-
-
     gmsaCredentialSpec?: str
-
     gmsaCredentialSpecName?: str
-
     hostProcess?: bool
-
     runAsUserName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorage:
     r"""
@@ -6459,16 +5408,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorage:
     volumeClaimTemplate : MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     disableMountSubPath?: bool
-
     emptyDir?: MonitoringCoreosComV1AlertmanagerSpecStorageEmptyDir
-
     ephemeral?: MonitoringCoreosComV1AlertmanagerSpecStorageEphemeral
-
     volumeClaimTemplate?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEmptyDir:
     r"""
@@ -6491,16 +5434,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEmptyDir:
         The default is nil which means that the limit is undefined.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
-
-
     medium?: str
-
     sizeLimit?: int | str
-
 
     check:
         _regex_match(str(sizeLimit), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if sizeLimit
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeral:
     r"""
@@ -6514,10 +5452,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeral:
     volumeClaimTemplate : MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     volumeClaimTemplate?: MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplate:
     r"""
@@ -6552,12 +5487,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplate:
     spec : MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpec, default is Undefined, required
         spec
     """
-
-
     metadata?: any
-
     spec: MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpec
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpec:
     r"""
@@ -6601,26 +5532,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecDataSource:
     r"""
@@ -6644,14 +5564,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -6694,16 +5610,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecResources:
     r"""
@@ -6724,17 +5636,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecSelector:
     r"""
@@ -6749,12 +5656,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -6774,14 +5677,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplate:
     r"""
@@ -6809,18 +5709,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplate:
     status : MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatus, default is Undefined, optional
         status
     """
-
-
     apiVersion?: str
-
     kind?: str
-
     metadata?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateMetadata
-
     spec?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpec
-
     status?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatus
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateMetadata:
     r"""
@@ -6846,14 +5739,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateMetadata:
         Cannot be updated.
         More info: http://kubernetes.io/docs/user-guide/identifiers#names
     """
-
-
     annotations?: {str:str}
-
     labels?: {str:str}
-
     name?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpec:
     r"""
@@ -6895,26 +5783,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpec:
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecDataSource:
     r"""
@@ -6938,14 +5815,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecDataSo
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -6988,16 +5861,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecDataSo
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecResources:
     r"""
@@ -7018,17 +5887,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecResour
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecSelector:
     r"""
@@ -7043,12 +5907,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecSelect
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -7068,14 +5928,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecSelect
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatus:
     r"""
@@ -7159,29 +6016,18 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatus:
     phase : str, default is Undefined, optional
         phase represents the current phase of PersistentVolumeClaim.
     """
-
-
     accessModes?: [str]
-
     allocatedResourceStatuses?: {str:str}
-
     allocatedResources?: {str:int | str}
-
     capacity?: {str:int | str}
-
     conditions?: [MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusConditionsItems0]
-
     currentVolumeAttributesClassName?: str
-
     modifyVolumeStatus?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus
-
     phase?: str
 
-
     check:
-        all _, allocatedResources in allocatedResources { _regex_match(str(allocatedResources), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if allocatedResources } if allocatedResources
-        all _, capacity in capacity { _regex_match(str(capacity), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if capacity } if capacity
-
+        all _, allocatedResources in allocatedResources {_regex_match(str(allocatedResources), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if allocatedResources} if allocatedResources
+        all _, capacity in capacity {_regex_match(str(capacity), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if capacity} if capacity
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusConditionsItems0:
     r"""
@@ -7207,20 +6053,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusCond
         Type is the type of the condition.
         More info: https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#:~:text=set%20to%20%27ResizeStarted%27.-,PersistentVolumeClaimCondition,-contains%20details%20about
     """
-
-
     lastProbeTime?: str
-
     lastTransitionTime?: str
-
     message?: str
-
     reason?: str
-
     status: str
 
     $type: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus:
     r"""
@@ -7244,12 +6083,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusModi
     targetVolumeAttributesClassName : str, default is Undefined, optional
         targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being reconciled
     """
-
-
     status: str
 
     targetVolumeAttributesClassName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecTolerationsItems0:
     r"""
@@ -7278,18 +6114,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecTolerationsItems0:
         Value is the taint value the toleration matches to.
         If the operator is Exists, the value should be empty, otherwise just a regular string.
     """
-
-
     effect?: str
-
     key?: str
-
     operator?: str
-
     tolerationSeconds?: int
-
     value?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0:
     r"""
@@ -7396,24 +6225,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0:
         won't make it *more* imbalanced.
         It's a required field.
     """
-
-
     labelSelector?: MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0LabelSelector
-
     matchLabelKeys?: [str]
-
     maxSkew: int
 
     minDomains?: int
-
     nodeAffinityPolicy?: str
-
     nodeTaintsPolicy?: str
-
     topologyKey: str
 
     whenUnsatisfiable: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0LabelSelector:
     r"""
@@ -7430,12 +6251,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0Label
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0LabelSelectorMatchExpressionsItems0:
     r"""
@@ -7455,14 +6272,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0Label
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumeMountsItems0:
     r"""
@@ -7511,22 +6325,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
-
-
     mountPath: str
 
     mountPropagation?: str
-
     name: str
 
     readOnly?: bool
-
     recursiveReadOnly?: str
-
     subPath?: str
-
     subPathExpr?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0:
     r"""
@@ -7599,70 +6406,38 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0:
     vsphereVolume : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0VsphereVolume, default is Undefined, optional
         vsphere volume
     """
-
-
     awsElasticBlockStore?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AwsElasticBlockStore
-
     azureDisk?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AzureDisk
-
     azureFile?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AzureFile
-
     cephfs?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Cephfs
-
     cinder?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Cinder
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMap
-
     csi?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Csi
-
     downwardAPI?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPI
-
     emptyDir?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EmptyDir
-
     ephemeral?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Ephemeral
-
     fc?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Fc
-
     flexVolume?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0FlexVolume
-
     flocker?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Flocker
-
     gcePersistentDisk?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0GcePersistentDisk
-
     gitRepo?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0GitRepo
-
     glusterfs?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Glusterfs
-
     hostPath?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0HostPath
-
     image?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Image
-
     iscsi?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Iscsi
-
     name: str
 
     nfs?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Nfs
-
     persistentVolumeClaim?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PersistentVolumeClaim
-
     photonPersistentDisk?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PhotonPersistentDisk
-
     portworxVolume?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PortworxVolume
-
     projected?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Projected
-
     quobyte?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Quobyte
-
     rbd?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Rbd
-
     scaleIO?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ScaleIO
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Secret
-
     storageos?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Storageos
-
     vsphereVolume?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0VsphereVolume
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AwsElasticBlockStore:
     r"""
@@ -7691,16 +6466,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AwsElasticBlockStore:
         volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume).
         More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
     """
-
-
     fsType?: str
-
     partition?: int
-
     readOnly?: bool
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AzureDisk:
     r"""
@@ -7726,20 +6495,14 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AzureDisk:
         readOnly Defaults to false (read/write). ReadOnly here will force
         the ReadOnly setting in VolumeMounts.
     """
-
-
     cachingMode?: str
-
     diskName: str
 
     diskURI: str
 
     fsType?: str = "ext4"
-
     kind?: str
-
     readOnly?: bool = False
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AzureFile:
     r"""
@@ -7757,14 +6520,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0AzureFile:
     shareName : str, default is Undefined, required
         shareName is the azure share Name
     """
-
-
     readOnly?: bool
-
     secretName: str
 
     shareName: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Cephfs:
     r"""
@@ -7791,20 +6550,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Cephfs:
         user is optional: User is the rados user name, default is admin
         More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it
     """
-
-
     monitors: [str]
 
     path?: str
-
     readOnly?: bool
-
     secretFile?: str
-
     secretRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CephfsSecretRef
-
     user?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CephfsSecretRef:
     r"""
@@ -7820,10 +6572,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CephfsSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Cinder:
     r"""
@@ -7849,16 +6598,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Cinder:
         volumeID used to identify the volume in cinder.
         More info: https://examples.k8s.io/mysql-cinder-pd/README.md
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CinderSecretRef
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CinderSecretRef:
     r"""
@@ -7874,10 +6617,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CinderSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMap:
     r"""
@@ -7910,16 +6650,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMap:
     optional : bool, default is Undefined, optional
         optional specify whether the ConfigMap or its keys must be defined
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMapItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMapItemsItems0:
     r"""
@@ -7942,14 +6676,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMapItemsItems0:
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Csi:
     r"""
@@ -7973,18 +6703,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Csi:
         volumeAttributes stores driver-specific properties that are passed to the CSI
         driver. Consult your driver's documentation for supported values.
     """
-
-
     driver: str
 
     fsType?: str
-
     nodePublishSecretRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CsiNodePublishSecretRef
-
     readOnly?: bool
-
     volumeAttributes?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CsiNodePublishSecretRef:
     r"""
@@ -8003,10 +6727,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0CsiNodePublishSecretRef
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPI:
     r"""
@@ -8026,12 +6747,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPI:
     items : [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0], default is Undefined, optional
         Items is a list of downward API volume file
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0:
     r"""
@@ -8053,16 +6770,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0:
     resourceFieldRef : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
     """
-
-
     fieldRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0FieldRef
-
     mode?: int
-
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -8075,12 +6787,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0F
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef:
     r"""
@@ -8096,18 +6804,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0R
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EmptyDir:
     r"""
@@ -8129,16 +6831,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EmptyDir:
         The default is nil which means that the limit is undefined.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
-
-
     medium?: str
-
     sizeLimit?: int | str
-
 
     check:
         _regex_match(str(sizeLimit), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if sizeLimit
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Ephemeral:
     r"""
@@ -8172,10 +6869,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Ephemeral:
     volumeClaimTemplate : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplate, default is Undefined, optional
         volume claim template
     """
-
-
     volumeClaimTemplate?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplate
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplate:
     r"""
@@ -8210,12 +6904,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
     spec : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpec, default is Undefined, required
         spec
     """
-
-
     metadata?: any
-
     spec: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpec
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpec:
     r"""
@@ -8259,26 +6949,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
     volumeName : str, default is Undefined, optional
         volumeName is the binding reference to the PersistentVolume backing this claim.
     """
-
-
     accessModes?: [str]
-
     dataSource?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSource
-
     dataSourceRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSourceRef
-
     resources?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecResources
-
     selector?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelector
-
     storageClassName?: str
-
     volumeAttributesClassName?: str
-
     volumeMode?: str
-
     volumeName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSource:
     r"""
@@ -8302,14 +6981,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
     name : str, default is Undefined, required
         Name is the name of resource being referenced
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecDataSourceRef:
     r"""
@@ -8352,16 +7027,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
         Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
         (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
     """
-
-
     apiGroup?: str
-
     kind: str
 
     name: str
 
     namespace?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecResources:
     r"""
@@ -8382,17 +7053,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
         otherwise to an implementation-defined value. Requests cannot exceed Limits.
         More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     """
-
-
     limits?: {str:int | str}
-
     requests?: {str:int | str}
 
-
     check:
-        all _, limits in limits { _regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits } if limits
-        all _, requests in requests { _regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests } if requests
-
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelector:
     r"""
@@ -8407,12 +7073,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelectorMatchExpressionsItems0:
     r"""
@@ -8432,14 +7094,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Fc:
     r"""
@@ -8462,18 +7121,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Fc:
         wwids Optional: FC volume world wide identifiers (wwids)
         Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
     """
-
-
     fsType?: str
-
     lun?: int
-
     readOnly?: bool
-
     targetWWNs?: [str]
-
     wwids?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0FlexVolume:
     r"""
@@ -8497,18 +7149,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0FlexVolume:
     secretRef : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0FlexVolumeSecretRef, default is Undefined, optional
         secret ref
     """
-
-
     driver: str
 
     fsType?: str
-
     options?: {str:str}
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0FlexVolumeSecretRef
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0FlexVolumeSecretRef:
     r"""
@@ -8527,10 +7173,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0FlexVolumeSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Flocker:
     r"""
@@ -8545,12 +7188,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Flocker:
     datasetUUID : str, default is Undefined, optional
         datasetUUID is the UUID of the dataset. This is unique identifier of a Flocker dataset
     """
-
-
     datasetName?: str
-
     datasetUUID?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0GcePersistentDisk:
     r"""
@@ -8581,16 +7220,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0GcePersistentDisk:
         Defaults to false.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
     """
-
-
     fsType?: str
-
     partition?: int
-
     pdName: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0GitRepo:
     r"""
@@ -8611,14 +7245,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0GitRepo:
     revision : str, default is Undefined, optional
         revision is the commit hash for the specified revision.
     """
-
-
     directory?: str
-
     repository: str
 
     revision?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Glusterfs:
     r"""
@@ -8639,14 +7269,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Glusterfs:
         Defaults to false.
         More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod
     """
-
-
     endpoints: str
 
     path: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0HostPath:
     r"""
@@ -8667,12 +7294,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0HostPath:
         Defaults to ""
         More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
     """
-
-
     path: str
 
     $type?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Image:
     r"""
@@ -8707,12 +7331,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Image:
         This field is optional to allow higher level config management to default or override
         container images in workload controllers like Deployments and StatefulSets.
     """
-
-
     pullPolicy?: str
-
     reference?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Iscsi:
     r"""
@@ -8754,30 +7374,19 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Iscsi:
         targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port
         is other than default (typically TCP ports 860 and 3260).
     """
-
-
     chapAuthDiscovery?: bool
-
     chapAuthSession?: bool
-
     fsType?: str
-
     initiatorName?: str
-
     iqn: str
 
     iscsiInterface?: str = "default"
-
     lun: int
 
     portals?: [str]
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0IscsiSecretRef
-
     targetPortal: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0IscsiSecretRef:
     r"""
@@ -8792,10 +7401,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0IscsiSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Nfs:
     r"""
@@ -8815,14 +7421,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Nfs:
         server is the hostname or IP address of the NFS server.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
     """
-
-
     path: str
 
     readOnly?: bool
-
     server: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PersistentVolumeClaim:
     r"""
@@ -8839,12 +7441,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PersistentVolumeClaim:
         readOnly Will force the ReadOnly setting in VolumeMounts.
         Default false.
     """
-
-
     claimName: str
 
     readOnly?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PhotonPersistentDisk:
     r"""
@@ -8860,12 +7459,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PhotonPersistentDisk:
     pdID : str, default is Undefined, required
         pdID is the ID that identifies Photon Controller persistent disk
     """
-
-
     fsType?: str
-
     pdID: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PortworxVolume:
     r"""
@@ -8886,14 +7481,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PortworxVolume:
     volumeID : str, default is Undefined, required
         volumeID uniquely identifies a Portworx volume
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     volumeID: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Projected:
     r"""
@@ -8912,12 +7502,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Projected:
         sources is the list of volume projections. Each entry in this list
         handles one source.
     """
-
-
     defaultMode?: int
-
     sources?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0:
     r"""
@@ -8937,18 +7523,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0:
     serviceAccountToken : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken, default is Undefined, optional
         service account token
     """
-
-
     clusterTrustBundle?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundle
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ConfigMap
-
     downwardAPI?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPI
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0Secret
-
     serviceAccountToken?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundle:
     r"""
@@ -8986,18 +7565,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0C
         Mutually-exclusive with name.  The contents of all selected
         ClusterTrustBundles will be unified and deduplicated.
     """
-
-
     labelSelector?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector
-
     name?: str
-
     optional?: bool
-
     path: str
 
     signerName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector:
     r"""
@@ -9015,12 +7588,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0C
         map is equivalent to an element of matchExpressions, whose key field is "key", the
         operator is "In", and the values array contains only "value". The requirements are ANDed.
     """
-
-
     matchExpressions?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelectorMatchExpressionsItems0]
-
     matchLabels?: {str:str}
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelectorMatchExpressionsItems0:
     r"""
@@ -9040,14 +7609,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0C
         the values array must be empty. This array is replaced during a strategic
         merge patch.
     """
-
-
     key: str
 
     operator: str
 
     values?: [str]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ConfigMap:
     r"""
@@ -9072,14 +7638,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0C
     optional : bool, default is Undefined, optional
         optional specify whether the ConfigMap or its keys must be defined
     """
-
-
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ConfigMapItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ConfigMapItemsItems0:
     r"""
@@ -9102,14 +7663,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0C
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPI:
     r"""
@@ -9120,10 +7677,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0D
     items : [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0], default is Undefined, optional
         Items is a list of DownwardAPIVolume file
     """
-
-
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0]
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0:
     r"""
@@ -9145,16 +7699,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0D
     resourceFieldRef : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
     """
-
-
     fieldRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef
-
     mode?: int
-
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -9167,12 +7716,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0D
     fieldPath : str, default is Undefined, required
         Path of the field to select in the specified API version.
     """
-
-
     apiVersion?: str
-
     fieldPath: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef:
     r"""
@@ -9188,18 +7733,12 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0D
     resource : str, default is Undefined, required
         Required: resource to select
     """
-
-
     containerName?: str
-
     divisor?: int | str
-
     resource: str
-
 
     check:
         _regex_match(str(divisor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if divisor
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0Secret:
     r"""
@@ -9224,14 +7763,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0S
     optional : bool, default is Undefined, optional
         optional field specify whether the Secret or its key must be defined
     """
-
-
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0SecretItemsItems0]
-
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0SecretItemsItems0:
     r"""
@@ -9254,14 +7788,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0S
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken:
     r"""
@@ -9285,14 +7815,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0S
         path is the path relative to the mount point of the file to project the
         token into.
     """
-
-
     audience?: str
-
     expirationSeconds?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Quobyte:
     r"""
@@ -9320,20 +7845,13 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Quobyte:
     volume : str, default is Undefined, required
         volume is a string that references an already created Quobyte volume by name.
     """
-
-
     group?: str
-
     readOnly?: bool
-
     registry: str
 
     tenant?: str
-
     user?: str
-
     volume: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Rbd:
     r"""
@@ -9373,24 +7891,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Rbd:
         Default is admin.
         More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it
     """
-
-
     fsType?: str
-
     image: str
 
     keyring?: str = "/etc/ceph/keyring"
-
     monitors: [str]
 
     pool?: str = "rbd"
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0RbdSecretRef
-
     user?: str = "admin"
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0RbdSecretRef:
     r"""
@@ -9408,10 +7918,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0RbdSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ScaleIO:
     r"""
@@ -9447,28 +7954,19 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ScaleIO:
         volumeName is the name of a volume already created in the ScaleIO system
         that is associated with this volume source.
     """
-
-
     fsType?: str = "xfs"
-
     gateway: str
 
     protectionDomain?: str
-
     readOnly?: bool
-
     secretRef: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ScaleIOSecretRef
 
     sslEnabled?: bool
-
     storageMode?: str = "ThinProvisioned"
-
     storagePool?: str
-
     system: str
 
     volumeName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ScaleIOSecretRef:
     r"""
@@ -9484,10 +7982,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ScaleIOSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Secret:
     r"""
@@ -9518,16 +8013,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Secret:
         secretName is the name of the secret in the pod's namespace to use.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
     """
-
-
     defaultMode?: int
-
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0SecretItemsItems0]
-
     optional?: bool
-
     secretName?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0SecretItemsItems0:
     r"""
@@ -9550,14 +8039,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0SecretItemsItems0:
         May not contain the path element '..'.
         May not start with the string '..'.
     """
-
-
     key: str
 
     mode?: int
-
     path: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Storageos:
     r"""
@@ -9586,18 +8071,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Storageos:
         Set to "default" if you are not using namespaces within StorageOS.
         Namespaces that do not pre-exist within StorageOS will be created.
     """
-
-
     fsType?: str
-
     readOnly?: bool
-
     secretRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0StorageosSecretRef
-
     volumeName?: str
-
     volumeNamespace?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0StorageosSecretRef:
     r"""
@@ -9613,10 +8091,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0StorageosSecretRef:
         almost certainly wrong.
         More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
     """
-
-
     name?: str = ""
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0VsphereVolume:
     r"""
@@ -9637,16 +8112,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0VsphereVolume:
     volumePath : str, default is Undefined, required
         volumePath is the path that identifies vSphere volume vmdk
     """
-
-
     fsType?: str
-
     storagePolicyID?: str
-
     storagePolicyName?: str
-
     volumePath: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWeb:
     r"""
@@ -9665,16 +8134,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecWeb:
     tlsConfig : MonitoringCoreosComV1AlertmanagerSpecWebTLSConfig, default is Undefined, optional
         tls config
     """
-
-
     getConcurrency?: int
-
     httpConfig?: MonitoringCoreosComV1AlertmanagerSpecWebHTTPConfig
-
     timeout?: int
-
     tlsConfig?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfig
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebHTTPConfig:
     r"""
@@ -9689,12 +8152,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebHTTPConfig:
         When TLSConfig is not configured, HTTP/2 will be disabled.
         Whenever the value of the field changes, a rolling update will be triggered.
     """
-
-
     headers?: MonitoringCoreosComV1AlertmanagerSpecWebHTTPConfigHeaders
-
     http2?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebHTTPConfigHeaders:
     r"""
@@ -9725,18 +8184,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebHTTPConfigHeaders:
         Unset if blank.
         https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
     """
-
-
     contentSecurityPolicy?: str
-
     strictTransportSecurity?: str
-
     xContentTypeOptions?: "" | "NoSniff"
-
     xFrameOptions?: "" | "Deny" | "SameOrigin"
-
     xXSSProtection?: str
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfig:
     r"""
@@ -9795,32 +8247,18 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfig:
         If true then the server's preference, as expressed in
         the order of elements in cipherSuites, is used.
     """
-
-
     cert?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCert
-
     certFile?: str
-
     cipherSuites?: [str]
-
     clientAuthType?: str
-
     clientCAFile?: str
-
     client_ca?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCa
-
     curvePreferences?: [str]
-
     keyFile?: str
-
     keySecret?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigKeySecret
-
     maxVersion?: str
-
     minVersion?: str
-
     preferServerCipherSuites?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCert:
     r"""
@@ -9837,12 +8275,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCert:
     secret : MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertConfigMap
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertSecret
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertConfigMap:
     r"""
@@ -9861,14 +8295,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertSecret:
     r"""
@@ -9887,14 +8317,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCa:
     r"""
@@ -9910,12 +8336,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCa:
     secret : MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaSecret, default is Undefined, optional
         secret
     """
-
-
     configMap?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaConfigMap
-
     secret?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaSecret
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaConfigMap:
     r"""
@@ -9934,14 +8356,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaConfigMap:
     optional : bool, default is Undefined, optional
         Specify whether the ConfigMap or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaSecret:
     r"""
@@ -9960,14 +8378,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaSecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigKeySecret:
     r"""
@@ -9990,14 +8404,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigKeySecret:
     optional : bool, default is Undefined, optional
         Specify whether the Secret or its key must be defined
     """
-
-
     key: str
 
     name?: str = ""
-
     optional?: bool
-
 
 schema MonitoringCoreosComV1AlertmanagerStatus:
     r"""
@@ -10026,22 +8436,17 @@ schema MonitoringCoreosComV1AlertmanagerStatus:
         Total number of non-terminated pods targeted by this Alertmanager
         object that have the desired version spec.
     """
-
-
     availableReplicas: int
 
     conditions?: [MonitoringCoreosComV1AlertmanagerStatusConditionsItems0]
-
     paused: bool
 
     replicas: int
 
     selector?: str
-
     unavailableReplicas: int
 
     updatedReplicas: int
-
 
 schema MonitoringCoreosComV1AlertmanagerStatusConditionsItems0:
     r"""
@@ -10067,23 +8472,16 @@ schema MonitoringCoreosComV1AlertmanagerStatusConditionsItems0:
     $type : str, default is Undefined, required
         Type of the condition being reported.
     """
-
-
     lastTransitionTime: str
 
     message?: str
-
     observedGeneration?: int
-
     reason?: str
-
     status: str
 
     $type: str
 
-
     check:
         len(status) >= 1
         len($type) >= 1
-
 
