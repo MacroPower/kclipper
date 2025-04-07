@@ -98,8 +98,8 @@ func (c *ChartPkg) AddChart(key string, chart *kclchart.ChartConfig) error {
 		return err
 	}
 
-	logger.Info("formatting kcl files", slog.String("path", c.BasePath))
-	if _, err := kcl.FormatPath(filepath.Join(c.BasePath, "...")); err != nil {
+	logger.Info("formatting kcl files", slog.String("path", chartDir))
+	if _, err := kcl.FormatPath(filepath.Join(chartDir, "...")); err != nil {
 		return fmt.Errorf("failed to format kcl files: %w", err)
 	}
 
@@ -356,7 +356,23 @@ func (c *ChartPkg) generateSchemaFromChart(chart *kclchart.ChartConfig, chartFil
 		}
 	}
 
-	jsonSchemaBytes, err := chartFiles.GetValuesJSONSchema(jsonschema.GetGenerator(chart.SchemaGenerator), fileMatcher)
+	var gen helm.JSONSchemaGenerator
+	switch chart.SchemaGenerator {
+	case jsonschema.AutoGeneratorType:
+		gen = jsonschema.DefaultAutoGenerator
+	case jsonschema.ValueInferenceGeneratorType:
+		if chart.ValueInference == nil {
+			gen = jsonschema.DefaultValueInferenceGenerator
+		} else {
+			gen = jsonschema.NewValueInferenceGenerator(chart.ValueInference.GetConfig())
+		}
+	case jsonschema.ChartPathGeneratorType:
+		gen = jsonschema.DefaultReaderGenerator
+	default:
+		gen = jsonschema.DefaultNoGenerator
+	}
+
+	jsonSchemaBytes, err := chartFiles.GetValuesJSONSchema(gen, fileMatcher)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrSchemaGeneration, err)
 	}

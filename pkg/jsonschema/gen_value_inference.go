@@ -22,44 +22,50 @@ import (
 
 var (
 	// DefaultValueInferenceGenerator is an opinionated [ValueInferenceGenerator].
-	DefaultValueInferenceGenerator = NewValueInferenceGenerator(ValueInferenceConfig{
-		SkipRequired:             true,
-		SkipAdditionalProperties: true,
+	DefaultValueInferenceGenerator = NewValueInferenceGenerator(&ValueInferenceConfig{
+		SkipRequired: true,
 	})
 
+	// DefaultFileRegex matches files that set the `default` attribute in the JSON Schema.
 	defaultValuesFileRegex = regexp.MustCompile(`^(.*/)?values\.ya?ml$`)
 
 	_ FileGenerator = DefaultValueInferenceGenerator
 )
 
 type ValueInferenceConfig struct {
-	// DefaultFileRegex matches files that set the `default` attribute in the JSON Schema.
-	DefaultFileRegex          *regexp.Regexp
-	UncommentYAMLBlocks       bool
-	HelmDocsCompatibilityMode bool
-	SkipTitle                 bool
-	SkipDescription           bool
-	SkipRequired              bool
-	SkipDefault               bool
-	SkipAdditionalProperties  bool
+	// Consider yaml which is commented out.
+	UncommentYAMLBlocks bool `json:"uncommentYAMLBlocks,omitempty"`
+	// Parse and use helm-docs comments.
+	HelmDocsCompatibilityMode bool `json:"helmDocsCompatibilityMode,omitempty"`
+	// Keep the helm-docs prefix (--) in the schema.
+	KeepHelmDocsPrefix bool `json:"keepHelmDocsPrefix,omitempty"`
+	// Keep the whole leading comment (default: cut at empty line).
+	KeepFullComment bool `json:"keepFullComment,omitempty"`
+	// Remove the global key from the schema.
+	RemoveGlobal bool `json:"removeGlobal,omitempty"`
+	// Skip auto-generation of Title.
+	SkipTitle bool `json:"skipTitle,omitempty"`
+	// Skip auto-generation of Description.
+	SkipDescription bool `json:"skipDescription,omitempty"`
+	// Skip auto-generation of Required.
+	SkipRequired bool `json:"skipRequired,omitempty"`
+	// Skip auto-generation of Default.
+	SkipDefault bool `json:"skipDefault,omitempty"`
+	// Skip auto-generation of AdditionalProperties.
+	SkipAdditionalProperties bool `json:"skipAdditionalProperties,omitempty"`
 }
 
 // ValueInferenceGenerator is a generator that infers a JSON Schema from one or
 // more Helm values files.
 type ValueInferenceGenerator struct {
-	skipAutoGenerationConfig  *helmschema.SkipAutoGenerationConfig
-	defaultFileRegex          *regexp.Regexp
-	uncommentYAMLBlocks       bool
-	helmDocsCompatibilityMode bool
+	skipAutoGenerationConfig *helmschema.SkipAutoGenerationConfig
+	defaultFileRegex         *regexp.Regexp
+	config                   *ValueInferenceConfig
 }
 
 // NewValueInferenceGenerator creates a new [ValueInferenceGenerator] using the
 // given [ValueInferenceConfig].
-func NewValueInferenceGenerator(c ValueInferenceConfig) *ValueInferenceGenerator {
-	if c.DefaultFileRegex == nil {
-		c.DefaultFileRegex = defaultValuesFileRegex
-	}
-
+func NewValueInferenceGenerator(c *ValueInferenceConfig) *ValueInferenceGenerator {
 	helmSkipAutoGenerationConfig := &helmschema.SkipAutoGenerationConfig{
 		Title:                c.SkipTitle,
 		Description:          c.SkipDescription,
@@ -69,10 +75,9 @@ func NewValueInferenceGenerator(c ValueInferenceConfig) *ValueInferenceGenerator
 	}
 
 	return &ValueInferenceGenerator{
-		uncommentYAMLBlocks:       c.UncommentYAMLBlocks,
-		helmDocsCompatibilityMode: c.HelmDocsCompatibilityMode,
-		defaultFileRegex:          c.DefaultFileRegex,
-		skipAutoGenerationConfig:  helmSkipAutoGenerationConfig,
+		defaultFileRegex:         defaultValuesFileRegex,
+		skipAutoGenerationConfig: helmSkipAutoGenerationConfig,
+		config:                   c,
 	}
 }
 
@@ -145,7 +150,7 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 
 	var err error
 	// Optional preprocessing.
-	if g.uncommentYAMLBlocks {
+	if g.config.UncommentYAMLBlocks {
 		// Remove comments from valid yaml.
 		data, err = util.RemoveCommentsFromYaml(bytes.NewReader(data))
 		if err != nil {
@@ -160,11 +165,8 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 		return nil, fmt.Errorf("failed to unmarshal values yaml: %w", err)
 	}
 
-	keepFullComment := false
-	keepHelmDocsPrefix := false
-	removeGlobal := false
-	valuesSchema := helmschema.YamlToSchema("", &values, keepFullComment, g.helmDocsCompatibilityMode,
-		keepHelmDocsPrefix, removeGlobal, g.skipAutoGenerationConfig, nil)
+	valuesSchema := helmschema.YamlToSchema("", &values, g.config.KeepFullComment, g.config.HelmDocsCompatibilityMode,
+		g.config.KeepHelmDocsPrefix, g.config.RemoveGlobal, g.skipAutoGenerationConfig, nil)
 
 	if err := updateHelmSchema(valuesSchema, allowAdditionalProperties); err != nil {
 		return nil, fmt.Errorf("failed setting allowAdditionalProperties on schema: %w", err)

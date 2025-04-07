@@ -48,24 +48,6 @@ type FileGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }
 
-// GetGenerator returns a [FileGenerator] for the given [GeneratorType].
-//
-//nolint:ireturn // Multiple concrete types.
-func GetGenerator(t GeneratorType) FileGenerator {
-	switch t {
-	case AutoGeneratorType:
-		return DefaultAutoGenerator
-	case ValueInferenceGeneratorType:
-		return DefaultValueInferenceGenerator
-	case URLGeneratorType, ChartPathGeneratorType, LocalPathGeneratorType:
-		return DefaultReaderGenerator
-	case DefaultGeneratorType, NoGeneratorType:
-		return DefaultNoGenerator
-	default:
-		return DefaultNoGenerator
-	}
-}
-
 func GetGeneratorType(t string) GeneratorType {
 	switch strings.TrimSpace(strings.ToUpper(t)) {
 	case string(AutoGeneratorType):

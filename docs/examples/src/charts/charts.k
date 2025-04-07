@@ -35,6 +35,10 @@ charts: helm.Charts = {
         chart = "simple-chart"
         repoURL = "@local"
         repositories = [repos.local]
+        schemaGenerator = "VALUE-INFERENCE"
+        valueInference: {
+            keepFullComment = True
+        }
     }
     external_secrets: {
         chart = "external-secrets"
