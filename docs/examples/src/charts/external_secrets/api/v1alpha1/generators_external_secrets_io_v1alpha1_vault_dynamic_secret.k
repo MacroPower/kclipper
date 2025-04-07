@@ -75,7 +75,7 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProvider:
 
     Attributes
     ----------
-    auth : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuth, default is Undefined, required
+    auth : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuth, default is Undefined, optional
         auth
     caBundle : str, default is Undefined, optional
         PEM encoded CA bundle used to validate Vault server certificate. Only used
@@ -113,8 +113,7 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProvider:
         Version is the Vault KV secret engine version. This can be either "v1" or
         "v2". Version defaults to "v2".
     """
-    auth: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuth
-
+    auth?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuth
     caBundle?: str
     caProvider?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderCaProvider
     forwardInconsistent?: bool
