@@ -96,6 +96,8 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
         dns config
     dnsPolicy : str, default is Undefined, optional
         Defines the DNS policy for the pods.
+    enableServiceLinks : bool, default is Undefined, optional
+        Indicates whether information about services should be injected into pod's environment variables
     enforcedNamespaceLabel : str, default is Undefined, optional
         EnforcedNamespaceLabel enforces adding a namespace label of origin for each alert
         and metric that is user created. The label value will always be the namespace of the object that is
@@ -201,6 +203,12 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     serviceAccountName : str, default is Undefined, optional
         ServiceAccountName is the name of the ServiceAccount to use to run the
         Thanos Ruler Pods.
+    serviceName : str, default is Undefined, optional
+        The name of the service name used by the underlying StatefulSet(s) as the governing service.
+        If defined, the Service  must be created before the ThanosRuler resource in the same namespace and it must define a selector that matches the pod labels.
+        If empty, the operator will create and manage a headless service named `thanos-ruler-operated` for ThanosRuler resources.
+        When deploying multiple ThanosRuler resources in the same namespace, it is recommended to specify a different value for each.
+        See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
     storage : MonitoringCoreosComV1ThanosRulerSpecStorage, default is Undefined, optional
         storage
     tolerations : [MonitoringCoreosComV1ThanosRulerSpecTolerationsItems0], default is Undefined, optional
@@ -243,6 +251,7 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     containers?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0]
     dnsConfig?: MonitoringCoreosComV1ThanosRulerSpecDNSConfig
     dnsPolicy?: "ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
+    enableServiceLinks?: bool
     enforcedNamespaceLabel?: str
     evaluationInterval?: str = "15s"
     excludedFromEnforcement?: [MonitoringCoreosComV1ThanosRulerSpecExcludedFromEnforcementItems0]
@@ -276,6 +285,7 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     ruleSelector?: MonitoringCoreosComV1ThanosRulerSpecRuleSelector
     securityContext?: MonitoringCoreosComV1ThanosRulerSpecSecurityContext
     serviceAccountName?: str
+    serviceName?: str
     storage?: MonitoringCoreosComV1ThanosRulerSpecStorage
     tolerations?: [MonitoringCoreosComV1ThanosRulerSpecTolerationsItems0]
     topologySpreadConstraints?: [MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0]
@@ -289,6 +299,7 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     check:
         _regex_match(str(evaluationInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if evaluationInterval
         _regex_match(str(retention), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if retention
+        len(serviceName) >= 1 if serviceName
 
 schema MonitoringCoreosComV1ThanosRulerSpecAdditionalArgsItems0:
     r"""
