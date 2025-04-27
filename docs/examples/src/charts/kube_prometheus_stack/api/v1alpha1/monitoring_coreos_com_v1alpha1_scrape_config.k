@@ -11018,6 +11018,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
         The OpenStack Region.
     role : str, default is Undefined, required
         The OpenStack role of entities that should be discovered.
+
+        Note: The `LoadBalancer` role requires Prometheus >= v3.2.0.
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     userid : str, default is Undefined, optional
@@ -11043,7 +11045,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
     refreshInterval?: str
     region: str
 
-    role: "Instance" | "instance" | "Hypervisor" | "hypervisor"
+    role: "Instance" | "Hypervisor" | "LoadBalancer"
 
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfig
     userid?: str
