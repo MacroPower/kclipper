@@ -28,7 +28,7 @@ require (
 	kcl-lang.io/cli v0.11.1
 	kcl-lang.io/kcl-go v0.11.1
 	kcl-lang.io/kcl-openapi v0.10.0
-	kcl-lang.io/kpm v0.11.2-0.20250407072827-a8c88ed41d6a
+	kcl-lang.io/kpm v0.11.2-0.20250430112938-f5c7decede39
 	sigs.k8s.io/yaml v1.4.0
 )
 
