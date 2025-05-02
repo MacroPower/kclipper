@@ -96,6 +96,8 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
         dns config
     dnsPolicy : str, default is Undefined, optional
         Defines the DNS policy for the pods.
+    enableServiceLinks : bool, default is Undefined, optional
+        Indicates whether information about services should be injected into pod's environment variables
     enforcedNamespaceLabel : str, default is Undefined, optional
         EnforcedNamespaceLabel enforces adding a namespace label of origin for each alert
         and metric that is user created. The label value will always be the namespace of the object that is
@@ -183,13 +185,23 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
         For Thanos >= v0.11.0, it is recommended to use `queryConfig` instead.
 
         `queryConfig` takes precedence over this field.
+    remoteWrite : [MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0], default is Undefined, optional
+        Defines the list of remote write configurations.
+
+        When the list isn't empty, the ruler is configured with stateless mode.
+
+        It requires Thanos >= 0.24.0.
     replicas : int, default is Undefined, optional
         Number of thanos ruler instances to deploy.
     resources : MonitoringCoreosComV1ThanosRulerSpecResources, default is Undefined, optional
         resources
     retention : str, default is "24h", optional
-        Time duration ThanosRuler shall retain data for. Default is '24h',
-        and must match the regular expression `[0-9]+(ms|s|m|h|d|w|y)` (milliseconds seconds minutes hours days weeks years).
+        Time duration ThanosRuler shall retain data for. Default is '24h', and
+        must match the regular expression `[0-9]+(ms|s|m|h|d|w|y)` (milliseconds
+        seconds minutes hours days weeks years).
+
+        The field has no effect when remote-write is configured since the Ruler
+        operates in stateless mode.
     routePrefix : str, default is Undefined, optional
         The route prefix ThanosRuler registers HTTP handlers for. This allows thanos UI to be served on a sub-path.
     ruleNamespaceSelector : MonitoringCoreosComV1ThanosRulerSpecRuleNamespaceSelector, default is Undefined, optional
@@ -201,8 +213,20 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     serviceAccountName : str, default is Undefined, optional
         ServiceAccountName is the name of the ServiceAccount to use to run the
         Thanos Ruler Pods.
+    serviceName : str, default is Undefined, optional
+        The name of the service name used by the underlying StatefulSet(s) as the governing service.
+        If defined, the Service  must be created before the ThanosRuler resource in the same namespace and it must define a selector that matches the pod labels.
+        If empty, the operator will create and manage a headless service named `thanos-ruler-operated` for ThanosRuler resources.
+        When deploying multiple ThanosRuler resources in the same namespace, it is recommended to specify a different value for each.
+        See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
     storage : MonitoringCoreosComV1ThanosRulerSpecStorage, default is Undefined, optional
         storage
+    terminationGracePeriodSeconds : int, default is Undefined, optional
+        Optional duration in seconds the pod needs to terminate gracefully.
+        Value must be non-negative integer. The value zero indicates stop immediately via
+        the kill signal (no opportunity to shut down) which may lead to data corruption.
+
+        Defaults to 120 seconds.
     tolerations : [MonitoringCoreosComV1ThanosRulerSpecTolerationsItems0], default is Undefined, optional
         If specified, the pod's tolerations.
     topologySpreadConstraints : [MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0], default is Undefined, optional
@@ -243,6 +267,7 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     containers?: [MonitoringCoreosComV1ThanosRulerSpecContainersItems0]
     dnsConfig?: MonitoringCoreosComV1ThanosRulerSpecDNSConfig
     dnsPolicy?: "ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
+    enableServiceLinks?: bool
     enforcedNamespaceLabel?: str
     evaluationInterval?: str = "15s"
     excludedFromEnforcement?: [MonitoringCoreosComV1ThanosRulerSpecExcludedFromEnforcementItems0]
@@ -268,6 +293,7 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     prometheusRulesExcludedFromEnforce?: [MonitoringCoreosComV1ThanosRulerSpecPrometheusRulesExcludedFromEnforceItems0]
     queryConfig?: MonitoringCoreosComV1ThanosRulerSpecQueryConfig
     queryEndpoints?: [str]
+    remoteWrite?: [MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0]
     replicas?: int
     resources?: MonitoringCoreosComV1ThanosRulerSpecResources
     retention?: str = "24h"
@@ -276,7 +302,9 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     ruleSelector?: MonitoringCoreosComV1ThanosRulerSpecRuleSelector
     securityContext?: MonitoringCoreosComV1ThanosRulerSpecSecurityContext
     serviceAccountName?: str
+    serviceName?: str
     storage?: MonitoringCoreosComV1ThanosRulerSpecStorage
+    terminationGracePeriodSeconds?: int
     tolerations?: [MonitoringCoreosComV1ThanosRulerSpecTolerationsItems0]
     topologySpreadConstraints?: [MonitoringCoreosComV1ThanosRulerSpecTopologySpreadConstraintsItems0]
     tracingConfig?: MonitoringCoreosComV1ThanosRulerSpecTracingConfig
@@ -289,6 +317,8 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     check:
         _regex_match(str(evaluationInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if evaluationInterval
         _regex_match(str(retention), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if retention
+        len(serviceName) >= 1 if serviceName
+        terminationGracePeriodSeconds >= 0 if terminationGracePeriodSeconds not in [None, Undefined]
 
 schema MonitoringCoreosComV1ThanosRulerSpecAdditionalArgsItems0:
     r"""
@@ -2688,11 +2718,11 @@ schema MonitoringCoreosComV1ThanosRulerSpecGrpcServerTLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -4377,6 +4407,1092 @@ schema MonitoringCoreosComV1ThanosRulerSpecQueryConfig:
 
     name?: str = ""
     optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0:
+    r"""
+    RemoteWriteSpec defines the configuration to write samples from Prometheus
+    to a remote endpoint.
+
+    Attributes
+    ----------
+    authorization : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Authorization, default is Undefined, optional
+        authorization
+    azureAd : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAd, default is Undefined, optional
+        azure ad
+    basicAuth : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuth, default is Undefined, optional
+        basic auth
+    bearerToken : str, default is Undefined, optional
+        *Warning: this field shouldn't be used because the token value appears
+        in clear-text. Prefer using `authorization`.*
+
+        Deprecated: this will be removed in a future release.
+    bearerTokenFile : str, default is Undefined, optional
+        File from which to read bearer token for the URL.
+
+        Deprecated: this will be removed in a future release. Prefer using `authorization`.
+    enableHTTP2 : bool, default is Undefined, optional
+        Whether to enable HTTP2.
+    followRedirects : bool, default is Undefined, optional
+        Configure whether HTTP requests follow HTTP 3xx redirects.
+
+        It requires Prometheus >= v2.26.0 or Thanos >= v0.24.0.
+    headers : {str:str}, default is Undefined, optional
+        Custom HTTP headers to be sent along with each remote write request.
+        Be aware that headers that are set by Prometheus itself can't be overwritten.
+
+        It requires Prometheus >= v2.25.0 or Thanos >= v0.24.0.
+    messageVersion : str, default is Undefined, optional
+        The Remote Write message's version to use when writing to the endpoint.
+
+        `Version1.0` corresponds to the `prometheus.WriteRequest` protobuf message introduced in Remote Write 1.0.
+        `Version2.0` corresponds to the `io.prometheus.write.v2.Request` protobuf message introduced in Remote Write 2.0.
+
+        When `Version2.0` is selected, Prometheus will automatically be
+        configured to append the metadata of scraped metrics to the WAL.
+
+        Before setting this field, consult with your remote storage provider
+        what message version it supports.
+
+        It requires Prometheus >= v2.54.0 or Thanos >= v0.37.0.
+    metadataConfig : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0MetadataConfig, default is Undefined, optional
+        metadata config
+    name : str, default is Undefined, optional
+        The name of the remote write queue, it must be unique if specified. The
+        name is used in metrics and logging in order to differentiate queues.
+
+        It requires Prometheus >= v2.15.0 or Thanos >= 0.24.0.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    oauth2 : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2, default is Undefined, optional
+        oauth2
+    proxyConnectHeader : {str:[MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyUrl : str, default is Undefined, optional
+        `proxyURL` defines the HTTP proxy server to use.
+    queueConfig : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0QueueConfig, default is Undefined, optional
+        queue config
+    remoteTimeout : str, default is Undefined, optional
+        Timeout for requests to the remote write endpoint.
+    roundRobinDNS : bool, default is Undefined, optional
+        When enabled:
+            - The remote-write mechanism will resolve the hostname via DNS.
+            - It will randomly select one of the resolved IP addresses and connect to it.
+
+        When disabled (default behavior):
+            - The Go standard library will handle hostname resolution.
+            - It will attempt connections to each resolved IP address sequentially.
+
+        Note: The connection timeout applies to the entire resolution and connection process.
+              If disabled, the timeout is distributed across all connection attempts.
+
+        It requires Prometheus >= v3.1.0 or Thanos >= v0.38.0.
+    sendExemplars : bool, default is Undefined, optional
+        Enables sending of exemplars over remote write. Note that
+        exemplar-storage itself must be enabled using the `spec.enableFeatures`
+        option for exemplars to be scraped in the first place.
+
+        It requires Prometheus >= v2.27.0 or Thanos >= v0.24.0.
+    sendNativeHistograms : bool, default is Undefined, optional
+        Enables sending of native histograms, also known as sparse histograms
+        over remote write.
+
+        It requires Prometheus >= v2.40.0 or Thanos >= v0.30.0.
+    sigv4 : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4, default is Undefined, optional
+        sigv4
+    tlsConfig : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfig, default is Undefined, optional
+        tls config
+    url : str, default is Undefined, required
+        The URL of the endpoint to send samples to.
+    writeRelabelConfigs : [MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0WriteRelabelConfigsItems0], default is Undefined, optional
+        The list of remote write relabel configurations.
+    """
+    authorization?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Authorization
+    azureAd?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAd
+    basicAuth?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuth
+    bearerToken?: str
+    bearerTokenFile?: str
+    enableHTTP2?: bool
+    followRedirects?: bool
+    headers?: {str:str}
+    messageVersion?: "V1.0" | "V2.0"
+    metadataConfig?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0MetadataConfig
+    name?: str
+    noProxy?: str
+    oauth2?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0ProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyUrl?: str
+    queueConfig?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0QueueConfig
+    remoteTimeout?: str
+    roundRobinDNS?: bool
+    sendExemplars?: bool
+    sendNativeHistograms?: bool
+    sigv4?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4
+    tlsConfig?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfig
+    url: str
+
+    writeRelabelConfigs?: [MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0WriteRelabelConfigsItems0]
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+        _regex_match(str(remoteTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if remoteTimeout
+        len(url) >= 1
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Authorization:
+    r"""
+    Authorization section for the URL.
+
+    It requires Prometheus >= v2.26.0 or Thanos >= v0.24.0.
+
+    Cannot be set at the same time as `sigv4`, `basicAuth`, `oauth2`, or `azureAd`.
+
+    Attributes
+    ----------
+    credentials : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AuthorizationCredentials, default is Undefined, optional
+        credentials
+    credentialsFile : str, default is Undefined, optional
+        File to read a secret from, mutually exclusive with `credentials`.
+    $type : str, default is Undefined, optional
+        Defines the authentication type. The value is case-insensitive.
+
+        "Basic" is not a supported value.
+
+        Default: "Bearer"
+    """
+    credentials?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AuthorizationCredentials
+    credentialsFile?: str
+    $type?: str
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AuthorizationCredentials:
+    r"""
+    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAd:
+    r"""
+    AzureAD for the URL.
+
+    It requires Prometheus >= v2.45.0 or Thanos >= v0.31.0.
+
+    Cannot be set at the same time as `authorization`, `basicAuth`, `oauth2`, or `sigv4`.
+
+    Attributes
+    ----------
+    cloud : str, default is Undefined, optional
+        The Azure Cloud. Options are 'AzurePublic', 'AzureChina', or 'AzureGovernment'.
+    managedIdentity : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdManagedIdentity, default is Undefined, optional
+        managed identity
+    oauth : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdOauth, default is Undefined, optional
+        oauth
+    sdk : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdSdk, default is Undefined, optional
+        sdk
+    """
+    cloud?: "AzureChina" | "AzureGovernment" | "AzurePublic"
+    managedIdentity?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdManagedIdentity
+    oauth?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdOauth
+    sdk?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdSdk
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdManagedIdentity:
+    r"""
+    ManagedIdentity defines the Azure User-assigned Managed identity.
+    Cannot be set at the same time as `oauth` or `sdk`.
+
+    Attributes
+    ----------
+    clientId : str, default is Undefined, required
+        The client id
+    """
+    clientId: str
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdOauth:
+    r"""
+    OAuth defines the oauth config that is being used to authenticate.
+    Cannot be set at the same time as `managedIdentity` or `sdk`.
+
+    It requires Prometheus >= v2.48.0 or Thanos >= v0.31.0.
+
+    Attributes
+    ----------
+    clientId : str, default is Undefined, required
+        `clientID` is the clientId of the Azure Active Directory application that is being used to authenticate.
+    clientSecret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdOauthClientSecret, default is Undefined, required
+        client secret
+    tenantId : str, default is Undefined, required
+        `tenantId` is the tenant ID of the Azure Active Directory application that is being used to authenticate.
+    """
+    clientId: str
+
+    clientSecret: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdOauthClientSecret
+
+    tenantId: str
+
+    check:
+        len(clientId) >= 1
+        len(tenantId) >= 1
+        _regex_match(str(tenantId), r"^[0-9a-zA-Z-.]+$")
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdOauthClientSecret:
+    r"""
+    `clientSecret` specifies a key of a Secret containing the client secret of the Azure Active Directory application that is being used to authenticate.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdSdk:
+    r"""
+    SDK defines the Azure SDK config that is being used to authenticate.
+    See https://learn.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication
+    Cannot be set at the same time as `oauth` or `managedIdentity`.
+
+    It requires Prometheus >= v2.52.0 or Thanos >= v0.36.0.
+
+    Attributes
+    ----------
+    tenantId : str, default is Undefined, optional
+        `tenantId` is the tenant ID of the azure active directory application that is being used to authenticate.
+    """
+    tenantId?: str
+
+    check:
+        _regex_match(str(tenantId), r"^[0-9a-zA-Z-.]+$") if tenantId
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuth:
+    r"""
+    BasicAuth configuration for the URL.
+
+    Cannot be set at the same time as `sigv4`, `authorization`, `oauth2`, or `azureAd`.
+
+    Attributes
+    ----------
+    password : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuthPassword, default is Undefined, optional
+        password
+    username : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuthUsername, default is Undefined, optional
+        username
+    """
+    password?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuthPassword
+    username?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuthUsername
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuthPassword:
+    r"""
+    `password` specifies a key of a Secret containing the password for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0BasicAuthUsername:
+    r"""
+    `username` specifies a key of a Secret containing the username for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0MetadataConfig:
+    r"""
+    MetadataConfig configures the sending of series metadata to the remote storage.
+
+    Attributes
+    ----------
+    maxSamplesPerSend : int, default is Undefined, optional
+        MaxSamplesPerSend is the maximum number of metadata samples per send.
+
+        It requires Prometheus >= v2.29.0.
+    send : bool, default is Undefined, optional
+        Defines whether metric metadata is sent to the remote storage or not.
+    sendInterval : str, default is Undefined, optional
+        Defines how frequently metric metadata is sent to the remote storage.
+    """
+    maxSamplesPerSend?: int
+    send?: bool
+    sendInterval?: str
+
+    check:
+        maxSamplesPerSend >= -1 if maxSamplesPerSend not in [None, Undefined]
+        _regex_match(str(sendInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if sendInterval
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2:
+    r"""
+    OAuth2 configuration for the URL.
+
+    It requires Prometheus >= v2.27.0 or Thanos >= v0.24.0.
+
+    Cannot be set at the same time as `sigv4`, `authorization`, `basicAuth`, or `azureAd`.
+
+    Attributes
+    ----------
+    clientId : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientID, default is Undefined, required
+        client Id
+    clientSecret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientSecret, default is Undefined, required
+        client secret
+    endpointParams : {str:str}, default is Undefined, optional
+        `endpointParams` configures the HTTP parameters to append to the token
+        URL.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyUrl : str, default is Undefined, optional
+        `proxyURL` defines the HTTP proxy server to use.
+    scopes : [str], default is Undefined, optional
+        `scopes` defines the OAuth2 scopes used for the token request.
+    tlsConfig : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfig, default is Undefined, optional
+        tls config
+    tokenUrl : str, default is Undefined, required
+        `tokenURL` configures the URL to fetch the token from.
+    """
+    clientId: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientID
+
+    clientSecret: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientSecret
+
+    endpointParams?: {str:str}
+    noProxy?: str
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyUrl?: str
+    scopes?: [str]
+    tlsConfig?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfig
+    tokenUrl: str
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+        len(tokenUrl) >= 1
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientID:
+    r"""
+    `clientId` specifies a key of a Secret or ConfigMap containing the
+    OAuth2 client's ID.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientIDConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientIDSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientIDConfigMap
+    secret?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientIDSecret
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientIDConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientIDSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientSecret:
+    r"""
+    `clientSecret` specifies a key of a Secret containing the OAuth2
+    client's secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfig:
+    r"""
+    TLS configuration to use when connecting to the OAuth2 server.
+    It requires Prometheus >= v2.43.0.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keySecret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCa
+    cert?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCaSecret
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCertSecret
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2TLSConfigKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0QueueConfig:
+    r"""
+    QueueConfig allows tuning of the remote write queue parameters.
+
+    Attributes
+    ----------
+    batchSendDeadline : str, default is Undefined, optional
+        BatchSendDeadline is the maximum time a sample will wait in buffer.
+    capacity : int, default is Undefined, optional
+        Capacity is the number of samples to buffer per shard before we start
+        dropping them.
+    maxBackoff : str, default is Undefined, optional
+        MaxBackoff is the maximum retry delay.
+    maxRetries : int, default is Undefined, optional
+        MaxRetries is the maximum number of times to retry a batch on recoverable errors.
+    maxSamplesPerSend : int, default is Undefined, optional
+        MaxSamplesPerSend is the maximum number of samples per send.
+    maxShards : int, default is Undefined, optional
+        MaxShards is the maximum number of shards, i.e. amount of concurrency.
+    minBackoff : str, default is Undefined, optional
+        MinBackoff is the initial retry delay. Gets doubled for every retry.
+    minShards : int, default is Undefined, optional
+        MinShards is the minimum number of shards, i.e. amount of concurrency.
+    retryOnRateLimit : bool, default is Undefined, optional
+        Retry upon receiving a 429 status code from the remote-write storage.
+
+        This is an *experimental feature*, it may change in any upcoming release
+        in a breaking way.
+    sampleAgeLimit : str, default is Undefined, optional
+        SampleAgeLimit drops samples older than the limit.
+        It requires Prometheus >= v2.50.0 or Thanos >= v0.32.0.
+    """
+    batchSendDeadline?: str
+    capacity?: int
+    maxBackoff?: str
+    maxRetries?: int
+    maxSamplesPerSend?: int
+    maxShards?: int
+    minBackoff?: str
+    minShards?: int
+    retryOnRateLimit?: bool
+    sampleAgeLimit?: str
+
+    check:
+        _regex_match(str(batchSendDeadline), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if batchSendDeadline
+        _regex_match(str(maxBackoff), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if maxBackoff
+        _regex_match(str(minBackoff), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if minBackoff
+        _regex_match(str(sampleAgeLimit), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if sampleAgeLimit
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4:
+    r"""
+    Sigv4 allows to configures AWS's Signature Verification 4 for the URL.
+
+    It requires Prometheus >= v2.26.0 or Thanos >= v0.24.0.
+
+    Cannot be set at the same time as `authorization`, `basicAuth`, `oauth2`, or `azureAd`.
+
+    Attributes
+    ----------
+    accessKey : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4AccessKey, default is Undefined, optional
+        access key
+    profile : str, default is Undefined, optional
+        Profile is the named AWS profile used to authenticate.
+    region : str, default is Undefined, optional
+        Region is the AWS region. If blank, the region from the default credentials chain used.
+    roleArn : str, default is Undefined, optional
+        RoleArn is the named AWS profile used to authenticate.
+    secretKey : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4SecretKey, default is Undefined, optional
+        secret key
+    """
+    accessKey?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4AccessKey
+    profile?: str
+    region?: str
+    roleArn?: str
+    secretKey?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4SecretKey
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4AccessKey:
+    r"""
+    AccessKey is the AWS API key. If not specified, the environment variable
+    `AWS_ACCESS_KEY_ID` is used.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4SecretKey:
+    r"""
+    SecretKey is the AWS API secret. If not specified, the environment
+    variable `AWS_SECRET_ACCESS_KEY` is used.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfig:
+    r"""
+    TLS Config to use for the URL.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCa, default is Undefined, optional
+        ca
+    caFile : str, default is Undefined, optional
+        Path to the CA cert in the Prometheus container to use for the targets.
+    cert : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCert, default is Undefined, optional
+        cert
+    certFile : str, default is Undefined, optional
+        Path to the client cert file in the Prometheus container for the targets.
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keyFile : str, default is Undefined, optional
+        Path to the client key file in the Prometheus container for the targets.
+    keySecret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCa
+    caFile?: str
+    cert?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCert
+    certFile?: str
+    insecureSkipVerify?: bool
+    keyFile?: str
+    keySecret?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCaSecret
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCertSecret
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0TLSConfigKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0WriteRelabelConfigsItems0:
+    r"""
+    RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
+    scraped samples and remote write samples.
+
+    More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+
+    Attributes
+    ----------
+    action : str, default is "replace", optional
+        Action to perform based on the regex matching.
+
+        `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
+        `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
+
+        Default: "Replace"
+    modulus : int, default is Undefined, optional
+        Modulus to take of the hash of the source label values.
+
+        Only applicable when the action is `HashMod`.
+    regex : str, default is Undefined, optional
+        Regular expression against which the extracted value is matched.
+    replacement : str, default is Undefined, optional
+        Replacement value against which a Replace action is performed if the
+        regular expression matches.
+
+        Regex capture groups are available.
+    separator : str, default is Undefined, optional
+        Separator is the string between concatenated SourceLabels.
+    sourceLabels : [str], default is Undefined, optional
+        The source labels select values from existing labels. Their content is
+        concatenated using the configured Separator and matched against the
+        configured regular expression.
+    targetLabel : str, default is Undefined, optional
+        Label to which the resulting string is written in a replacement.
+
+        It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
+        `KeepEqual` and `DropEqual` actions.
+
+        Regex capture groups are available.
+    """
+    action?: "replace" | "Replace" | "keep" | "Keep" | "drop" | "Drop" | "hashmod" | "HashMod" | "labelmap" | "LabelMap" | "labeldrop" | "LabelDrop" | "labelkeep" | "LabelKeep" | "lowercase" | "Lowercase" | "uppercase" | "Uppercase" | "keepequal" | "KeepEqual" | "dropequal" | "DropEqual" = "replace"
+    modulus?: int
+    regex?: str
+    replacement?: str
+    separator?: str
+    sourceLabels?: [str]
+    targetLabel?: str
+
+    check:
+        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
 
 schema MonitoringCoreosComV1ThanosRulerSpecResources:
     r"""
