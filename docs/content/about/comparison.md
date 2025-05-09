@@ -1,4 +1,7 @@
-# Comparison
+---
+title: Comparison
+description: Comparison of kclipper to other tools
+---
 
 ## To Holos
 

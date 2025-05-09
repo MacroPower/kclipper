@@ -15,7 +15,10 @@
     "darwin.libresolv": {
       "platforms": ["aarch64-darwin", "x86_64-darwin"]
     },
-    "conform": "0.1.0-alpha.29"
+    "conform": "0.1.0-alpha.29",
+    "hugo": "0.147.1",
+    "nodePackages.postcss": "8.5.3",
+    "nodePackages.autoprefixer": "10.4.19"
   },
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"]

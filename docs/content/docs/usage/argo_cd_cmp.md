@@ -1,4 +1,6 @@
-# Argo CD Config Management Plugin
+---
+title: Argo CD Config Management Plugin
+---
 
 You can use the below Argo CD values to add a Config Management Plugin for kclipper:
 

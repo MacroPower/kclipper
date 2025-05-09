@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="#"><img src="docs/img/logo.svg" width="150px"></a>
+  <a href="#"><img src="docs/assets/icons/logo.svg" width="150px"></a>
   <h1 align="center">kclipper</h1>
 </p>
 

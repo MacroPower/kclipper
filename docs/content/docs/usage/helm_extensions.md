@@ -1,4 +1,6 @@
-# Helm Extensions
+---
+title: Helm Extensions
+---
 
 ## Helm Plugin
 
