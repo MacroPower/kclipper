@@ -136,13 +136,17 @@ tasks:
 
   go-build-images:
     desc: Builds Go binaries and Docker images
+    vars:
+      FLAGS: '{{.FLAGS | default "--skip=archive"}}'
     cmds:
-      - goreleaser release --snapshot --clean --skip=archive
+      - goreleaser release --snapshot --clean {{ .FLAGS }}
 
   go-release:
     desc: Releases Go binaries and Docker images
+    vars:
+      FLAGS: '{{.FLAGS | default ""}}'
     cmds:
-      - goreleaser release --clean
+      - goreleaser release --clean {{.FLAGS}}
 
   prettier-format:
     desc: Formats YAML, JSON, and Markdown files
