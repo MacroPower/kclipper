@@ -177,7 +177,7 @@ The binary name for kclipper is still just `kcl`, so it can be used as a drop-in
 
 ```bash
 brew tap macropower/tap
-brew install kclipper
+brew install macropower/tap/kclipper
 kcl version
 ```
 
