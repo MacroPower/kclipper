@@ -137,7 +137,7 @@ tasks:
   go-build-images:
     desc: Builds Go binaries and Docker images
     vars:
-      FLAGS: '{{.FLAGS | default "--skip=archive,brew"}}'
+      FLAGS: '{{.FLAGS | default "--skip=archive,homebrew"}}'
     cmds:
       - goreleaser release --snapshot --clean {{ .FLAGS }}
 
