@@ -143,6 +143,7 @@ brews:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end -}}
       {{- if .Arm }}v{{ .Arm }}{{ end -}}
+      .tar.gz
     download_strategy: CurlDownloadStrategy
     commit_msg_template: "chore: formula update for kcl-lsp {{ .Tag }}"
     commit_author:
@@ -157,7 +158,7 @@ brews:
     test: |
       system "#{bin}/kcl-language-server version"
   - dependencies:
-      - name: "kcl-lsp"
+      - name: macropower/tap/kcl-lsp
     repository: *brewRepo
     url_template: *kclipperReleaseURLTemplate
     download_strategy: CurlDownloadStrategy
