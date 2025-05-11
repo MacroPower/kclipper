@@ -13,6 +13,8 @@ env:
     sh: hostname
   HELM_VERSION:
     sh: helm version --template="{{ "{{.Version}}" }}"
+  KCL_VERSION:
+    sh: go list -f "{{ "{{.Version}}" }}" -m kcl-lang.io/lib
   CC_LINUX_AMD64: zig cc -target x86_64-linux-gnu
   CC_LINUX_ARM64: zig cc -target aarch64-linux-gnu
   CC_DARWIN_AMD64: zig cc -target x86_64-macos-none -F{{ .FRAMEWORK_PATH }}

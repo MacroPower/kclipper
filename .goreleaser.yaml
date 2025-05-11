@@ -43,6 +43,20 @@ builds:
       - -trimpath
       - -tags={{ .Env.BUILD_TAGS }}
     buildmode: pie
+    hooks:
+      pre:
+        - cmd: >-
+            bash -c '
+            curl -Ls $(
+            curl -s "https://api.github.com/repos/kcl-lang/kcl/releases/tags/{{ .Env.KCL_VERSION }}" |
+            jq -r ".assets[] | select(.name | test(\"kclvm-{{ .Env.KCL_VERSION }}-{{ .Os }}-{{ .Arch }}.tar.gz\")) | .browser_download_url"
+            )
+            | tar -zx
+            && mv kclvm/bin/kcl-language-server .
+            && rm -r kclvm
+            '
+          dir: "{{ dir .Path }}"
+          output: true
 
 dockers:
   - goos: linux
@@ -101,6 +115,10 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - src: "dist/*{{.Os}}_{{.Arch}}*/kcl-language-server"
+        strip_parent: true
+      - LICENSE
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -113,10 +131,11 @@ changelog:
       - '^test:'
 
 brews:
-  - repository:
+  - name: kcl-lsp
+    repository: &brewRepo
       owner: MacroPower
       name: homebrew-tap
-    url_template: >-
+    url_template: &kclipperReleaseURLTemplate >-
       https://github.com/MacroPower/kclipper/releases/download/{{ .Tag }}/
       {{- .ProjectName }}_
       {{- title .Os }}_
@@ -124,7 +143,23 @@ brews:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end -}}
       {{- if .Arm }}v{{ .Arm }}{{ end -}}
-      .tar.gz
+    download_strategy: CurlDownloadStrategy
+    commit_msg_template: "chore: formula update for kcl-lsp {{ .Tag }}"
+    commit_author:
+      name: botty-mcbottington
+      email: 168950816+botty-mcbottington[bot]@users.noreply.github.com
+    homepage: "https://github.com/kcl-lang/kcl"
+    description: "KCL Language Server"
+    license: "Apache License"
+    skip_upload: false
+    install: |
+      bin.install "kcl-language-server"
+    test: |
+      system "#{bin}/kcl-language-server version"
+  - dependencies:
+      - name: "kcl-lsp"
+    repository: *brewRepo
+    url_template: *kclipperReleaseURLTemplate
     download_strategy: CurlDownloadStrategy
     commit_msg_template: "chore: formula update for {{ .ProjectName }} {{ .Tag }}"
     commit_author:
