@@ -175,20 +175,15 @@ The binary name for kclipper is still just `kcl`, so it can be used as a drop-in
 
 > You cannot have both `kcl` and `kclipper` installed via Homebrew. If you already installed `kcl` via Homebrew, you should uninstall it before proceeding.
 
+You can install `macropower/tap/kclipper` to obtain `kcl` and `kcl-language-server` binaries.
+
 ```bash
 brew tap macropower/tap
 brew install macropower/tap/kclipper
+
 kcl version
+kcl-language-server version
 ```
-
-If you need the kcl-lsp (e.g. for VSCode), use the official tap:
-
-```bash
-brew tap kcl-lang/tap
-brew install kcl-lsp
-```
-
-The kcl-lsp in this case will call the kclipper binary.
 
 ### Using Docker
 
