@@ -176,51 +176,51 @@
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
       "resolved": "github:NixOS/nixpkgs/6c5963357f3c1c840201eda129a99d455074db04?lastModified=1743076231&narHash=sha256-yQugdVfi316qUfqzN8JMaA2vixl%2B45GxNm4oUfXlbgw%3D"
     },
-    "go-task@3.43.2": {
-      "last_modified": "2025-05-06T08:06:31Z",
-      "resolved": "github:NixOS/nixpkgs/1cb1c02a6b1b7cf67e3d7731cbbf327a53da9679#go-task",
+    "go-task@3.43.3": {
+      "last_modified": "2025-05-15T12:36:28Z",
+      "resolved": "github:NixOS/nixpkgs/b1bebd0fe266bbd1820019612ead889e96a8fa2d#go-task",
       "source": "devbox-search",
-      "version": "3.43.2",
+      "version": "3.43.3",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/39hrm5b9bla7mxbbqf9n1c5a4k5kswln-go-task-3.43.2",
+              "path": "/nix/store/0pgg01wmypijpszc39xgwg39fwbzgrh4-go-task-3.43.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/39hrm5b9bla7mxbbqf9n1c5a4k5kswln-go-task-3.43.2"
+          "store_path": "/nix/store/0pgg01wmypijpszc39xgwg39fwbzgrh4-go-task-3.43.3"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/7a1wimm8z159vrb0sx86s39vlwy7nfbz-go-task-3.43.2",
+              "path": "/nix/store/rkg0s89birraxv3mnpilvxc43v1883hp-go-task-3.43.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/7a1wimm8z159vrb0sx86s39vlwy7nfbz-go-task-3.43.2"
+          "store_path": "/nix/store/rkg0s89birraxv3mnpilvxc43v1883hp-go-task-3.43.3"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/fzs7djm360kivv5dfrlrm6792b6zf14n-go-task-3.43.2",
+              "path": "/nix/store/0f35a1mgr076xqmd5xhmhsk1a6hq2lil-go-task-3.43.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/fzs7djm360kivv5dfrlrm6792b6zf14n-go-task-3.43.2"
+          "store_path": "/nix/store/0f35a1mgr076xqmd5xhmhsk1a6hq2lil-go-task-3.43.3"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/pnyim2vhfwqh8bqrbd9vwbhqj1vsx2lx-go-task-3.43.2",
+              "path": "/nix/store/71zbnibr4v8clz02bg50fjl7kvngr26l-go-task-3.43.3",
               "default": true
             }
           ],
-          "store_path": "/nix/store/pnyim2vhfwqh8bqrbd9vwbhqj1vsx2lx-go-task-3.43.2"
+          "store_path": "/nix/store/71zbnibr4v8clz02bg50fjl7kvngr26l-go-task-3.43.3"
         }
       }
     },
