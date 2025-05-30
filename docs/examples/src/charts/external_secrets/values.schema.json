@@ -335,6 +335,10 @@
           "required": [],
           "type": "boolean"
         },
+        "createClusterPushSecret": {
+          "required": [],
+          "type": "boolean"
+        },
         "createClusterSecretStore": {
           "required": [],
           "type": "boolean"
@@ -428,6 +432,28 @@
         "topologySpreadConstraints": {
           "required": [],
           "type": "array"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "grafanaDashboard": {
+      "properties": {
+        "annotations": {
+          "required": [],
+          "type": "object"
+        },
+        "enabled": {
+          "required": [],
+          "type": "boolean"
+        },
+        "sidecarLabel": {
+          "required": [],
+          "type": "string"
+        },
+        "sidecarLabelValue": {
+          "required": [],
+          "type": "string"
         }
       },
       "required": [],
@@ -531,6 +557,10 @@
       "required": [],
       "type": "object"
     },
+    "openshiftFinalizers": {
+      "required": [],
+      "type": "boolean"
+    },
     "podAnnotations": {
       "required": [],
       "type": "object"
@@ -575,6 +605,10 @@
       "required": [],
       "type": "boolean"
     },
+    "processClusterPushSecret": {
+      "required": [],
+      "type": "boolean"
+    },
     "processClusterStore": {
       "required": [],
       "type": "boolean"
@@ -585,6 +619,14 @@
     },
     "rbac": {
       "properties": {
+        "aggregateToEdit": {
+          "required": [],
+          "type": "boolean"
+        },
+        "aggregateToView": {
+          "required": [],
+          "type": "boolean"
+        },
         "create": {
           "required": [],
           "type": "boolean"
@@ -765,6 +807,10 @@
           "required": [],
           "type": "object"
         },
+        "annotations": {
+          "required": [],
+          "type": "object"
+        },
         "certCheckInterval": {
           "required": [],
           "type": "string"
@@ -817,7 +863,7 @@
                 },
                 "revisionHistoryLimit": {
                   "required": [],
-                  "type": "string"
+                  "type": "integer"
                 }
               },
               "required": [],
