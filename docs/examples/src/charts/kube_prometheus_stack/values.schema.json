@@ -330,7 +330,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v0.28.0",
+                  "default": "v0.28.1",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -526,7 +526,7 @@
             },
             "storage": {
               "additionalProperties": true,
-              "description": "# Storage is the definition of how storage will be used by the Alertmanager instances.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md\n#",
+              "description": "# Storage is the definition of how storage will be used by the Alertmanager instances.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md\n#",
               "required": [],
               "title": "storage",
               "type": "object"
@@ -943,6 +943,119 @@
           "title": "ingressPerReplica",
           "type": "object"
         },
+        "networkPolicy": {
+          "additionalProperties": true,
+          "description": "# Network Policy configuration\n#",
+          "properties": {
+            "additionalIngress": {
+              "description": "Additional custom ingress rules\n#",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "additionalIngress",
+              "type": "array"
+            },
+            "egress": {
+              "additionalProperties": true,
+              "description": "Configure egress rules\n#",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "Enable egress rules. When enabled, policyTypes will include Egress\n#",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "rules": {
+                  "description": "Custom egress rules\n#",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "rules",
+                  "type": "array"
+                }
+              },
+              "required": [],
+              "title": "egress",
+              "type": "object"
+            },
+            "enableClusterRules": {
+              "default": true,
+              "description": "Enable rules for alertmanager cluster traffic\n#",
+              "required": [],
+              "title": "enableClusterRules",
+              "type": "boolean"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Enable network policy for Alertmanager",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "gateway": {
+              "additionalProperties": true,
+              "description": "Gateway (formerly ingress controller) configuration\n#",
+              "properties": {
+                "namespace": {
+                  "default": "",
+                  "description": "Gateway namespace\n#",
+                  "required": [],
+                  "title": "namespace",
+                  "type": "string"
+                },
+                "podLabels": {
+                  "additionalProperties": true,
+                  "description": "Gateway pod labels\n#",
+                  "required": [],
+                  "title": "podLabels",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "gateway",
+              "type": "object"
+            },
+            "monitoringRules": {
+              "additionalProperties": true,
+              "description": "Configure monitoring component rules\n#",
+              "properties": {
+                "configReloader": {
+                  "default": true,
+                  "description": "Enable ingress for config reloader metrics\n#",
+                  "required": [],
+                  "title": "configReloader",
+                  "type": "boolean"
+                },
+                "prometheus": {
+                  "default": true,
+                  "description": "Enable ingress from Prometheus\n#",
+                  "required": [],
+                  "title": "prometheus",
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "title": "monitoringRules",
+              "type": "object"
+            },
+            "policyTypes": {
+              "description": "Define policy types. If egress is enabled, both Ingress and Egress will be used\nValid values are [\"Ingress\"] or [\"Ingress\", \"Egress\"]\n#",
+              "items": {
+                "required": [],
+                "type": "string"
+              },
+              "required": [],
+              "title": "policyTypes",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "networkPolicy",
+          "type": "object"
+        },
         "podDisruptionBudget": {
           "additionalProperties": true,
           "description": "# Configure pod disruption budgets for Alertmanager\n# ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget\n#",
@@ -1244,7 +1357,7 @@
             },
             "targetPort": {
               "default": 9093,
-              "description": "# To be used with a proxy extraContainer port\n#",
+              "description": "# Port for Alertmanager cluster communication\n#\nclusterPort: 9094\n# To be used with a proxy extraContainer port\n#",
               "required": [],
               "title": "targetPort",
               "type": "integer"
@@ -1612,18 +1725,6 @@
     "commonLabels": {
       "additionalProperties": true,
       "description": "# Labels to apply to all resources\n#",
-      "properties": {
-        "baz": {
-          "required": [],
-          "title": "baz",
-          "type": "string"
-        },
-        "foo": {
-          "required": [],
-          "title": "foo",
-          "type": "string"
-        }
-      },
       "required": [],
       "title": "commonLabels",
       "type": "object"
@@ -2104,14 +2205,7 @@
               "title": "podLabels",
               "type": "object"
             },
-            "resources": {
-              "additionalProperties": true,
-              "description": "# Define resources requests and limits for single Pods.\n# ref: https://kubernetes.io/docs/user-guide/compute-resources/\n#",
-              "required": [],
-              "title": "resources",
-              "type": "object"
-            },
-            "securityContext": {
+            "podSecurityContext": {
               "additionalProperties": true,
               "description": "# SecurityContext holds pod-level security attributes and common container settings.\n# This defaults to non root user with uid 1000 and gid 2000. *v1.PodSecurityContext  false\n# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/\n#",
               "properties": {
@@ -2155,7 +2249,14 @@
                 }
               },
               "required": [],
-              "title": "securityContext",
+              "title": "podSecurityContext",
+              "type": "object"
+            },
+            "resources": {
+              "additionalProperties": true,
+              "description": "# Define resources requests and limits for single Pods.\n# ref: https://kubernetes.io/docs/user-guide/compute-resources/\n#",
+              "required": [],
+              "title": "resources",
               "type": "object"
             },
             "serviceAccount": {
@@ -3447,8 +3548,7 @@
     "extraManifests": {
       "description": "# Extra manifests to deploy as an array",
       "items": {
-        "required": [],
-        "type": "string"
+        "required": []
       },
       "required": [],
       "title": "extraManifests",
@@ -3665,6 +3765,13 @@
           "required": [],
           "title": "defaultDashboardsEnabled",
           "type": "boolean"
+        },
+        "defaultDashboardsInterval": {
+          "default": "1m",
+          "description": "# Default interval for Grafana dashboards\n#",
+          "required": [],
+          "title": "defaultDashboardsInterval",
+          "type": "string"
         },
         "defaultDashboardsTimezone": {
           "default": "utc",
@@ -4009,7 +4116,7 @@
               "properties": {
                 "alertmanager": {
                   "additionalProperties": true,
-                  "description": "datasourceUid: Jaeger\ntraceIdLabelName: trace_id",
+                  "description": "datasourceUid: Jaeger\ntraceIdLabelName: trace_id\nurlDisplayLabel: View traces",
                   "properties": {
                     "enabled": {
                       "default": true,
@@ -5385,6 +5492,12 @@
               "required": [],
               "title": "additionalLabels",
               "type": "object"
+            },
+            "enabled": {
+              "default": true,
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
             },
             "interval": {
               "default": "",
@@ -6997,6 +7110,12 @@
               "title": "cAdvisorRelabelings",
               "type": "array"
             },
+            "enabled": {
+              "default": true,
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
             "honorLabels": {
               "default": true,
               "description": "# If true, Prometheus use (respect) labels provided by exporter.\n#",
@@ -7544,33 +7663,9 @@
         "ingress": {
           "default": true,
           "description": "#\n# The Policy model to apply. When set to false, only pods with the correct\n# client label will have network access to  grafana port defined.\n# When true, grafana will accept connections from any source\n# (with the correct destination port).\n#",
-          "items": {
-            "additionalProperties": true,
-            "properties": {
-              "ports": {
-                "items": {
-                  "additionalProperties": true,
-                  "properties": {
-                    "port": {
-                      "required": [],
-                      "title": "port",
-                      "type": "integer"
-                    }
-                  },
-                  "required": [],
-                  "type": "object"
-                },
-                "required": [],
-                "title": "ports",
-                "type": "array"
-              }
-            },
-            "required": [],
-            "type": "object"
-          },
           "required": [],
           "title": "ingress",
-          "type": "array"
+          "type": "boolean"
         }
       },
       "required": [],
@@ -7789,19 +7884,9 @@
       "additionalProperties": true,
       "description": "Extra labels to be added to windows exporter pods",
       "properties": {
-        "baz": {
-          "required": [],
-          "title": "baz",
-          "type": "string"
-        },
         "customLableA": {
           "required": [],
           "title": "customLableA",
-          "type": "string"
-        },
-        "foo": {
-          "required": [],
-          "title": "foo",
           "type": "string"
         }
       },
@@ -8327,7 +8412,7 @@
               "type": "array"
             },
             "podTargetLabels": {
-              "description": "List of pod labels to add to windows exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "List of pod labels to add to windows exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -8377,7 +8462,7 @@
               "type": "object"
             },
             "targetLabels": {
-              "description": "List of target labels to add to node exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor",
+              "description": "List of target labels to add to node exporter metrics\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#servicemonitor",
               "items": {
                 "required": []
               },
@@ -8454,7 +8539,7 @@
         },
         "podMonitor": {
           "additionalProperties": true,
-          "description": "PodMonitor defines monitoring for a set of pods.\nref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.PodMonitor\nUsing a PodMonitor may be preferred in some environments where there is very large number\nof Windows Exporter endpoints (1000+) behind a single service.\nThe PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,\nthe time series resulting from the configuration through PodMonitor may have different labels.\nFor instance, there will not be the service label any longer which might\naffect PromQL queries selecting that label.",
+          "description": "PodMonitor defines monitoring for a set of pods.\nref. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#podmonitor\nUsing a PodMonitor may be preferred in some environments where there is very large number\nof Windows Exporter endpoints (1000+) behind a single service.\nThe PodMonitor is disabled by default. When switching from ServiceMonitor to PodMonitor,\nthe time series resulting from the configuration through PodMonitor may have different labels.\nFor instance, there will not be the service label any longer which might\naffect PromQL queries selecting that label.",
           "properties": {
             "additionalLabels": {
               "additionalProperties": true,
@@ -8487,7 +8572,7 @@
             },
             "authorization": {
               "additionalProperties": true,
-              "description": "Authorization section for this endpoint.\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.SafeAuthorization",
+              "description": "Authorization section for this endpoint.\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#safeauthorization",
               "required": [],
               "title": "authorization",
               "type": "object"
@@ -8600,7 +8685,7 @@
             },
             "oauth2": {
               "additionalProperties": true,
-              "description": "OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.OAuth2",
+              "description": "OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.\nhttps://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#oauth2",
               "required": [],
               "title": "oauth2",
               "type": "object"
@@ -9048,7 +9133,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v3.1.0",
+                  "default": "v3.2.1",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -9101,6 +9186,13 @@
               "required": [],
               "title": "minReadySeconds",
               "type": "integer"
+            },
+            "nameValidationScheme": {
+              "default": "",
+              "description": "# Specifies the validation scheme for metric and label names.\n# Supported values are: Legacy, UTF8",
+              "required": [],
+              "title": "nameValidationScheme",
+              "type": "string"
             },
             "nodeSelector": {
               "additionalProperties": true,
@@ -9497,7 +9589,7 @@
             },
             "storageSpec": {
               "additionalProperties": true,
-              "description": "# Prometheus StorageSpec for persistent data\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md\n#",
+              "description": "# Prometheus StorageSpec for persistent data\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md\n#",
               "required": [],
               "title": "storageSpec",
               "type": "object"
@@ -10817,6 +10909,13 @@
                       "required": [],
                       "title": "duration",
                       "type": "string"
+                    },
+                    "revisionHistoryLimit": {
+                      "default": "",
+                      "description": "Set the revisionHistoryLimit on the Certificate. See\nhttps://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec\nDefaults to nil.",
+                      "required": [],
+                      "title": "revisionHistoryLimit",
+                      "type": "null"
                     }
                   },
                   "required": [],
@@ -10838,6 +10937,13 @@
                       "required": [],
                       "title": "duration",
                       "type": "string"
+                    },
+                    "revisionHistoryLimit": {
+                      "default": "",
+                      "description": "Set the revisionHistoryLimit on the Certificate. See\nhttps://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.CertificateSpec\nDefaults to nil.",
+                      "required": [],
+                      "title": "revisionHistoryLimit",
+                      "type": "null"
                     }
                   },
                   "required": [],
@@ -13267,18 +13373,6 @@
         },
         "labels": {
           "additionalProperties": true,
-          "properties": {
-            "baz": {
-              "required": [],
-              "title": "baz",
-              "type": "string"
-            },
-            "foo": {
-              "required": [],
-              "title": "foo",
-              "type": "string"
-            }
-          },
           "required": [],
           "title": "labels",
           "type": "object"
@@ -13503,6 +13597,13 @@
       "required": [],
       "title": "serviceMonitor",
       "type": "object"
+    },
+    "shareProcessNamespace": {
+      "default": false,
+      "description": "When process namespace sharing is enabled, processes in a container are visible to all other containers in the same pod\nThis parameter is added because the ldap reload api is not working https://grafana.com/docs/grafana/latest/developers/http_api/admin/#reload-ldap-configuration\nTo allow an extraContainer to restart the Grafana container",
+      "required": [],
+      "title": "shareProcessNamespace",
+      "type": "boolean"
     },
     "sidecar": {
       "additionalProperties": true,
@@ -15426,7 +15527,7 @@
             },
             "storage": {
               "additionalProperties": true,
-              "description": "# Storage is the definition of how storage will be used by the ThanosRuler instances.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md\n#",
+              "description": "# Storage is the definition of how storage will be used by the ThanosRuler instances.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md\n#",
               "required": [],
               "title": "storage",
               "type": "object"
