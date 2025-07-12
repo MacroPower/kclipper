@@ -4,14 +4,14 @@ charts: helm.Charts = {
     podinfo: {
         chart = "podinfo"
         repoURL = "https://stefanprodan.github.io/podinfo"
-        targetRevision = "6.7.1"
+        targetRevision = "6.9.1"
         schemaGenerator = "AUTO"
         schemaValidator = "KCL"
     }
     podinfo_v5: {
         chart = "podinfo"
         repoURL = "https://stefanprodan.github.io/podinfo"
-        targetRevision = "5.2.1"
+        targetRevision = "6.9.1"
         schemaGenerator = "AUTO"
         schemaValidator = "KCL"
     }
