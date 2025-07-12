@@ -247,7 +247,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "6.7.1",
+          "default": "6.9.1",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -385,6 +385,13 @@
       "description": "Disruption budget will be configured only when the replicaCount is greater than 1",
       "required": [],
       "title": "podDisruptionBudget",
+      "type": "object"
+    },
+    "podSecurityContext": {
+      "additionalProperties": true,
+      "description": "set pod security context",
+      "required": [],
+      "title": "podSecurityContext",
       "type": "object"
     },
     "probes": {
