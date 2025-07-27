@@ -16,6 +16,7 @@
 #include <CoreFoundation/CFDictionary.h>
 #include <CoreFoundation/CFCharacterSet.h>
 #include <CoreFoundation/CFLocale.h>
+#include <CoreFoundation/CFError.h>
 #include <stdarg.h>
 
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -148,55 +149,15 @@ O-umlaut is \303\226 in UTF-8). UTF-8 is the recommended encoding here,
 since it is the default choice with Mac OS X developer tools.
 */
 #ifndef CF_OPEN_SOURCE
-
+#if TARGET_OS_WIN32
+#undef __CONSTANT_CFSTRINGS__
 #endif
-
-#if DEPLOYMENT_RUNTIME_SWIFT
-    #if TARGET_OS_MAC
-        #define _CF_CONSTANT_STRING_SWIFT_CLASS $s15SwiftFoundation19_NSCFConstantStringCN
-    #else
-        #define _CF_CONSTANT_STRING_SWIFT_CLASS $s10Foundation19_NSCFConstantStringCN
-    #endif
-
-CF_EXPORT void *_CF_CONSTANT_STRING_SWIFT_CLASS[];
 #endif
-
-#if DEPLOYMENT_RUNTIME_SWIFT && TARGET_OS_MAC
-
-struct __CFConstStr {
-    struct {
-        __ptrauth_cf_objc_isa_pointer uintptr_t _cfisa;
-        uintptr_t _swift_rc;
-        uint64_t _cfinfoa;
-    } _base;
-    uint8_t *_ptr;
-#if TARGET_RT_64_BIT && defined(__BIG_ENDIAN__)
-    uint64_t _length;
-#else // 32-bit:
-    uint32_t _length;
-#endif // TARGET_RT_64_BIT && defined(__BIG_ENDIAN__)
-};
-
-#if __BIG_ENDIAN__
-#define CFSTR(cStr)  ({ \
-    static struct __CFConstStr str = {{(uintptr_t)&_CF_CONSTANT_STRING_SWIFT_CLASS, _CF_CONSTANT_OBJECT_STRONG_RC, 0x00000000C8070000}, (uint8_t *)(cStr), sizeof(cStr) - 1}; \
-    (CFStringRef)&str; \
-})
-#else // Little endian:
-#define CFSTR(cStr)  ({ \
-    static struct __CFConstStr str = {{(uintptr_t)&_CF_CONSTANT_STRING_SWIFT_CLASS, _CF_CONSTANT_OBJECT_STRONG_RC, 0x07C8}, (uint8_t *)(cStr), sizeof(cStr) - 1}; \
-    (CFStringRef)&str; \
-})
-#endif // __BIG_ENDIAN__
-
-#else
 
 #ifdef __CONSTANT_CFSTRINGS__
 #define CFSTR(cStr)  ((CFStringRef) __builtin___CFStringMakeConstantString ("" cStr ""))
 #else
 #define CFSTR(cStr)  __CFStringMakeConstantString("" cStr "")
-#endif
-
 #endif
 
 #if defined(__GNUC__) && (__GNUC__*10+__GNUC_MINOR__ >= 42) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1) && !defined(__INTEL_COMPILER) && TARGET_OS_MAC
@@ -214,10 +175,10 @@ struct __CFConstStr {
 
 /* The following four functions copy the provided buffer into CFString's internal storage. */
 CF_EXPORT
-CFStringRef CFStringCreateWithPascalString(CFAllocatorRef alloc, ConstStr255Param pStr, CFStringEncoding encoding);
+CFStringRef CFStringCreateWithPascalString(CFAllocatorRef alloc, ConstStr255Param pStr, CFStringEncoding encoding) CF_FORMAT_ARGUMENT(2);
 
 CF_EXPORT
-CFStringRef CFStringCreateWithCString(CFAllocatorRef alloc, const char *cStr, CFStringEncoding encoding);
+CFStringRef CFStringCreateWithCString(CFAllocatorRef alloc, const char *cStr, CFStringEncoding encoding) CF_FORMAT_ARGUMENT(2);
 
 /* The following takes an explicit length, and allows you to specify whether the data is an external format --- that is, whether to pay attention to the BOM character (if any) and do byte swapping if necessary
 */
@@ -245,10 +206,10 @@ guarantee, you need to be extremely careful --- do not hand it out to any
 APIs which might retain or copy the strings.
 */
 CF_EXPORT
-CFStringRef CFStringCreateWithPascalStringNoCopy(CFAllocatorRef alloc, ConstStr255Param pStr, CFStringEncoding encoding, CFAllocatorRef contentsDeallocator);
+CFStringRef CFStringCreateWithPascalStringNoCopy(CFAllocatorRef alloc, ConstStr255Param pStr, CFStringEncoding encoding, CFAllocatorRef contentsDeallocator) CF_FORMAT_ARGUMENT(2);
 
 CF_EXPORT
-CFStringRef CFStringCreateWithCStringNoCopy(CFAllocatorRef alloc, const char *cStr, CFStringEncoding encoding, CFAllocatorRef contentsDeallocator);
+CFStringRef CFStringCreateWithCStringNoCopy(CFAllocatorRef alloc, const char *cStr, CFStringEncoding encoding, CFAllocatorRef contentsDeallocator) CF_FORMAT_ARGUMENT(2);
 
 /* The following takes an explicit length, and allows you to specify whether the data is an external format --- that is, whether to pay attention to the BOM character (if any) and do byte swapping if necessary
 */
@@ -264,7 +225,7 @@ CF_EXPORT
 CFStringRef CFStringCreateWithSubstring(CFAllocatorRef alloc, CFStringRef str, CFRange range);
 
 CF_EXPORT
-CFStringRef CFStringCreateCopy(CFAllocatorRef alloc, CFStringRef theString);
+CFStringRef CFStringCreateCopy(CFAllocatorRef alloc, CFStringRef theString) CF_FORMAT_ARGUMENT(2);
 
 /* These functions create a CFString from the provided printf-like format string and arguments.
 */
@@ -273,6 +234,12 @@ CFStringRef CFStringCreateWithFormat(CFAllocatorRef alloc, CFDictionaryRef forma
 
 CF_EXPORT
 CFStringRef CFStringCreateWithFormatAndArguments(CFAllocatorRef alloc, CFDictionaryRef formatOptions, CFStringRef format, va_list arguments) CF_FORMAT_FUNCTION(3,0);
+
+CF_EXPORT
+CFStringRef CFStringCreateStringWithValidatedFormat(CFAllocatorRef alloc, CFDictionaryRef formatOptions, CFStringRef validFormatSpecifiers, CFStringRef format, CFErrorRef *errorPtr, ...) API_AVAILABLE(macos(13.0), ios(16.0), watchos(8.0), tvos(8.0)) CF_FORMAT_FUNCTION(3, 6) CF_SWIFT_UNAVAILABLE("Use string interpolations instead");
+
+CF_EXPORT
+CFStringRef CFStringCreateStringWithValidatedFormatAndArguments(CFAllocatorRef alloc, CFDictionaryRef formatOptions, CFStringRef validFormatSpecifiers, CFStringRef format, va_list arguments, CFErrorRef *errorPtr) API_AVAILABLE(macos(13.0), ios(16.0), watchos(8.0), tvos(8.0)) CF_FORMAT_FUNCTION(3, 0) CF_SWIFT_UNAVAILABLE("Use string interpolations instead");
 
 /* Functions to create mutable strings. "maxLength", if not 0, is a hard bound on the length of the string. If 0, there is no limit on the length.
 */
@@ -387,7 +354,6 @@ CFStringEncoding CFStringGetSystemEncoding(void);		/* The default encoding for t
 CF_EXPORT
 CFIndex CFStringGetMaximumSizeForEncoding(CFIndex length, CFStringEncoding encoding);	/* Max bytes a string of specified length (in UniChars) will take up if encoded */
 
-
 /*** FileSystem path conversion functions ***/
 
 /* Extract the contents of the string as a NULL-terminated 8-bit string appropriate for passing to POSIX APIs (for example, normalized for HFS+).  The string is zero-terminated. false will be returned if the conversion results don't fit into the buffer.  Use CFStringGetMaximumSizeOfFileSystemRepresentation() if you want to make sure the buffer is of sufficient length.
@@ -404,7 +370,6 @@ CFIndex CFStringGetMaximumSizeOfFileSystemRepresentation(CFStringRef string);
 */
 CF_EXPORT
 CFStringRef CFStringCreateWithFileSystemRepresentation(CFAllocatorRef alloc, const char *buffer);
-
 
 /*** Comparison functions. ***/
 
@@ -543,6 +508,7 @@ void CFStringGetLineBounds(CFStringRef theString, CFRange range, CFIndex *lineBe
 CF_EXPORT
 void CFStringGetParagraphBounds(CFStringRef string, CFRange range, CFIndex *parBeginIndex, CFIndex *parEndIndex, CFIndex *contentsEndIndex) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
+#if !0
 /*!
 	@function CFStringGetHyphenationLocationBeforeIndex
 	Retrieve the first potential hyphenation location found before the specified location.
@@ -573,6 +539,7 @@ CFIndex CFStringGetHyphenationLocationBeforeIndex(CFStringRef string, CFIndex lo
 
 CF_EXPORT
 Boolean CFStringIsHyphenationAvailableForLocale(CFLocaleRef locale) API_AVAILABLE(macos(10.7), ios(4.3), watchos(2.0), tvos(9.0));
+#endif
 
 /*** Exploding and joining strings with a separator string ***/
 
@@ -706,7 +673,6 @@ typedef CF_ENUM(CFIndex, CFStringNormalizationForm) {
 */
 CF_EXPORT void CFStringNormalize(CFMutableStringRef theString, CFStringNormalizationForm theForm);
 
-
 /*!
 	@function CFStringFold
 	Folds the string into the form specified by the flags.
@@ -734,6 +700,7 @@ CF_EXPORT void CFStringNormalize(CFMutableStringRef theString, CFStringNormaliza
 CF_EXPORT
 void CFStringFold(CFMutableStringRef theString, CFStringCompareFlags theFlags, CFLocaleRef theLocale) API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
 
+#if !0
 /* Perform string transliteration.  The transformation represented by transform is applied to the given range of string, modifying it in place. Only the specified range will be modified, but the transform may look at portions of the string outside that range for context. NULL range pointer causes the whole string to be transformed. On return, range is modified to reflect the new range corresponding to the original range. reverse indicates that the inverse transform should be used instead, if it exists. If the transform is successful, true is returned; if unsuccessful, false. Reasons for the transform being unsuccessful include an invalid transform identifier, or attempting to reverse an irreversible transform.
 
 You can pass one of the predefined transforms below, or any valid ICU transform ID as defined in the ICU User Guide. Note that we do not support arbitrary set of ICU transform rules.
@@ -759,7 +726,7 @@ CF_EXPORT const CFStringRef kCFStringTransformLatinGreek;
 CF_EXPORT const CFStringRef kCFStringTransformToXMLHex;
 CF_EXPORT const CFStringRef kCFStringTransformToUnicodeName;
 CF_EXPORT const CFStringRef kCFStringTransformStripDiacritics API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
-
+#endif
 
 /*** General encoding related functionality ***/
 

@@ -24,11 +24,11 @@
 #ifndef _SEC_TRANSFORM_READ_TRANSFORM_H
 #define _SEC_TRANSFORM_READ_TRANSFORM_H
 
+#include <Security/SecTransform.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <Security/SecTransform.h>
 
 CF_ASSUME_NONNULL_BEGIN
 CF_IMPLICIT_BRIDGING_ENABLED
@@ -59,7 +59,7 @@ CF_IMPLICIT_BRIDGING_ENABLED
 */
 
 SecTransformRef SecTransformCreateReadTransformWithReadStream(CFReadStreamRef inputStream)
-	__OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_NA);
+API_DEPRECATED("SecTransform is no longer supported", macos(10.7, 13.0)) API_UNAVAILABLE(ios, tvos, watchos, macCatalyst);
 
 CF_IMPLICIT_BRIDGING_DISABLED
 CF_ASSUME_NONNULL_END

@@ -91,3 +91,6 @@ for name, tc := range tcs {
 ```
 
 We use Go 1.24, so you can use features from that version. Notably, you do not need to use `tc := tc` since Go 1.24 does not require it.
+
+## Tools
+- **Building**: When you need to test cross-compilation, run `devbox run -- task go-build`.

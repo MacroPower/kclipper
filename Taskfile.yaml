@@ -3,10 +3,15 @@ version: "3"
 vars:
   GO_FILES_CMD: >-
     go list -f {{"{{.Dir}}"}} ./... | xargs -I {} find {} -name "*.go"
-  SDK_PATH: ".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  NIX_VENDOR_DIR: "{{.ROOT_DIR}}/.nixpkgs/vendor"
+  SDK_PATH: "{{.NIX_VENDOR_DIR}}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  NIX_SDK_PATH: "{{.DEVBOX_PACKAGES_DIR}}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
   FRAMEWORK_PATH: "{{.SDK_PATH}}/System/Library/Frameworks"
+  INCLUDE_PATH: "{{.SDK_PATH}}/usr/include"
+  LIB_PATH: "{{.SDK_PATH}}/usr/lib"
   C_ENV: "{{OS | upper}}_{{ARCH | upper}}"
   PRETTIER_TARGETS: "*.{yaml,md,json} **/*.{yaml,md,json}"
+  ZIG_WRAPPER_DIR: "{{.ROOT_DIR}}/hack"
 
 env:
   HOSTNAME:
@@ -15,14 +20,14 @@ env:
     sh: helm version --template="{{ "{{.Version}}" }}"
   KCL_VERSION:
     sh: go list -f "{{ "{{.Version}}" }}" -m kcl-lang.io/lib
-  CC_LINUX_AMD64: zig cc -target x86_64-linux-gnu
-  CC_LINUX_ARM64: zig cc -target aarch64-linux-gnu
-  CC_DARWIN_AMD64: zig cc -target x86_64-macos-none -F{{ .FRAMEWORK_PATH }}
-  CC_DARWIN_ARM64: zig cc -target aarch64-macos-none -F{{ .FRAMEWORK_PATH }}
-  CXX_LINUX_AMD64: zig c++ -target x86_64-linux-gnu
-  CXX_LINUX_ARM64: zig c++ -target aarch64-linux-gnu
-  CXX_DARWIN_AMD64: zig c++ -target x86_64-macos-none -F{{ .FRAMEWORK_PATH }}
-  CXX_DARWIN_ARM64: zig c++ -target aarch64-macos-none -F{{ .FRAMEWORK_PATH }}
+  CC_LINUX_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target x86_64-linux-gnu"
+  CC_LINUX_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target aarch64-linux-gnu"
+  CC_DARWIN_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target x86_64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
+  CC_DARWIN_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target aarch64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
+  CXX_LINUX_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target x86_64-linux-gnu"
+  CXX_LINUX_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target aarch64-linux-gnu"
+  CXX_DARWIN_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target x86_64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
+  CXX_DARWIN_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target aarch64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
   BUILD_TAGS: netgo
 
 tasks:
@@ -135,6 +140,8 @@ tasks:
     vars:
       FLAGS: '{{.FLAGS | default "--skip=docker,homebrew,nix,sign"}}'
     cmds:
+      - cmd: 'echo "Using SDK: {{.SDK_PATH}}"'
+        silent: true
       - goreleaser release --snapshot --clean {{ .FLAGS }}
 
   go-build-images:
@@ -142,6 +149,8 @@ tasks:
     vars:
       FLAGS: '{{.FLAGS | default "--skip=homebrew,nix,sign"}}'
     cmds:
+      - cmd: 'echo "Using SDK: {{.SDK_PATH}}"'
+        silent: true
       - goreleaser release --snapshot --clean {{ .FLAGS }}
 
   go-release:
@@ -342,3 +351,15 @@ tasks:
       - chmod u+x {{.PRE_COMMIT_FILE}}
       - echo "${COMMIT_MSG}" > {{.COMMIT_MSG_FILE}}
       - chmod u+x {{.COMMIT_MSG_FILE}}
+
+  # Since these are impossible to compile properly on linux...
+  update-macos-sdk:
+    cmds:
+      - rm -rf {{.SDK_PATH}}
+      - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
+      - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
+      - mkdir -p {{.INCLUDE_PATH}}
+      - mkdir -p {{.LIB_PATH}}
+      - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework/* {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
+      - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/Security.framework/* {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
+      - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/

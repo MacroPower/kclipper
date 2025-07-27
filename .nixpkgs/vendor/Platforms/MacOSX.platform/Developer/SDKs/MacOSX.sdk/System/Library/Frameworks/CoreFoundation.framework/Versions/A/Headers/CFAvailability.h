@@ -143,7 +143,7 @@
 #define __CF_ANON_ENUM(_type)             enum __CF_ENUM_ATTRIBUTES : _type
 #define CF_CLOSED_ENUM(_type, _name)      enum __CF_CLOSED_ENUM_ATTRIBUTES _name : _type _name; enum _name : _type
 #if (__cplusplus)
-#define CF_OPTIONS(_type, _name) _type _name; enum __CF_OPTIONS_ATTRIBUTES : _type
+#define CF_OPTIONS(_type, _name) __attribute__((availability(swift,unavailable))) _type _name; enum __CF_OPTIONS_ATTRIBUTES : _name
 #else
 #define CF_OPTIONS(_type, _name) enum __CF_OPTIONS_ATTRIBUTES _name : _type _name; enum _name : _type
 #endif
@@ -180,19 +180,11 @@ CF_ENUM(CFIndex) {
 #define _CF_TYPED_EXTENSIBLE_ENUM
 #endif
 
-#if DEPLOYMENT_RUNTIME_SWIFT
-#define CF_STRING_ENUM
-#define CF_EXTENSIBLE_STRING_ENUM
-
-#define CF_TYPED_ENUM
-#define CF_TYPED_EXTENSIBLE_ENUM
-#else
 #define CF_STRING_ENUM _CF_TYPED_ENUM
 #define CF_EXTENSIBLE_STRING_ENUM _CF_TYPED_EXTENSIBLE_ENUM
 
 #define CF_TYPED_ENUM _CF_TYPED_ENUM
 #define CF_TYPED_EXTENSIBLE_ENUM _CF_TYPED_EXTENSIBLE_ENUM
-#endif
 
 #define __CF_ERROR_ENUM_GET_MACRO(_1, _2, NAME, ...) NAME
 #if ((__cplusplus && __cplusplus >= 201103L && (__has_extension(cxx_strong_enums) || __has_feature(objc_fixed_enum))) || (!__cplusplus && __has_feature(objc_fixed_enum))) && __has_attribute(ns_error_domain)

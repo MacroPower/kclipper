@@ -141,6 +141,20 @@ CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterUseSignificantDigits API_
 CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMinSignificantDigits API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));	// CFNumber
 CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMaxSignificantDigits API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));	// CFNumber
 
+CF_EXPORT const CFNumberFormatterKey kCFNumberFormatterMinGroupingDigits API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0), visionos(2.0));    // CFNumber
+    // Configures the minimum required number of digits preceding the first separator before the separator is shown.
+    // Grouping starts happening when the number of digits reaches `kCFNumberFormatterGroupingSize + kCFNumberFormatterMinGroupingDigits`.
+    // If `kCFNumberFormatterUseGroupingSeparator == false` the separator will not be shown and this property is ignored.
+    // Set `kCFNumberFormatterMinGroupingDigits == 1` to always show separators.
+    // Set `kCFNumberFormatterMinGroupingDigits == -1` to use the locale default minimum grouping digits.
+    // Note: `0` is an invalid value and the behavior is undefined.
+    // Example:
+    // `kCFNumberFormatterUseGroupingSeparator == true` and `kCFNumberFormatterGroupingSize == 3` and locale identifier is `en_US`
+    // Formatting values of 1000 and 10000 results in:
+    // `kCFNumberFormatterMinGroupingDigits == 1`    1,000    10,000
+    // `kCFNumberFormatterMinGroupingDigits == 2`    1000     10,000
+    // `kCFNumberFormatterMinGroupingDigits == -1`   1,000    10,000 (default for US English)
+                                                                                       
 typedef CF_ENUM(CFIndex, CFNumberFormatterRoundingMode) {
     kCFNumberFormatterRoundCeiling = 0,
     kCFNumberFormatterRoundFloor = 1,

@@ -26,14 +26,17 @@ CFTypeID CFCalendarGetTypeID(void);
 CF_EXPORT
 CFCalendarRef CFCalendarCopyCurrent(void);
 
+/**
+ Creates a calendar.  The identifiers are the `kCF*Calendar` constants in CFLocale.h.
+**/
 CF_EXPORT
 CFCalendarRef CFCalendarCreateWithIdentifier(CFAllocatorRef allocator, CFCalendarIdentifier identifier);
-	// Create a calendar.  The identifiers are the kCF*Calendar
-	// constants in CFLocale.h.
 
+/**
+ Returns the calendar's identifier.
+ */
 CF_EXPORT
 CFCalendarIdentifier CFCalendarGetIdentifier(CFCalendarRef calendar);
-	// Returns the calendar's identifier.
 
 CF_EXPORT
 CFLocaleRef CFCalendarCopyLocale(CFCalendarRef calendar);
@@ -61,20 +64,21 @@ void CFCalendarSetMinimumDaysInFirstWeek(CFCalendarRef calendar, CFIndex mwd);
 
 
 typedef CF_OPTIONS(CFOptionFlags, CFCalendarUnit) {
-	kCFCalendarUnitEra = (1UL << 1),
-	kCFCalendarUnitYear = (1UL << 2),
-	kCFCalendarUnitMonth = (1UL << 3),
-	kCFCalendarUnitDay = (1UL << 4),
-	kCFCalendarUnitHour = (1UL << 5),
-	kCFCalendarUnitMinute = (1UL << 6),
-	kCFCalendarUnitSecond = (1UL << 7),
-	kCFCalendarUnitWeek API_DEPRECATED("Use kCFCalendarUnitWeekOfYear or kCFCalendarUnitWeekOfMonth instead", macos(10.4,10.10), ios(2.0,8.0), watchos(2.0,2.0), tvos(9.0,9.0)) = (1UL << 8),
-	kCFCalendarUnitWeekday = (1UL << 9),
-	kCFCalendarUnitWeekdayOrdinal = (1UL << 10),
-	kCFCalendarUnitQuarter API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = (1UL << 11),
-	kCFCalendarUnitWeekOfMonth API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 12),
-	kCFCalendarUnitWeekOfYear API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 13),
-	kCFCalendarUnitYearForWeekOfYear API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 14),
+    kCFCalendarUnitEra = (1UL << 1),
+    kCFCalendarUnitYear = (1UL << 2),
+    kCFCalendarUnitMonth = (1UL << 3),
+    kCFCalendarUnitDay = (1UL << 4),
+    kCFCalendarUnitHour = (1UL << 5),
+    kCFCalendarUnitMinute = (1UL << 6),
+    kCFCalendarUnitSecond = (1UL << 7),
+    kCFCalendarUnitWeek API_DEPRECATED("Use kCFCalendarUnitWeekOfYear or kCFCalendarUnitWeekOfMonth instead", macos(10.4,10.10), ios(2.0,8.0), watchos(2.0,2.0), tvos(9.0,9.0)) = (1UL << 8),
+    kCFCalendarUnitWeekday = (1UL << 9),
+    kCFCalendarUnitWeekdayOrdinal = (1UL << 10),
+    kCFCalendarUnitQuarter API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0)) = (1UL << 11),
+    kCFCalendarUnitWeekOfMonth API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 12),
+    kCFCalendarUnitWeekOfYear API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 13),
+    kCFCalendarUnitYearForWeekOfYear API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1UL << 14),
+    kCFCalendarUnitDayOfYear API_AVAILABLE(macos(15.0), ios(18.0), watchos(11.0), tvos(18.0)) = (1UL << 16),
 };
 
 CF_EXPORT

@@ -47,7 +47,7 @@ CF_ASSUME_NONNULL_BEGIN
 	@constant kSecInternetPasswordItemClass Indicates that the item is an Internet password.
 	@constant kSecGenericPasswordItemClass Indicates that the item is a generic password.
 	@constant kSecAppleSharePasswordItemClass Indicates that the item is an AppleShare password.
-		Note: AppleShare passwords are no longer used by OS X, starting in Leopard (10.5). Use of this item class is deprecated in OS X 10.9 and later; kSecInternetPasswordItemClass should be used instead when storing or looking up passwords for an Apple Filing Protocol (AFP) server.
+		Note: AppleShare passwords are no longer used by macOS, starting in Leopard (10.5). Use of this item class is deprecated in OS X 10.9 and later; kSecInternetPasswordItemClass should be used instead when storing or looking up passwords for an Apple Filing Protocol (AFP) server.
 	@constant kSecCertificateItemClass Indicates that the item is a digital certificate.
 	@constant kSecPublicKeyItemClass Indicates that the item is a public key.
 	@constant kSecPrivateKeyItemClass Indicates that the item is a private key.
@@ -78,7 +78,7 @@ typedef CF_ENUM(FourCharCode, SecItemClass)
 	@constant kSecLabelItemAttr Identifies the label attribute. You use this tag to set or get a value of type string that represents a user-editable string containing the label for this item.
 	@constant kSecInvisibleItemAttr Identifies the invisible attribute. You use this tag to set or get a value of type Boolean that indicates whether the item is invisible (i.e. should not be displayed).
 	@constant kSecNegativeItemAttr Identifies the negative attribute. You use this tag to set or get a value of type Boolean that indicates whether there is a valid password associated with this keychain item. This is useful if your application doesn't want a password for some particular service to be stored in the keychain, but prefers that it always be entered by the user. The item (typically invisible and with zero-length data) acts as a placeholder to say "don't use me."
-	@constant kSecCustomIconItemAttr Identifies the custom icon attribute. You use this tag to set or get a value of type Boolean that indicates whether the item has an application-specific icon. To do this, you must also set the attribute value identified by the tag kSecTypeItemAttr to a file type for which there is a corresponding icon in the desktop database, and set the attribute value identified by the tag kSecCreatorItemAttr to an appropriate application creator type. If a custom icon corresponding to the item's type and creator can be found in the desktop database, it will be displayed by Keychain Access. Otherwise, default icons are used. (Note: use of this attribute is deprecated; custom icons for keychain items are not supported in Mac OS X.)
+	@constant kSecCustomIconItemAttr Identifies the custom icon attribute. You use this tag to set or get a value of type Boolean that indicates whether the item has an application-specific icon. To do this, you must also set the attribute value identified by the tag kSecTypeItemAttr to a file type for which there is a corresponding icon in the desktop database, and set the attribute value identified by the tag kSecCreatorItemAttr to an appropriate application creator type. If a custom icon corresponding to the item's type and creator can be found in the desktop database, it will be displayed by Keychain Access. Otherwise, default icons are used. (Note: use of this attribute is deprecated; custom icons for keychain items are not supported in macOS.)
 	@constant kSecAccountItemAttr Identifies the account attribute. You use this tag to set or get a string that represents the user account. This attribute applies to generic, Internet, and AppleShare password items.
 	@constant kSecServiceItemAttr Identifies the service attribute. You use this tag to set or get a string that represents the service associated with this item. This attribute is unique to generic password items.
 	@constant kSecGenericItemAttr Identifies the generic attribute. You use this tag to set or get a value of untyped bytes that represents a user-defined attribute.  This attribute is unique to generic password items.
@@ -87,9 +87,9 @@ typedef CF_ENUM(FourCharCode, SecItemClass)
 	@constant kSecAuthenticationTypeItemAttr Identifies the authentication type attribute. You use this tag to set or get a value of type SecAuthenticationType that represents the Internet authentication scheme. This attribute is unique to Internet password items.
 	@constant kSecPortItemAttr Identifies the port attribute. You use this tag to set or get a value of type UInt32 that represents the Internet port number. This attribute is unique to Internet password items.
 	@constant kSecPathItemAttr Identifies the path attribute. You use this tag to set or get a string value that represents the path. This attribute is unique to Internet password items.
-	@constant kSecVolumeItemAttr Identifies the volume attribute. You use this tag to set or get a string value that represents the AppleShare volume. This attribute is unique to AppleShare password items. Note: AppleShare passwords are no longer used by OS X as of Leopard (10.5); Internet password items are used instead.
-	@constant kSecAddressItemAttr Identifies the address attribute. You use this tag to set or get a string value that represents the AppleTalk zone name, or the IP or domain name that represents the server address. This attribute is unique to AppleShare password items. Note: AppleShare passwords are no longer used by OS X as of Leopard (10.5); Internet password items are used instead.
-	@constant kSecSignatureItemAttr Identifies the server signature attribute. You use this tag to set or get a value of type SecAFPServerSignature that represents the server signature block. This attribute is unique to AppleShare password items. Note: AppleShare passwords are no longer used by OS X as of Leopard (10.5); Internet password items are used instead.
+	@constant kSecVolumeItemAttr Identifies the volume attribute. You use this tag to set or get a string value that represents the AppleShare volume. This attribute is unique to AppleShare password items. Note: AppleShare passwords are no longer used by macOS as of Leopard (10.5); Internet password items are used instead.
+	@constant kSecAddressItemAttr Identifies the address attribute. You use this tag to set or get a string value that represents the AppleTalk zone name, or the IP or domain name that represents the server address. This attribute is unique to AppleShare password items. Note: AppleShare passwords are no longer used by macOS as of Leopard (10.5); Internet password items are used instead.
+	@constant kSecSignatureItemAttr Identifies the server signature attribute. You use this tag to set or get a value of type SecAFPServerSignature that represents the server signature block. This attribute is unique to AppleShare password items. Note: AppleShare passwords are no longer used by macOS as of Leopard (10.5); Internet password items are used instead.
 	@constant kSecProtocolItemAttr Identifies the protocol attribute. You use this tag to set or get a value of type SecProtocolType that represents the Internet protocol. This attribute applies to AppleShare and Internet password items.
 	@constant kSecCertificateType Indicates a CSSM_CERT_TYPE type.
 	@constant kSecCertificateEncoding Indicates a CSSM_CERT_ENCODING type.
@@ -148,7 +148,9 @@ typedef UInt8	SecPublicKeyHash[20];
 	@abstract Returns the type identifier of SecKeychainItem instances.
 	@result The CFTypeID of SecKeychainItem instances.
 */
-CFTypeID SecKeychainItemGetTypeID(void);
+CFTypeID SecKeychainItemGetTypeID(void)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemModifyAttributesAndData
@@ -160,7 +162,9 @@ CFTypeID SecKeychainItemGetTypeID(void);
     @result A result code. See "Security Error Codes" (SecBase.h).
 	@discussion The keychain item is written to the keychain's permanent data store. If the keychain item has not previously been added to a keychain, a call to the SecKeychainItemModifyContent function does nothing and returns errSecSuccess.
 */
-OSStatus SecKeychainItemModifyAttributesAndData(SecKeychainItemRef itemRef, const SecKeychainAttributeList * __nullable attrList, UInt32 length, const void * __nullable data) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemModifyAttributesAndData(SecKeychainItemRef itemRef, const SecKeychainAttributeList * __nullable attrList, UInt32 length, const void * __nullable data)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemCreateFromContent
@@ -176,7 +180,9 @@ OSStatus SecKeychainItemModifyAttributesAndData(SecKeychainItemRef itemRef, cons
 */
 OSStatus SecKeychainItemCreateFromContent(SecItemClass itemClass, SecKeychainAttributeList *attrList,
 		UInt32 length, const void * __nullable data, SecKeychainRef __nullable keychainRef,
-		SecAccessRef __nullable initialAccess, SecKeychainItemRef * __nullable CF_RETURNS_RETAINED itemRef) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+		SecAccessRef __nullable initialAccess, SecKeychainItemRef * __nullable CF_RETURNS_RETAINED itemRef)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemModifyContent
@@ -187,7 +193,9 @@ OSStatus SecKeychainItemCreateFromContent(SecItemClass itemClass, SecKeychainAtt
 	@param data A pointer to a buffer containing the data to store. Pass NULL if you don't need to modify the data.
     @result A result code.  See "Security Error Codes" (SecBase.h).
 */
-OSStatus SecKeychainItemModifyContent(SecKeychainItemRef itemRef, const SecKeychainAttributeList * __nullable attrList, UInt32 length, const void * __nullable data) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemModifyContent(SecKeychainItemRef itemRef, const SecKeychainAttributeList * __nullable attrList, UInt32 length, const void * __nullable data)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemCopyContent
@@ -199,7 +207,9 @@ OSStatus SecKeychainItemModifyContent(SecKeychainItemRef itemRef, const SecKeych
 	@param outData On return, a pointer to a buffer containing the data in this item. Pass NULL if you don't need to retrieve the data. You must call SecKeychainItemFreeContent when you no longer need the data.
     @result A result code. See "Security Error Codes" (SecBase.h). In addition, errSecParam (-50) may be returned if not enough valid parameters are supplied.
 */
-OSStatus SecKeychainItemCopyContent(SecKeychainItemRef itemRef, SecItemClass * __nullable itemClass, SecKeychainAttributeList * __nullable attrList, UInt32 * __nullable length, void * __nullable * __nullable outData) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemCopyContent(SecKeychainItemRef itemRef, SecItemClass * __nullable itemClass, SecKeychainAttributeList * __nullable attrList, UInt32 * __nullable length, void * __nullable * __nullable outData)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemFreeContent
@@ -207,7 +217,9 @@ OSStatus SecKeychainItemCopyContent(SecKeychainItemRef itemRef, SecItemClass * _
 	@param attrList A pointer to the attribute list to release. Pass NULL to ignore this parameter.
     @param data A pointer to the data buffer to release. Pass NULL to ignore this parameter.
 */
-OSStatus SecKeychainItemFreeContent(SecKeychainAttributeList * __nullable attrList, void * __nullable data) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemFreeContent(SecKeychainAttributeList * __nullable attrList, void * __nullable data)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemCopyAttributesAndData
@@ -220,7 +232,9 @@ OSStatus SecKeychainItemFreeContent(SecKeychainAttributeList * __nullable attrLi
 	@param outData On return, a pointer to a buffer containing the data in this item. Pass NULL if you don't need to retrieve the data. You must call SecKeychainItemFreeAttributesAndData when you no longer need the data.
     @result A result code. See "Security Error Codes" (SecBase.h). In addition, errSecParam (-50) may be returned if not enough valid parameters are supplied.
 */
-OSStatus SecKeychainItemCopyAttributesAndData(SecKeychainItemRef itemRef, SecKeychainAttributeInfo * __nullable info, SecItemClass * __nullable itemClass, SecKeychainAttributeList * __nullable * __nullable attrList, UInt32 * __nullable length, void * __nullable * __nullable outData) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemCopyAttributesAndData(SecKeychainItemRef itemRef, SecKeychainAttributeInfo * __nullable info, SecItemClass * __nullable itemClass, SecKeychainAttributeList * __nullable * __nullable attrList, UInt32 * __nullable length, void * __nullable * __nullable outData)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemFreeAttributesAndData
@@ -229,7 +243,9 @@ OSStatus SecKeychainItemCopyAttributesAndData(SecKeychainItemRef itemRef, SecKey
     @param data A pointer to the data buffer to release. Pass NULL to ignore this parameter.
     @result A result code. See "Security Error Codes" (SecBase.h).
 */
-OSStatus SecKeychainItemFreeAttributesAndData(SecKeychainAttributeList * __nullable attrList, void * __nullable data) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemFreeAttributesAndData(SecKeychainAttributeList * __nullable attrList, void * __nullable data)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemDelete
@@ -238,7 +254,9 @@ OSStatus SecKeychainItemFreeAttributesAndData(SecKeychainAttributeList * __nulla
     @result A result code. See "Security Error Codes" (SecBase.h).
 	@discussion If itemRef has not previously been added to the keychain, SecKeychainItemDelete does nothing and returns errSecSuccess. IMPORTANT: SecKeychainItemDelete does not dispose the memory occupied by the item reference itself; use the CFRelease function when you are completely finished with an item.
 */
-OSStatus SecKeychainItemDelete(SecKeychainItemRef itemRef) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemDelete(SecKeychainItemRef itemRef)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemCopyKeychain
@@ -247,7 +265,9 @@ OSStatus SecKeychainItemDelete(SecKeychainItemRef itemRef) API_UNAVAILABLE(ios, 
 	@param keychainRef On return, the keychain reference for the specified item. Release this reference by calling the CFRelease function.
     @result A result code. See "Security Error Codes" (SecBase.h).
 */
-OSStatus SecKeychainItemCopyKeychain(SecKeychainItemRef itemRef, SecKeychainRef * __nonnull CF_RETURNS_RETAINED keychainRef) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemCopyKeychain(SecKeychainItemRef itemRef, SecKeychainRef * __nonnull CF_RETURNS_RETAINED keychainRef)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemCreateCopy
@@ -259,7 +279,9 @@ OSStatus SecKeychainItemCopyKeychain(SecKeychainItemRef itemRef, SecKeychainRef 
     @result A result code. See "Security Error Codes" (SecBase.h).
 */
 OSStatus SecKeychainItemCreateCopy(SecKeychainItemRef itemRef, SecKeychainRef __nullable destKeychainRef,
-	SecAccessRef __nullable initialAccess, SecKeychainItemRef * __nonnull CF_RETURNS_RETAINED itemCopy) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+	SecAccessRef __nullable initialAccess, SecKeychainItemRef * __nonnull CF_RETURNS_RETAINED itemCopy)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
     @function SecKeychainItemCreatePersistentReference
@@ -268,7 +290,9 @@ OSStatus SecKeychainItemCreateCopy(SecKeychainItemRef itemRef, SecKeychainRef __
     @param persistentItemRef On return, a CFDataRef containing a persistent reference. You must release this data reference by calling the CFRelease function.
     @result A result code. See "Security Error Codes" (SecBase.h).
 */
-OSStatus SecKeychainItemCreatePersistentReference(SecKeychainItemRef itemRef, CFDataRef * __nonnull CF_RETURNS_RETAINED persistentItemRef) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemCreatePersistentReference(SecKeychainItemRef itemRef, CFDataRef * __nonnull CF_RETURNS_RETAINED persistentItemRef)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 
 /*!
@@ -278,7 +302,9 @@ OSStatus SecKeychainItemCreatePersistentReference(SecKeychainItemRef itemRef, CF
     @param itemRef On return, a SecKeychainItemRef for the keychain item described by the persistent reference. You must release this item reference by calling the CFRelease function.
     @result A result code. See "Security Error Codes" (SecBase.h).
 */
-OSStatus SecKeychainItemCopyFromPersistentReference(CFDataRef persistentItemRef, SecKeychainItemRef * __nonnull CF_RETURNS_RETAINED itemRef) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemCopyFromPersistentReference(CFDataRef persistentItemRef, SecKeychainItemRef * __nonnull CF_RETURNS_RETAINED itemRef)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 
 #pragma mark ---- CSSM Bridge Functions ----
@@ -312,7 +338,9 @@ OSStatus SecKeychainItemGetUniqueRecordID(SecKeychainItemRef itemRef, const CSSM
     @param access On return, a reference to the keychain item's access.
     @result A result code. See "Security Error Codes" (SecBase.h).
 */
-OSStatus SecKeychainItemCopyAccess(SecKeychainItemRef itemRef, SecAccessRef * __nonnull CF_RETURNS_RETAINED access) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemCopyAccess(SecKeychainItemRef itemRef, SecAccessRef * __nonnull CF_RETURNS_RETAINED access)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 /*!
 	@function SecKeychainItemSetAccess
@@ -321,7 +349,9 @@ OSStatus SecKeychainItemCopyAccess(SecKeychainItemRef itemRef, SecAccessRef * __
     @param access A reference to an access to replace the keychain item's current access.
     @result A result code. See "Security Error Codes" (SecBase.h).
 */
-OSStatus SecKeychainItemSetAccess(SecKeychainItemRef itemRef, SecAccessRef access) API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
+OSStatus SecKeychainItemSetAccess(SecKeychainItemRef itemRef, SecAccessRef access)
+API_DEPRECATED("SecKeychain is deprecated", macos(10.2, 10.10))
+API_UNAVAILABLE(ios, watchos, tvos, macCatalyst);
 
 CF_ASSUME_NONNULL_END
 

@@ -149,6 +149,12 @@ In cases where attributed string might do a bunch of work to assure self-consist
 */
 CF_EXPORT void CFAttributedStringEndEditing(CFMutableAttributedStringRef aStr);
 
+#if !0
+/*! @function CFAttributedStringGetBidiLevelsAndResolvedDirections
+Fills bidiLevels by applying the Unicode Bidi Algorithm (P, X, W, N, and I) to the characters in range. Returns true if the result is not uni-level LTR (in other words, needing further Bidi processing). baseDirection is NSWritingDirection (NSWritingDirectionNatural, NSWritingDirectionLeftToRight, and NSWritingDirectionRightToLeft).  Understands NSWritingDirectionAttributeName values.
+*/
+CF_EXPORT bool CFAttributedStringGetBidiLevelsAndResolvedDirections(CFAttributedStringRef attributedString, CFRange range, int8_t baseDirection, uint8_t *bidiLevels, uint8_t *baseDirections);
+#endif
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED

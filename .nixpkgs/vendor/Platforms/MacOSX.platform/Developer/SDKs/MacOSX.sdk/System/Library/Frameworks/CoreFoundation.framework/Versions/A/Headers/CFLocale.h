@@ -153,9 +153,7 @@ CFStringRef CFLocaleCopyDisplayNameForPropertyValue(CFLocaleRef displayLocale, C
 	// the value is, and is one of the usual locale property keys, though
 	// not all locale property keys have values with display name values.
 
-
 CF_EXPORT const CFNotificationName kCFLocaleCurrentLocaleDidChangeNotification API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
-
 
 // Locale Keys
 CF_EXPORT const CFLocaleKey kCFLocaleIdentifier;
