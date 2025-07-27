@@ -6,6 +6,9 @@ project_name: kclipper
 env:
   - DOCKER_REGISTRY=ghcr.io/macropower
 
+release:
+  prerelease: auto
+
 before:
   hooks:
     - go mod tidy
@@ -130,45 +133,67 @@ changelog:
       - '^docs:'
       - '^test:'
 
-brews:
+homebrew_casks:
   - name: kcl-lsp
     repository: &brewRepo
       owner: MacroPower
       name: homebrew-tap
-    url_template: &kclipperReleaseURLTemplate >-
-      https://github.com/MacroPower/kclipper/releases/download/{{ .Tag }}/
-      {{- .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end -}}
-      {{- if .Arm }}v{{ .Arm }}{{ end -}}
-      .tar.gz
-    download_strategy: CurlDownloadStrategy
-    commit_msg_template: "chore: formula update for kcl-lsp {{ .Tag }}"
-    commit_author:
+    url:
+      template: &archiveTemplate >-
+        https://github.com/MacroPower/kclipper/releases/download/{{ .Tag }}/
+        {{- .ProjectName }}_
+        {{- title .Os }}_
+        {{- if eq .Arch "amd64" }}x86_64
+        {{- else if eq .Arch "386" }}i386
+        {{- else }}{{ .Arch }}{{ end -}}
+        {{- if .Arm }}v{{ .Arm }}{{ end -}}
+        .tar.gz
+    commit_msg_template: "chore: cask update for kcl-lsp {{ .Tag }}"
+    commit_author: &commitAuthor
       name: botty-mcbottington
       email: 168950816+botty-mcbottington[bot]@users.noreply.github.com
     homepage: "https://github.com/kcl-lang/kcl"
     description: "KCL Language Server"
     license: "Apache License"
-    skip_upload: false
-    install: |
-      bin.install "kcl-language-server"
-    test: |
-      system "#{bin}/kcl-language-server version"
+    skip_upload: auto
+    binary: kcl-language-server
   - dependencies:
-      - name: macropower/tap/kcl-lsp
+      - cask: macropower/tap/kcl-lsp
     repository: *brewRepo
-    url_template: *kclipperReleaseURLTemplate
-    download_strategy: CurlDownloadStrategy
-    commit_msg_template: "chore: formula update for {{ .ProjectName }} {{ .Tag }}"
-    commit_author:
-      name: botty-mcbottington
-      email: 168950816+botty-mcbottington[bot]@users.noreply.github.com
+    url:
+      template: *archiveTemplate
+    commit_msg_template: "chore: cask update for {{ .ProjectName }} {{ .Tag }}"
+    commit_author: *commitAuthor
     homepage: "https://github.com/MacroPower/kclipper"
     description: "Kclipper Command Line Interface"
     license: "Apache License"
-    skip_upload: false
-    test: |
-      system "#{bin}/kcl version"
+    skip_upload: auto
+
+nix:
+  - name: kcl-lsp
+    repository:
+      owner: MacroPower
+      name: nur-packages
+    url_template: *archiveTemplate
+    commit_msg_template: "chore: pkg update for kcl-lsp {{ .Tag }}"
+    commit_author: *commitAuthor
+    homepage: "https://github.com/kcl-lang/kcl"
+    description: "KCL Language Server"
+    license: "asl20"
+    skip_upload: auto
+    install: |
+      mkdir -p $out/bin
+      cp -vr ./kcl-language-server $out/bin/kcl-language-server
+  - name: kclipper
+    repository:
+      owner: MacroPower
+      name: nur-packages
+    url_template: *archiveTemplate
+    commit_msg_template: "chore: pkg update for {{ .ProjectName }} {{ .Tag }}"
+    commit_author: *commitAuthor
+    homepage: "https://github.com/MacroPower/kclipper"
+    description: "Kclipper Command Line Interface"
+    license: "asl20"
+    skip_upload: auto
+    dependencies:
+      - kcl-lsp
