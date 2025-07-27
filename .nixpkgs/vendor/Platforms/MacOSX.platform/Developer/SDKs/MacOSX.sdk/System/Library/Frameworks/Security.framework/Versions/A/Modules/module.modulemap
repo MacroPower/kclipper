@@ -1,5 +1,7 @@
-framework module Security [extern_c][system] {
+framework module Security [system] {
   umbrella header "Security.h"
+
+  config_macros SEC_IOS_ON_OSX
 
   export *
   module * { 
@@ -30,6 +32,10 @@ framework module Security [extern_c][system] {
   explicit module SecAsn1Templates { 
     header "SecAsn1Templates.h" 
     export *
+  }
+  explicit module SecKey {
+      header "SecKey.h"
+      export *
   }
   explicit module SecureDownload { 
     header "SecureDownload.h" 

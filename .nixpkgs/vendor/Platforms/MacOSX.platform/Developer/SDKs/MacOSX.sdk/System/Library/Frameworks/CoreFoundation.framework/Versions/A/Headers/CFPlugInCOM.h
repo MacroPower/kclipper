@@ -20,12 +20,17 @@ CF_EXTERN_C_BEGIN
 /* The _reserved field is part of the Microsoft COM binary standard on Macintosh. */
 /* You can declare new C struct interfaces by defining a new struct that includes "IUNKNOWN_C_GUTS;" before the first field of the struct. */
 
-
+#if TARGET_OS_WIN32
+#define NOMINMAX
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#else
 typedef SInt32 HRESULT;
 typedef UInt32 ULONG;
 typedef void *LPVOID;
 typedef CFUUIDBytes REFIID;
-
+#endif
 
 #define SUCCEEDED(Status) ((HRESULT)(Status) >= 0)
 #define FAILED(Status) ((HRESULT)(Status)<0)
@@ -96,7 +101,9 @@ CF_EXTERN_C_END
 /* This is a definition of IUnknown as a pure abstract virtual C++ class.  This class will work only with compilers that can produce COM-compatible object layouts for C++ classes.  egcs can not do this.  MetroWerks can do this (if you subclass from __comobject) */
 
 class IUnknown
-
+#if defined(__MWERKS__) && TARGET_OS_WIN32
+ : __comobject
+#endif
 {
     public:
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID *ppv) = 0;

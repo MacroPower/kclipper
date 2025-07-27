@@ -489,7 +489,8 @@ Boolean CFURLGetFSRef(CFURLRef url, struct FSRef *fsRef) API_DEPRECATED("Not sup
 #endif
 #endif
 
-#if TARGET_OS_MAC || CF_BUILDING_CF || NSBUILDINGFOUNDATION || DEPLOYMENT_TARGET_SWIFT
+#if TARGET_OS_MAC || CF_BUILDING_CF || NSBUILDINGFOUNDATION
+#if !0
 CF_IMPLICIT_BRIDGING_DISABLED
 
 /* Resource access
@@ -759,6 +760,10 @@ const CFStringRef kCFURLAttributeModificationDateKey API_AVAILABLE(macos(10.6), 
     /* The time the resource's attributes were last modified (Read-only, value type CFDate) */
 
 CF_EXPORT
+const CFStringRef kCFURLFileIdentifierKey API_AVAILABLE(macos(13.3), ios(16.4), watchos(9.4), tvos(16.4));
+    /* The file system's internal inode identifier for the item. This value is not stable for all file systems or across all mounts, so it should be used sparingly and not persisted. It is useful, for example, to match URLs from the URL enumerator with paths from FSEvents. (Read-only, value type CFNumber containing a long long which should be cast to a UInt64). */
+
+CF_EXPORT
 const CFStringRef kCFURLFileContentIdentifierKey API_AVAILABLE(macos(11.0), ios(14.0), watchos(7.0), tvos(14.0));
     /* A 64-bit value assigned by APFS that identifies a file's content data stream. Only cloned files and their originals can have the same identifier. (CFNumber) */
 
@@ -935,13 +940,21 @@ CF_EXPORT
 const CFStringRef kCFURLFileProtectionNone API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file has no special protections associated with it. It can be read from or written to at any time.
 
 CF_EXPORT
-const CFStringRef kCFURLFileProtectionComplete API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk and cannot be read from or written to while the device is locked or booting.
+const CFStringRef kCFURLFileProtectionComplete API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk and cannot be read from or written to while the device is locked or booting. Transient data files with this protection type should be excluded from backups using kCFURLIsExcludedFromBackupKey.
 
 CF_EXPORT
-const CFStringRef kCFURLFileProtectionCompleteUnlessOpen API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk. Files can be created while the device is locked, but once closed, cannot be opened again until the device is unlocked. If the file is opened when unlocked, you may continue to access the file normally, even if the user locks the device. There is a small performance penalty when the file is created and opened, though not when being written to or read from. This can be mitigated by changing the file protection to kCFURLFileProtectionComplete when the device is unlocked.
+const CFStringRef kCFURLFileProtectionCompleteUnlessOpen API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk. Files can be created while the device is locked, but once closed, cannot be opened again until the device is unlocked. If the file is opened when unlocked, you may continue to access the file normally, even if the user locks the device. There is a small performance penalty when the file is created and opened, though not when being written to or read from. This can be mitigated by changing the file protection to kCFURLFileProtectionComplete when the device is unlocked. Transient data files with this protection type should be excluded from backups using kCFURLIsExcludedFromBackupKey.
 
 CF_EXPORT
 const CFStringRef kCFURLFileProtectionCompleteUntilFirstUserAuthentication API_AVAILABLE(ios(9.0), watchos(2.0), tvos(9.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk and cannot be accessed until after the device has booted. After the user unlocks the device for the first time, your app can access the file and continue to access it even if the user subsequently locks the device.
+
+CF_EXPORT
+const CFStringRef kCFURLFileProtectionCompleteWhenUserInactive API_AVAILABLE(ios(17.0), watchos(10.0), tvos(17.0)) API_UNAVAILABLE(macos); // The file is stored in an encrypted format on disk and cannot be read from or written to while the device is locked or booting. Transient data files with this protection type should be excluded from backups using kCFURLIsExcludedFromBackupKey.
+
+/* Directory Properties */
+
+CF_EXPORT
+const CFStringRef kCFURLDirectoryEntryCountKey API_AVAILABLE(macos(14.0), ios(17.0), watchos(10.0), tvos(17.0)); // Returns the count of file system objects contained in the directory. This is a count of objects actually stored in the file system, so excludes virtual items like "." and "..". The property is useful for quickly identifying an empty directory for backup and syncing. If the URL is not a directory or the file system cannot cheaply compute the value, `nil` is returned. (Read-only, value type CFNumber)
 
 /* Volume Properties */
 
@@ -1121,6 +1134,18 @@ CF_EXPORT
 const CFStringRef kCFURLVolumeSupportsFileProtectionKey API_AVAILABLE(macosx(11.0), ios(14.0), watchos(7.0), tvos(14.0));
     /* true if the volume supports data protection for files (see kCFURLFileProtectionKey). (Read-only, value type CFBoolean) */
 
+CF_EXPORT
+const CFStringRef kCFURLVolumeTypeNameKey API_AVAILABLE(macos(13.3), ios(16.4), watchos(9.4), tvos(16.4));
+/* The name of the file system type. (Read-only, value type CFString) */
+
+CF_EXPORT
+const CFStringRef  kCFURLVolumeSubtypeKey API_AVAILABLE(macos(13.3), ios(16.4), watchos(9.4), tvos(16.4));
+/* The file system subtype value. (Read-only, value type CFNumber) */
+
+CF_EXPORT
+const CFStringRef kCFURLVolumeMountFromLocationKey API_AVAILABLE(macos(13.3), ios(16.4), watchos(9.4), tvos(16.4));
+/* The volume mounted from location. (Read-only, value type CFString) */
+
 /* UbiquitousItem Properties */
 
 CF_EXPORT
@@ -1167,6 +1192,10 @@ CF_EXPORT
 const CFStringRef kCFURLUbiquitousItemUploadingErrorKey API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
     /* returns the error when uploading the item to iCloud failed. See the NSUbiquitousFile section in FoundationErrors.h. (Read-only, value type CFError) */
 
+CF_EXPORT
+const CFStringRef kCFURLUbiquitousItemIsExcludedFromSyncKey API_AVAILABLE(macos(11.3), ios(14.5), watchos(7.4), tvos(14.5));
+    /* the item is excluded from sync, which means it is locally on disk but won't be available on the server. An excluded item is no longer ubiquitous. */
+
 /* The values returned for kCFURLUbiquitousItemDownloadingStatusKey
  */
 CF_EXPORT
@@ -1181,13 +1210,12 @@ CF_EXPORT
 const CFStringRef kCFURLUbiquitousItemDownloadingStatusCurrent API_AVAILABLE(macos(10.9), ios(7.0), watchos(2.0), tvos(9.0));
     /* there is a local version of this item and it is the most up-to-date version known to this device. */
 
-#if !DEPLOYMENT_TARGET_SWIFT
-
 typedef CF_OPTIONS(CFOptionFlags, CFURLBookmarkCreationOptions) {
     kCFURLBookmarkCreationMinimalBookmarkMask = ( 1UL << 9 ), // creates bookmark data with "less" information, which may be smaller but still be able to resolve in certain ways
     kCFURLBookmarkCreationSuitableForBookmarkFile = ( 1UL << 10 ), // include the properties required by CFURLWriteBookmarkDataToFile() in the bookmark data created
     kCFURLBookmarkCreationWithSecurityScope API_AVAILABLE(macos(10.7), macCatalyst(13.0))  API_UNAVAILABLE(ios, watchos, tvos) = ( 1UL << 11 ), // Mac OS X 10.7.3 and later, include information in the bookmark data which allows the same sandboxed process to access the resource after being relaunched
     kCFURLBookmarkCreationSecurityScopeAllowOnlyReadAccess API_AVAILABLE(macos(10.7), macCatalyst(13.0)) API_UNAVAILABLE(ios, watchos, tvos) = ( 1UL << 12 ), // Mac OS X 10.7.3 and later, if used with kCFURLBookmarkCreationWithSecurityScope, at resolution time only read access to the resource will be granted
+    kCFURLBookmarkCreationWithoutImplicitSecurityScope  API_AVAILABLE(macos(10.7), ios(5.0), watchos(2.0), tvos(9.0)) = (1 << 29), // Disable automatic embedding of an implicit security scope. The resolving process will not be able gain access to the resource by security scope, either implicitly or explicitly, through the returned URL. Not applicable to security-scoped bookmarks.
     
     // deprecated
     kCFURLBookmarkCreationPreferFileIDResolutionMask
@@ -1198,7 +1226,8 @@ typedef CF_OPTIONS(CFOptionFlags, CFURLBookmarkResolutionOptions) {
     kCFURLBookmarkResolutionWithoutUIMask = ( 1UL << 8 ), // don't perform any user interaction during bookmark resolution
     kCFURLBookmarkResolutionWithoutMountingMask = ( 1UL << 9 ), // don't mount a volume during bookmark resolution
     kCFURLBookmarkResolutionWithSecurityScope API_AVAILABLE(macos(10.7), macCatalyst(13.0)) API_UNAVAILABLE(ios, watchos, tvos) = ( 1UL << 10 ), // Mac OS X 10.7.3 and later, use the secure information included at creation time to provide the ability to access the resource in a sandboxed process.
-    
+    kCFURLBookmarkResolutionWithoutImplicitStartAccessing API_AVAILABLE(macos(11.2), ios(14.2), watchos(7.2), tvos(14.2)) = ( 1 << 15 ), // Disable implicitly starting access of the ephemeral security-scoped resource during resolution. Instead, call `CFURLStartAccessingSecurityScopedResource` on the returned URL when ready to use the resource. Not applicable to security-scoped bookmarks.
+
     kCFBookmarkResolutionWithoutUIMask = kCFURLBookmarkResolutionWithoutUIMask,
     kCFBookmarkResolutionWithoutMountingMask = kCFURLBookmarkResolutionWithoutMountingMask,
 } API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0));
@@ -1244,17 +1273,17 @@ CFDataRef CFURLCreateBookmarkDataFromAliasRecord ( CFAllocatorRef allocatorRef, 
 
 CF_IMPLICIT_BRIDGING_ENABLED
 
-/* Given a CFURLRef created by resolving a bookmark data created with security scope, make the resource referenced by the url accessible to the process. When access to this resource is no longer needed the client must call CFURLStopAccessingSecurityScopedResource(). Each call to CFURLStartAccessingSecurityScopedResource() must be balanced with a call to CFURLStopAccessingSecurityScopedResource() (Note: this is not reference counted).
+/* Given a CFURLRef created by resolving a bookmark data created with security scope, make the resource referenced by the url accessible to the process. Each call to CFURLStartAccessingSecurityScopedResource that returns true must be balanced with a call to CFURLStopAccessingSecurityScopedResource when access to this resource is no longer needed by the client. Calls to start and stop accessing the resource are reference counted and may be nested, which allows the pair of calls to be logically scoped.
  */
 CF_EXPORT
 Boolean CFURLStartAccessingSecurityScopedResource(CFURLRef url) API_AVAILABLE(macos(10.7), ios(8.0), watchos(2.0), tvos(9.0)); // On OSX, available in MacOS X 10.7.3 and later
 
-/* Revokes the access granted to the url by a prior successful call to CFURLStartAccessingSecurityScopedResource().
+/* Removes one "accessing" reference to the security scope. When all references are removed, it revokes the access granted to the url by the initial prior successful call to CFURLStartAccessingSecurityScopedResource().
  */
 CF_EXPORT
 void CFURLStopAccessingSecurityScopedResource(CFURLRef url) API_AVAILABLE(macos(10.7), ios(8.0), watchos(2.0), tvos(9.0)); // On OSX, available in MacOS X 10.7.3 and later
 
-#endif /* !DEPLOYMENT_TARGET_SWIFT */
+#endif 
 #endif /* TARGET_OS_MAC || CF_BUILDING_CF || NSBUILDINGFOUNDATION || DEPLOYMENT_TARGET_SWIFT */
 
 CF_EXTERN_C_END

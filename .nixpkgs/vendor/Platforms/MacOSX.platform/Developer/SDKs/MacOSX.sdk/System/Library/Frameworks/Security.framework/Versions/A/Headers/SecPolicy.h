@@ -33,6 +33,9 @@
 #include <CoreFoundation/CFBase.h>
 #include <CoreFoundation/CFDictionary.h>
 #include <Security/SecBase.h>
+#if TARGET_OS_OSX
+#include <Security/cssmtype.h>
+#endif
 
 __BEGIN_DECLS
 
@@ -250,16 +253,15 @@ CF_IMPLICIT_BRIDGING_DISABLED
 CF_ASSUME_NONNULL_END
 
 /*
- *  Legacy functions (OS X only)
+ *  Legacy functions (macOS only)
  */
 #if TARGET_OS_OSX
-#include <Security/cssmtype.h>
 
 CF_ASSUME_NONNULL_BEGIN
 CF_IMPLICIT_BRIDGING_ENABLED
 
 /*!
-    @enum Policy Value Constants (OS X)
+    @enum Policy Value Constants (macOS)
     @discussion Predefined property key constants used to get or set values in
         a dictionary for a policy instance.
 

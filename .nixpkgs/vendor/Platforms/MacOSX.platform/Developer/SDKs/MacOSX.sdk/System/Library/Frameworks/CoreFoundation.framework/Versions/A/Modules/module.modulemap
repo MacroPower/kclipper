@@ -1,6 +1,10 @@
-framework module CoreFoundation [extern_c] [system] {
+framework module CoreFoundation [system] {
     umbrella header "CoreFoundation.h"
-    explicit module CFPlugInCOM { header "CFPlugInCOM.h" }
+    explicit module CFPlugInCOM {
+        requires !exclavekit
+        header "CFPlugInCOM.h"
+        export *
+    }
     
     export *
     module * {

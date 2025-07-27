@@ -10,12 +10,13 @@
     "hyperfine": "1.19",
     "cobra-cli": "1.3.0",
     "graphviz": "12.2.1",
-    "zig": "0.10",
+    "zig": "0.14.1",
     "zizmor": "1.11.0",
-    "darwin.libresolv": {
+    "conform": "0.1.0-alpha.29",
+    "apple-sdk_15": {
+      "version": "15.2",
       "platforms": ["aarch64-darwin", "x86_64-darwin"]
-    },
-    "conform": "0.1.0-alpha.29"
+    }
   },
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"]
