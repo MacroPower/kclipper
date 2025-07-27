@@ -489,6 +489,8 @@ KCL and this project are both licensed under the Apache 2.0 License. See [LICENS
 
 KCL is copyright The KCL Authors, all rights reserved.
 
+Note that components in the `.nixpkgs/vendor` directory contain parts of the macOS SDK, which are licensed under different terms. See [Vendored Packages](.nixpkgs/README.md) for details.
+
 ## Acknowledgements
 
 This project would not be possible without the hard work of the KCL authors, the Helm authors, and the Argo authors.
