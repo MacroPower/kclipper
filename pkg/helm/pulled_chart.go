@@ -75,7 +75,8 @@ func (c *PulledChart) Load(ctx context.Context, skipSchemaValidation bool) (*cha
 	}
 
 	// Recursively load and set all chart dependencies.
-	if err := c.loadChartDependencies(ctx, loadedChart, skipSchemaValidation); err != nil {
+	err = c.loadChartDependencies(ctx, loadedChart, skipSchemaValidation)
+	if err != nil {
 		return nil, fmt.Errorf("load chart dependencies: %w", err)
 	}
 
@@ -116,7 +117,12 @@ func (c *PulledChart) loadChartDependencies(ctx context.Context, target *chart.C
 	return c.setChartDependencies(ctx, target, sem, skipSchemaValidation)
 }
 
-func (c *PulledChart) setChartDependencies(ctx context.Context, target *chart.Chart, sem *semaphore.Weighted, skipSchemaValidation bool) error {
+func (c *PulledChart) setChartDependencies(
+	ctx context.Context,
+	target *chart.Chart,
+	sem *semaphore.Weighted,
+	skipSchemaValidation bool,
+) error {
 	loadedDeps := []*chart.Chart{}
 
 	type loadResult struct {
@@ -130,12 +136,16 @@ func (c *PulledChart) setChartDependencies(ctx context.Context, target *chart.Ch
 	innerSem := semaphore.NewWeighted(depCount)
 
 	for _, chartDep := range target.Metadata.Dependencies {
-		if err := sem.Acquire(ctx, 1); err != nil {
+		err := sem.Acquire(ctx, 1)
+		if err != nil {
 			return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
 		}
-		if err := innerSem.Acquire(ctx, 1); err != nil {
+
+		err = innerSem.Acquire(ctx, 1)
+		if err != nil {
 			return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
 		}
+
 		go func() {
 			defer sem.Release(1)
 			defer innerSem.Release(1)
@@ -155,11 +165,13 @@ func (c *PulledChart) setChartDependencies(ctx context.Context, target *chart.Ch
 		}()
 	}
 
-	if err := innerSem.Acquire(ctx, depCount); err != nil {
+	err := innerSem.Acquire(ctx, depCount)
+	if err != nil {
 		return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
 	}
 
 	close(resultCh)
+
 	var merr error
 	for result := range resultCh {
 		if result.err != nil {
@@ -168,7 +180,8 @@ func (c *PulledChart) setChartDependencies(ctx context.Context, target *chart.Ch
 			continue
 		}
 
-		if err := c.setChartDependencies(ctx, result.chart, sem, skipSchemaValidation); err != nil {
+		err := c.setChartDependencies(ctx, result.chart, sem, skipSchemaValidation)
+		if err != nil {
 			return fmt.Errorf("%w: %w", ErrChartDependency, err)
 		}
 
@@ -183,7 +196,11 @@ func (c *PulledChart) setChartDependencies(ctx context.Context, target *chart.Ch
 	return nil
 }
 
-func (c *PulledChart) getChartDependency(ctx context.Context, parentChart *chart.Chart, dep *chart.Dependency) (*chart.Chart, error) {
+func (c *PulledChart) getChartDependency(
+	ctx context.Context,
+	parentChart *chart.Chart,
+	dep *chart.Dependency,
+) (*chart.Chart, error) {
 	// Check if the dependency is already loaded.
 	for _, includedDep := range parentChart.Dependencies() {
 		if includedDep.Name() == dep.Name {
@@ -212,6 +229,7 @@ func (c *PulledChart) getChartDependency(ctx context.Context, parentChart *chart
 // foo/bar/baz, returns the last component as chart name.
 func normalizeChartName(chartName string) string {
 	strings.Join(strings.Split(chartName, "/"), "_")
+
 	_, nc := path.Split(chartName)
 	// We do not want to return the empty string or something else related to
 	// filesystem access. Instead, return original string.

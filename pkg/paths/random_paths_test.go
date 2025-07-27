@@ -30,6 +30,7 @@ func TestGetRandomizedPath_SameURLs(t *testing.T) {
 	rtp := paths.NewRandomizedTempPaths(t.TempDir())
 	res1, err := rtp.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
+
 	res2, err := rtp.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
 	assert.Equal(t, res1, res2)
@@ -41,6 +42,7 @@ func TestGetRandomizedPath_DifferentURLs(t *testing.T) {
 	rtp := paths.NewRandomizedTempPaths(t.TempDir())
 	res1, err := rtp.GetPath("https://localhost/test1.txt")
 	require.NoError(t, err)
+
 	res2, err := rtp.GetPath("https://localhost/test2.txt")
 	require.NoError(t, err)
 	assert.NotEqual(t, res1, res2)
@@ -52,6 +54,7 @@ func TestGetRandomizedPath_SameURLsDifferentInstances(t *testing.T) {
 	rtp1 := paths.NewRandomizedTempPaths(t.TempDir())
 	res1, err := rtp1.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
+
 	rtp2 := paths.NewRandomizedTempPaths(t.TempDir())
 	res2, err := rtp2.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
@@ -63,15 +66,18 @@ func TestGetRandomizedPathIfExists(t *testing.T) {
 
 	t.Run("does not exist", func(t *testing.T) {
 		t.Parallel()
+
 		rtp := paths.NewRandomizedTempPaths(t.TempDir())
 		path := rtp.GetPathIfExists("https://localhost/test.txt")
 		assert.Empty(t, path)
 	})
 	t.Run("does exist", func(t *testing.T) {
 		t.Parallel()
+
 		rtp := paths.NewRandomizedTempPaths(t.TempDir())
 		_, err := rtp.GetPath("https://localhost/test.txt")
 		require.NoError(t, err)
+
 		path := rtp.GetPathIfExists("https://localhost/test.txt")
 		assert.NotEmpty(t, path)
 	})

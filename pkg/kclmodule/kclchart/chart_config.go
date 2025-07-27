@@ -81,62 +81,62 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 
 	js := r.Reflect(reflect.TypeOf(ChartConfig{}))
 
-	js.SetProperty("chart", jsonschema.WithDefault(c.ChartBase.Chart))
-	js.SetProperty("repoURL", jsonschema.WithDefault(c.ChartBase.RepoURL))
-	js.SetProperty("targetRevision", jsonschema.WithDefault(c.ChartBase.TargetRevision))
+	js.SetProperty("chart", jsonschema.WithDefault(c.Chart))
+	js.SetProperty("repoURL", jsonschema.WithDefault(c.RepoURL))
+	js.SetProperty("targetRevision", jsonschema.WithDefault(c.TargetRevision))
 
 	js.SetOrRemoveProperty(
-		"namespace", c.ChartBase.Namespace != "",
-		jsonschema.WithDefault(c.ChartBase.Namespace),
+		"namespace", c.Namespace != "",
+		jsonschema.WithDefault(c.Namespace),
 	)
 	js.SetOrRemoveProperty(
-		"releaseName", c.ChartBase.ReleaseName != "",
-		jsonschema.WithDefault(c.ChartBase.ReleaseName),
+		"releaseName", c.ReleaseName != "",
+		jsonschema.WithDefault(c.ReleaseName),
 	)
 	js.SetOrRemoveProperty(
-		"skipCRDs", c.ChartBase.SkipCRDs,
-		jsonschema.WithDefault(c.ChartBase.SkipCRDs),
+		"skipCRDs", c.SkipCRDs,
+		jsonschema.WithDefault(c.SkipCRDs),
 	)
 	js.SetOrRemoveProperty(
-		"skipHooks", c.ChartBase.SkipHooks,
-		jsonschema.WithDefault(c.ChartBase.SkipHooks),
+		"skipHooks", c.SkipHooks,
+		jsonschema.WithDefault(c.SkipHooks),
 	)
 	js.SetOrRemoveProperty(
-		"passCredentials", c.ChartBase.PassCredentials,
-		jsonschema.WithDefault(c.ChartBase.PassCredentials),
+		"passCredentials", c.PassCredentials,
+		jsonschema.WithDefault(c.PassCredentials),
 	)
 	js.SetOrRemoveProperty(
-		"schemaPath", c.HelmChartConfig.SchemaPath != "",
-		jsonschema.WithDefault(c.HelmChartConfig.SchemaPath),
+		"schemaPath", c.SchemaPath != "",
+		jsonschema.WithDefault(c.SchemaPath),
 	)
 	js.SetOrRemoveProperty(
-		"crdPath", len(c.HelmChartConfig.CRDPaths) > 0,
-		jsonschema.WithDefault(c.HelmChartConfig.CRDPaths),
+		"crdPath", len(c.CRDPaths) > 0,
+		jsonschema.WithDefault(c.CRDPaths),
 	)
 	js.SetOrRemoveProperty(
-		"schemaValidator", c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType,
-		jsonschema.WithDefault(c.ChartBase.SchemaValidator),
+		"schemaValidator", c.SchemaValidator != jsonschema.DefaultValidatorType,
+		jsonschema.WithDefault(c.SchemaValidator),
 		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
-		"schemaGenerator", c.HelmChartConfig.SchemaGenerator != jsonschema.DefaultGeneratorType,
-		jsonschema.WithDefault(c.HelmChartConfig.SchemaGenerator),
+		"schemaGenerator", c.SchemaGenerator != jsonschema.DefaultGeneratorType,
+		jsonschema.WithDefault(c.SchemaGenerator),
 		jsonschema.WithEnum(jsonschema.GeneratorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
-		"crdGenerator", c.HelmChartConfig.CRDGenerator != crd.GeneratorTypeDefault,
-		jsonschema.WithDefault(c.HelmChartConfig.CRDGenerator),
+		"crdGenerator", c.CRDGenerator != crd.GeneratorTypeDefault,
+		jsonschema.WithDefault(c.CRDGenerator),
 		jsonschema.WithEnum(crd.GeneratorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
-		"repositories", len(c.ChartBase.Repositories) > 0,
-		jsonschema.WithDefault(c.ChartBase.Repositories),
+		"repositories", len(c.Repositories) > 0,
+		jsonschema.WithDefault(c.Repositories),
 		jsonschema.WithType("null"),
 		jsonschema.WithNoContent(),
 	)
 	js.SetOrRemoveProperty(
-		"values", c.ChartBase.Values != nil,
-		jsonschema.WithDefault(c.ChartBase.Values),
+		"values", c.Values != nil,
+		jsonschema.WithDefault(c.Values),
 		jsonschema.WithType("null"),
 	)
 

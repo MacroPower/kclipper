@@ -37,12 +37,18 @@ type ChartFiles struct {
 	path         string
 }
 
-func NewChartFiles(client ChartClient, repos helmrepo.Getter, maxSize *resource.Quantity, opts *TemplateOpts) (*ChartFiles, error) {
+func NewChartFiles(
+	client ChartClient,
+	repos helmrepo.Getter,
+	maxSize *resource.Quantity,
+	opts *TemplateOpts,
+) (*ChartFiles, error) {
 	cancel := func() {}
 	ctx := context.Background()
 	if opts.Timeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, opts.Timeout)
 	}
+
 	defer cancel()
 
 	pulledChart, err := client.Pull(ctx, opts.ChartName, opts.RepoURL, opts.TargetRevision, repos)

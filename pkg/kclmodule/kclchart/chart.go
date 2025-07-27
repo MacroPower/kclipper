@@ -18,7 +18,7 @@ type Chart struct {
 }
 
 func (c *Chart) GetSnakeCaseName() string {
-	return strcase.ToSnake(c.ChartBase.Chart)
+	return strcase.ToSnake(c.Chart)
 }
 
 func (c *Chart) GenerateKCL(w io.Writer) error {
@@ -30,39 +30,39 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 	js := r.Reflect(reflect.TypeOf(Chart{}))
 	js.Schema.Description = "All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`."
 
-	js.SetProperty("chart", jsonschema.WithDefault(c.ChartBase.Chart))
-	js.SetProperty("repoURL", jsonschema.WithDefault(c.ChartBase.RepoURL))
-	js.SetProperty("targetRevision", jsonschema.WithDefault(c.ChartBase.TargetRevision))
-	js.SetProperty("values", jsonschema.WithDefault(c.ChartBase.Values), jsonschema.WithType("null"))
+	js.SetProperty("chart", jsonschema.WithDefault(c.Chart))
+	js.SetProperty("repoURL", jsonschema.WithDefault(c.RepoURL))
+	js.SetProperty("targetRevision", jsonschema.WithDefault(c.TargetRevision))
+	js.SetProperty("values", jsonschema.WithDefault(c.Values), jsonschema.WithType("null"))
 
 	js.SetOrRemoveProperty(
-		"namespace", c.ChartBase.Namespace != "",
-		jsonschema.WithDefault(c.ChartBase.Namespace),
+		"namespace", c.Namespace != "",
+		jsonschema.WithDefault(c.Namespace),
 	)
 	js.SetOrRemoveProperty(
-		"releaseName", c.ChartBase.ReleaseName != "",
-		jsonschema.WithDefault(c.ChartBase.ReleaseName),
+		"releaseName", c.ReleaseName != "",
+		jsonschema.WithDefault(c.ReleaseName),
 	)
 	js.SetOrRemoveProperty(
-		"skipCRDs", c.ChartBase.SkipCRDs,
-		jsonschema.WithDefault(c.ChartBase.SkipCRDs),
+		"skipCRDs", c.SkipCRDs,
+		jsonschema.WithDefault(c.SkipCRDs),
 	)
 	js.SetOrRemoveProperty(
-		"skipHooks", c.ChartBase.SkipHooks,
-		jsonschema.WithDefault(c.ChartBase.SkipHooks),
+		"skipHooks", c.SkipHooks,
+		jsonschema.WithDefault(c.SkipHooks),
 	)
 	js.SetOrRemoveProperty(
-		"passCredentials", c.ChartBase.PassCredentials,
-		jsonschema.WithDefault(c.ChartBase.PassCredentials),
+		"passCredentials", c.PassCredentials,
+		jsonschema.WithDefault(c.PassCredentials),
 	)
 	js.SetOrRemoveProperty(
-		"schemaValidator", c.ChartBase.SchemaValidator != jsonschema.DefaultValidatorType,
-		jsonschema.WithDefault(c.ChartBase.SchemaValidator),
+		"schemaValidator", c.SchemaValidator != jsonschema.DefaultValidatorType,
+		jsonschema.WithDefault(c.SchemaValidator),
 		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
-		"repositories", len(c.ChartBase.Repositories) > 0,
-		jsonschema.WithDefault(c.ChartBase.Repositories),
+		"repositories", len(c.Repositories) > 0,
+		jsonschema.WithDefault(c.Repositories),
 		jsonschema.WithType("null"),
 		jsonschema.WithNoContent(),
 	)
@@ -76,7 +76,8 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
 
-	if _, err := b.WriteTo(w); err != nil {
+	_, err = b.WriteTo(w)
+	if err != nil {
 		return fmt.Errorf("failed to write to KCL schema: %w", err)
 	}
 

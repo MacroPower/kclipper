@@ -68,7 +68,8 @@ func (c *ChartTUI) Init() (bool, error) {
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
 	}()
 
-	if _, err := c.p.Run(); err != nil {
+	_, err := c.p.Run()
+	if err != nil {
 		return false, fmt.Errorf("failed to launch tui: %w", err)
 	}
 
@@ -88,7 +89,8 @@ func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
 	}()
 
-	if _, err := c.p.Run(); err != nil {
+	_, err := c.p.Run()
+	if err != nil {
 		return fmt.Errorf("failed to launch tui: %w", err)
 	}
 
@@ -104,7 +106,8 @@ func (c *ChartTUI) AddRepo(repo *kclhelm.ChartRepo) error {
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
 	}()
 
-	if _, err := c.p.Run(); err != nil {
+	_, err := c.p.Run()
+	if err != nil {
 		return fmt.Errorf("failed to launch tui: %w", err)
 	}
 
@@ -119,7 +122,8 @@ func (c *ChartTUI) Set(chart, keyValueOverrides string) error {
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
 	}()
 
-	if _, err := c.p.Run(); err != nil {
+	_, err := c.p.Run()
+	if err != nil {
 		return fmt.Errorf("failed to launch tui: %w", err)
 	}
 
@@ -134,7 +138,8 @@ func (c *ChartTUI) Update(charts ...string) error {
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
 	}()
 
-	if _, err := c.p.Run(); err != nil {
+	_, err := c.p.Run()
+	if err != nil {
 		return fmt.Errorf("failed to launch tui: %w", err)
 	}
 

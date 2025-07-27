@@ -47,6 +47,7 @@ func NewRandomizedTempPaths(root string) *RandomizedTempPaths {
 func (p *RandomizedTempPaths) Add(key, value string) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
+
 	p.paths[key] = value
 }
 

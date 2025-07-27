@@ -80,6 +80,7 @@ schema Test:
 
 func TestFixKCLSchema(t *testing.T) {
 	t.Parallel()
+
 	tcs := map[string]struct {
 		input    string
 		expected string
@@ -108,6 +109,7 @@ func TestFixKCLSchema(t *testing.T) {
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			result := kclgen.FixKCLSchema(tc.input, true)
 			assert.Equal(t, tc.expected, result)
 		})

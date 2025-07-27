@@ -49,6 +49,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrFailedFileRead, err)
 	}
+
 	defer func() {
 		err = gzr.Close()
 		if err != nil {
@@ -153,7 +154,8 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 
 			w := bufio.NewWriter(f)
 			//nolint:gosec // G115 mitigated by [io.LimitReader].
-			if _, err := io.Copy(w, tr); err != nil {
+			_, err = io.Copy(w, tr)
+			if err != nil {
 				merr := fmt.Errorf("%w: %w", ErrFailedFileWrite, err)
 
 				if maxSize != 0 && errors.Is(err, io.ErrUnexpectedEOF) {
@@ -219,7 +221,8 @@ func createTempDir(baseDir string) (string, error) {
 	}
 
 	tempDir := path.Join(base, newUUID.String())
-	if err := os.MkdirAll(tempDir, 0o750); err != nil {
+	err = os.MkdirAll(tempDir, 0o750)
+	if err != nil {
 		return "", fmt.Errorf("error creating tempDir: %w", err)
 	}
 
@@ -227,7 +230,8 @@ func createTempDir(baseDir string) (string, error) {
 }
 
 func fileExists(filePath string) (bool, error) {
-	if _, err := os.Stat(filePath); err != nil {
+	_, err := os.Stat(filePath)
+	if err != nil {
 		if os.IsNotExist(err) {
 			return false, nil
 		}

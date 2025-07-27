@@ -130,6 +130,6 @@ func TestRootCmdArgPointers(t *testing.T) {
 	args := commands.NewRootArgs()
 
 	// Test default values
-	assert.Equal(t, "", args.GetLogLevel())
-	assert.Equal(t, "", args.GetLogFormat())
+	assert.Empty(t, args.GetLogLevel())
+	assert.Empty(t, args.GetLogFormat())
 }

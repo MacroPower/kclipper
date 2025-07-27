@@ -51,7 +51,11 @@ type TestClient struct {
 	Latency    time.Duration
 }
 
-func (c *TestClient) Pull(ctx context.Context, chart, repo, version string, repos helmrepo.Getter) (*helm.PulledChart, error) {
+func (c *TestClient) Pull(
+	ctx context.Context,
+	chart, repo, version string,
+	repos helmrepo.Getter,
+) (*helm.PulledChart, error) {
 	time.Sleep(c.Latency)
 
 	pulledChart, err := c.BaseClient.Pull(ctx, chart, repo, version, repos)

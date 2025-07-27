@@ -33,7 +33,8 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 	// Handle $ref in PatternProperties.
 	if schema.PatternProperties != nil {
 		for pattern, subSchema := range schema.PatternProperties {
-			if err := handleSchemaRefs(subSchema, basePath); err != nil {
+			err := handleSchemaRefs(subSchema, basePath)
+			if err != nil {
 				return err
 			}
 
@@ -45,7 +46,8 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 	// Handle $ref in Properties.
 	if schema.Properties != nil {
 		for property, subSchema := range schema.Properties {
-			if err := handleSchemaRefs(subSchema, basePath); err != nil {
+			err := handleSchemaRefs(subSchema, basePath)
+			if err != nil {
 				return err
 			}
 
@@ -55,14 +57,16 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 	}
 
 	// Handle $ref in AdditionalProperties.
-	if err := derefAdditionalProperties(schema, basePath); err != nil {
+	err := derefAdditionalProperties(schema, basePath)
+	if err != nil {
 		schema.AdditionalProperties = true
 	}
 
 	// Handle $ref in Items.
 	if schema.Items != nil {
 		subSchema := schema.Items
-		if err := handleSchemaRefs(subSchema, basePath); err != nil {
+		err := handleSchemaRefs(subSchema, basePath)
+		if err != nil {
 			return err
 		}
 
@@ -73,7 +77,8 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 	// Handle $ref in AllOf.
 	if schema.AllOf != nil {
 		for i, subSchema := range schema.AllOf {
-			if err := handleSchemaRefs(subSchema, basePath); err != nil {
+			err := handleSchemaRefs(subSchema, basePath)
+			if err != nil {
 				return err
 			}
 
@@ -85,7 +90,8 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 	// Handle $ref in AnyOf.
 	if schema.AnyOf != nil {
 		for i, subSchema := range schema.AnyOf {
-			if err := handleSchemaRefs(subSchema, basePath); err != nil {
+			err := handleSchemaRefs(subSchema, basePath)
+			if err != nil {
 				return err
 			}
 
@@ -97,7 +103,8 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 	// Handle $ref in OneOf.
 	if schema.OneOf != nil {
 		for i, subSchema := range schema.OneOf {
-			if err := handleSchemaRefs(subSchema, basePath); err != nil {
+			err := handleSchemaRefs(subSchema, basePath)
+			if err != nil {
 				return err
 			}
 
@@ -122,7 +129,8 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			return fmt.Errorf("invalid $ref value %q: %w", schema.Ref, err)
 		}
 
-		if err := resolveFilePath(schema, relFilePath, jsPointer); err != nil {
+		err = resolveFilePath(schema, relFilePath, jsPointer)
+		if err != nil {
 			return fmt.Errorf("invalid $ref value %q: %w", schema.Ref, err)
 		}
 	}
@@ -140,7 +148,8 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 		}
 	}
 
-	if err := schema.Validate(); err != nil {
+	err = schema.Validate()
+	if err != nil {
 		return fmt.Errorf("invalid schema: %w", err)
 	}
 
@@ -167,6 +176,7 @@ func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer strin
 	if err != nil {
 		return fmt.Errorf("error opening file %q: %w", relPath, err)
 	}
+
 	defer func() {
 		err = file.Close()
 		if err != nil {
@@ -187,7 +197,8 @@ func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer strin
 		return fmt.Errorf("failed to unmarshal schema: %w", err)
 	}
 
-	if err := handleSchemaRefs(relSchema, path.Dir(relPath)); err != nil {
+	err = handleSchemaRefs(relSchema, path.Dir(relPath))
+	if err != nil {
 		return err
 	}
 
@@ -206,7 +217,8 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 			return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 		}
 
-		if err := relSchema.Validate(); err != nil {
+		err = relSchema.Validate()
+		if err != nil {
 			return nil, fmt.Errorf("invalid schema: %w", err)
 		}
 
@@ -235,7 +247,8 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 		return nil, fmt.Errorf("failed to unmarshal JSON pointer result: %w", err)
 	}
 
-	if err := relSchema.Validate(); err != nil {
+	err = relSchema.Validate()
+	if err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
 	}
 
@@ -244,7 +257,8 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 
 func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error {
 	//nolint:revive // Boolean literal used due to SchemaOrBool type.
-	if schema.AdditionalProperties == nil || schema.AdditionalProperties == true || schema.AdditionalProperties == false {
+	if schema.AdditionalProperties == nil || schema.AdditionalProperties == true ||
+		schema.AdditionalProperties == false {
 		return nil
 	}
 
@@ -256,19 +270,24 @@ func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error
 	subSchema := &helmschema.Schema{}
 
 	var jsonNode yaml.Node
-	if err := yaml.Unmarshal(apData, &jsonNode); err != nil {
+
+	err = yaml.Unmarshal(apData, &jsonNode)
+	if err != nil {
 		return fmt.Errorf("failed to unmarshal additional properties: %w", err)
 	}
 
-	if err := subSchema.UnmarshalYAML(&jsonNode); err != nil {
+	err = subSchema.UnmarshalYAML(&jsonNode)
+	if err != nil {
 		return fmt.Errorf("failed to unmarshal additional properties: %w", err)
 	}
 
-	if err := handleSchemaRefs(subSchema, basePath); err != nil {
+	err = handleSchemaRefs(subSchema, basePath)
+	if err != nil {
 		return fmt.Errorf("failed to handle schema refs in additional properties: %w", err)
 	}
 
-	if err := subSchema.Validate(); err != nil {
+	err = subSchema.Validate()
+	if err != nil {
 		return fmt.Errorf("invalid schema: %w", err)
 	}
 

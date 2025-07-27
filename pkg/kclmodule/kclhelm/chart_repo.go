@@ -73,38 +73,47 @@ func (c *ChartRepo) GenerateKCL(w io.Writer) error {
 func (c *ChartRepo) FromMap(m map[string]any) error {
 	if name, ok := m["name"].(string); ok {
 		c.Name = name
+
 		delete(m, "name")
 	}
 	if url, ok := m["url"].(string); ok {
 		c.URL = url
+
 		delete(m, "url")
 	}
 	if usernameEnv, ok := m["usernameEnv"].(string); ok {
 		c.UsernameEnv = usernameEnv
+
 		delete(m, "usernameEnv")
 	}
 	if passwordEnv, ok := m["passwordEnv"].(string); ok {
 		c.PasswordEnv = passwordEnv
+
 		delete(m, "passwordEnv")
 	}
 	if caPath, ok := m["caPath"].(string); ok {
 		c.CAPath = caPath
+
 		delete(m, "caPath")
 	}
 	if tlsClientCertDataPath, ok := m["tlsClientCertDataPath"].(string); ok {
 		c.TLSClientCertDataPath = tlsClientCertDataPath
+
 		delete(m, "tlsClientCertDataPath")
 	}
 	if tlsClientCertKeyPath, ok := m["tlsClientCertKeyPath"].(string); ok {
 		c.TLSClientCertKeyPath = tlsClientCertKeyPath
+
 		delete(m, "tlsClientCertKeyPath")
 	}
 	if insecureSkipVerify, ok := m["insecureSkipVerify"].(bool); ok {
 		c.InsecureSkipVerify = insecureSkipVerify
+
 		delete(m, "insecureSkipVerify")
 	}
 	if passCredentials, ok := m["passCredentials"].(bool); ok {
 		c.PassCredentials = passCredentials
+
 		delete(m, "passCredentials")
 	}
 

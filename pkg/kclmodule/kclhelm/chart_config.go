@@ -45,7 +45,8 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
 	}
 
-	if _, err := b.WriteTo(w); err != nil {
+	_, err = b.WriteTo(w)
+	if err != nil {
 		return fmt.Errorf("failed to write to KCL schema: %w", err)
 	}
 

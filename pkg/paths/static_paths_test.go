@@ -24,10 +24,13 @@ func init() {
 	testdataDir := filepath.Join(dir, "testdata")
 
 	tempDir = filepath.Join(testdataDir, ".tmp")
-	if err := os.RemoveAll(tempDir); err != nil {
+	err := os.RemoveAll(tempDir)
+	if err != nil {
 		panic(err)
 	}
-	if err := os.MkdirAll(tempDir, 0o750); err != nil {
+
+	err = os.MkdirAll(tempDir, 0o750)
+	if err != nil {
 		panic(err)
 	}
 }
@@ -38,6 +41,7 @@ func TestGetStaticPath_SameURLs(t *testing.T) {
 	stp := paths.NewStaticTempPaths(tempDir, paths.NewBase64PathEncoder())
 	res1, err := stp.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
+
 	res2, err := stp.GetPath("https://localhost/test.txt")
 	require.NoError(t, err)
 	assert.Equal(t, res1, res2)
@@ -49,6 +53,7 @@ func TestGetStaticPath_DifferentURLs(t *testing.T) {
 	stp := paths.NewStaticTempPaths(tempDir, paths.NewBase64PathEncoder())
 	res1, err := stp.GetPath("https://localhost/test1.txt")
 	require.NoError(t, err)
+
 	res2, err := stp.GetPath("https://localhost/test2.txt")
 	require.NoError(t, err)
 	assert.NotEqual(t, res1, res2)
@@ -85,6 +90,7 @@ func TestGetStaticPathIfExists(t *testing.T) {
 
 		testFile, err := stp.GetPath("foo")
 		require.NoError(t, err)
+
 		err = os.WriteFile(testFile, []byte("test"), 0o600)
 		require.NoError(t, err)
 

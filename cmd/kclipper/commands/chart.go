@@ -66,7 +66,9 @@ func NewChartCmd(arg *RootArgs) *cobra.Command {
 	}
 
 	cmd.PersistentFlags().StringVarP(args.path, "path", "p", "charts", "Base path for the charts package")
-	if err := cmd.MarkPersistentFlagDirname("path"); err != nil {
+
+	err := cmd.MarkPersistentFlagDirname("path")
+	if err != nil {
 		panic(err)
 	}
 
@@ -76,7 +78,8 @@ func NewChartCmd(arg *RootArgs) *cobra.Command {
 	cmd.PersistentFlags().StringVar(args.maxExtractSize, "max_extract_size", "10Mi", "Maximum size of extracted charts")
 
 	cmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
-		if _, err := resource.ParseQuantity(*args.maxExtractSize); err != nil {
+		_, err = resource.ParseQuantity(*args.maxExtractSize)
+		if err != nil {
 			return fmt.Errorf("%w: %w: max_extract_size: %w", ErrArgument, ErrInvalidArgument, err)
 		}
 
@@ -224,7 +227,8 @@ func NewChartSetCmd(args *ChartArgs) *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(chart, "chart", "c", "", "Specify the Helm chart name (required)")
-	cmd.Flags().StringVarP(overrides, "overrides", "O", "", "Specify the configuration override path and value (required)")
+	cmd.Flags().
+		StringVarP(overrides, "overrides", "O", "", "Specify the configuration override path and value (required)")
 
 	must(cmd.MarkFlagRequired("chart"))
 	must(cmd.MarkFlagRequired("overrides"))

@@ -126,7 +126,8 @@ func WithAllowedPaths(currentPath, repoRoot string) ManagerOpt {
 }
 
 func (m *Manager) resolveRepo(repoOpts *RepoOpts) (*Repo, error) {
-	if err := repoOpts.Validate(); err != nil {
+	err := repoOpts.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -191,6 +192,7 @@ func (m *Manager) addByName(name string, repo *Repo) error {
 	if _, ok := m.reposByName.Load(name); ok {
 		return DuplicateRepoError{Name: name}
 	}
+
 	m.reposByName.Store(name, repo)
 
 	return nil
@@ -231,7 +233,8 @@ func (m *Manager) GetByURL(repoURL string) (*Repo, error) {
 
 	repoURL = u.String()
 
-	if repo, err := m.GetByName(repoURL); err == nil {
+	repo, err := m.GetByName(repoURL)
+	if err == nil {
 		return repo, nil
 	}
 

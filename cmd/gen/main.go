@@ -10,7 +10,8 @@ import (
 
 func main() {
 	basePath := "modules"
-	if err := generate(basePath); err != nil {
+	err := generate(basePath)
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
@@ -24,10 +25,13 @@ func generate(path string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+
 	pcb := &kclhelm.ChartBase{}
-	if err = pcb.GenerateKCL(fcb); err != nil {
+	err = pcb.GenerateKCL(fcb)
+	if err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
+
 	err = fcb.Close()
 	if err != nil {
 		return fmt.Errorf("failed to close file: %w", err)
@@ -38,10 +42,13 @@ func generate(path string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+
 	pcc := &kclhelm.ChartConfig{}
-	if err = pcc.GenerateKCL(fcc); err != nil {
+	err = pcc.GenerateKCL(fcc)
+	if err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
+
 	err = fcc.Close()
 	if err != nil {
 		return fmt.Errorf("failed to close file: %w", err)
@@ -52,10 +59,13 @@ func generate(path string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+
 	pcr := &kclhelm.ChartRepo{}
-	if err = pcr.GenerateKCL(fcr); err != nil {
+	err = pcr.GenerateKCL(fcr)
+	if err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
+
 	err = fcr.Close()
 	if err != nil {
 		return fmt.Errorf("failed to close file: %w", err)
@@ -66,10 +76,13 @@ func generate(path string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+
 	pc := &kclhelm.Chart{}
-	if err = pc.GenerateKCL(fc); err != nil {
+	err = pc.GenerateKCL(fc)
+	if err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
+
 	err = fc.Close()
 	if err != nil {
 		return fmt.Errorf("failed to close file: %w", err)
@@ -80,10 +93,13 @@ func generate(path string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+
 	pvc := &kclhelm.ValueInferenceConfig{}
-	if err = pvc.GenerateKCL(fvc); err != nil {
+	err = pvc.GenerateKCL(fvc)
+	if err != nil {
 		return fmt.Errorf("failed to generate KCL: %w", err)
 	}
+
 	err = fvc.Close()
 	if err != nil {
 		return fmt.Errorf("failed to close file: %w", err)

@@ -40,6 +40,7 @@ func (g *FileGenerator) FromPaths(paths ...string) ([]*unstructured.Unstructured
 		if err != nil {
 			return nil, fmt.Errorf("failed to read CRDs from %s: %w", path, err)
 		}
+
 		crds = append(crds, c...)
 	}
 

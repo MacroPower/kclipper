@@ -107,6 +107,7 @@ func (c *Client) Pull(ctx context.Context, chart, repo, version string, repos he
 		if err != nil {
 			return nil, fmt.Errorf("get local chart: %w", err)
 		}
+
 		pc.path = chartPath
 
 		return pc, err
@@ -116,6 +117,7 @@ func (c *Client) Pull(ctx context.Context, chart, repo, version string, repos he
 	if err != nil {
 		return nil, fmt.Errorf("get cached or remote chart: %w", err)
 	}
+
 	pc.path = chartPath
 
 	return pc, nil
@@ -127,7 +129,8 @@ func (c *Client) CleanChartCache(chart, repo, version string) error {
 		return fmt.Errorf("get cached chart path: %w", err)
 	}
 
-	if err := os.RemoveAll(cachePath); err != nil {
+	err = os.RemoveAll(cachePath)
+	if err != nil {
 		return fmt.Errorf("remove chart cache at %q: %w", cachePath, err)
 	}
 
@@ -135,7 +138,9 @@ func (c *Client) CleanChartCache(chart, repo, version string) error {
 }
 
 func (c *Client) getCachedChartPath(chart, repo, version string) (string, error) {
-	keyData, err := json.Marshal(map[string]string{"url": repo, "chart": chart, "version": version, "project": c.Project})
+	keyData, err := json.Marshal(
+		map[string]string{"url": repo, "chart": chart, "version": version, "project": c.Project},
+	)
 	if err != nil {
 		return "", fmt.Errorf("marshal key data: %w", err)
 	}
@@ -157,7 +162,11 @@ func (c *Client) getLocalChart(chart string, repo *helmrepo.Repo) (string, error
 	return chartPath, nil
 }
 
-func (c *Client) getCachedOrRemoteChart(ctx context.Context, chart, version string, repo *helmrepo.Repo) (string, error) {
+func (c *Client) getCachedOrRemoteChart(
+	ctx context.Context,
+	chart, version string,
+	repo *helmrepo.Repo,
+) (string, error) {
 	cachedChartPath, err := c.getCachedChartPath(chart, repo.URL.String(), version)
 	if err != nil {
 		return "", fmt.Errorf("get cached chart path: %w", err)
@@ -188,6 +197,7 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	if err != nil {
 		return fmt.Errorf("create temporary destination directory: %w", err)
 	}
+
 	defer func() { _ = os.RemoveAll(tempDest) }()
 
 	logger := slog.With(
@@ -269,6 +279,7 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 		slog.String("src", chartFilePath),
 		slog.String("dst", dstPath),
 	)
+
 	err = os.Rename(chartFilePath, dstPath)
 	if err != nil {
 		return fmt.Errorf("rename file from %q to %q: %w", chartFilePath, dstPath, err)

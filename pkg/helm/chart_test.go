@@ -34,11 +34,13 @@ func init() {
 	testdataDir := "./testdata"
 
 	gotDir := filepath.Join(testdataDir, "got")
-	if err := os.RemoveAll(gotDir); err != nil {
+	err = os.RemoveAll(gotDir)
+	if err != nil {
 		panic(err)
 	}
 
-	if err := os.MkdirAll(gotDir, 0o700); err != nil {
+	err = os.MkdirAll(gotDir, 0o700)
+	if err != nil {
 		panic(err)
 	}
 }
@@ -228,13 +230,15 @@ func TestHelmChart(t *testing.T) {
 
 			cf, err := helm.NewChartFiles(helmtest.DefaultTestClient, helmrepo.DefaultManager, maxSize, tc.opts)
 			require.NoError(t, err)
+
 			defer cf.Dispose()
 
 			schema, err := cf.GetValuesJSONSchema(tc.gen, tc.match)
 			require.NoError(t, err)
 
 			crds, err := cf.GetCRDFiles(crd.DefaultFileGenerator, func(s string) bool {
-				return filepath.Base(filepath.Dir(s)) == "crds" && filepath.Base(s) != "Chart.yaml" && filepath.Ext(s) == ".yaml"
+				return filepath.Base(filepath.Dir(s)) == "crds" && filepath.Base(s) != "Chart.yaml" &&
+					filepath.Ext(s) == ".yaml"
 			})
 			require.NoError(t, err)
 
@@ -245,6 +249,7 @@ func TestHelmChart(t *testing.T) {
 
 			if tc.importValues {
 				require.NotEmpty(t, schema)
+
 				err = os.WriteFile(filepath.Join(gotDir, "values.schema.json"), schema, 0o600)
 				require.NoError(t, err)
 			}
@@ -319,6 +324,7 @@ func BenchmarkHelmChart(b *testing.B) {
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
 	})
 	require.NoError(b, err)
+
 	_, err = c.Template(b.Context())
 	require.NoError(b, err)
 
@@ -339,6 +345,7 @@ func BenchmarkAppTemplateHelmChart(b *testing.B) {
 		SkipSchemaValidation: true,
 	})
 	require.NoError(b, err)
+
 	_, err = c.Template(b.Context())
 	require.NoError(b, err)
 

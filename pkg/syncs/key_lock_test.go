@@ -41,6 +41,7 @@ func TestLockLock(t *testing.T) {
 
 	go func() {
 		l.Lock("my-key")
+
 		unlocked = true
 
 		wg.Done()
@@ -71,6 +72,7 @@ func TestLockRLock(t *testing.T) {
 
 	go func() {
 		l.RLock("my-key")
+
 		unlocked = true
 
 		wg.Done()
@@ -101,6 +103,7 @@ func TestRLockLock(t *testing.T) {
 
 	go func() {
 		l.Lock("my-key")
+
 		unlocked = true
 
 		wg.Done()
@@ -131,6 +134,7 @@ func TestRLockRLock(t *testing.T) {
 
 	go func() {
 		l.RLock("my-key")
+
 		unlocked = true
 
 		wg.Done()

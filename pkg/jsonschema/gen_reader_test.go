@@ -55,6 +55,7 @@ func TestReaderGenerator(t *testing.T) {
 
 			// Test FromPaths.
 			t.Logf("Test FromPaths: %s", strings.Join(testFilePaths, ", "))
+
 			schemaBytes, err := generator.FromPaths(testFilePaths...)
 			require.NoError(t, err)
 			require.NotEmpty(t, schemaBytes)

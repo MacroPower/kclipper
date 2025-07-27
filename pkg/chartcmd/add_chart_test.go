@@ -156,6 +156,7 @@ func TestHelmChartAdd(t *testing.T) {
 
 			depsOpt, err := options.LoadDepsFrom(chartPath, true)
 			require.NoError(t, err)
+
 			results, err := kcl.Test(
 				&kcl.TestOptions{
 					PkgList:  []string{chartPath},

@@ -297,6 +297,7 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 			for _, u := range tc.urls {
 				parsedURL, err := url.Parse(u)
 				require.NoError(t, err)
+
 				urls = append(urls, parsedURL)
 			}
 

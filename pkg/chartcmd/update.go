@@ -45,6 +45,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 		slog.String("path", absBasePath),
 		slog.Bool("vendor", c.Vendor),
 	)
+
 	depOutput, err := svc.UpdateDependencies(&gpyrpc.UpdateDependencies_Args{
 		ManifestPath: absBasePath,
 		Vendor:       c.Vendor,
@@ -59,6 +60,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 		slog.String("path", c.BasePath),
 		slog.String("deps", fmt.Sprint(externalPkgs)),
 	)
+
 	mainOutput, err := svc.ExecProgram(&gpyrpc.ExecProgram_Args{
 		WorkDir:       absBasePath,
 		KFilenameList: []string{"."},
@@ -77,7 +79,8 @@ func (c *KCLPackage) Update(charts ...string) error {
 	mainData := mainOutput.GetJsonResult()
 	chartData := &kclchart.ChartData{}
 
-	if err := json.Unmarshal([]byte(mainData), chartData); err != nil {
+	err = json.Unmarshal([]byte(mainData), chartData)
+	if err != nil {
 		return fmt.Errorf("failed to unmarshal output: %w", err)
 	}
 
@@ -89,11 +92,13 @@ func (c *KCLPackage) Update(charts ...string) error {
 			if !ok && len(vn) == 0 {
 				return fmt.Errorf("chart %q not found", chart)
 			}
+
 			maps.Copy(matchedCharts, vn)
 			if ok {
 				matchedCharts[chart] = vk
 			}
 		}
+
 		chartData.Charts = matchedCharts
 	}
 
@@ -113,10 +118,13 @@ func (c *KCLPackage) Update(charts ...string) error {
 			slog.String("chart_key", k),
 		)
 
-		if err := sem.Acquire(ctx, 1); err != nil {
+		err := sem.Acquire(ctx, 1)
+		if err != nil {
 			return fmt.Errorf("%w: %w", ErrUpdateWorkerFailed, err)
 		}
+
 		c.broadcastEvent(EventUpdatingChart(k))
+
 		go func() {
 			defer sem.Release(1)
 
@@ -125,6 +133,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 			err := c.AddChart(k, &chart)
 			if err != nil {
 				c.broadcastEvent(EventUpdatedChart{Chart: k, Err: err})
+
 				errChan <- fmt.Errorf("update %q: %w", k, err)
 
 				return
@@ -136,11 +145,13 @@ func (c *KCLPackage) Update(charts ...string) error {
 		}()
 	}
 
-	if err := sem.Acquire(ctx, workerCount); err != nil {
+	err = sem.Acquire(ctx, workerCount)
+	if err != nil {
 		return fmt.Errorf("%w: %w", ErrUpdateWorkerFailed, err)
 	}
 
 	close(errChan)
+
 	var merr error
 	for err := range errChan {
 		merr = multierror.Append(merr, err)

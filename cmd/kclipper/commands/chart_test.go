@@ -41,6 +41,7 @@ func TestChartCmd(t *testing.T) {
 	modFile := filepath.Join(basePath, "kcl.mod")
 	modData, err := os.ReadFile(modFile)
 	require.NoError(t, err)
+
 	modData = bytes.ReplaceAll(modData,
 		[]byte(`helm = { path = "../modules/helm" }`),
 		[]byte(`helm = { path = "../../../../../../modules/helm" }`),
@@ -131,9 +132,9 @@ func TestChartArgPointers(t *testing.T) {
 	args := commands.NewChartArgs(rootArgs)
 
 	// Test default values
-	assert.Equal(t, "", args.GetPath())
-	assert.Equal(t, "", args.GetLogLevel())
-	assert.Equal(t, "", args.GetLogFormat())
+	assert.Empty(t, args.GetPath())
+	assert.Empty(t, args.GetLogLevel())
+	assert.Empty(t, args.GetLogFormat())
 	assert.False(t, args.GetQuiet())
 	assert.False(t, args.GetVendor())
 }

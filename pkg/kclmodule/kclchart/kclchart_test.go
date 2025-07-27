@@ -18,7 +18,6 @@ func TestGenerateChart(t *testing.T) {
 	err := cc.GenerateKCL(b)
 	require.NoError(t, err)
 	require.NotEmpty(t, b.String())
-	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
 
@@ -26,7 +25,6 @@ func TestGenerateChart(t *testing.T) {
 	err = c.GenerateKCL(b)
 	require.NoError(t, err)
 	require.NotEmpty(t, b.String())
-	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
 }

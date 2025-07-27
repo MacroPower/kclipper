@@ -57,6 +57,7 @@ func FindRepoRoot(path string) (string, error) {
 		if !fi1.IsDir() {
 			return false, nil
 		}
+
 		checkPath2 := filepath.Join(s, target1, target2)
 		fi2, err := os.Lstat(checkPath2)
 		if err != nil {
@@ -97,7 +98,8 @@ func findTopFile(root, path string, test func(string) (bool, error)) (string, er
 	currentDir := rootAbs
 	for part := range strings.SplitSeq(pathRel, "/") {
 		currentDir = filepath.Join(currentDir, part)
-		if match, err := test(currentDir); err == nil && match {
+		match, err := test(currentDir)
+		if err == nil && match {
 			return currentDir, nil
 		}
 	}

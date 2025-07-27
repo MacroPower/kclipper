@@ -51,12 +51,14 @@ func (c *KCLPackage) Set(chart, keyValueOverrides string) error {
 		slog.String("spec", chartsSpec),
 		slog.String("path", chartsFile),
 	)
+
 	err := c.updateFile(setAutomation, chartsFile, initialChartContents, chartsSpec)
 	if err != nil {
 		return fmt.Errorf("failed to update %q: %w", chartsFile, err)
 	}
 
 	logger.Info("formatting kcl files", slog.String("path", c.BasePath))
+
 	_, err = kcl.FormatPath(c.BasePath)
 	if err != nil {
 		return fmt.Errorf("failed to format kcl files: %w", err)

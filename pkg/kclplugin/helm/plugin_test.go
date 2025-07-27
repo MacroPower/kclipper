@@ -22,7 +22,7 @@ func init() {
 	testDataDir = filepath.Join(dir, "testdata")
 }
 
-//nolint:paralleltest // Due to t.Chdir.
+//nolint:paralleltest,tparallel // Due to t.Chdir.
 func TestPluginHelmTemplate(t *testing.T) {
 	helmplugin.Register()
 

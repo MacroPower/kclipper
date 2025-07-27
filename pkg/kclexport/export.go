@@ -84,6 +84,7 @@ func getRequiredDefinitions(ref *openapi3.SchemaRef, spec *openapi3.T) (map[stri
 		if err != nil {
 			return nil, err
 		}
+
 		maps.Copy(requiredDefinitions, subDefs)
 
 		if v.Ref != "" {
@@ -92,6 +93,7 @@ func getRequiredDefinitions(ref *openapi3.SchemaRef, spec *openapi3.T) (map[stri
 			if !ok {
 				return nil, fmt.Errorf("schema %q: %w", id, kclerrors.ErrSchemaNotFound)
 			}
+
 			requiredDefinitions[id] = def
 		}
 
@@ -101,6 +103,7 @@ func getRequiredDefinitions(ref *openapi3.SchemaRef, spec *openapi3.T) (map[stri
 			if !ok {
 				return nil, fmt.Errorf("schema %q: %w", id, kclerrors.ErrSchemaNotFound)
 			}
+
 			requiredDefinitions[id] = def
 		}
 	}
@@ -110,6 +113,7 @@ func getRequiredDefinitions(ref *openapi3.SchemaRef, spec *openapi3.T) (map[stri
 		if err != nil {
 			return nil, err
 		}
+
 		maps.Copy(requiredDefinitions, subDefs)
 	}
 

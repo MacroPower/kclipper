@@ -47,7 +47,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	if err := cmd.Execute(); err != nil {
+	err = cmd.Execute()
+	if err != nil {
 		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
 		os.Exit(1)
 	}
@@ -60,7 +61,8 @@ func executeRunCmd(args []string) error {
 	cmd := kclcmd.NewRunCmd()
 	cmd.SetArgs(args)
 
-	if err := cmd.Execute(); err != nil {
+	err := cmd.Execute()
+	if err != nil {
 		return fmt.Errorf("error executing run command: %w", err)
 	}
 
@@ -122,7 +124,8 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 	case "help", "completion", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd:
 	default:
 		if !builtinSubCmdExist {
-			if err := plugin.HandlePluginCommand(pluginHandler, cmdPathPieces, false); err != nil {
+			err := plugin.HandlePluginCommand(pluginHandler, cmdPathPieces, false)
+			if err != nil {
 				return false, fmt.Errorf("error handling plugin command: %w", err)
 			}
 

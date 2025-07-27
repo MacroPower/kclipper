@@ -43,6 +43,7 @@ func (g *HTTPGenerator) FromURLs(ctx context.Context, crdURLs ...*url.URL) ([]*u
 		if err != nil {
 			return nil, fmt.Errorf("failed to read CRDs from %s: %w", crdURL.String(), err)
 		}
+
 		crds = append(crds, c...)
 	}
 
@@ -54,12 +55,15 @@ func (g *HTTPGenerator) FromURL(ctx context.Context, crdURL *url.URL) ([]*unstru
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request: %w", err)
 	}
+
 	schema, err := g.HTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed http request: %w", err)
 	}
+
 	defer func() {
-		if err := schema.Body.Close(); err != nil {
+		err := schema.Body.Close()
+		if err != nil {
 			slog.Error("failed to close http response body",
 				slog.String("url", crdURL.String()),
 				slog.Any("err", err),

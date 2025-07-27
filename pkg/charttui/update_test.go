@@ -22,6 +22,7 @@ func TestUpdateModel_OneSuccess(t *testing.T) {
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
 	)
+
 	time.Sleep(100 * time.Millisecond)
 
 	tm.Send(chartcmd.EventSetChartTotal(1))
@@ -58,6 +59,7 @@ func TestUpdateModel_OneError(t *testing.T) {
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
 	)
+
 	time.Sleep(100 * time.Millisecond)
 
 	tm.Send(chartcmd.EventSetChartTotal(1))
@@ -94,6 +96,7 @@ func TestUpdateModel_MultipleSuccess(t *testing.T) {
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
 	)
+
 	time.Sleep(100 * time.Millisecond)
 
 	tm.Send(chartcmd.EventSetChartTotal(2))
@@ -148,6 +151,7 @@ func TestUpdateModel_MultipleWithError(t *testing.T) {
 		t, m,
 		teatest.WithInitialTermSize(300, 100),
 	)
+
 	time.Sleep(100 * time.Millisecond)
 
 	tm.Send(chartcmd.EventSetChartTotal(2))

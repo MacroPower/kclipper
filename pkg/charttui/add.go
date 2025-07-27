@@ -20,7 +20,6 @@ type AddModel struct {
 	name    string
 	spinner spinner.Model
 	width   int
-	height  int
 	mu      sync.RWMutex
 	working bool
 	done    bool
@@ -48,7 +47,7 @@ func (m *AddModel) Init() tea.Cmd {
 func (m *AddModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.width, m.height = msg.Width, msg.Height
+		m.width = msg.Width
 
 	case tea.KeyMsg:
 		if keyExits(msg) {
@@ -84,6 +83,7 @@ func (m *AddModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case spinner.TickMsg:
 		var cmd tea.Cmd
+
 		m.spinner, cmd = m.spinner.Update(msg)
 
 		return m, cmd

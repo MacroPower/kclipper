@@ -48,7 +48,8 @@ func SplitYAML(yamlData []byte) ([]*unstructured.Unstructured, error) {
 
 	for _, yml := range ymls {
 		u := &unstructured.Unstructured{}
-		if err := yaml.Unmarshal([]byte(yml), u); err != nil {
+		err := yaml.Unmarshal([]byte(yml), u)
+		if err != nil {
 			return objs, fmt.Errorf("%w: %w", ErrInvalidKubeResource, err)
 		}
 
@@ -71,7 +72,8 @@ func SplitYAMLToString(yamlData []byte) ([]string, error) {
 
 	for {
 		ext := runtime.RawExtension{}
-		if err := d.Decode(&ext); err != nil {
+		err := d.Decode(&ext)
+		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break
 			}

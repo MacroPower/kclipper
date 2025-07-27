@@ -122,6 +122,7 @@ func TestKCLAutomation(t *testing.T) {
 
 	err := os.RemoveAll(testAutomationDir)
 	require.NoError(t, err)
+
 	err = os.MkdirAll(filepath.Join(testAutomationDir, ".tmp"), 0o700)
 	require.NoError(t, err)
 

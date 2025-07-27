@@ -58,11 +58,13 @@ func NewExportCmd(arg *RootArgs) *cobra.Command {
 				return nil
 			}
 
-			if err := os.MkdirAll(filepath.Dir(outFile), 0o700); err != nil {
+			err = os.MkdirAll(filepath.Dir(outFile), 0o700)
+			if err != nil {
 				return fmt.Errorf("failed to create output directory: %w", err)
 			}
 
-			if err := os.WriteFile(outFile, js, 0o600); err != nil {
+			err = os.WriteFile(outFile, js, 0o600)
+			if err != nil {
 				return fmt.Errorf("failed to write to output file: %w", err)
 			}
 

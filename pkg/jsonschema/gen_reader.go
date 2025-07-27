@@ -106,6 +106,7 @@ func (g *ReaderGenerator) FromURL(schemaURL *url.URL) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed http request: %w", err)
 	}
+
 	defer func() {
 		err = schema.Body.Close()
 		if err != nil {
@@ -132,24 +133,30 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 	// YAML is a superset of JSON, so this works and is simpler than re-writing
 	// the Unmarshaler for JSON.
 	var jsonNode yaml.Node
-	if err := yaml.Unmarshal(data, &jsonNode); err != nil {
+
+	err := yaml.Unmarshal(data, &jsonNode)
+	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
 
 	hs := &helmschema.Schema{}
-	if err := hs.UnmarshalYAML(&jsonNode); err != nil {
+	err = hs.UnmarshalYAML(&jsonNode)
+	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
 
-	if err := hs.Validate(); err != nil {
+	err = hs.Validate()
+	if err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
 	}
 
-	if err := handleSchemaRefs(hs, refBasePath); err != nil {
+	err = handleSchemaRefs(hs, refBasePath)
+	if err != nil {
 		return nil, fmt.Errorf("failed to handle schema refs: %w", err)
 	}
 
-	if err := hs.Validate(); err != nil {
+	err = hs.Validate()
+	if err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
 	}
 

@@ -36,6 +36,7 @@ func (s *KCLPackage) GenerateC(ctx context.Context) error {
 	}
 
 	var wg sync.WaitGroup
+
 	errChan := make(chan error, crdCount)
 
 	for _, uCRD := range s.crds {
@@ -47,9 +48,12 @@ func (s *KCLPackage) GenerateC(ctx context.Context) error {
 		}
 
 		wg.Add(1)
+
 		go func(uCRD *unstructured.Unstructured) {
 			defer wg.Done()
-			if err := s.writeToKCLSchema(uCRD); err != nil {
+
+			err := s.writeToKCLSchema(uCRD)
+			if err != nil {
 				errChan <- err
 			}
 		}(uCRD)
@@ -79,7 +83,8 @@ func (s *KCLPackage) GenerateC(ctx context.Context) error {
 // the package path.
 func (s *KCLPackage) Generate() error {
 	for _, u := range s.crds {
-		if err := s.writeToKCLSchema(u); err != nil {
+		err := s.writeToKCLSchema(u)
+		if err != nil {
 			return err
 		}
 	}
@@ -95,7 +100,8 @@ func (s *KCLPackage) writeToKCLSchema(uCRD *unstructured.Unstructured) error {
 
 	var merr error
 	for version, v := range crdVersions {
-		if err := kclgen.GenOpenAPI.FromCRDVersion(&v, s.path, version); err != nil {
+		err := kclgen.GenOpenAPI.FromCRDVersion(&v, s.path, version)
+		if err != nil {
 			merr = multierror.Append(merr, fmt.Errorf("%s: %w", v.GetAPIVersion(), err))
 		}
 	}

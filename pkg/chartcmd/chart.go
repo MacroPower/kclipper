@@ -38,10 +38,12 @@ func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageO
 	}
 
 	slog.Debug("looking for repository root", slog.String("path", basePath))
+
 	repoRoot, err := paths.FindRepoRoot(basePath)
 	if err != nil {
 		return nil, fmt.Errorf("%w: failed to find repository root: %w", ErrPathResolution, err)
 	}
+
 	slog.Debug("found repository root", slog.String("path", repoRoot))
 
 	c := &KCLPackage{
@@ -63,21 +65,30 @@ func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageO
 		slog.String("begin", absBasePath),
 		slog.String("end", repoRoot),
 	)
+
 	pkgPath, err := paths.FindTopPkgRoot(repoRoot, basePath)
 	if errors.Is(err, kclerrors.ErrFileNotFound) {
 		slog.Warn("kcl.mod file not found, creating a new one")
+
 		_, err = c.Init()
 		if err != nil {
 			return nil, fmt.Errorf("call chart init: %w", err)
 		}
+
 		pkgPath, err = paths.FindTopPkgRoot(repoRoot, basePath)
 		if err != nil {
-			return nil, fmt.Errorf("%w: failed to find package root; could not recover after init: %w", ErrPathResolution, err)
+			return nil, fmt.Errorf(
+				"%w: failed to find package root; could not recover after init: %w",
+				ErrPathResolution,
+				err,
+			)
 		}
 	} else if err != nil {
 		return nil, fmt.Errorf("%w: failed to find package root: %w", ErrPathResolution, err)
 	}
+
 	slog.Debug("found topmost kcl.mod file", slog.String("path", pkgPath))
+
 	c.pkgPath = pkgPath
 
 	return c, nil
@@ -133,7 +144,8 @@ func (c *KCLPackage) updateFile(automation kclautomation.Automation, kclFile, in
 	defer c.mu.Unlock()
 
 	if !fileExists(kclFile) {
-		if err := os.WriteFile(kclFile, []byte(initialContents), 0o600); err != nil {
+		err := os.WriteFile(kclFile, []byte(initialContents), 0o600)
+		if err != nil {
 			return fmt.Errorf("failed to write %q: %w", kclFile, err)
 		}
 	}

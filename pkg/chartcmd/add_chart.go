@@ -44,7 +44,8 @@ var (
 
 // AddChart adds a new chart to the chart package.
 func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
-	if err := chart.Validate(); err != nil {
+	err := chart.Validate()
+	if err != nil {
 		return fmt.Errorf("%w: %w", ErrInvalidConfig, err)
 	}
 
@@ -55,7 +56,9 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 	)
 
 	logger.Info("check init before add")
-	if _, err := c.Init(); err != nil {
+
+	_, err = c.Init()
+	if err != nil {
 		return fmt.Errorf("%w: %w", ErrInitFailed, err)
 	}
 
@@ -70,7 +73,8 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 	}
 	defer helmChart.Dispose()
 
-	if err := generateAndWriteChartKCL(&kclchart.Chart{ChartBase: chart.ChartBase}, chartDir, logger); err != nil {
+	err = generateAndWriteChartKCL(&kclchart.Chart{ChartBase: chart.ChartBase}, chartDir, logger)
+	if err != nil {
 		return err
 	}
 
@@ -79,7 +83,8 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 		return err
 	}
 	if len(jsonSchemaBytes) != 0 {
-		if err := writeValuesSchemaFiles(jsonSchemaBytes, chartDir); err != nil {
+		err := writeValuesSchemaFiles(jsonSchemaBytes, chartDir)
+		if err != nil {
 			return err
 		}
 	}
@@ -89,17 +94,21 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 		return err
 	}
 	if len(crds) > 0 {
-		if err := c.writeCRDFiles(crds, chartDir); err != nil {
+		err := c.writeCRDFiles(crds, chartDir)
+		if err != nil {
 			return err
 		}
 	}
 
-	if err := c.updateChartsFile(key, chart, logger); err != nil {
+	err = c.updateChartsFile(key, chart, logger)
+	if err != nil {
 		return err
 	}
 
 	logger.Info("formatting kcl files", slog.String("path", chartDir))
-	if _, err := kcl.FormatPath(filepath.Join(chartDir, "...")); err != nil {
+
+	_, err = kcl.FormatPath(filepath.Join(chartDir, "..."))
+	if err != nil {
 		return fmt.Errorf("failed to format kcl files: %w", err)
 	}
 
@@ -110,9 +119,12 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 func (c *KCLPackage) addChartDir(key string, logger *slog.Logger) (string, error) {
 	chartDir := path.Join(c.absBasePath, key)
 	logger.Debug("ensure chart directory", slog.String("path", chartDir))
-	if err := os.MkdirAll(chartDir, 0o750); err != nil {
+
+	err := os.MkdirAll(chartDir, 0o750)
+	if err != nil {
 		return "", fmt.Errorf("%w: create charts directory: %w", ErrDirectoryCreation, err)
 	}
+
 	logger.Debug("ensured chart directory", slog.String("path", chartDir))
 
 	return chartDir, nil
@@ -121,6 +133,7 @@ func (c *KCLPackage) addChartDir(key string, logger *slog.Logger) (string, error
 // setupHelmChart sets up the helm repositories and creates a chart.
 func (c *KCLPackage) setupHelmChart(chart *kclchart.ChartConfig, logger *slog.Logger) (*helm.ChartFiles, error) {
 	logger.Info("loading helm repositories")
+
 	repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(c.pkgPath, c.repoRoot))
 
 	// Add repositories.
@@ -135,7 +148,8 @@ func (c *KCLPackage) setupHelmChart(chart *kclchart.ChartConfig, logger *slog.Lo
 			return nil, fmt.Errorf("%w: get Helm repository: %w", ErrRepoOperation, err)
 		}
 
-		if err := repoMgr.Add(hr); err != nil {
+		err = repoMgr.Add(hr)
+		if err != nil {
 			return nil, fmt.Errorf("%w: add Helm repository: %w", ErrRepoOperation, err)
 		}
 	}
@@ -144,6 +158,7 @@ func (c *KCLPackage) setupHelmChart(chart *kclchart.ChartConfig, logger *slog.Lo
 	chartValues := map[string]any{}
 	if chart.Values != nil {
 		var ok bool
+
 		chartValues, ok = chart.Values.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("%w: invalid values type: %T", ErrInvalidConfig, chart.Values)
@@ -152,6 +167,7 @@ func (c *KCLPackage) setupHelmChart(chart *kclchart.ChartConfig, logger *slog.Lo
 
 	// Load helm chart.
 	logger.Info("loading helm chart files")
+
 	helmChart, err := helm.NewChartFiles(c.Client, repoMgr, c.MaxExtractSize, &helm.TemplateOpts{
 		ChartName:       chart.Chart,
 		TargetRevision:  chart.TargetRevision,
@@ -169,7 +185,11 @@ func (c *KCLPackage) setupHelmChart(chart *kclchart.ChartConfig, logger *slog.Lo
 
 // getCRDs gets CRD resources based on the chart configuration.
 // It returns the list of CRD resources and any error encountered.
-func (c *KCLPackage) getCRDs(chart *kclchart.ChartConfig, helmChart *helm.ChartFiles, logger *slog.Logger) ([]*unstructured.Unstructured, error) {
+func (c *KCLPackage) getCRDs(
+	chart *kclchart.ChartConfig,
+	helmChart *helm.ChartFiles,
+	logger *slog.Logger,
+) ([]*unstructured.Unstructured, error) {
 	switch chart.CRDGenerator {
 	case crd.GeneratorTypeDefault, crd.GeneratorTypeAuto, crd.GeneratorTypeTemplate:
 		logger.Info("rendering crd resources")
@@ -202,7 +222,10 @@ func (c *KCLPackage) getCRDsFromTemplate(helmChart *helm.ChartFiles) ([]*unstruc
 }
 
 // getCRDsFromChartPath generates CRD resources from the chart path.
-func (c *KCLPackage) getCRDsFromChartPath(chart *kclchart.ChartConfig, helmChart *helm.ChartFiles) ([]*unstructured.Unstructured, error) {
+func (c *KCLPackage) getCRDsFromChartPath(
+	chart *kclchart.ChartConfig,
+	helmChart *helm.ChartFiles,
+) ([]*unstructured.Unstructured, error) {
 	crds, err := helmChart.GetCRDFiles(crd.DefaultFileGenerator, c.createCRDPathMatcher(chart))
 	if err != nil {
 		return nil, fmt.Errorf("%w: get CRD files from chart: %w", ErrCRDGeneration, err)
@@ -212,13 +235,17 @@ func (c *KCLPackage) getCRDsFromChartPath(chart *kclchart.ChartConfig, helmChart
 }
 
 // getCRDsFromPaths gets CRDs from specified paths.
-func (c *KCLPackage) getCRDsFromPaths(chart *kclchart.ChartConfig, logger *slog.Logger) ([]*unstructured.Unstructured, error) {
+func (c *KCLPackage) getCRDsFromPaths(
+	chart *kclchart.ChartConfig,
+	logger *slog.Logger,
+) ([]*unstructured.Unstructured, error) {
 	crds := []*unstructured.Unstructured{}
 	for _, p := range chart.CRDPaths {
 		pathCRDs, err := c.getCRDsFromPath(p, logger)
 		if err != nil {
 			return nil, err
 		}
+
 		crds = append(crds, pathCRDs...)
 	}
 
@@ -236,6 +263,7 @@ func (c *KCLPackage) getCRDsFromPath(pathStr string, logger *slog.Logger) ([]*un
 
 		return c.getCRDsFromURL(u, crdPath.String())
 	}
+
 	logger.Debug("getting crd files from local path", slog.String("path", pathStr))
 
 	return c.getCRDsFromFilePath(crdPath.String())
@@ -284,7 +312,9 @@ func (c *KCLPackage) updateChartsFile(key string, chart *kclchart.ChartConfig, l
 		slog.String("spec", chartsSpec),
 		slog.String("path", chartsFile),
 	)
-	if err := c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec); err != nil {
+
+	err := c.updateFile(chart.ToAutomation(), chartsFile, initialChartContents, chartsSpec)
+	if err != nil {
 		return fmt.Errorf("%w: update %q: %w", ErrFileWrite, chartsFile, err)
 	}
 
@@ -296,12 +326,16 @@ func generateAndWriteChartKCL(hc *kclchart.Chart, chartDir string, logger *slog.
 	kclChart := &bytes.Buffer{}
 
 	logger.Debug("generating chart.k")
-	if err := hc.GenerateKCL(kclChart); err != nil {
+
+	err := hc.GenerateKCL(kclChart)
+	if err != nil {
 		return fmt.Errorf("%w: generate chart.k: %w", ErrFileWrite, err)
 	}
 
 	logger.Debug("writing chart.k")
-	if err := os.WriteFile(path.Join(chartDir, "chart.k"), kclChart.Bytes(), 0o600); err != nil {
+
+	err = os.WriteFile(path.Join(chartDir, "chart.k"), kclChart.Bytes(), 0o600)
+	if err != nil {
 		return fmt.Errorf("%w: write chart.k: %w", ErrFileWrite, err)
 	}
 
@@ -366,6 +400,7 @@ func (c *KCLPackage) generateSchemaFromChart(chart *kclchart.ChartConfig, chartF
 		} else {
 			gen = jsonschema.NewValueInferenceGenerator(chart.ValueInference.GetConfig())
 		}
+
 	case jsonschema.ChartPathGeneratorType:
 		gen = jsonschema.DefaultReaderGenerator
 	default:
@@ -382,7 +417,8 @@ func (c *KCLPackage) generateSchemaFromChart(chart *kclchart.ChartConfig, chartF
 
 // writeValuesSchemaFiles writes the values schema files.
 func writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
-	if err := os.WriteFile(path.Join(chartDir, "values.schema.json"), jsonSchema, 0o600); err != nil {
+	err := os.WriteFile(path.Join(chartDir, "values.schema.json"), jsonSchema, 0o600)
+	if err != nil {
 		return fmt.Errorf("%w: values.schema.json: %w", ErrFileWrite, err)
 	}
 
@@ -391,7 +427,8 @@ func writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
 		return fmt.Errorf("%w: %w", ErrSchemaGeneration, err)
 	}
 
-	if err := os.WriteFile(path.Join(chartDir, "values.schema.k"), kclSchema, 0o600); err != nil {
+	err = os.WriteFile(path.Join(chartDir, "values.schema.k"), kclSchema, 0o600)
+	if err != nil {
 		return fmt.Errorf("%w: values.schema.k: %w", ErrFileWrite, err)
 	}
 

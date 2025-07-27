@@ -96,6 +96,7 @@ func TestFile_OverrideFile(t *testing.T) {
 				if idx := strings.Index(spec, "="); idx >= 0 {
 					key = spec[:idx]
 				}
+
 				assert.Contains(t, string(content), key)
 			}
 		})

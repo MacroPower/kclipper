@@ -37,6 +37,7 @@ func mustNewGenOpenAPI() *genOpenAPI {
 // writes to the same KCL module.
 func (g *genOpenAPI) FromCRDVersion(crd *unstructured.Unstructured, dstPath, version string) error {
 	apiVersion := crd.GetAPIVersion()
+
 	g.locker.Lock(apiVersion)
 	defer g.locker.Unlock(apiVersion)
 
@@ -50,7 +51,8 @@ func (g *genOpenAPI) FromCRDVersion(crd *unstructured.Unstructured, dstPath, ver
 		return fmt.Errorf("marshal CRD: %w: %w", kclerrors.ErrYAMLMarshal, err)
 	}
 
-	if _, err := tmpFile.Write(crdData); err != nil {
+	_, err = tmpFile.Write(crdData)
+	if err != nil {
 		return fmt.Errorf("write CRD to temp file: %w: %w", kclerrors.ErrWriteFile, err)
 	}
 
@@ -58,6 +60,7 @@ func (g *genOpenAPI) FromCRDVersion(crd *unstructured.Unstructured, dstPath, ver
 	if err != nil {
 		return fmt.Errorf("close temp file: %w", err)
 	}
+
 	defer func() {
 		_ = os.Remove(tmpFile.Name())
 	}()
@@ -68,15 +71,18 @@ func (g *genOpenAPI) FromCRDVersion(crd *unstructured.Unstructured, dstPath, ver
 	if err != nil {
 		return fmt.Errorf("generate CRD spec: %w", err)
 	}
+
 	defer func() {
 		_ = os.Remove(spec)
 		_ = os.Remove(filepath.Join(filepath.Base(spec), "k8s.json"))
 	}()
 
 	opts := new(swaggergen.GenOpts)
-	if err := opts.EnsureDefaults(); err != nil {
+	err = opts.EnsureDefaults()
+	if err != nil {
 		return fmt.Errorf("failed to ensure default generator options: %w", err)
 	}
+
 	opts.Spec = spec
 	opts.Target = dstPath
 	opts.ModelPackage = version

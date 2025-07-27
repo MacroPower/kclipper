@@ -19,12 +19,13 @@ func ConvertToKCLSchema(jsonSchemaData []byte, removeDefaults bool) ([]byte, err
 	}
 
 	kclSchema := &bytes.Buffer{}
-	if err := kclgen.Gen.GenKcl(kclSchema, "values", fixedJSONSchema, &kclgen.GenKclOptions{
+	err = kclgen.Gen.GenKcl(kclSchema, "values", fixedJSONSchema, &kclgen.GenKclOptions{
 		Mode:                  kclgen.ModeJSONSchema,
 		CastingOption:         kclgen.OriginalName,
 		UseIntegersForNumbers: true,
 		RemoveDefaults:        removeDefaults,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, fmt.Errorf("failed to generate kcl schema: %w", err)
 	}
 
@@ -37,12 +38,15 @@ func ConvertToKCLCompatibleJSONSchema(jsonSchemaData []byte) ([]byte, error) {
 	// YAML is a superset of JSON, so this works and is simpler than re-writing
 	// the Unmarshaler for JSON.
 	var jsonNode yaml.Node
-	if err := yaml.Unmarshal(jsonSchemaData, &jsonNode); err != nil {
+
+	err := yaml.Unmarshal(jsonSchemaData, &jsonNode)
+	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
 
 	hs := &helmschema.Schema{}
-	if err := hs.UnmarshalYAML(&jsonNode); err != nil {
+	err = hs.UnmarshalYAML(&jsonNode)
+	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
 	}
 

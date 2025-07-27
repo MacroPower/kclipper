@@ -121,8 +121,10 @@ func TestKCLConversion(t *testing.T) {
 			t.Parallel()
 
 			// Set up the input data
-			var schemaBytes []byte
-			var err error
+			var (
+				schemaBytes []byte
+				err         error
+			)
 
 			if tc.filePath != "" {
 				inputFilePath := filepath.Join(testDataDir, tc.filePath)
@@ -159,6 +161,7 @@ func TestKCLConversion(t *testing.T) {
 
 				expectedSchema, err := os.ReadFile(wantFilePath)
 				require.NoError(t, err)
+
 				want := string(expectedSchema)
 				require.Equal(t, want, got, "Input: %s\nWant: %s", tc.filePath, tc.expectedPath)
 			}

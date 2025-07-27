@@ -62,12 +62,14 @@ func (g *gen) GenKcl(w io.Writer, filename string, src any, opts *GenKclOptions)
 		UseIntegersForNumbers: opts.UseIntegersForNumbers,
 	}
 
-	if err := gentool.GenKcl(kclSchemaBuf, filename, src, kgo); err != nil {
+	err := gentool.GenKcl(kclSchemaBuf, filename, src, kgo)
+	if err != nil {
 		return fmt.Errorf("%w: %w", kclerrors.ErrGenerateKCL, err)
 	}
 
 	kclSchema := FixKCLSchema(kclSchemaBuf.String(), opts.RemoveDefaults)
-	if _, err := w.Write([]byte(kclSchema)); err != nil {
+	_, err = w.Write([]byte(kclSchema))
+	if err != nil {
 		return fmt.Errorf("%w: %w", kclerrors.ErrWrite, err)
 	}
 

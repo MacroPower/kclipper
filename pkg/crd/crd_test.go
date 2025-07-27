@@ -93,6 +93,7 @@ func TestSplitCRDVersions(t *testing.T) {
 	for name, tc := range errorTcs {
 		t.Run("error_"+name, func(t *testing.T) {
 			t.Parallel()
+
 			c := &unstructured.Unstructured{Object: tc.crdObject}
 			_, err := crd.SplitCRDVersions(c)
 			require.Error(t, err)
@@ -202,6 +203,7 @@ func TestSplitCRDVersions(t *testing.T) {
 	for name, tc := range successTcs {
 		t.Run("success_"+name, func(t *testing.T) {
 			t.Parallel()
+
 			c := &unstructured.Unstructured{Object: tc.crdObject}
 			versions, err := crd.SplitCRDVersions(c)
 			require.NoError(t, err)

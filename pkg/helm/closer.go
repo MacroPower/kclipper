@@ -30,7 +30,8 @@ func NewNopCloser() io.Closer {
 // tryClose is a convenience function to tryClose a object that has a Close()
 // method, logging any errors.
 func tryClose(c io.Closer) {
-	if err := c.Close(); err != nil {
+	err := c.Close()
+	if err != nil {
 		slog.Warn("failed to close",
 			slog.Any("closer", c),
 			slog.Any("err", err),

@@ -65,10 +65,11 @@ func (r *Reflected) GenerateKCL(w io.Writer, opts ...GenOpt) error {
 	}
 
 	b := &bytes.Buffer{}
-	if err := kclgen.Gen.GenKcl(b, "chart", jsBytes, &kclgen.GenKclOptions{
+	err = kclgen.Gen.GenKcl(b, "chart", jsBytes, &kclgen.GenKclOptions{
 		Mode:          kclgen.ModeJSONSchema,
 		CastingOption: kclgen.OriginalName,
-	}); err != nil {
+	})
+	if err != nil {
 		return fmt.Errorf("failed to generate kcl schema: %w", err)
 	}
 

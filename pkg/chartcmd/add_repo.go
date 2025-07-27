@@ -17,7 +17,8 @@ repos: helm.ChartRepos = {}
 `
 
 func (c *KCLPackage) AddRepo(repo *kclhelm.ChartRepo) error {
-	if err := repo.Validate(); err != nil {
+	err := repo.Validate()
+	if err != nil {
 		return fmt.Errorf("invalid config: %w", err)
 	}
 
@@ -27,7 +28,9 @@ func (c *KCLPackage) AddRepo(repo *kclhelm.ChartRepo) error {
 	)
 
 	logger.Info("check init before add")
-	if _, err := c.Init(); err != nil {
+
+	_, err = c.Init()
+	if err != nil {
 		return fmt.Errorf("failed to init before add: %w", err)
 	}
 
@@ -38,12 +41,14 @@ func (c *KCLPackage) AddRepo(repo *kclhelm.ChartRepo) error {
 		slog.String("spec", reposSpec),
 		slog.String("path", reposFile),
 	)
-	err := c.updateFile(repo.ToAutomation(), reposFile, initialRepoContents, reposSpec)
+
+	err = c.updateFile(repo.ToAutomation(), reposFile, initialRepoContents, reposSpec)
 	if err != nil {
 		return fmt.Errorf("failed to update %q: %w", reposFile, err)
 	}
 
 	logger.Info("formatting kcl files", slog.String("path", c.BasePath))
+
 	_, err = kcl.FormatPath(c.BasePath)
 	if err != nil {
 		return fmt.Errorf("failed to format kcl files: %w", err)

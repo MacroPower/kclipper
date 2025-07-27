@@ -1,6 +1,6 @@
 # This file contains all available configuration options
 # with their default values.
-
+version: "2"
 run:
   # Timeout for analysis, e.g. 30s, 5m.
   timeout: 5m
@@ -8,11 +8,35 @@ run:
 
 output:
   show-stats: true
-  formats:
-    - format: colored-line-number
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - golines
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - blank
+        - dot
+        - alias
+        - localmodule
+    gofmt:
+      simplify: true
+      rewrite-rules:
+        - pattern: "interface{}"
+          replacement: "any"
+    gofumpt:
+      extra-rules: true
+    golines:
+      reformat-tags: false
+      max-len: 120
 
 linters:
-  disable-all: true
+  default: none
   enable:
     - asasalint
     - asciicheck
@@ -21,7 +45,7 @@ linters:
     - canonicalheader
     - containedctx
     - contextcheck
-    - copyloopvar
+    - depguard
     - dupl
     - durationcheck
     - errcheck
@@ -32,19 +56,17 @@ linters:
     - exptostd
     - fatcontext
     - forcetypeassert
-    - gci
     - gocheckcompilerdirectives
     - goconst
     - gocritic
     - godot
-    - gofmt
-    - gofumpt
     - goprintffuncname
     - gosec
-    - gosimple
+    - gosmopolitan
     - govet
     - grouper
     - iface
+    - importas
     - inamedparam
     - ineffassign
     - intrange
@@ -58,8 +80,9 @@ linters:
     - nilerr
     - nilnesserr
     - nilnil
-    - nlreturn
     - noctx
+    - noinlineerr
+    - nolintlint
     - nonamedreturns
     - nosprintfhostport
     - paralleltest
@@ -76,147 +99,163 @@ linters:
     - testifylint
     - testpackage
     - thelper
+    - tparallel
     - unconvert
     - unparam
     - unused
     - usestdlibvars
     - usetesting
     - wastedassign
-    - whitespace
     - wrapcheck
+    - wsl_v5
 
-linters-settings:
-  misspell:
-    locale: US
-    mode: default
+  settings:
+    misspell:
+      locale: US
+      mode: default
 
-  exhaustive:
-    default-signifies-exhaustive: true
+    exhaustive:
+      default-signifies-exhaustive: true
 
-  gci:
-    sections:
-      - standard
-      - default
-      - blank
-      - dot
-      - alias
-      - localmodule
+    wsl_v5:
+      allow-whole-block: true
+      case-max-lines: 2
+      default: all
+      disable:
+        - assign-exclusive
+        - if
 
-  wsl:
-    force-err-cuddling: true
-    force-case-trailing-whitespace: 2
+    unused:
+      field-writes-are-uses: false
+      exported-fields-are-used: false
+      local-variables-are-used: false
 
-  unused:
-    exported-fields-are-used: false
-    local-variables-are-used: false
+    govet:
+      enable-all: true
+      disable:
+        - shadow
 
-  whitespace:
-    multi-if: true
-    multi-func: true
+    usetesting:
+      os-temp-dir: true
+      context-background: true
+      context-todo: true
 
-  govet:
-    enable-all: true
-    disable:
-      - shadow
+    testifylint:
+      enable-all: true
+      expected-actual:
+        pattern: ^want
 
-  usetesting:
-    os-temp-dir: true
+    sloglint:
+      attr-only: true
+      static-msg: true
+      args-on-sep-lines: true
+      key-naming-case: snake
+      context: scope
+      forbidden-keys:
+        - time
+        - level
+        - msg
 
-  testifylint:
-    enable-all: true
-    expected-actual:
-      pattern: ^want
+    gocritic:
+      enable-all: true
+      disabled-checks:
+        - unnamedResult
+        - singleCaseSwitch
 
-  sloglint:
-    attr-only: true
-    static-msg: true
-    args-on-sep-lines: true
-    key-naming-case: snake
-    context: scope
-    forbidden-keys:
-      - time
-      - level
-      - msg
+    godot:
+      scope: all
+      period: true
+      capital: true
 
-  gofmt:
-    simplify: true
-    rewrite-rules:
-      - pattern: "interface{}"
-        replacement: "any"
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      exclude-functions:
+        - io/ioutil.ReadFile
+        - io.Copy(*bytes.Buffer)
+        - io.Copy(os.Stdout)
+        - os.Remove
+        - os.RemoveAll
 
-  gofumpt:
-    extra-rules: true
+    grouper:
+      const-require-single-const: true
+      import-require-single-import: true
+      var-require-single-var: true
 
-  gocritic:
-    enable-all: true
-    disabled-checks:
-      - commentedOutCode
-      - filepathJoin
-      - unnamedResult
+    revive:
+      enable-all-rules: true
+      rules:
+        - name: line-length-limit
+          disabled: true
+        - name: cyclomatic
+          disabled: true
+        - name: cognitive-complexity
+          disabled: true
+        - name: add-constant
+          disabled: true
+        - name: function-length
+          disabled: true
+        - name: max-public-structs
+          disabled: true
+        # Needed for future use.
+        - name: unused-receiver
+          disabled: true
+        # Fails on private functions.
+        - name: flag-parameter
+          disabled: true
+        # Requires named results.
+        - name: confusing-results
+          disabled: true
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+        - name: unnecessary-stmt
+          disabled: true
+        # Does not work with inline tags.
+        - name: struct-tag
+          disabled: true
+        - name: var-naming
+          disabled: true
+        # Requires default cases.
+        - name: enforce-switch-style
+          disabled: true
 
-  godot:
-    scope: all
-    period: true
-    capital: true
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: "golang.org/x/exp/slog"
+              desc: use log/slog
+            - pkg: "github.com/pkg/errors"
+              desc: use errors
 
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-    exclude-functions:
-      - io/ioutil.ReadFile
-      - io.Copy(*bytes.Buffer)
-      - io.Copy(os.Stdout)
-      - os.Remove
-      - os.RemoveAll
+    importas:
+      alias:
+        - pkg: github.com/charmbracelet/bubbletea
+          alias: tea
 
-  grouper:
-    const-require-single-const: true
-    import-require-single-import: true
-    var-require-single-var: true
-
-  revive:
-    enable-all-rules: true
+  exclusions:
     rules:
-      - name: line-length-limit
-        disabled: true
-      - name: cyclomatic
-        disabled: true
-      - name: cognitive-complexity
-        disabled: true
-      - name: add-constant
-        disabled: true
-      - name: function-length
-        disabled: true
-      - name: max-public-structs
-        disabled: true
-      - name: unused-receiver
-        disabled: true
-      - name: flag-parameter
-        disabled: true
-      - name: confusing-results
-        disabled: true
-      - name: exported
-        disabled: true
-      - name: package-comments
-        disabled: true
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - dupl
-        - promlinter
-        - godot
-        - gosec
-    - source: "^\\) .+ \\{$"
-      linters:
-        - whitespace
-    - source: "= `"
-      linters:
-        - grouper
-    - text: "\\*github\\.com/hashicorp/go-multierror\\.Error"
-      linters:
-        - wrapcheck
-    - path: cmd/kclipper/commands/.*_test\.go
-      linters:
-        - paralleltest # Testing CMD initialization.
+      - path: _test\.go
+        linters:
+          - dupl
+          - promlinter
+          - goconst
+          - gocritic
+          - godot
+          - gosec
+          - gosmopolitan
+      - source: "= `"
+        linters:
+          - grouper
+      - text: "\\*github\\.com/hashicorp/go-multierror\\.Error"
+        linters:
+          - wrapcheck
+      - path: cmd/
+        linters:
+          - wrapcheck
+          - paralleltest
+      - text: "slog\\."
+        linters:
+          - noctx

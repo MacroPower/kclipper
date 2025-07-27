@@ -156,12 +156,16 @@ var Plugin = plugin.Plugin{
 					if err != nil {
 						return nil, fmt.Errorf("failed to add Helm repository: %w", err)
 					}
-					if err := repoMgr.Add(hr); err != nil {
+					err = repoMgr.Add(hr)
+					if err != nil {
 						return nil, fmt.Errorf("failed to add Helm repository: %w", err)
 					}
 				}
 
-				tempPaths := paths.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), paths.NewBase64PathEncoder())
+				tempPaths := paths.NewStaticTempPaths(
+					filepath.Join(os.TempDir(), "charts"),
+					paths.NewBase64PathEncoder(),
+				)
 				helmClient, err := helm.NewClient(tempPaths, project)
 				if err != nil {
 					return nil, fmt.Errorf("failed to create helm client: %w", err)

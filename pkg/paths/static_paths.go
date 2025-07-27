@@ -63,7 +63,8 @@ func (p *StaticTempPaths) GetKey(path string) (string, error) {
 // GetPathIfExists gets a path for the given key if it exists. Otherwise, returns an empty string.
 func (p *StaticTempPaths) GetPathIfExists(key string) string {
 	path := p.keyToPath(key)
-	if _, err := os.Stat(path); err != nil {
+	_, err := os.Stat(path)
+	if err != nil {
 		return ""
 	}
 
