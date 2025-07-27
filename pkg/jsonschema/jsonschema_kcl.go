@@ -8,7 +8,7 @@ import (
 
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
 
-	"github.com/MacroPower/kclipper/pkg/kclgen"
+	"github.com/macropower/kclipper/pkg/kclgen"
 )
 
 // ConvertToKCLSchema converts a JSON schema to a KCL schema.

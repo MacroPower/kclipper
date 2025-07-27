@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/paths"
+	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/paths"
 )
 
 func TestAddRepo(t *testing.T) {

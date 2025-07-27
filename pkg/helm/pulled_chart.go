@@ -17,7 +17,7 @@ import (
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/helmrepo"
 )
 
 var (

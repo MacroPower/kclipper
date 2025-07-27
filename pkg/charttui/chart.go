@@ -8,10 +8,10 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/MacroPower/kclipper/pkg/chartcmd"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclchart"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclhelm"
-	"github.com/MacroPower/kclipper/pkg/log"
+	"github.com/macropower/kclipper/pkg/chartcmd"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/log"
 )
 
 type ChartTUI struct {

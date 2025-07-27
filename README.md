@@ -94,7 +94,7 @@ charts: helm.Charts = {
 
 ![kcl chart update](./docs/demos/chart-update.gif)
 
-Also works with [Renovate](https://github.com/renovatebot/renovate)! You can find [example pull requests](https://github.com/MacroPower/kclipper/pull/18) and a [config file](.github/renovate.json5) in this repo.
+Also works with [Renovate](https://github.com/renovatebot/renovate)! You can find [example pull requests](https://github.com/macropower/kclipper/pull/18) and a [config file](.github/renovate.json5) in this repo.
 
 ---
 
@@ -165,9 +165,9 @@ appConfiguration: frontend.App {
 
 ## Installation
 
-> :warning: You should not currently use kclipper in multi-tenant Argo CD environments. See [#2](https://github.com/MacroPower/kclipper/issues/2).
+> :warning: You should not currently use kclipper in multi-tenant Argo CD environments. See [#2](https://github.com/macropower/kclipper/issues/2).
 
-OCI artifacts for KCL are available under [packages](https://github.com/MacroPower/kclipper/pkgs/container/kclipper).
+OCI artifacts for KCL are available under [packages](https://github.com/macropower/kclipper/pkgs/container/kclipper).
 
 The binary name for kclipper is still just `kcl`, so it can be used as a drop-in replacement for official KCL binaries. Versions are tagged independently of upstream KCL, e.g. kclipper `v0.1.0` maps to kcl `v0.11.0`, but kclipper releases still follow semver with consideration for upstream KCL changes.
 
@@ -187,7 +187,7 @@ kcl-language-server version
 
 ### Using Docker
 
-Docker images are available under [packages](https://github.com/MacroPower/kclipper/pkgs/container/kclipper), e.g.:
+Docker images are available under [packages](https://github.com/macropower/kclipper/pkgs/container/kclipper), e.g.:
 
 ```bash
 docker pull ghcr.io/macropower/kclipper:latest
@@ -197,7 +197,7 @@ To use kclipper with Argo CD, see the [Argo CD Config Management Plugin](./docs/
 
 ### Using Release Archives
 
-Binary archives are posted in [releases](https://github.com/MacroPower/kclipper/releases).
+Binary archives are posted in [releases](https://github.com/macropower/kclipper/releases).
 
 ## Usage
 

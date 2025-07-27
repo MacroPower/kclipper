@@ -7,7 +7,7 @@ import (
 
 	kclversion "kcl-lang.io/cli/pkg/version"
 
-	"github.com/MacroPower/kclipper/pkg/version"
+	"github.com/macropower/kclipper/pkg/version"
 )
 
 func GetVersionString() string {

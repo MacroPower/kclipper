@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/MacroPower/kclipper/pkg/kclgen"
+	"github.com/macropower/kclipper/pkg/kclgen"
 )
 
 const (
@@ -53,14 +53,14 @@ schema Test:
 schema Test:
     # A string field
     field1: str = "default" # with comment
-    
+
     # A multiline field
     field2: str = r"""
 multi
 line
 string
 """
-    
+
     # A number field
     field3: int = 42
 `
@@ -69,10 +69,10 @@ string
 schema Test:
     # A string field
     field1: str
-    
+
     # A multiline field
     field2: str
-    
+
     # A number field
     field3: int
 `

@@ -11,8 +11,8 @@ import (
 	crdgen "kcl-lang.io/kcl-openapi/pkg/kube_resource/generator"
 	swaggergen "kcl-lang.io/kcl-openapi/pkg/swagger/generator"
 
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
-	"github.com/MacroPower/kclipper/pkg/syncs"
+	"github.com/macropower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/syncs"
 )
 
 // GenOpenAPI is a concurrency-safe KCL OpenAPI/CRD generator.

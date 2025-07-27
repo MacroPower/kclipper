@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/version"
+	"github.com/macropower/kclipper/pkg/version"
 )
 
 func TestVersion(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/kclautomation"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
 )
 
 const initialRepoContents = `import helm

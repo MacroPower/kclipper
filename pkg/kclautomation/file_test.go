@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/kclautomation"
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/kclerrors"
 )
 
 func TestFile_OverrideFile(t *testing.T) {

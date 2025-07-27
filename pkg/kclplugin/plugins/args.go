@@ -5,7 +5,7 @@ import (
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kclerrors"
 )
 
 // SafeMethodArgs provides safe access to KCL plugin method arguments.

@@ -6,7 +6,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/MacroPower/kclipper/pkg/kube"
+	"github.com/macropower/kclipper/pkg/kube"
 )
 
 // ReaderGenerator reads CRDs from a given location and returns

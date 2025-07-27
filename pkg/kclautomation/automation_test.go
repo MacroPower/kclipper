@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/kclautomation"
 )
 
 func TestNewString(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 
-	filepathplugin "github.com/MacroPower/kclipper/pkg/kclplugin/filepath"
+	filepathplugin "github.com/macropower/kclipper/pkg/kclplugin/filepath"
 )
 
 func TestPluginFilepath(t *testing.T) {

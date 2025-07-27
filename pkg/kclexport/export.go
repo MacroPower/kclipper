@@ -11,7 +11,7 @@ import (
 
 	kclgen "kcl-lang.io/kcl-go/pkg/tools/gen"
 
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kclerrors"
 )
 
 // Export is a concurrency-safe KCL exporter.

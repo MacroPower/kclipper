@@ -6,8 +6,8 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/MacroPower/kclipper/pkg/crd"
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/jsonschema"
 )
 
 // Configuration that can be defined in `charts.k`, in addition to those

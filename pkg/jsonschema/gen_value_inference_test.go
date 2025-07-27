@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/jsonschema"
 )
 
 func TestValueInferenceGenerator(t *testing.T) {

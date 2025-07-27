@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kclerrors"
 )
 
 // MapValue represents a value that can be either a string or a boolean.

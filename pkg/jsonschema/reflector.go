@@ -9,7 +9,7 @@ import (
 
 	invopopjsonschema "github.com/invopop/jsonschema"
 
-	"github.com/MacroPower/kclipper/pkg/kclgen"
+	"github.com/macropower/kclipper/pkg/kclgen"
 )
 
 type Reflector struct {

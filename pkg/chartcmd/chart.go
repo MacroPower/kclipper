@@ -11,10 +11,10 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/kclautomation"
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
-	"github.com/MacroPower/kclipper/pkg/paths"
+	"github.com/macropower/kclipper/pkg/helm"
+	"github.com/macropower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/paths"
 )
 
 type KCLPackage struct {

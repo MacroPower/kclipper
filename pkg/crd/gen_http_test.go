@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/MacroPower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/crd"
 )
 
 // MockHTTPClient implements the HTTPDoer interface for testing

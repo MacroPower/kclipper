@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/log"
+	"github.com/macropower/kclipper/pkg/log"
 )
 
 func TestGetLevel(t *testing.T) {

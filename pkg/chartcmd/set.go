@@ -10,8 +10,8 @@ import (
 
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/kclautomation"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/macropower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 )
 
 func (c *KCLPackage) Set(chart, keyValueOverrides string) error {

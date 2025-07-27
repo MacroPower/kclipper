@@ -11,7 +11,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 
-	helmplugin "github.com/MacroPower/kclipper/pkg/kclplugin/helm"
+	helmplugin "github.com/macropower/kclipper/pkg/kclplugin/helm"
 )
 
 var testDataDir string

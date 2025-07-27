@@ -24,7 +24,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/MacroPower/kclipper/pkg/syncs"
+	"github.com/macropower/kclipper/pkg/syncs"
 )
 
 func TestLockLock(t *testing.T) {

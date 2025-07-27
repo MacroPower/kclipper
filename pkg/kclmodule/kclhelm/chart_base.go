@@ -5,7 +5,7 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/jsonschema"
 )
 
 // Represents attributes common in `helm.Chart` and `helm.ChartConfig`.

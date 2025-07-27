@@ -3,8 +3,8 @@ package kclchart
 import (
 	"regexp"
 
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
 )
 
 type (

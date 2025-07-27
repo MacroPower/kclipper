@@ -6,7 +6,7 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/jsonschema"
 )
 
 // ValueInferenceConfig defines configuration for value inference via dadav/helm-schema.

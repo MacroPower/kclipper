@@ -13,9 +13,9 @@ import (
 	"helm.sh/helm/v3/pkg/registry"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/paths"
-	"github.com/MacroPower/kclipper/pkg/syncs"
+	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/paths"
+	"github.com/macropower/kclipper/pkg/syncs"
 )
 
 var (

@@ -12,7 +12,7 @@ import (
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 
-	"github.com/MacroPower/kclipper/cmd/kclipper/commands"
+	"github.com/macropower/kclipper/cmd/kclipper/commands"
 )
 
 const (

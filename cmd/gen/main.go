@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
 )
 
 func main() {

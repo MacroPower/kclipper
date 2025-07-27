@@ -14,13 +14,13 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/crd"
-	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
-	"github.com/MacroPower/kclipper/pkg/kclautomation"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclchart"
-	"github.com/MacroPower/kclipper/pkg/paths"
+	"github.com/macropower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/helm"
+	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/macropower/kclipper/pkg/paths"
 )
 
 const initialChartContents = `import helm

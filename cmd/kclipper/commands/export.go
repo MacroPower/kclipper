@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/MacroPower/kclipper/pkg/kclexport"
+	"github.com/macropower/kclipper/pkg/kclexport"
 )
 
 const (

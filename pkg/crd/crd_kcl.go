@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/MacroPower/kclipper/pkg/kclgen"
+	"github.com/macropower/kclipper/pkg/kclgen"
 )
 
 // KCLPackage represents a KCL package that contains CRD schemas.

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kclerrors"
 )
 
 // FindTopPkgRoot finds the topmost `kcl.mod` file for the provided path. It is

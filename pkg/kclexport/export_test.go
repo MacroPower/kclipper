@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
-	"github.com/MacroPower/kclipper/pkg/kclexport"
+	"github.com/macropower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kclexport"
 )
 
 func TestExporter_ExportSchemaToJSON(t *testing.T) {

@@ -10,8 +10,8 @@ import (
 	"github.com/charmbracelet/x/exp/teatest"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/chartcmd"
-	"github.com/MacroPower/kclipper/pkg/charttui"
+	"github.com/macropower/kclipper/pkg/chartcmd"
+	"github.com/macropower/kclipper/pkg/charttui"
 )
 
 func TestAddModel_Success(t *testing.T) {

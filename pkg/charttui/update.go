@@ -14,7 +14,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/MacroPower/kclipper/pkg/chartcmd"
+	"github.com/macropower/kclipper/pkg/chartcmd"
 )
 
 type UpdateModel struct {

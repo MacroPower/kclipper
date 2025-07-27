@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/cmd/kclipper/commands"
+	"github.com/macropower/kclipper/cmd/kclipper/commands"
 )
 
 func TestChartCmd(t *testing.T) {

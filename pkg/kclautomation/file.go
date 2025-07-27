@@ -7,7 +7,7 @@ import (
 
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kclerrors"
 )
 
 // File is a concurrency-safe KCL file writer.

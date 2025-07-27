@@ -15,7 +15,7 @@ import (
 	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 )
 
 var (

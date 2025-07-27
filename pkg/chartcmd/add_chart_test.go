@@ -9,12 +9,12 @@ import (
 	"kcl-lang.io/cli/pkg/options"
 	"kcl-lang.io/kcl-go"
 
-	"github.com/MacroPower/kclipper/pkg/chartcmd"
-	"github.com/MacroPower/kclipper/pkg/crd"
-	"github.com/MacroPower/kclipper/pkg/helmtest"
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclchart"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/chartcmd"
+	"github.com/macropower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/helmtest"
+	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
 )
 
 const (

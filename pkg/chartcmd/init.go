@@ -10,7 +10,7 @@ import (
 
 	kclpkg "kcl-lang.io/kpm/pkg/package"
 
-	"github.com/MacroPower/kclipper/pkg/version"
+	"github.com/macropower/kclipper/pkg/version"
 )
 
 func (c *KCLPackage) Init() (bool, error) {

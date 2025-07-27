@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/chartcmd"
-	"github.com/MacroPower/kclipper/pkg/helmtest"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/macropower/kclipper/pkg/chartcmd"
+	"github.com/macropower/kclipper/pkg/helmtest"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 )
 
 const (

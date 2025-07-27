@@ -12,7 +12,7 @@ import (
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 
-	"github.com/MacroPower/kclipper/pkg/log"
+	"github.com/macropower/kclipper/pkg/log"
 )
 
 var (

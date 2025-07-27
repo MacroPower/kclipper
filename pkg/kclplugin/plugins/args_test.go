@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
-	"github.com/MacroPower/kclipper/pkg/kclplugin/plugins"
+	"github.com/macropower/kclipper/pkg/kclplugin/plugins"
 )
 
 func TestSafeMethodArgs_Exists(t *testing.T) {

@@ -9,8 +9,8 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/kclautomation"
 )
 
 // Defines a Helm chart repository.

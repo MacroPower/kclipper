@@ -38,10 +38,10 @@ builds:
         {{- if and (eq .Os "darwin") (eq .Arch "arm64") -}} CXX={{ .Env.CXX_DARWIN_ARM64 }} {{- end -}}
     ldflags:
       - -s -w
-      - -X github.com/MacroPower/kclipper/pkg/version.Version={{.Version}}
-      - -X github.com/MacroPower/kclipper/pkg/version.Branch={{.Branch}}
-      - -X github.com/MacroPower/kclipper/pkg/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
-      - -X github.com/MacroPower/kclipper/pkg/version.BuildDate={{.Date}}
+      - -X github.com/macropower/kclipper/pkg/version.Version={{.Version}}
+      - -X github.com/macropower/kclipper/pkg/version.Branch={{.Branch}}
+      - -X github.com/macropower/kclipper/pkg/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
+      - -X github.com/macropower/kclipper/pkg/version.BuildDate={{.Date}}
     flags:
       - -trimpath
       - -tags={{ .Env.BUILD_TAGS }}
@@ -140,7 +140,7 @@ homebrew_casks:
       name: homebrew-tap
     url:
       template: &archiveTemplate >-
-        https://github.com/MacroPower/kclipper/releases/download/{{ .Tag }}/
+        https://github.com/macropower/kclipper/releases/download/{{ .Tag }}/
         {{- .ProjectName }}_
         {{- title .Os }}_
         {{- if eq .Arch "amd64" }}x86_64
@@ -164,7 +164,7 @@ homebrew_casks:
       template: *archiveTemplate
     commit_msg_template: "chore: cask update for {{ .ProjectName }} {{ .Tag }}"
     commit_author: *commitAuthor
-    homepage: "https://github.com/MacroPower/kclipper"
+    homepage: "https://github.com/macropower/kclipper"
     description: "Kclipper Command Line Interface"
     license: "Apache License"
     skip_upload: auto
@@ -191,7 +191,7 @@ nix:
     url_template: *archiveTemplate
     commit_msg_template: "chore: pkg update for {{ .ProjectName }} {{ .Tag }}"
     commit_author: *commitAuthor
-    homepage: "https://github.com/MacroPower/kclipper"
+    homepage: "https://github.com/macropower/kclipper"
     description: "Kclipper Command Line Interface"
     license: "asl20"
     skip_upload: auto

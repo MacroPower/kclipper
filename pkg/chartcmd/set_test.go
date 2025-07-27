@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/chartcmd"
+	"github.com/macropower/kclipper/pkg/chartcmd"
 )
 
 func TestKCLPackage_Set(t *testing.T) {

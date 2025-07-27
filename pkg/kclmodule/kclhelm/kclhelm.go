@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/jsonschema"
 )
 
 const (
@@ -32,7 +32,7 @@ var (
 func newSchemaReflector() (*jsonschema.Reflector, error) {
 	r := jsonschema.NewReflector()
 
-	err := r.AddGoComments("github.com/MacroPower/kclipper", "./pkg/kclmodule/kclhelm")
+	err := r.AddGoComments("github.com/macropower/kclipper", "./pkg/kclmodule/kclhelm")
 	if err != nil {
 		return nil, fmt.Errorf("failed to add go comments: %w", err)
 	}

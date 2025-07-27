@@ -1,4 +1,4 @@
-module github.com/MacroPower/kclipper
+module github.com/macropower/kclipper
 
 go 1.24.1
 

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/MacroPower/kclipper/pkg/paths"
+	"github.com/macropower/kclipper/pkg/paths"
 )
 
 var (

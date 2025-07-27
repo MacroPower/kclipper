@@ -12,11 +12,11 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
-	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclhelm"
-	"github.com/MacroPower/kclipper/pkg/kclplugin/plugins"
-	"github.com/MacroPower/kclipper/pkg/paths"
+	"github.com/macropower/kclipper/pkg/helm"
+	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/kclplugin/plugins"
+	"github.com/macropower/kclipper/pkg/paths"
 )
 
 const (

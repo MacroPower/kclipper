@@ -12,11 +12,11 @@ import (
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/MacroPower/kclipper/pkg/crd"
-	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/helmtest"
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/helm"
+	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/helmtest"
+	"github.com/macropower/kclipper/pkg/jsonschema"
 )
 
 func init() {

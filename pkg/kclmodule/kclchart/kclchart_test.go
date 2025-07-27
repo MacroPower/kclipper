@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/MacroPower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 )
 
 func TestGenerateChart(t *testing.T) {
@@ -18,6 +18,7 @@ func TestGenerateChart(t *testing.T) {
 	err := cc.GenerateKCL(b)
 	require.NoError(t, err)
 	require.NotEmpty(t, b.String())
+	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
 
@@ -25,6 +26,7 @@ func TestGenerateChart(t *testing.T) {
 	err = c.GenerateKCL(b)
 	require.NoError(t, err)
 	require.NotEmpty(t, b.String())
+	// assert.Equal(t, "", b.String())
 
 	b.Truncate(0)
 }

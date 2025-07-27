@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/MacroPower/kclipper/pkg/helm"
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/paths"
+	"github.com/macropower/kclipper/pkg/helm"
+	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/paths"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	pkg, err := build.Default.Import("github.com/MacroPower/kclipper/pkg/helmtest", ".", build.FindOnly)
+	pkg, err := build.Default.Import("github.com/macropower/kclipper/pkg/helmtest", ".", build.FindOnly)
 	if err != nil {
 		panic(fmt.Errorf("failed to find package: %w", err))
 	}

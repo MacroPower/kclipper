@@ -8,7 +8,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/jsonschema"
 )
 
 // All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`.

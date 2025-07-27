@@ -10,9 +10,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/iancoleman/strcase"
 
-	"github.com/MacroPower/kclipper/pkg/crd"
-	"github.com/MacroPower/kclipper/pkg/jsonschema"
-	"github.com/MacroPower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/kclautomation"
 )
 
 type ChartData struct {

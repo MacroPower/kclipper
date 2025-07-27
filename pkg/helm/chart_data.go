@@ -14,8 +14,8 @@ import (
 
 	helmkube "helm.sh/helm/v3/pkg/kube"
 
-	"github.com/MacroPower/kclipper/pkg/helmrepo"
-	"github.com/MacroPower/kclipper/pkg/kube"
+	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/kube"
 )
 
 var (
