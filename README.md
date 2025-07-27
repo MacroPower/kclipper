@@ -5,6 +5,15 @@
 
 <p align="center"><i>KCL + Helm = kclipper</i></p>
 
+<p align="center">
+  <a href="https://pkg.go.dev/github.com/macropower/kclipper"><img alt="Go Reference" src="https://pkg.go.dev/badge/github.com/macropower/kclipper.svg"></a>
+  <a href="https://goreportcard.com/report/github.com/macropower/kclipper"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/macropower/kclipper"></a>
+  <a href="https://codecov.io/gh/macropower/kclipper"><img src="https://codecov.io/gh/macropower/kclipper/graph/badge.svg?token=S9MJNCPGYK"/></a>
+  <a href="#installation"><img alt="GitHub Downloads" src="https://img.shields.io/github/downloads/macropower/kclipper/total"></a>
+  <a href="#installation"><img alt="Latest tag" src="https://img.shields.io/github/v/tag/macropower/kclipper?label=version&sort=semver"></a>
+  <a href="https://github.com/macropower/kclipper/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/macropower/kclipper"></a>
+</p>
+
 ## Overview
 
 [KCL](https://github.com/kcl-lang/kcl) is a constraint-based record & functional language mainly used in cloud-native configuration and policy scenarios. It is hosted by the Cloud Native Computing Foundation (CNCF) as a Sandbox Project. The KCL website can be found [here](https://kcl-lang.io/).
