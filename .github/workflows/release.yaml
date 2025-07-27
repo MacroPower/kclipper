@@ -28,6 +28,7 @@ jobs:
           repositories: |
             kclipper
             homebrew-tap
+            nur-packages
 
       - name: Checkout
         uses: actions/checkout@v4
