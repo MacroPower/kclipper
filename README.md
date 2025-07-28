@@ -174,8 +174,6 @@ appConfiguration: frontend.App {
 
 ## Installation
 
-> :warning: You should not currently use kclipper in multi-tenant Argo CD environments. See [#2](https://github.com/macropower/kclipper/issues/2).
-
 OCI artifacts for KCL are available under [packages](https://github.com/macropower/kclipper/pkgs/container/kclipper).
 
 The binary name for kclipper is still just `kcl`, so it can be used as a drop-in replacement for official KCL binaries. Versions are tagged independently of upstream KCL, e.g. kclipper `v0.1.0` maps to kcl `v0.11.0`, but kclipper releases still follow semver with consideration for upstream KCL changes.
