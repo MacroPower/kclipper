@@ -61,6 +61,17 @@ builds:
           dir: "{{ dir .Path }}"
           output: true
 
+
+gomod:
+  proxy: true
+
+checksum:
+  name_template: "checksums.txt"
+
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}"
+
 dockers:
   - goos: linux
     goarch: amd64
@@ -157,9 +168,7 @@ homebrew_casks:
     license: "Apache License"
     skip_upload: auto
     binary: kcl-language-server
-  - dependencies:
-      - cask: macropower/tap/kcl-lsp
-    repository: *brewRepo
+  - repository: *brewRepo
     url:
       template: *archiveTemplate
     commit_msg_template: "chore: cask update for {{ .ProjectName }} {{ .Tag }}"
@@ -195,5 +204,3 @@ nix:
     description: "Kclipper Command Line Interface"
     license: "asl20"
     skip_upload: auto
-    dependencies:
-      - kcl-lsp
