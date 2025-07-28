@@ -358,8 +358,9 @@ tasks:
       - rm -rf {{.SDK_PATH}}
       - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
       - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
-      - mkdir -p {{.INCLUDE_PATH}}
+      - mkdir -p {{.INCLUDE_PATH}}/mach
       - mkdir -p {{.LIB_PATH}}
       - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework/* {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
       - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/Security.framework/* {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
       - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/
+      - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach

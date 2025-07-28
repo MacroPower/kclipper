@@ -1,4 +1,8 @@
-The contents of this directory are the following deleted nix packages:
+# Vendored Packages
 
-- darwin.apple_sdk.frameworks.Security
-- darwin.apple_sdk.frameworks.CoreFoundation
+## macOS SDK Components
+
+Contains portions of the macOS SDK.
+
+**Copyright**: Copyright (c) Apple Inc.
+**Licenses**: APSL-2.0, Apache-2.0, MIT
