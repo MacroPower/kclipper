@@ -16,7 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
       packages: write
+      attestations: write
+    env:
+      MACOS_SIGN_P12: ${{ secrets.MACOS_SIGN_P12 }}
+      MACOS_SIGN_PASSWORD: ${{ secrets.MACOS_SIGN_PASSWORD }}
+      MACOS_NOTARY_KEY: ${{ secrets.MACOS_NOTARY_KEY }}
+      MACOS_NOTARY_KEY_ID: ${{ secrets.MACOS_NOTARY_KEY_ID }}
+      MACOS_NOTARY_ISSUER_ID: ${{ secrets.MACOS_NOTARY_ISSUER_ID }}
     steps:
       - name: Generate Token
         uses: actions/create-github-app-token@v2
@@ -60,6 +68,11 @@ jobs:
         run: devbox run -- task go-release
         env:
           GITHUB_TOKEN: "${{ steps.app-token.outputs.token }}"
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-checksums: ./dist/checksums.txt
 
   kcl-mod:
     name: kcl-mod

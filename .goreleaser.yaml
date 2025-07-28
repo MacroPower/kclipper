@@ -61,65 +61,6 @@ builds:
           dir: "{{ dir .Path }}"
           output: true
 
-
-gomod:
-  proxy: true
-
-checksum:
-  name_template: "checksums.txt"
-
-source:
-  enabled: true
-  name_template: "{{ .ProjectName }}"
-
-dockers:
-  - goos: linux
-    goarch: amd64
-    dockerfile: Dockerfile
-    use: buildx
-    image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-    build_flag_templates:
-      - '--platform=linux/amd64'
-      - '--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}'
-      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
-      - '--label=org.opencontainers.image.version={{ .Tag }}'
-      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
-      - '--label=org.opencontainers.image.created={{ .Date }}'
-      - '--label=org.opencontainers.image.source={{ .GitURL }}'
-  - goos: linux
-    goarch: arm64
-    dockerfile: Dockerfile
-    use: buildx
-    image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
-    build_flag_templates:
-      - '--platform=linux/arm64'
-      - '--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}'
-      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
-      - '--label=org.opencontainers.image.version={{ .Tag }}'
-      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
-      - '--label=org.opencontainers.image.created={{ .Date }}'
-      - '--label=org.opencontainers.image.source={{ .GitURL }}'
-
-docker_manifests:
-  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:latest'
-    image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
-  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}'
-    image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
-  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}'
-    image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
-  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}'
-    image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
-
 archives:
   - formats: [tar.gz]
     name_template: >-
@@ -133,16 +74,64 @@ archives:
       - src: "dist/*{{.Os}}_{{.Arch}}*/kcl-language-server"
         strip_parent: true
       - LICENSE
+
+gomod:
+  proxy: true
+
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
+
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}"
+
+sboms:
+  - artifacts: archive
+  - id: source
+    artifacts: source
+
+# https://goreleaser.com/customization/sign
+signs:
+  - cmd: cosign
+    certificate: "${artifact}.pem"
+    args:
+      - sign-blob
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: checksum
+    output: true
+
+notarize:
+  # https://goreleaser.com/customization/notarize/#cross-platform
+  macos:
+    - enabled: '{{ isEnvSet "MACOS_SIGN_P12" }}'
+      sign:
+        certificate: "{{.Env.MACOS_SIGN_P12}}"
+        password: "{{.Env.MACOS_SIGN_PASSWORD}}"
+        entitlements: resources/entitlements.xml
+      notarize:
+        issuer_id: "{{.Env.MACOS_NOTARY_ISSUER_ID}}"
+        key_id: "{{.Env.MACOS_NOTARY_KEY_ID}}"
+        key: "{{.Env.MACOS_NOTARY_KEY}}"
+        wait: true
+        timeout: 30m
+
 snapshot:
-  version_template: '{{ incpatch .Version }}-next'
+  version_template: "{{ incpatch .Version }}-next"
+
 changelog:
   sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
 
 homebrew_casks:
   - name: kcl-lsp
@@ -204,3 +193,60 @@ nix:
     description: "Kclipper Command Line Interface"
     license: "asl20"
     skip_upload: auto
+
+docker_manifests:
+  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:latest'
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}'
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}'
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}'
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+
+dockers:
+  - goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
+    use: buildx
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+    build_flag_templates:
+      - '--platform=linux/amd64'
+      - '--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}'
+      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
+      - '--label=org.opencontainers.image.version={{ .Tag }}'
+      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
+      - '--label=org.opencontainers.image.created={{ .Date }}'
+      - '--label=org.opencontainers.image.source={{ .GitURL }}'
+  - goos: linux
+    goarch: arm64
+    dockerfile: Dockerfile
+    use: buildx
+    image_templates:
+      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+    build_flag_templates:
+      - '--platform=linux/arm64'
+      - '--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}'
+      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
+      - '--label=org.opencontainers.image.version={{ .Tag }}'
+      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
+      - '--label=org.opencontainers.image.created={{ .Date }}'
+      - '--label=org.opencontainers.image.source={{ .GitURL }}'
+
+docker_signs:
+  - cmd: cosign
+    artifacts: images
+    output: true
+    args:
+      - "sign"
+      - "${artifact}@${digest}"
+      - "--yes"
