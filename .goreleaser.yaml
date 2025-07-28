@@ -166,6 +166,7 @@ homebrew_casks:
     description: "Kclipper Command Line Interface"
     license: "Apache License"
     skip_upload: auto
+    binary: kcl
 
 nix:
   - name: kcl-lsp
