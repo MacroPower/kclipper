@@ -253,7 +253,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecDataFromItems0SourceRefGeneratorRef:
         Specify the name of the generator resource
     """
     apiVersion?: str = "generators.external-secrets.io/v1alpha1"
-    kind: "ACRAccessToken" | "ClusterGenerator" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
+    kind: "ACRAccessToken" | "ClusterGenerator" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
 
     name: str
 
@@ -366,7 +366,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecDataItems0SourceRefGeneratorRef:
         Specify the name of the generator resource
     """
     apiVersion?: str = "generators.external-secrets.io/v1alpha1"
-    kind: "ACRAccessToken" | "ClusterGenerator" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
+    kind: "ACRAccessToken" | "ClusterGenerator" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
 
     name: str
 

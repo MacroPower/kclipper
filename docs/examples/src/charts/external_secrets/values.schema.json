@@ -41,6 +41,10 @@
           "required": [],
           "type": "array"
         },
+        "extraInitContainers": {
+          "required": [],
+          "type": "array"
+        },
         "extraVolumeMounts": {
           "required": [],
           "type": "array"
@@ -387,6 +391,10 @@
       "type": "array"
     },
     "extraEnv": {
+      "required": [],
+      "type": "array"
+    },
+    "extraInitContainers": {
       "required": [],
       "type": "array"
     },
@@ -900,6 +908,10 @@
           "type": "object"
         },
         "extraEnv": {
+          "required": [],
+          "type": "array"
+        },
+        "extraInitContainers": {
           "required": [],
           "type": "array"
         },
