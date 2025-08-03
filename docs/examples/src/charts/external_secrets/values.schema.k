@@ -24,6 +24,7 @@ schema Values:
     extraArgs : ValuesExtraArgs, optional
     extraContainers : any, optional
     extraEnv : any, optional
+    extraInitContainers : any, optional
     extraObjects : any, optional
     extraVolumeMounts : any, optional
     extraVolumes : any, optional
@@ -80,6 +81,7 @@ schema Values:
     extraArgs?: ValuesExtraArgs
     extraContainers?: any
     extraEnv?: any
+    extraInitContainers?: any
     extraObjects?: any
     extraVolumeMounts?: any
     extraVolumes?: any
@@ -150,6 +152,7 @@ schema ValuesCertController:
     deploymentAnnotations : ValuesCertControllerDeploymentAnnotations, optional
     extraArgs : ValuesCertControllerExtraArgs, optional
     extraEnv : any, optional
+    extraInitContainers : any, optional
     extraVolumeMounts : any, optional
     extraVolumes : any, optional
     fullnameOverride : str, optional
@@ -181,6 +184,7 @@ schema ValuesCertController:
     deploymentAnnotations?: ValuesCertControllerDeploymentAnnotations
     extraArgs?: ValuesCertControllerExtraArgs
     extraEnv?: any
+    extraInitContainers?: any
     extraVolumeMounts?: any
     extraVolumes?: any
     fullnameOverride?: str
@@ -846,6 +850,7 @@ schema ValuesWebhook:
     deploymentAnnotations : ValuesWebhookDeploymentAnnotations, optional
     extraArgs : ValuesWebhookExtraArgs, optional
     extraEnv : any, optional
+    extraInitContainers : any, optional
     extraVolumeMounts : any, optional
     extraVolumes : any, optional
     failurePolicy : str, optional
@@ -885,6 +890,7 @@ schema ValuesWebhook:
     deploymentAnnotations?: ValuesWebhookDeploymentAnnotations
     extraArgs?: ValuesWebhookExtraArgs
     extraEnv?: any
+    extraInitContainers?: any
     extraVolumeMounts?: any
     extraVolumes?: any
     failurePolicy?: str
