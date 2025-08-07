@@ -226,6 +226,9 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0:
     msteamsConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0], default is Undefined, optional
         List of MSTeams configurations.
         It requires Alertmanager >= 0.26.0.
+    msteamsv2Configs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0], default is Undefined, optional
+        List of MSTeamsV2 configurations.
+        It requires Alertmanager >= 0.28.0.
     name : str, default is Undefined, required
         Name of the receiver. Must be unique across all items from the list.
     opsgenieConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0], default is Undefined, optional
@@ -252,6 +255,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0:
     discordConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0]
     emailConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0]
     msteamsConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0]
+    msteamsv2Configs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0]
     name: str
 
     opsgenieConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0]
@@ -277,6 +281,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     ----------
     apiURL : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL, default is Undefined, required
         api URL
+    avatarURL : str, default is Undefined, optional
+        The avatar url of the message sender.
+    content : str, default is Undefined, optional
+        The template of the content's body.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     message : str, default is Undefined, optional
@@ -285,13 +293,23 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
         Whether or not to notify about resolved alerts.
     title : str, default is Undefined, optional
         The template of the message's title.
+    username : str, default is Undefined, optional
+        The username of the message sender.
     """
     apiURL: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL
 
+    avatarURL?: str
+    content?: str
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfig
     message?: str
     sendResolved?: bool
     title?: str
+    username?: str
+
+    check:
+        _regex_match(str(avatarURL), r"^https?://.+$") if avatarURL
+        len(content) >= 1 if content
+        len(username) >= 1 if username
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL:
     r"""
@@ -336,18 +354,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -370,7 +388,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -517,16 +535,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -550,7 +568,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientID:
@@ -675,11 +693,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -868,11 +886,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1157,11 +1175,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1358,18 +1376,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -1392,7 +1410,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -1539,16 +1557,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -1572,7 +1590,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientID:
@@ -1697,11 +1715,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1890,11 +1908,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -2066,6 +2084,762 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     name?: str = ""
     optional?: bool
 
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0:
+    r"""
+    MSTeamsV2Config configures notifications via Microsoft Teams using the new message format with adaptive cards as required by flows
+    See https://prometheus.io/docs/alerting/latest/configuration/#msteamsv2_config
+    It requires Alertmanager >= 0.28.0.
+
+    Attributes
+    ----------
+    httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfig, default is Undefined, optional
+        http config
+    sendResolved : bool, default is Undefined, optional
+        Whether to notify about resolved alerts.
+    text : str, default is Undefined, optional
+        Message body template.
+    title : str, default is Undefined, optional
+        Message title template.
+    webhookURL : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0WebhookURL, default is Undefined, optional
+        webhook URL
+    """
+    httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfig
+    sendResolved?: bool
+    text?: str
+    title?: str
+    webhookURL?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0WebhookURL
+
+    check:
+        len(text) >= 1 if text
+        len(title) >= 1 if title
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfig:
+    r"""
+    HTTP client configuration.
+
+    Attributes
+    ----------
+    authorization : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorization, default is Undefined, optional
+        authorization
+    basicAuth : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuth, default is Undefined, optional
+        basic auth
+    bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
+        bearer token secret
+    followRedirects : bool, default is Undefined, optional
+        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2, default is Undefined, optional
+        oauth2
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyURL : str, default is Undefined, optional
+        Optional proxy URL.
+
+        If defined, this field takes precedence over `proxyUrl`.
+    proxyUrl : str, default is Undefined, optional
+        `proxyURL` defines the HTTP proxy server to use.
+    tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
+        tls config
+    """
+    authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorization
+    basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuth
+    bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBearerTokenSecret
+    followRedirects?: bool
+    noProxy?: str
+    oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyURL?: str
+    proxyUrl?: str
+    tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfig
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorization:
+    r"""
+    Authorization header configuration for the client.
+    This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
+
+    Attributes
+    ----------
+    credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
+        credentials
+    $type : str, default is Undefined, optional
+        Defines the authentication type. The value is case-insensitive.
+
+        "Basic" is not a supported value.
+
+        Default: "Bearer"
+    """
+    credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorizationCredentials
+    $type?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorizationCredentials:
+    r"""
+    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuth:
+    r"""
+    BasicAuth for the client.
+    This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
+
+    Attributes
+    ----------
+    password : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthPassword, default is Undefined, optional
+        password
+    username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
+        username
+    """
+    password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthPassword
+    username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthUsername
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthPassword:
+    r"""
+    `password` specifies a key of a Secret containing the password for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthUsername:
+    r"""
+    `username` specifies a key of a Secret containing the username for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBearerTokenSecret:
+    r"""
+    The secret's key that contains the bearer token to be used by the client
+    for authentication.
+    The secret needs to be in the same namespace as the AlertmanagerConfig
+    object and accessible by the Prometheus Operator.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2:
+    r"""
+    OAuth2 client credentials used to fetch a token for the targets.
+
+    Attributes
+    ----------
+    clientId : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientID, default is Undefined, required
+        client Id
+    clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
+        client secret
+    endpointParams : {str:str}, default is Undefined, optional
+        `endpointParams` configures the HTTP parameters to append to the token
+        URL.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyUrl : str, default is Undefined, optional
+        `proxyURL` defines the HTTP proxy server to use.
+    scopes : [str], default is Undefined, optional
+        `scopes` defines the OAuth2 scopes used for the token request.
+    tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
+        tls config
+    tokenUrl : str, default is Undefined, required
+        `tokenURL` configures the URL to fetch the token from.
+    """
+    clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientID
+
+    clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientSecret
+
+    endpointParams?: {str:str}
+    noProxy?: str
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyUrl?: str
+    scopes?: [str]
+    tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfig
+    tokenUrl: str
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+        len(tokenUrl) >= 1
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientID:
+    r"""
+    `clientId` specifies a key of a Secret or ConfigMap containing the
+    OAuth2 client's ID.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientSecret:
+    r"""
+    `clientSecret` specifies a key of a Secret containing the OAuth2
+    client's secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfig:
+    r"""
+    TLS configuration to use when connecting to the OAuth2 server.
+    It requires Prometheus >= v2.43.0.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCa
+    cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfig:
+    r"""
+    TLS configuration for the client.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCa
+    cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0WebhookURL:
+    r"""
+    MSTeams incoming webhook URL.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0:
     r"""
     OpsGenieConfig configures notifications via OpsGenie.
@@ -2182,18 +2956,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -2216,7 +2990,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -2363,16 +3137,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -2396,7 +3170,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientID:
@@ -2521,11 +3295,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -2714,11 +3488,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -2987,18 +3761,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -3021,7 +3795,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -3168,16 +3942,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -3201,7 +3975,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientID:
@@ -3326,11 +4100,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -3519,11 +4293,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -3845,18 +4619,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -3879,7 +4653,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -4026,16 +4800,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -4059,7 +4833,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientID:
@@ -4184,11 +4958,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -4377,11 +5151,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -4790,18 +5564,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -4824,7 +5598,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -4971,16 +5745,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -5004,7 +5778,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientID:
@@ -5129,11 +5903,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -5322,11 +6096,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -5538,18 +6312,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -5572,7 +6346,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -5719,16 +6493,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -5752,7 +6526,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientID:
@@ -5877,11 +6651,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -6070,11 +6844,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -6383,18 +7157,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -6417,7 +7191,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -6564,16 +7338,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -6597,7 +7371,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientID:
@@ -6722,11 +7496,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -6915,11 +7689,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -7169,18 +7943,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -7203,7 +7977,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -7350,16 +8124,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -7383,7 +8157,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientID:
@@ -7508,11 +8282,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -7701,11 +8475,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -7905,18 +8679,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -7939,7 +8713,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -8086,16 +8860,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -8119,7 +8893,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientID:
@@ -8244,11 +9018,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -8437,11 +9211,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -8604,6 +9378,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
         Maximum number of alerts to be sent per webhook message. When 0, all alerts are included.
     sendResolved : bool, default is Undefined, optional
         Whether or not to notify about resolved alerts.
+    timeout : str, default is Undefined, optional
+        The maximum time to wait for a webhook request to complete, before failing the
+        request and allowing it to be retried.
+        It requires Alertmanager >= v0.28.0.
     url : str, default is Undefined, optional
         The URL to send HTTP POST requests to. `urlSecret` takes precedence over
         `url`. One of `urlSecret` and `url` should be defined.
@@ -8613,11 +9391,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig
     maxAlerts?: int
     sendResolved?: bool
+    timeout?: str
     url?: str
     urlSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0URLSecret
 
     check:
         maxAlerts >= 0 if maxAlerts not in [None, Undefined]
+        _regex_match(str(timeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if timeout
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig:
     r"""
@@ -8638,18 +9418,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -8672,7 +9452,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -8819,16 +9599,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -8852,7 +9632,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientID:
@@ -8977,11 +9757,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -9170,11 +9950,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -9435,18 +10215,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
         Optional proxy URL.
 
@@ -9469,7 +10249,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorization:
     r"""
@@ -9616,16 +10396,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -9649,7 +10429,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientID:
@@ -9774,11 +10554,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -9967,11 +10747,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
