@@ -62,6 +62,7 @@ schema Values:
     service : ValuesService, optional
     serviceAccount : ValuesServiceAccount, optional
     serviceMonitor : ValuesServiceMonitor, optional
+    strategy : ValuesStrategy, optional
     tolerations : any, optional
     topologySpreadConstraints : any, optional
     webhook : ValuesWebhook, optional
@@ -119,6 +120,7 @@ schema Values:
     service?: ValuesService
     serviceAccount?: ValuesServiceAccount
     serviceMonitor?: ValuesServiceMonitor
+    strategy?: ValuesStrategy
     tolerations?: any
     topologySpreadConstraints?: any
     webhook?: ValuesWebhook
@@ -176,6 +178,7 @@ schema ValuesCertController:
     revisionHistoryLimit : int, optional
     securityContext : ValuesCertControllerSecurityContext, optional
     serviceAccount : ValuesCertControllerServiceAccount, optional
+    strategy : ValuesCertControllerStrategy, optional
     tolerations : any, optional
     topologySpreadConstraints : any, optional
     """
@@ -208,6 +211,7 @@ schema ValuesCertController:
     revisionHistoryLimit?: int
     securityContext?: ValuesCertControllerSecurityContext
     serviceAccount?: ValuesCertControllerServiceAccount
+    strategy?: ValuesCertControllerStrategy
     tolerations?: any
     topologySpreadConstraints?: any
 
@@ -436,6 +440,12 @@ schema ValuesCertControllerServiceAccountAnnotations:
 schema ValuesCertControllerServiceAccountExtraLabels:
     r"""
     ValuesCertControllerServiceAccountExtraLabels
+    """
+    [...str]: any
+
+schema ValuesCertControllerStrategy:
+    r"""
+    ValuesCertControllerStrategy
     """
     [...str]: any
 
@@ -835,6 +845,12 @@ schema ValuesServiceMonitorAdditionalLabels:
     """
     [...str]: any
 
+schema ValuesStrategy:
+    r"""
+    ValuesStrategy
+    """
+    [...str]: any
+
 schema ValuesWebhook:
     r"""
     ValuesWebhook
@@ -878,6 +894,7 @@ schema ValuesWebhook:
     securityContext : ValuesWebhookSecurityContext, optional
     service : ValuesWebhookService, optional
     serviceAccount : ValuesWebhookServiceAccount, optional
+    strategy : ValuesWebhookStrategy, optional
     tolerations : any, optional
     topologySpreadConstraints : any, optional
     """
@@ -918,6 +935,7 @@ schema ValuesWebhook:
     securityContext?: ValuesWebhookSecurityContext
     service?: ValuesWebhookService
     serviceAccount?: ValuesWebhookServiceAccount
+    strategy?: ValuesWebhookStrategy
     tolerations?: any
     topologySpreadConstraints?: any
 
@@ -1242,6 +1260,12 @@ schema ValuesWebhookServiceAnnotations:
 schema ValuesWebhookServiceLabels:
     r"""
     ValuesWebhookServiceLabels
+    """
+    [...str]: any
+
+schema ValuesWebhookStrategy:
+    r"""
+    ValuesWebhookStrategy
     """
     [...str]: any
 
