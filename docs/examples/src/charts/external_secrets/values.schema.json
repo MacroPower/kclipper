@@ -298,6 +298,10 @@
           "required": [],
           "type": "object"
         },
+        "strategy": {
+          "required": [],
+          "type": "object"
+        },
         "tolerations": {
           "required": [],
           "type": "array"
@@ -811,6 +815,10 @@
       "required": [],
       "type": "object"
     },
+    "strategy": {
+      "required": [],
+      "type": "object"
+    },
     "tolerations": {
       "required": [],
       "type": "array"
@@ -1203,6 +1211,10 @@
               "type": "string"
             }
           },
+          "required": [],
+          "type": "object"
+        },
+        "strategy": {
           "required": [],
           "type": "object"
         },
