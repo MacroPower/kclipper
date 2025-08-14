@@ -1,4 +1,4 @@
-FROM debian:12-slim
+FROM debian:13-slim
 
 ENV LANG=en_US.utf8 \
     XDG_CACHE_HOME=/tmp/xdg_cache \
