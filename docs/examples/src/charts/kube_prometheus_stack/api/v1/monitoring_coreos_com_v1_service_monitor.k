@@ -29,6 +29,8 @@ schema ServiceMonitor:
         metadata
     spec : MonitoringCoreosComV1ServiceMonitorSpec, default is Undefined, required
         spec
+    status : MonitoringCoreosComV1ServiceMonitorStatus, default is Undefined, optional
+        status
     """
     apiVersion: "monitoring.coreos.com/v1" = "monitoring.coreos.com/v1"
 
@@ -36,6 +38,8 @@ schema ServiceMonitor:
 
     metadata?: v1.ObjectMeta
     spec: MonitoringCoreosComV1ServiceMonitorSpec
+
+    status?: MonitoringCoreosComV1ServiceMonitorStatus
 
 schema MonitoringCoreosComV1ServiceMonitorSpec:
     r"""
@@ -51,6 +55,9 @@ schema MonitoringCoreosComV1ServiceMonitorSpec:
         of uncompressed response body that will be accepted by Prometheus.
 
         It requires Prometheus >= v2.28.0.
+    convertClassicHistogramsToNHCB : bool, default is Undefined, optional
+        Whether to convert all scraped classic histograms into a native histogram with custom buckets.
+        It requires Prometheus >= v3.0.0.
     endpoints : [MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0], default is Undefined, required
         List of endpoints part of this ServiceMonitor.
         Defines how to scrape metrics from Kubernetes [Endpoints](https://kubernetes.io/docs/concepts/services-networking/service/#endpoints) objects.
@@ -133,6 +140,7 @@ schema MonitoringCoreosComV1ServiceMonitorSpec:
     """
     attachMetadata?: MonitoringCoreosComV1ServiceMonitorSpecAttachMetadata
     bodySizeLimit?: str
+    convertClassicHistogramsToNHCB?: bool
     endpoints: [MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0]
 
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
@@ -220,6 +228,12 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
     metricRelabelings : [MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0MetricRelabelingsItems0], default is Undefined, optional
         `metricRelabelings` configures the relabeling rules to apply to the
         samples before ingestion.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2, default is Undefined, optional
         oauth2
     params : {str:[str]}, default is Undefined, optional
@@ -232,9 +246,17 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
         Name of the Service port which this endpoint refers to.
 
         It takes precedence over `targetPort`.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` configures the HTTP Proxy URL (e.g.
-        "http://proxyserver:2195") to go through when scraping the target.
+        `proxyURL` defines the HTTP proxy server to use.
     relabelings : [MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0RelabelingsItems0], default is Undefined, optional
         `relabelings` configures the relabeling rules to apply the target's
         metadata labels.
@@ -280,10 +302,13 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
     honorTimestamps?: bool
     interval?: str
     metricRelabelings?: [MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0MetricRelabelingsItems0]
+    noProxy?: str
     oauth2?: MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2
     params?: {str:[str]}
     path?: str
     port?: str
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0ProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
     proxyUrl?: str
     relabelings?: [MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0RelabelingsItems0]
     scheme?: "http" | "https"
@@ -294,6 +319,7 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
 
     check:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
 
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Authorization:
@@ -502,16 +528,16 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -535,7 +561,7 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2ClientID:
@@ -660,11 +686,11 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -814,6 +840,28 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2TLSConfigKeyS
     name?: str = ""
     optional?: bool
 
+schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0RelabelingsItems0:
     r"""
     RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
@@ -889,11 +937,11 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1101,4 +1149,86 @@ schema MonitoringCoreosComV1ServiceMonitorSpecSelectorMatchExpressionsItems0:
     operator: str
 
     values?: [str]
+
+schema MonitoringCoreosComV1ServiceMonitorStatus:
+    r"""
+    This Status subresource is under active development and is updated only when the
+    "StatusForConfigurationResources" feature gate is enabled.
+
+    Most recent observed status of the ServiceMonitor. Read-only.
+    More info:
+    https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+
+    Attributes
+    ----------
+    bindings : [MonitoringCoreosComV1ServiceMonitorStatusBindingsItems0], default is Undefined, optional
+        The list of workload resources (Prometheus or PrometheusAgent) which select the configuration resource.
+    """
+    bindings?: [MonitoringCoreosComV1ServiceMonitorStatusBindingsItems0]
+
+schema MonitoringCoreosComV1ServiceMonitorStatusBindingsItems0:
+    r"""
+    WorkloadBinding is a link between a configuration resource and a workload resource.
+
+    Attributes
+    ----------
+    conditions : [MonitoringCoreosComV1ServiceMonitorStatusBindingsItems0ConditionsItems0], default is Undefined, optional
+        The current state of the configuration resource when bound to the referenced Prometheus object.
+    group : str, default is Undefined, required
+        The group of the referenced resource.
+    name : str, default is Undefined, required
+        The name of the referenced object.
+    namespace : str, default is Undefined, required
+        The namespace of the referenced object.
+    resource : str, default is Undefined, required
+        The type of resource being referenced (e.g. Prometheus or PrometheusAgent).
+    """
+    conditions?: [MonitoringCoreosComV1ServiceMonitorStatusBindingsItems0ConditionsItems0]
+    group: "monitoring.coreos.com"
+
+    name: str
+
+    namespace: str
+
+    resource: "prometheuses" | "prometheusagents"
+
+    check:
+        len(name) >= 1
+        len(namespace) >= 1
+
+schema MonitoringCoreosComV1ServiceMonitorStatusBindingsItems0ConditionsItems0:
+    r"""
+    ConfigResourceCondition describes the status of configuration resources linked to Prometheus, PrometheusAgent, Alertmanager, or ThanosRuler.
+
+    Attributes
+    ----------
+    lastTransitionTime : str, default is Undefined, required
+        LastTransitionTime is the time of the last update to the current status property.
+    message : str, default is Undefined, optional
+        Human-readable message indicating details for the condition's last transition.
+    observedGeneration : int, default is Undefined, optional
+        ObservedGeneration represents the .metadata.generation that the
+        condition was set based upon. For instance, if `.metadata.generation` is
+        currently 12, but the `.status.conditions[].observedGeneration` is 9, the
+        condition is out of date with respect to the current state of the object.
+    reason : str, default is Undefined, optional
+        Reason for the condition's last transition.
+    status : str, default is Undefined, required
+        Status of the condition.
+    $type : str, default is Undefined, required
+        Type of the condition being reported.
+        Currently, only "Accepted" is supported.
+    """
+    lastTransitionTime: str
+
+    message?: str
+    observedGeneration?: int
+    reason?: str
+    status: str
+
+    $type: "Accepted"
+
+    check:
+        len(status) >= 1
+        len($type) >= 1
 
