@@ -323,9 +323,11 @@ schema ValuesCertControllerPodDisruptionBudget:
     ----------
     enabled : bool, optional
     minAvailable : int | str, optional
+    nameOverride : str, optional
     """
     enabled?: bool
     minAvailable?: int | str
+    nameOverride?: str
 
 schema ValuesCertControllerPodLabels:
     r"""
@@ -673,9 +675,11 @@ schema ValuesPodDisruptionBudget:
     ----------
     enabled : bool, optional
     minAvailable : int | str, optional
+    nameOverride : str, optional
     """
     enabled?: bool
     minAvailable?: int | str
+    nameOverride?: str
 
 schema ValuesPodLabels:
     r"""
@@ -1107,9 +1111,11 @@ schema ValuesWebhookPodDisruptionBudget:
     ----------
     enabled : bool, optional
     minAvailable : int | str, optional
+    nameOverride : str, optional
     """
     enabled?: bool
     minAvailable?: int | str
+    nameOverride?: str
 
 schema ValuesWebhookPodLabels:
     r"""

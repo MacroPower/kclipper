@@ -14,10 +14,10 @@ schema Chart(helm.Chart):
     values : Values | any, optional, default is {crds = {createClusterExternalSecret = False, createClusterGenerator = False, createClusterSecretStore = False, createPushSecret = True}, installCRDs = True}
     chart : str, required, default is "external-secrets"
     repoURL : str, required, default is "https://charts.external-secrets.io/"
-    targetRevision : str, optional, default is "0.19.1"
+    targetRevision : str, optional, default is "0.19.2"
     """
     values?: Values | any = {crds = {createClusterExternalSecret = False, createClusterGenerator = False, createClusterSecretStore = False, createPushSecret = True}, installCRDs = True}
     chart: str = "external-secrets"
     repoURL: str = "https://charts.external-secrets.io/"
-    targetRevision?: str = "0.19.1"
+    targetRevision?: str = "0.19.2"
 
