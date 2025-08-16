@@ -2676,6 +2676,8 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuth:
 
     Attributes
     ----------
+    awsAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentials, default is Undefined, optional
+        aws auth credentials
     azureAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentials, default is Undefined, optional
         azure auth credentials
     gcpIamAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIamAuthCredentials, default is Undefined, optional
@@ -2684,20 +2686,69 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuth:
         gcp Id token auth credentials
     jwtAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentials, default is Undefined, optional
         jwt auth credentials
+    kubernetesAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentials, default is Undefined, optional
+        kubernetes auth credentials
     ldapAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredentials, default is Undefined, optional
         ldap auth credentials
     ociAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials, default is Undefined, optional
         oci auth credentials
+    tokenAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentials, default is Undefined, optional
+        token auth credentials
     universalAuthCredentials : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthUniversalAuthCredentials, default is Undefined, optional
         universal auth credentials
     """
+    awsAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentials
     azureAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentials
     gcpIamAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIamAuthCredentials
     gcpIdTokenAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIDTokenAuthCredentials
     jwtAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentials
+    kubernetesAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentials
     ldapAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredentials
     ociAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
+    tokenAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentials
     universalAuthCredentials?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthUniversalAuthCredentials
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentials:
+    r"""
+    external secrets io v1 secret store spec provider infisical auth aws auth credentials
+
+    Attributes
+    ----------
+    identityId : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentialsIdentityID, default is Undefined, required
+        identity Id
+    """
+    identityId: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentialsIdentityID
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentialsIdentityID:
+    r"""
+    A reference to a specific 'key' within a Secret resource.
+    In some instances, `key` is a required field.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        A key in the referenced Secret.
+        Some instances of this field may be defaulted, in others it may be required.
+    name : str, default is Undefined, optional
+        The name of the Secret resource being referred to.
+    namespace : str, default is Undefined, optional
+        The namespace of the Secret resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    key?: str
+    name?: str
+    namespace?: str
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253 if name
+        len(name) >= 1 if name
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentials:
     r"""
@@ -2942,6 +2993,83 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentials
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentialsJwt:
+    r"""
+    A reference to a specific 'key' within a Secret resource.
+    In some instances, `key` is a required field.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        A key in the referenced Secret.
+        Some instances of this field may be defaulted, in others it may be required.
+    name : str, default is Undefined, optional
+        The name of the Secret resource being referred to.
+    namespace : str, default is Undefined, optional
+        The namespace of the Secret resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    key?: str
+    name?: str
+    namespace?: str
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253 if name
+        len(name) >= 1 if name
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentials:
+    r"""
+    external secrets io v1 secret store spec provider infisical auth kubernetes auth credentials
+
+    Attributes
+    ----------
+    identityId : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentialsIdentityID, default is Undefined, required
+        identity Id
+    serviceAccountTokenPath : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentialsServiceAccountTokenPath, default is Undefined, optional
+        service account token path
+    """
+    identityId: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentialsIdentityID
+
+    serviceAccountTokenPath?: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentialsServiceAccountTokenPath
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentialsIdentityID:
+    r"""
+    A reference to a specific 'key' within a Secret resource.
+    In some instances, `key` is a required field.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        A key in the referenced Secret.
+        Some instances of this field may be defaulted, in others it may be required.
+    name : str, default is Undefined, optional
+        The name of the Secret resource being referred to.
+    namespace : str, default is Undefined, optional
+        The namespace of the Secret resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    key?: str
+    name?: str
+    namespace?: str
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253 if name
+        len(name) >= 1 if name
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentialsServiceAccountTokenPath:
     r"""
     A reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
@@ -3305,6 +3433,48 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentialsUserID:
+    r"""
+    A reference to a specific 'key' within a Secret resource.
+    In some instances, `key` is a required field.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        A key in the referenced Secret.
+        Some instances of this field may be defaulted, in others it may be required.
+    name : str, default is Undefined, optional
+        The name of the Secret resource being referred to.
+    namespace : str, default is Undefined, optional
+        The namespace of the Secret resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    key?: str
+    name?: str
+    namespace?: str
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253 if name
+        len(name) >= 1 if name
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentials:
+    r"""
+    external secrets io v1 secret store spec provider infisical auth token auth credentials
+
+    Attributes
+    ----------
+    accessToken : ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentialsAccessToken, default is Undefined, required
+        access token
+    """
+    accessToken: ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentialsAccessToken
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentialsAccessToken:
     r"""
     A reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.

@@ -159,6 +159,10 @@
                 "integer",
                 "string"
               ]
+            },
+            "nameOverride": {
+              "required": [],
+              "type": "string"
             }
           },
           "required": [],
@@ -596,6 +600,10 @@
             "integer",
             "string"
           ]
+        },
+        "nameOverride": {
+          "required": [],
+          "type": "string"
         }
       },
       "required": [],
@@ -1045,6 +1053,10 @@
                 "integer",
                 "string"
               ]
+            },
+            "nameOverride": {
+              "required": [],
+              "type": "string"
             }
           },
           "required": [],
