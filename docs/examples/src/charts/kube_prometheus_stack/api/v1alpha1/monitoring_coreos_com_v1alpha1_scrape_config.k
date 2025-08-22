@@ -45,6 +45,9 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
         basic auth
     consulSDConfigs : [MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0], default is Undefined, optional
         ConsulSDConfigs defines a list of Consul service discovery configurations.
+    convertClassicHistogramsToNHCB : bool, default is Undefined, optional
+        Whether to convert all scraped classic histograms into a native histogram with custom buckets.
+        It requires Prometheus >= v3.0.0.
     digitalOceanSDConfigs : [MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0], default is Undefined, optional
         DigitalOceanSDConfigs defines a list of DigitalOcean service discovery configurations.
     dnsSDConfigs : [MonitoringCoreosComV1alpha1ScrapeConfigSpecDNSSDConfigsItems0], default is Undefined, optional
@@ -115,6 +118,14 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
         MetricRelabelConfigs to apply to samples before ingestion.
     metricsPath : str, default is Undefined, optional
         MetricsPath HTTP path to scrape for metrics. If empty, Prometheus uses the default value (e.g. /metrics).
+    nameEscapingScheme : str, default is Undefined, optional
+        Metric name escaping mode to request through content negotiation.
+
+        It requires Prometheus >= v3.4.0.
+    nameValidationScheme : str, default is Undefined, optional
+        Specifies the validation scheme for metric and label names.
+
+        It requires Prometheus >= v3.0.0.
     nativeHistogramBucketLimit : int, default is Undefined, optional
         If there are more than this many buckets in a native histogram,
         buckets will be merged to stay within the limit.
@@ -128,7 +139,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     nomadSDConfigs : [MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0], default is Undefined, optional
         NomadSDConfigs defines a list of Nomad service discovery configurations.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2, default is Undefined, optional
@@ -143,11 +154,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     puppetDBSDConfigs : [MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0], default is Undefined, optional
@@ -197,6 +208,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
     azureSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0]
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecBasicAuth
     consulSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0]
+    convertClassicHistogramsToNHCB?: bool
     digitalOceanSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0]
     dnsSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDNSSDConfigsItems0]
     dockerSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0]
@@ -224,6 +236,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
     linodeSDConfigs?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0]
     metricRelabelings?: [MonitoringCoreosComV1alpha1ScrapeConfigSpecMetricRelabelingsItems0]
     metricsPath?: str
+    nameEscapingScheme?: "AllowUTF8" | "Underscores" | "Dots" | "Values"
+    nameValidationScheme?: "UTF8" | "Legacy"
     nativeHistogramBucketLimit?: int
     nativeHistogramMinBucketFactor?: int | str
     noProxy?: str
@@ -255,7 +269,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
         len(metricRelabelings) >= 1 if metricRelabelings
         len(metricsPath) >= 1 if metricsPath
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(relabelings) >= 1 if relabelings
         len(scrapeClass) >= 1 if scrapeClass
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
@@ -333,7 +347,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -343,11 +357,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -388,7 +402,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
         len(environment) >= 1 if environment
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(resourceGroup) >= 1 if resourceGroup
         len(subscriptionID) >= 1
@@ -538,16 +552,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -571,7 +585,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientID:
@@ -696,11 +710,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -889,11 +903,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1138,7 +1152,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     nodeMeta : {str:str}, default is Undefined, optional
         Node metadata key/value pairs to filter nodes for a given service.
         Starting with Consul 1.14, it is recommended to use `filter` with the `NodeMeta` selector instead.
@@ -1154,11 +1168,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -1214,7 +1228,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0:
         len(namespace) >= 1 if namespace
         len(partition) >= 1 if partition
         len(pathPrefix) >= 1 if pathPrefix
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
         len(tagSeparator) >= 1 if tagSeparator
@@ -1341,16 +1355,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -1374,7 +1388,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientID:
@@ -1499,11 +1513,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1692,11 +1706,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1923,7 +1937,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -1932,11 +1946,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -1959,7 +1973,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0:
     check:
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Authorization:
@@ -2022,16 +2036,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -2055,7 +2069,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientID:
@@ -2180,11 +2194,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -2373,11 +2387,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -2559,7 +2573,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -2568,11 +2582,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -2600,7 +2614,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0:
 
     check:
         len(host) >= 1
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Authorization:
@@ -2742,16 +2756,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -2775,7 +2789,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientID:
@@ -2900,11 +2914,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -3093,11 +3107,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -3276,7 +3290,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -3286,11 +3300,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -3322,7 +3336,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0:
         _regex_match(str(host), r"^[a-zA-Z][a-zA-Z0-9+.-]*://.+$")
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Authorization:
@@ -3463,16 +3477,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -3496,7 +3510,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientID:
@@ -3621,11 +3635,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -3814,11 +3828,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -3999,7 +4013,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     port : int, default is Undefined, optional
         The port to scrape metrics from. If using the public IP address, this must
         instead be specified in the relabeling rule.
@@ -4007,11 +4021,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -4043,7 +4057,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0:
     check:
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(region) >= 1 if region
         len(roleARN) >= 1 if roleARN
@@ -4151,11 +4165,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -4326,18 +4340,18 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -4362,7 +4376,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
 
@@ -4485,16 +4499,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -4518,7 +4532,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientID:
@@ -4643,11 +4657,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -4836,11 +4850,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -5085,18 +5099,18 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -5121,7 +5135,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0:
     url: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(url) >= 1
         _regex_match(str(url), r"^http(s)?://.+$")
@@ -5248,16 +5262,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -5281,7 +5295,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientID:
@@ -5406,11 +5420,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -5599,11 +5613,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -5769,12 +5783,15 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0:
         Whether to enable HTTP2.
     followRedirects : bool, default is Undefined, optional
         Configure whether HTTP requests follow HTTP 3xx redirects.
+    labelSelector : str, default is Undefined, optional
+        Label selector used to filter the servers when fetching them from the API.
+        It requires Prometheus >= v3.5.0.
     noProxy : str, default is Undefined, optional
         `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -5783,11 +5800,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -5801,6 +5818,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0:
     basicAuth?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0BasicAuth
     enableHTTP2?: bool
     followRedirects?: bool
+    labelSelector?: str
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2
     port?: int
@@ -5813,7 +5831,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        len(labelSelector) >= 1 if labelSelector
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Authorization:
@@ -5937,16 +5956,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -5970,7 +5989,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientID:
@@ -6095,11 +6114,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -6288,11 +6307,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -6462,7 +6481,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -6471,11 +6490,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -6502,7 +6521,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0:
         len(datacenterID) >= 1
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Authorization:
@@ -6563,16 +6582,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -6596,7 +6615,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientID:
@@ -6721,11 +6740,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -6914,11 +6933,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -7098,18 +7117,18 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     role : str, default is Undefined, required
@@ -7140,7 +7159,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0:
 
     check:
         len(apiServer) >= 1 if apiServer
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0AttachMetadata:
     r"""
@@ -7294,16 +7313,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -7327,7 +7346,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientID:
@@ -7452,11 +7471,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -7669,11 +7688,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -7847,18 +7866,18 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -7886,7 +7905,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0:
 
     check:
         _regex_match(str(fetchTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if fetchTimeout
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
 
@@ -8009,16 +8028,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -8042,7 +8061,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientID:
@@ -8167,11 +8186,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -8360,11 +8379,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -8538,7 +8557,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -8548,11 +8567,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -8588,7 +8607,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0:
         len(endpoint) >= 1 if endpoint
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(region) >= 1 if region
 
@@ -8735,16 +8754,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -8768,7 +8787,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientID:
@@ -8893,11 +8912,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -9108,11 +9127,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -9280,7 +9299,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -9289,11 +9308,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -9322,7 +9341,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0:
     check:
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(region) >= 1 if region
         len(tagSeparator) >= 1 if tagSeparator
@@ -9386,16 +9405,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -9419,7 +9438,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientID:
@@ -9544,11 +9563,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -9737,11 +9756,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -9968,18 +9987,18 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -10014,7 +10033,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
 
@@ -10137,16 +10156,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -10170,7 +10189,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientID:
@@ -10295,11 +10314,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -10488,11 +10507,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -10660,16 +10679,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -10693,7 +10712,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientID:
@@ -10818,11 +10837,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -11019,6 +11038,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
         The OpenStack Region.
     role : str, default is Undefined, required
         The OpenStack role of entities that should be discovered.
+
+        Note: The `LoadBalancer` role requires Prometheus >= v3.2.0.
     tlsConfig : MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     userid : str, default is Undefined, optional
@@ -11044,7 +11065,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
     refreshInterval?: str
     region: str
 
-    role: "Instance" | "instance" | "Hypervisor" | "hypervisor"
+    role: "Instance" | "Hypervisor" | "LoadBalancer"
 
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSConfig
     userid?: str
@@ -11127,11 +11148,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -11406,7 +11427,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2, default is Undefined, optional
         oauth2
     port : int, default is Undefined, optional
@@ -11415,11 +11436,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     query : str, default is Undefined, required
@@ -11452,7 +11473,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0:
     check:
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(query) >= 1
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(url) >= 1
@@ -11579,16 +11600,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -11612,7 +11633,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientID:
@@ -11737,11 +11758,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -11930,11 +11951,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -12158,7 +12179,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     port : int, default is Undefined, optional
         The port to scrape metrics from.
     projectID : str, default is Undefined, required
@@ -12167,11 +12188,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0:
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     refreshInterval : str, default is Undefined, optional
@@ -12216,7 +12237,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0:
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         len(projectID) >= 1
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(tagsFilter) >= 1 if tagsFilter
         all tagsFilter in tagsFilter {len(tagsFilter) >= 1 if tagsFilter not in [None, Undefined]} if tagsFilter
@@ -12283,11 +12304,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -12472,11 +12493,11 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """

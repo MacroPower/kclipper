@@ -48,6 +48,9 @@ schema MonitoringCoreosComV1ProbeSpec:
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1ProbeSpecBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    convertClassicHistogramsToNHCB : bool, default is Undefined, optional
+        Whether to convert all scraped classic histograms into a native histogram with custom buckets.
+        It requires Prometheus >= v3.0.0.
     fallbackScrapeProtocol : str, default is Undefined, optional
         The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
 
@@ -117,6 +120,7 @@ schema MonitoringCoreosComV1ProbeSpec:
     authorization?: MonitoringCoreosComV1ProbeSpecAuthorization
     basicAuth?: MonitoringCoreosComV1ProbeSpecBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1ProbeSpecBearerTokenSecret
+    convertClassicHistogramsToNHCB?: bool
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
     interval?: str
     jobName?: str
@@ -340,16 +344,16 @@ schema MonitoringCoreosComV1ProbeSpecOauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1ProbeSpecOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -373,7 +377,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientID:
@@ -498,11 +502,11 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -659,11 +663,26 @@ schema MonitoringCoreosComV1ProbeSpecProber:
 
     Attributes
     ----------
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     path : str, default is "/probe", optional
         Path to collect metrics from.
         Defaults to `/probe`.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1ProbeSpecProberProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        Optional ProxyURL.
+        `proxyURL` defines the HTTP proxy server to use.
     scheme : str, default is Undefined, optional
         HTTP scheme to use for scraping.
         `http` and `https` are the expected values unless you rewrite the `__scheme__` label via relabeling.
@@ -671,10 +690,38 @@ schema MonitoringCoreosComV1ProbeSpecProber:
     url : str, default is Undefined, required
         Mandatory URL of the prober.
     """
+    noProxy?: str
     path?: str = "/probe"
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1ProbeSpecProberProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
     proxyUrl?: str
     scheme?: "http" | "https"
     url: str
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+
+schema MonitoringCoreosComV1ProbeSpecProberProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfig:
     r"""
@@ -693,11 +740,11 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
