@@ -45,6 +45,12 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
 
     Attributes
     ----------
+    additionalArgs : [MonitoringCoreosComV1AlertmanagerSpecAdditionalArgsItems0], default is Undefined, optional
+        AdditionalArgs allows setting additional arguments for the 'Alertmanager' container.
+        It is intended for e.g. activating hidden flags which are not supported by
+        the dedicated configuration options yet. The arguments are passed as-is to the
+        Alertmanager container which may cause issues if they are invalid or not supported
+        by the given Alertmanager version.
     additionalPeers : [str], default is Undefined, optional
         AdditionalPeers allows injecting a set of additional Alertmanagers to peer with to form a highly available cluster.
     affinity : MonitoringCoreosComV1AlertmanagerSpecAffinity, default is Undefined, optional
@@ -76,6 +82,8 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
         Timeout for cluster peering.
     clusterPushpullInterval : str, default is Undefined, optional
         Interval between pushpull attempts.
+    clusterTLS : MonitoringCoreosComV1AlertmanagerSpecClusterTLS, default is Undefined, optional
+        cluster TLS
     configMaps : [str], default is Undefined, optional
         ConfigMaps is a list of ConfigMaps in the same namespace as the Alertmanager
         object, which shall be mounted into the Alertmanager Pods.
@@ -114,6 +122,8 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
         that this behaviour may break at any time without notice.
 
         It requires Alertmanager >= 0.27.0.
+    enableServiceLinks : bool, default is Undefined, optional
+        Indicates whether information about services should be injected into pod's environment variables
     externalUrl : str, default is Undefined, optional
         The external URL the Alertmanager instances will be available under. This is
         necessary to generate correct URLs. This is necessary if Alertmanager is not
@@ -123,6 +133,13 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
         Use case is e.g. spanning an Alertmanager cluster across Kubernetes clusters with a single replica in each.
     hostAliases : [MonitoringCoreosComV1AlertmanagerSpecHostAliasesItems0], default is Undefined, optional
         Pods' hostAliases configuration
+    hostUsers : bool, default is Undefined, optional
+        HostUsers supports the user space in Kubernetes.
+
+        More info: https://kubernetes.io/docs/tasks/configure-pod-container/user-namespaces/
+
+        The feature requires at least Kubernetes 1.28 with the `UserNamespacesSupport` feature gate enabled.
+        Starting Kubernetes 1.33, the feature is enabled by default.
     image : str, default is Undefined, optional
         Image if specified has precedence over baseImage, tag and sha
         combinations. Specifying the version is still necessary to ensure the
@@ -134,7 +151,7 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     imagePullSecrets : [MonitoringCoreosComV1AlertmanagerSpecImagePullSecretsItems0], default is Undefined, optional
         An optional list of references to secrets in the same namespace
         to use for pulling prometheus and alertmanager images from registries
-        see http://kubernetes.io/docs/user-guide/images#specifying-imagepullsecrets-on-a-pod
+        see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     initContainers : [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0], default is Undefined, optional
         InitContainers allows adding initContainers to the pod definition. Those can be used to e.g.
         fetch secrets for injection into the Alertmanager configuration from external sources. Any
@@ -145,6 +162,8 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
         `init-config-reloader`. Overriding init containers is entirely outside the
         scope of what the maintainers will support and by doing so, you accept that
         this behaviour may break at any time without notice.
+    limits : MonitoringCoreosComV1AlertmanagerSpecLimits, default is Undefined, optional
+        limits
     listenLocal : bool, default is Undefined, optional
         ListenLocal makes the Alertmanager server listen on loopback, so that it
         does not bind against the Pod IP. Note this is only for the Alertmanager
@@ -156,13 +175,13 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     minReadySeconds : int, default is Undefined, optional
         Minimum number of seconds for which a newly created pod should be ready
         without any of its container crashing for it to be considered available.
-        Defaults to 0 (pod will be considered available as soon as it is ready)
-        This is an alpha field from kubernetes 1.22 until 1.24 which requires enabling the StatefulSetMinReadySeconds feature gate.
+
+        If unset, pods will be considered available as soon as they are ready.
     nodeSelector : {str:str}, default is Undefined, optional
         Define which Nodes the Pods are scheduled on.
     paused : bool, default is Undefined, optional
         If set to true all actions on the underlying managed objects are not
-        goint to be performed, except for delete actions.
+        going to be performed, except for delete actions.
     persistentVolumeClaimRetentionPolicy : MonitoringCoreosComV1AlertmanagerSpecPersistentVolumeClaimRetentionPolicy, default is Undefined, optional
         persistent volume claim retention policy
     podMetadata : MonitoringCoreosComV1AlertmanagerSpecPodMetadata, default is Undefined, optional
@@ -196,6 +215,12 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     serviceAccountName : str, default is Undefined, optional
         ServiceAccountName is the name of the ServiceAccount to use to run the
         Prometheus Pods.
+    serviceName : str, default is Undefined, optional
+        The name of the service name used by the underlying StatefulSet(s) as the governing service.
+        If defined, the Service  must be created before the Alertmanager resource in the same namespace and it must define a selector that matches the pod labels.
+        If empty, the operator will create and manage a headless service named `alertmanager-operated` for Alermanager resources.
+        When deploying multiple Alertmanager resources in the same namespace, it is recommended to specify a different value for each.
+        See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
     sha : str, default is Undefined, optional
         SHA of Alertmanager container image to be deployed. Defaults to the value of `version`.
         Similar to a tag, but the SHA explicitly deploys an immutable container image.
@@ -207,6 +232,12 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
         Tag of Alertmanager container image to be deployed. Defaults to the value of `version`.
         Version is ignored if Tag is set.
         Deprecated: use 'image' instead. The image tag can be specified as part of the image URL.
+    terminationGracePeriodSeconds : int, default is Undefined, optional
+        Optional duration in seconds the pod needs to terminate gracefully.
+        Value must be non-negative integer. The value zero indicates stop immediately via
+        the kill signal (no opportunity to shut down) which may lead to data corruption.
+
+        Defaults to 120 seconds.
     tolerations : [MonitoringCoreosComV1AlertmanagerSpecTolerationsItems0], default is Undefined, optional
         If specified, the pod's tolerations.
     topologySpreadConstraints : [MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0], default is Undefined, optional
@@ -224,6 +255,7 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     web : MonitoringCoreosComV1AlertmanagerSpecWeb, default is Undefined, optional
         web
     """
+    additionalArgs?: [MonitoringCoreosComV1AlertmanagerSpecAdditionalArgsItems0]
     additionalPeers?: [str]
     affinity?: MonitoringCoreosComV1AlertmanagerSpecAffinity
     alertmanagerConfigMatcherStrategy?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigMatcherStrategy
@@ -237,19 +269,23 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     clusterLabel?: str
     clusterPeerTimeout?: str
     clusterPushpullInterval?: str
+    clusterTLS?: MonitoringCoreosComV1AlertmanagerSpecClusterTLS
     configMaps?: [str]
     configSecret?: str
     containers?: [MonitoringCoreosComV1AlertmanagerSpecContainersItems0]
     dnsConfig?: MonitoringCoreosComV1AlertmanagerSpecDNSConfig
     dnsPolicy?: "ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
     enableFeatures?: [str]
+    enableServiceLinks?: bool
     externalUrl?: str
     forceEnableClusterMode?: bool
     hostAliases?: [MonitoringCoreosComV1AlertmanagerSpecHostAliasesItems0]
+    hostUsers?: bool
     image?: str
     imagePullPolicy?: "" | "Always" | "Never" | "IfNotPresent"
     imagePullSecrets?: [MonitoringCoreosComV1AlertmanagerSpecImagePullSecretsItems0]
     initContainers?: [MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0]
+    limits?: MonitoringCoreosComV1AlertmanagerSpecLimits
     listenLocal?: bool
     logFormat?: "" | "logfmt" | "json"
     logLevel?: "" | "debug" | "info" | "warn" | "error"
@@ -267,9 +303,11 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     secrets?: [str]
     securityContext?: MonitoringCoreosComV1AlertmanagerSpecSecurityContext
     serviceAccountName?: str
+    serviceName?: str
     sha?: str
     storage?: MonitoringCoreosComV1AlertmanagerSpecStorage
     tag?: str
+    terminationGracePeriodSeconds?: int
     tolerations?: [MonitoringCoreosComV1AlertmanagerSpecTolerationsItems0]
     topologySpreadConstraints?: [MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0]
     version?: str
@@ -281,7 +319,28 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
         _regex_match(str(clusterGossipInterval), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterGossipInterval
         _regex_match(str(clusterPeerTimeout), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterPeerTimeout
         _regex_match(str(clusterPushpullInterval), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterPushpullInterval
+        minReadySeconds >= 0 if minReadySeconds not in [None, Undefined]
         _regex_match(str(retention), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if retention
+        len(serviceName) >= 1 if serviceName
+        terminationGracePeriodSeconds >= 0 if terminationGracePeriodSeconds not in [None, Undefined]
+
+schema MonitoringCoreosComV1AlertmanagerSpecAdditionalArgsItems0:
+    r"""
+    Argument as part of the AdditionalArgs list.
+
+    Attributes
+    ----------
+    name : str, default is Undefined, required
+        Name of the argument, e.g. "scrape.discovery-reload-interval".
+    value : str, default is Undefined, optional
+        Argument value, e.g. 30s. Can be empty for name-only arguments (e.g. --storage.tsdb.no-lockfile)
+    """
+    name: str
+
+    value?: str
+
+    check:
+        len(name) >= 1
 
 schema MonitoringCoreosComV1AlertmanagerSpecAffinity:
     r"""
@@ -544,7 +603,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSc
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     mismatchLabelKeys : [str], default is Undefined, optional
         MismatchLabelKeys is a set of pod label keys to select which pods will
         be taken into consideration. The keys are used to lookup values from the
@@ -554,7 +612,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSc
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     namespaceSelector : MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector, default is Undefined, optional
         namespace selector
     namespaces : [str], default is Undefined, optional
@@ -683,7 +740,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSch
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     mismatchLabelKeys : [str], default is Undefined, optional
         MismatchLabelKeys is a set of pod label keys to select which pods will
         be taken into consideration. The keys are used to lookup values from the
@@ -693,7 +749,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSch
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     namespaceSelector : MonitoringCoreosComV1AlertmanagerSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector, default is Undefined, optional
         namespace selector
     namespaces : [str], default is Undefined, optional
@@ -861,7 +916,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuri
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     mismatchLabelKeys : [str], default is Undefined, optional
         MismatchLabelKeys is a set of pod label keys to select which pods will
         be taken into consideration. The keys are used to lookup values from the
@@ -871,7 +925,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuri
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     namespaceSelector : MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector, default is Undefined, optional
         namespace selector
     namespaces : [str], default is Undefined, optional
@@ -1000,7 +1053,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDurin
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     mismatchLabelKeys : [str], default is Undefined, optional
         MismatchLabelKeys is a set of pod label keys to select which pods will
         be taken into consideration. The keys are used to lookup values from the
@@ -1010,7 +1062,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDurin
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     namespaceSelector : MonitoringCoreosComV1AlertmanagerSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector, default is Undefined, optional
         namespace selector
     namespaces : [str], default is Undefined, optional
@@ -1131,7 +1182,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigMatcherStrategy:
 
         The default value is `OnNamespace`.
     """
-    $type?: "OnNamespace" | "None" = "OnNamespace"
+    $type?: "OnNamespace" | "OnNamespaceExceptForAlertmanagerNamespace" | "None" = "OnNamespace"
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigNamespaceSelector:
     r"""
@@ -1249,6 +1300,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobal:
     ----------
     httpConfig : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfig, default is Undefined, optional
         http config
+    jira : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalJira, default is Undefined, optional
+        jira
     opsGenieApiKey : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIKey, default is Undefined, optional
         ops genie Api key
     opsGenieApiUrl : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIURL, default is Undefined, optional
@@ -1259,18 +1312,34 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobal:
         ResolveTimeout is the default value used by alertmanager if the alert does
         not include EndsAt, after this time passes it can declare the alert as resolved if it has not been updated.
         This has no impact on alerts from Prometheus, as they always include EndsAt.
+    rocketChat : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChat, default is Undefined, optional
+        rocket chat
     slackApiUrl : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSlackAPIURL, default is Undefined, optional
         slack Api Url
     smtp : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP, default is Undefined, optional
         smtp
+    telegram : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalTelegram, default is Undefined, optional
+        telegram
+    victorops : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalVictorops, default is Undefined, optional
+        victorops
+    webex : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWebex, default is Undefined, optional
+        webex
+    wechat : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWechat, default is Undefined, optional
+        wechat
     """
     httpConfig?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfig
+    jira?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalJira
     opsGenieApiKey?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIKey
     opsGenieApiUrl?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIURL
     pagerdutyUrl?: str
     resolveTimeout?: str
+    rocketChat?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChat
     slackApiUrl?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSlackAPIURL
     smtp?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP
+    telegram?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalTelegram
+    victorops?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalVictorops
+    webex?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWebex
+    wechat?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWechat
 
     check:
         _regex_match(str(resolveTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if resolveTimeout
@@ -1294,18 +1363,18 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfig, default is Undefined, optional
@@ -1323,7 +1392,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     tlsConfig?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigAuthorization:
     r"""
@@ -1470,16 +1539,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -1503,7 +1572,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientID:
@@ -1628,11 +1697,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1821,11 +1890,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -1975,6 +2044,22 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     name?: str = ""
     optional?: bool
 
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalJira:
+    r"""
+    The default configuration for Jira.
+
+    Attributes
+    ----------
+    apiURL : str, default is Undefined, optional
+        The default Jira API URL.
+
+        It requires Alertmanager >= v0.28.0.
+    """
+    apiURL?: str
+
+    check:
+        _regex_match(str(apiURL), r"^(http|https)://.+$") if apiURL
+
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGenieAPIKey:
     r"""
     The default OpsGenie API Key.
@@ -2019,6 +2104,76 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalOpsGe
     name?: str = ""
     optional?: bool
 
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChat:
+    r"""
+    The default configuration for Rocket Chat.
+
+    Attributes
+    ----------
+    apiURL : str, default is Undefined, optional
+        The default Rocket Chat API URL.
+
+        It requires Alertmanager >= v0.28.0.
+    token : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChatToken, default is Undefined, optional
+        token
+    tokenID : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChatTokenID, default is Undefined, optional
+        token ID
+    """
+    apiURL?: str
+    token?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChatToken
+    tokenID?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChatTokenID
+
+    check:
+        _regex_match(str(apiURL), r"^(http|https)://.+$") if apiURL
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChatToken:
+    r"""
+    The default Rocket Chat token.
+
+    It requires Alertmanager >= v0.28.0.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalRocketChatTokenID:
+    r"""
+    The default Rocket Chat Token ID.
+
+    It requires Alertmanager >= v0.28.0.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP:
     r"""
     Configures global SMTP parameters.
@@ -2042,6 +2197,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP:
         Note that Go does not support unencrypted connections to remote SMTP endpoints.
     smartHost : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPSmartHost, default is Undefined, optional
         smart host
+    tlsConfig : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfig, default is Undefined, optional
+        tls config
     """
     authIdentity?: str
     authPassword?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPAuthPassword
@@ -2051,6 +2208,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTP:
     hello?: str
     requireTLS?: bool
     smartHost?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPSmartHost
+    tlsConfig?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfig
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPAuthPassword:
     r"""
@@ -2115,9 +2273,295 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPS
         len(host) >= 1
         len(port) >= 1
 
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfig:
+    r"""
+    The default TLS configuration for SMTP receivers
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keySecret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCa
+    cert?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCaSecret
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCertSecret
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPTLSConfigKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSlackAPIURL:
     r"""
     The default Slack API URL.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalTelegram:
+    r"""
+    The default Telegram config
+
+    Attributes
+    ----------
+    apiURL : str, default is Undefined, optional
+        The default Telegram API URL.
+
+        It requires Alertmanager >= v0.24.0.
+    """
+    apiURL?: str
+
+    check:
+        _regex_match(str(apiURL), r"^(http|https)://.+$") if apiURL
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalVictorops:
+    r"""
+    The default configuration for VictorOps.
+
+    Attributes
+    ----------
+    apiKey : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalVictoropsAPIKey, default is Undefined, optional
+        api key
+    apiURL : str, default is Undefined, optional
+        The default VictorOps API URL.
+    """
+    apiKey?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalVictoropsAPIKey
+    apiURL?: str
+
+    check:
+        _regex_match(str(apiURL), r"^(http|https)://.+$") if apiURL
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalVictoropsAPIKey:
+    r"""
+    The default VictorOps API Key.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWebex:
+    r"""
+    The default configuration for Jira.
+
+    Attributes
+    ----------
+    apiURL : str, default is Undefined, optional
+        The default Webex API URL.
+
+        It requires Alertmanager >= v0.25.0.
+    """
+    apiURL?: str
+
+    check:
+        _regex_match(str(apiURL), r"^(http|https)://.+$") if apiURL
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWechat:
+    r"""
+    The default WeChat Config
+
+    Attributes
+    ----------
+    apiCorpID : str, default is Undefined, optional
+        The default WeChat API Corporate ID.
+    apiSecret : MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWechatAPISecret, default is Undefined, optional
+        api secret
+    apiURL : str, default is Undefined, optional
+        The default WeChat API URL.
+        The default value is "https://qyapi.weixin.qq.com/cgi-bin/"
+    """
+    apiCorpID?: str
+    apiSecret?: MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWechatAPISecret
+    apiURL?: str
+
+    check:
+        len(apiCorpID) >= 1 if apiCorpID
+        _regex_match(str(apiURL), r"^(http|https)://.+$") if apiURL
+
+schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWechatAPISecret:
+    r"""
+    The default WeChat API Secret.
 
     Attributes
     ----------
@@ -2176,6 +2620,413 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesIt
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0Secret:
     r"""
     Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLS:
+    r"""
+    Configures the mutual TLS configuration for the Alertmanager cluster's gossip protocol.
+
+    It requires Alertmanager >= 0.24.0.
+
+    Attributes
+    ----------
+    client : MonitoringCoreosComV1AlertmanagerSpecClusterTLSClient, default is Undefined, required
+        client
+    server : MonitoringCoreosComV1AlertmanagerSpecClusterTLSServer, default is Undefined, required
+        server
+    """
+    client: MonitoringCoreosComV1AlertmanagerSpecClusterTLSClient
+
+    server: MonitoringCoreosComV1AlertmanagerSpecClusterTLSServer
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClient:
+    r"""
+    Client-side configuration for mutual TLS.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        Disable target certificate validation.
+    keySecret : MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        Minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        Used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCa
+    cert?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCa:
+    r"""
+    Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCaConfigMap
+    secret?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCaSecret
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCert:
+    r"""
+    Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCertConfigMap
+    secret?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCertSecret
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientKeySecret:
+    r"""
+    Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServer:
+    r"""
+    Server-side configuration for mutual TLS.
+
+    Attributes
+    ----------
+    cert : MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCert, default is Undefined, optional
+        cert
+    certFile : str, default is Undefined, optional
+        Path to the TLS certificate file in the container for the web server.
+
+        Either `keySecret` or `keyFile` must be defined.
+
+        It is mutually exclusive with `cert`.
+    cipherSuites : [str], default is Undefined, optional
+        List of supported cipher suites for TLS versions up to TLS 1.2.
+
+        If not defined, the Go default cipher suites are used.
+        Available cipher suites are documented in the Go documentation:
+        https://golang.org/pkg/crypto/tls/#pkg-constants
+    clientAuthType : str, default is Undefined, optional
+        The server policy for client TLS authentication.
+
+        For more detail on clientAuth options:
+        https://golang.org/pkg/crypto/tls/#ClientAuthType
+    clientCAFile : str, default is Undefined, optional
+        Path to the CA certificate file for client certificate authentication to
+        the server.
+
+        It is mutually exclusive with `client_ca`.
+    client_ca : MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCa, default is Undefined, optional
+        client ca
+    curvePreferences : [str], default is Undefined, optional
+        Elliptic curves that will be used in an ECDHE handshake, in preference
+        order.
+
+        Available curves are documented in the Go documentation:
+        https://golang.org/pkg/crypto/tls/#CurveID
+    keyFile : str, default is Undefined, optional
+        Path to the TLS private key file in the container for the web server.
+
+        If defined, either `cert` or `certFile` must be defined.
+
+        It is mutually exclusive with `keySecret`.
+    keySecret : MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        Maximum TLS version that is acceptable.
+    minVersion : str, default is Undefined, optional
+        Minimum TLS version that is acceptable.
+    preferServerCipherSuites : bool, default is Undefined, optional
+        Controls whether the server selects the client's most preferred cipher
+        suite, or the server's most preferred cipher suite.
+
+        If true then the server's preference, as expressed in
+        the order of elements in cipherSuites, is used.
+    """
+    cert?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCert
+    certFile?: str
+    cipherSuites?: [str]
+    clientAuthType?: str
+    clientCAFile?: str
+    client_ca?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCa
+    curvePreferences?: [str]
+    keyFile?: str
+    keySecret?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerKeySecret
+    maxVersion?: str
+    minVersion?: str
+    preferServerCipherSuites?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCert:
+    r"""
+    Secret or ConfigMap containing the TLS certificate for the web server.
+
+    Either `keySecret` or `keyFile` must be defined.
+
+    It is mutually exclusive with `certFile`.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCertConfigMap
+    secret?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCertSecret
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCertConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCertSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCa:
+    r"""
+    Secret or ConfigMap containing the CA certificate for client certificate
+    authentication to the server.
+
+    It is mutually exclusive with `clientCAFile`.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCaConfigMap
+    secret?: MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCaSecret
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCaConfigMap:
+    r"""
+    ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCaSecret:
+    r"""
+    Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerKeySecret:
+    r"""
+    Secret containing the TLS private key for the web server.
+
+    Either `cert` or `certFile` must be defined.
+
+    It is mutually exclusive with `keyFile`.
 
     Attributes
     ----------
@@ -2352,14 +3203,14 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0:
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0:
     r"""
-    EnvFromSource represents the source of a set of ConfigMaps
+    EnvFromSource represents the source of a set of ConfigMaps or Secrets
 
     Attributes
     ----------
     configMapRef : MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0ConfigMapRef, default is Undefined, optional
         config map ref
     prefix : str, default is Undefined, optional
-        An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+        Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
     secretRef : MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
@@ -2540,9 +3391,14 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0Lifecycle:
         post start
     preStop : MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
+    stopSignal : str, default is Undefined, optional
+        StopSignal defines which signal will be sent to a container when it is being stopped.
+        If not specified, the default is defined by the container runtime in use.
+        StopSignal can only be set for Pods with a non-empty .spec.os.name
     """
     postStart?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStart
     preStop?: MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStop
+    stopSignal?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStart:
     r"""
@@ -3819,14 +4675,14 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0:
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0:
     r"""
-    EnvFromSource represents the source of a set of ConfigMaps
+    EnvFromSource represents the source of a set of ConfigMaps or Secrets
 
     Attributes
     ----------
     configMapRef : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0ConfigMapRef, default is Undefined, optional
         config map ref
     prefix : str, default is Undefined, optional
-        An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+        Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
     secretRef : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
@@ -4007,9 +4863,14 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0Lifecycle:
         post start
     preStop : MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
+    stopSignal : str, default is Undefined, optional
+        StopSignal defines which signal will be sent to a container when it is being stopped.
+        If not specified, the default is defined by the container runtime in use.
+        StopSignal can only be set for Pods with a non-empty .spec.os.name
     """
     postStart?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStart
     preStop?: MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
+    stopSignal?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStart:
     r"""
@@ -5053,6 +5914,28 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeMountsItem
     subPath?: str
     subPathExpr?: str
 
+schema MonitoringCoreosComV1AlertmanagerSpecLimits:
+    r"""
+    Defines the limits command line flags when starting Alertmanager.
+
+    Attributes
+    ----------
+    maxPerSilenceBytes : str, default is Undefined, optional
+        The maximum size of an individual silence as stored on disk. This corresponds to the Alertmanager's
+        `--silences.max-per-silence-bytes` flag.
+        It requires Alertmanager >= v0.28.0.
+    maxSilences : int, default is Undefined, optional
+        The maximum number active and pending silences. This corresponds to the
+        Alertmanager's `--silences.max-silences` flag.
+        It requires Alertmanager >= v0.28.0.
+    """
+    maxPerSilenceBytes?: str
+    maxSilences?: int
+
+    check:
+        _regex_match(str(maxPerSilenceBytes), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if maxPerSilenceBytes
+        maxSilences >= 0 if maxSilences not in [None, Undefined]
+
 schema MonitoringCoreosComV1AlertmanagerSpecPersistentVolumeClaimRetentionPolicy:
     r"""
     The field controls if and how PVCs are deleted during the lifecycle of a StatefulSet.
@@ -5095,19 +5978,19 @@ schema MonitoringCoreosComV1AlertmanagerSpecPodMetadata:
         Annotations is an unstructured key value map stored with a resource that may be
         set by external tools to store and retrieve arbitrary metadata. They are not
         queryable and should be preserved when modifying objects.
-        More info: http://kubernetes.io/docs/user-guide/annotations
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
     labels : {str:str}, default is Undefined, optional
         Map of string keys and values that can be used to organize and categorize
         (scope and select) objects. May match selectors of replication controllers
         and services.
-        More info: http://kubernetes.io/docs/user-guide/labels
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
     name : str, default is Undefined, optional
         Name must be unique within a namespace. Is required when creating resources, although
         some resources may allow a client to request the generation of an appropriate name
         automatically. Name is primarily intended for creation idempotence and configuration
         definition.
         Cannot be updated.
-        More info: http://kubernetes.io/docs/user-guide/identifiers#names
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
     """
     annotations?: {str:str}
     labels?: {str:str}
@@ -5726,19 +6609,19 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateMetadata:
         Annotations is an unstructured key value map stored with a resource that may be
         set by external tools to store and retrieve arbitrary metadata. They are not
         queryable and should be preserved when modifying objects.
-        More info: http://kubernetes.io/docs/user-guide/annotations
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
     labels : {str:str}, default is Undefined, optional
         Map of string keys and values that can be used to organize and categorize
         (scope and select) objects. May match selectors of replication controllers
         and services.
-        More info: http://kubernetes.io/docs/user-guide/labels
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
     name : str, default is Undefined, optional
         Name must be unique within a namespace. Is required when creating resources, although
         some resources may allow a client to request the generation of an appropriate name
         automatically. Name is primarily intended for creation idempotence and configuration
         definition.
         Cannot be updated.
-        More info: http://kubernetes.io/docs/user-guide/identifiers#names
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
     """
     annotations?: {str:str}
     labels?: {str:str}
@@ -6185,7 +7068,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0:
         - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
 
         If this value is nil, the behavior is equivalent to the Honor policy.
-        This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
     nodeTaintsPolicy : str, default is Undefined, optional
         NodeTaintsPolicy indicates how we will treat node taints when calculating
         pod topology spread skew. Options are:
@@ -6194,7 +7076,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecTopologySpreadConstraintsItems0:
         - Ignore: node taints are ignored. All nodes are included.
 
         If this value is nil, the behavior is equivalent to the Ignore policy.
-        This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
     topologyKey : str, default is Undefined, required
         TopologyKey is the key of node labels. Nodes that have a label with this key
         and identical values are considered to be in the same topology.
@@ -7313,7 +8194,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Image:
     The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
     The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
     The volume will be mounted read-only (ro) and non-executable files (noexec).
-    Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath).
+    Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
     The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 
     Attributes
