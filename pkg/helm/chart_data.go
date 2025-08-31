@@ -101,9 +101,9 @@ func templateData(ctx context.Context, loadedChart *chart.Chart, t *TemplateOpts
 
 	// Fail open instead of blocking the template.
 	kv := &chartutil.KubeVersion{
-		Major:   "999",
+		Major:   "1",
 		Minor:   "999",
-		Version: "v999.999.999",
+		Version: "v1.999.999",
 	}
 	if t.KubeVersion != "" {
 		kv, err = chartutil.ParseKubeVersion(t.KubeVersion)
