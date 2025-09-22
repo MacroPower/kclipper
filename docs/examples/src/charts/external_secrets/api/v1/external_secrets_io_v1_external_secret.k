@@ -253,7 +253,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecDataFromItems0SourceRefGeneratorRef:
         Specify the name of the generator resource
     """
     apiVersion?: str = "generators.external-secrets.io/v1alpha1"
-    kind: "ACRAccessToken" | "ClusterGenerator" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
+    kind: "ACRAccessToken" | "ClusterGenerator" | "CloudsmithAccessToken" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
 
     name: str
 
@@ -366,7 +366,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecDataItems0SourceRefGeneratorRef:
         Specify the name of the generator resource
     """
     apiVersion?: str = "generators.external-secrets.io/v1alpha1"
-    kind: "ACRAccessToken" | "ClusterGenerator" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
+    kind: "ACRAccessToken" | "ClusterGenerator" | "CloudsmithAccessToken" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
 
     name: str
 
@@ -483,10 +483,13 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateMetadata:
     ----------
     annotations : {str:str}, default is Undefined, optional
         annotations
+    finalizers : [str], default is Undefined, optional
+        finalizers
     labels : {str:str}, default is Undefined, optional
         labels
     """
     annotations?: {str:str}
+    finalizers?: [str]
     labels?: {str:str}
 
 schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0:

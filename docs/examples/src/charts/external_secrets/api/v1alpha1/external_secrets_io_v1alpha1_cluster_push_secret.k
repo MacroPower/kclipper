@@ -288,7 +288,7 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSelectorGener
         Specify the name of the generator resource
     """
     apiVersion?: str = "generators.external-secrets.io/v1alpha1"
-    kind: "ACRAccessToken" | "ClusterGenerator" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
+    kind: "ACRAccessToken" | "ClusterGenerator" | "CloudsmithAccessToken" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
 
     name: str
 
@@ -393,10 +393,13 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecTemplateMetad
     ----------
     annotations : {str:str}, default is Undefined, optional
         annotations
+    finalizers : [str], default is Undefined, optional
+        finalizers
     labels : {str:str}, default is Undefined, optional
         labels
     """
     annotations?: {str:str}
+    finalizers?: [str]
     labels?: {str:str}
 
 schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecTemplateTemplateFromItems0:

@@ -386,6 +386,10 @@
       "required": [],
       "type": "string"
     },
+    "enableHTTP2": {
+      "required": [],
+      "type": "boolean"
+    },
     "extendedMetricLabels": {
       "required": [],
       "type": "boolean"
@@ -470,6 +474,10 @@
           "required": [],
           "type": "boolean"
         },
+        "extraLabels": {
+          "required": [],
+          "type": "object"
+        },
         "sidecarLabel": {
           "required": [],
           "type": "string"
@@ -520,6 +528,54 @@
       "required": [],
       "type": "boolean"
     },
+    "livenessProbe": {
+      "properties": {
+        "address": {
+          "required": [],
+          "type": "string"
+        },
+        "enabled": {
+          "required": [],
+          "type": "boolean"
+        },
+        "failureThreshold": {
+          "required": [],
+          "type": "integer"
+        },
+        "httpGet": {
+          "properties": {
+            "path": {
+              "required": [],
+              "type": "string"
+            },
+            "port": {
+              "required": [],
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "initialDelaySeconds": {
+          "required": [],
+          "type": "integer"
+        },
+        "periodSeconds": {
+          "required": [],
+          "type": "integer"
+        },
+        "successThreshold": {
+          "required": [],
+          "type": "integer"
+        },
+        "timeoutSeconds": {
+          "required": [],
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
     "log": {
       "properties": {
         "level": {
@@ -541,6 +597,28 @@
             "port": {
               "required": [],
               "type": "integer"
+            },
+            "secure": {
+              "properties": {
+                "certDir": {
+                  "required": [],
+                  "type": "string"
+                },
+                "certFile": {
+                  "required": [],
+                  "type": "string"
+                },
+                "enabled": {
+                  "required": [],
+                  "type": "boolean"
+                },
+                "keyFile": {
+                  "required": [],
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "type": "object"
             }
           },
           "required": [],
@@ -632,6 +710,10 @@
       "type": "string"
     },
     "processClusterExternalSecret": {
+      "required": [],
+      "type": "boolean"
+    },
+    "processClusterGenerator": {
       "required": [],
       "type": "boolean"
     },
@@ -815,6 +897,15 @@
           "required": [],
           "type": "array"
         },
+        "renderMode": {
+          "enum": [
+            "skipIfMissing",
+            "failIfMissing",
+            "alwaysRender"
+          ],
+          "required": [],
+          "type": "string"
+        },
         "scrapeTimeout": {
           "required": [],
           "type": "string"
@@ -826,6 +917,10 @@
     "strategy": {
       "required": [],
       "type": "object"
+    },
+    "systemAuthDelegator": {
+      "required": [],
+      "type": "boolean"
     },
     "tolerations": {
       "required": [],
