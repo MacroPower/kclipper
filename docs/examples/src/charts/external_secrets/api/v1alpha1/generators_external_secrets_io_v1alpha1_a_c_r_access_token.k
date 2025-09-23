@@ -70,7 +70,7 @@ schema GeneratorsExternalSecretsIoV1alpha1ACRAccessTokenSpec:
     """
     auth: GeneratorsExternalSecretsIoV1alpha1ACRAccessTokenSpecAuth
 
-    environmentType?: "PublicCloud" | "USGovernmentCloud" | "ChinaCloud" | "GermanCloud" = "PublicCloud"
+    environmentType?: "PublicCloud" | "USGovernmentCloud" | "ChinaCloud" | "GermanCloud" | "AzureStackCloud" = "PublicCloud"
     registry: str
 
     scope?: str

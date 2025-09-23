@@ -20,6 +20,7 @@ schema Values:
     deploymentAnnotations : ValuesDeploymentAnnotations, optional
     dnsConfig : ValuesDnsConfig, optional
     dnsPolicy : str, optional
+    enableHTTP2 : bool, optional
     extendedMetricLabels : bool, optional
     extraArgs : ValuesExtraArgs, optional
     extraContainers : any, optional
@@ -36,6 +37,7 @@ schema Values:
     imagePullSecrets : any, optional
     installCRDs : bool, optional
     leaderElect : bool, optional
+    livenessProbe : ValuesLivenessProbe, optional
     log : ValuesLog, optional
     metrics : ValuesMetrics, optional
     nameOverride : str, optional
@@ -49,6 +51,7 @@ schema Values:
     podSpecExtra : ValuesPodSpecExtra, optional
     priorityClassName : str, optional
     processClusterExternalSecret : bool, optional
+    processClusterGenerator : bool, optional
     processClusterPushSecret : bool, optional
     processClusterStore : bool, optional
     processPushSecret : bool, optional
@@ -63,6 +66,7 @@ schema Values:
     serviceAccount : ValuesServiceAccount, optional
     serviceMonitor : ValuesServiceMonitor, optional
     strategy : ValuesStrategy, optional
+    systemAuthDelegator : bool, optional
     tolerations : any, optional
     topologySpreadConstraints : any, optional
     webhook : ValuesWebhook, optional
@@ -78,6 +82,7 @@ schema Values:
     deploymentAnnotations?: ValuesDeploymentAnnotations
     dnsConfig?: ValuesDnsConfig
     dnsPolicy?: str
+    enableHTTP2?: bool
     extendedMetricLabels?: bool
     extraArgs?: ValuesExtraArgs
     extraContainers?: any
@@ -94,6 +99,7 @@ schema Values:
     imagePullSecrets?: any
     installCRDs?: bool
     leaderElect?: bool
+    livenessProbe?: ValuesLivenessProbe
     log?: ValuesLog
     metrics?: ValuesMetrics
     nameOverride?: str
@@ -107,6 +113,7 @@ schema Values:
     podSpecExtra?: ValuesPodSpecExtra
     priorityClassName?: str
     processClusterExternalSecret?: bool
+    processClusterGenerator?: bool
     processClusterPushSecret?: bool
     processClusterStore?: bool
     processPushSecret?: bool
@@ -121,6 +128,7 @@ schema Values:
     serviceAccount?: ValuesServiceAccount
     serviceMonitor?: ValuesServiceMonitor
     strategy?: ValuesStrategy
+    systemAuthDelegator?: bool
     tolerations?: any
     topologySpreadConstraints?: any
     webhook?: ValuesWebhook
@@ -571,17 +579,25 @@ schema ValuesGrafanaDashboard:
     ----------
     annotations : ValuesGrafanaDashboardAnnotations, optional
     enabled : bool, optional
+    extraLabels : ValuesGrafanaDashboardExtraLabels, optional
     sidecarLabel : str, optional
     sidecarLabelValue : str, optional
     """
     annotations?: ValuesGrafanaDashboardAnnotations
     enabled?: bool
+    extraLabels?: ValuesGrafanaDashboardExtraLabels
     sidecarLabel?: str
     sidecarLabelValue?: str
 
 schema ValuesGrafanaDashboardAnnotations:
     r"""
     ValuesGrafanaDashboardAnnotations
+    """
+    [...str]: any
+
+schema ValuesGrafanaDashboardExtraLabels:
+    r"""
+    ValuesGrafanaDashboardExtraLabels
     """
     [...str]: any
 
@@ -600,6 +616,42 @@ schema ValuesImage:
     pullPolicy?: str
     repository?: str
     tag?: str
+
+schema ValuesLivenessProbe:
+    r"""
+    ValuesLivenessProbe
+
+    Attributes
+    ----------
+    address : str, optional
+    enabled : bool, optional
+    failureThreshold : int, optional
+    httpGet : ValuesLivenessProbeHttpGet, optional
+    initialDelaySeconds : int, optional
+    periodSeconds : int, optional
+    successThreshold : int, optional
+    timeoutSeconds : int, optional
+    """
+    address?: str
+    enabled?: bool
+    failureThreshold?: int
+    httpGet?: ValuesLivenessProbeHttpGet
+    initialDelaySeconds?: int
+    periodSeconds?: int
+    successThreshold?: int
+    timeoutSeconds?: int
+
+schema ValuesLivenessProbeHttpGet:
+    r"""
+    ValuesLivenessProbeHttpGet
+
+    Attributes
+    ----------
+    path : str, optional
+    port : str, optional
+    """
+    path?: str
+    port?: str
 
 schema ValuesLog:
     r"""
@@ -632,8 +684,26 @@ schema ValuesMetricsListen:
     Attributes
     ----------
     port : int, optional
+    secure : ValuesMetricsListenSecure, optional
     """
     port?: int
+    secure?: ValuesMetricsListenSecure
+
+schema ValuesMetricsListenSecure:
+    r"""
+    ValuesMetricsListenSecure
+
+    Attributes
+    ----------
+    certDir : str, optional
+    certFile : str, optional
+    enabled : bool, optional
+    keyFile : str, optional
+    """
+    certDir?: str
+    certFile?: str
+    enabled?: bool
+    keyFile?: str
 
 schema ValuesMetricsService:
     r"""
@@ -832,6 +902,7 @@ schema ValuesServiceMonitor:
     metricRelabelings : any, optional
     namespace : str, optional
     relabelings : any, optional
+    renderMode : "skipIfMissing" | "failIfMissing" | "alwaysRender", optional
     scrapeTimeout : str, optional
     """
     additionalLabels?: ValuesServiceMonitorAdditionalLabels
@@ -841,6 +912,7 @@ schema ValuesServiceMonitor:
     metricRelabelings?: any
     namespace?: str
     relabelings?: any
+    renderMode?: "skipIfMissing" | "failIfMissing" | "alwaysRender"
     scrapeTimeout?: str
 
 schema ValuesServiceMonitorAdditionalLabels:
