@@ -186,6 +186,7 @@ schema ValuesCertController:
     revisionHistoryLimit : int, optional
     securityContext : ValuesCertControllerSecurityContext, optional
     serviceAccount : ValuesCertControllerServiceAccount, optional
+    startupProbe : ValuesCertControllerStartupProbe, optional
     strategy : ValuesCertControllerStrategy, optional
     tolerations : any, optional
     topologySpreadConstraints : any, optional
@@ -219,6 +220,7 @@ schema ValuesCertController:
     revisionHistoryLimit?: int
     securityContext?: ValuesCertControllerSecurityContext
     serviceAccount?: ValuesCertControllerServiceAccount
+    startupProbe?: ValuesCertControllerStartupProbe
     strategy?: ValuesCertControllerStrategy
     tolerations?: any
     topologySpreadConstraints?: any
@@ -453,6 +455,20 @@ schema ValuesCertControllerServiceAccountExtraLabels:
     """
     [...str]: any
 
+schema ValuesCertControllerStartupProbe:
+    r"""
+    ValuesCertControllerStartupProbe
+
+    Attributes
+    ----------
+    enabled : bool, optional
+    port : str, optional
+    useReadinessProbePort : bool, optional
+    """
+    enabled?: bool
+    port?: str
+    useReadinessProbePort?: bool
+
 schema ValuesCertControllerStrategy:
     r"""
     ValuesCertControllerStrategy
@@ -623,27 +639,37 @@ schema ValuesLivenessProbe:
 
     Attributes
     ----------
-    address : str, optional
     enabled : bool, optional
+    spec : ValuesLivenessProbeSpec, optional
+    """
+    enabled?: bool
+    spec?: ValuesLivenessProbeSpec
+
+schema ValuesLivenessProbeSpec:
+    r"""
+    ValuesLivenessProbeSpec
+
+    Attributes
+    ----------
+    address : str, optional
     failureThreshold : int, optional
-    httpGet : ValuesLivenessProbeHttpGet, optional
+    httpGet : ValuesLivenessProbeSpecHttpGet, optional
     initialDelaySeconds : int, optional
     periodSeconds : int, optional
     successThreshold : int, optional
     timeoutSeconds : int, optional
     """
     address?: str
-    enabled?: bool
     failureThreshold?: int
-    httpGet?: ValuesLivenessProbeHttpGet
+    httpGet?: ValuesLivenessProbeSpecHttpGet
     initialDelaySeconds?: int
     periodSeconds?: int
     successThreshold?: int
     timeoutSeconds?: int
 
-schema ValuesLivenessProbeHttpGet:
+schema ValuesLivenessProbeSpecHttpGet:
     r"""
-    ValuesLivenessProbeHttpGet
+    ValuesLivenessProbeSpecHttpGet
 
     Attributes
     ----------
