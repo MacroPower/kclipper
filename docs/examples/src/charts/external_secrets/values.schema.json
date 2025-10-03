@@ -302,6 +302,24 @@
           "required": [],
           "type": "object"
         },
+        "startupProbe": {
+          "properties": {
+            "enabled": {
+              "required": [],
+              "type": "boolean"
+            },
+            "port": {
+              "required": [],
+              "type": "string"
+            },
+            "useReadinessProbePort": {
+              "required": [],
+              "type": "boolean"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
         "strategy": {
           "required": [],
           "type": "object"
@@ -530,47 +548,53 @@
     },
     "livenessProbe": {
       "properties": {
-        "address": {
-          "required": [],
-          "type": "string"
-        },
         "enabled": {
           "required": [],
           "type": "boolean"
         },
-        "failureThreshold": {
-          "required": [],
-          "type": "integer"
-        },
-        "httpGet": {
+        "spec": {
           "properties": {
-            "path": {
+            "address": {
               "required": [],
               "type": "string"
             },
-            "port": {
+            "failureThreshold": {
               "required": [],
-              "type": "string"
+              "type": "integer"
+            },
+            "httpGet": {
+              "properties": {
+                "path": {
+                  "required": [],
+                  "type": "string"
+                },
+                "port": {
+                  "required": [],
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "initialDelaySeconds": {
+              "required": [],
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "required": [],
+              "type": "integer"
+            },
+            "successThreshold": {
+              "required": [],
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "required": [],
+              "type": "integer"
             }
           },
           "required": [],
           "type": "object"
-        },
-        "initialDelaySeconds": {
-          "required": [],
-          "type": "integer"
-        },
-        "periodSeconds": {
-          "required": [],
-          "type": "integer"
-        },
-        "successThreshold": {
-          "required": [],
-          "type": "integer"
-        },
-        "timeoutSeconds": {
-          "required": [],
-          "type": "integer"
         }
       },
       "required": [],
