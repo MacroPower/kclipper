@@ -50,6 +50,9 @@ schema MonitoringCoreosComV1PodMonitorSpec:
         of uncompressed response body that will be accepted by Prometheus.
 
         It requires Prometheus >= v2.28.0.
+    convertClassicHistogramsToNHCB : bool, default is Undefined, optional
+        Whether to convert all scraped classic histograms into a native histogram with custom buckets.
+        It requires Prometheus >= v3.0.0.
     fallbackScrapeProtocol : str, default is Undefined, optional
         The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
 
@@ -105,6 +108,8 @@ schema MonitoringCoreosComV1PodMonitorSpec:
     scrapeClassicHistograms : bool, default is Undefined, optional
         Whether to scrape a classic histogram that is also exposed as a native histogram.
         It requires Prometheus >= v2.45.0.
+
+        Notice: `scrapeClassicHistograms` corresponds to the `always_scrape_classic_histograms` field in the Prometheus configuration.
     scrapeProtocols : [str], default is Undefined, optional
         `scrapeProtocols` defines the protocols to negotiate during a scrape. It tells clients the
         protocols supported by Prometheus in order of preference (from most to least preferred).
@@ -127,6 +132,7 @@ schema MonitoringCoreosComV1PodMonitorSpec:
     """
     attachMetadata?: MonitoringCoreosComV1PodMonitorSpecAttachMetadata
     bodySizeLimit?: str
+    convertClassicHistogramsToNHCB?: bool
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
     jobLabel?: str
     keepDroppedTargets?: int
@@ -224,6 +230,12 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
     metricRelabelings : [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabelingsItems0], default is Undefined, optional
         `metricRelabelings` configures the relabeling rules to apply to the
         samples before ingestion.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2, default is Undefined, optional
         oauth2
     params : {str:[str]}, default is Undefined, optional
@@ -238,9 +250,17 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
         It takes precedence over the `portNumber` and `targetPort` fields.
     portNumber : int, default is Undefined, optional
         The `Pod` port number which exposes the endpoint.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` configures the HTTP Proxy URL (e.g.
-        "http://proxyserver:2195") to go through when scraping the target.
+        `proxyURL` defines the HTTP proxy server to use.
     relabelings : [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsItems0], default is Undefined, optional
         `relabelings` configures the relabeling rules to apply the target's
         metadata labels.
@@ -287,11 +307,14 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
     honorTimestamps?: bool
     interval?: str
     metricRelabelings?: [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabelingsItems0]
+    noProxy?: str
     oauth2?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2
     params?: {str:[str]}
     path?: str
     port?: str
     portNumber?: int
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0ProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
     proxyUrl?: str
     relabelings?: [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsItems0]
     scheme?: "http" | "https"
@@ -304,6 +327,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
         portNumber <= 65535 if portNumber not in [None, Undefined]
         portNumber >= 1 if portNumber not in [None, Undefined]
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Authorization:
@@ -512,16 +536,16 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -545,7 +569,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientID:
@@ -670,11 +694,11 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -824,6 +848,28 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     name?: str = ""
     optional?: bool
 
+schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsItems0:
     r"""
     RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
@@ -893,11 +939,11 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """

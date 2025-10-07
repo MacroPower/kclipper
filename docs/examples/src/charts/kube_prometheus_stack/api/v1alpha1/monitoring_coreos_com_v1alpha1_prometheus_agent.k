@@ -95,6 +95,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         Overriding containers is entirely outside the scope of what the
         maintainers will support and by doing so, you accept that this behaviour
         may break at any time without notice.
+    convertClassicHistogramsToNHCB : bool, default is Undefined, optional
+        Whether to convert all scraped classic histograms into a native
+        histogram with custom buckets.
+
+        It requires Prometheus >= v3.4.0.
     dnsConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecDNSConfig, default is Undefined, optional
         dns config
     dnsPolicy : str, default is Undefined, optional
@@ -124,6 +129,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         For more information see https://prometheus.io/docs/prometheus/latest/querying/api/#remote-write-receiver
 
         It requires Prometheus >= v2.33.0.
+    enableServiceLinks : bool, default is Undefined, optional
+        Indicates whether information about services should be injected into pod's environment variables
     enforcedBodySizeLimit : str, default is Undefined, optional
         When defined, enforcedBodySizeLimit specifies a global limit on the size
         of uncompressed response body that will be accepted by Prometheus.
@@ -253,11 +260,18 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         Use the host's network namespace if true.
 
         Make sure to understand the security implications if you want to enable
-        it (https://kubernetes.io/docs/concepts/configuration/overview/).
+        it (https://kubernetes.io/docs/concepts/configuration/overview/ ).
 
         When hostNetwork is enabled, this will set the DNS policy to
         `ClusterFirstWithHostNet` automatically (unless `.spec.DNSPolicy` is set
         to a different value).
+    hostUsers : bool, default is Undefined, optional
+        HostUsers supports the user space in Kubernetes.
+
+        More info: https://kubernetes.io/docs/tasks/configure-pod-container/user-namespaces/
+
+        The feature requires at least Kubernetes 1.28 with the `UserNamespacesSupport` feature gate enabled.
+        Starting Kubernetes 1.33, the feature is enabled by default.
     ignoreNamespaceSelectors : bool, default is Undefined, optional
         When true, `spec.namespaceSelector` from all PodMonitor, ServiceMonitor
         and Probe objects will be ignored. They will only discover targets
@@ -335,16 +349,22 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     minReadySeconds : int, default is Undefined, optional
         Minimum number of seconds for which a newly created Pod should be ready
         without any of its container crashing for it to be considered available.
-        Defaults to 0 (pod will be considered available as soon as it is ready)
 
-        This is an alpha field from kubernetes 1.22 until 1.24 which requires
-        enabling the StatefulSetMinReadySeconds feature gate.
+        If unset, pods will be considered available as soon as they are ready.
     mode : str, default is Undefined, optional
         Mode defines how the Prometheus operator deploys the PrometheusAgent pod(s).
 
         (Alpha) Using this field requires the `PrometheusAgentDaemonSet` feature gate to be enabled.
+    nameEscapingScheme : str, default is Undefined, optional
+        Specifies the character escaping scheme that will be requested when scraping
+        for metric and label names that do not conform to the legacy Prometheus
+        character set.
+
+        It requires Prometheus >= v3.4.0.
     nameValidationScheme : str, default is Undefined, optional
         Specifies the validation scheme for metric and label names.
+
+        It requires Prometheus >= v2.55.0.
     nodeSelector : {str:str}, default is Undefined, optional
         Defines on which Nodes the Pods are scheduled.
     otlp : MonitoringCoreosComV1alpha1PrometheusAgentSpecOtlp, default is Undefined, optional
@@ -433,6 +453,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
 
         This is an *experimental feature*, it may change in any upcoming release
         in a breaking way.
+    scrapeClassicHistograms : bool, default is Undefined, optional
+        Whether to scrape a classic histogram that is also exposed as a native histogram.
+
+        Notice: `scrapeClassicHistograms` corresponds to the `always_scrape_classic_histograms` field in the Prometheus configuration.
+
+        It requires Prometheus >= v3.5.0.
     scrapeConfigNamespaceSelector : MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigNamespaceSelector, default is Undefined, optional
         scrape config namespace selector
     scrapeConfigSelector : MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigSelector, default is Undefined, optional
@@ -490,7 +516,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         When deploying multiple Prometheus/PrometheusAgent resources in the same namespace, it is recommended to specify a different value for each.
         See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
     shards : int, default is Undefined, optional
-        Number of shards to distribute scraped targets onto.
+        Number of shards to distribute the scraped targets onto.
 
         `spec.replicas` multiplied by `spec.shards` is the total number of Pods
         being created.
@@ -500,11 +526,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         Note that scaling down shards will not reshard data onto the remaining
         instances, it must be manually moved. Increasing shards will not reshard
         data either but it will continue to be available from the same
-        instances. To query globally, use Thanos sidecar and Thanos querier or
-        remote write data to a central location.
-        Alerting and recording rules
+        instances. To query globally, use either
+        * Thanos sidecar + querier for query federation and Thanos Ruler for rules.
+        * Remote-write to send metrics to a central location.
 
-        By default, the sharding is performed on:
+        By default, the sharding of targets is performed on:
         * The `__address__` target's metadata label for PodMonitor,
         ServiceMonitor and ScrapeConfig resources.
         * The `__param_target__` label for Probe resources.
@@ -512,6 +538,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         Users can define their own sharding implementation by setting the
         `__tmp_hash` label during the target discovery with relabeling
         configuration (either in the monitoring resources or via scrape class).
+
+        You can also disable sharding on a specific target by setting the
+        `__tmp_disable_sharding` label with relabeling configuration. When
+        the label value isn't empty, all Prometheus shards will scrape the target.
     storage : MonitoringCoreosComV1alpha1PrometheusAgentSpecStorage, default is Undefined, optional
         storage
     targetLimit : int, default is Undefined, optional
@@ -520,6 +550,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
 
         Note that the global limit only applies to scrape objects that don't specify an explicit limit value.
         If you want to enforce a maximum limit for all scrape objects, refer to enforcedTargetLimit.
+    terminationGracePeriodSeconds : int, default is Undefined, optional
+        Optional duration in seconds the pod needs to terminate gracefully.
+        Value must be non-negative integer. The value zero indicates stop immediately via
+        the kill signal (no opportunity to shut down) which may lead to data corruption.
+
+        Defaults to 600 seconds.
     tolerations : [MonitoringCoreosComV1alpha1PrometheusAgentSpecTolerationsItems0], default is Undefined, optional
         Defines the Pods' tolerations if specified.
     topologySpreadConstraints : [MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsItems0], default is Undefined, optional
@@ -562,11 +598,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     bodySizeLimit?: str
     configMaps?: [str]
     containers?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0]
+    convertClassicHistogramsToNHCB?: bool
     dnsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecDNSConfig
     dnsPolicy?: "ClusterFirstWithHostNet" | "ClusterFirst" | "Default" | "None"
     enableFeatures?: [str]
     enableOTLPReceiver?: bool
     enableRemoteWriteReceiver?: bool
+    enableServiceLinks?: bool
     enforcedBodySizeLimit?: str
     enforcedKeepDroppedTargets?: int
     enforcedLabelLimit?: int
@@ -580,6 +618,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     externalUrl?: str
     hostAliases?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecHostAliasesItems0]
     hostNetwork?: bool
+    hostUsers?: bool
     ignoreNamespaceSelectors?: bool
     image?: str
     imagePullPolicy?: "" | "Always" | "Never" | "IfNotPresent"
@@ -595,6 +634,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     maximumStartupDurationSeconds?: int
     minReadySeconds?: int
     mode?: "StatefulSet" | "DaemonSet"
+    nameEscapingScheme?: "AllowUTF8" | "Underscores" | "Dots" | "Values"
     nameValidationScheme?: "UTF8" | "Legacy"
     nodeSelector?: {str:str}
     otlp?: MonitoringCoreosComV1alpha1PrometheusAgentSpecOtlp
@@ -621,6 +661,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     runtime?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRuntime
     sampleLimit?: int
     scrapeClasses?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0]
+    scrapeClassicHistograms?: bool
     scrapeConfigNamespaceSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigNamespaceSelector
     scrapeConfigSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeConfigSelector
     scrapeFailureLogFile?: str
@@ -637,6 +678,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     shards?: int
     storage?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorage
     targetLimit?: int
+    terminationGracePeriodSeconds?: int
     tolerations?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecTolerationsItems0]
     topologySpreadConstraints?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsItems0]
     tracingConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfig
@@ -652,11 +694,13 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         all enableFeatures in enableFeatures {len(enableFeatures) >= 1 if enableFeatures not in [None, Undefined]} if enableFeatures
         _regex_match(str(enforcedBodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if enforcedBodySizeLimit
         maximumStartupDurationSeconds >= 60 if maximumStartupDurationSeconds not in [None, Undefined]
+        minReadySeconds >= 0 if minReadySeconds not in [None, Undefined]
         len(remoteWriteReceiverMessageVersions) >= 1 if remoteWriteReceiverMessageVersions
         len(scrapeFailureLogFile) >= 1 if scrapeFailureLogFile
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
         len(serviceName) >= 1 if serviceName
+        terminationGracePeriodSeconds >= 0 if terminationGracePeriodSeconds not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAdditionalArgsItems0:
     r"""
@@ -969,7 +1013,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferre
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     mismatchLabelKeys : [str], default is Undefined, optional
         MismatchLabelKeys is a set of pod label keys to select which pods will
         be taken into consideration. The keys are used to lookup values from the
@@ -979,7 +1022,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferre
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     namespaceSelector : MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector, default is Undefined, optional
         namespace selector
     namespaces : [str], default is Undefined, optional
@@ -1108,7 +1150,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequired
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     mismatchLabelKeys : [str], default is Undefined, optional
         MismatchLabelKeys is a set of pod label keys to select which pods will
         be taken into consideration. The keys are used to lookup values from the
@@ -1118,7 +1159,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequired
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     namespaceSelector : MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector, default is Undefined, optional
         namespace selector
     namespaces : [str], default is Undefined, optional
@@ -1286,7 +1326,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPref
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     mismatchLabelKeys : [str], default is Undefined, optional
         MismatchLabelKeys is a set of pod label keys to select which pods will
         be taken into consideration. The keys are used to lookup values from the
@@ -1296,7 +1335,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPref
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     namespaceSelector : MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionItems0PodAffinityTermNamespaceSelector, default is Undefined, optional
         namespace selector
     namespaces : [str], default is Undefined, optional
@@ -1425,7 +1463,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequ
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both matchLabelKeys and labelSelector.
         Also, matchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     mismatchLabelKeys : [str], default is Undefined, optional
         MismatchLabelKeys is a set of pod label keys to select which pods will
         be taken into consideration. The keys are used to lookup values from the
@@ -1435,7 +1472,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequ
         pod labels will be ignored. The default value is empty.
         The same key is forbidden to exist in both mismatchLabelKeys and labelSelector.
         Also, mismatchLabelKeys cannot be set when labelSelector isn't set.
-        This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default).
     namespaceSelector : MonitoringCoreosComV1alpha1PrometheusAgentSpecAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionItems0NamespaceSelector, default is Undefined, optional
         namespace selector
     namespaces : [str], default is Undefined, optional
@@ -1570,6 +1606,23 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfig:
     host : str, default is Undefined, required
         Kubernetes API address consisting of a hostname or IP address followed
         by an optional port number.
+    noProxy : str, default is Undefined, optional
+        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigProxyConnectHeaderItems0]}, default is Undefined, optional
+        ProxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyUrl : str, default is Undefined, optional
+        `proxyURL` defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfig, default is Undefined, optional
         tls config
     """
@@ -1579,7 +1632,14 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfig:
     bearerTokenFile?: str
     host: str
 
+    noProxy?: str
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyUrl?: str
     tlsConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfig
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigAuthorization:
     r"""
@@ -1690,6 +1750,28 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigBasicAuthUse
     name?: str = ""
     optional?: bool
 
+schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfig:
     r"""
     TLS Config to use for the API server.
@@ -1713,11 +1795,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecApiserverConfigTLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -2047,14 +2129,14 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0:
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0:
     r"""
-    EnvFromSource represents the source of a set of ConfigMaps
+    EnvFromSource represents the source of a set of ConfigMaps or Secrets
 
     Attributes
     ----------
     configMapRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0ConfigMapRef, default is Undefined, optional
         config map ref
     prefix : str, default is Undefined, optional
-        An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+        Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
     secretRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
@@ -2235,9 +2317,14 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0Lifecycle:
         post start
     preStop : MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
+    stopSignal : str, default is Undefined, optional
+        StopSignal defines which signal will be sent to a container when it is being stopped.
+        If not specified, the default is defined by the container runtime in use.
+        StopSignal can only be set for Pods with a non-empty .spec.os.name
     """
     postStart?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStart
     preStop?: MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePreStop
+    stopSignal?: str
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0LifecyclePostStart:
     r"""
@@ -3539,14 +3626,14 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0:
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0:
     r"""
-    EnvFromSource represents the source of a set of ConfigMaps
+    EnvFromSource represents the source of a set of ConfigMaps or Secrets
 
     Attributes
     ----------
     configMapRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0ConfigMapRef, default is Undefined, optional
         config map ref
     prefix : str, default is Undefined, optional
-        An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+        Optional text to prepend to the name of each environment variable. Must be a C_IDENTIFIER.
     secretRef : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0EnvFromItems0SecretRef, default is Undefined, optional
         secret ref
     """
@@ -3727,9 +3814,14 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Lifecyc
         post start
     preStop : MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStop, default is Undefined, optional
         pre stop
+    stopSignal : str, default is Undefined, optional
+        StopSignal defines which signal will be sent to a container when it is being stopped.
+        If not specified, the default is defined by the container runtime in use.
+        StopSignal can only be set for Pods with a non-empty .spec.os.name
     """
     postStart?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStart
     preStop?: MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePreStop
+    stopSignal?: str
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0LifecyclePostStart:
     r"""
@@ -4780,23 +4872,42 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecOtlp:
 
     Attributes
     ----------
+    convertHistogramsToNHCB : bool, default is Undefined, optional
+        Configures optional translation of OTLP explicit bucket histograms into native histograms with custom buckets.
+        It requires Prometheus >= v3.4.0.
+    ignoreResourceAttributes : [str], default is Undefined, optional
+        List of OpenTelemetry resource attributes to ignore when `promoteAllResourceAttributes` is true.
+
+        It requires `promoteAllResourceAttributes` to be true.
+        It requires Prometheus >= v3.5.0.
     keepIdentifyingResourceAttributes : bool, default is Undefined, optional
         Enables adding `service.name`, `service.namespace` and `service.instance.id`
         resource attributes to the `target_info` metric, on top of converting them into the `instance` and `job` labels.
 
         It requires Prometheus >= v3.1.0.
+    promoteAllResourceAttributes : bool, default is Undefined, optional
+        Promote all resource attributes to metric labels except the ones defined in `ignoreResourceAttributes`.
+
+        Cannot be true when `promoteResourceAttributes` is defined.
+        It requires Prometheus >= v3.5.0.
     promoteResourceAttributes : [str], default is Undefined, optional
         List of OpenTelemetry Attributes that should be promoted to metric labels, defaults to none.
+        Cannot be defined when `promoteAllResourceAttributes` is true.
     translationStrategy : str, default is Undefined, optional
         Configures how the OTLP receiver endpoint translates the incoming metrics.
 
         It requires Prometheus >= v3.0.0.
     """
+    convertHistogramsToNHCB?: bool
+    ignoreResourceAttributes?: [str]
     keepIdentifyingResourceAttributes?: bool
+    promoteAllResourceAttributes?: bool
     promoteResourceAttributes?: [str]
-    translationStrategy?: "NoUTF8EscapingWithSuffixes" | "UnderscoreEscapingWithSuffixes"
+    translationStrategy?: "NoUTF8EscapingWithSuffixes" | "UnderscoreEscapingWithSuffixes" | "NoTranslation"
 
     check:
+        len(ignoreResourceAttributes) >= 1 if ignoreResourceAttributes
+        all ignoreResourceAttributes in ignoreResourceAttributes {len(ignoreResourceAttributes) >= 1 if ignoreResourceAttributes not in [None, Undefined]} if ignoreResourceAttributes
         len(promoteResourceAttributes) >= 1 if promoteResourceAttributes
         all promoteResourceAttributes in promoteResourceAttributes {len(promoteResourceAttributes) >= 1 if promoteResourceAttributes not in [None, Undefined]} if promoteResourceAttributes
 
@@ -4844,19 +4955,19 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecPodMetadata:
         Annotations is an unstructured key value map stored with a resource that may be
         set by external tools to store and retrieve arbitrary metadata. They are not
         queryable and should be preserved when modifying objects.
-        More info: http://kubernetes.io/docs/user-guide/annotations
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
     labels : {str:str}, default is Undefined, optional
         Map of string keys and values that can be used to organize and categorize
         (scope and select) objects. May match selectors of replication controllers
         and services.
-        More info: http://kubernetes.io/docs/user-guide/labels
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
     name : str, default is Undefined, optional
         Name must be unique within a namespace. Is required when creating resources, although
         some resources may allow a client to request the generation of an appropriate name
         automatically. Name is primarily intended for creation idempotence and configuration
         definition.
         Cannot be updated.
-        More info: http://kubernetes.io/docs/user-guide/identifiers#names
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
     """
     annotations?: {str:str}
     labels?: {str:str}
@@ -5073,12 +5184,12 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0:
     followRedirects : bool, default is Undefined, optional
         Configure whether HTTP requests follow HTTP 3xx redirects.
 
-        It requires Prometheus >= v2.26.0.
+        It requires Prometheus >= v2.26.0 or Thanos >= v0.24.0.
     headers : {str:str}, default is Undefined, optional
         Custom HTTP headers to be sent along with each remote write request.
         Be aware that headers that are set by Prometheus itself can't be overwritten.
 
-        It requires Prometheus >= v2.25.0.
+        It requires Prometheus >= v2.25.0 or Thanos >= v0.24.0.
     messageVersion : str, default is Undefined, optional
         The Remote Write message's version to use when writing to the endpoint.
 
@@ -5091,48 +5202,61 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0:
         Before setting this field, consult with your remote storage provider
         what message version it supports.
 
-        It requires Prometheus >= v2.54.0.
+        It requires Prometheus >= v2.54.0 or Thanos >= v0.37.0.
     metadataConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0MetadataConfig, default is Undefined, optional
         metadata config
     name : str, default is Undefined, optional
         The name of the remote write queue, it must be unique if specified. The
         name is used in metrics and logging in order to differentiate queues.
 
-        It requires Prometheus >= v2.15.0.
+        It requires Prometheus >= v2.15.0 or Thanos >= 0.24.0.
     noProxy : str, default is Undefined, optional
         `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     queueConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0QueueConfig, default is Undefined, optional
         queue config
     remoteTimeout : str, default is Undefined, optional
         Timeout for requests to the remote write endpoint.
+    roundRobinDNS : bool, default is Undefined, optional
+        When enabled:
+            - The remote-write mechanism will resolve the hostname via DNS.
+            - It will randomly select one of the resolved IP addresses and connect to it.
+
+        When disabled (default behavior):
+            - The Go standard library will handle hostname resolution.
+            - It will attempt connections to each resolved IP address sequentially.
+
+        Note: The connection timeout applies to the entire resolution and connection process.
+              If disabled, the timeout is distributed across all connection attempts.
+
+        It requires Prometheus >= v3.1.0 or Thanos >= v0.38.0.
     sendExemplars : bool, default is Undefined, optional
         Enables sending of exemplars over remote write. Note that
         exemplar-storage itself must be enabled using the `spec.enableFeatures`
         option for exemplars to be scraped in the first place.
 
-        It requires Prometheus >= v2.27.0.
+        It requires Prometheus >= v2.27.0 or Thanos >= v0.24.0.
     sendNativeHistograms : bool, default is Undefined, optional
         Enables sending of native histograms, also known as sparse histograms
         over remote write.
 
-        It requires Prometheus >= v2.40.0.
+        It requires Prometheus >= v2.40.0 or Thanos >= v0.30.0.
     sigv4 : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4, default is Undefined, optional
         sigv4
     tlsConfig : MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfig, default is Undefined, optional
@@ -5160,6 +5284,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0:
     proxyUrl?: str
     queueConfig?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0QueueConfig
     remoteTimeout?: str
+    roundRobinDNS?: bool
     sendExemplars?: bool
     sendNativeHistograms?: bool
     sigv4?: MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4
@@ -5169,7 +5294,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0:
     writeRelabelConfigs?: [MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0WriteRelabelConfigsItems0]
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(remoteTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if remoteTimeout
         len(url) >= 1
 
@@ -5177,7 +5302,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Authorizat
     r"""
     Authorization section for the URL.
 
-    It requires Prometheus >= v2.26.0.
+    It requires Prometheus >= v2.26.0 or Thanos >= v0.24.0.
 
     Cannot be set at the same time as `sigv4`, `basicAuth`, `oauth2`, or `azureAd`.
 
@@ -5224,7 +5349,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAd:
     r"""
     AzureAD for the URL.
 
-    It requires Prometheus >= v2.45.0.
+    It requires Prometheus >= v2.45.0 or Thanos >= v0.31.0.
 
     Cannot be set at the same time as `authorization`, `basicAuth`, `oauth2`, or `sigv4`.
 
@@ -5261,7 +5386,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdOau
     OAuth defines the oauth config that is being used to authenticate.
     Cannot be set at the same time as `managedIdentity` or `sdk`.
 
-    It requires Prometheus >= v2.48.0.
+    It requires Prometheus >= v2.48.0 or Thanos >= v0.31.0.
 
     Attributes
     ----------
@@ -5311,7 +5436,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0AzureAdSdk
     See https://learn.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication
     Cannot be set at the same time as `oauth` or `managedIdentity`.
 
-    It requires Prometheus >= 2.52.0.
+    It requires Prometheus >= v2.52.0 or Thanos >= v0.36.0.
 
     Attributes
     ----------
@@ -5391,22 +5516,28 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0MetadataCo
 
     Attributes
     ----------
+    maxSamplesPerSend : int, default is Undefined, optional
+        MaxSamplesPerSend is the maximum number of metadata samples per send.
+
+        It requires Prometheus >= v2.29.0.
     send : bool, default is Undefined, optional
         Defines whether metric metadata is sent to the remote storage or not.
     sendInterval : str, default is Undefined, optional
         Defines how frequently metric metadata is sent to the remote storage.
     """
+    maxSamplesPerSend?: int
     send?: bool
     sendInterval?: str
 
     check:
+        maxSamplesPerSend >= -1 if maxSamplesPerSend not in [None, Undefined]
         _regex_match(str(sendInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if sendInterval
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2:
     r"""
     OAuth2 configuration for the URL.
 
-    It requires Prometheus >= v2.27.0.
+    It requires Prometheus >= v2.27.0 or Thanos >= v0.24.0.
 
     Cannot be set at the same time as `sigv4`, `authorization`, `basicAuth`, or `azureAd`.
 
@@ -5424,16 +5555,16 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2:
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
         ProxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
         Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
         `proxyURL` defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
@@ -5457,7 +5588,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientID:
@@ -5582,11 +5713,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2TLSC
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -5788,7 +5919,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0QueueConfi
         in a breaking way.
     sampleAgeLimit : str, default is Undefined, optional
         SampleAgeLimit drops samples older than the limit.
-        It requires Prometheus >= v2.50.0.
+        It requires Prometheus >= v2.50.0 or Thanos >= v0.32.0.
     """
     batchSendDeadline?: str
     capacity?: int
@@ -5811,7 +5942,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Sigv4:
     r"""
     Sigv4 allows to configures AWS's Signature Verification 4 for the URL.
 
-    It requires Prometheus >= v2.26.0.
+    It requires Prometheus >= v2.26.0 or Thanos >= v0.24.0.
 
     Cannot be set at the same time as `authorization`, `basicAuth`, `oauth2`, or `azureAd`.
 
@@ -5903,11 +6034,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0TLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -6424,11 +6555,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfi
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -7331,19 +7462,19 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecStorageVolumeClaimTemplateM
         Annotations is an unstructured key value map stored with a resource that may be
         set by external tools to store and retrieve arbitrary metadata. They are not
         queryable and should be preserved when modifying objects.
-        More info: http://kubernetes.io/docs/user-guide/annotations
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
     labels : {str:str}, default is Undefined, optional
         Map of string keys and values that can be used to organize and categorize
         (scope and select) objects. May match selectors of replication controllers
         and services.
-        More info: http://kubernetes.io/docs/user-guide/labels
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
     name : str, default is Undefined, optional
         Name must be unique within a namespace. Is required when creating resources, although
         some resources may allow a client to request the generation of an appropriate name
         automatically. Name is primarily intended for creation idempotence and configuration
         definition.
         Cannot be updated.
-        More info: http://kubernetes.io/docs/user-guide/identifiers#names
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
     """
     annotations?: {str:str}
     labels?: {str:str}
@@ -7792,7 +7923,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsIt
         - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
 
         If this value is nil, the behavior is equivalent to the Honor policy.
-        This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
     nodeTaintsPolicy : str, default is Undefined, optional
         NodeTaintsPolicy indicates how we will treat node taints when calculating
         pod topology spread skew. Options are:
@@ -7801,7 +7931,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTopologySpreadConstraintsIt
         - Ignore: node taints are ignored. All nodes are included.
 
         If this value is nil, the behavior is equivalent to the Ignore policy.
-        This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
     topologyKey : str, default is Undefined, required
         TopologyKey is the key of node labels. Nodes that have a label with this key
         and identical values are considered to be in the same topology.
@@ -7951,11 +8080,11 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTracingConfigTLSConfig:
     maxVersion : str, default is Undefined, optional
         Maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
         Minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
         Used to verify the hostname for the targets.
     """
@@ -9166,7 +9295,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Image:
     The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
     The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
     The volume will be mounted read-only (ro) and non-executable files (noexec).
-    Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath).
+    Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
     The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 
     Attributes
