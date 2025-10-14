@@ -570,7 +570,10 @@
                 },
                 "port": {
                   "required": [],
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "integer"
+                  ]
                 }
               },
               "required": [],
