@@ -674,10 +674,10 @@ schema ValuesLivenessProbeSpecHttpGet:
     Attributes
     ----------
     path : str, optional
-    port : str, optional
+    port : str | int, optional
     """
     path?: str
-    port?: str
+    port?: str | int
 
 schema ValuesLog:
     r"""
