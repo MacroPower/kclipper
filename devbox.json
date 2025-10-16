@@ -14,7 +14,7 @@
     "zizmor": "1.13.0",
     "conform": "0.1.0-alpha.29",
     "syft": "1.33.0",
-    "cosign": "2.6.0",
+    "cosign": "2.6.1",
     "apple-sdk_15": {
       "version": "15.2",
       "platforms": ["aarch64-darwin", "x86_64-darwin"]
