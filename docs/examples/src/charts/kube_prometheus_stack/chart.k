@@ -14,10 +14,10 @@ schema Chart(helm.Chart):
     values : Values | any, optional
     chart : str, required, default is "kube-prometheus-stack"
     repoURL : str, required, default is "https://prometheus-community.github.io/helm-charts"
-    targetRevision : str, optional, default is "69.8.2"
+    targetRevision : str, optional, default is "78.5.0"
     """
     values?: Values | any
     chart: str = "kube-prometheus-stack"
     repoURL: str = "https://prometheus-community.github.io/helm-charts"
-    targetRevision?: str = "69.8.2"
+    targetRevision?: str = "78.5.0"
 
