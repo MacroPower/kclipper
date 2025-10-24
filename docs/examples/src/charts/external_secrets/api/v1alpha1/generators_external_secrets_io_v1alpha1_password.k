@@ -40,6 +40,14 @@ schema GeneratorsExternalSecretsIoV1alpha1PasswordSpec:
     digits : int, default is Undefined, optional
         Digits specifies the number of digits in the generated
         password. If omitted it defaults to 25% of the length of the password
+    encoding : str, default is "raw", optional
+        Encoding specifies the encoding of the generated password.
+        Valid values are:
+        - "raw" (default): no encoding
+        - "base64": standard base64 encoding
+        - "base64url": base64url encoding
+        - "base32": base32 encoding
+        - "hex": hexadecimal encoding
     length : int, default is 24, required
         Length of the password to be generated.
         Defaults to 24
@@ -55,6 +63,7 @@ schema GeneratorsExternalSecretsIoV1alpha1PasswordSpec:
     allowRepeat: bool = False
 
     digits?: int
+    encoding?: "base64" | "base64url" | "base32" | "hex" | "raw" = "raw"
     length: int = 24
 
     noUpper: bool = False

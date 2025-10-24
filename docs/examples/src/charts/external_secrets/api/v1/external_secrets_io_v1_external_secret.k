@@ -11,6 +11,7 @@ _regex_match = regex.match
 schema ExternalSecret:
     r"""
     ExternalSecret is the Schema for the external-secrets API.
+    It defines how to fetch data from external APIs and make it available as Kubernetes Secrets.
 
     Attributes
     ----------
@@ -70,7 +71,8 @@ schema ExternalSecretsIoV1ExternalSecretSpec:
 
 schema ExternalSecretsIoV1ExternalSecretSpecDataFromItems0:
     r"""
-    external secrets io v1 external secret spec data from items0
+    ExternalSecretDataFromRemoteRef defines the connection between the Kubernetes Secret keys and the Provider data
+    when using DataFrom to fetch multiple values from a Provider.
 
     Attributes
     ----------
@@ -154,7 +156,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecDataFromItems0FindName:
 
 schema ExternalSecretsIoV1ExternalSecretSpecDataFromItems0RewriteItems0:
     r"""
-    external secrets io v1 external secret spec data from items0 rewrite items0
+    ExternalSecretRewrite defines how to rewrite secret data values before they are written to the Secret.
 
     Attributes
     ----------
@@ -420,8 +422,8 @@ schema ExternalSecretsIoV1ExternalSecretSpecSecretStoreRef:
 
 schema ExternalSecretsIoV1ExternalSecretSpecTarget:
     r"""
-    ExternalSecretTarget defines the Kubernetes Secret to be created
-    There can be only one target per ExternalSecret.
+    ExternalSecretTarget defines the Kubernetes Secret to be created,
+    there can be only one target per ExternalSecret.
 
     Attributes
     ----------
@@ -463,7 +465,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplate:
         that should be used to compile/execute the
         template specified in .data and .templateFrom[].
     mergePolicy : str, default is "Replace", optional
-        merge policy
+        TemplateMergePolicy defines how the rendered template should be merged with the existing Secret data.
     metadata : ExternalSecretsIoV1ExternalSecretSpecTargetTemplateMetadata, default is Undefined, optional
         metadata
     templateFrom : [ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0], default is Undefined, optional
@@ -497,7 +499,8 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateMetadata:
 
 schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0:
     r"""
-    external secrets io v1 external secret spec target template template from items0
+    TemplateFrom specifies a source for templates.
+    Each item in the list can either reference a ConfigMap or a Secret resource.
 
     Attributes
     ----------
@@ -508,7 +511,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0:
     secret : ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0Secret, default is Undefined, optional
         secret
     target : str, default is "Data", optional
-        target
+        TemplateTarget specifies where the rendered templates should be applied.
     """
     configMap?: ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMap
     literal?: str
@@ -517,7 +520,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0:
 
 schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMap:
     r"""
-    external secrets io v1 external secret spec target template template from items0 config map
+    TemplateRef specifies a reference to either a ConfigMap or a Secret resource.
 
     Attributes
     ----------
@@ -537,14 +540,14 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0Conf
 
 schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMapItemsItems0:
     r"""
-    external secrets io v1 external secret spec target template template from items0 config map items items0
+    TemplateRefItem specifies a key in the ConfigMap/Secret to use as a template for Secret data.
 
     Attributes
     ----------
     key : str, default is Undefined, required
         A key in the ConfigMap/Secret
     templateAs : str, default is "Values", optional
-        template as
+        TemplateScope specifies how the template keys should be interpreted.
     """
     key: str
 
@@ -557,7 +560,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0Conf
 
 schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0Secret:
     r"""
-    external secrets io v1 external secret spec target template template from items0 secret
+    TemplateRef specifies a reference to either a ConfigMap or a Secret resource.
 
     Attributes
     ----------
@@ -577,14 +580,14 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0Secr
 
 schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0SecretItemsItems0:
     r"""
-    external secrets io v1 external secret spec target template template from items0 secret items items0
+    TemplateRefItem specifies a key in the ConfigMap/Secret to use as a template for Secret data.
 
     Attributes
     ----------
     key : str, default is Undefined, required
         A key in the ConfigMap/Secret
     templateAs : str, default is "Values", optional
-        template as
+        TemplateScope specifies how the template keys should be interpreted.
     """
     key: str
 
@@ -597,7 +600,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0Secr
 
 schema ExternalSecretsIoV1ExternalSecretStatus:
     r"""
-    external secrets io v1 external secret status
+    ExternalSecretStatus defines the observed state of ExternalSecret.
 
     Attributes
     ----------
@@ -633,7 +636,7 @@ schema ExternalSecretsIoV1ExternalSecretStatusBinding:
 
 schema ExternalSecretsIoV1ExternalSecretStatusConditionsItems0:
     r"""
-    external secrets io v1 external secret status conditions items0
+    ExternalSecretStatusCondition defines a status condition of an ExternalSecret resource.
 
     Attributes
     ----------
@@ -646,7 +649,7 @@ schema ExternalSecretsIoV1ExternalSecretStatusConditionsItems0:
     status : str, default is Undefined, required
         status
     $type : str, default is Undefined, required
-        type
+        ExternalSecretConditionType defines a value type for ExternalSecret conditions.
     """
     lastTransitionTime?: str
     message?: str

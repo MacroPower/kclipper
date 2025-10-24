@@ -53,10 +53,6 @@
           "required": [],
           "type": "array"
         },
-        "fullnameOverride": {
-          "required": [],
-          "type": "string"
-        },
         "hostNetwork": {
           "required": [],
           "type": "boolean"
@@ -134,10 +130,6 @@
           },
           "required": [],
           "type": "object"
-        },
-        "nameOverride": {
-          "required": [],
-          "type": "string"
         },
         "nodeSelector": {
           "required": [],
@@ -1065,10 +1057,6 @@
           "required": [],
           "type": "string"
         },
-        "fullnameOverride": {
-          "required": [],
-          "type": "string"
-        },
         "hostNetwork": {
           "required": [],
           "type": "boolean"
@@ -1151,10 +1139,6 @@
           "required": [],
           "type": "object"
         },
-        "nameOverride": {
-          "required": [],
-          "type": "string"
-        },
         "nodeSelector": {
           "required": [],
           "type": "object"
@@ -1205,16 +1189,6 @@
         "priorityClassName": {
           "required": [],
           "type": "string"
-        },
-        "rbac": {
-          "properties": {
-            "create": {
-              "required": [],
-              "type": "boolean"
-            }
-          },
-          "required": [],
-          "type": "object"
         },
         "readinessProbe": {
           "properties": {
