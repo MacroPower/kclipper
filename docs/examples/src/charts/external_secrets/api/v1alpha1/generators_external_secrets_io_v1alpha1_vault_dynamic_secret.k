@@ -10,7 +10,7 @@ _regex_match = regex.match
 
 schema VaultDynamicSecret:
     r"""
-    generators external secrets io v1alpha1 vault dynamic secret
+    VaultDynamicSecret represents a generator that can create dynamic secrets from HashiCorp Vault.
 
     Attributes
     ----------
@@ -32,7 +32,7 @@ schema VaultDynamicSecret:
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpec:
     r"""
-    generators external secrets io v1alpha1 vault dynamic secret spec
+    VaultDynamicSecretSpec defines the desired spec of VaultDynamicSecret.
 
     Attributes
     ----------
@@ -51,7 +51,7 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpec:
         provider
     resultType : str, default is "Data", optional
         Result type defines which data is returned from the generator.
-        By default it is the "data" section of the Vault API response.
+        By default, it is the "data" section of the Vault API response.
         When using e.g. /auth/token/create the "data" section is empty but
         the "auth" section contains the generated token.
         Please refer to the vault docs regarding the result data structure.
@@ -386,7 +386,7 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamJ
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamJwtServiceAccountRef:
     r"""
-    A reference to a ServiceAccount resource.
+    ServiceAccountSelector is a reference to a ServiceAccount resource.
 
     Attributes
     ----------

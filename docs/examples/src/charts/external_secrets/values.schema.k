@@ -165,13 +165,11 @@ schema ValuesCertController:
     extraInitContainers : any, optional
     extraVolumeMounts : any, optional
     extraVolumes : any, optional
-    fullnameOverride : str, optional
     hostNetwork : bool, optional
     image : ValuesCertControllerImage, optional
     imagePullSecrets : any, optional
     log : ValuesCertControllerLog, optional
     metrics : ValuesCertControllerMetrics, optional
-    nameOverride : str, optional
     nodeSelector : ValuesCertControllerNodeSelector, optional
     podAnnotations : ValuesCertControllerPodAnnotations, optional
     podDisruptionBudget : ValuesCertControllerPodDisruptionBudget, optional
@@ -199,13 +197,11 @@ schema ValuesCertController:
     extraInitContainers?: any
     extraVolumeMounts?: any
     extraVolumes?: any
-    fullnameOverride?: str
     hostNetwork?: bool
     image?: ValuesCertControllerImage
     imagePullSecrets?: any
     log?: ValuesCertControllerLog
     metrics?: ValuesCertControllerMetrics
-    nameOverride?: str
     nodeSelector?: ValuesCertControllerNodeSelector
     podAnnotations?: ValuesCertControllerPodAnnotations
     podDisruptionBudget?: ValuesCertControllerPodDisruptionBudget
@@ -972,14 +968,12 @@ schema ValuesWebhook:
     extraVolumeMounts : any, optional
     extraVolumes : any, optional
     failurePolicy : str, optional
-    fullnameOverride : str, optional
     hostNetwork : bool, optional
     image : ValuesWebhookImage, optional
     imagePullSecrets : any, optional
     log : ValuesWebhookLog, optional
     lookaheadInterval : str, optional
     metrics : ValuesWebhookMetrics, optional
-    nameOverride : str, optional
     nodeSelector : ValuesWebhookNodeSelector, optional
     podAnnotations : ValuesWebhookPodAnnotations, optional
     podDisruptionBudget : ValuesWebhookPodDisruptionBudget, optional
@@ -987,7 +981,6 @@ schema ValuesWebhook:
     podSecurityContext : ValuesWebhookPodSecurityContext, optional
     port : int, optional
     priorityClassName : str, optional
-    rbac : ValuesWebhookRbac, optional
     readinessProbe : ValuesWebhookReadinessProbe, optional
     replicaCount : int, optional
     resources : ValuesWebhookResources, optional
@@ -1013,14 +1006,12 @@ schema ValuesWebhook:
     extraVolumeMounts?: any
     extraVolumes?: any
     failurePolicy?: str
-    fullnameOverride?: str
     hostNetwork?: bool
     image?: ValuesWebhookImage
     imagePullSecrets?: any
     log?: ValuesWebhookLog
     lookaheadInterval?: str
     metrics?: ValuesWebhookMetrics
-    nameOverride?: str
     nodeSelector?: ValuesWebhookNodeSelector
     podAnnotations?: ValuesWebhookPodAnnotations
     podDisruptionBudget?: ValuesWebhookPodDisruptionBudget
@@ -1028,7 +1019,6 @@ schema ValuesWebhook:
     podSecurityContext?: ValuesWebhookPodSecurityContext
     port?: int
     priorityClassName?: str
-    rbac?: ValuesWebhookRbac
     readinessProbe?: ValuesWebhookReadinessProbe
     replicaCount?: int
     resources?: ValuesWebhookResources
@@ -1230,16 +1220,6 @@ schema ValuesWebhookPodSecurityContext:
     enabled : bool, optional
     """
     enabled?: bool
-
-schema ValuesWebhookRbac:
-    r"""
-    ValuesWebhookRbac
-
-    Attributes
-    ----------
-    create : bool, optional
-    """
-    create?: bool
 
 schema ValuesWebhookReadinessProbe:
     r"""

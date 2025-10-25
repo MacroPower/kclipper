@@ -419,7 +419,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderAkeylessAuthSecretRefSecretRefA
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderAkeylessAuthSecretRefSecretRefAccessType:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -450,7 +450,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderAkeylessAuthSecretRefSecretRefA
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderAkeylessAuthSecretRefSecretRefAccessTypeParam:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -543,7 +543,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderAlibabaAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderAlibabaAuthRrsa:
     r"""
-    Authenticate against Alibaba using RRSA.
+    AlibabaRRSAAuth authenticates against Alibaba using RRSA.
 
     Attributes
     ----------
@@ -697,7 +697,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderAwsAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderAwsAuthJwt:
     r"""
-    Authenticate against AWS using service account tokens.
+    AWSJWTAuth stores reference to Authenticate against AWS using service account tokens.
 
     Attributes
     ----------
@@ -708,7 +708,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderAwsAuthJwt:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderAwsAuthJwtServiceAccountRef:
     r"""
-    A reference to a ServiceAccount resource.
+    ServiceAccountSelector is a reference to a ServiceAccount resource.
 
     Attributes
     ----------
@@ -861,7 +861,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderAwsSecretsManager:
         The number of days from 7 to 30 that Secrets Manager waits before
         permanently deleting the secret. You can't use both this parameter and
         ForceDeleteWithoutRecovery in the same call. If you don't use either,
-        then by default Secrets Manager uses a 30 day recovery window.
+        then by default Secrets Manager uses a 30-day recovery window.
         see: https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_DeleteSecret.html#SecretsManager-DeleteSecret-request-RecoveryWindowInDays
     """
     forceDeleteWithoutRecovery?: bool
@@ -869,7 +869,8 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderAwsSecretsManager:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderAwsSessionTagsItems0:
     r"""
-    external secrets io v1 secret store spec provider aws session tags items0
+    Tag is a key-value pair that can be attached to an AWS resource.
+    see: https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html
 
     Attributes
     ----------
@@ -2080,7 +2081,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderDevice42Auth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderDevice42AuthSecretRef:
     r"""
-    external secrets io v1 secret store spec provider device42 auth secret ref
+    Device42SecretRef contains the secret reference for accessing the Device42 instance.
 
     Attributes
     ----------
@@ -2156,7 +2157,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderDopplerAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderDopplerAuthSecretRef:
     r"""
-    external secrets io v1 secret store spec provider doppler auth secret ref
+    DopplerAuthSecretRef contains the secret reference for accessing the Doppler API.
 
     Attributes
     ----------
@@ -2206,7 +2207,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderFake:
     data : [ExternalSecretsIoV1SecretStoreSpecProviderFakeDataItems0], default is Undefined, required
         data
     validationResult : int, default is Undefined, optional
-        validation result
+        ValidationResult is defined type for the number of validation results.
     """
     data: [ExternalSecretsIoV1SecretStoreSpecProviderFakeDataItems0]
 
@@ -2214,7 +2215,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderFake:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderFakeDataItems0:
     r"""
-    external secrets io v1 secret store spec provider fake data items0
+    FakeProviderData defines a key-value pair with optional version for the fake provider.
 
     Attributes
     ----------
@@ -2329,7 +2330,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderGcpsmAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderGcpsmAuthSecretRef:
     r"""
-    external secrets io v1 secret store spec provider gcpsm auth secret ref
+    GCPSMAuthSecretRef contains the secret references for GCP Secret Manager authentication.
 
     Attributes
     ----------
@@ -2370,7 +2371,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderGcpsmAuthSecretRefSecretAccessK
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderGcpsmAuthWorkloadIdentity:
     r"""
-    external secrets io v1 secret store spec provider gcpsm auth workload identity
+    GCPWorkloadIdentity defines configuration for workload identity authentication to GCP.
 
     Attributes
     ----------
@@ -2530,7 +2531,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderGcpsmAuthWorkloadIdentityFedera
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderGcpsmAuthWorkloadIdentityServiceAccountRef:
     r"""
-    A reference to a ServiceAccount resource.
+    ServiceAccountSelector is a reference to a ServiceAccount resource.
 
     Attributes
     ----------
@@ -2607,7 +2608,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderGithubAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderGithubAuthPrivateKey:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -2683,7 +2684,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderGitlabAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderGitlabAuthSecretRef:
     r"""
-    external secrets io v1 secret store spec provider gitlab auth secret ref
+    GitlabSecretRef contains the secret reference for GitLab authentication credentials.
 
     Attributes
     ----------
@@ -2786,7 +2787,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderIbmAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderIbmAuthContainerAuth:
     r"""
-    IBM Container-based auth with IAM Trusted Profile.
+    IBMAuthContainerAuth defines container-based authentication with IAM Trusted Profile.
 
     Attributes
     ----------
@@ -2804,7 +2805,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderIbmAuthContainerAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderIbmAuthSecretRef:
     r"""
-    external secrets io v1 secret store spec provider ibm auth secret ref
+    IBMAuthSecretRef contains the secret reference for IBM Cloud API key authentication.
 
     Attributes
     ----------
@@ -2901,7 +2902,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth aws auth credentials
+    AwsAuthCredentials represents the credentials for AWS authentication.
 
     Attributes
     ----------
@@ -2912,7 +2913,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentialsIdentityID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -2943,7 +2944,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAwsAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth azure auth credentials
+    AzureAuthCredentials represents the credentials for Azure authentication.
 
     Attributes
     ----------
@@ -2958,7 +2959,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentia
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentialsIdentityID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -2989,7 +2990,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentia
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentialsResource:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3020,7 +3021,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthAzureAuthCredentia
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIDTokenAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth gcp ID token auth credentials
+    GcpIDTokenAuthCredentials represents the credentials for GCP ID token authentication.
 
     Attributes
     ----------
@@ -3031,7 +3032,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIDTokenAuthCred
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIDTokenAuthCredentialsIdentityID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3062,7 +3063,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIDTokenAuthCred
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIamAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth gcp iam auth credentials
+    GcpIamAuthCredentials represents the credentials for GCP IAM authentication.
 
     Attributes
     ----------
@@ -3077,7 +3078,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIamAuthCredenti
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIamAuthCredentialsIdentityID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3108,7 +3109,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIamAuthCredenti
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIamAuthCredentialsServiceAccountKeyFilePath:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3139,7 +3140,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthGcpIamAuthCredenti
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth jwt auth credentials
+    JwtAuthCredentials represents the credentials for JWT authentication.
 
     Attributes
     ----------
@@ -3154,7 +3155,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentialsIdentityID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3185,7 +3186,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentialsJwt:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3216,7 +3217,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthJwtAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth kubernetes auth credentials
+    KubernetesAuthCredentials represents the credentials for Kubernetes authentication.
 
     Attributes
     ----------
@@ -3231,7 +3232,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCred
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentialsIdentityID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3262,7 +3263,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCred
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCredentialsServiceAccountTokenPath:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3293,7 +3294,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthKubernetesAuthCred
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth ldap auth credentials
+    LdapAuthCredentials represents the credentials for LDAP authentication.
 
     Attributes
     ----------
@@ -3312,7 +3313,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredential
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredentialsIdentityID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3343,7 +3344,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredential
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredentialsLdapPassword:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3374,7 +3375,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredential
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredentialsLdapUsername:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3405,7 +3406,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthLdapAuthCredential
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth oci auth credentials
+    OciAuthCredentials represents the credentials for OCI authentication.
 
     Attributes
     ----------
@@ -3439,7 +3440,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentialsFingerprint:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3470,7 +3471,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentialsIdentityID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3501,7 +3502,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentialsPrivateKey:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3532,7 +3533,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentialsPrivateKeyPassphrase:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3563,7 +3564,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentialsRegion:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3594,7 +3595,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentialsTenancyID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3625,7 +3626,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentialsUserID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3656,7 +3657,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthOciAuthCredentials
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth token auth credentials
+    TokenAuthCredentials represents the credentials for access token-based authentication.
 
     Attributes
     ----------
@@ -3667,7 +3668,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentia
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentialsAccessToken:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3698,7 +3699,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthTokenAuthCredentia
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthUniversalAuthCredentials:
     r"""
-    external secrets io v1 secret store spec provider infisical auth universal auth credentials
+    UniversalAuthCredentials represents the client credentials for universal authentication.
 
     Attributes
     ----------
@@ -3713,7 +3714,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthUniversalAuthCrede
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthUniversalAuthCredentialsClientID:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3744,7 +3745,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthUniversalAuthCrede
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderInfisicalAuthUniversalAuthCredentialsClientSecret:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3815,7 +3816,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderKeepersecurity:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderKeepersecurityAuthRef:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3902,7 +3903,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderKubernetesAuthCert:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderKubernetesAuthCertClientCert:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -3933,7 +3934,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderKubernetesAuthCertClientCert:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderKubernetesAuthCertClientKey:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -4034,7 +4035,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderKubernetesAuthToken:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderKubernetesAuthTokenBearerToken:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -4599,7 +4600,8 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderOracleServiceAccountRef:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderPassbolt:
     r"""
-    external secrets io v1 secret store spec provider passbolt
+    PassboltProvider provides access to Passbolt secrets manager.
+    See: https://www.passbolt.com.
 
     Attributes
     ----------
@@ -4629,7 +4631,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderPassboltAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderPassboltAuthPasswordSecretRef:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -4660,7 +4662,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderPassboltAuthPasswordSecretRef:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderPassboltAuthPrivateKeySecretRef:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -4691,7 +4693,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderPassboltAuthPrivateKeySecretRef
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderPassworddepot:
     r"""
-    Configures a store to sync secrets with a Password Depot instance.
+    PasswordDepotProvider configures a store to sync secrets with a Password Depot instance.
 
     Attributes
     ----------
@@ -4721,7 +4723,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderPassworddepotAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderPassworddepotAuthSecretRef:
     r"""
-    external secrets io v1 secret store spec provider passworddepot auth secret ref
+    PasswordDepotSecretRef contains the secret reference for Password Depot authentication.
 
     Attributes
     ----------
@@ -5163,7 +5165,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderSenhaseguraAuth:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderSenhaseguraAuthClientSecretSecretRef:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -5508,7 +5510,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthIamJwt:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthIamJwtServiceAccountRef:
     r"""
-    A reference to a ServiceAccount resource.
+    ServiceAccountSelector is a reference to a ServiceAccount resource.
 
     Attributes
     ----------
@@ -6264,7 +6266,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderWebhook:
         Headers
     method : str, default is Undefined, optional
         Webhook Method
-    result : ExternalSecretsIoV1SecretStoreSpecProviderWebhookResult, default is Undefined, required
+    result : ExternalSecretsIoV1SecretStoreSpecProviderWebhookResult, default is Undefined, optional
         result
     secrets : [ExternalSecretsIoV1SecretStoreSpecProviderWebhookSecretsItems0], default is Undefined, optional
         Secrets to fill in templates
@@ -6280,8 +6282,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderWebhook:
     caProvider?: ExternalSecretsIoV1SecretStoreSpecProviderWebhookCaProvider
     headers?: {str:str}
     method?: str
-    result: ExternalSecretsIoV1SecretStoreSpecProviderWebhookResult
-
+    result?: ExternalSecretsIoV1SecretStoreSpecProviderWebhookResult
     secrets?: [ExternalSecretsIoV1SecretStoreSpecProviderWebhookSecretsItems0]
     timeout?: str
     url: str
@@ -6314,7 +6315,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderWebhookAuthNtlm:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderWebhookAuthNtlmPasswordSecret:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -6345,7 +6346,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderWebhookAuthNtlmPasswordSecret:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderWebhookAuthNtlmUsernameSecret:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -6419,7 +6420,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderWebhookResult:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderWebhookSecretsItems0:
     r"""
-    external secrets io v1 secret store spec provider webhook secrets items0
+    WebhookSecret defines a secret that will be passed to the webhook request.
 
     Attributes
     ----------
@@ -6537,7 +6538,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderYandexcertificatemanagerCaProvi
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderYandexcertificatemanagerCaProviderCertSecretRef:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -6666,7 +6667,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderYandexlockboxCaProvider:
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderYandexlockboxCaProviderCertSecretRef:
     r"""
-    A reference to a specific 'key' within a Secret resource.
+    SecretKeySelector is a reference to a specific 'key' within a Secret resource.
     In some instances, `key` is a required field.
 
     Attributes
@@ -6750,7 +6751,7 @@ schema ExternalSecretsIoV1SecretStoreStatus:
 
 schema ExternalSecretsIoV1SecretStoreStatusConditionsItems0:
     r"""
-    external secrets io v1 secret store status conditions items0
+    SecretStoreStatusCondition contains condition information for a SecretStore.
 
     Attributes
     ----------
@@ -6763,7 +6764,7 @@ schema ExternalSecretsIoV1SecretStoreStatusConditionsItems0:
     status : str, default is Undefined, required
         status
     $type : str, default is Undefined, required
-        type
+        SecretStoreConditionType represents the condition of the SecretStore.
     """
     lastTransitionTime?: str
     message?: str
