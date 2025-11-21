@@ -2809,9 +2809,12 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderIbmAuthSecretRef:
 
     Attributes
     ----------
+    iamEndpoint : str, default is Undefined, optional
+        The IAM endpoint used to obain a token
     secretApiKeySecretRef : ExternalSecretsIoV1SecretStoreSpecProviderIbmAuthSecretRefSecretAPIKeySecretRef, default is Undefined, optional
         secret Api key secret ref
     """
+    iamEndpoint?: str
     secretApiKeySecretRef?: ExternalSecretsIoV1SecretStoreSpecProviderIbmAuthSecretRefSecretAPIKeySecretRef
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderIbmAuthSecretRefSecretAPIKeySecretRef:
@@ -5021,6 +5024,12 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderSecretserver:
 
     Attributes
     ----------
+    caBundle : str, default is Undefined, optional
+        PEM/base64 encoded CA bundle used to validate Secret ServerURL. Only used
+        if the ServerURL URL is using HTTPS protocol. If not set the system root certificates
+        are used to validate the TLS connection.
+    caProvider : ExternalSecretsIoV1SecretStoreSpecProviderSecretserverCaProvider, default is Undefined, optional
+        ca provider
     domain : str, default is Undefined, optional
         Domain is the secret server domain.
     password : ExternalSecretsIoV1SecretStoreSpecProviderSecretserverPassword, default is Undefined, required
@@ -5031,12 +5040,47 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderSecretserver:
     username : ExternalSecretsIoV1SecretStoreSpecProviderSecretserverUsername, default is Undefined, required
         username
     """
+    caBundle?: str
+    caProvider?: ExternalSecretsIoV1SecretStoreSpecProviderSecretserverCaProvider
     domain?: str
     password: ExternalSecretsIoV1SecretStoreSpecProviderSecretserverPassword
 
     serverURL: str
 
     username: ExternalSecretsIoV1SecretStoreSpecProviderSecretserverUsername
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderSecretserverCaProvider:
+    r"""
+    The provider for the CA bundle to use to validate Secret ServerURL certificate.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        The key where the CA certificate can be found in the Secret or ConfigMap.
+    name : str, default is Undefined, required
+        The name of the object located at the provider type.
+    namespace : str, default is Undefined, optional
+        The namespace the Provider type is in.
+        Can only be defined when used in a ClusterSecretStore.
+    $type : str, default is Undefined, required
+        The type of provider to use such as "Secret", or "ConfigMap".
+    """
+    key?: str
+    name: str
+
+    namespace?: str
+    $type: "Secret" | "ConfigMap"
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253
+        len(name) >= 1
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1SecretStoreSpecProviderSecretserverPassword:
     r"""
@@ -5264,6 +5308,8 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuth:
         app role
     cert : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthCert, default is Undefined, optional
         cert
+    gcp : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcp, default is Undefined, optional
+        gcp
     iam : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthIam, default is Undefined, optional
         iam
     jwt : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthJwt, default is Undefined, optional
@@ -5285,6 +5331,7 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuth:
     """
     appRole?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthAppRole
     cert?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthCert
+    gcp?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcp
     iam?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthIam
     jwt?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthJwt
     kubernetes?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthKubernetes
@@ -5460,6 +5507,159 @@ schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthCertSecretRef:
         len(name) <= 253 if name
         len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcp:
+    r"""
+    Gcp authenticates with Vault using Google Cloud Platform authentication method
+    GCP authentication method
+
+    Attributes
+    ----------
+    location : str, default is Undefined, optional
+        Location optionally defines a location/region for the secret
+    path : str, default is "gcp", optional
+        Path where the GCP auth method is enabled in Vault, e.g: "gcp"
+    projectID : str, default is Undefined, optional
+        Project ID of the Google Cloud Platform project
+    role : str, default is Undefined, required
+        Vault Role. In Vault, a role describes an identity with a set of permissions, groups, or policies you want to attach to a user of the secrets engine.
+    secretRef : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpSecretRef, default is Undefined, optional
+        secret ref
+    serviceAccountRef : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpServiceAccountRef, default is Undefined, optional
+        service account ref
+    workloadIdentity : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpWorkloadIdentity, default is Undefined, optional
+        workload identity
+    """
+    location?: str
+    path?: str = "gcp"
+    projectID?: str
+    role: str
+
+    secretRef?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpSecretRef
+    serviceAccountRef?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpServiceAccountRef
+    workloadIdentity?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpWorkloadIdentity
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpSecretRef:
+    r"""
+    Specify credentials in a Secret object
+
+    Attributes
+    ----------
+    secretAccessKeySecretRef : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpSecretRefSecretAccessKeySecretRef, default is Undefined, optional
+        secret access key secret ref
+    """
+    secretAccessKeySecretRef?: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpSecretRefSecretAccessKeySecretRef
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpSecretRefSecretAccessKeySecretRef:
+    r"""
+    The SecretAccessKey is used for authentication
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        A key in the referenced Secret.
+        Some instances of this field may be defaulted, in others it may be required.
+    name : str, default is Undefined, optional
+        The name of the Secret resource being referred to.
+    namespace : str, default is Undefined, optional
+        The namespace of the Secret resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    key?: str
+    name?: str
+    namespace?: str
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253 if name
+        len(name) >= 1 if name
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpServiceAccountRef:
+    r"""
+    ServiceAccountRef to a service account for impersonation
+
+    Attributes
+    ----------
+    audiences : [str], default is Undefined, optional
+        Audience specifies the `aud` claim for the service account token
+        If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
+        then this audiences will be appended to the list
+    name : str, default is Undefined, required
+        The name of the ServiceAccount resource being referred to.
+    namespace : str, default is Undefined, optional
+        Namespace of the resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    audiences?: [str]
+    name: str
+
+    namespace?: str
+
+    check:
+        len(name) <= 253
+        len(name) >= 1
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpWorkloadIdentity:
+    r"""
+    Specify a service account with Workload Identity
+
+    Attributes
+    ----------
+    clusterLocation : str, default is Undefined, optional
+        ClusterLocation is the location of the cluster
+        If not specified, it fetches information from the metadata server
+    clusterName : str, default is Undefined, optional
+        ClusterName is the name of the cluster
+        If not specified, it fetches information from the metadata server
+    clusterProjectID : str, default is Undefined, optional
+        ClusterProjectID is the project ID of the cluster
+        If not specified, it fetches information from the metadata server
+    serviceAccountRef : ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpWorkloadIdentityServiceAccountRef, default is Undefined, required
+        service account ref
+    """
+    clusterLocation?: str
+    clusterName?: str
+    clusterProjectID?: str
+    serviceAccountRef: ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpWorkloadIdentityServiceAccountRef
+
+schema ExternalSecretsIoV1SecretStoreSpecProviderVaultAuthGcpWorkloadIdentityServiceAccountRef:
+    r"""
+    ServiceAccountSelector is a reference to a ServiceAccount resource.
+
+    Attributes
+    ----------
+    audiences : [str], default is Undefined, optional
+        Audience specifies the `aud` claim for the service account token
+        If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
+        then this audiences will be appended to the list
+    name : str, default is Undefined, required
+        The name of the ServiceAccount resource being referred to.
+    namespace : str, default is Undefined, optional
+        Namespace of the resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    audiences?: [str]
+    name: str
+
+    namespace?: str
+
+    check:
+        len(name) <= 253
+        len(name) >= 1
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
         len(namespace) <= 63 if namespace
         len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
