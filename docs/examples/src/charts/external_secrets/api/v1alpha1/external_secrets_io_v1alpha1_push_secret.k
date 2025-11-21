@@ -330,12 +330,15 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0:
     secret : ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0Secret, default is Undefined, optional
         secret
     target : str, default is "Data", optional
-        TemplateTarget specifies where the rendered templates should be applied.
+        Target specifies where to place the template result.
+        For Secret resources, common values are: "Data", "Annotations", "Labels".
+        For custom resources (when spec.target.manifest is set), this supports
+        nested paths like "spec.database.config" or "data".
     """
     configMap?: ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0ConfigMap
     literal?: str
     secret?: ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0Secret
-    target?: "Data" | "Annotations" | "Labels" = "Data"
+    target?: str = "Data"
 
 schema ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0ConfigMap:
     r"""
