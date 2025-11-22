@@ -231,6 +231,116 @@
       "title": "hpa",
       "type": "object"
     },
+    "httpRoute": {
+      "additionalProperties": true,
+      "description": "Expose the service via Gateway HTTPRoute\nRequires a Gateway controller\nDocs https://gateway-api.sigs.k8s.io/guides/",
+      "properties": {
+        "additionalLabels": {
+          "additionalProperties": true,
+          "description": "Add additional labels to the HTTPRoute.",
+          "required": [],
+          "title": "additionalLabels",
+          "type": "object"
+        },
+        "annotations": {
+          "additionalProperties": true,
+          "description": "HTTPRoute annotations.",
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "enabled": {
+          "default": false,
+          "description": "HTTPRoute enabled.",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "hostnames": {
+          "description": "Hostnames matching HTTP header.",
+          "items": {
+            "required": [],
+            "type": "string"
+          },
+          "required": [],
+          "title": "hostnames",
+          "type": "array"
+        },
+        "parentRefs": {
+          "description": "Which Gateways this Route is attached to.",
+          "items": {
+            "additionalProperties": true,
+            "properties": {
+              "name": {
+                "default": "gateway",
+                "required": [],
+                "title": "name",
+                "type": "string"
+              },
+              "sectionName": {
+                "default": "http",
+                "required": [],
+                "title": "sectionName",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "required": [],
+          "title": "parentRefs",
+          "type": "array"
+        },
+        "rules": {
+          "description": "List of rules and filters applied.",
+          "items": {
+            "additionalProperties": true,
+            "properties": {
+              "matches": {
+                "items": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "path": {
+                      "additionalProperties": true,
+                      "properties": {
+                        "type": {
+                          "default": "PathPrefix",
+                          "required": [],
+                          "title": "type",
+                          "type": "string"
+                        },
+                        "value": {
+                          "default": "/",
+                          "required": [],
+                          "title": "value",
+                          "type": "string"
+                        }
+                      },
+                      "required": [],
+                      "title": "path",
+                      "type": "object"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "title": "matches",
+                "type": "array"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "required": [],
+          "title": "rules",
+          "type": "array"
+        }
+      },
+      "required": [],
+      "title": "httpRoute",
+      "type": "object"
+    },
     "image": {
       "additionalProperties": true,
       "properties": {
@@ -240,6 +350,14 @@
           "title": "pullPolicy",
           "type": "string"
         },
+        "pullSecrets": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "pullSecrets",
+          "type": "array"
+        },
         "repository": {
           "default": "ghcr.io/stefanprodan/podinfo",
           "required": [],
@@ -247,7 +365,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "6.7.1",
+          "default": "6.9.3",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -259,6 +377,7 @@
     },
     "ingress": {
       "additionalProperties": true,
+      "description": "Expose the service via Kubernetes Ingress\nRequires an Ingress controller\nDocs https://kubernetes.io/docs/concepts/services-networking/ingress/",
       "properties": {
         "additionalLabels": {
           "additionalProperties": true,
@@ -385,6 +504,13 @@
       "description": "Disruption budget will be configured only when the replicaCount is greater than 1",
       "required": [],
       "title": "podDisruptionBudget",
+      "type": "object"
+    },
+    "podSecurityContext": {
+      "additionalProperties": true,
+      "description": "set pod security context",
+      "required": [],
+      "title": "podSecurityContext",
       "type": "object"
     },
     "probes": {
@@ -526,14 +652,22 @@
           "title": "enabled",
           "type": "boolean"
         },
+        "imagePullSecrets": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "imagePullSecrets",
+          "type": "array"
+        },
         "repository": {
-          "default": "redis",
+          "default": "docker.io/redis",
           "required": [],
           "title": "repository",
           "type": "string"
         },
         "tag": {
-          "default": "7.0.7",
+          "default": "8.4.0",
           "required": [],
           "title": "tag",
           "type": "string"
