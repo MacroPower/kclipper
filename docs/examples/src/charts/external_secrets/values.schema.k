@@ -30,6 +30,7 @@ schema Values:
     extraVolumeMounts : any, optional
     extraVolumes : any, optional
     fullnameOverride : str, optional
+    genericTargets : ValuesGenericTargets, optional
     global : ValuesGlobal, optional
     grafanaDashboard : ValuesGrafanaDashboard, optional
     hostNetwork : bool, optional
@@ -92,6 +93,7 @@ schema Values:
     extraVolumeMounts?: any
     extraVolumes?: any
     fullnameOverride?: str
+    genericTargets?: ValuesGenericTargets
     global?: ValuesGlobal
     grafanaDashboard?: ValuesGrafanaDashboard
     hostNetwork?: bool
@@ -532,6 +534,18 @@ schema ValuesExtraArgs:
     ValuesExtraArgs
     """
     [...str]: any
+
+schema ValuesGenericTargets:
+    r"""
+    ValuesGenericTargets
+
+    Attributes
+    ----------
+    enabled : bool, optional
+    resources : any, optional
+    """
+    enabled?: bool
+    resources?: any
 
 schema ValuesGlobal:
     r"""
