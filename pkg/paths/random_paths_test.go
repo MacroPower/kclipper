@@ -87,11 +87,14 @@ func TestGetRandomizedPaths_no_race(t *testing.T) {
 	t.Parallel()
 
 	rtp := paths.NewRandomizedTempPaths(t.TempDir())
+	rtp.Add("foo", "/tmp/existing")
+
 	go func() {
 		path, err := rtp.GetPath("https://localhost/test.txt")
 		assert.NoError(t, err)
 		assert.NotEmpty(t, path)
 	}()
+
 	go func() {
 		rtp.GetPaths()
 	}()
