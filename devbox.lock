@@ -489,51 +489,51 @@
         }
       }
     },
-    "hyperfine@1.19": {
-      "last_modified": "2025-07-13T22:45:35Z",
-      "resolved": "github:NixOS/nixpkgs/a421ac6595024edcfbb1ef950a3712b89161c359#hyperfine",
+    "hyperfine@1.20.0": {
+      "last_modified": "2025-12-01T11:04:22Z",
+      "resolved": "github:NixOS/nixpkgs/c1cb7d097cb250f6e1904aacd5f2ba5ffd8a49ce#hyperfine",
       "source": "devbox-search",
-      "version": "1.19.0",
+      "version": "1.20.0",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/hfb1s9nznw3m6wdncabas1vgvxylizl3-hyperfine-1.19.0",
+              "path": "/nix/store/7m367cq9gyxkak29m9vfwj8zk06w45jl-hyperfine-1.20.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/hfb1s9nznw3m6wdncabas1vgvxylizl3-hyperfine-1.19.0"
+          "store_path": "/nix/store/7m367cq9gyxkak29m9vfwj8zk06w45jl-hyperfine-1.20.0"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/ns5ii5r863482gv3m8p0i1la12cj1nzf-hyperfine-1.19.0",
+              "path": "/nix/store/297pyv1q28rx96ywy1vk6g2a4375mb4n-hyperfine-1.20.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/ns5ii5r863482gv3m8p0i1la12cj1nzf-hyperfine-1.19.0"
+          "store_path": "/nix/store/297pyv1q28rx96ywy1vk6g2a4375mb4n-hyperfine-1.20.0"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/3rg473nwxslqcmmawqim5svmq7nf6w4n-hyperfine-1.19.0",
+              "path": "/nix/store/s0mr54r433i52jzc7bnpv7dldqdia2h1-hyperfine-1.20.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/3rg473nwxslqcmmawqim5svmq7nf6w4n-hyperfine-1.19.0"
+          "store_path": "/nix/store/s0mr54r433i52jzc7bnpv7dldqdia2h1-hyperfine-1.20.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/xak46pd98lgj6sgv756knh7cbnrqp1lh-hyperfine-1.19.0",
+              "path": "/nix/store/rga5hqya62xp334aihk4mwjqmqyz6r5z-hyperfine-1.20.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/xak46pd98lgj6sgv756knh7cbnrqp1lh-hyperfine-1.19.0"
+          "store_path": "/nix/store/rga5hqya62xp334aihk4mwjqmqyz6r5z-hyperfine-1.20.0"
         }
       }
     },
