@@ -436,6 +436,20 @@
       "required": [],
       "type": "string"
     },
+    "genericTargets": {
+      "properties": {
+        "enabled": {
+          "required": [],
+          "type": "boolean"
+        },
+        "resources": {
+          "required": [],
+          "type": "array"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
     "global": {
       "properties": {
         "affinity": {
