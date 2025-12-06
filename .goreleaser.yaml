@@ -155,7 +155,7 @@ homebrew_casks:
     description: "KCL Language Server"
     license: "Apache License"
     skip_upload: auto
-    binary: kcl-language-server
+    binaries: [kcl-language-server]
   - repository: *brewRepo
     url:
       template: *archiveTemplate
@@ -165,7 +165,7 @@ homebrew_casks:
     description: "Kclipper Command Line Interface"
     license: "Apache License"
     skip_upload: auto
-    binary: kcl
+    binaries: [kcl]
 
 nix:
   - name: kcl-lsp
@@ -195,22 +195,22 @@ nix:
     skip_upload: auto
 
 docker_manifests:
-  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:latest'
+  - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:latest"
     image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
-  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}'
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}"
     image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
-  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}'
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}"
     image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
-  - name_template: '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}'
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}"
     image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64"
 
 dockers:
   - goos: linux
@@ -218,29 +218,29 @@ dockers:
     dockerfile: Dockerfile
     use: buildx
     image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64'
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-amd64"
     build_flag_templates:
-      - '--platform=linux/amd64'
-      - '--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}'
-      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
-      - '--label=org.opencontainers.image.version={{ .Tag }}'
-      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
-      - '--label=org.opencontainers.image.created={{ .Date }}'
-      - '--label=org.opencontainers.image.source={{ .GitURL }}'
+      - "--platform=linux/amd64"
+      - "--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.version={{ .Tag }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--label=org.opencontainers.image.source={{ .GitURL }}"
   - goos: linux
     goarch: arm64
     dockerfile: Dockerfile
     use: buildx
     image_templates:
-      - '{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64'
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .ProjectName }}:{{ .Tag }}-arm64"
     build_flag_templates:
-      - '--platform=linux/arm64'
-      - '--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}'
-      - '--label=org.opencontainers.image.title={{ .ProjectName }}'
-      - '--label=org.opencontainers.image.version={{ .Tag }}'
-      - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
-      - '--label=org.opencontainers.image.created={{ .Date }}'
-      - '--label=org.opencontainers.image.source={{ .GitURL }}'
+      - "--platform=linux/arm64"
+      - "--build-arg=HELM_VERSION={{.Env.HELM_VERSION}}"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.version={{ .Tag }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--label=org.opencontainers.image.source={{ .GitURL }}"
 
 docker_signs:
   - cmd: cosign
