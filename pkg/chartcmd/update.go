@@ -46,7 +46,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 		slog.Bool("vendor", c.Vendor),
 	)
 
-	depOutput, err := svc.UpdateDependencies(&gpyrpc.UpdateDependencies_Args{
+	depOutput, err := svc.UpdateDependencies(&gpyrpc.UpdateDependenciesArgs{
 		ManifestPath: absBasePath,
 		Vendor:       c.Vendor,
 	})
@@ -61,7 +61,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 		slog.String("deps", fmt.Sprint(externalPkgs)),
 	)
 
-	mainOutput, err := svc.ExecProgram(&gpyrpc.ExecProgram_Args{
+	mainOutput, err := svc.ExecProgram(&gpyrpc.ExecProgramArgs{
 		WorkDir:       absBasePath,
 		KFilenameList: []string{"."},
 		FastEval:      c.FastEval,

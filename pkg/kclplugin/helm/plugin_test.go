@@ -51,7 +51,7 @@ func TestPluginHelmTemplate(t *testing.T) {
 			require.NoError(t, err)
 
 			client := native.NewNativeServiceClient()
-			result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
+			result, err := client.ExecProgram(&gpyrpc.ExecProgramArgs{
 				KFilenameList: []string{tc.kclFile},
 				WorkDir:       workDir,
 				Args:          []*gpyrpc.Argument{},

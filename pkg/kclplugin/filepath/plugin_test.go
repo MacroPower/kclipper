@@ -51,7 +51,7 @@ func TestPluginFilepath(t *testing.T) {
 			t.Parallel()
 
 			client := native.NewNativeServiceClient()
-			result, err := client.ExecProgram(&gpyrpc.ExecProgram_Args{
+			result, err := client.ExecProgram(&gpyrpc.ExecProgramArgs{
 				KFilenameList: []string{"main.k"},
 				KCodeList: []string{
 					"import kcl_plugin.filepath\n" +
