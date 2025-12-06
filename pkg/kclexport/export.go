@@ -62,7 +62,7 @@ func (e *export) KCLSchemaToJSONSchema(pkgPath, schemaName string) ([]byte, erro
 	// Add definitions to the schema for complete reference.
 	refYAML["definitions"] = requiredDefinitions
 	// Add $schema to the root of the schema to indicate it's a JSON Schema.
-	refYAML["$schema"] = "http://json-schema.org/draft-07/schema#"
+	refYAML["$schema"] = "https://json-schema.org/draft-07/schema#"
 
 	// Format as JSON with proper indentation.
 	jsonData, err := json.MarshalIndent(refYAML, "", "  ")

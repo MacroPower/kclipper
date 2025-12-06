@@ -32,6 +32,7 @@ func TestExporter_ExportSchemaToJSON(t *testing.T) {
 				t.Helper()
 
 				var schema map[string]any
+
 				err := json.Unmarshal(data, &schema)
 				require.NoError(t, err)
 				require.Equal(t, "object", schema["type"])
@@ -41,9 +42,11 @@ func TestExporter_ExportSchemaToJSON(t *testing.T) {
 				assert.Contains(t, schema["definitions"], "Env")
 
 				require.Contains(t, schema, "properties")
+
 				properties, ok := schema["properties"].(map[string]any)
 				require.True(t, ok, "properties should be a map")
 				require.Contains(t, properties, "enabled")
+
 				enabled, ok := properties["enabled"].(map[string]any)
 				require.True(t, ok, "properties.enabled should be a map")
 				require.Contains(t, enabled, "type")

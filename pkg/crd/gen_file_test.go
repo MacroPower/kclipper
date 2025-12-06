@@ -23,6 +23,7 @@ func TestFileGenerator_FromPath(t *testing.T) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 1)
+
 				crd := crds[0]
 				assert.Equal(t, "CustomResourceDefinition", crd.GetKind())
 				assert.Equal(t, "apiextensions.k8s.io/v1", crd.GetAPIVersion())
@@ -53,6 +54,7 @@ func TestFileGenerator_FromPath(t *testing.T) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 1)
+
 				crd := crds[0]
 				assert.Equal(t, "CustomResourceDefinition", crd.GetKind())
 				assert.Equal(t, "apiextensions.k8s.io/v1", crd.GetAPIVersion())
@@ -147,6 +149,7 @@ func TestFileGenerator_FromPaths(t *testing.T) {
 						widgetCount++
 					}
 				}
+
 				assert.Equal(t, 2, widgetCount)
 			},
 		},

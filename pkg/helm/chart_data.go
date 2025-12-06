@@ -1,6 +1,7 @@
 package helm
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -152,17 +153,16 @@ func templateData(ctx context.Context, loadedChart *chart.Chart, t *TemplateOpts
 		return nil, fmt.Errorf("execute helm install: %w", err)
 	}
 
-	manifest := release.Manifest
-
+	manifests := bytes.NewBufferString(release.Manifest)
 	if !t.SkipHooks {
 		for _, hook := range release.Hooks {
 			if hook == nil {
 				continue
 			}
 
-			manifest += "\n---\n" + hook.Manifest
+			manifests.WriteString("\n---\n" + hook.Manifest)
 		}
 	}
 
-	return []byte(manifest), nil
+	return manifests.Bytes(), nil
 }

@@ -1,11 +1,12 @@
-package filepathplugin
+package filepath
 
 import (
 	"fmt"
 	"log/slog"
-	"path/filepath"
 
 	"kcl-lang.io/kcl-go/pkg/plugin"
+
+	pf "path/filepath"
 
 	"github.com/macropower/kclipper/pkg/kclplugin/plugins"
 )
@@ -48,7 +49,7 @@ var Plugin = plugin.Plugin{
 					return nil, NewInvalidArgumentError(err)
 				}
 
-				result := filepath.Base(filepathStr)
+				result := pf.Base(filepathStr)
 
 				logger.Debug("returning results")
 
@@ -74,7 +75,7 @@ var Plugin = plugin.Plugin{
 					return nil, NewInvalidArgumentError(err)
 				}
 
-				result := filepath.Clean(filepathStr)
+				result := pf.Clean(filepathStr)
 
 				logger.Debug("returning results")
 
@@ -100,7 +101,7 @@ var Plugin = plugin.Plugin{
 					return nil, NewInvalidArgumentError(err)
 				}
 
-				result := filepath.Dir(filepathStr)
+				result := pf.Dir(filepathStr)
 
 				logger.Debug("returning results")
 
@@ -126,7 +127,7 @@ var Plugin = plugin.Plugin{
 					return nil, NewInvalidArgumentError(err)
 				}
 
-				result := filepath.Ext(filepathStr)
+				result := pf.Ext(filepathStr)
 
 				logger.Debug("returning results")
 
@@ -152,7 +153,7 @@ var Plugin = plugin.Plugin{
 					return nil, NewInvalidArgumentError(err)
 				}
 
-				result := filepath.Join(filepaths...)
+				result := pf.Join(filepaths...)
 
 				logger.Debug("returning results")
 
@@ -177,7 +178,7 @@ var Plugin = plugin.Plugin{
 					return nil, NewInvalidArgumentError(err)
 				}
 
-				dir, file := filepath.Split(filepathStr)
+				dir, file := pf.Split(filepathStr)
 
 				logger.Debug("returning results")
 

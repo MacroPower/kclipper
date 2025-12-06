@@ -214,11 +214,13 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 								StatusCode: http.StatusOK,
 								Body:       io.NopCloser(strings.NewReader(validCRDContent)),
 							}, nil
+
 						case "https://example.com/crd2.yaml":
 							return &http.Response{
 								StatusCode: http.StatusOK,
 								Body:       io.NopCloser(strings.NewReader(multipleCRDsContent)),
 							}, nil
+
 						default:
 							return nil, errors.New("unexpected URL")
 						}
@@ -247,6 +249,7 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 						widgetCount++
 					}
 				}
+
 				assert.Equal(t, 2, widgetCount)
 			},
 		},
@@ -268,6 +271,7 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 								StatusCode: http.StatusOK,
 								Body:       io.NopCloser(strings.NewReader(validCRDContent)),
 							}, nil
+
 						case "https://example.com/error.yaml":
 							return nil, errors.New("connection refused")
 						default:

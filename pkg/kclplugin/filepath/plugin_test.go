@@ -1,4 +1,4 @@
-package filepathplugin_test
+package filepath_test
 
 import (
 	"fmt"
@@ -9,13 +9,13 @@ import (
 	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
 
-	filepathplugin "github.com/macropower/kclipper/pkg/kclplugin/filepath"
+	"github.com/macropower/kclipper/pkg/kclplugin/filepath"
 )
 
 func TestPluginFilepath(t *testing.T) {
 	t.Parallel()
 
-	filepathplugin.Register()
+	filepath.Register()
 
 	tcs := map[string]struct {
 		kclCode string
