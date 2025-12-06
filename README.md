@@ -62,6 +62,8 @@ _serviceMonitor = prometheusv1.ServiceMonitor {
 manifests.yaml_stream([*_podinfo, _serviceMonitor])
 ```
 
+See [macropower/homelab](https://github.com/macropower/homelab) for more examples. It defines **50+ charts** and **100+ ArgoCD Apps** using kclipper and a [konfig](https://github.com/kcl-lang/konfig)-based library.
+
 ---
 
 **Declaratively manage all of your Helm charts and their schemas.** Private, OCI, and local repos are all supported. Choose from a variety of available schema generators to enable validation, auto-completion, on-hover documentation, and more for Chart, CRD, and Value objects, as well as `values.yaml` files (if you prefer YAML over KCL for values, or want to use both). Use KCL keys to define the same chart with unique configuration (e.g. multiple targetRevisions). Optionally, use the `kcl chart` command to make quick edits from the command line:
@@ -117,60 +119,6 @@ Also works with [Renovate](https://github.com/renovatebot/renovate)! You can fin
 > Approximate values from my Mac Mini M2.
 
 See [benchmarks](./docs/benchmarks) for more details.
-
----
-
-**Pairs excellently with [konfig](https://github.com/kcl-lang/konfig)**. Mix and match your Helm chart definitions with other resources like NetworkPolicies, ExternalSecrets, and more. Manage your entire application with a simple, fully-typed frontend interface and intelligently share configuration between resources:
-
-```py
-import tenant
-import konfig.models.frontend
-import konfig.models.templates.networkpolicy
-import konfig.models.utils
-import charts.grafana_operator
-import charts.grafana_operator.crds as grafana
-
-appConfiguration: frontend.App {
-    name = "grafana"
-    charts.grafanaOperator = grafana_operator.Chart {
-        values = grafana_operator.Values {
-            resources.requests = {
-                cpu = "10m"
-                memory = "50Mi"
-            }
-        }
-    }
-    secretStore = tenant.secretStores.default.name
-    externalSecrets.grafana = frontend.ExternalSecret {
-        name = "grafana-credentials"
-        data.GRAFANA_ADMIN_USER = {
-            ref: "grafana-admin-username"
-        }
-        data.GRAFANA_ADMIN_PASS = {
-            ref: "grafana-admin-password"
-        }
-    }
-    extraResources.grafanaFoo = grafana.Grafana {
-        metadata.name = "grafana-foo"
-        spec.config = utils.GrafanaConfigBuilder(domainName, "foo")
-    }
-    extraResources.grafanaBar = grafana.Grafana {
-        metadata.name = "grafana-bar"
-        spec.config = utils.GrafanaConfigBuilder(domainName, "bar")
-    }
-    networkPolicies = {
-        denyDefault = networkpolicy.denyDefault
-        kubeDNSEgress = networkpolicy.kubeDNSEgress
-        kubeAPIServerEgress = networkpolicy.kubeAPIServerEgress | {
-            endpointSelector.matchExpressions = [{
-                key = "app.kubernetes.io/name"
-                operator = "In"
-                values = ["grafana-operator"]
-            }]
-        }
-    }
-}
-```
 
 ## Installation
 
