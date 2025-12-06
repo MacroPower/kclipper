@@ -28,6 +28,15 @@
   ],
   packageRules: [
     {
+      matchDepTypes: ["golang"],
+      automerge: false,
+    },
+    {
+      matchManagers: ["devbox"],
+      matchPackageNames: ["go"],
+      automerge: false,
+    },
+    {
       matchManagers: ["custom.regex"],
       postUpgradeTasks: {
         commands: ['kcl chart update -q --chart="{{depName}}" --path="{{packageFileDir}}"'],
