@@ -47,16 +47,12 @@ func (s *KCLPackage) GenerateC(ctx context.Context) error {
 			// Continue processing.
 		}
 
-		wg.Add(1)
-
-		go func(uCRD *unstructured.Unstructured) {
-			defer wg.Done()
-
+		wg.Go(func() {
 			err := s.writeToKCLSchema(uCRD)
 			if err != nil {
 				errChan <- err
 			}
-		}(uCRD)
+		})
 	}
 
 	// Close errChan when all goroutines complete.
