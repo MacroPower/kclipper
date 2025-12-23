@@ -51,8 +51,8 @@ builds:
         - cmd: >-
             bash -c '
             curl -Ls $(
-            curl -s "https://api.github.com/repos/kcl-lang/kcl/releases/tags/{{ .Env.KCL_VERSION }}" |
-            jq -r ".assets[] | select(.name | test(\"kclvm-{{ .Env.KCL_VERSION }}-{{ .Os }}-{{ .Arch }}.tar.gz\")) | .browser_download_url"
+            curl -s "https://api.github.com/repos/kcl-lang/kcl/releases/tags/{{ .Env.KCL_LSP_VERSION }}" |
+            jq -r ".assets[] | select(.name | test(\"kclvm-{{ .Env.KCL_LSP_VERSION }}-{{ .Os }}-{{ .Arch }}.tar.gz\")) | .browser_download_url"
             )
             | tar -zx
             && mv kclvm/bin/kcl-language-server .

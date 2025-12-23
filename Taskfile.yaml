@@ -20,6 +20,7 @@ env:
     sh: helm version --template="{{ "{{.Version}}" }}"
   KCL_VERSION:
     sh: go list -f "{{ "{{.Version}}" }}" -m kcl-lang.io/lib
+  KCL_LSP_VERSION: v0.11.2
   CC_LINUX_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target x86_64-linux-gnu"
   CC_LINUX_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target aarch64-linux-gnu"
   CC_DARWIN_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target x86_64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
