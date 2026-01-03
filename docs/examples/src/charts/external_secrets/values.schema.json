@@ -375,6 +375,10 @@
         "createPushSecret": {
           "required": [],
           "type": "boolean"
+        },
+        "createSecretStore": {
+          "required": [],
+          "type": "boolean"
         }
       },
       "required": [],
@@ -436,6 +440,20 @@
       "required": [],
       "type": "string"
     },
+    "genericTargets": {
+      "properties": {
+        "enabled": {
+          "required": [],
+          "type": "boolean"
+        },
+        "resources": {
+          "required": [],
+          "type": "array"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
     "global": {
       "properties": {
         "affinity": {
@@ -458,9 +476,25 @@
           "required": [],
           "type": "object"
         },
+        "imagePullSecrets": {
+          "required": [],
+          "type": "array"
+        },
         "nodeSelector": {
           "required": [],
           "type": "object"
+        },
+        "podAnnotations": {
+          "required": [],
+          "type": "object"
+        },
+        "podLabels": {
+          "required": [],
+          "type": "object"
+        },
+        "repository": {
+          "required": [],
+          "type": "string"
         },
         "tolerations": {
           "required": [],
@@ -745,6 +779,10 @@
       "type": "boolean"
     },
     "processPushSecret": {
+      "required": [],
+      "type": "boolean"
+    },
+    "processSecretStore": {
       "required": [],
       "type": "boolean"
     },
