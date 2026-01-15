@@ -15,7 +15,7 @@
     "conform": "0.1.0-alpha.29",
     "syft": "1.39.0",
     "cosign": "3.0.4",
-    "renovate": "42.57.1",
+    "renovate": "42.76.4",
     "apple-sdk_15": {
       "version": "15.2",
       "platforms": ["aarch64-darwin", "x86_64-darwin"]
