@@ -53,6 +53,9 @@ schema GeneratorsExternalSecretsIoV1alpha1PasswordSpec:
         Defaults to 24
     noUpper : bool, default is Undefined, required
         Set NoUpper to disable uppercase characters
+    secretKeys : [str], default is Undefined, optional
+        SecretKeys defines the keys that will be populated with generated passwords.
+        Defaults to "password" when not set.
     symbolCharacters : str, default is Undefined, optional
         SymbolCharacters specifies the special characters that should be used
         in the generated password.
@@ -68,6 +71,10 @@ schema GeneratorsExternalSecretsIoV1alpha1PasswordSpec:
 
     noUpper: bool = False
 
+    secretKeys?: [str]
     symbolCharacters?: str
     symbols?: int
+
+    check:
+        len(secretKeys) >= 1 if secretKeys
 

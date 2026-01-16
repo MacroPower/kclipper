@@ -40,7 +40,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpec:
     Attributes
     ----------
     conditions : [ExternalSecretsIoV1beta1SecretStoreSpecConditionsItems0], default is Undefined, optional
-        Used to constraint a ClusterSecretStore to specific namespaces. Relevant only to ClusterSecretStore
+        Used to constrain a ClusterSecretStore to specific namespaces. Relevant only to ClusterSecretStore.
     controller : str, default is Undefined, optional
         Used to select the correct ESO controller (think: ingress.ingressClassName)
         The ESO controller is instantiated with a specific controller name and filters ES based on this property
@@ -2366,7 +2366,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGcpsmAuthWorkloadIdentityS
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGithub:
     r"""
-    Github configures this store to push Github Action secrets using Github API provider
+    Github configures this store to push GitHub Actions secrets using the GitHub API provider.
 
     Attributes
     ----------
@@ -3725,7 +3725,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPulumiAccessTokenSecretRef
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderScaleway:
     r"""
-    Scaleway
+    Scaleway configures this store to sync secrets using the Scaleway provider.
 
     Attributes
     ----------
@@ -4016,7 +4016,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderSenhaseguraAuthClientSecre
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVault:
     r"""
-    Vault configures this store to sync secrets using Hashi provider
+    Vault configures this store to sync secrets using the HashiCorp Vault provider.
 
     Attributes
     ----------
@@ -5331,7 +5331,7 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexlockboxCaProviderCer
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecRetrySettings:
     r"""
-    Used to configure http retries if failed
+    Used to configure HTTP retries on failures.
 
     Attributes
     ----------
