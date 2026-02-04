@@ -140,6 +140,8 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuth:
         app role
     cert : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthCert, default is Undefined, optional
         cert
+    gcp : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcp, default is Undefined, optional
+        gcp
     iam : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIam, default is Undefined, optional
         iam
     jwt : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthJwt, default is Undefined, optional
@@ -161,6 +163,7 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuth:
     """
     appRole?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthAppRole
     cert?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthCert
+    gcp?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcp
     iam?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIam
     jwt?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthJwt
     kubernetes?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthKubernetes
@@ -336,6 +339,159 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthCert
         len(name) <= 253 if name
         len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcp:
+    r"""
+    Gcp authenticates with Vault using Google Cloud Platform authentication method
+    GCP authentication method
+
+    Attributes
+    ----------
+    location : str, default is Undefined, optional
+        Location optionally defines a location/region for the secret
+    path : str, default is "gcp", optional
+        Path where the GCP auth method is enabled in Vault, e.g: "gcp"
+    projectID : str, default is Undefined, optional
+        Project ID of the Google Cloud Platform project
+    role : str, default is Undefined, required
+        Vault Role. In Vault, a role describes an identity with a set of permissions, groups, or policies you want to attach to a user of the secrets engine.
+    secretRef : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpSecretRef, default is Undefined, optional
+        secret ref
+    serviceAccountRef : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpServiceAccountRef, default is Undefined, optional
+        service account ref
+    workloadIdentity : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpWorkloadIdentity, default is Undefined, optional
+        workload identity
+    """
+    location?: str
+    path?: str = "gcp"
+    projectID?: str
+    role: str
+
+    secretRef?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpSecretRef
+    serviceAccountRef?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpServiceAccountRef
+    workloadIdentity?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpWorkloadIdentity
+
+schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpSecretRef:
+    r"""
+    Specify credentials in a Secret object
+
+    Attributes
+    ----------
+    secretAccessKeySecretRef : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpSecretRefSecretAccessKeySecretRef, default is Undefined, optional
+        secret access key secret ref
+    """
+    secretAccessKeySecretRef?: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpSecretRefSecretAccessKeySecretRef
+
+schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpSecretRefSecretAccessKeySecretRef:
+    r"""
+    The SecretAccessKey is used for authentication
+
+    Attributes
+    ----------
+    key : str, default is Undefined, optional
+        A key in the referenced Secret.
+        Some instances of this field may be defaulted, in others it may be required.
+    name : str, default is Undefined, optional
+        The name of the Secret resource being referred to.
+    namespace : str, default is Undefined, optional
+        The namespace of the Secret resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    key?: str
+    name?: str
+    namespace?: str
+
+    check:
+        len(key) <= 253 if key
+        len(key) >= 1 if key
+        _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
+        len(name) <= 253 if name
+        len(name) >= 1 if name
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpServiceAccountRef:
+    r"""
+    ServiceAccountRef to a service account for impersonation
+
+    Attributes
+    ----------
+    audiences : [str], default is Undefined, optional
+        Audience specifies the `aud` claim for the service account token
+        If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
+        then this audiences will be appended to the list
+    name : str, default is Undefined, required
+        The name of the ServiceAccount resource being referred to.
+    namespace : str, default is Undefined, optional
+        Namespace of the resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    audiences?: [str]
+    name: str
+
+    namespace?: str
+
+    check:
+        len(name) <= 253
+        len(name) >= 1
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
+        _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
+
+schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpWorkloadIdentity:
+    r"""
+    Specify a service account with Workload Identity
+
+    Attributes
+    ----------
+    clusterLocation : str, default is Undefined, optional
+        ClusterLocation is the location of the cluster
+        If not specified, it fetches information from the metadata server
+    clusterName : str, default is Undefined, optional
+        ClusterName is the name of the cluster
+        If not specified, it fetches information from the metadata server
+    clusterProjectID : str, default is Undefined, optional
+        ClusterProjectID is the project ID of the cluster
+        If not specified, it fetches information from the metadata server
+    serviceAccountRef : GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpWorkloadIdentityServiceAccountRef, default is Undefined, required
+        service account ref
+    """
+    clusterLocation?: str
+    clusterName?: str
+    clusterProjectID?: str
+    serviceAccountRef: GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpWorkloadIdentityServiceAccountRef
+
+schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpWorkloadIdentityServiceAccountRef:
+    r"""
+    ServiceAccountSelector is a reference to a ServiceAccount resource.
+
+    Attributes
+    ----------
+    audiences : [str], default is Undefined, optional
+        Audience specifies the `aud` claim for the service account token
+        If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
+        then this audiences will be appended to the list
+    name : str, default is Undefined, required
+        The name of the ServiceAccount resource being referred to.
+    namespace : str, default is Undefined, optional
+        Namespace of the resource being referred to.
+        Ignored if referent is not cluster-scoped, otherwise defaults to the namespace of the referent.
+    """
+    audiences?: [str]
+    name: str
+
+    namespace?: str
+
+    check:
+        len(name) <= 253
+        len(name) >= 1
+        _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
         len(namespace) <= 63 if namespace
         len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace

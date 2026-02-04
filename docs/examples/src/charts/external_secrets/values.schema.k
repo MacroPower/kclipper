@@ -30,9 +30,11 @@ schema Values:
     extraVolumeMounts : any, optional
     extraVolumes : any, optional
     fullnameOverride : str, optional
+    genericTargets : ValuesGenericTargets, optional
     global : ValuesGlobal, optional
     grafanaDashboard : ValuesGrafanaDashboard, optional
     hostNetwork : bool, optional
+    hostUsers : bool, optional
     image : ValuesImage, optional
     imagePullSecrets : any, optional
     installCRDs : bool, optional
@@ -55,6 +57,7 @@ schema Values:
     processClusterPushSecret : bool, optional
     processClusterStore : bool, optional
     processPushSecret : bool, optional
+    processSecretStore : bool, optional
     rbac : ValuesRbac, optional
     replicaCount : int, optional
     resources : ValuesResources, optional
@@ -92,9 +95,11 @@ schema Values:
     extraVolumeMounts?: any
     extraVolumes?: any
     fullnameOverride?: str
+    genericTargets?: ValuesGenericTargets
     global?: ValuesGlobal
     grafanaDashboard?: ValuesGrafanaDashboard
     hostNetwork?: bool
+    hostUsers?: bool
     image?: ValuesImage
     imagePullSecrets?: any
     installCRDs?: bool
@@ -117,6 +122,7 @@ schema Values:
     processClusterPushSecret?: bool
     processClusterStore?: bool
     processPushSecret?: bool
+    processSecretStore?: bool
     rbac?: ValuesRbac
     replicaCount?: int
     resources?: ValuesResources
@@ -166,6 +172,7 @@ schema ValuesCertController:
     extraVolumeMounts : any, optional
     extraVolumes : any, optional
     hostNetwork : bool, optional
+    hostUsers : bool, optional
     image : ValuesCertControllerImage, optional
     imagePullSecrets : any, optional
     log : ValuesCertControllerLog, optional
@@ -198,6 +205,7 @@ schema ValuesCertController:
     extraVolumeMounts?: any
     extraVolumes?: any
     hostNetwork?: bool
+    hostUsers?: bool
     image?: ValuesCertControllerImage
     imagePullSecrets?: any
     log?: ValuesCertControllerLog
@@ -490,6 +498,8 @@ schema ValuesCrds:
     createClusterPushSecret : bool, optional
     createClusterSecretStore : bool, optional
     createPushSecret : bool, optional
+    createSecretStore : bool, optional
+    unsafeServeV1Beta1 : bool, optional
     """
     annotations?: ValuesCrdsAnnotations
     conversion?: ValuesCrdsConversion
@@ -498,6 +508,8 @@ schema ValuesCrds:
     createClusterPushSecret?: bool
     createClusterSecretStore?: bool
     createPushSecret?: bool
+    createSecretStore?: bool
+    unsafeServeV1Beta1?: bool
 
 schema ValuesCrdsAnnotations:
     r"""
@@ -533,6 +545,18 @@ schema ValuesExtraArgs:
     """
     [...str]: any
 
+schema ValuesGenericTargets:
+    r"""
+    ValuesGenericTargets
+
+    Attributes
+    ----------
+    enabled : bool, optional
+    resources : any, optional
+    """
+    enabled?: bool
+    resources?: any
+
 schema ValuesGlobal:
     r"""
     ValuesGlobal
@@ -541,13 +565,21 @@ schema ValuesGlobal:
     ----------
     affinity : ValuesGlobalAffinity, optional
     compatibility : ValuesGlobalCompatibility, optional
+    imagePullSecrets : any, optional
     nodeSelector : ValuesGlobalNodeSelector, optional
+    podAnnotations : ValuesGlobalPodAnnotations, optional
+    podLabels : ValuesGlobalPodLabels, optional
+    repository : str, optional
     tolerations : any, optional
     topologySpreadConstraints : any, optional
     """
     affinity?: ValuesGlobalAffinity
     compatibility?: ValuesGlobalCompatibility
+    imagePullSecrets?: any
     nodeSelector?: ValuesGlobalNodeSelector
+    podAnnotations?: ValuesGlobalPodAnnotations
+    podLabels?: ValuesGlobalPodLabels
+    repository?: str
     tolerations?: any
     topologySpreadConstraints?: any
 
@@ -580,6 +612,18 @@ schema ValuesGlobalCompatibilityOpenshift:
 schema ValuesGlobalNodeSelector:
     r"""
     ValuesGlobalNodeSelector
+    """
+    [...str]: any
+
+schema ValuesGlobalPodAnnotations:
+    r"""
+    ValuesGlobalPodAnnotations
+    """
+    [...str]: any
+
+schema ValuesGlobalPodLabels:
+    r"""
+    ValuesGlobalPodLabels
     """
     [...str]: any
 
@@ -652,6 +696,7 @@ schema ValuesLivenessProbeSpec:
     httpGet : ValuesLivenessProbeSpecHttpGet, optional
     initialDelaySeconds : int, optional
     periodSeconds : int, optional
+    port : int, optional
     successThreshold : int, optional
     timeoutSeconds : int, optional
     """
@@ -660,6 +705,7 @@ schema ValuesLivenessProbeSpec:
     httpGet?: ValuesLivenessProbeSpecHttpGet
     initialDelaySeconds?: int
     periodSeconds?: int
+    port?: int
     successThreshold?: int
     timeoutSeconds?: int
 
@@ -969,6 +1015,7 @@ schema ValuesWebhook:
     extraVolumes : any, optional
     failurePolicy : str, optional
     hostNetwork : bool, optional
+    hostUsers : bool, optional
     image : ValuesWebhookImage, optional
     imagePullSecrets : any, optional
     log : ValuesWebhookLog, optional
@@ -1007,6 +1054,7 @@ schema ValuesWebhook:
     extraVolumes?: any
     failurePolicy?: str
     hostNetwork?: bool
+    hostUsers?: bool
     image?: ValuesWebhookImage
     imagePullSecrets?: any
     log?: ValuesWebhookLog
@@ -1067,15 +1115,19 @@ schema ValuesWebhookCertManagerCert:
     create : bool, optional
     duration : str, optional
     issuerRef : ValuesWebhookCertManagerCertIssuerRef, optional
+    privateKey : ValuesWebhookCertManagerCertPrivateKey, optional
     renewBefore : str, optional
     revisionHistoryLimit : int, optional
+    signatureAlgorithm : str, optional
     """
     annotations?: ValuesWebhookCertManagerCertAnnotations
     create?: bool
     duration?: str
     issuerRef?: ValuesWebhookCertManagerCertIssuerRef
+    privateKey?: ValuesWebhookCertManagerCertPrivateKey
     renewBefore?: str
     revisionHistoryLimit?: int
+    signatureAlgorithm?: str
 
 schema ValuesWebhookCertManagerCertAnnotations:
     r"""
@@ -1096,6 +1148,12 @@ schema ValuesWebhookCertManagerCertIssuerRef:
     group?: str
     kind?: str
     name?: str
+
+schema ValuesWebhookCertManagerCertPrivateKey:
+    r"""
+    ValuesWebhookCertManagerCertPrivateKey
+    """
+    [...str]: any
 
 schema ValuesWebhookDeploymentAnnotations:
     r"""
