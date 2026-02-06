@@ -129,7 +129,7 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpec:
         Secret Data that should be pushed to providers
     deletionPolicy : str, default is "None", optional
         Deletion Policy to handle Secrets in the provider.
-    refreshInterval : str, default is "1h", optional
+    refreshInterval : str, default is "1h0m0s", optional
         The Interval to which External Secrets will try to push a secret definition
     secretStoreRefs : [ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSecretStoreRefsItems0], default is Undefined, required
         secret store refs
@@ -142,7 +142,7 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpec:
     """
     data?: [ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecDataItems0]
     deletionPolicy?: "Delete" | "None" = "None"
-    refreshInterval?: str = "1h"
+    refreshInterval?: str = "1h0m0s"
     secretStoreRefs: [ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSecretStoreRefsItems0]
 
     selector: ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSelector
@@ -416,12 +416,15 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecTemplateTempl
     secret : ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecTemplateTemplateFromItems0Secret, default is Undefined, optional
         secret
     target : str, default is "Data", optional
-        TemplateTarget specifies where the rendered templates should be applied.
+        Target specifies where to place the template result.
+        For Secret resources, common values are: "Data", "Annotations", "Labels".
+        For custom resources (when spec.target.manifest is set), this supports
+        nested paths like "spec.database.config" or "data".
     """
     configMap?: ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecTemplateTemplateFromItems0ConfigMap
     literal?: str
     secret?: ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecTemplateTemplateFromItems0Secret
-    target?: "Data" | "Annotations" | "Labels" = "Data"
+    target?: str = "Data"
 
 schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecTemplateTemplateFromItems0ConfigMap:
     r"""
