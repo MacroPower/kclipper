@@ -23,6 +23,8 @@ schema AlertmanagerConfig:
         metadata
     spec : MonitoringCoreosComV1alpha1AlertmanagerConfigSpec, default is Undefined, required
         spec
+    status : MonitoringCoreosComV1alpha1AlertmanagerConfigStatus, default is Undefined, optional
+        status
     """
     apiVersion: "monitoring.coreos.com/v1alpha1" = "monitoring.coreos.com/v1alpha1"
 
@@ -31,24 +33,21 @@ schema AlertmanagerConfig:
     metadata?: v1.ObjectMeta
     spec: MonitoringCoreosComV1alpha1AlertmanagerConfigSpec
 
+    status?: MonitoringCoreosComV1alpha1AlertmanagerConfigStatus
+
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpec:
     r"""
-    AlertmanagerConfigSpec is a specification of the desired behavior of the
-    Alertmanager configuration.
-    By default, the Alertmanager configuration only applies to alerts for which
-    the `namespace` label is equal to the namespace of the AlertmanagerConfig
-    resource (see the `.spec.alertmanagerConfigMatcherStrategy` field of the
-    Alertmanager CRD).
+    spec defines the specification of AlertmanagerConfigSpec
 
     Attributes
     ----------
     inhibitRules : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0], default is Undefined, optional
-        List of inhibition rules. The rules will only apply to alerts matching
+        inhibitRules defines the list of inhibition rules. The rules will only apply to alerts matching
         the resource's namespace.
     muteTimeIntervals : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0], default is Undefined, optional
-        List of MuteTimeInterval specifying when the routes should be muted.
+        muteTimeIntervals defines the list of MuteTimeInterval specifying when the routes should be muted.
     receivers : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0], default is Undefined, optional
-        List of receivers.
+        receivers defines the list of receivers.
     route : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRoute, default is Undefined, optional
         route
     """
@@ -66,15 +65,16 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0:
     Attributes
     ----------
     equal : [str], default is Undefined, optional
-        Labels that must have an equal value in the source and target alert for
-        the inhibition to take effect.
+        equal defines labels that must have an equal value in the source and target alert
+        for the inhibition to take effect. This ensures related alerts are properly grouped.
     sourceMatch : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0SourceMatchItems0], default is Undefined, optional
-        Matchers for which one or more alerts have to exist for the inhibition
-        to take effect. The operator enforces that the alert matches the
-        resource's namespace.
+        sourceMatch defines matchers for which one or more alerts have to exist for the inhibition
+        to take effect. The operator enforces that the alert matches the resource's namespace.
+        These are the "trigger" alerts that cause other alerts to be inhibited.
     targetMatch : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0TargetMatchItems0], default is Undefined, optional
-        Matchers that have to be fulfilled in the alerts to be muted. The
-        operator enforces that the alert matches the resource's namespace.
+        targetMatch defines matchers that have to be fulfilled in the alerts to be muted.
+        The operator enforces that the alert matches the resource's namespace.
+        When these conditions are met, matching alerts will be inhibited (silenced).
     """
     equal?: [str]
     sourceMatch?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0SourceMatchItems0]
@@ -87,15 +87,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0Source
     Attributes
     ----------
     matchType : str, default is Undefined, optional
-        Match operation available with AlertManager >= v0.22.0 and
-        takes precedence over Regex (deprecated) if non-empty.
+        matchType defines the match operation available with AlertManager >= v0.22.0.
+        Takes precedence over Regex (deprecated) if non-empty.
+        Valid values: "=" (equality), "!=" (inequality), "=~" (regex match), "!~" (regex non-match).
     name : str, default is Undefined, required
-        Label to match.
+        name defines the label to match.
+        This specifies which alert label should be evaluated.
     regex : bool, default is Undefined, optional
-        Whether to match on equality (false) or regular-expression (true).
+        regex defines whether to match on equality (false) or regular-expression (true).
         Deprecated: for AlertManager >= v0.22.0, `matchType` should be used instead.
     value : str, default is Undefined, optional
-        Label value to match.
+        value defines the label value to match.
+        This is the expected value for the specified label.
     """
     matchType?: "!=" | "=" | "=~" | "!~"
     name: str
@@ -113,15 +116,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecInhibitRulesItems0Target
     Attributes
     ----------
     matchType : str, default is Undefined, optional
-        Match operation available with AlertManager >= v0.22.0 and
-        takes precedence over Regex (deprecated) if non-empty.
+        matchType defines the match operation available with AlertManager >= v0.22.0.
+        Takes precedence over Regex (deprecated) if non-empty.
+        Valid values: "=" (equality), "!=" (inequality), "=~" (regex match), "!~" (regex non-match).
     name : str, default is Undefined, required
-        Label to match.
+        name defines the label to match.
+        This specifies which alert label should be evaluated.
     regex : bool, default is Undefined, optional
-        Whether to match on equality (false) or regular-expression (true).
+        regex defines whether to match on equality (false) or regular-expression (true).
         Deprecated: for AlertManager >= v0.22.0, `matchType` should be used instead.
     value : str, default is Undefined, optional
-        Label value to match.
+        value defines the label value to match.
+        This is the expected value for the specified label.
     """
     matchType?: "!=" | "=" | "=~" | "!~"
     name: str
@@ -139,9 +145,9 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0:
     Attributes
     ----------
     name : str, default is Undefined, required
-        Name of the time interval
+        name of the time interval
     timeIntervals : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0], default is Undefined, optional
-        TimeIntervals is a list of TimeInterval
+        timeIntervals defines a list of TimeInterval
     """
     name: str
 
@@ -154,15 +160,15 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0T
     Attributes
     ----------
     daysOfMonth : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0DaysOfMonthItems0], default is Undefined, optional
-        DaysOfMonth is a list of DayOfMonthRange
+        daysOfMonth defines a list of DayOfMonthRange
     months : [str], default is Undefined, optional
-        Months is a list of MonthRange
+        months defines a list of MonthRange
     times : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0TimesItems0], default is Undefined, optional
-        Times is a list of TimeRange
+        times defines a list of TimeRange
     weekdays : [str], default is Undefined, optional
-        Weekdays is a list of WeekdayRange
+        weekdays defines a list of WeekdayRange
     years : [str], default is Undefined, optional
-        Years is a list of YearRange
+        years defines a list of YearRange
     """
     daysOfMonth?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0DaysOfMonthItems0]
     months?: [str]
@@ -182,9 +188,9 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0T
     Attributes
     ----------
     end : int, default is Undefined, optional
-        End of the inclusive range
+        end of the inclusive range
     start : int, default is Undefined, optional
-        Start of the inclusive range
+        start of the inclusive range
     """
     end?: int
     start?: int
@@ -202,9 +208,9 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0T
     Attributes
     ----------
     endTime : str, default is Undefined, optional
-        EndTime is the end time in 24hr format.
+        endTime defines the end time in 24hr format.
     startTime : str, default is Undefined, optional
-        StartTime is the start time in 24hr format.
+        startTime defines the start time in 24hr format.
     """
     endTime?: str
     startTime?: str
@@ -220,43 +226,51 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0:
     Attributes
     ----------
     discordConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0], default is Undefined, optional
-        List of Discord configurations.
+        discordConfigs defines the list of Slack configurations.
     emailConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0], default is Undefined, optional
-        List of Email configurations.
+        emailConfigs defines the list of Email configurations.
     msteamsConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0], default is Undefined, optional
-        List of MSTeams configurations.
+        msteamsConfigs defines the list of MSTeams configurations.
         It requires Alertmanager >= 0.26.0.
+    msteamsv2Configs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0], default is Undefined, optional
+        msteamsv2Configs defines the list of MSTeamsV2 configurations.
+        It requires Alertmanager >= 0.28.0.
     name : str, default is Undefined, required
-        Name of the receiver. Must be unique across all items from the list.
+        name defines the name of the receiver. Must be unique across all items from the list.
     opsgenieConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0], default is Undefined, optional
-        List of OpsGenie configurations.
+        opsgenieConfigs defines the list of OpsGenie configurations.
     pagerdutyConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0], default is Undefined, optional
-        List of PagerDuty configurations.
+        pagerdutyConfigs defines the List of PagerDuty configurations.
     pushoverConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0], default is Undefined, optional
-        List of Pushover configurations.
+        pushoverConfigs defines the list of Pushover configurations.
+    rocketchatConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0], default is Undefined, optional
+        rocketchatConfigs defines the list of RocketChat configurations.
+        It requires Alertmanager >= 0.28.0.
     slackConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0], default is Undefined, optional
-        List of Slack configurations.
+        slackConfigs defines the list of Slack configurations.
     snsConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0], default is Undefined, optional
-        List of SNS configurations
+        snsConfigs defines the list of SNS configurations
     telegramConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0], default is Undefined, optional
-        List of Telegram configurations.
+        telegramConfigs defines the list of Telegram configurations.
     victoropsConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0], default is Undefined, optional
-        List of VictorOps configurations.
+        victoropsConfigs defines the list of VictorOps configurations.
     webexConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0], default is Undefined, optional
-        List of Webex configurations.
+        webexConfigs defines the list of Webex configurations.
     webhookConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0], default is Undefined, optional
-        List of webhook configurations.
+        webhookConfigs defines the List of webhook configurations.
     wechatConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0], default is Undefined, optional
-        List of WeChat configurations.
+        wechatConfigs defines the list of WeChat configurations.
     """
     discordConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0]
     emailConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0]
     msteamsConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0]
+    msteamsv2Configs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0]
     name: str
 
     opsgenieConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0]
     pagerdutyConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0]
     pushoverConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0]
+    rocketchatConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0]
     slackConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0]
     snsConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0]
     telegramConfigs?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0]
@@ -277,25 +291,39 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     ----------
     apiURL : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL, default is Undefined, required
         api URL
+    avatarURL : str, default is Undefined, optional
+        avatarURL defines the avatar url of the message sender.
+    content : str, default is Undefined, optional
+        content defines the template of the content's body.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     message : str, default is Undefined, optional
-        The template of the message's body.
+        message defines the template of the message's body.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     title : str, default is Undefined, optional
-        The template of the message's title.
+        title defines the template of the message's title.
+    username : str, default is Undefined, optional
+        username defines the username of the message sender.
     """
     apiURL: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL
 
+    avatarURL?: str
+    content?: str
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfig
     message?: str
     sendResolved?: bool
     title?: str
+    username?: str
+
+    check:
+        _regex_match(str(avatarURL), r"^https?://.+$") if avatarURL
+        len(content) >= 1 if content
+        len(username) >= 1 if username
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL:
     r"""
-    The secret's key that contains the Discord webhook URL.
+    apiURL defines the secret's key that contains the Discord webhook URL.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
 
@@ -319,7 +347,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration.
 
     Attributes
     ----------
@@ -329,37 +357,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2
@@ -370,11 +401,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -382,7 +413,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -393,7 +424,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -415,7 +446,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -430,7 +461,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -453,7 +484,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -476,7 +507,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -501,7 +532,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -510,31 +542,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientID
 
@@ -550,12 +582,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -570,7 +602,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -592,7 +624,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -614,7 +646,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -659,7 +691,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -669,19 +701,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -693,7 +725,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -707,7 +739,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -729,7 +761,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -751,7 +783,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -765,7 +797,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -787,7 +819,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -809,7 +841,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -853,7 +885,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -862,19 +895,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCert
@@ -886,7 +919,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -900,7 +933,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -922,7 +955,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -944,7 +977,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -958,7 +991,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -980,7 +1013,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -1002,7 +1035,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -1029,35 +1062,43 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     Attributes
     ----------
     authIdentity : str, default is Undefined, optional
-        The identity to use for authentication.
+        authIdentity defines the identity to use for SMTP authentication.
+        This is typically used with PLAIN authentication mechanism.
     authPassword : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthPassword, default is Undefined, optional
         auth password
     authSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthSecret, default is Undefined, optional
         auth secret
     authUsername : str, default is Undefined, optional
-        The username to use for authentication.
+        authUsername defines the username to use for SMTP authentication.
+        This is used for SMTP AUTH when the server requires authentication.
     from : str, default is Undefined, optional
-        The sender address.
+        from defines the sender address for email notifications.
+        This appears as the "From" field in the email header.
     headers : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0HeadersItems0], default is Undefined, optional
-        Further headers email header key/value pairs. Overrides any headers
-        previously set by the notification implementation.
+        headers defines additional email header key/value pairs.
+        These override any headers previously set by the notification implementation.
     hello : str, default is Undefined, optional
-        The hostname to identify to the SMTP server.
+        hello defines the hostname to identify to the SMTP server.
+        This is used in the SMTP HELO/EHLO command during the connection handshake.
     html : str, default is Undefined, optional
-        The HTML body of the email notification.
+        html defines the HTML body of the email notification.
+        This allows for rich formatting in the email content.
     requireTLS : bool, default is Undefined, optional
-        The SMTP TLS requirement.
+        requireTLS defines the SMTP TLS requirement.
         Note that Go does not support unencrypted connections to remote SMTP endpoints.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     smarthost : str, default is Undefined, optional
-        The SMTP host and port through which emails are sent. E.g. example.com:25
+        smarthost defines the SMTP host and port through which emails are sent.
+        Format should be "hostname:port", e.g. "smtp.example.com:587".
     text : str, default is Undefined, optional
-        The text body of the email notification.
+        text defines the plain text body of the email notification.
+        This provides a fallback for email clients that don't support HTML.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfig, default is Undefined, optional
         tls config
     to : str, default is Undefined, optional
-        The email address to send notifications to.
+        to defines the email address to send notifications to.
+        This is the recipient address for alert notifications.
     """
     authIdentity?: str
     authPassword?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthPassword
@@ -1076,7 +1117,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthPassword:
     r"""
-    The secret's key that contains the password to use for authentication.
+    authPassword defines the secret's key that contains the password to use for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
 
@@ -1100,7 +1141,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthSecret:
     r"""
-    The secret's key that contains the CRAM-MD5 secret.
+    authSecret defines the secret's key that contains the CRAM-MD5 secret.
+    This is used for CRAM-MD5 authentication mechanism.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
 
@@ -1129,9 +1171,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        Key of the tuple.
+        key defines the key of the tuple.
+        This is the identifier or name part of the key-value pair.
     value : str, default is Undefined, required
-        Value of the tuple.
+        value defines the value of the tuple.
+        This is the data or content associated with the key.
     """
     key: str
 
@@ -1142,7 +1186,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfig:
     r"""
-    TLS configuration
+    tlsConfig defines the TLS configuration for SMTP connections.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -1151,19 +1196,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCert
@@ -1175,7 +1220,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -1189,7 +1234,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -1211,7 +1256,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -1233,7 +1278,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -1247,7 +1292,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -1269,7 +1314,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -1291,7 +1336,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -1321,14 +1366,17 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     sendResolved : bool, default is Undefined, optional
-        Whether to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     summary : str, default is Undefined, optional
-        Message summary template.
+        summary defines the message summary template for Teams notifications.
+        This provides a brief overview that appears in Teams notification previews.
         It requires Alertmanager >= 0.27.0.
     text : str, default is Undefined, optional
-        Message body template.
+        text defines the message body template for Teams notifications.
+        This contains the detailed content of the Teams message.
     title : str, default is Undefined, optional
-        Message title template.
+        title defines the message title template for Teams notifications.
+        This appears as the main heading of the Teams message card.
     webhookUrl : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0WebhookURL, default is Undefined, required
         webhook Url
     """
@@ -1341,7 +1389,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration for Teams webhook requests.
 
     Attributes
     ----------
@@ -1351,37 +1399,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2
@@ -1392,11 +1443,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -1404,7 +1455,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -1415,7 +1466,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -1437,7 +1488,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -1452,7 +1503,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -1475,7 +1526,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -1498,7 +1549,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -1523,7 +1574,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -1532,31 +1584,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientID
 
@@ -1572,12 +1624,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -1592,7 +1644,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -1614,7 +1666,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -1636,7 +1688,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -1681,7 +1733,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -1691,19 +1743,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -1715,7 +1767,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -1729,7 +1781,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -1751,7 +1803,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -1773,7 +1825,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -1787,7 +1839,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -1809,7 +1861,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -1831,7 +1883,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -1875,7 +1927,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -1884,19 +1937,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCert
@@ -1908,7 +1961,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -1922,7 +1975,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -1944,7 +1997,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -1966,7 +2019,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -1980,7 +2033,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -2002,7 +2055,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -2024,7 +2077,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -2046,7 +2099,772 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0WebhookURL:
     r"""
-    MSTeams webhook URL.
+    webhookUrl defines the MSTeams webhook URL for sending notifications.
+    This is the incoming webhook URL configured in your Teams channel.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0:
+    r"""
+    MSTeamsV2Config configures notifications via Microsoft Teams using the new message format with adaptive cards as required by flows.
+    See https://prometheus.io/docs/alerting/latest/configuration/#msteamsv2_config
+    It requires Alertmanager >= 0.28.0.
+
+    Attributes
+    ----------
+    httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfig, default is Undefined, optional
+        http config
+    sendResolved : bool, default is Undefined, optional
+        sendResolved defines whether or not to notify about resolved alerts.
+    text : str, default is Undefined, optional
+        text defines the message body template for adaptive card notifications.
+        This contains the detailed content displayed in the Teams adaptive card format.
+    title : str, default is Undefined, optional
+        title defines the message title template for adaptive card notifications.
+        This appears as the main heading in the Teams adaptive card.
+    webhookURL : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0WebhookURL, default is Undefined, optional
+        webhook URL
+    """
+    httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfig
+    sendResolved?: bool
+    text?: str
+    title?: str
+    webhookURL?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0WebhookURL
+
+    check:
+        len(text) >= 1 if text
+        len(title) >= 1 if title
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfig:
+    r"""
+    httpConfig defines the HTTP client configuration for Teams webhook requests.
+
+    Attributes
+    ----------
+    authorization : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorization, default is Undefined, optional
+        authorization
+    basicAuth : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuth, default is Undefined, optional
+        basic auth
+    bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
+        bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
+    followRedirects : bool, default is Undefined, optional
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
+    noProxy : str, default is Undefined, optional
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2, default is Undefined, optional
+        oauth2
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
+        proxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyURL : str, default is Undefined, optional
+        proxyURL defines an optional proxy URL for HTTP requests.
+        If defined, this field takes precedence over `proxyUrl`.
+    proxyUrl : str, default is Undefined, optional
+        proxyUrl defines the HTTP proxy server to use.
+    tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
+        tls config
+    """
+    authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorization
+    basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuth
+    bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
+    followRedirects?: bool
+    noProxy?: str
+    oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyURL?: str
+    proxyUrl?: str
+    tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfig
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorization:
+    r"""
+    authorization defines the authorization header configuration for the client.
+    This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
+
+    Attributes
+    ----------
+    credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
+        credentials
+    $type : str, default is Undefined, optional
+        type defines the authentication type. The value is case-insensitive.
+
+        "Basic" is not a supported value.
+
+        Default: "Bearer"
+    """
+    credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorizationCredentials
+    $type?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigAuthorizationCredentials:
+    r"""
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuth:
+    r"""
+    basicAuth defines the basic authentication credentials for the client.
+    This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
+
+    Attributes
+    ----------
+    password : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthPassword, default is Undefined, optional
+        password
+    username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
+        username
+    """
+    password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthPassword
+    username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthUsername
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthPassword:
+    r"""
+    password defines a key of a Secret containing the password for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBasicAuthUsername:
+    r"""
+    username defines a key of a Secret containing the username for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigBearerTokenSecret:
+    r"""
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
+    for authentication.
+    The secret needs to be in the same namespace as the AlertmanagerConfig
+    object and accessible by the Prometheus Operator.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2:
+    r"""
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
+
+    Attributes
+    ----------
+    clientId : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientID, default is Undefined, required
+        client Id
+    clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
+        client secret
+    endpointParams : {str:str}, default is Undefined, optional
+        endpointParams configures the HTTP parameters to append to the token
+        URL.
+    noProxy : str, default is Undefined, optional
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
+        proxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyUrl : str, default is Undefined, optional
+        proxyUrl defines the HTTP proxy server to use.
+    scopes : [str], default is Undefined, optional
+        scopes defines the OAuth2 scopes used for the token request.
+    tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
+        tls config
+    tokenUrl : str, default is Undefined, required
+        tokenUrl defines the URL to fetch the token from.
+    """
+    clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientID
+
+    clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientSecret
+
+    endpointParams?: {str:str}
+    noProxy?: str
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyUrl?: str
+    scopes?: [str]
+    tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfig
+    tokenUrl: str
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+        len(tokenUrl) >= 1
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientID:
+    r"""
+    clientId defines a key of a Secret or ConfigMap containing the
+    OAuth2 client's ID.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientIDSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientSecret:
+    r"""
+    clientSecret defines a key of a Secret containing the OAuth2
+    client's secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfig:
+    r"""
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
+    It requires Prometheus >= v2.43.0.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        insecureSkipVerify defines how to disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        maxVersion defines the maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        minVersion defines the minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        serverName is used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCa
+    cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCa:
+    r"""
+    ca defines the Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCert:
+    r"""
+    cert defines the Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
+    r"""
+    keySecret defines the Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfig:
+    r"""
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        insecureSkipVerify defines how to disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        maxVersion defines the maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        minVersion defines the minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        serverName is used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCa
+    cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCa:
+    r"""
+    ca defines the Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCaSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCert:
+    r"""
+    cert defines the Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigCertSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigTLSConfigKeySecret:
+    r"""
+    keySecret defines the Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0WebhookURL:
+    r"""
+    webhookURL defines the MSTeams incoming webhook URL for adaptive card notifications.
+    This webhook must support the newer adaptive cards format required by Teams flows.
 
     Attributes
     ----------
@@ -2074,35 +2892,46 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     Attributes
     ----------
     actions : str, default is Undefined, optional
-        Comma separated list of actions that will be available for the alert.
+        actions defines a comma separated list of actions that will be available for the alert.
+        These appear as action buttons in the OpsGenie interface.
     apiKey : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0APIKey, default is Undefined, optional
         api key
     apiURL : str, default is Undefined, optional
-        The URL to send OpsGenie API requests to.
+        apiURL defines the URL to send OpsGenie API requests to.
+        When not specified, defaults to the standard OpsGenie API endpoint.
     description : str, default is Undefined, optional
-        Description of the incident.
+        description defines the detailed description of the incident.
+        This provides additional context beyond the message field.
     details : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0DetailsItems0], default is Undefined, optional
-        A set of arbitrary key/value pairs that provide further detail about the incident.
+        details defines a set of arbitrary key/value pairs that provide further detail about the incident.
+        These appear as additional fields in the OpsGenie alert.
     entity : str, default is Undefined, optional
-        Optional field that can be used to specify which domain alert is related to.
+        entity defines an optional field that can be used to specify which domain alert is related to.
+        This helps group related alerts together in OpsGenie.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     message : str, default is Undefined, optional
-        Alert text limited to 130 characters.
+        message defines the alert text limited to 130 characters.
+        This appears as the main alert title in OpsGenie.
     note : str, default is Undefined, optional
-        Additional alert note.
+        note defines an additional alert note.
+        This provides supplementary information about the alert.
     priority : str, default is Undefined, optional
-        Priority level of alert. Possible values are P1, P2, P3, P4, and P5.
+        priority defines the priority level of alert.
+        Possible values are P1, P2, P3, P4, and P5, where P1 is highest priority.
     responders : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0RespondersItems0], default is Undefined, optional
-        List of responders responsible for notifications.
+        responders defines the list of responders responsible for notifications.
+        These determine who gets notified when the alert is created.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     source : str, default is Undefined, optional
-        Backlink to the sender of the notification.
+        source defines the backlink to the sender of the notification.
+        This helps identify where the alert originated from.
     tags : str, default is Undefined, optional
-        Comma separated list of tags attached to the notifications.
+        tags defines a comma separated list of tags attached to the notifications.
+        These help categorize and filter alerts within OpsGenie.
     updateAlerts : bool, default is Undefined, optional
-        Whether to update message and description of the alert in OpsGenie if it already exists
+        updateAlerts defines Whether to update message and description of the alert in OpsGenie if it already exists
         By default, the alert is never updated in OpsGenie, the new message only appears in activity log.
     """
     actions?: str
@@ -2121,9 +2950,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     tags?: str
     updateAlerts?: bool
 
+    check:
+        _regex_match(str(apiURL), r"^https?://.+$") if apiURL
+
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0APIKey:
     r"""
-    The secret's key that contains the OpsGenie API key.
+    apiKey defines the secret's key that contains the OpsGenie API key.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
 
@@ -2152,9 +2984,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     Attributes
     ----------
     key : str, default is Undefined, required
-        Key of the tuple.
+        key defines the key of the tuple.
+        This is the identifier or name part of the key-value pair.
     value : str, default is Undefined, required
-        Value of the tuple.
+        value defines the value of the tuple.
+        This is the data or content associated with the key.
     """
     key: str
 
@@ -2165,7 +2999,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration for OpsGenie API requests.
 
     Attributes
     ----------
@@ -2175,37 +3009,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2
@@ -2216,11 +3053,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -2228,7 +3065,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -2239,7 +3076,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -2261,7 +3098,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -2276,7 +3113,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -2299,7 +3136,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -2322,7 +3159,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -2347,7 +3184,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -2356,31 +3194,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientID
 
@@ -2396,12 +3234,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -2416,7 +3254,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -2438,7 +3276,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -2460,7 +3298,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -2505,7 +3343,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -2515,19 +3353,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -2539,7 +3377,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -2553,7 +3391,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -2575,7 +3413,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -2597,7 +3435,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -2611,7 +3449,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -2633,7 +3471,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -2655,7 +3493,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -2699,7 +3537,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -2708,19 +3547,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCert
@@ -2732,7 +3571,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -2746,7 +3585,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -2768,7 +3607,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -2790,7 +3629,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -2804,7 +3643,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -2826,7 +3665,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -2848,7 +3687,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -2876,17 +3715,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     Attributes
     ----------
     id : str, default is Undefined, optional
-        ID of the responder.
+        id defines the unique identifier of the responder.
+        This corresponds to the responder's ID within OpsGenie.
     name : str, default is Undefined, optional
-        Name of the responder.
+        name defines the display name of the responder.
+        This is used when the responder is identified by name rather than ID.
     $type : str, default is Undefined, required
-        Type of responder.
+        type defines the type of responder.
+        Valid values include "user", "team", "schedule", and "escalation".
+        This determines how OpsGenie interprets the other identifier fields.
     username : str, default is Undefined, optional
-        Username of the responder.
+        username defines the username of the responder.
+        This is typically used for user-type responders when identifying by username.
     """
     id?: str
     name?: str
-    $type: str
+    $type: "team" | "teams" | "user" | "escalation" | "schedule"
 
     username?: str
 
@@ -2901,37 +3745,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     class : str, default is Undefined, optional
-        The class/type of the event.
+        class defines the class/type of the event.
     client : str, default is Undefined, optional
-        Client identification.
+        client defines the client identification.
     clientURL : str, default is Undefined, optional
-        Backlink to the sender of notification.
+        clientURL defines the backlink to the sender of notification.
     component : str, default is Undefined, optional
-        The part or component of the affected system that is broken.
+        component defines the part or component of the affected system that is broken.
     description : str, default is Undefined, optional
-        Description of the incident.
+        description of the incident.
     details : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0DetailsItems0], default is Undefined, optional
-        Arbitrary key/value pairs that provide further detail about the incident.
+        details defines the arbitrary key/value pairs that provide further detail about the incident.
     group : str, default is Undefined, optional
-        A cluster or grouping of sources.
+        group defines a cluster or grouping of sources.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     pagerDutyImageConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0PagerDutyImageConfigsItems0], default is Undefined, optional
-        A list of image details to attach that provide further detail about an incident.
+        pagerDutyImageConfigs defines a list of image details to attach that provide further detail about an incident.
     pagerDutyLinkConfigs : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0PagerDutyLinkConfigsItems0], default is Undefined, optional
-        A list of link details to attach that provide further detail about an incident.
+        pagerDutyLinkConfigs defines a list of link details to attach that provide further detail about an incident.
     routingKey : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0RoutingKey, default is Undefined, optional
         routing key
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     serviceKey : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0ServiceKey, default is Undefined, optional
         service key
     severity : str, default is Undefined, optional
-        Severity of the incident.
+        severity of the incident.
     source : str, default is Undefined, optional
-        Unique location of the affected system.
+        source defines the unique location of the affected system.
+    timeout : str, default is Undefined, optional
+        timeout is the maximum time allowed to invoke the pagerduty
+        It requires Alertmanager >= v0.30.0.
     url : str, default is Undefined, optional
-        The URL to send requests to.
+        url defines the URL to send requests to.
     """
     class?: str
     client?: str
@@ -2948,7 +3795,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     serviceKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0ServiceKey
     severity?: str
     source?: str
+    timeout?: str
     url?: str
+
+    check:
+        len(class) >= 1 if class
+        len(client) >= 1 if client
+        len(component) >= 1 if component
+        len(description) >= 1 if description
+        len(group) >= 1 if group
+        len(severity) >= 1 if severity
+        len(source) >= 1 if source
+        _regex_match(str(timeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if timeout
+        _regex_match(str(url), r"^https?://.+$") if url
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0DetailsItems0:
     r"""
@@ -2957,9 +3816,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     key : str, default is Undefined, required
-        Key of the tuple.
+        key defines the key of the tuple.
+        This is the identifier or name part of the key-value pair.
     value : str, default is Undefined, required
-        Value of the tuple.
+        value defines the value of the tuple.
+        This is the data or content associated with the key.
     """
     key: str
 
@@ -2970,7 +3831,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration.
 
     Attributes
     ----------
@@ -2980,37 +3841,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2
@@ -3021,11 +3885,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -3033,7 +3897,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -3044,7 +3908,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -3066,7 +3930,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -3081,7 +3945,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -3104,7 +3968,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -3127,7 +3991,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -3152,7 +4016,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -3161,31 +4026,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientID
 
@@ -3201,12 +4066,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -3221,7 +4086,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -3243,7 +4108,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -3265,7 +4130,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -3310,7 +4175,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -3320,19 +4185,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -3344,7 +4209,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -3358,7 +4223,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -3380,7 +4245,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -3402,7 +4267,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -3416,7 +4281,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -3438,7 +4303,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -3460,7 +4325,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -3504,7 +4369,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -3513,19 +4379,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCert
@@ -3537,7 +4403,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -3551,7 +4417,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -3573,7 +4439,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -3595,7 +4461,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -3609,7 +4475,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -3631,7 +4497,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -3653,7 +4519,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -3680,15 +4546,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     alt : str, default is Undefined, optional
-        Alt is the optional alternative text for the image.
+        alt is the optional alternative text for the image.
     href : str, default is Undefined, optional
-        Optional URL; makes the image a clickable link.
+        href defines the optional URL; makes the image a clickable link.
     src : str, default is Undefined, optional
-        Src of the image being attached to the incident
+        src of the image being attached to the incident
     """
     alt?: str
     href?: str
     src?: str
+
+    check:
+        len(alt) >= 1 if alt
+        len(src) >= 1 if src
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0PagerDutyLinkConfigsItems0:
     r"""
@@ -3697,16 +4567,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     alt : str, default is Undefined, optional
-        Text that describes the purpose of the link, and can be used as the link's text.
+        alt defines the text that describes the purpose of the link, and can be used as the link's text.
     href : str, default is Undefined, optional
-        Href is the URL of the link to be attached
+        href defines the URL of the link to be attached
     """
     alt?: str
     href?: str
 
+    check:
+        len(alt) >= 1 if alt
+
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0RoutingKey:
     r"""
-    The secret's key that contains the PagerDuty integration key (when using
+    routingKey defines the secret's key that contains the PagerDuty integration key (when using
     Events API v2). Either this field or `serviceKey` needs to be defined.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -3731,7 +4604,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0ServiceKey:
     r"""
-    The secret's key that contains the PagerDuty service key (when using
+    serviceKey defines the secret's key that contains the PagerDuty service key (when using
     integration type "Prometheus"). Either this field or `routingKey` needs to
     be defined.
     The secret needs to be in the same namespace as the AlertmanagerConfig
@@ -3763,43 +4636,57 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     Attributes
     ----------
     device : str, default is Undefined, optional
-        The name of a device to send the notification to
+        device defines the name of a specific device to send the notification to.
+        If not specified, the notification is sent to all user's devices.
     expire : str, default is Undefined, optional
-        How long your notification will continue to be retried for, unless the user
-        acknowledges the notification.
+        expire defines how long your notification will continue to be retried for,
+        unless the user acknowledges the notification. Only applies to priority 2 notifications.
     html : bool, default is Undefined, optional
-        Whether notification message is HTML or plain text.
+        html defines whether notification message is HTML or plain text.
+        When true, the message can include HTML formatting tags.
+        html and monospace formatting are mutually exclusive.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     message : str, default is Undefined, optional
-        Notification message.
+        message defines the notification message content.
+        This is the main body text of the Pushover notification.
+    monospace : bool, default is Undefined, optional
+        monospace optional HTML/monospace formatting for the message, see https://pushover.net/api#html
+        html and monospace formatting are mutually exclusive.
     priority : str, default is Undefined, optional
-        Priority, see https://pushover.net/api#priority
+        priority defines the notification priority level.
+        See https://pushover.net/api#priority for valid values and behavior.
     retry : str, default is Undefined, optional
-        How often the Pushover servers will send the same notification to the user.
-        Must be at least 30 seconds.
+        retry defines how often the Pushover servers will send the same notification to the user.
+        Must be at least 30 seconds. Only applies to priority 2 notifications.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     sound : str, default is Undefined, optional
-        The name of one of the sounds supported by device clients to override the user's default sound choice
+        sound defines the name of one of the sounds supported by device clients.
+        This overrides the user's default sound choice for this notification.
     title : str, default is Undefined, optional
-        Notification title.
+        title defines the notification title displayed in the Pushover message.
+        This appears as the bold header text in the notification.
     token : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0Token, default is Undefined, optional
         token
     tokenFile : str, default is Undefined, optional
-        The token file that contains the registered application's API token, see https://pushover.net/apps.
+        tokenFile defines the token file that contains the registered application's API token.
+        See https://pushover.net/apps for application registration.
         Either `token` or `tokenFile` is required.
         It requires Alertmanager >= v0.26.0.
     ttl : str, default is Undefined, optional
-        The time to live definition for the alert notification
+        ttl defines the time to live for the alert notification.
+        This determines how long the notification remains active before expiring.
     url : str, default is Undefined, optional
-        A supplementary URL shown alongside the message.
+        url defines a supplementary URL shown alongside the message.
+        This creates a clickable link within the Pushover notification.
     urlTitle : str, default is Undefined, optional
-        A title for supplementary URL, otherwise just the URL is shown
+        urlTitle defines a title for the supplementary URL.
+        If not specified, the raw URL is shown instead.
     userKey : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0UserKey, default is Undefined, optional
         user key
     userKeyFile : str, default is Undefined, optional
-        The user key file that contains the recipient user's user key.
+        userKeyFile defines the user key file that contains the recipient user's user key.
         Either `userKey` or `userKeyFile` is required.
         It requires Alertmanager >= v0.26.0.
     """
@@ -3808,6 +4695,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     html?: bool
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfig
     message?: str
+    monospace?: bool
     priority?: str
     retry?: str
     sendResolved?: bool
@@ -3822,13 +4710,21 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     userKeyFile?: str
 
     check:
+        len(device) >= 1 if device
         _regex_match(str(expire), r"^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$") if expire
+        len(message) >= 1 if message
+        len(priority) >= 1 if priority
         _regex_match(str(retry), r"^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$") if retry
+        len(sound) >= 1 if sound
+        len(title) >= 1 if title
+        len(tokenFile) >= 1 if tokenFile
         _regex_match(str(ttl), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if ttl
+        len(urlTitle) >= 1 if urlTitle
+        len(userKeyFile) >= 1 if userKeyFile
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration for Pushover API requests.
 
     Attributes
     ----------
@@ -3838,37 +4734,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2
@@ -3879,11 +4778,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -3891,7 +4790,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -3902,7 +4801,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -3924,7 +4823,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -3939,7 +4838,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -3962,7 +4861,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -3985,7 +4884,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -4010,7 +4909,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -4019,31 +4919,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientID
 
@@ -4059,12 +4959,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -4079,7 +4979,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -4101,7 +5001,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -4123,7 +5023,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -4168,7 +5068,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -4178,19 +5078,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -4202,7 +5102,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -4216,7 +5116,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -4238,7 +5138,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -4260,7 +5160,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -4274,7 +5174,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -4296,7 +5196,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -4318,7 +5218,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -4362,7 +5262,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -4371,19 +5272,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCert
@@ -4395,7 +5296,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -4409,7 +5310,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -4431,7 +5332,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -4453,7 +5354,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -4467,7 +5368,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -4489,7 +5390,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -4511,7 +5412,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -4533,7 +5434,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0Token:
     r"""
-    The secret's key that contains the registered application's API token, see https://pushover.net/apps.
+    token defines the secret's key that contains the registered application's API token.
+    See https://pushover.net/apps for application registration.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
     Either `token` or `tokenFile` is required.
@@ -4558,10 +5460,903 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0UserKey:
     r"""
-    The secret's key that contains the recipient user's user key.
+    userKey defines the secret's key that contains the recipient user's user key.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
     Either `userKey` or `userKeyFile` is required.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0:
+    r"""
+    RocketChatConfig configures notifications via RocketChat.
+    It requires Alertmanager >= 0.28.0.
+
+    Attributes
+    ----------
+    actions : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0ActionsItems0], default is Undefined, optional
+        actions defines interactive actions to include in the message.
+        These appear as buttons that users can click to trigger responses.
+    apiURL : str, default is Undefined, optional
+        apiURL defines the API URL for RocketChat.
+        Defaults to https://open.rocket.chat/ if not specified.
+    channel : str, default is Undefined, optional
+        channel defines the channel to send alerts to.
+        This can be a channel name (e.g., "#alerts") or a direct message recipient.
+    color : str, default is Undefined, optional
+        color defines the message color displayed in RocketChat.
+        This appears as a colored bar alongside the message.
+    emoji : str, default is Undefined, optional
+        emoji defines the emoji to be displayed as an avatar.
+        If provided, this emoji will be used instead of the default avatar or iconURL.
+    fields : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0FieldsItems0], default is Undefined, optional
+        fields defines additional fields for the message attachment.
+        These appear as structured key-value pairs within the message.
+    httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfig, default is Undefined, optional
+        http config
+    iconURL : str, default is Undefined, optional
+        iconURL defines the icon URL for the message avatar.
+        This displays a custom image as the message sender's avatar.
+    imageURL : str, default is Undefined, optional
+        imageURL defines the image URL to display within the message.
+        This embeds an image directly in the message attachment.
+    linkNames : bool, default is Undefined, optional
+        linkNames defines whether to enable automatic linking of usernames and channels.
+        When true, @username and #channel references become clickable links.
+    sendResolved : bool, default is Undefined, optional
+        sendResolved defines whether or not to notify about resolved alerts.
+    shortFields : bool, default is Undefined, optional
+        shortFields defines whether to use short fields in the message layout.
+        When true, fields may be displayed side by side to save space.
+    text : str, default is Undefined, optional
+        text defines the message text to send.
+        This is optional because attachments can be used instead of or alongside text.
+    thumbURL : str, default is Undefined, optional
+        thumbURL defines the thumbnail URL for the message.
+        This displays a small thumbnail image alongside the message content.
+    title : str, default is Undefined, optional
+        title defines the message title displayed prominently in the message.
+        This appears as bold text at the top of the message attachment.
+    titleLink : str, default is Undefined, optional
+        titleLink defines the URL that the title will link to when clicked.
+        This makes the message title clickable in the RocketChat interface.
+    token : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0Token, default is Undefined, required
+        token
+    tokenID : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0TokenID, default is Undefined, required
+        token ID
+    """
+    actions?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0ActionsItems0]
+    apiURL?: str
+    channel?: str
+    color?: str
+    emoji?: str
+    fields?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0FieldsItems0]
+    httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfig
+    iconURL?: str
+    imageURL?: str
+    linkNames?: bool
+    sendResolved?: bool
+    shortFields?: bool
+    text?: str
+    thumbURL?: str
+    title?: str
+    titleLink?: str
+    token: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0Token
+
+    tokenID: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0TokenID
+
+    check:
+        len(actions) >= 1 if actions
+        _regex_match(str(apiURL), r"^https?://.+$") if apiURL
+        len(channel) >= 1 if channel
+        len(color) >= 1 if color
+        len(emoji) >= 1 if emoji
+        len(fields) >= 1 if fields
+        len(text) >= 1 if text
+        len(title) >= 1 if title
+        len(titleLink) >= 1 if titleLink
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0ActionsItems0:
+    r"""
+    RocketChatActionConfig defines actions for RocketChat messages.
+
+    Attributes
+    ----------
+    msg : str, default is Undefined, optional
+        msg defines the message to send when the button is clicked.
+        This allows the button to post a predefined message to the channel.
+    text : str, default is Undefined, optional
+        text defines the button text displayed to users.
+        This is the label that appears on the interactive button.
+    url : str, default is Undefined, optional
+        url defines the URL the button links to when clicked.
+        This creates a clickable button that opens the specified URL.
+    """
+    msg?: str
+    text?: str
+    url?: str
+
+    check:
+        len(msg) >= 1 if msg
+        len(text) >= 1 if text
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0FieldsItems0:
+    r"""
+    RocketChatFieldConfig defines additional fields for RocketChat messages.
+
+    Attributes
+    ----------
+    short : bool, default is Undefined, optional
+        short defines whether this field should be a short field.
+        When true, the field may be displayed inline with other short fields to save space.
+    title : str, default is Undefined, optional
+        title defines the title of this field.
+        This appears as bold text labeling the field content.
+    value : str, default is Undefined, optional
+        value defines the value of this field, displayed underneath the title.
+        This contains the actual data or content for the field.
+    """
+    short?: bool
+    title?: str
+    value?: str
+
+    check:
+        len(title) >= 1 if title
+        len(value) >= 1 if value
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfig:
+    r"""
+    httpConfig defines the HTTP client configuration for RocketChat API requests.
+
+    Attributes
+    ----------
+    authorization : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigAuthorization, default is Undefined, optional
+        authorization
+    basicAuth : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuth, default is Undefined, optional
+        basic auth
+    bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
+        bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
+    followRedirects : bool, default is Undefined, optional
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
+    noProxy : str, default is Undefined, optional
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2, default is Undefined, optional
+        oauth2
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
+        proxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyURL : str, default is Undefined, optional
+        proxyURL defines an optional proxy URL for HTTP requests.
+        If defined, this field takes precedence over `proxyUrl`.
+    proxyUrl : str, default is Undefined, optional
+        proxyUrl defines the HTTP proxy server to use.
+    tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
+        tls config
+    """
+    authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigAuthorization
+    basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuth
+    bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
+    followRedirects?: bool
+    noProxy?: str
+    oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyURL?: str
+    proxyUrl?: str
+    tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfig
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigAuthorization:
+    r"""
+    authorization defines the authorization header configuration for the client.
+    This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
+
+    Attributes
+    ----------
+    credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
+        credentials
+    $type : str, default is Undefined, optional
+        type defines the authentication type. The value is case-insensitive.
+
+        "Basic" is not a supported value.
+
+        Default: "Bearer"
+    """
+    credentials?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigAuthorizationCredentials
+    $type?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigAuthorizationCredentials:
+    r"""
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuth:
+    r"""
+    basicAuth defines the basic authentication credentials for the client.
+    This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
+
+    Attributes
+    ----------
+    password : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuthPassword, default is Undefined, optional
+        password
+    username : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuthUsername, default is Undefined, optional
+        username
+    """
+    password?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuthPassword
+    username?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuthUsername
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuthPassword:
+    r"""
+    password defines a key of a Secret containing the password for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBasicAuthUsername:
+    r"""
+    username defines a key of a Secret containing the username for
+    authentication.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigBearerTokenSecret:
+    r"""
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
+    for authentication.
+    The secret needs to be in the same namespace as the AlertmanagerConfig
+    object and accessible by the Prometheus Operator.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2:
+    r"""
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
+
+    Attributes
+    ----------
+    clientId : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientID, default is Undefined, required
+        client Id
+    clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
+        client secret
+    endpointParams : {str:str}, default is Undefined, optional
+        endpointParams configures the HTTP parameters to append to the token
+        URL.
+    noProxy : str, default is Undefined, optional
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
+        proxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyUrl : str, default is Undefined, optional
+        proxyUrl defines the HTTP proxy server to use.
+    scopes : [str], default is Undefined, optional
+        scopes defines the OAuth2 scopes used for the token request.
+    tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
+        tls config
+    tokenUrl : str, default is Undefined, required
+        tokenUrl defines the URL to fetch the token from.
+    """
+    clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientID
+
+    clientSecret: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientSecret
+
+    endpointParams?: {str:str}
+    noProxy?: str
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
+    proxyUrl?: str
+    scopes?: [str]
+    tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfig
+    tokenUrl: str
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+        len(tokenUrl) >= 1
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientID:
+    r"""
+    clientId defines a key of a Secret or ConfigMap containing the
+    OAuth2 client's ID.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientIDConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientIDSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientIDConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientIDSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientIDSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientSecret:
+    r"""
+    clientSecret defines a key of a Secret containing the OAuth2
+    client's secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfig:
+    r"""
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
+    It requires Prometheus >= v2.43.0.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        insecureSkipVerify defines how to disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        maxVersion defines the maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        minVersion defines the minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        serverName is used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCa
+    cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCa:
+    r"""
+    ca defines the Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCaSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCert:
+    r"""
+    cert defines the Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCertSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
+    r"""
+    keySecret defines the Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfig:
+    r"""
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
+
+    Attributes
+    ----------
+    ca : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCa, default is Undefined, optional
+        ca
+    cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
+        cert
+    insecureSkipVerify : bool, default is Undefined, optional
+        insecureSkipVerify defines how to disable target certificate validation.
+    keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
+        key secret
+    maxVersion : str, default is Undefined, optional
+        maxVersion defines the maximum acceptable TLS version.
+
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
+    minVersion : str, default is Undefined, optional
+        minVersion defines the minimum acceptable TLS version.
+
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
+    serverName : str, default is Undefined, optional
+        serverName is used to verify the hostname for the targets.
+    """
+    ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCa
+    cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCert
+    insecureSkipVerify?: bool
+    keySecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigKeySecret
+    maxVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    minVersion?: "TLS10" | "TLS11" | "TLS12" | "TLS13"
+    serverName?: str
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCa:
+    r"""
+    ca defines the Certificate authority used when verifying server certificates.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCaConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCaSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCaConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCaSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCaConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCaSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCert:
+    r"""
+    cert defines the Client certificate to present when doing client-authentication.
+
+    Attributes
+    ----------
+    configMap : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCertConfigMap, default is Undefined, optional
+        config map
+    secret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCertSecret, default is Undefined, optional
+        secret
+    """
+    configMap?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCertConfigMap
+    secret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCertSecret
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCertConfigMap:
+    r"""
+    configMap defines the ConfigMap containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key to select.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the ConfigMap or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigCertSecret:
+    r"""
+    secret defines the Secret containing data to use for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigTLSConfigKeySecret:
+    r"""
+    keySecret defines the Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0Token:
+    r"""
+    token defines the sender token for RocketChat authentication.
+    This is the personal access token or bot token used to authenticate API requests.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0TokenID:
+    r"""
+    tokenID defines the sender token ID for RocketChat authentication.
+    This is the user ID associated with the token used for API requests.
 
     Attributes
     ----------
@@ -4589,49 +6384,58 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     Attributes
     ----------
     actions : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0], default is Undefined, optional
-        A list of Slack actions that are sent with each notification.
+        actions defines a list of Slack actions that are sent with each notification.
     apiURL : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0APIURL, default is Undefined, optional
         api URL
     callbackId : str, default is Undefined, optional
-        callback Id
+        callbackId defines an identifier for the message used in interactive components.
     channel : str, default is Undefined, optional
-        The channel or user to send notifications to.
+        channel defines the channel or user to send notifications to.
     color : str, default is Undefined, optional
-        color
+        color defines the color of the left border of the Slack message attachment.
+        Can be a hex color code (e.g., "#ff0000") or a predefined color name.
     fallback : str, default is Undefined, optional
-        fallback
+        fallback defines a plain-text summary of the attachment for clients that don't support attachments.
     fields : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0FieldsItems0], default is Undefined, optional
-        A list of Slack fields that are sent with each notification.
+        fields defines a list of Slack fields that are sent with each notification.
     footer : str, default is Undefined, optional
-        footer
+        footer defines small text displayed at the bottom of the message attachment.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     iconEmoji : str, default is Undefined, optional
-        icon emoji
+        iconEmoji defines the emoji to use as the bot's avatar (e.g., ":ghost:").
     iconURL : str, default is Undefined, optional
-        icon URL
+        iconURL defines the URL to an image to use as the bot's avatar.
     imageURL : str, default is Undefined, optional
-        image URL
+        imageURL defines the URL to an image file that will be displayed inside the message attachment.
     linkNames : bool, default is Undefined, optional
-        link names
+        linkNames enables automatic linking of channel names and usernames in the message.
+        When true, @channel and @username will be converted to clickable links.
     mrkdwnIn : [str], default is Undefined, optional
-        mrkdwn in
+        mrkdwnIn defines which fields should be parsed as Slack markdown.
+        Valid values include "pretext", "text", and "fields".
     pretext : str, default is Undefined, optional
-        pretext
+        pretext defines optional text that appears above the message attachment block.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     shortFields : bool, default is Undefined, optional
-        short fields
+        shortFields determines whether fields are displayed in a compact format.
+        When true, fields are shown side by side when possible.
     text : str, default is Undefined, optional
-        text
+        text defines the main text content of the Slack message attachment.
     thumbURL : str, default is Undefined, optional
-        thumb URL
+        thumbURL defines the URL to an image file that will be displayed as a thumbnail
+        on the right side of the message attachment.
+    timeout : str, default is Undefined, optional
+        timeout defines the maximum time to wait for a webhook request to complete,
+        before failing the request and allowing it to be retried.
+        It requires Alertmanager >= v0.30.0.
     title : str, default is Undefined, optional
-        title
+        title defines the title text displayed in the Slack message attachment.
     titleLink : str, default is Undefined, optional
-        title link
+        titleLink defines the URL that the title will link to when clicked.
     username : str, default is Undefined, optional
-        username
+        username defines the slack bot user name.
     """
     actions?: [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0]
     apiURL?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0APIURL
@@ -4652,13 +6456,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     shortFields?: bool
     text?: str
     thumbURL?: str
+    timeout?: str
     title?: str
     titleLink?: str
     username?: str
 
+    check:
+        len(actions) >= 1 if actions
+        len(callbackId) >= 1 if callbackId
+        len(channel) >= 1 if channel
+        len(color) >= 1 if color
+        len(fallback) >= 1 if fallback
+        len(fields) >= 1 if fields
+        len(footer) >= 1 if footer
+        len(iconEmoji) >= 1 if iconEmoji
+        len(mrkdwnIn) >= 1 if mrkdwnIn
+        all mrkdwnIn in mrkdwnIn {len(mrkdwnIn) >= 1 if mrkdwnIn not in [None, Undefined]} if mrkdwnIn
+        len(pretext) >= 1 if pretext
+        len(text) >= 1 if text
+        _regex_match(str(timeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if timeout
+        len(title) >= 1 if title
+        len(username) >= 1 if username
+
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0APIURL:
     r"""
-    The secret's key that contains the Slack webhook URL.
+    apiURL defines the secret's key that contains the Slack webhook URL.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
 
@@ -4692,17 +6514,23 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     confirm : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0Confirm, default is Undefined, optional
         confirm
     name : str, default is Undefined, optional
-        name
+        name defines a unique identifier for the action within the message.
+        This value is sent back to your application when the action is triggered.
     style : str, default is Undefined, optional
-        style
+        style defines the visual appearance of the action element.
+        Valid values include "default", "primary" (green), and "danger" (red).
     text : str, default is Undefined, required
-        text
+        text defines the user-visible label displayed on the action element.
+        For buttons, this is the button text. For select menus, this is the placeholder text.
     $type : str, default is Undefined, required
-        type
+        type defines the type of interactive component.
+        Common values include "button" for clickable buttons and "select" for dropdown menus.
     url : str, default is Undefined, optional
-        url
+        url defines the URL to open when the action is triggered.
+        Only applicable for button-type actions. When set, clicking the button opens this URL.
     value : str, default is Undefined, optional
-        value
+        value defines the payload sent when the action is triggered.
+        This data is included in the callback sent to your application.
     """
     confirm?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0Confirm
     name?: str
@@ -4715,27 +6543,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     value?: str
 
     check:
+        len(name) >= 1 if name
+        len(style) >= 1 if style
         len(text) >= 1
         len($type) >= 1
+        len(value) >= 1 if value
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0Confirm:
     r"""
-    SlackConfirmationField protect users from destructive actions or
-    particularly distinguished decisions by asking them to confirm their button
-    click one more time.
-    See https://api.slack.com/docs/interactive-message-field-guide#confirmation_fields
-    for more information.
+    confirm defines an optional confirmation dialog that appears before the action is executed.
+    When set, users must confirm their intent before the action proceeds.
 
     Attributes
     ----------
     dismissText : str, default is Undefined, optional
-        dismiss text
+        dismissText defines the label for the cancel button in the dialog.
+        When not specified, defaults to "Cancel". This button cancels the action.
     okText : str, default is Undefined, optional
-        ok text
+        okText defines the label for the confirmation button in the dialog.
+        When not specified, defaults to "Okay". This button proceeds with the action.
     text : str, default is Undefined, required
-        text
+        text defines the main message displayed in the confirmation dialog.
+        This should be a clear question or statement asking the user to confirm their action.
     title : str, default is Undefined, optional
-        title
+        title defines the title text displayed at the top of the confirmation dialog.
+        When not specified, a default title will be used.
     """
     dismissText?: str
     okText?: str
@@ -4744,7 +6576,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     title?: str
 
     check:
+        len(dismissText) >= 1 if dismissText
+        len(okText) >= 1 if okText
         len(text) >= 1
+        len(title) >= 1 if title
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0FieldsItems0:
     r"""
@@ -4756,11 +6591,15 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     Attributes
     ----------
     short : bool, default is Undefined, optional
-        short
+        short determines whether this field can be displayed alongside other short fields.
+        When true, Slack may display this field side by side with other short fields.
+        When false or not specified, the field takes the full width of the message.
     title : str, default is Undefined, required
-        title
+        title defines the label or header text displayed for this field.
+        This appears as bold text above the field value in the Slack message.
     value : str, default is Undefined, required
-        value
+        value defines the content or data displayed for this field.
+        This appears below the title and can contain plain text or Slack markdown.
     """
     short?: bool
     title: str
@@ -4773,7 +6612,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration.
 
     Attributes
     ----------
@@ -4783,37 +6622,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2
@@ -4824,11 +6666,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -4836,7 +6678,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -4847,7 +6689,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -4869,7 +6711,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -4884,7 +6726,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -4907,7 +6749,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -4930,7 +6772,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -4955,7 +6797,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -4964,31 +6807,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientID
 
@@ -5004,12 +6847,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -5024,7 +6867,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -5046,7 +6889,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -5068,7 +6911,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -5113,7 +6956,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -5123,19 +6966,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -5147,7 +6990,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -5161,7 +7004,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -5183,7 +7026,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -5205,7 +7048,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -5219,7 +7062,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -5241,7 +7084,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -5263,7 +7106,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -5307,7 +7150,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -5316,19 +7160,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCert
@@ -5340,7 +7184,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -5354,7 +7198,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -5376,7 +7220,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -5398,7 +7242,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -5412,7 +7256,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -5434,7 +7278,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -5456,7 +7300,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -5484,28 +7328,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     Attributes
     ----------
     apiURL : str, default is Undefined, optional
-        The SNS API URL i.e. https://sns.us-east-2.amazonaws.com.
+        apiURL defines the SNS API URL, e.g. https://sns.us-east-2.amazonaws.com.
         If not specified, the SNS API URL from the SNS SDK will be used.
     attributes : {str:str}, default is Undefined, optional
-        SNS message attributes.
+        attributes defines SNS message attributes as key-value pairs.
+        These provide additional metadata that can be used for message filtering and routing.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     message : str, default is Undefined, optional
-        The message content of the SNS notification.
+        message defines the message content of the SNS notification.
+        This is the actual notification text that will be sent to subscribers.
     phoneNumber : str, default is Undefined, optional
-        Phone number if message is delivered via SMS in E.164 format.
+        phoneNumber defines the phone number if message is delivered via SMS in E.164 format.
         If you don't specify this value, you must specify a value for the TopicARN or TargetARN.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     sigv4 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4, default is Undefined, optional
         sigv4
     subject : str, default is Undefined, optional
-        Subject line when the message is delivered to email endpoints.
+        subject defines the subject line when the message is delivered to email endpoints.
+        This field is only used when sending to email subscribers of an SNS topic.
     targetARN : str, default is Undefined, optional
-        The  mobile platform endpoint ARN if message is delivered via mobile notifications.
-        If you don't specify this value, you must specify a value for the topic_arn or PhoneNumber.
+        targetARN defines the mobile platform endpoint ARN if message is delivered via mobile notifications.
+        If you don't specify this value, you must specify a value for the TopicARN or PhoneNumber.
     topicARN : str, default is Undefined, optional
-        SNS topic ARN, i.e. arn:aws:sns:us-east-2:698519295917:My-Topic
+        topicARN defines the SNS topic ARN, e.g. arn:aws:sns:us-east-2:698519295917:My-Topic.
         If you don't specify this value, you must specify a value for the PhoneNumber or TargetARN.
     """
     apiURL?: str
@@ -5521,7 +7368,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration for SNS API requests.
 
     Attributes
     ----------
@@ -5531,37 +7378,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2
@@ -5572,11 +7422,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -5584,7 +7434,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -5595,7 +7445,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -5617,7 +7467,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -5632,7 +7482,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -5655,7 +7505,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -5678,7 +7528,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -5703,7 +7553,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -5712,31 +7563,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientID
 
@@ -5752,12 +7603,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -5772,7 +7623,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -5794,7 +7645,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -5816,7 +7667,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -5861,7 +7712,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -5871,19 +7722,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -5895,7 +7746,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -5909,7 +7760,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -5931,7 +7782,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -5953,7 +7804,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -5967,7 +7818,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -5989,7 +7840,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -6011,7 +7862,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -6055,7 +7906,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -6064,19 +7916,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCert
@@ -6088,7 +7940,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -6102,7 +7954,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -6124,7 +7976,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -6146,7 +7998,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -6160,7 +8012,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -6182,7 +8034,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -6204,7 +8056,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -6226,30 +8078,35 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4:
     r"""
-    Configures AWS's Signature Verification 4 signing process to sign requests.
+    sigv4 configures AWS's Signature Verification 4 signing process to sign requests.
+    This includes AWS credentials and region configuration for authentication.
 
     Attributes
     ----------
     accessKey : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4AccessKey, default is Undefined, optional
         access key
     profile : str, default is Undefined, optional
-        Profile is the named AWS profile used to authenticate.
+        profile defines the named AWS profile used to authenticate.
     region : str, default is Undefined, optional
-        Region is the AWS region. If blank, the region from the default credentials chain used.
+        region defines the AWS region. If blank, the region from the default credentials chain used.
     roleArn : str, default is Undefined, optional
-        RoleArn is the named AWS profile used to authenticate.
+        roleArn defines the named AWS profile used to authenticate.
     secretKey : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4SecretKey, default is Undefined, optional
         secret key
+    useFIPSSTSEndpoint : bool, default is Undefined, optional
+        useFIPSSTSEndpoint defines the FIPS mode for the AWS STS endpoint.
+        It requires Prometheus >= v2.54.0.
     """
     accessKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4AccessKey
     profile?: str
     region?: str
     roleArn?: str
     secretKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4SecretKey
+    useFIPSSTSEndpoint?: bool
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4AccessKey:
     r"""
-    AccessKey is the AWS API key. If not specified, the environment variable
+    accessKey defines the AWS API key. If not specified, the environment variable
     `AWS_ACCESS_KEY_ID` is used.
 
     Attributes
@@ -6272,7 +8129,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4SecretKey:
     r"""
-    SecretKey is the AWS API secret. If not specified, the environment
+    secretKey defines the AWS API secret. If not specified, the environment
     variable `AWS_SECRET_ACCESS_KEY` is used.
 
     Attributes
@@ -6301,30 +8158,36 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     Attributes
     ----------
     apiURL : str, default is Undefined, optional
-        The Telegram API URL i.e. https://api.telegram.org.
-        If not specified, default API URL will be used.
+        apiURL defines the Telegram API URL, e.g. https://api.telegram.org.
+        If not specified, the default Telegram API URL will be used.
     botToken : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0BotToken, default is Undefined, optional
         bot token
     botTokenFile : str, default is Undefined, optional
-        File to read the Telegram bot token from. It is mutually exclusive with `botToken`.
+        botTokenFile defines the file to read the Telegram bot token from.
+        It is mutually exclusive with `botToken`.
         Either `botToken` or `botTokenFile` is required.
-
         It requires Alertmanager >= v0.26.0.
     chatID : int, default is Undefined, required
-        The Telegram chat ID.
+        chatID defines the Telegram chat ID where messages will be sent.
+        This can be a user ID, group ID, or channel ID (with @ prefix for public channels).
     disableNotifications : bool, default is Undefined, optional
-        Disable telegram notifications
+        disableNotifications controls whether Telegram notifications are sent silently.
+        When true, users will receive the message without notification sounds.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     message : str, default is Undefined, optional
-        Message template
+        message defines the message template for the Telegram notification.
+        This is the content that will be sent to the specified chat.
     messageThreadID : int, default is Undefined, optional
-        The Telegram Group Topic ID.
+        messageThreadID defines the Telegram Group Topic ID for threaded messages.
+        This allows sending messages to specific topics within Telegram groups.
         It requires Alertmanager >= 0.26.0.
     parseMode : str, default is Undefined, optional
-        Parse mode for telegram message
+        parseMode defines the parse mode for telegram message formatting.
+        Valid values are "MarkdownV2", "Markdown", and "HTML".
+        This determines how text formatting is interpreted in the message.
     sendResolved : bool, default is Undefined, optional
-        Whether to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     """
     apiURL?: str
     botToken?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0BotToken
@@ -6338,12 +8201,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     parseMode?: "MarkdownV2" | "Markdown" | "HTML"
     sendResolved?: bool
 
+    check:
+        _regex_match(str(apiURL), r"^https?://.+$") if apiURL
+
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0BotToken:
     r"""
-    Telegram bot token. It is mutually exclusive with `botTokenFile`.
+    botToken defines the Telegram bot token. It is mutually exclusive with `botTokenFile`.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
-
     Either `botToken` or `botTokenFile` is required.
 
     Attributes
@@ -6366,7 +8231,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration for Telegram API requests.
 
     Attributes
     ----------
@@ -6376,37 +8241,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2
@@ -6417,11 +8285,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -6429,7 +8297,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -6440,7 +8308,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -6462,7 +8330,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -6477,7 +8345,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -6500,7 +8368,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -6523,7 +8391,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -6548,7 +8416,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -6557,31 +8426,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientID
 
@@ -6597,12 +8466,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -6617,7 +8486,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -6639,7 +8508,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -6661,7 +8530,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -6706,7 +8575,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -6716,19 +8585,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -6740,7 +8609,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -6754,7 +8623,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -6776,7 +8645,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -6798,7 +8667,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -6812,7 +8681,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -6834,7 +8703,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -6856,7 +8725,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -6900,7 +8769,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -6909,19 +8779,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCert
@@ -6933,7 +8803,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -6947,7 +8817,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -6969,7 +8839,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -6991,7 +8861,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -7005,7 +8875,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -7027,7 +8897,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -7049,7 +8919,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -7079,23 +8949,30 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     apiKey : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0APIKey, default is Undefined, optional
         api key
     apiUrl : str, default is Undefined, optional
-        The VictorOps API URL.
+        apiUrl defines the VictorOps API URL.
+        When not specified, defaults to the standard VictorOps API endpoint.
     customFields : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0CustomFieldsItems0], default is Undefined, optional
-        Additional custom fields for notification.
+        customFields defines additional custom fields for notification.
+        These provide extra metadata that will be included with the VictorOps incident.
     entityDisplayName : str, default is Undefined, optional
-        Contains summary of the alerted problem.
+        entityDisplayName contains a summary of the alerted problem.
+        This appears as the main title or identifier for the incident.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     messageType : str, default is Undefined, optional
-        Describes the behavior of the alert (CRITICAL, WARNING, INFO).
+        messageType describes the behavior of the alert.
+        Valid values are "CRITICAL", "WARNING", and "INFO".
     monitoringTool : str, default is Undefined, optional
-        The monitoring tool the state message is from.
-    routingKey : str, default is Undefined, optional
-        A key used to map the alert to a team.
+        monitoringTool defines the monitoring tool the state message is from.
+        This helps identify the source system that generated the alert.
+    routingKey : str, default is Undefined, required
+        routingKey defines a key used to map the alert to a team.
+        This determines which VictorOps team will receive the alert notification.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     stateMessage : str, default is Undefined, optional
-        Contains long explanation of the alerted problem.
+        stateMessage contains a long explanation of the alerted problem.
+        This provides detailed context about the incident.
     """
     apiKey?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0APIKey
     apiUrl?: str
@@ -7104,13 +8981,22 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfig
     messageType?: str
     monitoringTool?: str
-    routingKey?: str
+    routingKey: str
+
     sendResolved?: bool
     stateMessage?: str
 
+    check:
+        _regex_match(str(apiUrl), r"^https?://.+$") if apiUrl
+        len(entityDisplayName) >= 1 if entityDisplayName
+        len(messageType) >= 1 if messageType
+        len(monitoringTool) >= 1 if monitoringTool
+        len(routingKey) >= 1
+        len(stateMessage) >= 1 if stateMessage
+
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0APIKey:
     r"""
-    The secret's key that contains the API key to use when talking to the VictorOps API.
+    apiKey defines the secret's key that contains the API key to use when talking to the VictorOps API.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
 
@@ -7139,9 +9025,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     Attributes
     ----------
     key : str, default is Undefined, required
-        Key of the tuple.
+        key defines the key of the tuple.
+        This is the identifier or name part of the key-value pair.
     value : str, default is Undefined, required
-        Value of the tuple.
+        value defines the value of the tuple.
+        This is the data or content associated with the key.
     """
     key: str
 
@@ -7152,7 +9040,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfig:
     r"""
-    The HTTP client's configuration.
+    httpConfig defines the HTTP client's configuration for VictorOps API requests.
 
     Attributes
     ----------
@@ -7162,37 +9050,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2
@@ -7203,11 +9094,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -7215,7 +9106,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -7226,7 +9117,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -7248,7 +9139,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -7263,7 +9154,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -7286,7 +9177,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -7309,7 +9200,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -7334,7 +9225,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -7343,31 +9235,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientID
 
@@ -7383,12 +9275,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -7403,7 +9295,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -7425,7 +9317,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -7447,7 +9339,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -7492,7 +9384,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -7502,19 +9394,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -7526,7 +9418,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -7540,7 +9432,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -7562,7 +9454,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -7584,7 +9476,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -7598,7 +9490,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -7620,7 +9512,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -7642,7 +9534,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -7686,7 +9578,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -7695,19 +9588,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCert
@@ -7719,7 +9612,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -7733,7 +9626,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -7755,7 +9648,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -7777,7 +9670,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -7791,7 +9684,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -7813,7 +9706,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -7835,7 +9728,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -7863,16 +9756,15 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     Attributes
     ----------
     apiURL : str, default is Undefined, optional
-        The Webex Teams API URL i.e. https://webexapis.com/v1/messages
-        Provide if different from the default API URL.
+        apiURL defines the Webex Teams API URL i.e. https://webexapis.com/v1/messages
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     message : str, default is Undefined, optional
-        Message template
+        message defines the message template
     roomID : str, default is Undefined, required
-        ID of the Webex Teams room where to send the messages.
+        roomID defines the ID of the Webex Teams room where to send the messages.
     sendResolved : bool, default is Undefined, optional
-        Whether to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     """
     apiURL?: str
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfig
@@ -7887,8 +9779,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfig:
     r"""
-    The HTTP client's configuration.
-    You must supply the bot token via the `httpConfig.authorization` field.
+    httpConfig defines the HTTP client's configuration.
 
     Attributes
     ----------
@@ -7898,37 +9789,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2
@@ -7939,11 +9833,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -7951,7 +9845,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -7962,7 +9856,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -7984,7 +9878,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -7999,7 +9893,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -8022,7 +9916,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -8045,7 +9939,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -8070,7 +9964,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -8079,31 +9974,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientID
 
@@ -8119,12 +10014,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -8139,7 +10034,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -8161,7 +10056,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -8183,7 +10078,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -8228,7 +10123,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -8238,19 +10133,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -8262,7 +10157,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -8276,7 +10171,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -8298,7 +10193,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -8320,7 +10215,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -8334,7 +10229,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -8356,7 +10251,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -8378,7 +10273,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -8422,7 +10317,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -8431,19 +10327,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCert
@@ -8455,7 +10351,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -8469,7 +10365,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -8491,7 +10387,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -8513,7 +10409,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -8527,7 +10423,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -8549,7 +10445,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -8571,7 +10467,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -8601,27 +10497,34 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     maxAlerts : int, default is Undefined, optional
-        Maximum number of alerts to be sent per webhook message. When 0, all alerts are included.
+        maxAlerts defines the maximum number of alerts to be sent per webhook message.
+        When 0, all alerts are included in the webhook payload.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
+    timeout : str, default is Undefined, optional
+        timeout defines the maximum time to wait for a webhook request to complete,
+        before failing the request and allowing it to be retried.
+        It requires Alertmanager >= v0.28.0.
     url : str, default is Undefined, optional
-        The URL to send HTTP POST requests to. `urlSecret` takes precedence over
-        `url`. One of `urlSecret` and `url` should be defined.
+        url defines the URL to send HTTP POST requests to.
+        urlSecret takes precedence over url. One of urlSecret and url should be defined.
     urlSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0URLSecret, default is Undefined, optional
         url secret
     """
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig
     maxAlerts?: int
     sendResolved?: bool
+    timeout?: str
     url?: str
     urlSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0URLSecret
 
     check:
         maxAlerts >= 0 if maxAlerts not in [None, Undefined]
+        _regex_match(str(timeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if timeout
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration for webhook requests.
 
     Attributes
     ----------
@@ -8631,37 +10534,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2
@@ -8672,11 +10578,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -8684,7 +10590,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -8695,7 +10601,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -8717,7 +10623,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -8732,7 +10638,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -8755,7 +10661,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -8778,7 +10684,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -8803,7 +10709,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -8812,31 +10719,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientID
 
@@ -8852,12 +10759,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -8872,7 +10779,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -8894,7 +10801,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -8916,7 +10823,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -8961,7 +10868,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -8971,19 +10878,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -8995,7 +10902,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -9009,7 +10916,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -9031,7 +10938,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -9053,7 +10960,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -9067,7 +10974,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -9089,7 +10996,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -9111,7 +11018,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -9155,7 +11062,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -9164,19 +11072,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCert
@@ -9188,7 +11096,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -9202,7 +11110,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -9224,7 +11132,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -9246,7 +11154,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -9260,7 +11168,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -9282,7 +11190,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -9304,7 +11212,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -9326,9 +11234,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0URLSecret:
     r"""
-    The secret's key that contains the webhook URL to send HTTP requests to.
-    `urlSecret` takes precedence over `url`. One of `urlSecret` and `url`
-    should be defined.
+    urlSecret defines the secret's key that contains the webhook URL to send HTTP requests to.
+    urlSecret takes precedence over url. One of urlSecret and url should be defined.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
 
@@ -9358,27 +11265,35 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     Attributes
     ----------
     agentID : str, default is Undefined, optional
-        agent ID
+        agentID defines the application agent ID within WeChat Work.
+        This identifies which WeChat Work application will send the notifications.
     apiSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0APISecret, default is Undefined, optional
         api secret
     apiURL : str, default is Undefined, optional
-        The WeChat API URL.
+        apiURL defines the WeChat API URL.
+        When not specified, defaults to the standard WeChat Work API endpoint.
     corpID : str, default is Undefined, optional
-        The corp id for authentication.
+        corpID defines the corp id for authentication.
+        This is the unique identifier for your WeChat Work organization.
     httpConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfig, default is Undefined, optional
         http config
     message : str, default is Undefined, optional
-        API request data as defined by the WeChat API.
+        message defines the API request data as defined by the WeChat API.
+        This contains the actual notification content to be sent.
     messageType : str, default is Undefined, optional
-        message type
+        messageType defines the type of message to send.
+        Valid values include "text", "markdown", and other WeChat Work supported message types.
     sendResolved : bool, default is Undefined, optional
-        Whether or not to notify about resolved alerts.
+        sendResolved defines whether or not to notify about resolved alerts.
     toParty : str, default is Undefined, optional
-        to party
+        toParty defines the target department(s) to receive the notification.
+        Can be a single department ID or multiple department IDs separated by '|'.
     toTag : str, default is Undefined, optional
-        to tag
+        toTag defines the target tag(s) to receive the notification.
+        Can be a single tag ID or multiple tag IDs separated by '|'.
     toUser : str, default is Undefined, optional
-        to user
+        toUser defines the target user(s) to receive the notification.
+        Can be a single user ID or multiple user IDs separated by '|'.
     """
     agentID?: str
     apiSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0APISecret
@@ -9392,9 +11307,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     toTag?: str
     toUser?: str
 
+    check:
+        _regex_match(str(apiURL), r"^https?://.+$") if apiURL
+
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0APISecret:
     r"""
-    The secret's key that contains the WeChat API key.
+    apiSecret defines the secret's key that contains the WeChat API key.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
 
@@ -9418,7 +11336,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfig:
     r"""
-    HTTP client configuration.
+    httpConfig defines the HTTP client configuration for WeChat API requests.
 
     Attributes
     ----------
@@ -9428,37 +11346,40 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     followRedirects : bool, default is Undefined, optional
-        FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
+        followRedirects specifies whether the client should follow HTTP 3xx redirects.
+        When true, the client will automatically follow redirect responses.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2, default is Undefined, optional
         oauth2
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyURL : str, default is Undefined, optional
-        Optional proxy URL.
-
+        proxyURL defines an optional proxy URL for HTTP requests.
         If defined, this field takes precedence over `proxyUrl`.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfig, default is Undefined, optional
         tls config
     """
     authorization?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorization
     basicAuth?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBearerTokenSecret
+    enableHttp2?: bool
     followRedirects?: bool
     noProxy?: str
     oauth2?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2
@@ -9469,11 +11390,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     tlsConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfig
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorization:
     r"""
-    Authorization header configuration for the client.
+    authorization defines the authorization header configuration for the client.
     This is mutually exclusive with BasicAuth and is only available starting from Alertmanager v0.22+.
 
     Attributes
@@ -9481,7 +11402,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     credentials : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -9492,7 +11413,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -9514,7 +11435,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuth:
     r"""
-    BasicAuth for the client.
+    basicAuth defines the basic authentication credentials for the client.
     This is mutually exclusive with Authorization. If both are defined, BasicAuth takes precedence.
 
     Attributes
@@ -9529,7 +11450,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -9552,7 +11473,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -9575,7 +11496,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigBearerTokenSecret:
     r"""
-    The secret's key that contains the bearer token to be used by the client
+    bearerTokenSecret defines the secret's key that contains the bearer token to be used by the client
     for authentication.
     The secret needs to be in the same namespace as the AlertmanagerConfig
     object and accessible by the Prometheus Operator.
@@ -9600,7 +11521,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2:
     r"""
-    OAuth2 client credentials used to fetch a token for the targets.
+    oauth2 defines the OAuth2 client credentials used to fetch a token for the targets.
+    This enables OAuth2 authentication flow for HTTP requests.
 
     Attributes
     ----------
@@ -9609,31 +11531,31 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     clientSecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientID
 
@@ -9649,12 +11571,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -9669,7 +11591,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -9691,7 +11613,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -9713,7 +11635,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -9758,7 +11680,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -9768,19 +11690,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCert
@@ -9792,7 +11714,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -9806,7 +11728,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -9828,7 +11750,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -9850,7 +11772,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -9864,7 +11786,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -9886,7 +11808,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -9908,7 +11830,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -9952,7 +11874,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfig:
     r"""
-    TLS configuration for the client.
+    tlsConfig defines the TLS configuration for the client.
+    This includes settings for certificates, CA validation, and TLS protocol options.
 
     Attributes
     ----------
@@ -9961,19 +11884,19 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     cert : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCa
     cert?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCert
@@ -9985,7 +11908,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -9999,7 +11922,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -10021,7 +11944,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -10043,7 +11966,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -10057,7 +11980,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -10079,7 +12002,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -10101,7 +12024,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -10123,53 +12046,46 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRoute:
     r"""
-    The Alertmanager route definition for alerts matching the resource's
+    route defines the Alertmanager route definition for alerts matching the resource's
     namespace. If present, it will be added to the generated Alertmanager
     configuration as a first-level route.
 
     Attributes
     ----------
     activeTimeIntervals : [str], default is Undefined, optional
-        ActiveTimeIntervals is a list of MuteTimeInterval names when this route should be active.
+        activeTimeIntervals is a list of MuteTimeInterval names when this route should be active.
     continue : bool, default is Undefined, optional
-        Boolean indicating whether an alert should continue matching subsequent
+        continue defines the boolean indicating whether an alert should continue matching subsequent
         sibling nodes. It will always be overridden to true for the first-level
         route by the Prometheus operator.
     groupBy : [str], default is Undefined, optional
-        List of labels to group by.
+        groupBy defines the list of labels to group by.
         Labels must not be repeated (unique list).
         Special label "..." (aggregate by all possible labels), if provided, must be the only element in the list.
     groupInterval : str, default is Undefined, optional
-        How long to wait before sending an updated notification.
+        groupInterval defines how long to wait before sending an updated notification.
         Must match the regular expression`^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$`
         Example: "5m"
     groupWait : str, default is Undefined, optional
-        How long to wait before sending the initial notification.
+        groupWait defines how long to wait before sending the initial notification.
         Must match the regular expression`^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$`
         Example: "30s"
     matchers : [MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRouteMatchersItems0], default is Undefined, optional
-        List of matchers that the alert's labels should match. For the first
+        matchers defines the list of matchers that the alert's labels should match. For the first
         level route, the operator removes any existing equality and regexp
         matcher on the `namespace` label and adds a `namespace: <object
         namespace>` matcher.
     muteTimeIntervals : [str], default is Undefined, optional
-        Note: this comment applies to the field definition above but appears
-        below otherwise it gets included in the generated manifest.
-        CRD schema doesn't support self-referential types for now (see
-        https://github.com/kubernetes/kubernetes/issues/62872). We have to use
-        an alternative type to circumvent the limitation. The downside is that
-        the Kube API can't validate the data beyond the fact that it is a valid
-        JSON representation.
-        MuteTimeIntervals is a list of MuteTimeInterval names that will mute this route when matched,
+        muteTimeIntervals is a list of MuteTimeInterval names that will mute this route when matched,
     receiver : str, default is Undefined, optional
-        Name of the receiver for this route. If not empty, it should be listed in
+        receiver defines the name of the receiver for this route. If not empty, it should be listed in
         the `receivers` field.
     repeatInterval : str, default is Undefined, optional
-        How long to wait before repeating the last notification.
+        repeatInterval defines how long to wait before repeating the last notification.
         Must match the regular expression`^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$`
         Example: "4h"
     routes : [any], default is Undefined, optional
-        Child routes.
+        routes defines the child routes.
     """
     activeTimeIntervals?: [str]
     continue?: bool
@@ -10189,15 +12105,18 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRouteMatchersItems0:
     Attributes
     ----------
     matchType : str, default is Undefined, optional
-        Match operation available with AlertManager >= v0.22.0 and
-        takes precedence over Regex (deprecated) if non-empty.
+        matchType defines the match operation available with AlertManager >= v0.22.0.
+        Takes precedence over Regex (deprecated) if non-empty.
+        Valid values: "=" (equality), "!=" (inequality), "=~" (regex match), "!~" (regex non-match).
     name : str, default is Undefined, required
-        Label to match.
+        name defines the label to match.
+        This specifies which alert label should be evaluated.
     regex : bool, default is Undefined, optional
-        Whether to match on equality (false) or regular-expression (true).
+        regex defines whether to match on equality (false) or regular-expression (true).
         Deprecated: for AlertManager >= v0.22.0, `matchType` should be used instead.
     value : str, default is Undefined, optional
-        Label value to match.
+        value defines the label value to match.
+        This is the expected value for the specified label.
     """
     matchType?: "!=" | "=" | "=~" | "!~"
     name: str
@@ -10207,4 +12126,86 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRouteMatchersItems0:
 
     check:
         len(name) >= 1
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigStatus:
+    r"""
+    status defines the status subresource. It is under active development and is updated only when the
+    "StatusForConfigurationResources" feature gate is enabled.
+
+    Most recent observed status of the ServiceMonitor. Read-only.
+    More info:
+    https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+
+    Attributes
+    ----------
+    bindings : [MonitoringCoreosComV1alpha1AlertmanagerConfigStatusBindingsItems0], default is Undefined, optional
+        bindings defines the list of workload resources (Prometheus, PrometheusAgent, ThanosRuler or Alertmanager) which select the configuration resource.
+    """
+    bindings?: [MonitoringCoreosComV1alpha1AlertmanagerConfigStatusBindingsItems0]
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigStatusBindingsItems0:
+    r"""
+    WorkloadBinding is a link between a configuration resource and a workload resource.
+
+    Attributes
+    ----------
+    conditions : [MonitoringCoreosComV1alpha1AlertmanagerConfigStatusBindingsItems0ConditionsItems0], default is Undefined, optional
+        conditions defines the current state of the configuration resource when bound to the referenced Workload object.
+    group : str, default is Undefined, required
+        group defines the group of the referenced resource.
+    name : str, default is Undefined, required
+        name defines the name of the referenced object.
+    namespace : str, default is Undefined, required
+        namespace defines the namespace of the referenced object.
+    resource : str, default is Undefined, required
+        resource defines the type of resource being referenced (e.g. Prometheus, PrometheusAgent, ThanosRuler or Alertmanager).
+    """
+    conditions?: [MonitoringCoreosComV1alpha1AlertmanagerConfigStatusBindingsItems0ConditionsItems0]
+    group: "monitoring.coreos.com"
+
+    name: str
+
+    namespace: str
+
+    resource: "prometheuses" | "prometheusagents" | "thanosrulers" | "alertmanagers"
+
+    check:
+        len(name) >= 1
+        len(namespace) >= 1
+
+schema MonitoringCoreosComV1alpha1AlertmanagerConfigStatusBindingsItems0ConditionsItems0:
+    r"""
+    ConfigResourceCondition describes the status of configuration resources linked to Prometheus, PrometheusAgent, Alertmanager or ThanosRuler.
+
+    Attributes
+    ----------
+    lastTransitionTime : str, default is Undefined, required
+        lastTransitionTime defines the time of the last update to the current status property.
+    message : str, default is Undefined, optional
+        message defines the human-readable message indicating details for the condition's last transition.
+    observedGeneration : int, default is Undefined, optional
+        observedGeneration defines the .metadata.generation that the
+        condition was set based upon. For instance, if `.metadata.generation` is
+        currently 12, but the `.status.conditions[].observedGeneration` is 9, the
+        condition is out of date with respect to the current state of the object.
+    reason : str, default is Undefined, optional
+        reason for the condition's last transition.
+    status : str, default is Undefined, required
+        status of the condition.
+    $type : str, default is Undefined, required
+        type of the condition being reported.
+        Currently, only "Accepted" is supported.
+    """
+    lastTransitionTime: str
+
+    message?: str
+    observedGeneration?: int
+    reason?: str
+    status: str
+
+    $type: "Accepted"
+
+    check:
+        len(status) >= 1
+        len($type) >= 1
 
