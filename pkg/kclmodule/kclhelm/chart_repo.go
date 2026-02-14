@@ -43,6 +43,7 @@ func (c *ChartRepo) Validate() error {
 	if c.Name == "" {
 		return errors.New("name is required")
 	}
+
 	if c.URL == "" {
 		return errors.New("url is required")
 	}
@@ -60,7 +61,7 @@ func (c *ChartRepo) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 
-	js := r.Reflect(reflect.TypeOf(ChartRepo{}))
+	js := r.Reflect(reflect.TypeFor[ChartRepo]())
 
 	err = js.GenerateKCL(w)
 	if err != nil {
@@ -76,41 +77,49 @@ func (c *ChartRepo) FromMap(m map[string]any) error {
 
 		delete(m, "name")
 	}
+
 	if url, ok := m["url"].(string); ok {
 		c.URL = url
 
 		delete(m, "url")
 	}
+
 	if usernameEnv, ok := m["usernameEnv"].(string); ok {
 		c.UsernameEnv = usernameEnv
 
 		delete(m, "usernameEnv")
 	}
+
 	if passwordEnv, ok := m["passwordEnv"].(string); ok {
 		c.PasswordEnv = passwordEnv
 
 		delete(m, "passwordEnv")
 	}
+
 	if caPath, ok := m["caPath"].(string); ok {
 		c.CAPath = caPath
 
 		delete(m, "caPath")
 	}
+
 	if tlsClientCertDataPath, ok := m["tlsClientCertDataPath"].(string); ok {
 		c.TLSClientCertDataPath = tlsClientCertDataPath
 
 		delete(m, "tlsClientCertDataPath")
 	}
+
 	if tlsClientCertKeyPath, ok := m["tlsClientCertKeyPath"].(string); ok {
 		c.TLSClientCertKeyPath = tlsClientCertKeyPath
 
 		delete(m, "tlsClientCertKeyPath")
 	}
+
 	if insecureSkipVerify, ok := m["insecureSkipVerify"].(bool); ok {
 		c.InsecureSkipVerify = insecureSkipVerify
 
 		delete(m, "insecureSkipVerify")
 	}
+
 	if passCredentials, ok := m["passCredentials"].(bool); ok {
 		c.PassCredentials = passCredentials
 

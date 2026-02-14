@@ -68,6 +68,7 @@ func (s *KCLPackage) GenerateC(ctx context.Context) error {
 			merr = multierror.Append(merr, err)
 		}
 	}
+
 	if merr != nil {
 		return fmt.Errorf("failed to generate KCL from CRDs: %w", merr)
 	}
@@ -101,6 +102,7 @@ func (s *KCLPackage) writeToKCLSchema(uCRD *unstructured.Unstructured) error {
 			merr = multierror.Append(merr, fmt.Errorf("%s: %w", v.GetAPIVersion(), err))
 		}
 	}
+
 	if merr != nil {
 		return multierror.Prefix(merr, ErrGenerateKCL.Error()+":") //nolint:wrapcheck // Multierror
 	}

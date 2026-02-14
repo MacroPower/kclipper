@@ -93,8 +93,8 @@ func TestFile_OverrideFile(t *testing.T) {
 			// since the exact formatting (spaces, etc.) may vary
 			for _, spec := range tc.specs {
 				key := spec
-				if idx := strings.Index(spec, "="); idx >= 0 {
-					key = spec[:idx]
+				if before, _, ok := strings.Cut(spec, "="); ok {
+					key = before
 				}
 
 				assert.Contains(t, string(content), key)

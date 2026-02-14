@@ -24,6 +24,7 @@ func FindTopPkgRoot(root, path string) (string, error) {
 		if err != nil {
 			return false, fmt.Errorf("%s: %w", checkPath, err)
 		}
+
 		if fi.IsDir() {
 			return false, nil
 		}
@@ -54,6 +55,7 @@ func FindRepoRoot(path string) (string, error) {
 		if err != nil {
 			return false, fmt.Errorf("%s: %w", checkPath1, err)
 		}
+
 		if !fi1.IsDir() {
 			return false, nil
 		}
@@ -63,6 +65,7 @@ func FindRepoRoot(path string) (string, error) {
 		if err != nil {
 			return false, fmt.Errorf("%s: %w", checkPath2, err)
 		}
+
 		if fi2.IsDir() {
 			return false, nil
 		}
@@ -86,6 +89,7 @@ func findTopFile(root, path string, test func(string) (bool, error)) (string, er
 	if err != nil {
 		return "", fmt.Errorf("get absolute path: %w", err)
 	}
+
 	if !strings.HasPrefix(pathAbs, rootAbs) {
 		return "", kclerrors.ErrResolvedOutsideRepo
 	}

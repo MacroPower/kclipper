@@ -71,6 +71,7 @@ var Plugin = plugin.Plugin{
 				if !safeArgs.Exists(argChart) {
 					merr = multierror.Append(merr, fmt.Errorf("missing required argument: %s", argChart))
 				}
+
 				if !safeArgs.Exists(argRepoURL) {
 					merr = multierror.Append(merr, fmt.Errorf("missing required argument: %s", argRepoURL))
 				}
@@ -101,6 +102,7 @@ var Plugin = plugin.Plugin{
 				if !ok {
 					timeoutStr = "60s"
 				}
+
 				timeout, err := time.ParseDuration(timeoutStr)
 				if err != nil {
 					merr = multierror.Append(merr, fmt.Errorf("failed to parse timeout: %w", err))
@@ -114,10 +116,12 @@ var Plugin = plugin.Plugin{
 				if cwd == "" {
 					cwd = "."
 				}
+
 				repoRoot, err := paths.FindRepoRoot(cwd)
 				if err != nil {
 					return nil, fmt.Errorf("failed to find repository root: %w", err)
 				}
+
 				pkgPath, err := paths.FindTopPkgRoot(repoRoot, cwd)
 				if err != nil {
 					return nil, fmt.Errorf("failed to find package root: %w", err)
@@ -144,18 +148,22 @@ var Plugin = plugin.Plugin{
 				repoMgr := helmrepo.NewManager(helmrepo.WithAllowedPaths(pkgPath, repoRoot))
 				for _, repo := range repos {
 					var pcr kclhelm.ChartRepo
+
 					repoMap, ok := repo.(map[string]any)
 					if !ok {
 						return nil, fmt.Errorf("invalid repository: %#v", repo)
 					}
+
 					err := pcr.FromMap(repoMap)
 					if err != nil {
 						return nil, fmt.Errorf("invalid repository: %w", err)
 					}
+
 					hr, err := pcr.GetHelmRepo()
 					if err != nil {
 						return nil, fmt.Errorf("failed to add Helm repository: %w", err)
 					}
+
 					err = repoMgr.Add(hr)
 					if err != nil {
 						return nil, fmt.Errorf("failed to add Helm repository: %w", err)
@@ -191,10 +199,12 @@ var Plugin = plugin.Plugin{
 				}
 
 				logger.Info("execute helm template")
+
 				objs, err := helmChart.Template(context.Background())
 				if err != nil {
 					return nil, fmt.Errorf("failed to template %q: %w", chartName, err)
 				}
+
 				logger.Info("helm template complete")
 
 				logger.Debug("returning results")

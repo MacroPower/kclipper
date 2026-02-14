@@ -27,7 +27,7 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 
-	js := r.Reflect(reflect.TypeOf(Chart{}))
+	js := r.Reflect(reflect.TypeFor[Chart]())
 	js.Schema.Description = "All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`."
 
 	js.SetProperty("chart", jsonschema.WithDefault(c.Chart))

@@ -156,6 +156,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 	for err := range errChan {
 		merr = multierror.Append(merr, err)
 	}
+
 	if merr != nil {
 		return merr
 	}

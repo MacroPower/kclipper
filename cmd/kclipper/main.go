@@ -43,6 +43,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
 		os.Exit(1)
 	}
+
 	if ok {
 		os.Exit(0)
 	}

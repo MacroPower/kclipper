@@ -59,6 +59,7 @@ linters:
     - gocheckcompilerdirectives
     - goconst
     - gocritic
+    # - godoclint
     - godot
     - goprintffuncname
     - gosec
@@ -70,10 +71,12 @@ linters:
     - inamedparam
     - ineffassign
     - intrange
-    - ireturn
+    - iotamixing
+    # - ireturn
     - makezero
     - mirror
     - misspell
+    - modernize
     - musttag
     - nakedret
     - nestif
@@ -82,7 +85,7 @@ linters:
     - nilnil
     - noctx
     - noinlineerr
-    - nolintlint
+    # - nolintlint
     - nonamedreturns
     - nosprintfhostport
     - paralleltest
@@ -90,7 +93,7 @@ linters:
     - prealloc
     - predeclared
     - reassign
-    - recvcheck
+    # - recvcheck
     - revive
     - sloglint
     - staticcheck
@@ -161,6 +164,17 @@ linters:
       disabled-checks:
         - unnamedResult
         - singleCaseSwitch
+      settings:
+        hugeParam:
+          sizeThreshold: 256
+
+    # godoclint:
+    #   default: all
+    #   disable:
+    #     - require-pkg-doc
+    #   options:
+    #     max-len:
+    #       length: 80
 
     godot:
       scope: all
@@ -178,7 +192,6 @@ linters:
         - os.RemoveAll
 
     grouper:
-      const-require-single-const: true
       import-require-single-import: true
       var-require-single-var: true
 
@@ -197,6 +210,9 @@ linters:
           disabled: true
         - name: max-public-structs
           disabled: true
+        - name: nested-structs
+          exclude:
+            - "**/*_test.go"
         # Needed for future use.
         - name: unused-receiver
           disabled: true
@@ -219,6 +235,8 @@ linters:
           disabled: true
         # Requires default cases.
         - name: enforce-switch-style
+          disabled: true
+        - name: unhandled-error
           disabled: true
 
     depguard:
@@ -246,6 +264,10 @@ linters:
           - godot
           - gosec
           - gosmopolitan
+          - prealloc
+          - godoclint
+      - path: _test\.go
+        text: "fieldalignment:"
       - source: "= `"
         linters:
           - grouper

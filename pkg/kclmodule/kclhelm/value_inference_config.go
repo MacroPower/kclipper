@@ -39,7 +39,7 @@ func (c *ValueInferenceConfig) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 
-	js := r.Reflect(reflect.TypeOf(ValueInferenceConfig{}))
+	js := r.Reflect(reflect.TypeFor[ValueInferenceConfig]())
 
 	js.SetProperty("skipRequired", jsonschema.WithDefault(true))
 

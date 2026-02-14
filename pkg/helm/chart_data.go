@@ -67,6 +67,7 @@ func (c *Chart) Template(ctx context.Context) ([]*unstructured.Unstructured, err
 	if c.TemplateOpts.Timeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, c.TemplateOpts.Timeout)
 	}
+
 	defer cancel()
 
 	pulledChart, err := c.Client.Pull(ctx,

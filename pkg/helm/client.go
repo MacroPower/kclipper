@@ -270,6 +270,7 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	if err != nil {
 		return fmt.Errorf("read directory %q: %w", tempDest, err)
 	}
+
 	if len(infos) != 1 {
 		return fmt.Errorf("expected 1 file, found %v", len(infos))
 	}

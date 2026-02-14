@@ -40,7 +40,7 @@ func (c *ChartBase) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 
-	js := r.Reflect(reflect.TypeOf(ChartBase{}))
+	js := r.Reflect(reflect.TypeFor[ChartBase]())
 
 	js.SetProperty("schemaValidator", jsonschema.WithEnum(jsonschema.ValidatorTypeEnum))
 	js.SetProperty("repositories", jsonschema.WithType("null"), jsonschema.WithNoContent())

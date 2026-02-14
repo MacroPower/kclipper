@@ -53,7 +53,7 @@ func TestRunCmd(t *testing.T) {
 }
 
 func BenchmarkRun(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		tc := commands.NewRootCmd("bench_run", "", "")
 		stdout := &bytes.Buffer{}
 		stderr := &bytes.Buffer{}

@@ -73,6 +73,7 @@ func ResolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 		if errors.As(err, &pathErr) {
 			return path, nil
 		}
+
 		// Other error has occurred.
 		return "", fmt.Errorf("failed to read link for path %q: %w", path, err)
 	}

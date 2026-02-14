@@ -82,7 +82,7 @@ func (a Automation) GetSpecs(specPath string) ([]string, error) {
 
 // SpecPathJoin joins path components with dots, splitting any components that already contain dots.
 func SpecPathJoin(path ...string) string {
-	pathParts := []string{}
+	pathParts := make([]string, 0, len(path))
 	for _, p := range path {
 		pathParts = append(pathParts, strings.FieldsFunc(p, func(c rune) bool {
 			return c == '.'

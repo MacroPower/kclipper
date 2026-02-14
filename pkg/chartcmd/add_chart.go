@@ -82,6 +82,7 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 	if err != nil {
 		return err
 	}
+
 	if len(jsonSchemaBytes) != 0 {
 		err := writeValuesSchemaFiles(jsonSchemaBytes, chartDir)
 		if err != nil {
@@ -93,6 +94,7 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 	if err != nil {
 		return err
 	}
+
 	if len(crds) > 0 {
 		err := c.writeCRDFiles(crds, chartDir)
 		if err != nil {
@@ -258,6 +260,7 @@ func (c *KCLPackage) getCRDsFromPath(pathStr string, logger *slog.Logger) ([]*un
 	if err != nil {
 		return nil, fmt.Errorf("%w: resolve %q: %w", ErrPathResolution, pathStr, err)
 	}
+
 	if u, ok := crdPath.URL(); ok {
 		logger.Debug("getting crd files from url", slog.String("url", u.String()))
 

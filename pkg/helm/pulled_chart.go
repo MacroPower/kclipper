@@ -187,6 +187,7 @@ func (c *PulledChart) setChartDependencies(
 
 		loadedDeps = append(loadedDeps, result.chart)
 	}
+
 	if merr != nil {
 		return merr
 	}

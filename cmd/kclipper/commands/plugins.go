@@ -12,6 +12,7 @@ func RegisterEnabledPlugins() {
 	if !envTrue("KCLIPPER_HELM_PLUGIN_DISABLED") {
 		helmplugin.Register()
 	}
+
 	if !envTrue("KCLIPPER_FILEPATH_PLUGIN_DISABLED") {
 		filepathplugin.Register()
 	}

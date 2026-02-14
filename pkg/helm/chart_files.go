@@ -91,6 +91,7 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 			if err != nil {
 				return fmt.Errorf("get relative path: %w", err)
 			}
+
 			// Use the relative path to match against the provided filter.
 			if match(relPath) {
 				// Append the unmodified/absolute path to the matched files.
@@ -164,6 +165,7 @@ func (c *ChartFiles) GetCRDFiles(gen CRDGenerator, match func(string) bool) ([]*
 			if err != nil {
 				return fmt.Errorf("get relative path: %w", err)
 			}
+
 			// Use the relative path to match against the provided filter.
 			if match(relPath) {
 				// Append the unmodified/absolute path to the matched files.

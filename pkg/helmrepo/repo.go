@@ -201,8 +201,8 @@ func (m *Manager) addByName(name string, repo *Repo) error {
 // Get returns a repo by its name or URL. It calls [Manager.GetByName] or
 // [Manager.GetByURL] depending on the input.
 func (m *Manager) Get(repo string) (*Repo, error) {
-	if strings.HasPrefix(repo, "@") {
-		return m.GetByName(strings.TrimPrefix(repo, "@"))
+	if after, ok := strings.CutPrefix(repo, "@"); ok {
+		return m.GetByName(after)
 	}
 
 	return m.GetByURL(repo)

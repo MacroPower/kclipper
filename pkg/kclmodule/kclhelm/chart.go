@@ -21,7 +21,7 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("failed to create schema reflector: %w", err)
 	}
 
-	js := r.Reflect(reflect.TypeOf(Chart{}))
+	js := r.Reflect(reflect.TypeFor[Chart]())
 
 	b := &bytes.Buffer{}
 	err = js.GenerateKCL(b, genOptInheritChartBase, genOptFixChartRepo, genOptFixPostRenderer)
