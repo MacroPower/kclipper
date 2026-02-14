@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
-	github.com/charmbracelet/x/exp/teatest v0.0.0-20251124184241-1dbcd821cc13
+	github.com/charmbracelet/x/exp/teatest v0.0.0-20260209194814-eeb2896ac759
 	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
 	github.com/dadav/helm-schema v0.0.0-20250122083607-0f182120235b
 	github.com/getkin/kin-openapi v0.133.0
