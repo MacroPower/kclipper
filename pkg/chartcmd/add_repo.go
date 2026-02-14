@@ -31,7 +31,7 @@ func (c *KCLPackage) AddRepo(repo *kclhelm.ChartRepo) error {
 
 	_, err = c.Init()
 	if err != nil {
-		return fmt.Errorf("failed to init before add: %w", err)
+		return fmt.Errorf("init before add: %w", err)
 	}
 
 	reposFile := filepath.Join(c.BasePath, "repos.k")
@@ -44,14 +44,14 @@ func (c *KCLPackage) AddRepo(repo *kclhelm.ChartRepo) error {
 
 	err = c.updateFile(repo.ToAutomation(), reposFile, initialRepoContents, reposSpec)
 	if err != nil {
-		return fmt.Errorf("failed to update %q: %w", reposFile, err)
+		return fmt.Errorf("update %q: %w", reposFile, err)
 	}
 
 	logger.Info("formatting kcl files", slog.String("path", c.BasePath))
 
 	_, err = kcl.FormatPath(c.BasePath)
 	if err != nil {
-		return fmt.Errorf("failed to format kcl files: %w", err)
+		return fmt.Errorf("format kcl files: %w", err)
 	}
 
 	return nil

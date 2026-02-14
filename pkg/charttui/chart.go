@@ -6,7 +6,7 @@ import (
 	"io"
 	"log/slog"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/macropower/kclipper/pkg/chartcmd"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
@@ -70,7 +70,7 @@ func (c *ChartTUI) Init() (bool, error) {
 
 	_, err := c.p.Run()
 	if err != nil {
-		return false, fmt.Errorf("failed to launch tui: %w", err)
+		return false, fmt.Errorf("launch tui: %w", err)
 	}
 
 	return true, nil
@@ -91,7 +91,7 @@ func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
 
 	_, err := c.p.Run()
 	if err != nil {
-		return fmt.Errorf("failed to launch tui: %w", err)
+		return fmt.Errorf("launch tui: %w", err)
 	}
 
 	return nil
@@ -108,7 +108,7 @@ func (c *ChartTUI) AddRepo(repo *kclhelm.ChartRepo) error {
 
 	_, err := c.p.Run()
 	if err != nil {
-		return fmt.Errorf("failed to launch tui: %w", err)
+		return fmt.Errorf("launch tui: %w", err)
 	}
 
 	return nil
@@ -124,7 +124,7 @@ func (c *ChartTUI) Set(chart, keyValueOverrides string) error {
 
 	_, err := c.p.Run()
 	if err != nil {
-		return fmt.Errorf("failed to launch tui: %w", err)
+		return fmt.Errorf("launch tui: %w", err)
 	}
 
 	return nil
@@ -140,7 +140,7 @@ func (c *ChartTUI) Update(charts ...string) error {
 
 	_, err := c.p.Run()
 	if err != nil {
-		return fmt.Errorf("failed to launch tui: %w", err)
+		return fmt.Errorf("launch tui: %w", err)
 	}
 
 	return nil

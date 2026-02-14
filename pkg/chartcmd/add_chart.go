@@ -111,7 +111,7 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 
 	_, err = kcl.FormatPath(filepath.Join(chartDir, "..."))
 	if err != nil {
-		return fmt.Errorf("failed to format kcl files: %w", err)
+		return fmt.Errorf("format kcl files: %w", err)
 	}
 
 	return nil

@@ -1,15 +1,18 @@
 package charttui_test
 
 import (
-	"bytes"
 	"errors"
 	"io"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/charmbracelet/x/exp/teatest"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/stretchr/testify/require"
 
+	tea "charm.land/bubbletea/v2"
+
+	"github.com/macropower/kclipper/internal/teatest"
 	"github.com/macropower/kclipper/pkg/chartcmd"
 	"github.com/macropower/kclipper/pkg/charttui"
 )
@@ -20,13 +23,13 @@ func TestAddModel_Success(t *testing.T) {
 	m := charttui.NewAddModel("chart", "test")
 	tm := teatest.NewTestModel(
 		t, m,
-		teatest.WithInitialTermSize(300, 100),
+		teatest.WithInitialTermSize(80, 24),
 	)
 
 	teatest.WaitFor(
 		t, tm.Output(),
 		func(bts []byte) bool {
-			return bytes.Contains(bts, []byte("test"))
+			return strings.Contains(ansi.Strip(string(bts)), "test")
 		},
 	)
 
@@ -34,7 +37,7 @@ func TestAddModel_Success(t *testing.T) {
 	teatest.WaitFor(
 		t, tm.Output(),
 		func(bts []byte) bool {
-			return bytes.Contains(bts, []byte("✓ test"))
+			return strings.Contains(ansi.Strip(string(bts)), "✓ test")
 		},
 	)
 
@@ -42,8 +45,7 @@ func TestAddModel_Success(t *testing.T) {
 
 	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(1*time.Second)))
 	require.NoError(t, err)
-
-	teatest.RequireEqualOutput(t, out)
+	require.Contains(t, ansi.Strip(string(out)), "Done! Added chart test.")
 }
 
 func TestAddModel_Error(t *testing.T) {
@@ -52,13 +54,13 @@ func TestAddModel_Error(t *testing.T) {
 	m := charttui.NewAddModel("chart", "test")
 	tm := teatest.NewTestModel(
 		t, m,
-		teatest.WithInitialTermSize(300, 100),
+		teatest.WithInitialTermSize(80, 24),
 	)
 
 	teatest.WaitFor(
 		t, tm.Output(),
 		func(bts []byte) bool {
-			return bytes.Contains(bts, []byte("test"))
+			return strings.Contains(ansi.Strip(string(bts)), "test")
 		},
 	)
 
@@ -66,7 +68,7 @@ func TestAddModel_Error(t *testing.T) {
 	teatest.WaitFor(
 		t, tm.Output(),
 		func(bts []byte) bool {
-			return bytes.Contains(bts, []byte("✗ test"))
+			return strings.Contains(ansi.Strip(string(bts)), "✗ test")
 		},
 	)
 
@@ -74,6 +76,26 @@ func TestAddModel_Error(t *testing.T) {
 
 	out, err := io.ReadAll(tm.FinalOutput(t, teatest.WithFinalTimeout(1*time.Second)))
 	require.NoError(t, err)
+	require.Contains(t, ansi.Strip(string(out)), "test error")
+}
 
-	teatest.RequireEqualOutput(t, out)
+func TestAddModel_CtrlC(t *testing.T) {
+	t.Parallel()
+
+	m := charttui.NewAddModel("chart", "test")
+	tm := teatest.NewTestModel(
+		t, m,
+		teatest.WithInitialTermSize(80, 24),
+	)
+
+	teatest.WaitFor(
+		t, tm.Output(),
+		func(bts []byte) bool {
+			return strings.Contains(ansi.Strip(string(bts)), "test")
+		},
+	)
+
+	tm.Send(tea.KeyPressMsg{Code: 'c', Mod: tea.ModCtrl})
+
+	tm.WaitFinished(t, teatest.WithFinalTimeout(1*time.Second))
 }

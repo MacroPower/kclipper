@@ -38,7 +38,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 
 	absBasePath, err := filepath.Abs(c.BasePath)
 	if err != nil {
-		return fmt.Errorf("failed to get absolute path for %q: %w", c.BasePath, err)
+		return fmt.Errorf("get absolute path for %q: %w", c.BasePath, err)
 	}
 
 	logger.Debug("updating kcl dependencies",
@@ -51,7 +51,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 		Vendor:       c.Vendor,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to update dependencies at %q: %w", absBasePath, err)
+		return fmt.Errorf("update dependencies at %q: %w", absBasePath, err)
 	}
 
 	externalPkgs := depOutput.GetExternalPkgs()
@@ -81,7 +81,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 
 	err = json.Unmarshal([]byte(mainData), chartData)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal output: %w", err)
+		return fmt.Errorf("unmarshal output: %w", err)
 	}
 
 	if len(charts) > 0 {

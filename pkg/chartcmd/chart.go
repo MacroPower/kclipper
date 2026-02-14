@@ -34,14 +34,14 @@ type KCLPackage struct {
 func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageOpts) (*KCLPackage, error) {
 	absBasePath, err := filepath.Abs(basePath)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to get absolute path: %w", ErrPathResolution, err)
+		return nil, fmt.Errorf("%w: get absolute path: %w", ErrPathResolution, err)
 	}
 
 	slog.Debug("looking for repository root", slog.String("path", basePath))
 
 	repoRoot, err := paths.FindRepoRoot(basePath)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to find repository root: %w", ErrPathResolution, err)
+		return nil, fmt.Errorf("%w: find repository root: %w", ErrPathResolution, err)
 	}
 
 	slog.Debug("found repository root", slog.String("path", repoRoot))
@@ -78,13 +78,13 @@ func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageO
 		pkgPath, err = paths.FindTopPkgRoot(repoRoot, basePath)
 		if err != nil {
 			return nil, fmt.Errorf(
-				"%w: failed to find package root; could not recover after init: %w",
+				"%w: find package root; could not recover after init: %w",
 				ErrPathResolution,
 				err,
 			)
 		}
 	} else if err != nil {
-		return nil, fmt.Errorf("%w: failed to find package root: %w", ErrPathResolution, err)
+		return nil, fmt.Errorf("%w: find package root: %w", ErrPathResolution, err)
 	}
 
 	slog.Debug("found topmost kcl.mod file", slog.String("path", pkgPath))
@@ -146,20 +146,20 @@ func (c *KCLPackage) updateFile(automation kclautomation.Automation, kclFile, in
 	if !fileExists(kclFile) {
 		err := os.WriteFile(kclFile, []byte(initialContents), 0o600)
 		if err != nil {
-			return fmt.Errorf("failed to write %q: %w", kclFile, err)
+			return fmt.Errorf("write %q: %w", kclFile, err)
 		}
 	}
 
 	specs, err := automation.GetSpecs(specPath)
 	if err != nil {
-		return fmt.Errorf("failed generating inputs for %q: %w", kclFile, err)
+		return fmt.Errorf("generate inputs for %q: %w", kclFile, err)
 	}
 
 	imports := []string{"helm"}
 
 	_, err = kclautomation.File.OverrideFile(kclFile, specs, imports)
 	if err != nil {
-		return fmt.Errorf("failed to update %q: %w", kclFile, err)
+		return fmt.Errorf("update %q: %w", kclFile, err)
 	}
 
 	return nil

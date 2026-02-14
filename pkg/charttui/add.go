@@ -3,42 +3,34 @@ package charttui
 import (
 	"fmt"
 	"strings"
-	"sync"
-	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/macropower/kclipper/pkg/chartcmd"
 )
 
+// AddModel displays the status of an add operation with a spinner, per-item
+// results, and a final summary.
 type AddModel struct {
-	err     error
-	kind    string
-	name    string
-	spinner spinner.Model
-	width   int
-	mu      sync.RWMutex
-	working bool
-	done    bool
+	kind string
+	name string
+	baseModel
 }
 
+// NewAddModel creates an [AddModel] used to display the status of adding a
+// new item. It renders a spinner which is replaced with a result.
 func NewAddModel(kind, name string) *AddModel {
-	s := spinner.New()
-	s.Style = spinnerStyle
-
 	return &AddModel{
-		spinner: s,
-		kind:    kind,
-		name:    name,
-		mu:      sync.RWMutex{},
+		baseModel: newBaseModel(),
+		kind:      kind,
+		name:      name,
 	}
 }
 
 func (m *AddModel) Init() tea.Cmd {
-	m.working = true
+	m.state = stateWorking
 
 	return m.spinner.Tick
 }
@@ -46,76 +38,46 @@ func (m *AddModel) Init() tea.Cmd {
 //nolint:ireturn // Third-party.
 func (m *AddModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-
-	case tea.KeyMsg:
-		if keyExits(msg) {
-			return m, tea.Quit
-		}
-
-	case teaMsgWriteLog:
-		return m, writeLog(msg, m.width)
-
 	case chartcmd.EventAdded:
-		m.working = false
-
-		icon := checkMark
+		icon := defaultStyles.check
 		if msg.Err != nil {
-			icon = errorMark
+			icon = defaultStyles.cross
 		}
 
 		return m, tea.Printf("%s %s", icon, m.name)
 
-	case chartcmd.EventDone:
-		// Allow previously sent messages to be drawn.
-		preQuitCmd := tea.Tick(time.Millisecond*100, func(_ time.Time) tea.Msg {
-			m.mu.Lock()
-			defer m.mu.Unlock()
-
-			m.err = msg.Err
-			m.done = true
-
-			return nil
-		})
-
-		return m, tea.Sequence(preQuitCmd, teaQuit())
-
-	case spinner.TickMsg:
-		var cmd tea.Cmd
-
-		m.spinner, cmd = m.spinner.Update(msg)
-
-		return m, cmd
+	default:
+		if cmd, handled := m.handleCommon(msg); handled {
+			return m, cmd
+		}
 	}
 
 	return m, nil
 }
 
-func (m *AddModel) View() string {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
+func (m *AddModel) View() tea.View {
+	switch m.state {
+	case stateError:
+		return tea.NewView(getErrorMessage(m.err, m.width))
 
-	if m.err != nil {
-		return getErrorMessage(m.err, m.width)
-	}
+	case stateDone:
+		return tea.NewView(defaultStyles.done.Render(fmt.Sprintf("Done! Added %s %s.\n", m.kind, m.name)))
 
-	if m.done {
-		return doneStyle.Render(fmt.Sprintf("Done! Added %s %s.\n", m.kind, m.name))
-	}
-
-	if m.working {
+	case stateWorking:
 		spin := m.spinner.View() + " "
 		cellsAvail := max(0, m.width-lipgloss.Width(spin))
 
-		currentName := currentNameStyle.Render(m.name)
+		currentName := defaultStyles.itemName.Render(m.name)
 		info := lipgloss.NewStyle().MaxWidth(cellsAvail).Render("Adding " + currentName)
 
 		cellsRemaining := max(0, m.width-lipgloss.Width(spin+info))
 		gap := strings.Repeat(" ", cellsRemaining) + "\n"
 
-		return spin + info + gap
+		return tea.NewView(spin + info + gap)
+
+	case stateIdle:
+		return tea.NewView("")
 	}
 
-	return ""
+	return tea.NewView("")
 }

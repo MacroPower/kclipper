@@ -28,7 +28,7 @@ func (c *KCLPackage) Init() (bool, error) {
 
 	err := os.MkdirAll(path, 0o750)
 	if err != nil {
-		return false, fmt.Errorf("failed to create charts directory: %w", err)
+		return false, fmt.Errorf("create charts directory: %w", err)
 	}
 
 	logger.Debug("ensured package directory")
@@ -52,7 +52,7 @@ func (c *KCLPackage) Init() (bool, error) {
 
 	exists, err := kclpkg.ModFileExists(path)
 	if err != nil {
-		return false, fmt.Errorf("error checking for kcl.mod existence: %w", err)
+		return false, fmt.Errorf("check kcl.mod existence: %w", err)
 	}
 
 	if exists {
@@ -76,14 +76,14 @@ func (c *KCLPackage) Init() (bool, error) {
 
 	err = pkg.ModFile.StoreModFile()
 	if err != nil {
-		return false, fmt.Errorf("failed to store mod file: %w", err)
+		return false, fmt.Errorf("store mod file: %w", err)
 	}
 
 	logger.Info("updating kcl.mod and kcl.mod.lock")
 
 	err = pkg.UpdateModAndLockFile()
 	if err != nil {
-		return false, fmt.Errorf("failed to update kcl.mod: %w", err)
+		return false, fmt.Errorf("update kcl.mod: %w", err)
 	}
 
 	return true, nil
