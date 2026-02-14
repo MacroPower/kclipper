@@ -5,12 +5,11 @@ import (
 	"log/slog"
 	"os"
 
+	"go.jacobcolvin.com/x/version"
 	"kcl-lang.io/kpm/pkg/downloader"
 	"kcl-lang.io/kpm/pkg/opt"
 
 	kclpkg "kcl-lang.io/kpm/pkg/package"
-
-	"github.com/macropower/kclipper/pkg/version"
 )
 
 func (c *KCLPackage) Init() (bool, error) {

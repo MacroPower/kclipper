@@ -4,10 +4,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"go.jacobcolvin.com/x/version"
 
 	kclversion "kcl-lang.io/cli/pkg/version"
-
-	"github.com/macropower/kclipper/pkg/version"
 )
 
 func GetVersionString() string {

@@ -6,12 +6,13 @@ import (
 	"io"
 	"log/slog"
 
+	"go.jacobcolvin.com/x/log"
+
 	tea "charm.land/bubbletea/v2"
 
 	"github.com/macropower/kclipper/pkg/chartcmd"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
-	"github.com/macropower/kclipper/pkg/log"
 )
 
 type ChartTUI struct {
@@ -29,7 +30,7 @@ type ChartCommander interface {
 	Subscribe(f func(any))
 }
 
-func NewChartTUI(w io.Writer, lvl slog.Level, pkg ChartCommander) *ChartTUI {
+func NewChartTUI(w io.Writer, lvl log.Level, pkg ChartCommander) *ChartTUI {
 	c := &ChartTUI{
 		pkg: pkg,
 		w:   w,
@@ -38,7 +39,7 @@ func NewChartTUI(w io.Writer, lvl slog.Level, pkg ChartCommander) *ChartTUI {
 	c.pkg.Subscribe(c.broadcastEvent)
 
 	slog.SetDefault(
-		slog.New(log.CreateHandler(c, lvl, log.FormatText)),
+		slog.New(log.NewHandler(c, lvl, log.FormatText)),
 	)
 
 	return c

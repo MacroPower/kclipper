@@ -3,12 +3,12 @@ package charttui_test
 import (
 	"errors"
 	"io"
-	"log/slog"
 	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.jacobcolvin.com/x/log"
 
 	"github.com/macropower/kclipper/pkg/charttui"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
@@ -77,7 +77,7 @@ func TestChartTUI_AddChart_EmptyKey(t *testing.T) {
 	t.Parallel()
 
 	mock := &mockChartCommander{}
-	tui := charttui.NewChartTUI(io.Discard, slog.LevelInfo, mock)
+	tui := charttui.NewChartTUI(io.Discard, log.LevelInfo, mock)
 
 	err := tui.AddChart("", nil)
 	require.Error(t, err)
@@ -89,7 +89,7 @@ func TestChartTUI_Init(t *testing.T) {
 	t.Parallel()
 
 	mock := &mockChartCommander{initResult: true}
-	tui := charttui.NewChartTUI(io.Discard, slog.LevelInfo, mock)
+	tui := charttui.NewChartTUI(io.Discard, log.LevelInfo, mock)
 
 	ok, err := tui.Init()
 	require.NoError(t, err)
@@ -104,7 +104,7 @@ func TestChartTUI_Init_Error(t *testing.T) {
 		initResult: false,
 		initErr:    errors.New("init broken"),
 	}
-	tui := charttui.NewChartTUI(io.Discard, slog.LevelInfo, mock)
+	tui := charttui.NewChartTUI(io.Discard, log.LevelInfo, mock)
 
 	// TUI itself should not return error; the inner error is displayed in the TUI.
 	_, err := tui.Init()
@@ -116,7 +116,7 @@ func TestChartTUI_Set(t *testing.T) {
 	t.Parallel()
 
 	mock := &mockChartCommander{}
-	tui := charttui.NewChartTUI(io.Discard, slog.LevelInfo, mock)
+	tui := charttui.NewChartTUI(io.Discard, log.LevelInfo, mock)
 
 	err := tui.Set("my-chart", "key=value")
 	require.NoError(t, err)
@@ -127,7 +127,7 @@ func TestChartTUI_Set_Error(t *testing.T) {
 	t.Parallel()
 
 	mock := &mockChartCommander{setErr: errors.New("set broken")}
-	tui := charttui.NewChartTUI(io.Discard, slog.LevelInfo, mock)
+	tui := charttui.NewChartTUI(io.Discard, log.LevelInfo, mock)
 
 	// TUI itself should not return error; the inner error is displayed in the TUI.
 	err := tui.Set("my-chart", "key=value")

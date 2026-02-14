@@ -38,10 +38,10 @@ builds:
         {{- if and (eq .Os "darwin") (eq .Arch "arm64") -}} CXX={{ .Env.CXX_DARWIN_ARM64 }} {{- end -}}
     ldflags:
       - -s -w
-      - -X github.com/macropower/kclipper/pkg/version.Version={{.Version}}
-      - -X github.com/macropower/kclipper/pkg/version.Branch={{.Branch}}
-      - -X github.com/macropower/kclipper/pkg/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
-      - -X github.com/macropower/kclipper/pkg/version.BuildDate={{.Date}}
+      - -X go.jacobcolvin.com/x/version.Version={{.Version}}
+      - -X go.jacobcolvin.com/x/version.Branch={{.Branch}}
+      - -X go.jacobcolvin.com/x/version.BuildUser={{.Env.USER}}@{{.Env.HOSTNAME}}
+      - -X go.jacobcolvin.com/x/version.BuildDate={{.Date}}
     flags:
       - -trimpath
       - -tags={{ .Env.BUILD_TAGS }}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
+	"go.jacobcolvin.com/x/log"
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/macropower/kclipper/pkg/chartcmd"
@@ -18,7 +19,6 @@ import (
 	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
-	"github.com/macropower/kclipper/pkg/log"
 )
 
 const (
@@ -328,7 +328,7 @@ func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
 		return cc, nil
 	}
 
-	lvl, err := log.GetLevel(args.GetLogLevel())
+	lvl, err := log.ParseLevel(args.GetLogLevel())
 	if err != nil {
 		// Should not be possible due to root's PersistentPreRunE.
 		return nil, fmt.Errorf("%w: %w", ErrArgument, err)
