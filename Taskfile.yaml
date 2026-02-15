@@ -318,40 +318,36 @@ tasks:
     cmds:
       - goreleaser check
 
+  devcontainer:
+    desc: Starts the devcontainer
+    summary: |
+      Starts the devcontainer.
+
+      Args:
+        REBUILD: Remove existing container (default: false)
+    cmds:
+      - devcontainer up --workspace-folder "{{.ROOT_DIR}}" {{if .REBUILD}}--remove-existing-container{{end}}
+
+  shell:
+    desc: Launches a shell in the devcontainer
+    interactive: true
+    deps:
+      - task: devcontainer
+    cmds:
+      - devcontainer exec --workspace-folder "{{.ROOT_DIR}}" bash
+
+  claude:
+    desc: Launches a Claude Code session in the devcontainer
+    interactive: true
+    deps:
+      - task: devcontainer
+    cmds:
+      - devcontainer exec --workspace-folder "{{.ROOT_DIR}}" claude --dangerously-skip-permissions
+
   install-hooks:
     desc: Install git hooks
-    vars:
-      PRE_COMMIT_FILE: "{{.ROOT_DIR}}/.git/hooks/pre-commit"
-      COMMIT_MSG_FILE: "{{.ROOT_DIR}}/.git/hooks/commit-msg"
-    env:
-      PRE_COMMIT: |-
-        #!/bin/bash
-
-        git stash --keep-index --include-untracked --quiet
-
-        exitCode=0
-
-        devbox run -- task {{.TASK}} || exitCode=$?
-        devbox run -- task pre-commit || exitCode=$?
-
-        if [ $exitCode -eq 0 ]; then
-          git add .
-        else
-          git stash --keep-index --include-untracked --quiet && git stash drop --quiet
-        fi
-
-        git stash pop --quiet
-
-        exit $exitCode
-      COMMIT_MSG: |-
-        #!/bin/bash
-
-        devbox run -- conform enforce --commit-msg-file $1
     cmds:
-      - echo "${PRE_COMMIT}" > {{.PRE_COMMIT_FILE}}
-      - chmod u+x {{.PRE_COMMIT_FILE}}
-      - echo "${COMMIT_MSG}" > {{.COMMIT_MSG_FILE}}
-      - chmod u+x {{.COMMIT_MSG_FILE}}
+      - lefthook install
 
   # Since these are impossible to compile properly on linux...
   update-macos-sdk:

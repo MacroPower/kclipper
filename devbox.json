@@ -1,12 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
   "packages": {
+    "coreutils-full": "9.9",
     "go-task": "3.48.0",
     "goreleaser": "2.13.3",
     "golangci-lint": "2.8.0",
     "go": "1.25.5",
     "git": "2.52.0",
+    "nodejs": "25.6.0",
     "nodePackages.prettier": "3.5.3",
+    "uv": "0.9.30",
     "hyperfine": "1.20.0",
     "cobra-cli": "1.3.0",
     "graphviz": "12.2.1",
@@ -15,13 +18,26 @@
     "conform": "0.1.0-alpha.29",
     "syft": "1.41.1",
     "cosign": "3.0.4",
-    "renovate": "42.83.1",
+    "vhs": "0.10.0",
+    "bashInteractive": "5.2p37",
+    "tmux": "3.5",
+    "renovate": "42.76.4",
+    "lefthook": "2.1.0",
+    "devcontainer": "0.82.0",
+    "kubernetes-helm": "3.19.1",
+    "jq": "1.7.1",
+    "gcc": "15.2.0",
     "apple-sdk_15": {
       "version": "15.2",
       "platforms": ["aarch64-darwin", "x86_64-darwin"]
     }
   },
   "shell": {
-    "init_hook": ["echo 'Welcome to devbox!' > /dev/null"]
+    "init_hook": [
+      "alias python='uv run python'",
+      "alias python3='uv run python3'",
+      "alias pip='uv pip'",
+      "alias pip3='uv pip'"
+    ]
   }
 }

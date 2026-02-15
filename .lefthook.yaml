@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
+
+pre-commit:
+  commands:
+    pre-commit:
+      run: task pre-commit
+
+commit-msg:
+  commands:
+    conform:
+      run: conform enforce --commit-msg-file {1}

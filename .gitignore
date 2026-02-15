@@ -18,7 +18,6 @@ dist/
 
 # Editor
 .vscode/
-.devcontainer/
 .idea/
 
 # Devbox
