@@ -20,6 +20,8 @@
     "source=${localEnv:HOME}/.config/ccstatusline,target=/home/devbox/.config/ccstatusline,type=bind,consistency=cached",
     "source=bashhistory-${devcontainerId},target=/commandhistory,type=volume",
     "source=devbox-${devcontainerId},target=/workspace/.devbox,type=volume",
+    "source=gomodcache-${devcontainerId},target=/home/devbox/go/pkg/mod,type=volume",
+    "source=gobuildcache-${devcontainerId},target=/home/devbox/.cache/go-build,type=volume",
   ],
   "containerEnv": {
     "NODE_OPTIONS": "--max-old-space-size=4096",
