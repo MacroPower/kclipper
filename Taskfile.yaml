@@ -16,10 +16,6 @@ vars:
 env:
   HOSTNAME:
     sh: hostname
-  HELM_VERSION:
-    sh: helm version --template="{{ "{{.Version}}" }}"
-  KCL_VERSION:
-    sh: go list -f "{{ "{{.Version}}" }}" -m kcl-lang.io/lib
   KCL_LSP_VERSION: v0.11.2
   CC_LINUX_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target x86_64-linux-gnu"
   CC_LINUX_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target aarch64-linux-gnu"
@@ -76,6 +72,9 @@ tasks:
 
   install:
     desc: Builds and installs binaries
+    env:
+      HELM_VERSION:
+        sh: helm version --template="{{ "{{.Version}}" }}"
     cmds:
       - goreleaser build --snapshot --clean --single-target
       - sudo cp ./dist/*/kcl /usr/local/bin
@@ -87,6 +86,11 @@ tasks:
 
   go-lint:
     desc: Lints Go code
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+      - .golangci.yaml
     cmds:
       - golangci-lint run
 
@@ -103,6 +107,10 @@ tasks:
       PKG: '{{.PKG | default "./..."}}'
       FLAGS: '{{.FLAGS | default ""}}'
       PKG_FLAGS: '{{.PKG_FLAGS | default ""}}'
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
     cmds:
       - go test {{.FLAGS}} {{.PKG}} {{.PKG_FLAGS}}
 
@@ -140,6 +148,9 @@ tasks:
     desc: Builds Go binaries
     vars:
       FLAGS: '{{.FLAGS | default "--skip=docker,homebrew,nix,sign"}}'
+    env:
+      HELM_VERSION:
+        sh: helm version --template="{{ "{{.Version}}" }}"
     cmds:
       - cmd: 'echo "Using SDK: {{.SDK_PATH}}"'
         silent: true
@@ -149,6 +160,9 @@ tasks:
     desc: Builds Go binaries and Docker images
     vars:
       FLAGS: '{{.FLAGS | default "--skip=homebrew,nix,sign"}}'
+    env:
+      HELM_VERSION:
+        sh: helm version --template="{{ "{{.Version}}" }}"
     cmds:
       - cmd: 'echo "Using SDK: {{.SDK_PATH}}"'
         silent: true
@@ -158,6 +172,9 @@ tasks:
     desc: Releases Go binaries
     vars:
       FLAGS: '{{.FLAGS | default ""}}'
+    env:
+      HELM_VERSION:
+        sh: helm version --template="{{ "{{.Version}}" }}"
     cmds:
       - goreleaser release --clean {{.FLAGS}}
 
@@ -168,6 +185,10 @@ tasks:
 
   prettier-lint:
     desc: Lints YAML, JSON, and Markdown files
+    sources:
+      - "*.{yaml,md,json}"
+      - "**/*.{yaml,md,json}"
+      - .prettierrc.yaml
     cmds:
       - prettier --config ./.prettierrc.yaml --check {{.PRETTIER_TARGETS}}
 
@@ -305,16 +326,24 @@ tasks:
 
   renovate-lint:
     desc: Lints Renovate configuration
+    sources:
+      - .github/renovate.json5
     cmds:
       - renovate-config-validator .github/renovate.json5
 
   actions-lint:
     desc: Lints GitHub Actions
+    sources:
+      - .github/workflows/*.yml
+      - .github/workflows/*.yaml
+      - .github/zizmor.yaml
     cmds:
       - zizmor .github/workflows --config .github/zizmor.yaml
 
   goreleaser-lint:
     desc: Lints GoReleaser configuration
+    sources:
+      - .goreleaser*
     cmds:
       - goreleaser check
 
