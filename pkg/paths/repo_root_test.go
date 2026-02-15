@@ -1,6 +1,7 @@
 package paths_test
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -64,11 +65,105 @@ func TestFindTopPkgRoot(t *testing.T) {
 func TestFindRepoRoot(t *testing.T) {
 	t.Parallel()
 
-	want, err := filepath.Abs("../../")
-	require.NoError(t, err)
+	t.Run("current repo", func(t *testing.T) {
+		t.Parallel()
 
-	got, err := paths.FindRepoRoot(".")
-	require.NoError(t, err)
+		want, err := filepath.Abs("../../")
+		require.NoError(t, err)
 
-	require.Equal(t, want, got)
+		got, err := paths.FindRepoRoot(".")
+		require.NoError(t, err)
+
+		require.Equal(t, want, got)
+	})
+
+	t.Run("normal git directory", func(t *testing.T) {
+		t.Parallel()
+
+		tmp := t.TempDir()
+		gitDir := filepath.Join(tmp, ".git")
+		require.NoError(t, os.MkdirAll(gitDir, 0o755))
+		require.NoError(t, os.WriteFile(filepath.Join(gitDir, "HEAD"), []byte("ref: refs/heads/main\n"), 0o644))
+
+		got, err := paths.FindRepoRoot(tmp)
+		require.NoError(t, err)
+		require.Equal(t, tmp, got)
+	})
+
+	t.Run("worktree with absolute gitdir", func(t *testing.T) {
+		t.Parallel()
+
+		tmp := t.TempDir()
+
+		// Create the real git dir that the worktree points to.
+		realGitDir := filepath.Join(tmp, "main-repo", ".git", "worktrees", "wt")
+		require.NoError(t, os.MkdirAll(realGitDir, 0o755))
+		require.NoError(t, os.WriteFile(filepath.Join(realGitDir, "HEAD"), []byte("ref: refs/heads/feature\n"), 0o644))
+
+		// Create the worktree directory with a .git file.
+		wtDir := filepath.Join(tmp, "worktree")
+		require.NoError(t, os.MkdirAll(wtDir, 0o755))
+		require.NoError(t, os.WriteFile(filepath.Join(wtDir, ".git"), []byte("gitdir: "+realGitDir+"\n"), 0o644))
+
+		got, err := paths.FindRepoRoot(wtDir)
+		require.NoError(t, err)
+		require.Equal(t, wtDir, got)
+	})
+
+	t.Run("worktree with relative gitdir", func(t *testing.T) {
+		t.Parallel()
+
+		tmp := t.TempDir()
+
+		// Create the real git dir relative to the worktree.
+		realGitDir := filepath.Join(tmp, "main-repo", ".git", "worktrees", "wt")
+		require.NoError(t, os.MkdirAll(realGitDir, 0o755))
+		require.NoError(t, os.WriteFile(filepath.Join(realGitDir, "HEAD"), []byte("ref: refs/heads/feature\n"), 0o644))
+
+		// Create the worktree directory with a .git file using a relative path.
+		wtDir := filepath.Join(tmp, "worktree")
+		require.NoError(t, os.MkdirAll(wtDir, 0o755))
+
+		relPath, err := filepath.Rel(wtDir, realGitDir)
+		require.NoError(t, err)
+		require.NoError(t, os.WriteFile(filepath.Join(wtDir, ".git"), []byte("gitdir: "+relPath+"\n"), 0o644))
+
+		got, err := paths.FindRepoRoot(wtDir)
+		require.NoError(t, err)
+		require.Equal(t, wtDir, got)
+	})
+
+	t.Run("malformed git file", func(t *testing.T) {
+		t.Parallel()
+
+		tmp := t.TempDir()
+		require.NoError(t, os.WriteFile(filepath.Join(tmp, ".git"), []byte("not a valid git file\n"), 0o644))
+
+		_, err := paths.FindRepoRoot(tmp)
+		require.ErrorIs(t, err, kclerrors.ErrFileNotFound)
+	})
+
+	t.Run("git file with missing HEAD", func(t *testing.T) {
+		t.Parallel()
+
+		tmp := t.TempDir()
+
+		// Create a valid gitdir target but without a HEAD file.
+		gitDir := filepath.Join(tmp, "empty-gitdir")
+		require.NoError(t, os.MkdirAll(gitDir, 0o755))
+
+		require.NoError(t, os.WriteFile(filepath.Join(tmp, ".git"), []byte("gitdir: "+gitDir+"\n"), 0o644))
+
+		_, err := paths.FindRepoRoot(tmp)
+		require.ErrorIs(t, err, kclerrors.ErrFileNotFound)
+	})
+
+	t.Run("no git directory", func(t *testing.T) {
+		t.Parallel()
+
+		tmp := t.TempDir()
+
+		_, err := paths.FindRepoRoot(tmp)
+		require.ErrorIs(t, err, kclerrors.ErrFileNotFound)
+	})
 }
