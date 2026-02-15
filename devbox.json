@@ -25,7 +25,7 @@
     "lefthook": "2.1.0",
     "devcontainer": "0.82.0",
     "kubernetes-helm": "3.19.1",
-    "jq": "1.7.1",
+    "jq": "1.8.1",
     "gcc": "15.2.0",
     "apple-sdk_15": {
       "version": "15.2",
