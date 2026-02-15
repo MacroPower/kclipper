@@ -12,6 +12,8 @@ import (
 	"go.jacobcolvin.com/x/log"
 	"k8s.io/apimachinery/pkg/api/resource"
 
+	tea "charm.land/bubbletea/v2"
+
 	"github.com/macropower/kclipper/pkg/chartcmd"
 	"github.com/macropower/kclipper/pkg/charttui"
 	"github.com/macropower/kclipper/pkg/crd"
@@ -100,10 +102,11 @@ func NewChartInitCmd(args *ChartArgs) *cobra.Command {
 		Use:   "init",
 		Short: "Initialize the current module",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			cc, err := newChartCommander(cmd.OutOrStdout(), args)
+			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
 				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
+			defer closer.Close() //nolint:errcheck // Best-effort close.
 
 			_, err = cc.Init()
 			if err != nil {
@@ -133,10 +136,11 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 			schemaValidatorType := jsonschema.GetValidatorType(*schemaValidator)
 			crdGeneratorType := crd.GetGeneratorType(*crdGenerator)
 
-			cc, err := newChartCommander(cmd.OutOrStdout(), args)
+			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
 				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
+			defer closer.Close() //nolint:errcheck // Best-effort close.
 
 			cConfig := &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
@@ -183,10 +187,11 @@ func NewChartUpdateCmd(args *ChartArgs) *cobra.Command {
 		Use:   "update",
 		Short: "Update charts",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			cc, err := newChartCommander(cmd.OutOrStdout(), args)
+			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
 				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
+			defer closer.Close() //nolint:errcheck // Best-effort close.
 
 			err = cc.Update(*charts...)
 			if err != nil {
@@ -211,10 +216,11 @@ func NewChartSetCmd(args *ChartArgs) *cobra.Command {
 		Use:   "set",
 		Short: "Set chart configuration",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			cc, err := newChartCommander(cmd.OutOrStdout(), args)
+			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
 				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
+			defer closer.Close() //nolint:errcheck // Best-effort close.
 
 			err = cc.Set(*chart, *overrides)
 			if err != nil {
@@ -261,10 +267,11 @@ func NewChartRepoAddCmd(args *ChartArgs) *cobra.Command {
 		Use:   "add",
 		Short: "Add a new chart repository",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			cc, err := newChartCommander(cmd.OutOrStdout(), args)
+			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
 				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
 			}
+			defer closer.Close() //nolint:errcheck // Best-effort close.
 
 			cr := &kclhelm.ChartRepo{
 				Name:                  *name,
@@ -314,27 +321,41 @@ type chartCommander interface {
 }
 
 //nolint:ireturn // Multiple concrete types.
-func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, error) {
+func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, io.Closer, error) {
 	cc, err := chartcmd.NewKCLPackage(args.GetPath(), helm.DefaultClient,
 		chartcmd.WithTimeout(args.GetTimeout()),
 		chartcmd.WithVendor(args.GetVendor()),
 		chartcmd.WithMaxExtractSize(args.GetMaxExtractSize()),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrChartInitFailed, err)
+		return nil, nil, fmt.Errorf("%w: %w", ErrChartInitFailed, err)
 	}
 
 	if args.GetQuiet() || !isatty.IsTerminal(os.Stdout.Fd()) {
-		return cc, nil
+		return cc, helm.NewNopCloser(), nil
 	}
 
 	lvl, err := log.ParseLevel(args.GetLogLevel())
 	if err != nil {
 		// Should not be possible due to root's PersistentPreRunE.
-		return nil, fmt.Errorf("%w: %w", ErrArgument, err)
+		return nil, nil, fmt.Errorf("%w: %w", ErrArgument, err)
 	}
 
-	return charttui.NewChartTUI(w, lvl, cc), nil
+	var tuiOpts []charttui.ChartTUIOption
+
+	closer := helm.NewNopCloser()
+	if !isatty.IsTerminal(os.Stdin.Fd()) {
+		ttyIn, _, err := tea.OpenTTY()
+		if err != nil {
+			return nil, nil, fmt.Errorf("open tty for input: %w", err)
+		}
+
+		closer = ttyIn
+
+		tuiOpts = append(tuiOpts, charttui.WithProgramOptions(tea.WithInput(ttyIn)))
+	}
+
+	return charttui.NewChartTUI(w, lvl, cc, tuiOpts...), closer, nil
 }
 
 type ChartArgs struct {

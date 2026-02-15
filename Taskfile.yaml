@@ -361,3 +361,44 @@ tasks:
       - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/Security.framework/* {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
       - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/
       - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach
+
+  git:worktree:add:
+    desc: Adds a git worktree for the given branch
+    summary: |
+      Adds a git worktree under .worktrees/ for the given branch.
+      Creates the branch if it doesn't already exist.
+
+      Args:
+        BRANCH: Branch name (required, e.g. feat/foo)
+    requires:
+      vars: [BRANCH]
+    vars:
+      DIR: '{{.BRANCH | replace "/" "-"}}'
+    cmds:
+      - |
+        if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
+          git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
+        else
+          git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
+        fi
+
+  git:worktree:ls:
+    desc: Lists all git worktrees
+    cmds:
+      - git worktree list
+
+  git:worktree:rm:
+    desc: Removes a git worktree and deletes the branch
+    summary: |
+      Removes the worktree under .worktrees/ for the given branch
+      and deletes the branch.
+
+      Args:
+        BRANCH: Branch name (required, e.g. feat/foo)
+    requires:
+      vars: [BRANCH]
+    vars:
+      DIR: '{{.BRANCH | replace "/" "-"}}'
+    cmds:
+      - git worktree remove ".worktrees/{{.DIR}}"
+      - git branch -D "{{.BRANCH}}"

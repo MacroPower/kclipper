@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"sync/atomic"
 
 	"go.jacobcolvin.com/x/log"
 
@@ -16,9 +17,10 @@ import (
 )
 
 type ChartTUI struct {
-	pkg ChartCommander
-	p   *tea.Program
-	w   io.Writer
+	pkg     ChartCommander
+	p       atomic.Pointer[tea.Program]
+	w       io.Writer
+	teaOpts []tea.ProgramOption
 }
 
 type ChartCommander interface {
@@ -30,10 +32,27 @@ type ChartCommander interface {
 	Subscribe(f func(any))
 }
 
-func NewChartTUI(w io.Writer, lvl log.Level, pkg ChartCommander) *ChartTUI {
+// ChartTUIOption configures a [ChartTUI].
+type ChartTUIOption func(*ChartTUI)
+
+// WithProgramOptions appends additional [tea.ProgramOption] values that will be
+// applied to every [tea.Program] created by the [ChartTUI]. This is useful for
+// testing in non-TTY environments where [tea.WithInput](nil) can be passed to
+// disable stdin.
+func WithProgramOptions(opts ...tea.ProgramOption) ChartTUIOption {
+	return func(c *ChartTUI) {
+		c.teaOpts = append(c.teaOpts, opts...)
+	}
+}
+
+func NewChartTUI(w io.Writer, lvl log.Level, pkg ChartCommander, opts ...ChartTUIOption) *ChartTUI {
 	c := &ChartTUI{
 		pkg: pkg,
 		w:   w,
+	}
+
+	for _, opt := range opts {
+		opt(c)
 	}
 
 	c.pkg.Subscribe(c.broadcastEvent)
@@ -45,9 +64,33 @@ func NewChartTUI(w io.Writer, lvl log.Level, pkg ChartCommander) *ChartTUI {
 	return c
 }
 
+func (c *ChartTUI) newProgram(m tea.Model) *tea.Program {
+	opts := make([]tea.ProgramOption, 0, len(c.teaOpts)+1)
+	opts = append(opts, tea.WithOutput(c.w))
+	opts = append(opts, c.teaOpts...)
+
+	return tea.NewProgram(m, opts...)
+}
+
+func (c *ChartTUI) run(m tea.Model, work func()) error {
+	p := c.newProgram(m)
+
+	c.p.Store(p)
+	defer c.p.Store(nil)
+
+	go work()
+
+	_, err := p.Run()
+	if err != nil {
+		return fmt.Errorf("launch tui: %w", err)
+	}
+
+	return nil
+}
+
 func (c *ChartTUI) broadcastEvent(evt any) {
-	if c.p != nil {
-		c.p.Send(evt)
+	if p := c.p.Load(); p != nil {
+		p.Send(evt)
 	}
 }
 
@@ -62,16 +105,12 @@ func (c *ChartTUI) Subscribe(f func(any)) {
 }
 
 func (c *ChartTUI) Init() (bool, error) {
-	c.p = tea.NewProgram(NewActionModel("initialization", "initializing"), tea.WithOutput(c.w))
-
-	go func() {
+	err := c.run(NewActionModel("initialization", "initializing"), func() {
 		_, err := c.pkg.Init()
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
-	}()
-
-	_, err := c.p.Run()
+	})
 	if err != nil {
-		return false, fmt.Errorf("launch tui: %w", err)
+		return false, err
 	}
 
 	return true, nil
@@ -82,67 +121,31 @@ func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
 		return errors.New("chart key is required")
 	}
 
-	c.p = tea.NewProgram(NewAddModel("chart", key), tea.WithOutput(c.w))
-
-	go func() {
+	return c.run(NewAddModel("chart", key), func() {
 		err := c.pkg.AddChart(key, chart)
 		c.broadcastEvent(chartcmd.EventAdded{Err: err})
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
-	}()
-
-	_, err := c.p.Run()
-	if err != nil {
-		return fmt.Errorf("launch tui: %w", err)
-	}
-
-	return nil
+	})
 }
 
 func (c *ChartTUI) AddRepo(repo *kclhelm.ChartRepo) error {
-	c.p = tea.NewProgram(NewAddModel("repo", repo.Name), tea.WithOutput(c.w))
-
-	go func() {
+	return c.run(NewAddModel("repo", repo.Name), func() {
 		err := c.pkg.AddRepo(repo)
 		c.broadcastEvent(chartcmd.EventAdded{Err: err})
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
-	}()
-
-	_, err := c.p.Run()
-	if err != nil {
-		return fmt.Errorf("launch tui: %w", err)
-	}
-
-	return nil
+	})
 }
 
 func (c *ChartTUI) Set(chart, keyValueOverrides string) error {
-	c.p = tea.NewProgram(NewActionModel("update", "updating"), tea.WithOutput(c.w))
-
-	go func() {
+	return c.run(NewActionModel("update", "updating"), func() {
 		err := c.pkg.Set(chart, keyValueOverrides)
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
-	}()
-
-	_, err := c.p.Run()
-	if err != nil {
-		return fmt.Errorf("launch tui: %w", err)
-	}
-
-	return nil
+	})
 }
 
 func (c *ChartTUI) Update(charts ...string) error {
-	c.p = tea.NewProgram(NewUpdateModel(), tea.WithOutput(c.w))
-
-	go func() {
+	return c.run(NewUpdateModel(), func() {
 		err := c.pkg.Update(charts...)
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
-	}()
-
-	_, err := c.p.Run()
-	if err != nil {
-		return fmt.Errorf("launch tui: %w", err)
-	}
-
-	return nil
+	})
 }
