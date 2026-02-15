@@ -1,7 +1,6 @@
 package jsonschema
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -10,10 +9,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-
-	"gopkg.in/yaml.v3"
-
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
 )
 
 var (
@@ -62,7 +57,7 @@ func (g *ReaderGenerator) FromPaths(paths ...string) ([]byte, error) {
 
 	multiErr := fmt.Errorf("could not read JSON Schema from any of the provided paths:\n%s", pathErrMsgs)
 
-	return nil, fmt.Errorf("error generating JSON Schema: %w", multiErr)
+	return nil, fmt.Errorf("generate JSON Schema: %w", multiErr)
 }
 
 // fromPath reads a JSON Schema from the given file path or URL and returns the
@@ -70,7 +65,7 @@ func (g *ReaderGenerator) FromPaths(paths ...string) ([]byte, error) {
 func (g *ReaderGenerator) fromPath(path string) ([]byte, error) {
 	schemaPath, err := url.Parse(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse path: %w", err)
+		return nil, fmt.Errorf("parse path: %w", err)
 	}
 
 	switch schemaPath.Scheme {
@@ -87,15 +82,15 @@ func (g *ReaderGenerator) FromFile(path string) ([]byte, error) {
 	//nolint:gosec // G304 not relevant for client-side generation.
 	jsBytes, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read file: %w", err)
+		return nil, fmt.Errorf("read file: %w", err)
 	}
 
 	baseDir, err := filepath.Abs(filepath.Dir(path))
 	if err != nil {
-		return nil, fmt.Errorf("failed to get absolute path: %w", err)
+		return nil, fmt.Errorf("get absolute path: %w", err)
 	}
 
-	return g.FromReader(bytes.NewReader(jsBytes), baseDir)
+	return g.FromData(jsBytes, baseDir)
 }
 
 func (g *ReaderGenerator) FromURL(schemaURL *url.URL) ([]byte, error) {
@@ -104,13 +99,13 @@ func (g *ReaderGenerator) FromURL(schemaURL *url.URL) ([]byte, error) {
 		URL:    schemaURL,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed http request: %w", err)
+		return nil, fmt.Errorf("http request: %w", err)
 	}
 
 	defer func() {
 		err = schema.Body.Close()
 		if err != nil {
-			slog.Error("failed to close http response body",
+			slog.Error("close http response body",
 				slog.String("url", schemaURL.String()),
 				slog.Any("err", err),
 			)
@@ -123,26 +118,16 @@ func (g *ReaderGenerator) FromURL(schemaURL *url.URL) ([]byte, error) {
 func (g *ReaderGenerator) FromReader(r io.Reader, refBasePath string) ([]byte, error) {
 	jsBytes, err := io.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read: %w", err)
+		return nil, fmt.Errorf("read: %w", err)
 	}
 
 	return g.FromData(jsBytes, refBasePath)
 }
 
 func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, error) {
-	// YAML is a superset of JSON, so this works and is simpler than re-writing
-	// the Unmarshaler for JSON.
-	var jsonNode yaml.Node
-
-	err := yaml.Unmarshal(data, &jsonNode)
+	hs, err := unmarshalHelmSchema(data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
-	}
-
-	hs := &helmschema.Schema{}
-	err = hs.UnmarshalYAML(&jsonNode)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 	}
 
 	err = hs.Validate()
@@ -152,7 +137,7 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 
 	err = handleSchemaRefs(hs, refBasePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to handle schema refs: %w", err)
+		return nil, fmt.Errorf("handle schema refs: %w", err)
 	}
 
 	err = hs.Validate()
@@ -166,7 +151,7 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 
 	resolvedData, err := hs.ToJson()
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
+		return nil, fmt.Errorf("convert schema to JSON: %w", err)
 	}
 
 	return resolvedData, nil

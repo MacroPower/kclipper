@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.jacobcolvin.com/x/log"
 
 	"github.com/macropower/kclipper/cmd/kclipper/commands"
 )
@@ -23,6 +24,7 @@ func TestChartCmd(t *testing.T) {
 	stderr := &bytes.Buffer{}
 
 	tc.SetArgs([]string{
+		"--log_level", "error",
 		"chart", "init",
 		"--path", basePath,
 	})
@@ -50,6 +52,7 @@ func TestChartCmd(t *testing.T) {
 	require.NoError(t, err)
 
 	tc.SetArgs([]string{
+		"--log_level", "error",
 		"chart", "add",
 		"--path", basePath,
 		"--chart=podinfo",
@@ -71,6 +74,7 @@ func TestChartCmd(t *testing.T) {
 	stderr.Reset()
 
 	tc.SetArgs([]string{
+		"--log_level", "error",
 		"chart", "set",
 		"--path", basePath,
 		"--chart=podinfo",
@@ -89,6 +93,7 @@ func TestChartCmd(t *testing.T) {
 	stderr.Reset()
 
 	tc.SetArgs([]string{
+		"--log_level", "error",
 		"chart", "repo", "add",
 		"--path", basePath,
 		"--name=stefanprodan",
@@ -109,6 +114,7 @@ func TestChartCmd(t *testing.T) {
 	stderr.Reset()
 
 	tc.SetArgs([]string{
+		"--log_level", "error",
 		"chart", "update",
 		"--path", basePath,
 		"--timeout=60s",
@@ -128,18 +134,20 @@ func TestChartCmd(t *testing.T) {
 }
 
 func TestChartArgPointers(t *testing.T) {
-	rootArgs := commands.NewRootArgs()
-	args := commands.NewChartArgs(rootArgs)
+	t.Parallel()
+
+	logCfg := log.NewConfig()
+	args := commands.NewChartArgs(logCfg)
 
 	// Test default values
 	assert.Empty(t, args.GetPath())
-	assert.Empty(t, args.GetLogLevel())
-	assert.Empty(t, args.GetLogFormat())
 	assert.False(t, args.GetQuiet())
 	assert.False(t, args.GetVendor())
 }
 
 func TestChartCmdRequiredFlagErrors(t *testing.T) {
+	t.Parallel()
+
 	tcs := map[string]struct {
 		args []string
 	}{
@@ -183,6 +191,8 @@ func TestChartCmdRequiredFlagErrors(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			rootCmd := commands.NewRootCmd("test_chart_errors", "", "")
 			rootCmd.SetArgs(tc.args)
 
@@ -194,6 +204,8 @@ func TestChartCmdRequiredFlagErrors(t *testing.T) {
 }
 
 func TestChartCmdInvalidArgErrors(t *testing.T) {
+	t.Parallel()
+
 	tcs := map[string]struct {
 		args []string
 	}{
@@ -213,6 +225,8 @@ func TestChartCmdInvalidArgErrors(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			rootCmd := commands.NewRootCmd("test_chart_errors", "", "")
 			rootCmd.SetArgs(tc.args)
 

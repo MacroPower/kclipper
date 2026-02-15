@@ -59,7 +59,7 @@ func TestExporter_ExportSchemaToJSON(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			data, err := kclexport.Export.KCLSchemaToJSONSchema(tc.pkgPath, tc.schemaName)
+			data, err := kclexport.KCLSchemaToJSONSchema(tc.pkgPath, tc.schemaName)
 			if tc.err != nil {
 				require.Error(t, err)
 				assert.ErrorIs(t, err, tc.err)

@@ -21,12 +21,16 @@ import (
 var (
 	globalLock = syncs.NewKeyLock()
 
+	// DefaultClient is a [Client] configured with default paths and the
+	// ARGOCD_APP_PROJECT_NAME environment variable.
 	DefaultClient = MustNewClient(
 		paths.NewStaticTempPaths(filepath.Join(os.TempDir(), "charts"), paths.NewBase64PathEncoder()),
 		os.Getenv("ARGOCD_APP_PROJECT_NAME"),
 	)
 )
 
+// PathCacher stores and retrieves filesystem paths by key.
+// See [paths.StaticTempPaths] for an implementation.
 type PathCacher interface {
 	Add(key, value string)
 	GetPath(key string) (string, error)
@@ -34,20 +38,17 @@ type PathCacher interface {
 	GetPaths() map[string]string
 }
 
-type KeyLocker interface {
-	Lock(key string)
-	Unlock(key string)
-	RLock(key string)
-	RUnlock(key string)
-}
-
+// ChartClient pulls Helm charts and returns the result.
+// See [Client] for an implementation.
 type ChartClient interface {
 	Pull(ctx context.Context, chartName, repoURL, targetRevision string, repos helmrepo.Getter) (*PulledChart, error)
 }
 
+// Client pulls and caches Helm charts from local and remote repositories.
+// Create instances with [NewClient] or [MustNewClient].
 type Client struct {
 	Paths          PathCacher
-	RepoLock       KeyLocker
+	RepoLock       syncs.KeyLocker
 	MaxExtractSize resource.Quantity
 	rc             *registry.Client
 	helmHome       string
@@ -56,6 +57,7 @@ type Client struct {
 	NoProxy        string
 }
 
+// NewClient creates a new [Client].
 func NewClient(pc PathCacher, project string) (*Client, error) {
 	rc, err := registry.NewClient(registry.ClientOptEnableCache(true))
 	if err != nil {
@@ -123,6 +125,7 @@ func (c *Client) Pull(ctx context.Context, chart, repo, version string, repos he
 	return pc, nil
 }
 
+// CleanChartCache removes the cached chart directory for the given chart.
 func (c *Client) CleanChartCache(chart, repo, version string) error {
 	cachePath, err := c.getCachedChartPath(chart, repo, version)
 	if err != nil {
@@ -193,7 +196,7 @@ func (c *Client) getCachedOrRemoteChart(
 
 func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath string, repo *helmrepo.Repo) error {
 	// Create empty temp directory to extract chart from the registry.
-	tempDest, err := createTempDir(os.TempDir())
+	tempDest, err := os.MkdirTemp("", "kclipper-*")
 	if err != nil {
 		return fmt.Errorf("create temporary destination directory: %w", err)
 	}

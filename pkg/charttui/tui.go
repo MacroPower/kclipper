@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"charm.land/lipgloss/v2"
-	"github.com/hashicorp/go-multierror"
+	"github.com/charmbracelet/x/ansi"
+	"go.jacobcolvin.com/niceyaml"
 
 	tea "charm.land/bubbletea/v2"
 )
@@ -36,10 +37,8 @@ var defaultStyles = styles{
 // allowing previously sent messages to be rendered.
 const preQuitDelay = 100 * time.Millisecond
 
-type (
-	// Sent to write a log message.
-	teaMsgWriteLog string
-)
+// TeaMsgWriteLog is sent to write a log message to the terminal.
+type TeaMsgWriteLog string
 
 func teaQuit() tea.Cmd {
 	return tea.Sequence(
@@ -59,40 +58,106 @@ func keyExits(msg tea.KeyPressMsg) bool {
 	return false
 }
 
-func writeLog(msg teaMsgWriteLog, width int) tea.Cmd {
+func writeLog(msg TeaMsgWriteLog) tea.Cmd {
 	logMsg := string(msg)
 	logMsg = strings.Trim(logMsg, "\r\n")
-	logMsg = lipgloss.NewStyle().Width(max(0, width-2)).Render(logMsg)
 
 	return tea.Println(logMsg)
 }
 
-func getErrorMessage(err error, width int, totalCharts ...int) string {
-	var merr *multierror.Error
-	if !errors.As(err, &merr) || len(merr.Errors) <= 1 {
-		errMsg := fmt.Sprintf("%v", err)
-		errMsg = strings.Trim(errMsg, "\r\n")
+// crossWidth is the display width of the cross marker plus its trailing space.
+const crossWidth = 2
 
-		return defaultStyles.err.Width(max(0, width-2)).Render(errMsg + "\n")
-	}
+// errStyleMargin is the total horizontal margin of [styles.err] (left + right).
+// Must equal the sum of horizontal Margin values in defaultStyles.err above.
+const errStyleMargin = 4
 
-	maxWidth := max(0, width-2)
-	lines := make([]string, 0, len(merr.Errors)+1)
+// GetErrorMessage formats an error for display in the TUI. For multi-errors,
+// it renders each sub-error with a cross marker and appends a failure summary.
+func GetErrorMessage(err error, width int, totalCharts ...int) string {
+	errs := unwrapErrs(err)
 
-	for _, e := range merr.Errors {
-		line := fmt.Sprintf("%s %s", defaultStyles.cross, e)
-		line = lipgloss.NewStyle().MaxWidth(maxWidth).Render(line)
+	lines := make([]string, 0, len(errs)+1)
+	for i, e := range errs {
+		if i > 0 {
+			lines = append(lines, "")
+		}
+
+		limit := 0
+		if l := width - errStyleMargin - crossWidth; l > 0 {
+			limit = l
+		}
+
+		// Let niceyaml handle its own width-aware formatting.
+		var yamlErr *niceyaml.Error
+
+		hasAnnotation := errors.As(e, &yamlErr)
+		if hasAnnotation {
+			yamlErr.SetWidth(limit)
+		}
+
+		errStr := strings.Trim(e.Error(), "\r\n")
+
+		if limit > 0 {
+			errStr = wrapErrorString(errStr, limit, hasAnnotation)
+		}
+
+		// Keep the first line as-is; drop blank continuation lines and
+		// indent the rest to align with text after the cross marker.
+		errLines := strings.Split(errStr, "\n")
+
+		filtered := errLines[:1:1]
+		for _, el := range errLines[1:] {
+			// Preserve blank lines for annotated errors (they separate
+			// the header from the source context); drop them for plain errors.
+			if !hasAnnotation && strings.TrimSpace(el) == "" {
+				continue
+			}
+
+			filtered = append(filtered, "  "+el)
+		}
+
+		line := fmt.Sprintf("%s %s", defaultStyles.cross, strings.Join(filtered, "\n"))
 		lines = append(lines, line)
 	}
 
-	failedCount := len(merr.Errors)
+	failedCount := len(errs)
 	total := failedCount
 	if len(totalCharts) > 0 && totalCharts[0] > 0 {
 		total = totalCharts[0]
 	}
 
-	summary := fmt.Sprintf("%d of %d charts failed", failedCount, total)
+	summary := fmt.Sprintf("\n%d of %d charts failed", failedCount, total)
 	lines = append(lines, summary)
 
 	return defaultStyles.err.Render(strings.Join(lines, "\n") + "\n")
+}
+
+// wrapErrorString word-wraps errStr to fit within limit columns. For
+// annotated errors the header (before the first blank-line separator) is
+// wrapped while the source annotation is left untouched.
+func wrapErrorString(errStr string, limit int, hasAnnotation bool) string {
+	if !hasAnnotation {
+		return ansi.Wrap(errStr, limit, "")
+	}
+
+	sep := strings.Index(errStr, "\n\n")
+	if sep < 0 {
+		return ansi.Wrap(errStr, limit, "")
+	}
+
+	return ansi.Wrap(errStr[:sep], limit, "") + errStr[sep:]
+}
+
+func unwrapErrs(err error) []error {
+	type unwrapper interface {
+		Unwrap() []error
+	}
+
+	merr, ok := err.(unwrapper)
+	if ok {
+		return merr.Unwrap()
+	}
+
+	return []error{err}
 }

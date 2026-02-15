@@ -7,14 +7,11 @@ package jsonschema
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"log/slog"
 	"os"
 	"path"
 	"strings"
 
 	"github.com/dadav/go-jsonpointer"
-	"gopkg.in/yaml.v3"
 
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
 )
@@ -113,6 +110,38 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 		}
 	}
 
+	// Handle $ref in If.
+	if schema.If != nil {
+		err := handleSchemaRefs(schema.If, basePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Handle $ref in Then.
+	if schema.Then != nil {
+		err := handleSchemaRefs(schema.Then, basePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Handle $ref in Else.
+	if schema.Else != nil {
+		err := handleSchemaRefs(schema.Else, basePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Handle $ref in Not.
+	if schema.Not != nil {
+		err := handleSchemaRefs(schema.Not, basePath)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Handle main schema $ref.
 	if schema.Ref == "" {
 		return nil
@@ -159,12 +188,12 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helmschema.Schema, error) {
 	relData, err := json.Marshal(schema)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal schema for json pointer: %w", err)
+		return nil, fmt.Errorf("marshal schema for json pointer: %w", err)
 	}
 
 	relSchema, err := unmarshalSchemaRef(relData, jsonSchemaPointer)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal schema for json pointer: %w", err)
+		return nil, fmt.Errorf("unmarshal schema for json pointer: %w", err)
 	}
 
 	return relSchema, nil
@@ -172,29 +201,14 @@ func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helm
 
 func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer string) error {
 	//nolint:gosec // G304 not relevant for client-side generation.
-	file, err := os.Open(relPath)
+	byteValue, err := os.ReadFile(relPath)
 	if err != nil {
-		return fmt.Errorf("error opening file %q: %w", relPath, err)
-	}
-
-	defer func() {
-		err = file.Close()
-		if err != nil {
-			slog.Error("failed to close file",
-				slog.String("file", relPath),
-				slog.Any("err", err),
-			)
-		}
-	}()
-
-	byteValue, err := io.ReadAll(file)
-	if err != nil {
-		return fmt.Errorf("error reading file %q: %w", relPath, err)
+		return fmt.Errorf("read file %q: %w", relPath, err)
 	}
 
 	relSchema, err := unmarshalSchemaRef(byteValue, jsonSchemaPointer)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal schema: %w", err)
+		return fmt.Errorf("unmarshal schema: %w", err)
 	}
 
 	err = handleSchemaRefs(relSchema, path.Dir(relPath))
@@ -214,7 +228,7 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 	if jsonSchemaPointer == "" {
 		err := json.Unmarshal(data, &relSchema)
 		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+			return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 		}
 
 		err = relSchema.Validate()
@@ -229,22 +243,22 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 
 	err := json.Unmarshal(data, &obj)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 	}
 
 	jsonPointerResultRaw, err := jsonpointer.Get(obj, jsonSchemaPointer)
 	if err != nil {
-		return nil, fmt.Errorf("failed to resolve JSON pointer: %w", err)
+		return nil, fmt.Errorf("resolve JSON pointer: %w", err)
 	}
 
 	jsonPointerResultMarshaled, err := json.Marshal(jsonPointerResultRaw)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal JSON pointer result: %w", err)
+		return nil, fmt.Errorf("marshal JSON pointer result: %w", err)
 	}
 
 	err = json.Unmarshal(jsonPointerResultMarshaled, relSchema)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON pointer result: %w", err)
+		return nil, fmt.Errorf("unmarshal JSON pointer result: %w", err)
 	}
 
 	err = relSchema.Validate()
@@ -264,26 +278,17 @@ func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error
 
 	apData, err := json.Marshal(schema.AdditionalProperties)
 	if err != nil {
-		return fmt.Errorf("failed to marshal additional properties: %w", err)
+		return fmt.Errorf("marshal additional properties: %w", err)
 	}
 
-	subSchema := &helmschema.Schema{}
-
-	var jsonNode yaml.Node
-
-	err = yaml.Unmarshal(apData, &jsonNode)
+	subSchema, err := unmarshalHelmSchema(apData)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal additional properties: %w", err)
-	}
-
-	err = subSchema.UnmarshalYAML(&jsonNode)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal additional properties: %w", err)
+		return fmt.Errorf("unmarshal additional properties: %w", err)
 	}
 
 	err = handleSchemaRefs(subSchema, basePath)
 	if err != nil {
-		return fmt.Errorf("failed to handle schema refs in additional properties: %w", err)
+		return fmt.Errorf("handle schema refs in additional properties: %w", err)
 	}
 
 	err = subSchema.Validate()
@@ -308,7 +313,7 @@ func isRelativeFile(root, relPath string) (string, error) {
 		rp := path.Join(root, relPath)
 		_, err := os.Stat(rp)
 		if err != nil {
-			return "", fmt.Errorf("failed to describe file %q: %w", rp, err)
+			return "", fmt.Errorf("stat file %q: %w", rp, err)
 		}
 
 		return rp, nil

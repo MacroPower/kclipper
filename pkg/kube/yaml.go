@@ -19,75 +19,57 @@
 package kube
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"io"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
-	"sigs.k8s.io/yaml"
-
-	kubeyaml "k8s.io/apimachinery/pkg/util/yaml"
+	"go.jacobcolvin.com/niceyaml"
 )
 
 var (
-	ErrInvalidYAML         = errors.New("invalid yaml")
+	// ErrInvalidYAML indicates the input was not valid YAML.
+	ErrInvalidYAML = errors.New("invalid yaml")
+
+	// ErrInvalidKubeResource indicates the YAML did not represent a valid Kubernetes resource.
 	ErrInvalidKubeResource = errors.New("invalid kubernetes resource")
 )
 
-// SplitYAML splits a YAML file into unstructured objects. Returns list of all unstructured objects
-// found in the yaml. If an error occurs, returns objects that have been parsed so far too.
-func SplitYAML(yamlData []byte) ([]*unstructured.Unstructured, error) {
-	objs := []*unstructured.Unstructured{}
+// SplitYAML splits a YAML file into [Object] values. Returns list of all resources
+// found in the yaml. If an error occurs, returns resources that have been parsed so far too.
+func SplitYAML(yamlData []byte) ([]Object, error) {
+	var resources []Object
 
-	ymls, err := SplitYAMLToString(yamlData)
+	src := niceyaml.NewSourceFromBytes(yamlData,
+		niceyaml.WithErrorOptions(niceyaml.WithSourceLines(3)),
+	)
+
+	if src.IsEmpty() {
+		return nil, nil
+	}
+
+	decoder, err := src.Decoder()
 	if err != nil {
-		return nil, fmt.Errorf("split yaml to strings: %w", err)
+		return resources, fmt.Errorf("%w: %w", ErrInvalidYAML, err)
 	}
 
-	for _, yml := range ymls {
-		u := &unstructured.Unstructured{}
-		err := yaml.Unmarshal([]byte(yml), u)
+	for _, doc := range decoder.Documents() {
+		var raw any
+
+		err = doc.Decode(&raw)
 		if err != nil {
-			return objs, fmt.Errorf("%w: %w", ErrInvalidKubeResource, err)
+			return resources, fmt.Errorf("%w: %w", ErrInvalidYAML, src.WrapError(err))
 		}
 
-		objs = append(objs, u)
-	}
-
-	return objs, nil
-}
-
-// SplitYAMLToString splits a YAML file into strings. Returns list of yamls
-// found in the yaml. If an error occurs, returns objects that have been parsed so far too.
-func SplitYAMLToString(yamlData []byte) ([]string, error) {
-	// Similar way to what kubectl does
-	// https://github.com/kubernetes/cli-runtime/blob/master/pkg/resource/visitor.go#L573-L600
-	// Ideally k8s.io/cli-runtime/pkg/resource.Builder should be used instead of this method.
-	// E.g. Builder does list unpacking and flattening and this code does not.
-	d := kubeyaml.NewYAMLOrJSONDecoder(bytes.NewReader(yamlData), 4096)
-
-	var objs []string
-
-	for {
-		ext := runtime.RawExtension{}
-		err := d.Decode(&ext)
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
-
-			return objs, fmt.Errorf("%w: %w", ErrInvalidYAML, err)
-		}
-
-		ext.Raw = bytes.TrimSpace(ext.Raw)
-		if len(ext.Raw) == 0 || bytes.Equal(ext.Raw, []byte("null")) {
+		if raw == nil {
 			continue
 		}
 
-		objs = append(objs, string(ext.Raw))
+		m, ok := raw.(map[string]any)
+		if !ok {
+			return resources, fmt.Errorf("%w: expected mapping, got %T", ErrInvalidKubeResource, raw)
+		}
+
+		resources = append(resources, Object(m))
 	}
 
-	return objs, nil
+	return resources, nil
 }

@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/semaphore"
 	"kcl-lang.io/kcl-go/pkg/native"
 	"kcl-lang.io/kcl-go/pkg/spec/gpyrpc"
@@ -154,7 +153,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 
 	var merr error
 	for err := range errChan {
-		merr = multierror.Append(merr, err)
+		merr = errors.Join(merr, err)
 	}
 
 	if merr != nil {

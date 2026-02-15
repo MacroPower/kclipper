@@ -12,14 +12,14 @@ import (
 )
 
 // AddModel displays the status of an add operation with a spinner, per-item
-// results, and a final summary.
+// results, and a final summary. Create instances with [NewAddModel].
 type AddModel struct {
 	kind string
 	name string
 	baseModel
 }
 
-// NewAddModel creates an [AddModel] used to display the status of adding a
+// NewAddModel creates a new [AddModel] that displays the status of adding a
 // new item. It renders a spinner which is replaced with a result.
 func NewAddModel(kind, name string) *AddModel {
 	return &AddModel{
@@ -58,7 +58,7 @@ func (m *AddModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *AddModel) View() tea.View {
 	switch m.state {
 	case stateError:
-		return tea.NewView(getErrorMessage(m.err, m.width))
+		return tea.NewView(GetErrorMessage(m.err, m.width))
 
 	case stateDone:
 		return tea.NewView(defaultStyles.done.Render(fmt.Sprintf("Done! Added %s %s.\n", m.kind, m.name)))

@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 
-	"gopkg.in/yaml.v3"
-
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
 
 	"github.com/macropower/kclipper/pkg/kclgen"
@@ -15,7 +13,7 @@ import (
 func ConvertToKCLSchema(jsonSchemaData []byte, removeDefaults bool) ([]byte, error) {
 	fixedJSONSchema, err := ConvertToKCLCompatibleJSONSchema(jsonSchemaData)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert to KCL compatible JSON schema: %w", err)
+		return nil, fmt.Errorf("convert to KCL compatible JSON schema: %w", err)
 	}
 
 	kclSchema := &bytes.Buffer{}
@@ -26,7 +24,7 @@ func ConvertToKCLSchema(jsonSchemaData []byte, removeDefaults bool) ([]byte, err
 		RemoveDefaults:        removeDefaults,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate kcl schema: %w", err)
+		return nil, fmt.Errorf("generate kcl schema: %w", err)
 	}
 
 	return kclSchema.Bytes(), nil
@@ -35,19 +33,9 @@ func ConvertToKCLSchema(jsonSchemaData []byte, removeDefaults bool) ([]byte, err
 // ConvertToKCLCompatibleJSONSchema converts a JSON schema to a JSON schema that
 // is compatible with KCL schema generation (i.e. removing unsupported fields).
 func ConvertToKCLCompatibleJSONSchema(jsonSchemaData []byte) ([]byte, error) {
-	// YAML is a superset of JSON, so this works and is simpler than re-writing
-	// the Unmarshaler for JSON.
-	var jsonNode yaml.Node
-
-	err := yaml.Unmarshal(jsonSchemaData, &jsonNode)
+	hs, err := unmarshalHelmSchema(jsonSchemaData)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
-	}
-
-	hs := &helmschema.Schema{}
-	err = hs.UnmarshalYAML(&jsonNode)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON Schema: %w", err)
+		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 	}
 
 	// Remove the ID to keep KCL schema naming consistent.
@@ -60,7 +48,7 @@ func ConvertToKCLCompatibleJSONSchema(jsonSchemaData []byte) ([]byte, error) {
 
 	fixedJSONSchema, err := mhs.ToJson()
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert schema to JSON: %w", err)
+		return nil, fmt.Errorf("convert schema to JSON: %w", err)
 	}
 
 	return fixedJSONSchema, nil

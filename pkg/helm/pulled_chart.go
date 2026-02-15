@@ -9,9 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
-	"strings"
 
-	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/semaphore"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -20,10 +18,8 @@ import (
 	"github.com/macropower/kclipper/pkg/helmrepo"
 )
 
-var (
-	ErrChartDependency   = errors.New("error in chart dependency")
-	ErrChartWorkerFailed = errors.New("chart worker failed")
-)
+// ErrChartDependency indicates an error occurred while loading chart dependencies.
+var ErrChartDependency = errors.New("chart dependency")
 
 // PulledChart represents a Helm chart.tar.gz, or the root directory of a Helm
 // chart. It is typically created via [Client.Pull].
@@ -36,8 +32,8 @@ type PulledChart struct {
 
 // Extract will extract the chart (if it is a .tar.gz file), and return the path
 // to the extracted chart. An [io.Closer] is also returned, calling Close() will
-// clean up the extracted chart. If [PulledChart] references a directory, the
-// the path to the directory and a [NopCloser] is returned.
+// clean up the extracted chart. If [PulledChart] references a directory,
+// the path to the directory and a [NewNopCloser] is returned.
 func (c *PulledChart) Extract(maxSize *resource.Quantity) (string, io.Closer, error) {
 	closer := NewNopCloser()
 
@@ -48,7 +44,7 @@ func (c *PulledChart) Extract(maxSize *resource.Quantity) (string, io.Closer, er
 
 	extractedPath, closer, err := c.extractChart(c.chart, c.path, maxSize)
 	if err != nil {
-		return "", nil, fmt.Errorf("extract chart: %w", err)
+		return "", nil, fmt.Errorf("decompress chart archive: %w", err)
 	}
 
 	return extractedPath, closer, nil
@@ -62,7 +58,7 @@ func (c *PulledChart) Extract(maxSize *resource.Quantity) (string, io.Closer, er
 func (c *PulledChart) Load(ctx context.Context, skipSchemaValidation bool) (*chart.Chart, error) {
 	loadedChart, err := loader.Load(c.path)
 	if err != nil {
-		return nil, fmt.Errorf("load chart: %w", err)
+		return nil, fmt.Errorf("read chart from disk: %w", err)
 	}
 
 	// Keeping the schema in the charts will cause downstream templating to load
@@ -77,14 +73,14 @@ func (c *PulledChart) Load(ctx context.Context, skipSchemaValidation bool) (*cha
 	// Recursively load and set all chart dependencies.
 	err = c.loadChartDependencies(ctx, loadedChart, skipSchemaValidation)
 	if err != nil {
-		return nil, fmt.Errorf("load chart dependencies: %w", err)
+		return nil, fmt.Errorf("%w: %w", ErrChartDependency, err)
 	}
 
 	return loadedChart, nil
 }
 
 func (c *PulledChart) extractChart(chartName, srcPath string, maxSize *resource.Quantity) (string, io.Closer, error) {
-	tempDest, err := createTempDir(os.TempDir())
+	tempDest, err := os.MkdirTemp("", "kclipper-*")
 	if err != nil {
 		return "", nil, fmt.Errorf("create temporary directory: %w", err)
 	}
@@ -138,12 +134,12 @@ func (c *PulledChart) setChartDependencies(
 	for _, chartDep := range target.Metadata.Dependencies {
 		err := sem.Acquire(ctx, 1)
 		if err != nil {
-			return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
+			return fmt.Errorf("acquire semaphore: %w", err)
 		}
 
 		err = innerSem.Acquire(ctx, 1)
 		if err != nil {
-			return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
+			return fmt.Errorf("acquire semaphore: %w", err)
 		}
 
 		go func() {
@@ -167,7 +163,7 @@ func (c *PulledChart) setChartDependencies(
 
 	err := innerSem.Acquire(ctx, depCount)
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrChartWorkerFailed, err)
+		return fmt.Errorf("acquire semaphore: %w", err)
 	}
 
 	close(resultCh)
@@ -175,21 +171,21 @@ func (c *PulledChart) setChartDependencies(
 	var merr error
 	for result := range resultCh {
 		if result.err != nil {
-			merr = multierror.Append(merr, result.err)
+			merr = errors.Join(merr, result.err)
 
 			continue
 		}
 
 		err := c.setChartDependencies(ctx, result.chart, sem, skipSchemaValidation)
 		if err != nil {
-			return fmt.Errorf("%w: %w", ErrChartDependency, err)
+			return fmt.Errorf("set chart dependencies: %w", err)
 		}
 
 		loadedDeps = append(loadedDeps, result.chart)
 	}
 
 	if merr != nil {
-		return merr
+		return fmt.Errorf("load chart dependencies: %w", merr)
 	}
 
 	target.SetDependencies(loadedDeps...)
@@ -220,7 +216,7 @@ func (c *PulledChart) getChartDependency(
 
 	depChart, err := loader.Load(pulledChart.path)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrChartLoad, err)
+		return nil, fmt.Errorf("load chart dependency: %w", err)
 	}
 
 	return depChart, nil
@@ -229,8 +225,6 @@ func (c *PulledChart) getChartDependency(
 // Normalize a chart name for file system use, that is, if chart name is
 // foo/bar/baz, returns the last component as chart name.
 func normalizeChartName(chartName string) string {
-	strings.Join(strings.Split(chartName, "/"), "_")
-
 	_, nc := path.Split(chartName)
 	// We do not want to return the empty string or something else related to
 	// filesystem access. Instead, return original string.

@@ -8,40 +8,27 @@ import (
 	"net/http"
 	"net/url"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"github.com/macropower/kclipper/pkg/kube"
 )
 
-// DefaultHTTPGenerator is an opinionated [HTTPGenerator].
-var DefaultHTTPGenerator = NewHTTPGenerator(http.DefaultClient)
-
+// HTTPDoer is the interface for making HTTP requests.
+// See [*net/http.Client] for an implementation.
 type HTTPDoer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-// ReaderGenerator reads CRDs from a given location and returns
-// corresponding []*unstructured.Unstructured representations.
-type HTTPGenerator struct {
-	*ReaderGenerator
-	HTTPClient HTTPDoer
-}
-
-func NewHTTPGenerator(httpClient HTTPDoer) *HTTPGenerator {
-	return &HTTPGenerator{
-		HTTPClient:      httpClient,
-		ReaderGenerator: NewReaderGenerator(),
-	}
-}
-
-func (g *HTTPGenerator) FromURLs(ctx context.Context, crdURLs ...*url.URL) ([]*unstructured.Unstructured, error) {
+// FromURLs reads CRDs from the given HTTP URLs and returns the corresponding
+// []kube.Object representations.
+func FromURLs(ctx context.Context, httpClient HTTPDoer, crdURLs ...*url.URL) ([]kube.Object, error) {
 	if len(crdURLs) == 0 {
 		return nil, errors.New("no urls provided")
 	}
 
-	crds := []*unstructured.Unstructured{}
+	crds := []kube.Object{}
 	for _, crdURL := range crdURLs {
-		c, err := g.FromURL(ctx, crdURL)
+		c, err := FromURL(ctx, httpClient, crdURL)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read CRDs from %s: %w", crdURL.String(), err)
+			return nil, fmt.Errorf("read CRDs from %s: %w", crdURL.String(), err)
 		}
 
 		crds = append(crds, c...)
@@ -50,26 +37,28 @@ func (g *HTTPGenerator) FromURLs(ctx context.Context, crdURLs ...*url.URL) ([]*u
 	return crds, nil
 }
 
-func (g *HTTPGenerator) FromURL(ctx context.Context, crdURL *url.URL) ([]*unstructured.Unstructured, error) {
+// FromURL reads CRDs from the given HTTP URL and returns the corresponding
+// []kube.Object representation.
+func FromURL(ctx context.Context, httpClient HTTPDoer, crdURL *url.URL) ([]kube.Object, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, crdURL.String(), http.NoBody)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create http request: %w", err)
+		return nil, fmt.Errorf("create http request: %w", err)
 	}
 
-	schema, err := g.HTTPClient.Do(req)
+	schema, err := httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed http request: %w", err)
+		return nil, fmt.Errorf("http request: %w", err)
 	}
 
 	defer func() {
 		err := schema.Body.Close()
 		if err != nil {
-			slog.Error("failed to close http response body",
+			slog.Error("close http response body",
 				slog.String("url", crdURL.String()),
 				slog.Any("err", err),
 			)
 		}
 	}()
 
-	return g.FromReader(schema.Body)
+	return FromReader(schema.Body)
 }

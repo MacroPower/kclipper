@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.jacobcolvin.com/x/log"
 
 	"github.com/macropower/kclipper/cmd/kclipper/commands"
 )
@@ -70,6 +71,8 @@ func BenchmarkRun(b *testing.B) {
 }
 
 func TestRootCmdArgs(t *testing.T) {
+	t.Parallel()
+
 	tcs := map[string]struct {
 		wantErr   error
 		logLevel  string
@@ -90,17 +93,19 @@ func TestRootCmdArgs(t *testing.T) {
 		"invalid log level": {
 			logLevel:  "invalid",
 			logFormat: "text",
-			wantErr:   commands.ErrLogHandlerFailed,
+			wantErr:   log.ErrInvalidArgument,
 		},
 		"invalid log format": {
 			logLevel:  "warn",
 			logFormat: "invalid",
-			wantErr:   commands.ErrLogHandlerFailed,
+			wantErr:   log.ErrInvalidArgument,
 		},
 	}
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			rootCmd := commands.NewRootCmd("test_logger", "", "")
 			stdout := &bytes.Buffer{}
 			stderr := &bytes.Buffer{}
@@ -124,12 +129,4 @@ func TestRootCmdArgs(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestRootCmdArgPointers(t *testing.T) {
-	args := commands.NewRootArgs()
-
-	// Test default values
-	assert.Empty(t, args.GetLogLevel())
-	assert.Empty(t, args.GetLogFormat())
 }

@@ -11,7 +11,6 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chartutil"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	helmkube "helm.sh/helm/v3/pkg/kube"
 
@@ -20,12 +19,20 @@ import (
 )
 
 var (
-	ErrChartPull          = errors.New("error pulling chart")
-	ErrChartTemplate      = errors.New("error templating chart")
-	ErrChartLoad          = errors.New("error loading chart")
-	ErrChartTemplateParse = errors.New("error parsing chart template output")
+	// ErrChartPull indicates an error occurred while pulling a chart.
+	ErrChartPull = errors.New("pull chart")
+
+	// ErrChartTemplate indicates an error occurred while templating a chart.
+	ErrChartTemplate = errors.New("template chart")
+
+	// ErrChartLoad indicates an error occurred while loading a chart.
+	ErrChartLoad = errors.New("load chart")
+
+	// ErrChartTemplateParse indicates an error occurred while parsing chart template output.
+	ErrChartTemplateParse = errors.New("parse chart template output")
 )
 
+// TemplateOpts configures Helm chart template rendering.
 type TemplateOpts struct {
 	ValuesObject         map[string]any
 	Proxy                string
@@ -44,6 +51,8 @@ type TemplateOpts struct {
 	SkipHooks            bool
 }
 
+// Chart renders Helm chart templates into Kubernetes resources.
+// Create instances with [NewChart].
 type Chart struct {
 	Client       ChartClient
 	Repos        helmrepo.Getter
@@ -51,18 +60,18 @@ type Chart struct {
 }
 
 // NewChart creates a new [Chart].
-func NewChart(client ChartClient, repos helmrepo.Getter, opts *TemplateOpts) (*Chart, error) {
+func NewChart(client ChartClient, repos helmrepo.Getter, opts *TemplateOpts) *Chart {
 	return &Chart{
 		Client:       client,
 		Repos:        repos,
 		TemplateOpts: opts,
-	}, nil
+	}
 }
 
 // Template templates the Helm [Chart]. The [chart.Chart] and its dependencies
 // are pulled as needed. The rendered output is then split into individual
-// Kubernetes objects and returned as a slice of [unstructured.Unstructured].
-func (c *Chart) Template(ctx context.Context) ([]*unstructured.Unstructured, error) {
+// Kubernetes resources and returned as a slice of [kube.Object].
+func (c *Chart) Template(ctx context.Context) ([]kube.Object, error) {
 	cancel := func() {}
 	if c.TemplateOpts.Timeout > 0 {
 		ctx, cancel = context.WithTimeout(ctx, c.TemplateOpts.Timeout)

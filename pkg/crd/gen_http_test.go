@@ -12,12 +12,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/macropower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/kube"
 )
 
-// MockHTTPClient implements the HTTPDoer interface for testing
+// MockHTTPClient implements the crd.HTTPDoer interface for testing.
 type MockHTTPClient struct {
 	DoFunc func(req *http.Request) (*http.Response, error)
 }
@@ -26,22 +26,22 @@ func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return m.DoFunc(req)
 }
 
-// readTestFile reads the content of a test file from the testdata directory
+// readTestFile reads the content of a test file from the testdata directory.
 func readTestFile(t *testing.T, filename string) string {
 	t.Helper()
 
 	content, err := os.ReadFile(filepath.Join("testdata", filename))
-	require.NoError(t, err, "Failed to read test file: %s", filename)
+	require.NoError(t, err, "read test file: %s", filename)
 
 	return string(content)
 }
 
-func TestHTTPGenerator_FromURL(t *testing.T) {
+func TestFromURL(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
 		setupMock func(t *testing.T) *MockHTTPClient
-		validate  func(t *testing.T, crds []*unstructured.Unstructured, err error)
+		validate  func(t *testing.T, crds []kube.Object, err error)
 		url       string
 	}{
 		"successful request": {
@@ -60,7 +60,7 @@ func TestHTTPGenerator_FromURL(t *testing.T) {
 					},
 				}
 			},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 1)
@@ -80,10 +80,10 @@ func TestHTTPGenerator_FromURL(t *testing.T) {
 					},
 				}
 			},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.Error(t, err)
-				assert.Contains(t, err.Error(), "failed http request")
+				assert.Contains(t, err.Error(), "http request")
 				assert.Contains(t, err.Error(), "connection refused")
 				assert.Nil(t, crds)
 			},
@@ -104,7 +104,7 @@ func TestHTTPGenerator_FromURL(t *testing.T) {
 					},
 				}
 			},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.Error(t, err)
 				assert.Nil(t, crds)
@@ -126,7 +126,7 @@ func TestHTTPGenerator_FromURL(t *testing.T) {
 					},
 				}
 			},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				assert.Empty(t, crds)
@@ -139,23 +139,22 @@ func TestHTTPGenerator_FromURL(t *testing.T) {
 			t.Parallel()
 
 			mockClient := tc.setupMock(t)
-			generator := crd.NewHTTPGenerator(mockClient)
 
 			parsedURL, err := url.Parse(tc.url)
 			require.NoError(t, err)
 
-			crds, err := generator.FromURL(t.Context(), parsedURL)
+			crds, err := crd.FromURL(t.Context(), mockClient, parsedURL)
 			tc.validate(t, crds, err)
 		})
 	}
 }
 
-func TestHTTPGenerator_FromURLs(t *testing.T) {
+func TestFromURLs(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
 		setupMock func(t *testing.T) *MockHTTPClient
-		validate  func(t *testing.T, crds []*unstructured.Unstructured, err error)
+		validate  func(t *testing.T, crds []kube.Object, err error)
 		urls      []string
 	}{
 		"no urls": {
@@ -165,7 +164,7 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 
 				return &MockHTTPClient{}
 			},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), "no urls provided")
@@ -188,7 +187,7 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 					},
 				}
 			},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 1)
@@ -227,7 +226,7 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 					},
 				}
 			},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 3)
@@ -280,10 +279,10 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 					},
 				}
 			},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.Error(t, err)
-				assert.Contains(t, err.Error(), "failed to read CRDs from")
+				assert.Contains(t, err.Error(), "read CRDs from")
 				assert.Contains(t, err.Error(), "connection refused")
 				assert.Nil(t, crds)
 			},
@@ -295,7 +294,6 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 			t.Parallel()
 
 			mockClient := tc.setupMock(t)
-			generator := crd.NewHTTPGenerator(mockClient)
 
 			var urls []*url.URL
 			for _, u := range tc.urls {
@@ -305,16 +303,8 @@ func TestHTTPGenerator_FromURLs(t *testing.T) {
 				urls = append(urls, parsedURL)
 			}
 
-			crds, err := generator.FromURLs(t.Context(), urls...)
+			crds, err := crd.FromURLs(t.Context(), mockClient, urls...)
 			tc.validate(t, crds, err)
 		})
 	}
-}
-
-func TestDefaultHTTPGenerator(t *testing.T) {
-	t.Parallel()
-
-	// Ensure the default generator is properly initialized
-	assert.NotNil(t, crd.DefaultHTTPGenerator)
-	assert.NotNil(t, crd.DefaultHTTPGenerator.HTTPClient)
 }

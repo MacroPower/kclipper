@@ -2,6 +2,7 @@ package helm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -9,13 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
 	"kcl-lang.io/kcl-go/pkg/plugin"
 
 	"github.com/macropower/kclipper/pkg/helm"
 	"github.com/macropower/kclipper/pkg/helmrepo"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
 	"github.com/macropower/kclipper/pkg/kclplugin/plugins"
+	"github.com/macropower/kclipper/pkg/kube"
 	"github.com/macropower/kclipper/pkg/paths"
 )
 
@@ -33,10 +34,12 @@ const (
 	argValues               string = "values"
 )
 
+// Register registers the helm [Plugin] with the KCL plugin system.
 func Register() {
 	plugin.RegisterPlugin(Plugin)
 }
 
+// Plugin is the KCL plugin that exposes Helm template functionality.
 var Plugin = plugin.Plugin{
 	Name: "helm",
 	MethodMap: map[string]plugin.MethodSpec{
@@ -66,14 +69,17 @@ var Plugin = plugin.Plugin{
 
 				safeArgs := plugins.SafeMethodArgs{Args: args}
 
-				var merr error
-
+				var validationErr error
 				if !safeArgs.Exists(argChart) {
-					merr = multierror.Append(merr, fmt.Errorf("missing required argument: %s", argChart))
+					validationErr = errors.Join(validationErr, fmt.Errorf("missing required argument: %s", argChart))
 				}
 
 				if !safeArgs.Exists(argRepoURL) {
-					merr = multierror.Append(merr, fmt.Errorf("missing required argument: %s", argRepoURL))
+					validationErr = errors.Join(validationErr, fmt.Errorf("missing required argument: %s", argRepoURL))
+				}
+
+				if validationErr != nil {
+					return nil, validationErr
 				}
 
 				chartName := args.StrKwArg(argChart)
@@ -105,11 +111,7 @@ var Plugin = plugin.Plugin{
 
 				timeout, err := time.ParseDuration(timeoutStr)
 				if err != nil {
-					merr = multierror.Append(merr, fmt.Errorf("failed to parse timeout: %w", err))
-				}
-
-				if merr != nil {
-					return nil, merr
+					return nil, fmt.Errorf("parse timeout: %w", err)
 				}
 
 				cwd := os.Getenv("ARGOCD_APP_SOURCE_PATH")
@@ -119,12 +121,12 @@ var Plugin = plugin.Plugin{
 
 				repoRoot, err := paths.FindRepoRoot(cwd)
 				if err != nil {
-					return nil, fmt.Errorf("failed to find repository root: %w", err)
+					return nil, fmt.Errorf("find repository root: %w", err)
 				}
 
 				pkgPath, err := paths.FindTopPkgRoot(repoRoot, cwd)
 				if err != nil {
-					return nil, fmt.Errorf("failed to find package root: %w", err)
+					return nil, fmt.Errorf("find package root: %w", err)
 				}
 
 				logger.Debug("set arguments",
@@ -161,12 +163,12 @@ var Plugin = plugin.Plugin{
 
 					hr, err := pcr.GetHelmRepo()
 					if err != nil {
-						return nil, fmt.Errorf("failed to add Helm repository: %w", err)
+						return nil, fmt.Errorf("add helm repository: %w", err)
 					}
 
 					err = repoMgr.Add(hr)
 					if err != nil {
-						return nil, fmt.Errorf("failed to add Helm repository: %w", err)
+						return nil, fmt.Errorf("add helm repository: %w", err)
 					}
 				}
 
@@ -176,10 +178,10 @@ var Plugin = plugin.Plugin{
 				)
 				helmClient, err := helm.NewClient(tempPaths, project)
 				if err != nil {
-					return nil, fmt.Errorf("failed to create helm client: %w", err)
+					return nil, fmt.Errorf("create helm client: %w", err)
 				}
 
-				helmChart, err := helm.NewChart(helmClient, repoMgr, &helm.TemplateOpts{
+				helmChart := helm.NewChart(helmClient, repoMgr, &helm.TemplateOpts{
 					ChartName:            chartName,
 					TargetRevision:       targetRevision,
 					RepoURL:              repoURL,
@@ -194,22 +196,19 @@ var Plugin = plugin.Plugin{
 					APIVersions:          strings.Split(kubeAPIVersions, ","),
 					Timeout:              timeout,
 				})
-				if err != nil {
-					return nil, fmt.Errorf("failed to create chart handler for %q: %w", chartName, err)
-				}
 
 				logger.Info("execute helm template")
 
 				objs, err := helmChart.Template(context.Background())
 				if err != nil {
-					return nil, fmt.Errorf("failed to template %q: %w", chartName, err)
+					return nil, fmt.Errorf("template %q: %w", chartName, err)
 				}
 
 				logger.Info("helm template complete")
 
 				logger.Debug("returning results")
 
-				return &plugin.MethodResult{V: objs}, nil
+				return &plugin.MethodResult{V: kube.ObjectsToMaps(objs)}, nil
 			},
 		},
 	},

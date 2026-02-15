@@ -9,22 +9,28 @@ import (
 	"log/slog"
 	"math"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/google/uuid"
-	"github.com/hashicorp/go-multierror"
 	"github.com/klauspost/compress/gzip"
 )
 
 var (
-	ErrFailedFileRead  = errors.New("failed to read file")
-	ErrFailedFileWrite = errors.New("failed to write file")
-	ErrFailedFileClose = errors.New("failed to close file")
-	ErrIteratingTar    = errors.New("error iterating on tar reader")
+	// ErrFileRead indicates an error occurred while reading a file.
+	ErrFileRead = errors.New("read file")
+
+	// ErrFileWrite indicates an error occurred while writing a file.
+	ErrFileWrite = errors.New("write file")
+
+	// ErrFileClose indicates an error occurred while closing a file.
+	ErrFileClose = errors.New("close file")
+
+	// ErrTarIterate indicates an error occurred while iterating a tar archive.
+	ErrTarIterate = errors.New("iterate tar")
 )
 
+// LimitReaderUnexpectedEOFError indicates that a read was truncated because the
+// content exceeded the configured size limit.
 type LimitReaderUnexpectedEOFError struct {
 	MaxSize int64
 }
@@ -47,13 +53,13 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 
 	gzr, err := gzip.NewReader(r)
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrFailedFileRead, err)
+		return fmt.Errorf("%w: %w", ErrFileRead, err)
 	}
 
 	defer func() {
 		err = gzr.Close()
 		if err != nil {
-			slog.Error("failed to close gzip reader",
+			slog.Error("close gzip reader",
 				slog.Any("err", err),
 			)
 		}
@@ -71,15 +77,15 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 	for {
 		header, err := tr.Next()
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 
 			if maxSize != 0 && errors.Is(err, io.ErrUnexpectedEOF) {
-				return fmt.Errorf("%w: %w", ErrIteratingTar, LimitReaderUnexpectedEOFError{maxSize})
+				return fmt.Errorf("%w: %w", ErrTarIterate, LimitReaderUnexpectedEOFError{maxSize})
 			}
 
-			return fmt.Errorf("%w: %w", ErrIteratingTar, err)
+			return fmt.Errorf("%w: %w", ErrTarIterate, err)
 		}
 
 		if header == nil || header.Name == "." {
@@ -107,7 +113,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 
 			err := os.MkdirAll(target, mode)
 			if err != nil {
-				return fmt.Errorf("error creating nested folders: %w", err)
+				return fmt.Errorf("create nested folders: %w", err)
 			}
 
 		case tar.TypeSymlink:
@@ -115,10 +121,10 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 			//nolint:gosec // G305 checked by [inbound].
 			linkTarget := filepath.Join(filepath.Dir(target), header.Linkname)
 			realPath, err := filepath.EvalSymlinks(linkTarget)
-			if os.IsNotExist(err) {
+			if errors.Is(err, os.ErrNotExist) {
 				realPath = linkTarget
 			} else if err != nil {
-				return fmt.Errorf("error checking symlink realpath: %w", err)
+				return fmt.Errorf("check symlink realpath: %w", err)
 			}
 
 			if !inbound(realPath, dstPath) {
@@ -127,7 +133,7 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 
 			err = os.Symlink(realPath, target)
 			if err != nil {
-				return fmt.Errorf("error creating symlink: %w", err)
+				return fmt.Errorf("create symlink: %w", err)
 			}
 
 		case tar.TypeReg:
@@ -143,36 +149,36 @@ func gunzip(dstPath string, r io.Reader, maxSize int64, preserveFileMode bool) e
 
 			err := os.MkdirAll(filepath.Dir(target), 0o750)
 			if err != nil {
-				return fmt.Errorf("error creating nested folders: %w", err)
+				return fmt.Errorf("create nested folders: %w", err)
 			}
 
 			//nolint:gosec // G304 checked by [inbound].
 			f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 			if err != nil {
-				return fmt.Errorf("error creating file %q: %w", target, err)
+				return fmt.Errorf("create file %q: %w", target, err)
 			}
 
 			w := bufio.NewWriter(f)
 			//nolint:gosec // G115 mitigated by [io.LimitReader].
 			_, err = io.Copy(w, tr)
 			if err != nil {
-				merr := fmt.Errorf("%w: %w", ErrFailedFileWrite, err)
+				merr := fmt.Errorf("%w: %w", ErrFileWrite, err)
 
 				if maxSize != 0 && errors.Is(err, io.ErrUnexpectedEOF) {
-					merr = fmt.Errorf("%w: %w", ErrFailedFileWrite, LimitReaderUnexpectedEOFError{maxSize})
+					merr = fmt.Errorf("%w: %w", ErrFileWrite, LimitReaderUnexpectedEOFError{maxSize})
 				}
 
 				errClose := f.Close()
 				if errClose != nil {
-					merr = multierror.Append(merr, fmt.Errorf("%w: %w", ErrFailedFileClose, errClose))
+					merr = errors.Join(merr, fmt.Errorf("%w: %w", ErrFileClose, errClose))
 				}
 
-				return fmt.Errorf("error on file %q: %w", target, merr)
+				return fmt.Errorf("write file %q: %w", target, merr)
 			}
 
 			err = f.Close()
 			if err != nil {
-				return fmt.Errorf("%w %q: %w", ErrFailedFileClose, target, err)
+				return fmt.Errorf("%w: %q: %w", ErrFileClose, target, err)
 			}
 		}
 	}
@@ -203,40 +209,14 @@ func inbound(candidate, baseDir string) bool {
 	return strings.HasPrefix(target, filepath.Clean(baseDir)+string(os.PathSeparator))
 }
 
-// createTempDir will create a temporary directory in baseDir
-// with CSPRNG entropy in the name to avoid clashes and mitigate
-// directory traversal. If baseDir is empty string, os.TempDir()
-// will be used. It is the caller's responsibility to remove the
-// directory after use. Will return the full path of the generated
-// directory.
-func createTempDir(baseDir string) (string, error) {
-	base := baseDir
-	if base == "" {
-		base = os.TempDir()
-	}
-
-	newUUID, err := uuid.NewRandom()
-	if err != nil {
-		return "", fmt.Errorf("error creating directory name: %w", err)
-	}
-
-	tempDir := path.Join(base, newUUID.String())
-	err = os.MkdirAll(tempDir, 0o750)
-	if err != nil {
-		return "", fmt.Errorf("error creating tempDir: %w", err)
-	}
-
-	return tempDir, nil
-}
-
 func fileExists(filePath string) (bool, error) {
 	_, err := os.Stat(filePath)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			return false, nil
 		}
 
-		return false, fmt.Errorf("error checking file existence for %q: %w", filePath, err)
+		return false, fmt.Errorf("check file existence for %q: %w", filePath, err)
 	}
 
 	return true, nil
@@ -244,9 +224,5 @@ func fileExists(filePath string) (bool, error) {
 
 func dirExists(dirPath string) bool {
 	fi, err := os.Lstat(dirPath)
-	if err != nil || !fi.IsDir() {
-		return false
-	}
-
-	return true
+	return err == nil && fi.IsDir()
 }

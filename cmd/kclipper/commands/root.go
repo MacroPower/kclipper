@@ -12,22 +12,35 @@ import (
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 )
 
-var ErrLogHandlerFailed = errors.New("log handler failed")
+// ErrLogHandler indicates an error occurred while creating a log handler.
+var ErrLogHandler = errors.New("create log handler")
 
+// NewRootCmd creates the root [*cobra.Command] for the kclipper CLI.
 func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
-	args := NewRootArgs()
-
-	cmd := &cobra.Command{
-		Use:           name,
-		Short:         shortDesc,
-		Long:          longDesc,
-		SilenceUsage:  true,
-		SilenceErrors: true,
-		Version:       GetVersionString(),
+	logCfg := log.NewConfig()
+	logCfg.Flags = log.Flags{
+		Level:  "log_level",
+		Format: "log_format",
 	}
 
-	cmd.PersistentFlags().StringVar(args.logLevel, "log_level", "warn", "Set the log level (debug, info, warn, error)")
-	cmd.PersistentFlags().StringVar(args.logFormat, "log_format", "text", "Set the log format (text, logfmt, json)")
+	cmd := &cobra.Command{
+		Use:          name,
+		Short:        shortDesc,
+		Long:         longDesc,
+		SilenceUsage: true,
+		Version:      GetVersionString(),
+	}
+
+	logCfg.RegisterFlags(cmd.PersistentFlags())
+
+	// Override default log level from "info" to "warn".
+	logCfg.Level = "warn"
+	cmd.PersistentFlags().Lookup("log_level").DefValue = "warn"
+
+	err := logCfg.RegisterCompletions(cmd)
+	if err != nil {
+		panic(err)
+	}
 
 	profileCfg := profile.NewConfig()
 	profileCfg.Flags = profile.Flags{
@@ -45,7 +58,7 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 
 	profileCfg.RegisterFlags(cmd.PersistentFlags())
 
-	err := profileCfg.RegisterCompletions(cmd)
+	err = profileCfg.RegisterCompletions(cmd)
 	if err != nil {
 		panic(err)
 	}
@@ -58,13 +71,9 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 			return err
 		}
 
-		h, err := log.NewHandlerFromStrings(
-			cc.ErrOrStderr(),
-			args.GetLogLevel(),
-			args.GetLogFormat(),
-		)
+		h, err := logCfg.NewHandler(cc.ErrOrStderr())
 		if err != nil {
-			return fmt.Errorf("%w: %w", ErrLogHandlerFailed, err)
+			return fmt.Errorf("%w: %w", ErrLogHandler, err)
 		}
 
 		slog.SetDefault(slog.New(h))
@@ -92,8 +101,8 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	cmd.AddCommand(kclcmd.NewRegistryCmd())
 	cmd.AddCommand(kclcmd.NewServerCmd())
 	cmd.AddCommand(NewVersionCmd())
-	cmd.AddCommand(NewChartCmd(args))
-	cmd.AddCommand(NewExportCmd(args))
+	cmd.AddCommand(NewChartCmd(logCfg))
+	cmd.AddCommand(NewExportCmd())
 
 	return cmd
 }

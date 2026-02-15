@@ -1,11 +1,11 @@
 package crd
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"github.com/macropower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kube"
 )
 
 // GeneratorType defines the type of CRD generator to use.
@@ -24,9 +24,6 @@ const (
 	GeneratorTypePath GeneratorType = "PATH"
 	// GeneratorTypeNone skips CRD generation.
 	GeneratorTypeNone GeneratorType = "NONE"
-
-	CRDAPIVersion string = "apiextensions.k8s.io/v1"
-	CRDKind       string = "CustomResourceDefinition"
 )
 
 var (
@@ -39,63 +36,58 @@ var (
 		GeneratorTypeNone,
 	}
 
-	// ErrInvalidFormat indicates an unexpected or invalid format was encountered.
-	ErrInvalidFormat = errors.New("invalid format")
-
-	// ErrGenerateKCL indicates an error occurred during KCL generation.
-	ErrGenerateKCL = errors.New("failed to generate KCL")
+	generatorTypes = map[string]GeneratorType{
+		string(GeneratorTypeAuto):      GeneratorTypeAuto,
+		string(GeneratorTypeTemplate):  GeneratorTypeTemplate,
+		string(GeneratorTypeChartPath): GeneratorTypeChartPath,
+		string(GeneratorTypePath):      GeneratorTypePath,
+		string(GeneratorTypeNone):      GeneratorTypeNone,
+	}
 )
 
+// GetGeneratorType returns the [GeneratorType] matching the given string, or
+// [GeneratorTypeDefault] if unrecognized.
 func GetGeneratorType(t string) GeneratorType {
-	switch strings.TrimSpace(strings.ToUpper(t)) {
-	case string(GeneratorTypeAuto):
-		return GeneratorTypeAuto
-	case string(GeneratorTypeTemplate):
-		return GeneratorTypeTemplate
-	case string(GeneratorTypeChartPath):
-		return GeneratorTypeChartPath
-	case string(GeneratorTypePath):
-		return GeneratorTypePath
-	case string(GeneratorTypeNone):
-		return GeneratorTypeNone
-	default:
-		return GeneratorTypeDefault
+	if gt, ok := generatorTypes[strings.TrimSpace(strings.ToUpper(t))]; ok {
+		return gt
 	}
+
+	return GeneratorTypeDefault
 }
 
 // SplitCRDVersions separates a CRD with multiple versions into individual CRDs.
 // Returns a map where the key is the version name and the value is the CRD object.
-func SplitCRDVersions(crd *unstructured.Unstructured) (map[string]unstructured.Unstructured, error) {
-	spec, ok := crd.Object["spec"].(map[string]any)
+func SplitCRDVersions(crd kube.Object) (map[string]kube.Object, error) {
+	spec, ok := crd["spec"].(map[string]any)
 	if !ok {
-		return nil, fmt.Errorf("%w: invalid spec field", ErrInvalidFormat)
+		return nil, fmt.Errorf("%w: invalid spec field", kclerrors.ErrInvalidFormat)
 	}
 
 	versions, ok := spec["versions"].([]any)
 	if !ok {
-		return nil, fmt.Errorf("%w: invalid spec.versions field", ErrInvalidFormat)
+		return nil, fmt.Errorf("%w: invalid spec.versions field", kclerrors.ErrInvalidFormat)
 	}
 
-	crdVersions := make(map[string]unstructured.Unstructured, len(versions))
+	crdVersions := make(map[string]kube.Object, len(versions))
 	for _, version := range versions {
 		version, ok := version.(map[string]any)
 		if !ok {
-			return nil, fmt.Errorf("%w: invalid spec.versions[] field", ErrInvalidFormat)
+			return nil, fmt.Errorf("%w: invalid spec.versions[] field", kclerrors.ErrInvalidFormat)
 		}
 
 		versionName, ok := version["name"].(string)
 		if !ok {
-			return nil, fmt.Errorf("%w: invalid spec.versions[].name field", ErrInvalidFormat)
+			return nil, fmt.Errorf("%w: invalid spec.versions[].name field", kclerrors.ErrInvalidFormat)
 		}
 
 		crdVersion := crd.DeepCopy()
-		versionSpec, ok := crdVersion.Object["spec"].(map[string]any)
+		versionSpec, ok := crdVersion["spec"].(map[string]any)
 		if !ok {
-			return nil, fmt.Errorf("%w: invalid spec field after deep copy", ErrInvalidFormat)
+			return nil, fmt.Errorf("%w: invalid spec field after deep copy", kclerrors.ErrInvalidFormat)
 		}
 
 		versionSpec["versions"] = []any{version}
-		crdVersions[versionName] = *crdVersion
+		crdVersions[versionName] = crdVersion
 	}
 
 	return crdVersions, nil

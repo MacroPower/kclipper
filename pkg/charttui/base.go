@@ -64,8 +64,8 @@ func (b *baseModel) handleCommon(msg tea.Msg) (tea.Cmd, bool) {
 			return tea.Quit, true
 		}
 
-	case teaMsgWriteLog:
-		return writeLog(msg, b.width), true
+	case TeaMsgWriteLog:
+		return writeLog(msg), true
 
 	case chartcmd.EventDone:
 		return tea.Sequence(

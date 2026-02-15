@@ -45,26 +45,40 @@ const (
 )
 
 var (
-	ErrArgument           = errors.New("argument error")
-	ErrInvalidArgument    = errors.New("invalid argument")
-	ErrChartCommandFailed = errors.New("chart command failed")
-	ErrChartInitFailed    = errors.New("chart init failed")
-	ErrChartAddFailed     = errors.New("chart add failed")
-	ErrChartUpdateFailed  = errors.New("chart update failed")
-	ErrChartSetFailed     = errors.New("chart set failed")
-	ErrChartRepoAddFailed = errors.New("chart repo add failed")
+	// ErrArgument indicates an error with the provided arguments.
+	ErrArgument = errors.New("argument error")
+
+	// ErrInvalidArgument indicates an argument value is invalid.
+	ErrInvalidArgument = errors.New("invalid argument")
+
+	// ErrChartCommand indicates a chart command setup issue.
+	ErrChartCommand = errors.New("chart command")
+
+	// ErrChartInit indicates chart initialization did not succeed.
+	ErrChartInit = errors.New("chart init")
+
+	// ErrChartAdd indicates a chart could not be added.
+	ErrChartAdd = errors.New("chart add")
+
+	// ErrChartUpdate indicates a chart update did not succeed.
+	ErrChartUpdate = errors.New("chart update")
+
+	// ErrChartSet indicates a chart configuration change did not succeed.
+	ErrChartSet = errors.New("chart set")
+
+	// ErrChartRepoAdd indicates a chart repository could not be added.
+	ErrChartRepoAdd = errors.New("chart repo add")
 )
 
 // NewChartCmd returns the chart command.
-func NewChartCmd(arg *RootArgs) *cobra.Command {
-	args := NewChartArgs(arg)
+func NewChartCmd(logCfg *log.Config) *cobra.Command {
+	args := NewChartArgs(logCfg)
 
 	cmd := &cobra.Command{
-		Use:          "chart",
-		Short:        "Helm chart management",
-		Long:         chartDesc,
-		Example:      chartExample,
-		SilenceUsage: true,
+		Use:     "chart",
+		Short:   "Helm chart management",
+		Long:    chartDesc,
+		Example: chartExample,
 	}
 
 	cmd.PersistentFlags().StringVarP(args.path, "path", "p", "charts", "Base path for the charts package")
@@ -79,7 +93,14 @@ func NewChartCmd(arg *RootArgs) *cobra.Command {
 	cmd.PersistentFlags().BoolVarP(args.vendor, "vendor", "V", false, "Run in vendor mode")
 	cmd.PersistentFlags().StringVar(args.maxExtractSize, "max_extract_size", "10Mi", "Maximum size of extracted charts")
 
-	cmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+	cmd.PersistentPreRunE = func(cc *cobra.Command, ccArgs []string) error {
+		if parent := cmd.Parent(); parent != nil && parent.PersistentPreRunE != nil {
+			err := parent.PersistentPreRunE(cc, ccArgs)
+			if err != nil {
+				return err
+			}
+		}
+
 		_, err = resource.ParseQuantity(*args.maxExtractSize)
 		if err != nil {
 			return fmt.Errorf("%w: %w: max_extract_size: %w", ErrArgument, ErrInvalidArgument, err)
@@ -97,6 +118,7 @@ func NewChartCmd(arg *RootArgs) *cobra.Command {
 	return cmd
 }
 
+// NewChartInitCmd returns the chart init [*cobra.Command].
 func NewChartInitCmd(args *ChartArgs) *cobra.Command {
 	return &cobra.Command{
 		Use:   "init",
@@ -104,21 +126,21 @@ func NewChartInitCmd(args *ChartArgs) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartCommand, err)
 			}
 			defer closer.Close() //nolint:errcheck // Best-effort close.
 
 			_, err = cc.Init()
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartInitFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartInit, err)
 			}
 
 			return nil
 		},
-		SilenceUsage: true,
 	}
 }
 
+// NewChartAddCmd returns the chart add [*cobra.Command].
 func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 	chart := new(string)
 	repoURL := new(string)
@@ -138,7 +160,7 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 
 			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartCommand, err)
 			}
 			defer closer.Close() //nolint:errcheck // Best-effort close.
 
@@ -158,12 +180,11 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 
 			err = cc.AddChart(cConfig.GetSnakeCaseName(), cConfig)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartAddFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartAdd, err)
 			}
 
 			return nil
 		},
-		SilenceUsage: true,
 	}
 
 	cmd.Flags().StringVarP(chart, "chart", "c", "", "Helm chart name (required)")
@@ -180,6 +201,7 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 	return cmd
 }
 
+// NewChartUpdateCmd returns the chart update [*cobra.Command].
 func NewChartUpdateCmd(args *ChartArgs) *cobra.Command {
 	charts := new([]string)
 
@@ -189,18 +211,17 @@ func NewChartUpdateCmd(args *ChartArgs) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartCommand, err)
 			}
 			defer closer.Close() //nolint:errcheck // Best-effort close.
 
 			err = cc.Update(*charts...)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartUpdateFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartUpdate, err)
 			}
 
 			return nil
 		},
-		SilenceUsage: true,
 	}
 
 	cmd.Flags().StringSliceVarP(charts, "chart", "c", []string{}, "Helm chart to update (if unset, updates all charts)")
@@ -208,6 +229,7 @@ func NewChartUpdateCmd(args *ChartArgs) *cobra.Command {
 	return cmd
 }
 
+// NewChartSetCmd returns the chart set [*cobra.Command].
 func NewChartSetCmd(args *ChartArgs) *cobra.Command {
 	chart := new(string)
 	overrides := new(string)
@@ -218,18 +240,17 @@ func NewChartSetCmd(args *ChartArgs) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartCommand, err)
 			}
 			defer closer.Close() //nolint:errcheck // Best-effort close.
 
 			err = cc.Set(*chart, *overrides)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartSetFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartSet, err)
 			}
 
 			return nil
 		},
-		SilenceUsage: true,
 	}
 
 	cmd.Flags().StringVarP(chart, "chart", "c", "", "Specify the Helm chart name (required)")
@@ -242,6 +263,7 @@ func NewChartSetCmd(args *ChartArgs) *cobra.Command {
 	return cmd
 }
 
+// NewChartRepoCmd returns the chart repo [*cobra.Command].
 func NewChartRepoCmd(args *ChartArgs) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "repo",
@@ -252,6 +274,7 @@ func NewChartRepoCmd(args *ChartArgs) *cobra.Command {
 	return cmd
 }
 
+// NewChartRepoAddCmd returns the chart repo add [*cobra.Command].
 func NewChartRepoAddCmd(args *ChartArgs) *cobra.Command {
 	name := new(string)
 	url := new(string)
@@ -269,7 +292,7 @@ func NewChartRepoAddCmd(args *ChartArgs) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartCommandFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartCommand, err)
 			}
 			defer closer.Close() //nolint:errcheck // Best-effort close.
 
@@ -287,12 +310,11 @@ func NewChartRepoAddCmd(args *ChartArgs) *cobra.Command {
 
 			err = cc.AddRepo(cr)
 			if err != nil {
-				return fmt.Errorf("%w: %w", ErrChartRepoAddFailed, err)
+				return fmt.Errorf("%w: %w", ErrChartRepoAdd, err)
 			}
 
 			return nil
 		},
-		SilenceUsage: true,
 	}
 
 	cmd.Flags().StringVarP(name, "name", "n", "", "Helm chart repository name (required)")
@@ -311,31 +333,22 @@ func NewChartRepoAddCmd(args *ChartArgs) *cobra.Command {
 	return cmd
 }
 
-type chartCommander interface {
-	Init() (bool, error)
-	AddChart(key string, chart *kclchart.ChartConfig) error
-	AddRepo(repo *kclhelm.ChartRepo) error
-	Set(chart, keyValueOverrides string) error
-	Update(charts ...string) error
-	Subscribe(f func(any))
-}
-
 //nolint:ireturn // Multiple concrete types.
-func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, io.Closer, error) {
+func newChartCommander(w io.Writer, args *ChartArgs) (charttui.ChartCommander, io.Closer, error) {
 	cc, err := chartcmd.NewKCLPackage(args.GetPath(), helm.DefaultClient,
 		chartcmd.WithTimeout(args.GetTimeout()),
 		chartcmd.WithVendor(args.GetVendor()),
 		chartcmd.WithMaxExtractSize(args.GetMaxExtractSize()),
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%w: %w", ErrChartInitFailed, err)
+		return nil, nil, fmt.Errorf("%w: %w", ErrChartCommand, err)
 	}
 
 	if args.GetQuiet() || !isatty.IsTerminal(os.Stdout.Fd()) {
 		return cc, helm.NewNopCloser(), nil
 	}
 
-	lvl, err := log.ParseLevel(args.GetLogLevel())
+	lvl, err := log.ParseLevel(args.logCfg.Level)
 	if err != nil {
 		// Should not be possible due to root's PersistentPreRunE.
 		return nil, nil, fmt.Errorf("%w: %w", ErrArgument, err)
@@ -358,23 +371,26 @@ func newChartCommander(w io.Writer, args *ChartArgs) (chartCommander, io.Closer,
 	return charttui.NewChartTUI(w, lvl, cc, tuiOpts...), closer, nil
 }
 
+// ChartArgs holds the arguments for the chart command.
+// Create instances with [NewChartArgs].
 type ChartArgs struct {
 	path           *string
 	maxExtractSize *string
 	timeout        *time.Duration
 	quiet          *bool
 	vendor         *bool
-	*RootArgs
+	logCfg         *log.Config
 }
 
-func NewChartArgs(args *RootArgs) *ChartArgs {
+// NewChartArgs creates a new [ChartArgs].
+func NewChartArgs(logCfg *log.Config) *ChartArgs {
 	return &ChartArgs{
 		path:           new(string),
 		maxExtractSize: new(string),
 		timeout:        new(time.Duration),
 		quiet:          new(bool),
 		vendor:         new(bool),
-		RootArgs:       args,
+		logCfg:         logCfg,
 	}
 }
 

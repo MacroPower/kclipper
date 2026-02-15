@@ -134,7 +134,7 @@ func findTopFile(root, path string, test func(string) (bool, error)) (string, er
 	}
 
 	if !strings.HasPrefix(pathAbs, rootAbs) {
-		return "", kclerrors.ErrResolvedOutsideRepo
+		return "", ErrResolvedOutsideRepo
 	}
 
 	pathRel, err := filepath.Rel(rootAbs, pathAbs)
@@ -169,7 +169,7 @@ func findClosestFile(root, path string, test func(string) (bool, error)) (string
 	}
 
 	if !strings.HasPrefix(pathAbs, rootAbs) {
-		return "", kclerrors.ErrResolvedOutsideRepo
+		return "", ErrResolvedOutsideRepo
 	}
 
 	currentDir := pathAbs

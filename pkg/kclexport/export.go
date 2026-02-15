@@ -14,19 +14,14 @@ import (
 	"github.com/macropower/kclipper/pkg/kclerrors"
 )
 
-// Export is a concurrency-safe KCL exporter.
-var Export = &export{}
-
-// Exporter handles exporting KCL schemas to other formats.
-type export struct {
-	mu sync.Mutex
-}
+// exportMu serializes calls to the KCL export API which is not concurrency-safe.
+var exportMu sync.Mutex
 
 // KCLSchemaToJSONSchema exports the specified schema from the given package
 // path as a JSON schema. Other schemas in the package are included as
 // definitions in the output, allowing them to be referenced.
-func (e *export) KCLSchemaToJSONSchema(pkgPath, schemaName string) ([]byte, error) {
-	swagger, err := e.safeExportSwaggerV2Spec(pkgPath)
+func KCLSchemaToJSONSchema(pkgPath, schemaName string) ([]byte, error) {
+	swagger, err := safeExportSwaggerV2Spec(pkgPath)
 	if err != nil {
 		return nil, err
 	}
@@ -124,9 +119,9 @@ func getDefinitionID(path string) string {
 	return strings.TrimPrefix(path, "#/definitions/")
 }
 
-func (e *export) safeExportSwaggerV2Spec(pkgPath string) (*kclgen.SwaggerV2Spec, error) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
+func safeExportSwaggerV2Spec(pkgPath string) (*kclgen.SwaggerV2Spec, error) {
+	exportMu.Lock()
+	defer exportMu.Unlock()
 
 	spec, err := kclgen.ExportSwaggerV2Spec(pkgPath)
 	if err != nil {

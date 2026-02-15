@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/require"
 
 	tea "charm.land/bubbletea/v2"
@@ -125,12 +124,10 @@ func TestUpdateModel_MultipleSuccess(t *testing.T) {
 	teatest.WaitFor(
 		t, tm.Output(),
 		func(bts []byte) bool {
-			s := ansi.Strip(string(bts))
 			// Note: v2 uses differential rendering (cellbuf), so the full
 			// progress bar pattern never appears as contiguous bytes.
 			// The golden file comparison at the end verifies exact rendering.
-			return strings.Contains(s, "✓ test1") &&
-				strings.Contains(s, "1/2")
+			return strings.Contains(ansi.Strip(string(bts)), "✓ test1")
 		},
 	)
 
@@ -182,12 +179,10 @@ func TestUpdateModel_MultipleWithError(t *testing.T) {
 	teatest.WaitFor(
 		t, tm.Output(),
 		func(bts []byte) bool {
-			s := ansi.Strip(string(bts))
 			// Note: v2 uses differential rendering (cellbuf), so the full
 			// progress bar pattern never appears as contiguous bytes.
 			// The golden file comparison at the end verifies exact rendering.
-			return strings.Contains(s, "✓ test1") &&
-				strings.Contains(s, "1/2")
+			return strings.Contains(ansi.Strip(string(bts)), "✓ test1")
 		},
 	)
 
@@ -268,10 +263,10 @@ func TestUpdateModel_MultipleWithMultierror(t *testing.T) {
 		},
 	)
 
-	var merr error
-
-	merr = multierror.Append(merr, fmt.Errorf("update %q: %w", "chart-b", errors.New("connection timeout")))
-	merr = multierror.Append(merr, fmt.Errorf("update %q: %w", "chart-c", errors.New("invalid values")))
+	merr := errors.Join(
+		fmt.Errorf("update %q: %w", "chart-b", errors.New("connection timeout")),
+		fmt.Errorf("update %q: %w", "chart-c", errors.New("invalid values")),
+	)
 
 	tm.Send(chartcmd.EventDone{Err: merr})
 

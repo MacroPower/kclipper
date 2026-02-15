@@ -3,11 +3,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
+	"go.jacobcolvin.com/niceyaml/fangs"
+	"go.jacobcolvin.com/niceyaml/style/theme"
 	"kcl-lang.io/cli/pkg/plugin"
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
@@ -40,31 +44,35 @@ func main() {
 
 	ok, err := bootstrapCmdPlugin(cmd, plugin.NewDefaultPluginHandler([]string{cmdName}))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
 	if ok {
-		os.Exit(0)
+		return
 	}
 
-	err = cmd.Execute()
+	// Errors are ignored because the "charm" theme is always available;
+	// even if it were not, a nil styles value produces valid defaults.
+	styles, _ := theme.Styles("charm")
+
+	err = fang.Execute(context.Background(), cmd,
+		fang.WithErrorHandler(fangs.ErrorHandler),
+		fang.WithColorSchemeFunc(fangs.ColorSchemeFunc(styles)),
+	)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, strings.TrimLeft(err.Error(), "\n"))
 		os.Exit(1)
 	}
-
-	os.Exit(0)
 }
 
-// executeRunCmd the run command for the root command.
+// executeRunCmd executes the run command for the root command.
 func executeRunCmd(args []string) error {
 	cmd := kclcmd.NewRunCmd()
 	cmd.SetArgs(args)
 
 	err := cmd.Execute()
 	if err != nil {
-		return fmt.Errorf("error executing run command: %w", err)
+		return fmt.Errorf("execute run command: %w", err)
 	}
 
 	return nil
@@ -127,7 +135,7 @@ func bootstrapCmdPlugin(cmd *cobra.Command, pluginHandler plugin.PluginHandler) 
 		if !builtinSubCmdExist {
 			err := plugin.HandlePluginCommand(pluginHandler, cmdPathPieces, false)
 			if err != nil {
-				return false, fmt.Errorf("error handling plugin command: %w", err)
+				return false, fmt.Errorf("handle plugin command: %w", err)
 			}
 
 			return true, executeRunCmd(cmdPathPieces)

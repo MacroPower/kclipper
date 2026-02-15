@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,29 +11,36 @@ import (
 	"github.com/macropower/kclipper/pkg/kclexport"
 )
 
+var (
+	// ErrExportSchema indicates an error occurred while exporting a schema.
+	ErrExportSchema = errors.New("export schema")
+
+	// ErrExportOutput indicates an error occurred while writing export output.
+	ErrExportOutput = errors.New("export output")
+)
+
 const (
 	exportDesc = `This command converts KCL schemas to other formats.
 `
 	exportExample = `  kcl export <command> [arguments]...
   # Export a schema in the current package
-  kcl export -m jsonschema -S path.to.MySchema
+  kcl export -S path.to.MySchema
 
   # Export a schema in another package
-  kcl export path/to -m jsonschema -S MySchema
+  kcl export path/to -S MySchema
 `
 )
 
 // NewExportCmd returns the export command.
-func NewExportCmd(arg *RootArgs) *cobra.Command {
-	args := NewExportArgs(arg)
+func NewExportCmd() *cobra.Command {
+	args := NewExportArgs()
 
 	cmd := &cobra.Command{
-		Use:          "export",
-		Short:        "KCL export tool",
-		Long:         exportDesc,
-		Example:      exportExample,
-		SilenceUsage: true,
-		Args:         cobra.MatchAll(cobra.RangeArgs(0, 1), cobra.OnlyValidArgs),
+		Use:     "export",
+		Short:   "KCL export tool",
+		Long:    exportDesc,
+		Example: exportExample,
+		Args:    cobra.MatchAll(cobra.RangeArgs(0, 1), cobra.OnlyValidArgs),
 		RunE: func(cmd *cobra.Command, pArgs []string) error {
 			err := cmd.ValidateArgs(pArgs)
 			if err != nil {
@@ -44,9 +52,9 @@ func NewExportCmd(arg *RootArgs) *cobra.Command {
 				pkgPath = pArgs[0]
 			}
 
-			js, err := kclexport.Export.KCLSchemaToJSONSchema(pkgPath, args.GetSchema())
+			js, err := kclexport.KCLSchemaToJSONSchema(pkgPath, args.GetSchema())
 			if err != nil {
-				return fmt.Errorf("failed to export schema: %w", err)
+				return fmt.Errorf("%w: %w", ErrExportSchema, err)
 			}
 
 			outFile := args.GetOutput()
@@ -60,19 +68,17 @@ func NewExportCmd(arg *RootArgs) *cobra.Command {
 
 			err = os.MkdirAll(filepath.Dir(outFile), 0o700)
 			if err != nil {
-				return fmt.Errorf("failed to create output directory: %w", err)
+				return fmt.Errorf("%w: create directory: %w", ErrExportOutput, err)
 			}
 
 			err = os.WriteFile(outFile, js, 0o600)
 			if err != nil {
-				return fmt.Errorf("failed to write to output file: %w", err)
+				return fmt.Errorf("%w: write file: %w", ErrExportOutput, err)
 			}
 
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVarP(args.mode, "mode", "m", "jsonschema", "Specify the export mode")
 
 	cmd.Flags().StringVarP(args.schema, "schema", "S", "", "Specify the root schema selector")
 	must(cmd.MarkFlagRequired("schema"))
@@ -84,29 +90,22 @@ func NewExportCmd(arg *RootArgs) *cobra.Command {
 }
 
 // ExportArgs holds the arguments for the export command.
+// Create instances with [NewExportArgs].
 type ExportArgs struct {
 	output *string
-	mode   *string
 	schema *string
-	*RootArgs
 }
 
 // NewExportArgs creates a new [ExportArgs].
-func NewExportArgs(args *RootArgs) *ExportArgs {
+func NewExportArgs() *ExportArgs {
 	return &ExportArgs{
-		output:   new(string),
-		mode:     new(string),
-		schema:   new(string),
-		RootArgs: args,
+		output: new(string),
+		schema: new(string),
 	}
 }
 
 func (a *ExportArgs) GetOutput() string {
 	return *a.output
-}
-
-func (a *ExportArgs) GetMode() string {
-	return *a.mode
 }
 
 func (a *ExportArgs) GetSchema() string {

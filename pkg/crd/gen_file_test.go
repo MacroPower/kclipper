@@ -5,21 +5,21 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/macropower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/kube"
 )
 
-func TestFileGenerator_FromPath(t *testing.T) {
+func TestFromPath(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		validate func(t *testing.T, crds []*unstructured.Unstructured, err error)
+		validate func(t *testing.T, crds []kube.Object, err error)
 		filePath string
 	}{
 		"valid CRD file": {
 			filePath: "testdata/valid-crd.yaml",
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 1)
@@ -32,7 +32,7 @@ func TestFileGenerator_FromPath(t *testing.T) {
 		},
 		"multiple CRDs in one file": {
 			filePath: "testdata/multiple-crds.yaml",
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 2)
@@ -50,7 +50,7 @@ func TestFileGenerator_FromPath(t *testing.T) {
 		},
 		"mixed resources with CRDs": {
 			filePath: "testdata/mixed-resources.yaml",
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 1)
@@ -63,16 +63,16 @@ func TestFileGenerator_FromPath(t *testing.T) {
 		},
 		"file not found": {
 			filePath: "/path/to/nonexistent/file.yaml",
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.Error(t, err)
-				assert.Contains(t, err.Error(), "failed to read file")
+				assert.Contains(t, err.Error(), "read file")
 				assert.Nil(t, crds)
 			},
 		},
 		"invalid YAML": {
 			filePath: "testdata/invalid-yaml.yaml",
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), "split yaml")
@@ -81,7 +81,7 @@ func TestFileGenerator_FromPath(t *testing.T) {
 		},
 		"no CRDs in file": {
 			filePath: "testdata/no-crds.yaml",
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				assert.Empty(t, crds)
@@ -93,23 +93,22 @@ func TestFileGenerator_FromPath(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			generator := crd.NewFileGenerator()
-			crds, err := generator.FromPath(tc.filePath)
+			crds, err := crd.FromPath(tc.filePath)
 			tc.validate(t, crds, err)
 		})
 	}
 }
 
-func TestFileGenerator_FromPaths(t *testing.T) {
+func TestFromPaths(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		validate func(t *testing.T, crds []*unstructured.Unstructured, err error)
+		validate func(t *testing.T, crds []kube.Object, err error)
 		paths    []string
 	}{
 		"no paths": {
 			paths: []string{},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), "no paths provided")
@@ -118,7 +117,7 @@ func TestFileGenerator_FromPaths(t *testing.T) {
 		},
 		"single path": {
 			paths: []string{"testdata/valid-crd.yaml"},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 1)
@@ -127,7 +126,7 @@ func TestFileGenerator_FromPaths(t *testing.T) {
 		},
 		"multiple paths": {
 			paths: []string{"testdata/valid-crd.yaml", "testdata/multiple-crds.yaml"},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.NoError(t, err)
 				require.Len(t, crds, 3)
@@ -155,10 +154,10 @@ func TestFileGenerator_FromPaths(t *testing.T) {
 		},
 		"one file with error": {
 			paths: []string{"testdata/valid-crd.yaml", "/path/to/nonexistent/file.yaml"},
-			validate: func(t *testing.T, crds []*unstructured.Unstructured, err error) {
+			validate: func(t *testing.T, crds []kube.Object, err error) {
 				t.Helper()
 				require.Error(t, err)
-				assert.Contains(t, err.Error(), "failed to read CRDs from")
+				assert.Contains(t, err.Error(), "read CRDs from")
 				assert.Contains(t, err.Error(), "nonexistent")
 				assert.Nil(t, crds)
 			},
@@ -169,22 +168,8 @@ func TestFileGenerator_FromPaths(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			generator := crd.NewFileGenerator()
-			crds, err := generator.FromPaths(tc.paths...)
+			crds, err := crd.FromPaths(tc.paths...)
 			tc.validate(t, crds, err)
 		})
 	}
-}
-
-func TestDefaultFileGenerator(t *testing.T) {
-	t.Parallel()
-
-	// Ensure the default generator is properly initialized
-	assert.NotNil(t, crd.DefaultFileGenerator)
-
-	// Test with an existing testdata file
-	crds, err := crd.DefaultFileGenerator.FromPath("testdata/valid-crd.yaml")
-	require.NoError(t, err)
-	require.Len(t, crds, 1)
-	assert.Equal(t, "widgets.example.com", crds[0].GetName())
 }

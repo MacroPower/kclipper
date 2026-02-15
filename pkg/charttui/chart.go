@@ -16,6 +16,8 @@ import (
 	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
 )
 
+// ChartTUI wraps a [ChartCommander] with an interactive terminal UI that
+// displays progress and log output. Create instances with [NewChartTUI].
 type ChartTUI struct {
 	pkg     ChartCommander
 	p       atomic.Pointer[tea.Program]
@@ -23,6 +25,9 @@ type ChartTUI struct {
 	teaOpts []tea.ProgramOption
 }
 
+// ChartCommander manages Helm chart lifecycle operations including
+// initialization, chart and repository addition, configuration, and updates.
+// See [*chartcmd.KCLPackage] for an implementation.
 type ChartCommander interface {
 	Init() (bool, error)
 	AddChart(key string, chart *kclchart.ChartConfig) error
@@ -33,18 +38,22 @@ type ChartCommander interface {
 }
 
 // ChartTUIOption configures a [ChartTUI].
+//
+// The following options are available:
+//   - [WithProgramOptions]
 type ChartTUIOption func(*ChartTUI)
 
-// WithProgramOptions appends additional [tea.ProgramOption] values that will be
-// applied to every [tea.Program] created by the [ChartTUI]. This is useful for
-// testing in non-TTY environments where [tea.WithInput](nil) can be passed to
-// disable stdin.
+// WithProgramOptions returns a [ChartTUIOption] that appends additional
+// [tea.ProgramOption] values to every [tea.Program] created by the [ChartTUI].
+// This is useful for testing in non-TTY environments where
+// [tea.WithInput](nil) can be passed to disable stdin.
 func WithProgramOptions(opts ...tea.ProgramOption) ChartTUIOption {
 	return func(c *ChartTUI) {
 		c.teaOpts = append(c.teaOpts, opts...)
 	}
 }
 
+// NewChartTUI creates a new [ChartTUI].
 func NewChartTUI(w io.Writer, lvl log.Level, pkg ChartCommander, opts ...ChartTUIOption) *ChartTUI {
 	c := &ChartTUI{
 		pkg: pkg,
@@ -95,7 +104,7 @@ func (c *ChartTUI) broadcastEvent(evt any) {
 }
 
 func (c *ChartTUI) Write(p []byte) (int, error) {
-	c.broadcastEvent(teaMsgWriteLog(string(p)))
+	c.broadcastEvent(TeaMsgWriteLog(string(p)))
 
 	return len(p), nil
 }

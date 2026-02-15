@@ -24,7 +24,7 @@ func (c *Chart) GetSnakeCaseName() string {
 func (c *Chart) GenerateKCL(w io.Writer) error {
 	r, err := newSchemaReflector()
 	if err != nil {
-		return fmt.Errorf("failed to create schema reflector: %w", err)
+		return fmt.Errorf("create schema reflector: %w", err)
 	}
 
 	js := r.Reflect(reflect.TypeFor[Chart]())
@@ -73,12 +73,12 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 	b := &bytes.Buffer{}
 	err = js.GenerateKCL(b, genOptInheritHelmChart, genOptFixValues, genOptFixChartRepo)
 	if err != nil {
-		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
+		return fmt.Errorf("convert JSON Schema to KCL Schema: %w", err)
 	}
 
 	_, err = b.WriteTo(w)
 	if err != nil {
-		return fmt.Errorf("failed to write to KCL schema: %w", err)
+		return fmt.Errorf("write KCL schema: %w", err)
 	}
 
 	return nil

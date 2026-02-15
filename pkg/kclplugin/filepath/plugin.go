@@ -11,22 +11,12 @@ import (
 	"github.com/macropower/kclipper/pkg/kclplugin/plugins"
 )
 
-type InvalidArgumentError struct {
-	Err error
-}
-
-func NewInvalidArgumentError(err error) *InvalidArgumentError {
-	return &InvalidArgumentError{Err: err}
-}
-
-func (e *InvalidArgumentError) Error() string {
-	return fmt.Sprintf("invalid argument: %v", e.Err)
-}
-
+// Register registers the filepath [Plugin] with the KCL plugin system.
 func Register() {
 	plugin.RegisterPlugin(Plugin)
 }
 
+// Plugin is the KCL plugin that exposes Go [path/filepath] functions.
 var Plugin = plugin.Plugin{
 	Name: "filepath",
 	MethodMap: map[string]plugin.MethodSpec{
@@ -46,7 +36,7 @@ var Plugin = plugin.Plugin{
 
 				filepathStr, err := safeArgs.StrArg(0)
 				if err != nil {
-					return nil, NewInvalidArgumentError(err)
+					return nil, fmt.Errorf("invalid argument: %w", err)
 				}
 
 				result := pf.Base(filepathStr)
@@ -72,7 +62,7 @@ var Plugin = plugin.Plugin{
 
 				filepathStr, err := safeArgs.StrArg(0)
 				if err != nil {
-					return nil, NewInvalidArgumentError(err)
+					return nil, fmt.Errorf("invalid argument: %w", err)
 				}
 
 				result := pf.Clean(filepathStr)
@@ -98,7 +88,7 @@ var Plugin = plugin.Plugin{
 
 				filepathStr, err := safeArgs.StrArg(0)
 				if err != nil {
-					return nil, NewInvalidArgumentError(err)
+					return nil, fmt.Errorf("invalid argument: %w", err)
 				}
 
 				result := pf.Dir(filepathStr)
@@ -124,7 +114,7 @@ var Plugin = plugin.Plugin{
 
 				filepathStr, err := safeArgs.StrArg(0)
 				if err != nil {
-					return nil, NewInvalidArgumentError(err)
+					return nil, fmt.Errorf("invalid argument: %w", err)
 				}
 
 				result := pf.Ext(filepathStr)
@@ -150,7 +140,7 @@ var Plugin = plugin.Plugin{
 
 				filepaths, err := safeArgs.ListStrArg(0)
 				if err != nil {
-					return nil, NewInvalidArgumentError(err)
+					return nil, fmt.Errorf("invalid argument: %w", err)
 				}
 
 				result := pf.Join(filepaths...)
@@ -175,7 +165,7 @@ var Plugin = plugin.Plugin{
 				safeArgs := plugins.SafeMethodArgs{Args: args}
 				filepathStr, err := safeArgs.StrArg(0)
 				if err != nil {
-					return nil, NewInvalidArgumentError(err)
+					return nil, fmt.Errorf("invalid argument: %w", err)
 				}
 
 				dir, file := pf.Split(filepathStr)

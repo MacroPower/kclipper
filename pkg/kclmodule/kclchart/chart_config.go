@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-	"sort"
+	"slices"
 
-	"github.com/hashicorp/go-multierror"
 	"github.com/iancoleman/strcase"
 
 	"github.com/macropower/kclipper/pkg/crd"
@@ -15,6 +14,7 @@ import (
 	"github.com/macropower/kclipper/pkg/kclautomation"
 )
 
+// ChartData holds a collection of chart configurations keyed by name.
 type ChartData struct {
 	Charts map[string]ChartConfig `json:"charts"`
 }
@@ -26,17 +26,19 @@ func (cd *ChartData) GetSortedKeys() []string {
 		names = append(names, name)
 	}
 
-	sort.Strings(names)
+	slices.Sort(names)
 
 	return names
 }
 
+// GetByKey returns the [ChartConfig] for the given key and whether it exists.
 func (cd *ChartData) GetByKey(k string) (ChartConfig, bool) {
 	c, ok := cd.Charts[k]
 
 	return c, ok
 }
 
+// FilterByName returns chart configurations whose Chart field matches name.
 func (cd *ChartData) FilterByName(name string) map[string]ChartConfig {
 	m := map[string]ChartConfig{}
 	for k := range cd.Charts {
@@ -55,6 +57,7 @@ type ChartConfig struct {
 	ChartBase
 }
 
+// GetSnakeCaseName returns the chart name converted to snake_case.
 func (c *ChartConfig) GetSnakeCaseName() string {
 	return strcase.ToSnake(c.Chart)
 }
@@ -63,11 +66,11 @@ func (c *ChartConfig) Validate() error {
 	var merr error
 
 	if c.Chart == "" {
-		merr = multierror.Append(merr, errors.New("chart name is required"))
+		merr = errors.Join(merr, errors.New("chart name is required"))
 	}
 
 	if c.RepoURL == "" {
-		merr = multierror.Append(merr, errors.New("repository URL is required"))
+		merr = errors.Join(merr, errors.New("repository URL is required"))
 	}
 
 	return merr
@@ -76,7 +79,7 @@ func (c *ChartConfig) Validate() error {
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 	r, err := newSchemaReflector()
 	if err != nil {
-		return fmt.Errorf("failed to create schema reflector: %w", err)
+		return fmt.Errorf("create schema reflector: %w", err)
 	}
 
 	js := r.Reflect(reflect.TypeFor[ChartConfig]())
@@ -142,7 +145,7 @@ func (c *ChartConfig) GenerateKCL(w io.Writer) error {
 
 	err = js.GenerateKCL(w, genOptFixChartRepo)
 	if err != nil {
-		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
+		return fmt.Errorf("convert JSON Schema to KCL Schema: %w", err)
 	}
 
 	return nil

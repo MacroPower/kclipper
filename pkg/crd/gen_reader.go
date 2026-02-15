@@ -4,57 +4,34 @@ import (
 	"fmt"
 	"io"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
 	"github.com/macropower/kclipper/pkg/kube"
 )
 
-// ReaderGenerator reads CRDs from a given location and returns
-// corresponding []*unstructured.Unstructured representations.
-type ReaderGenerator struct{}
-
-// NewReaderGenerator creates a new [ReaderGenerator].
-func NewReaderGenerator() *ReaderGenerator {
-	return &ReaderGenerator{}
-}
-
-func (g *ReaderGenerator) FromReader(r io.Reader) ([]*unstructured.Unstructured, error) {
+// FromReader reads CRDs from a reader and returns the corresponding
+// []kube.Object representation.
+func FromReader(r io.Reader) ([]kube.Object, error) {
 	jsBytes, err := io.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read: %w", err)
+		return nil, fmt.Errorf("read: %w", err)
 	}
 
-	return g.FromData(jsBytes)
+	return FromData(jsBytes)
 }
 
-func (g *ReaderGenerator) FromData(data []byte) ([]*unstructured.Unstructured, error) {
+// FromData reads CRDs from raw bytes and returns the corresponding
+// []kube.Object representation.
+func FromData(data []byte) ([]kube.Object, error) {
 	resources, err := kube.SplitYAML(data)
 	if err != nil {
 		return nil, fmt.Errorf("split yaml: %w", err)
 	}
 
-	crds := []*unstructured.Unstructured{}
+	crds := []kube.Object{}
 	for _, r := range resources {
-		if resourceIsCRD(r) {
+		if r.IsCRD() {
 			crds = append(crds, r)
 		}
 	}
 
 	return crds, nil
-}
-
-func resourceIsCRD(obj *unstructured.Unstructured) bool {
-	if obj == nil {
-		return false
-	}
-
-	if obj.GetAPIVersion() != CRDAPIVersion {
-		return false
-	}
-
-	if obj.GetKind() != CRDKind {
-		return false
-	}
-
-	return true
 }

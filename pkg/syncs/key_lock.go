@@ -1,73 +1,52 @@
-// Copyright 2017-2018 The Argo Authors
-// Modifications Copyright 2024-2025 Jacob Colvin
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// Source:
-// https://github.com/argoproj/pkg/blob/65f2d4777bfdabf8a3d649d705786567322cfa50/sync/key_lock.go
-
 package syncs
 
 import "sync"
 
-type KeyLock struct {
-	locks map[string]*sync.RWMutex
-	guard sync.RWMutex
+// KeyLocker provides per-key mutual exclusion.
+// See [KeyLock] for an implementation.
+type KeyLocker interface {
+	Lock(key string)
+	Unlock(key string)
 }
 
+// KeyLock is a per-key mutex that allows independent keys to be locked
+// concurrently while serializing access to the same key. Create instances with
+// [NewKeyLock], or use the zero value directly.
+type KeyLock struct {
+	locks map[string]*sync.Mutex
+	mu    sync.Mutex
+}
+
+// NewKeyLock creates a new [KeyLock].
 func NewKeyLock() *KeyLock {
 	return &KeyLock{
-		guard: sync.RWMutex{},
-		locks: map[string]*sync.RWMutex{},
+		locks: make(map[string]*sync.Mutex),
 	}
 }
 
-func (l *KeyLock) getLock(key string) *sync.RWMutex {
-	l.guard.RLock()
-	if lock, ok := l.locks[key]; ok {
-		l.guard.RUnlock()
+func (kl *KeyLock) getLock(key string) *sync.Mutex {
+	kl.mu.Lock()
+	defer kl.mu.Unlock()
 
-		return lock
+	if kl.locks == nil {
+		kl.locks = make(map[string]*sync.Mutex)
 	}
 
-	l.guard.RUnlock()
-	l.guard.Lock()
-
-	if lock, ok := l.locks[key]; ok {
-		l.guard.Unlock()
-
-		return lock
+	l, ok := kl.locks[key]
+	if !ok {
+		l = &sync.Mutex{}
+		kl.locks[key] = l
 	}
 
-	lock := &sync.RWMutex{}
-	l.locks[key] = lock
-	l.guard.Unlock()
-
-	return lock
+	return l
 }
 
-func (l *KeyLock) Lock(key string) {
-	l.getLock(key).Lock()
+// Lock acquires the mutex for the given key, blocking if it is already held.
+func (kl *KeyLock) Lock(key string) {
+	kl.getLock(key).Lock()
 }
 
-func (l *KeyLock) Unlock(key string) {
-	l.getLock(key).Unlock()
-}
-
-func (l *KeyLock) RLock(key string) {
-	l.getLock(key).RLock()
-}
-
-func (l *KeyLock) RUnlock(key string) {
-	l.getLock(key).RUnlock()
+// Unlock releases the mutex for the given key.
+func (kl *KeyLock) Unlock(key string) {
+	kl.getLock(key).Unlock()
 }

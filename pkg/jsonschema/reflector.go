@@ -28,7 +28,7 @@ func NewReflector() *Reflector {
 func (r *Reflector) AddGoComments(pkg, path string) error {
 	err := r.Reflector.AddGoComments(pkg, path, invopopjsonschema.WithFullComment())
 	if err != nil {
-		return fmt.Errorf("failed to add go comments from %q: %w", pkg, err)
+		return fmt.Errorf("add go comments from %q: %w", pkg, err)
 	}
 
 	return nil
@@ -61,7 +61,7 @@ func (r *Reflected) GenerateKCL(w io.Writer, opts ...GenOpt) error {
 
 	jsBytes, err := r.Schema.MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("failed to marshal json schema: %w", err)
+		return fmt.Errorf("marshal json schema: %w", err)
 	}
 
 	b := &bytes.Buffer{}
@@ -70,7 +70,7 @@ func (r *Reflected) GenerateKCL(w io.Writer, opts ...GenOpt) error {
 		CastingOption: kclgen.OriginalName,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to generate kcl schema: %w", err)
+		return fmt.Errorf("generate kcl schema: %w", err)
 	}
 
 	for _, v := range r.replacements {
@@ -81,7 +81,7 @@ func (r *Reflected) GenerateKCL(w io.Writer, opts ...GenOpt) error {
 
 	_, err = b.WriteTo(w)
 	if err != nil {
-		return fmt.Errorf("failed to write KCL schema: %w", err)
+		return fmt.Errorf("write KCL schema: %w", err)
 	}
 
 	return nil
@@ -108,9 +108,7 @@ func (r *Reflected) SetOrRemoveProperty(key string, setProperty bool, opts ...Pr
 }
 
 func (r *Reflected) RemoveProperty(key string) {
-	if _, ok := r.Schema.Properties.Get(key); ok {
-		r.Schema.Properties.Delete(key)
-	}
+	r.Schema.Properties.Delete(key)
 }
 
 type GenOpt func(*Reflected)

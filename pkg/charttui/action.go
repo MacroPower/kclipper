@@ -11,14 +11,14 @@ import (
 )
 
 // ActionModel displays the status of a simple action with a spinner that is
-// replaced with a result.
+// replaced with a result. Create instances with [NewActionModel].
 type ActionModel struct {
 	noun string
 	verb string
 	baseModel
 }
 
-// NewActionModel creates an [ActionModel] used to display the status of a
+// NewActionModel creates a new [ActionModel] that displays the status of a
 // simple action. It renders a spinner which is replaced with a result. If any
 // logs are written, they will be displayed in the terminal above the spinner.
 // `noun`: the outcome or instance of the action (e.g., "update").
@@ -51,7 +51,7 @@ func (m *ActionModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *ActionModel) View() tea.View {
 	switch m.state {
 	case stateError:
-		return tea.NewView(getErrorMessage(m.err, m.width))
+		return tea.NewView(GetErrorMessage(m.err, m.width))
 
 	case stateDone:
 		return tea.NewView(defaultStyles.done.Render(m.noun + " complete.\n"))

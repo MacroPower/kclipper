@@ -40,7 +40,7 @@ func TestFindTopPkgRoot(t *testing.T) {
 		},
 		"out of bounds": {
 			path: "../../../",
-			err:  kclerrors.ErrResolvedOutsideRepo,
+			err:  paths.ErrResolvedOutsideRepo,
 		},
 	}
 	for name, tc := range tcs {

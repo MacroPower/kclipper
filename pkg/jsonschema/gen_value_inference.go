@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/dadav/helm-schema/pkg/util"
+	"go.jacobcolvin.com/niceyaml"
 	"gopkg.in/yaml.v3"
 
 	helmschema "github.com/dadav/helm-schema/pkg/schema"
@@ -97,7 +98,7 @@ func (g *ValueInferenceGenerator) FromPaths(paths ...string) ([]byte, error) {
 	for _, path := range paths {
 		schema, err := g.schemaFromFilePath(path)
 		if err != nil {
-			return nil, fmt.Errorf("error creating schema from file path: %w", err)
+			return nil, fmt.Errorf("create schema from file path %q: %w", path, err)
 		}
 
 		schemas[path] = schema
@@ -119,7 +120,7 @@ func (g *ValueInferenceGenerator) FromPaths(paths ...string) ([]byte, error) {
 func (g *ValueInferenceGenerator) FromData(data []byte) ([]byte, error) {
 	schema, err := g.schemaFromData(data)
 	if err != nil {
-		return nil, fmt.Errorf("error creating schema from datum: %w", err)
+		return nil, fmt.Errorf("create schema from data: %w", err)
 	}
 
 	mergedSchema := &helmschema.Schema{}
@@ -132,12 +133,12 @@ func (g *ValueInferenceGenerator) schemaFromFilePath(path string) (*helmschema.S
 	//nolint:gosec // G304 not relevant for client-side generation.
 	valuesFile, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("error opening values file: %w", err)
+		return nil, fmt.Errorf("open values file: %w", err)
 	}
 
 	content, err := util.ReadFileAndFixNewline(valuesFile)
 	if err != nil {
-		return nil, fmt.Errorf("error reading values file: %w", err)
+		return nil, fmt.Errorf("read values file: %w", err)
 	}
 
 	return g.schemaFromData(content)
@@ -156,7 +157,7 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 		// Remove comments from valid yaml.
 		data, err = util.RemoveCommentsFromYaml(bytes.NewReader(data))
 		if err != nil {
-			return nil, fmt.Errorf("failed uncommenting yaml: %w", err)
+			return nil, fmt.Errorf("uncomment yaml: %w", err)
 		}
 	}
 
@@ -164,15 +165,27 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 
 	err = yaml.Unmarshal(data, &values)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal values yaml: %w", err)
+		// Re-parse with niceyaml to produce an annotated error with
+		// source context. Falls back to the original yaml.v3 error
+		// when niceyaml does not detect the same problem.
+		src := niceyaml.NewSourceFromBytes(data,
+			niceyaml.WithErrorOptions(niceyaml.WithSourceLines(3)),
+		)
+
+		_, nErr := src.Decoder()
+		if nErr != nil {
+			return nil, fmt.Errorf("unmarshal values yaml: %w", nErr)
+		}
+
+		return nil, fmt.Errorf("unmarshal values yaml: %w", err)
 	}
 
 	valuesSchema := helmschema.YamlToSchema("", &values, g.config.KeepFullComment, g.config.HelmDocsCompatibilityMode,
 		g.config.KeepHelmDocsPrefix, g.config.RemoveGlobal, g.skipAutoGenerationConfig, nil)
 
-	err = updateHelmSchema(valuesSchema, allowAdditionalProperties)
+	err = walkHelmSchema(valuesSchema, allowAdditionalProperties)
 	if err != nil {
-		return nil, fmt.Errorf("failed setting allowAdditionalProperties on schema: %w", err)
+		return nil, fmt.Errorf("set allowAdditionalProperties on schema: %w", err)
 	}
 
 	return valuesSchema, nil
@@ -189,87 +202,90 @@ func allowAdditionalProperties(s *helmschema.Schema) error {
 func marshalHelmSchema(s *helmschema.Schema) ([]byte, error) {
 	err := s.Validate()
 	if err != nil {
-		return nil, fmt.Errorf("error validating schema: %w", err)
+		return nil, fmt.Errorf("validate schema: %w", err)
 	}
 
 	jsonSchema, err := s.ToJson()
 	if err != nil {
-		return nil, fmt.Errorf("error converting schema to JSON Schema: %w", err)
+		return nil, fmt.Errorf("convert schema to JSON Schema: %w", err)
 	}
 
 	return jsonSchema, nil
 }
 
-func updateHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error) error {
+// walkHelmSchema recursively applies fn to s and all nested sub-schemas
+// (Properties, PatternProperties, Items, AllOf, AnyOf, OneOf, If, Then, Else, Not).
+func walkHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error) error {
 	err := fn(s)
 	if err != nil {
 		return err
 	}
 
 	for _, v := range s.Properties {
-		err := updateHelmSchema(v, fn)
+		err = walkHelmSchema(v, fn)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, v := range s.PatternProperties {
+		err = walkHelmSchema(v, fn)
 		if err != nil {
 			return err
 		}
 	}
 
 	if s.Items != nil {
-		err := fn(s.Items)
+		err = walkHelmSchema(s.Items, fn)
 		if err != nil {
 			return err
 		}
 	}
 
-	if s.AnyOf != nil {
-		for _, v := range s.AnyOf {
-			err := updateHelmSchema(v, fn)
-			if err != nil {
-				return err
-			}
+	for _, v := range s.AllOf {
+		err = walkHelmSchema(v, fn)
+		if err != nil {
+			return err
 		}
 	}
 
-	if s.OneOf != nil {
-		for _, v := range s.OneOf {
-			err := updateHelmSchema(v, fn)
-			if err != nil {
-				return err
-			}
+	for _, v := range s.AnyOf {
+		err = walkHelmSchema(v, fn)
+		if err != nil {
+			return err
 		}
 	}
 
-	if s.AllOf != nil {
-		for _, v := range s.AllOf {
-			err := updateHelmSchema(v, fn)
-			if err != nil {
-				return err
-			}
+	for _, v := range s.OneOf {
+		err = walkHelmSchema(v, fn)
+		if err != nil {
+			return err
 		}
 	}
 
 	if s.If != nil {
-		err := fn(s.If)
-		if err != nil {
-			return err
-		}
-	}
-
-	if s.Else != nil {
-		err := fn(s.Else)
+		err = walkHelmSchema(s.If, fn)
 		if err != nil {
 			return err
 		}
 	}
 
 	if s.Then != nil {
-		err := fn(s.Then)
+		err = walkHelmSchema(s.Then, fn)
+		if err != nil {
+			return err
+		}
+	}
+
+	if s.Else != nil {
+		err = walkHelmSchema(s.Else, fn)
 		if err != nil {
 			return err
 		}
 	}
 
 	if s.Not != nil {
-		err := fn(s.Not)
+		err = walkHelmSchema(s.Not, fn)
 		if err != nil {
 			return err
 		}
@@ -461,43 +477,14 @@ func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults b
 		return nil
 	}
 
-	srcData, err := json.Marshal(src.AdditionalProperties)
+	srcSubSchema, err := toSchemaPtr(src.AdditionalProperties)
 	if err != nil {
-		return fmt.Errorf("failed to marshal src additional properties: %w", err)
+		return fmt.Errorf("resolve src additional properties: %w", err)
 	}
 
-	destData, err := json.Marshal(dest.AdditionalProperties)
+	destSubSchema, err := toSchemaPtr(dest.AdditionalProperties)
 	if err != nil {
-		return fmt.Errorf("failed to marshal dest additional properties: %w", err)
-	}
-
-	srcSubSchema := &helmschema.Schema{}
-
-	var (
-		jsonSrcNode  yaml.Node
-		jsonDestNode yaml.Node
-	)
-
-	err = yaml.Unmarshal(srcData, &jsonSrcNode)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal src additional properties: %w", err)
-	}
-
-	err = srcSubSchema.UnmarshalYAML(&jsonSrcNode)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal src additional properties: %w", err)
-	}
-
-	destSubSchema := &helmschema.Schema{}
-
-	err = yaml.Unmarshal(destData, &jsonDestNode)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal dest additional properties: %w", err)
-	}
-
-	err = destSubSchema.UnmarshalYAML(&jsonDestNode)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal dest additional properties: %w", err)
+		return fmt.Errorf("resolve dest additional properties: %w", err)
 	}
 
 	subSchema := mergeHelmSchemas(destSubSchema, srcSubSchema, setDefaults)
@@ -509,4 +496,27 @@ func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults b
 	dest.AdditionalProperties = subSchema
 
 	return nil
+}
+
+// toSchemaPtr converts a [helmschema.SchemaOrBool] value to a *[helmschema.Schema].
+// It first tries direct type assertion, then falls back to marshal/unmarshal.
+func toSchemaPtr(v helmschema.SchemaOrBool) (*helmschema.Schema, error) {
+	if v == nil {
+		return &helmschema.Schema{}, nil
+	}
+
+	if s, ok := v.(*helmschema.Schema); ok {
+		return s, nil
+	}
+
+	if s, ok := v.(helmschema.Schema); ok {
+		return &s, nil
+	}
+
+	data, err := json.Marshal(v)
+	if err != nil {
+		return nil, fmt.Errorf("marshal additional properties: %w", err)
+	}
+
+	return unmarshalHelmSchema(data)
 }

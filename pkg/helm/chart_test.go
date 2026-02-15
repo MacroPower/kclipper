@@ -1,6 +1,7 @@
 package helm_test
 
 import (
+	"bytes"
 	"context"
 	"os"
 	"path/filepath"
@@ -9,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v3"
+	"go.jacobcolvin.com/niceyaml"
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/macropower/kclipper/pkg/crd"
@@ -17,6 +18,7 @@ import (
 	"github.com/macropower/kclipper/pkg/helmrepo"
 	"github.com/macropower/kclipper/pkg/helmtest"
 	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/kube"
 )
 
 func init() {
@@ -197,8 +199,7 @@ func TestHelmChart(t *testing.T) {
 		t.Run(name+"_chart", func(t *testing.T) {
 			t.Parallel()
 
-			c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
-			require.NoError(t, err)
+			c := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
 
 			results, err := c.Template(t.Context())
 			require.NoError(t, err)
@@ -209,8 +210,16 @@ func TestHelmChart(t *testing.T) {
 				assert.NotEmpty(t, results)
 			}
 
-			resultYAMLs, err := yaml.Marshal(results)
+			resultObjs := kube.ObjectsToMaps(results)
+
+			var buf bytes.Buffer
+
+			enc := niceyaml.NewEncoder(&buf, niceyaml.PrettyEncoderOptions...)
+			err = enc.Encode(resultObjs)
 			require.NoError(t, err)
+			require.NoError(t, enc.Close())
+
+			resultYAMLs := buf.Bytes()
 
 			if tc.objectCount != 0 {
 				assert.NotEmpty(t, resultYAMLs)
@@ -236,7 +245,7 @@ func TestHelmChart(t *testing.T) {
 			schema, err := cf.GetValuesJSONSchema(tc.gen, tc.match)
 			require.NoError(t, err)
 
-			crds, err := cf.GetCRDFiles(crd.DefaultFileGenerator, func(s string) bool {
+			crds, err := cf.GetCRDFiles(crd.FromPaths, func(s string) bool {
 				return filepath.Base(filepath.Dir(s)) == "crds" && filepath.Base(s) != "Chart.yaml" &&
 					filepath.Ext(s) == ".yaml"
 			})
@@ -268,15 +277,14 @@ func TestHelmChart(t *testing.T) {
 func TestHelmChartTimeout(t *testing.T) {
 	t.Parallel()
 
-	c, err := helm.NewChart(helmtest.SlowTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
+	c := helm.NewChart(helmtest.SlowTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 		ChartName:      "podinfo",
 		TargetRevision: "6.7.1",
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
 		Timeout:        100 * time.Millisecond,
 	})
-	require.NoError(t, err)
 
-	_, err = c.Template(t.Context())
+	_, err := c.Template(t.Context())
 	require.Error(t, err)
 	assert.ErrorIs(t, err, context.DeadlineExceeded)
 }
@@ -287,12 +295,11 @@ func TestHelmChartAPIVersions(t *testing.T) {
 	t.Run("v1", func(t *testing.T) {
 		t.Parallel()
 
-		c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
+		c := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 			ChartName:   "api-versions",
 			RepoURL:     "./testdata",
 			APIVersions: []string{"sample/v1"},
 		})
-		require.NoError(t, err)
 
 		objs, err := c.Template(t.Context())
 		require.NoError(t, err)
@@ -303,12 +310,11 @@ func TestHelmChartAPIVersions(t *testing.T) {
 	t.Run("v2", func(t *testing.T) {
 		t.Parallel()
 
-		c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
+		c := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 			ChartName:   "api-versions",
 			RepoURL:     "./testdata",
 			APIVersions: []string{"sample/v2"},
 		})
-		require.NoError(t, err)
 
 		objs, err := c.Template(t.Context())
 		require.NoError(t, err)
@@ -318,14 +324,13 @@ func TestHelmChartAPIVersions(t *testing.T) {
 }
 
 func BenchmarkHelmChart(b *testing.B) {
-	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
+	c := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 		ChartName:      "podinfo",
 		TargetRevision: "6.7.1",
 		RepoURL:        "https://stefanprodan.github.io/podinfo",
 	})
-	require.NoError(b, err)
 
-	_, err = c.Template(b.Context())
+	_, err := c.Template(b.Context())
 	require.NoError(b, err)
 
 	b.ResetTimer()
@@ -338,15 +343,14 @@ func BenchmarkHelmChart(b *testing.B) {
 }
 
 func BenchmarkAppTemplateHelmChart(b *testing.B) {
-	c, err := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
+	c := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 		ChartName:            "app-template",
 		TargetRevision:       "3.6.0",
 		RepoURL:              "https://bjw-s.github.io/helm-charts/",
 		SkipSchemaValidation: true,
 	})
-	require.NoError(b, err)
 
-	_, err = c.Template(b.Context())
+	_, err := c.Template(b.Context())
 	require.NoError(b, err)
 
 	b.ResetTimer()

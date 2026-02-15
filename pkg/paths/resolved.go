@@ -22,15 +22,25 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
 var (
+	// ErrMaxNestingLevelReached indicates a symlink chain exceeded the maximum allowed depth.
 	ErrMaxNestingLevelReached = errors.New("maximum nesting level reached")
-	ErrResolvePath            = errors.New("internal error: failed to resolve path; check logs for more details")
-	ErrURLSchemeNotAllowed    = errors.New("the URL scheme is not allowed")
-	ErrResolvedOutsideRepo    = errors.New("file resolved to outside repository root")
-	ErrResolvedToRepoRoot     = errors.New("path resolved to repository root, which is not allowed")
+
+	// ErrResolvePath indicates an internal path resolution error; check logs for details.
+	ErrResolvePath = errors.New("could not resolve path; check logs for more details")
+
+	// ErrURLSchemeNotAllowed indicates the URL uses a protocol scheme that is not permitted.
+	ErrURLSchemeNotAllowed = errors.New("the URL scheme is not allowed")
+
+	// ErrResolvedOutsideRepo indicates a path resolved to a location outside the repository root.
+	ErrResolvedOutsideRepo = errors.New("file resolved to outside repository root")
+
+	// ErrResolvedToRepoRoot indicates a path resolved to the repository root, which is not allowed.
+	ErrResolvedToRepoRoot = errors.New("path resolved to repository root, which is not allowed")
 )
 
 // ResolvedFilePath represents a resolved file path and is intended to prevent
@@ -75,7 +85,7 @@ func ResolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 		}
 
 		// Other error has occurred.
-		return "", fmt.Errorf("failed to read link for path %q: %w", path, err)
+		return "", fmt.Errorf("read link for path %q: %w", path, err)
 	}
 
 	if maxDepth == 0 {
@@ -95,27 +105,20 @@ func ResolveSymbolicLinkRecursive(path string, maxDepth int) (string, error) {
 // isURLSchemeAllowed returns true if the protocol scheme is in the list of
 // allowed URL schemes.
 func isURLSchemeAllowed(scheme string, allowed []string) bool {
-	isAllowed := false
-
-	if len(allowed) > 0 {
-		for _, s := range allowed {
-			if strings.EqualFold(scheme, s) {
-				isAllowed = true
-
-				break
-			}
-		}
+	if scheme == "" {
+		return false
 	}
 
-	// Empty scheme means local file.
-	return isAllowed && scheme != ""
+	return slices.ContainsFunc(allowed, func(s string) bool {
+		return strings.EqualFold(scheme, s)
+	})
 }
 
 // We do not provide the path in the error message, because it will be
 // returned to the user and could be used for information gathering.
 // Instead, we log the concrete error details.
 func resolveFailure(path string, err error) error {
-	slog.Error("failed to resolve path",
+	slog.Error("resolve path",
 		slog.String("path", path),
 		slog.Any("err", err),
 	)
@@ -123,6 +126,9 @@ func resolveFailure(path string, err error) error {
 	return fmt.Errorf("%w: %w", ErrResolvePath, err)
 }
 
+// ResolveFileOrDirectoryPath resolves dir relative to currentPath, ensuring the
+// result stays within repoRoot. Unlike [ResolveFilePathOrURL], it permits paths
+// that resolve to the repository root itself.
 func ResolveFileOrDirectoryPath(currentPath, repoRoot, dir string) (ResolvedFileOrDirectoryPath, error) {
 	path, err := resolveFileOrDirectory(currentPath, repoRoot, dir, true)
 	if err != nil {

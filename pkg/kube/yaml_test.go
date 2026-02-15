@@ -5,39 +5,42 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.jacobcolvin.com/x/stringtest"
 
 	"github.com/macropower/kclipper/pkg/kube"
 )
 
-const deploymentObject = `
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  labels:
-    foo: bar
-spec:
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - image: nginx:1.7.9
-        name: nginx
-        ports:
-        - containerPort: 80
-`
+var (
+	deploymentObject = stringtest.Input(`
+		apiVersion: apps/v1
+		kind: Deployment
+		metadata:
+		  name: nginx-deployment
+		  labels:
+		    foo: bar
+		spec:
+		  template:
+		    metadata:
+		      labels:
+		        app: nginx
+		    spec:
+		      containers:
+		      - image: nginx:1.7.9
+		        name: nginx
+		        ports:
+		        - containerPort: 80
+		`)
 
-const invalidYAML = `
-apiVersion: v1
-	kind: Deployment
-`
+	invalidYAML = stringtest.Input(`
+		apiVersion: v1
+			kind: Deployment
+		`)
 
-const invalidKubeResource = `
-apiVersion: v1
-kind: {foo: bar}
-`
+	invalidKubeResource = stringtest.Input(`
+		- apiVersion: v1
+		  kind: Deployment
+		`)
+)
 
 func TestSplitYAML_SingleObject(t *testing.T) {
 	t.Parallel()
@@ -68,7 +71,7 @@ func TestSplitYAML_InvalidYAML(t *testing.T) {
 
 	_, err := kube.SplitYAML([]byte(invalidYAML))
 	require.Error(t, err)
-	assert.ErrorIs(t, err, kube.ErrInvalidYAML)
+	require.ErrorIs(t, err, kube.ErrInvalidYAML)
 }
 
 func TestSplitYAML_InvalidKubeResource(t *testing.T) {
@@ -76,5 +79,5 @@ func TestSplitYAML_InvalidKubeResource(t *testing.T) {
 
 	_, err := kube.SplitYAML([]byte(invalidKubeResource))
 	require.Error(t, err)
-	assert.ErrorIs(t, err, kube.ErrInvalidKubeResource)
+	require.ErrorIs(t, err, kube.ErrInvalidKubeResource)
 }

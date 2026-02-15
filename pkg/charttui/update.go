@@ -16,15 +16,17 @@ import (
 
 // UpdateModel displays the progress of updating one or more charts, including
 // per-chart spinners, a progress bar, and a final summary.
+// Create instances with [NewUpdateModel].
 type UpdateModel struct {
-	progress        progress.Model
+	progress        *progress.Model
 	startedCharts   []string
 	completedCharts []string
+	failedCharts    map[string]bool
 	baseModel
 	totalCharts int
 }
 
-// NewUpdateModel creates an [UpdateModel] used to display the progress of
+// NewUpdateModel creates a new [UpdateModel] that displays the progress of
 // updating charts.
 func NewUpdateModel() *UpdateModel {
 	p := progress.New(
@@ -37,7 +39,8 @@ func NewUpdateModel() *UpdateModel {
 		baseModel:       newBaseModel(),
 		startedCharts:   []string{},
 		completedCharts: []string{},
-		progress:        p,
+		failedCharts:    map[string]bool{},
+		progress:        &p,
 	}
 }
 
@@ -58,24 +61,22 @@ func (m *UpdateModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case chartcmd.EventUpdatedChart:
 		m.completedCharts = append(m.completedCharts, msg.Chart)
-		completedCount := len(m.completedCharts)
-		progressCmd := m.progress.SetPercent(float64(completedCount) / float64(m.totalCharts))
-
-		icon := defaultStyles.check
 		if msg.Err != nil {
-			icon = defaultStyles.cross
+			m.failedCharts[msg.Chart] = true
 		}
 
-		return m, tea.Batch(
-			progressCmd,
-			tea.Printf("%s %s", icon, msg.Chart),
-		)
+		completedCount := len(m.completedCharts)
+
+		p := *m.progress
+		progressCmd := p.SetPercent(float64(completedCount) / float64(m.totalCharts))
+		m.progress = &p
+
+		return m, progressCmd
 
 	case progress.FrameMsg:
 		if m.state == stateWorking {
-			var cmd tea.Cmd
-
-			m.progress, cmd = m.progress.Update(msg)
+			p, cmd := m.progress.Update(msg)
+			m.progress = &p
 
 			return m, cmd
 		}
@@ -92,14 +93,28 @@ func (m *UpdateModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *UpdateModel) View() tea.View {
 	switch m.state {
 	case stateError:
-		return tea.NewView(getErrorMessage(m.err, m.width, m.totalCharts))
+		var out strings.Builder
+
+		m.writeChartStatuses(&out)
+		out.WriteString(GetErrorMessage(m.err, m.width, m.totalCharts))
+
+		return tea.NewView(out.String())
 
 	case stateDone:
-		completedCount := len(m.completedCharts)
+		var out strings.Builder
 
-		return tea.NewView(defaultStyles.done.Render(fmt.Sprintf("Done! Updated %d charts.\n", completedCount)))
+		m.writeChartStatuses(&out)
+
+		completedCount := len(m.completedCharts)
+		out.WriteString(defaultStyles.done.Render(fmt.Sprintf("Done! Updated %d charts.\n", completedCount)))
+
+		return tea.NewView(out.String())
 
 	case stateWorking:
+		var out strings.Builder
+
+		m.writeChartStatuses(&out)
+
 		completedCount := len(m.completedCharts)
 		w := lipgloss.Width(strconv.Itoa(m.totalCharts))
 		chartCount := fmt.Sprintf(" %*d/%*d", w, completedCount, w, m.totalCharts)
@@ -112,7 +127,6 @@ func (m *UpdateModel) View() tea.View {
 
 		inProgressCharts := differenceStringSlices(m.startedCharts, m.completedCharts)
 
-		spinners := []string{}
 		for _, chart := range inProgressCharts {
 			spin := m.spinner.View() + " "
 			cellsAvail := max(0, m.width-lipgloss.Width(spin))
@@ -123,16 +137,31 @@ func (m *UpdateModel) View() tea.View {
 			cellsRemaining := max(0, m.width-lipgloss.Width(spin+info))
 			gap := strings.Repeat(" ", cellsRemaining) + "\n"
 
-			spinners = append(spinners, spin+info+gap)
+			out.WriteString(spin + info + gap)
 		}
 
-		return tea.NewView(strings.Join(spinners, "") + progOut)
+		out.WriteString(progOut)
+
+		return tea.NewView(out.String())
 
 	case stateIdle:
 		return tea.NewView("")
 	}
 
 	return tea.NewView("")
+}
+
+// writeChartStatuses renders completed chart status lines (check or cross
+// marks) into the given builder.
+func (m *UpdateModel) writeChartStatuses(out *strings.Builder) {
+	for _, chart := range m.completedCharts {
+		icon := defaultStyles.check
+		if m.failedCharts[chart] {
+			icon = defaultStyles.cross
+		}
+
+		fmt.Fprintf(out, "%s %s\n", icon, chart)
+	}
 }
 
 func differenceStringSlices(a, b []string) []string {

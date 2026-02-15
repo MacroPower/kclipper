@@ -2,7 +2,7 @@ package kclautomation
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/macropower/kclipper/pkg/kclerrors"
@@ -60,7 +60,7 @@ type Automation map[string]MapValue
 
 // GetSpecs returns a sorted list of specs which can be passed to [kcl-lang.io/kcl-go.OverrideFile].
 func (a Automation) GetSpecs(specPath string) ([]string, error) {
-	specs := sort.StringSlice{}
+	specs := []string{}
 
 	for k, v := range a {
 		if k == "" {
@@ -75,7 +75,7 @@ func (a Automation) GetSpecs(specPath string) ([]string, error) {
 		specs = append(specs, fmt.Sprintf(`%s=%s`, SpecPathJoin(specPath, k), val))
 	}
 
-	specs.Sort()
+	slices.Sort(specs)
 
 	return specs, nil
 }

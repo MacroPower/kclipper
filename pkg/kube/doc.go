@@ -1,5 +1,7 @@
-// Package kube provides functionality for interacting with Kubernetes resources.
+// Package kube provides types and utilities for working with Kubernetes
+// resource manifests.
 //
-// This package implements operations to work with Kubernetes resources and APIs,
-// providing abstractions for common Kubernetes operations used throughout the codebase.
+// The central type is [Object], a map-based representation of a Kubernetes
+// resource that supports common field accessors and deep copying. Raw YAML
+// manifests can be split into individual objects with [SplitYAML].
 package kube

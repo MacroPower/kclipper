@@ -5,9 +5,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/macropower/kclipper/pkg/crd"
+	"github.com/macropower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kube"
 )
 
 func TestSplitCRDVersions(t *testing.T) {
@@ -94,10 +95,9 @@ func TestSplitCRDVersions(t *testing.T) {
 		t.Run("error_"+name, func(t *testing.T) {
 			t.Parallel()
 
-			c := &unstructured.Unstructured{Object: tc.crdObject}
-			_, err := crd.SplitCRDVersions(c)
+			_, err := crd.SplitCRDVersions(kube.Object(tc.crdObject))
 			require.Error(t, err)
-			require.ErrorIs(t, err, crd.ErrInvalidFormat)
+			require.ErrorIs(t, err, kclerrors.ErrInvalidFormat)
 			assert.Contains(t, err.Error(), tc.errMsg)
 		})
 	}
@@ -204,8 +204,7 @@ func TestSplitCRDVersions(t *testing.T) {
 		t.Run("success_"+name, func(t *testing.T) {
 			t.Parallel()
 
-			c := &unstructured.Unstructured{Object: tc.crdObject}
-			versions, err := crd.SplitCRDVersions(c)
+			versions, err := crd.SplitCRDVersions(kube.Object(tc.crdObject))
 			require.NoError(t, err)
 			assert.Len(t, versions, tc.expectedCount)
 
@@ -214,7 +213,7 @@ func TestSplitCRDVersions(t *testing.T) {
 
 				// Verify the version field contains only the expected version
 				crdVersion := versions[expectedVersion]
-				spec, ok := crdVersion.Object["spec"].(map[string]any)
+				spec, ok := crdVersion["spec"].(map[string]any)
 				require.True(t, ok, "Should have a spec field")
 
 				versionsArray, ok := spec["versions"].([]any)

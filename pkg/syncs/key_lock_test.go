@@ -1,21 +1,3 @@
-// Copyright 2017-2018 The Argo Authors
-// Modifications Copyright 2024-2025 Jacob Colvin
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// Source:
-// https://github.com/argoproj/pkg/blob/65f2d4777bfdabf8a3d649d705786567322cfa50/sync/key_lock_test.go
-
 package syncs_test
 
 import (
@@ -27,111 +9,125 @@ import (
 	"github.com/macropower/kclipper/pkg/syncs"
 )
 
-func TestLockLock(t *testing.T) {
+func TestKeyLock(t *testing.T) {
 	t.Parallel()
 
-	l := syncs.NewKeyLock()
+	tests := map[string]struct {
+		newLock func() *syncs.KeyLock
+	}{
+		"with constructor": {
+			newLock: syncs.NewKeyLock,
+		},
+		"zero value": {
+			newLock: func() *syncs.KeyLock { return &syncs.KeyLock{} },
+		},
+	}
 
-	l.Lock("my-key")
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-	unlocked := false
+			t.Run("lock and unlock same key", func(t *testing.T) {
+				t.Parallel()
 
-	wg := sync.WaitGroup{}
+				kl := tc.newLock()
+				kl.Lock("a")
+				kl.Unlock("a")
+			})
 
-	wg.Go(func() {
-		l.Lock("my-key")
+			t.Run("independent keys do not block each other", func(t *testing.T) {
+				t.Parallel()
 
-		unlocked = true
-	})
+				kl := tc.newLock()
 
-	assert.False(t, unlocked)
+				kl.Lock("a")
 
-	l.Unlock("my-key")
+				// Locking a different key must not block.
+				done := make(chan struct{})
+				go func() {
+					kl.Lock("b")
+					close(done)
+				}()
 
-	wg.Wait()
+				<-done
 
-	assert.True(t, unlocked)
+				kl.Unlock("a")
+				kl.Unlock("b")
+			})
 
-	l.Unlock("my-key")
+			t.Run("same key serializes access", func(t *testing.T) {
+				t.Parallel()
+
+				kl := tc.newLock()
+
+				counter := 0
+
+				const n = 100
+
+				var wg sync.WaitGroup
+				wg.Add(n)
+
+				for range n {
+					go func() {
+						defer wg.Done()
+
+						kl.Lock("key")
+						defer kl.Unlock("key")
+
+						counter++
+					}()
+				}
+
+				wg.Wait()
+
+				assert.Equal(t, n, counter)
+			})
+
+			t.Run("concurrent keys are independent", func(t *testing.T) {
+				t.Parallel()
+
+				kl := tc.newLock()
+
+				counters := map[string]*int{
+					"x": new(int),
+					"y": new(int),
+					"z": new(int),
+				}
+
+				const n = 50
+
+				var wg sync.WaitGroup
+
+				for key, ctr := range counters {
+					wg.Add(n)
+
+					for range n {
+						go func() {
+							defer wg.Done()
+
+							kl.Lock(key)
+							defer kl.Unlock(key)
+
+							*ctr++
+						}()
+					}
+				}
+
+				wg.Wait()
+
+				for key, ctr := range counters {
+					assert.Equal(t, n, *ctr, "counter for key %q", key)
+				}
+			})
+		})
+	}
 }
 
-func TestLockRLock(t *testing.T) {
+func TestKeyLock_ImplementsKeyLocker(t *testing.T) {
 	t.Parallel()
 
-	l := syncs.NewKeyLock()
-
-	l.Lock("my-key")
-
-	unlocked := false
-
-	wg := sync.WaitGroup{}
-
-	wg.Go(func() {
-		l.RLock("my-key")
-
-		unlocked = true
-	})
-
-	assert.False(t, unlocked)
-
-	l.Unlock("my-key")
-
-	wg.Wait()
-
-	assert.True(t, unlocked)
-
-	l.RUnlock("my-key")
-}
-
-func TestRLockLock(t *testing.T) {
-	t.Parallel()
-
-	l := syncs.NewKeyLock()
-
-	l.RLock("my-key")
-
-	unlocked := false
-
-	wg := sync.WaitGroup{}
-
-	wg.Go(func() {
-		l.Lock("my-key")
-
-		unlocked = true
-	})
-
-	assert.False(t, unlocked)
-
-	l.RUnlock("my-key")
-
-	wg.Wait()
-
-	assert.True(t, unlocked)
-
-	l.Unlock("my-key")
-}
-
-func TestRLockRLock(t *testing.T) {
-	t.Parallel()
-
-	l := syncs.NewKeyLock()
-
-	l.RLock("my-key")
-
-	unlocked := false
-
-	wg := sync.WaitGroup{}
-
-	wg.Go(func() {
-		l.RLock("my-key")
-
-		unlocked = true
-	})
-
-	wg.Wait()
-
-	assert.True(t, unlocked)
-
-	l.RUnlock("my-key")
-	l.RUnlock("my-key")
+	var (
+		_ syncs.KeyLocker = (*syncs.KeyLock)(nil)
+		_ syncs.KeyLocker = &syncs.KeyLock{}
+	)
 }

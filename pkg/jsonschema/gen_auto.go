@@ -50,7 +50,7 @@ func (g *AutoGenerator) FromPaths(paths ...string) ([]byte, error) {
 			return jsonSchema, nil
 		}
 
-		readerGenErr = fmt.Errorf("failed to read JSON Schema: %w", readerGenErr)
+		readerGenErr = fmt.Errorf("read JSON Schema: %w", readerGenErr)
 	}
 
 	if len(yamlPaths) > 0 {
@@ -59,10 +59,10 @@ func (g *AutoGenerator) FromPaths(paths ...string) ([]byte, error) {
 			return jsonSchema, nil
 		}
 
-		valueInferenceErr = fmt.Errorf("failed to infer JSON Schema: %w", valueInferenceErr)
+		valueInferenceErr = fmt.Errorf("infer JSON Schema: %w", valueInferenceErr)
 	}
 
-	return nil, fmt.Errorf("failed to generate JSON Schema: %w, %w", readerGenErr, valueInferenceErr)
+	return nil, fmt.Errorf("generate JSON Schema: %w, %w", readerGenErr, valueInferenceErr)
 }
 
 func (g *AutoGenerator) fromPath(path string) ([]byte, error) {
@@ -83,14 +83,14 @@ func (g *AutoGenerator) FromData(data []byte, refBasePath string) ([]byte, error
 		return jsonSchema, nil
 	}
 
-	readerGenErr = fmt.Errorf("failed to read JSON Schema: %w", readerGenErr)
+	readerGenErr = fmt.Errorf("read JSON Schema: %w", readerGenErr)
 
 	jsonSchema, valueInferenceErr := DefaultValueInferenceGenerator.FromData(data)
 	if valueInferenceErr == nil {
 		return jsonSchema, nil
 	}
 
-	valueInferenceErr = fmt.Errorf("failed to infer JSON Schema: %w", valueInferenceErr)
+	valueInferenceErr = fmt.Errorf("infer JSON Schema: %w", valueInferenceErr)
 
-	return nil, fmt.Errorf("failed to generate JSON Schema: %w, %w", readerGenErr, valueInferenceErr)
+	return nil, fmt.Errorf("generate JSON Schema: %w, %w", readerGenErr, valueInferenceErr)
 }

@@ -5,13 +5,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"gopkg.in/yaml.v3"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"go.jacobcolvin.com/niceyaml"
 
 	crdgen "kcl-lang.io/kcl-openapi/pkg/kube_resource/generator"
 	swaggergen "kcl-lang.io/kcl-openapi/pkg/swagger/generator"
 
 	"github.com/macropower/kclipper/pkg/kclerrors"
+	"github.com/macropower/kclipper/pkg/kube"
 	"github.com/macropower/kclipper/pkg/syncs"
 )
 
@@ -35,7 +35,7 @@ func mustNewGenOpenAPI() *genOpenAPI {
 // re-define the same schemas for each version in the same module. This function
 // is concurrency-safe and will lock using `APIVersion` to prevent concurrent
 // writes to the same KCL module.
-func (g *genOpenAPI) FromCRDVersion(crd *unstructured.Unstructured, dstPath, version string) error {
+func (g *genOpenAPI) FromCRDVersion(crd kube.Object, dstPath, version string) error {
 	apiVersion := crd.GetAPIVersion()
 
 	g.locker.Lock(apiVersion)
@@ -43,17 +43,18 @@ func (g *genOpenAPI) FromCRDVersion(crd *unstructured.Unstructured, dstPath, ver
 
 	tmpFile, err := os.CreateTemp(os.TempDir(), "kcl-swagger-")
 	if err != nil {
-		return fmt.Errorf("create temp file: %w: %w", kclerrors.ErrWriteFile, err)
+		return fmt.Errorf("%w: create temp file: %w", kclerrors.ErrWriteFile, err)
 	}
 
-	crdData, err := yaml.Marshal(crd.UnstructuredContent())
+	enc := niceyaml.NewEncoder(tmpFile, niceyaml.PrettyEncoderOptions...)
+	err = enc.Encode(map[string]any(crd))
 	if err != nil {
-		return fmt.Errorf("marshal CRD: %w: %w", kclerrors.ErrYAMLMarshal, err)
+		return fmt.Errorf("%w: %w", kclerrors.ErrYAMLMarshal, err)
 	}
 
-	_, err = tmpFile.Write(crdData)
+	err = enc.Close()
 	if err != nil {
-		return fmt.Errorf("write CRD to temp file: %w: %w", kclerrors.ErrWriteFile, err)
+		return fmt.Errorf("%w: close YAML encoder: %w", kclerrors.ErrWriteFile, err)
 	}
 
 	err = tmpFile.Close()
@@ -80,7 +81,7 @@ func (g *genOpenAPI) FromCRDVersion(crd *unstructured.Unstructured, dstPath, ver
 	opts := new(swaggergen.GenOpts)
 	err = opts.EnsureDefaults()
 	if err != nil {
-		return fmt.Errorf("failed to ensure default generator options: %w", err)
+		return fmt.Errorf("ensure default generator options: %w", err)
 	}
 
 	opts.Spec = spec

@@ -5,26 +5,27 @@ import (
 	"log/slog"
 )
 
-type InlineCloser struct {
+type inlineCloser struct {
 	closeFn func() error
 }
 
-func (c *InlineCloser) Close() error {
+func (c *inlineCloser) Close() error {
 	return c.closeFn()
 }
 
-func newInlineCloser(closeFn func() error) *InlineCloser {
-	return &InlineCloser{closeFn: closeFn}
+func newInlineCloser(closeFn func() error) *inlineCloser {
+	return &inlineCloser{closeFn: closeFn}
 }
 
-type NopCloser struct{}
+type nopCloser struct{}
 
-func (NopCloser) Close() error {
+func (nopCloser) Close() error {
 	return nil
 }
 
+// NewNopCloser returns a no-op [io.Closer].
 func NewNopCloser() io.Closer {
-	return &NopCloser{}
+	return &nopCloser{}
 }
 
 // tryClose is a convenience function to tryClose a object that has a Close()
@@ -32,7 +33,7 @@ func NewNopCloser() io.Closer {
 func tryClose(c io.Closer) {
 	err := c.Close()
 	if err != nil {
-		slog.Warn("failed to close",
+		slog.Warn("close",
 			slog.Any("closer", c),
 			slog.Any("err", err),
 		)

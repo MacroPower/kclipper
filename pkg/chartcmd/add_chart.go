@@ -6,12 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"kcl-lang.io/kcl-go"
 
 	"github.com/macropower/kclipper/pkg/crd"
@@ -20,6 +20,7 @@ import (
 	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclautomation"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
+	"github.com/macropower/kclipper/pkg/kube"
 	"github.com/macropower/kclipper/pkg/paths"
 )
 
@@ -191,7 +192,7 @@ func (c *KCLPackage) getCRDs(
 	chart *kclchart.ChartConfig,
 	helmChart *helm.ChartFiles,
 	logger *slog.Logger,
-) ([]*unstructured.Unstructured, error) {
+) ([]kube.Object, error) {
 	switch chart.CRDGenerator {
 	case crd.GeneratorTypeDefault, crd.GeneratorTypeAuto, crd.GeneratorTypeTemplate:
 		logger.Info("rendering crd resources")
@@ -209,12 +210,12 @@ func (c *KCLPackage) getCRDs(
 	default: // Matches: crd.GeneratorTypeNone.
 		logger.Debug("skipping crd generation")
 
-		return []*unstructured.Unstructured{}, nil
+		return []kube.Object{}, nil
 	}
 }
 
 // getCRDsFromTemplate generates CRD resources from helm template output.
-func (c *KCLPackage) getCRDsFromTemplate(helmChart *helm.ChartFiles) ([]*unstructured.Unstructured, error) {
+func (c *KCLPackage) getCRDsFromTemplate(helmChart *helm.ChartFiles) ([]kube.Object, error) {
 	crds, err := helmChart.GetCRDOutput()
 	if err != nil {
 		return nil, fmt.Errorf("%w: render CRD resources: %w", ErrCRDGeneration, err)
@@ -227,8 +228,8 @@ func (c *KCLPackage) getCRDsFromTemplate(helmChart *helm.ChartFiles) ([]*unstruc
 func (c *KCLPackage) getCRDsFromChartPath(
 	chart *kclchart.ChartConfig,
 	helmChart *helm.ChartFiles,
-) ([]*unstructured.Unstructured, error) {
-	crds, err := helmChart.GetCRDFiles(crd.DefaultFileGenerator, c.createCRDPathMatcher(chart))
+) ([]kube.Object, error) {
+	crds, err := helmChart.GetCRDFiles(crd.FromPaths, c.createCRDPathMatcher(chart))
 	if err != nil {
 		return nil, fmt.Errorf("%w: get CRD files from chart: %w", ErrCRDGeneration, err)
 	}
@@ -240,8 +241,8 @@ func (c *KCLPackage) getCRDsFromChartPath(
 func (c *KCLPackage) getCRDsFromPaths(
 	chart *kclchart.ChartConfig,
 	logger *slog.Logger,
-) ([]*unstructured.Unstructured, error) {
-	crds := []*unstructured.Unstructured{}
+) ([]kube.Object, error) {
+	crds := []kube.Object{}
 	for _, p := range chart.CRDPaths {
 		pathCRDs, err := c.getCRDsFromPath(p, logger)
 		if err != nil {
@@ -255,7 +256,7 @@ func (c *KCLPackage) getCRDsFromPaths(
 }
 
 // getCRDsFromPath gets CRDs from either a URL or a local file path.
-func (c *KCLPackage) getCRDsFromPath(pathStr string, logger *slog.Logger) ([]*unstructured.Unstructured, error) {
+func (c *KCLPackage) getCRDsFromPath(pathStr string, logger *slog.Logger) ([]kube.Object, error) {
 	crdPath, err := paths.ResolveFilePathOrURL(c.BasePath, c.repoRoot, pathStr, []string{"http", "https"})
 	if err != nil {
 		return nil, fmt.Errorf("%w: resolve %q: %w", ErrPathResolution, pathStr, err)
@@ -273,8 +274,8 @@ func (c *KCLPackage) getCRDsFromPath(pathStr string, logger *slog.Logger) ([]*un
 }
 
 // getCRDsFromURL gets CRDs from a URL.
-func (c *KCLPackage) getCRDsFromURL(u *url.URL, pathStr string) ([]*unstructured.Unstructured, error) {
-	crdResources, err := crd.DefaultHTTPGenerator.FromURL(context.Background(), u)
+func (c *KCLPackage) getCRDsFromURL(u *url.URL, pathStr string) ([]kube.Object, error) {
+	crdResources, err := crd.FromURL(context.Background(), http.DefaultClient, u)
 	if err != nil {
 		return nil, fmt.Errorf("%w: get CRDs from URL %q: %w", ErrCRDGeneration, pathStr, err)
 	}
@@ -283,8 +284,8 @@ func (c *KCLPackage) getCRDsFromURL(u *url.URL, pathStr string) ([]*unstructured
 }
 
 // getCRDsFromFilePath gets CRDs from a local file path.
-func (c *KCLPackage) getCRDsFromFilePath(pathStr string) ([]*unstructured.Unstructured, error) {
-	crdResources, err := crd.DefaultFileGenerator.FromPath(pathStr)
+func (c *KCLPackage) getCRDsFromFilePath(pathStr string) ([]kube.Object, error) {
+	crdResources, err := crd.FromPath(pathStr)
 	if err != nil {
 		return nil, fmt.Errorf("%w: get CRDs from file %q: %w", ErrCRDGeneration, pathStr, err)
 	}
@@ -439,13 +440,12 @@ func writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
 }
 
 // writeCRDFiles writes the CRD files.
-func (c *KCLPackage) writeCRDFiles(crds []*unstructured.Unstructured, chartDir string) error {
+func (c *KCLPackage) writeCRDFiles(crds []kube.Object, chartDir string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 
 	crdPkgPath := filepath.Join(chartDir, "api")
-	crdPkg := crd.NewKCLPackage(crds, crdPkgPath)
-	err := crdPkg.GenerateC(ctx)
+	err := crd.GenerateKCL(ctx, crds, crdPkgPath)
 	if err != nil {
 		return fmt.Errorf("%w: generate %q: %w", ErrCRDGeneration, crdPkgPath, err)
 	}
