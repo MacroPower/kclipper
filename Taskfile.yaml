@@ -12,6 +12,7 @@ vars:
   C_ENV: "{{OS | upper}}_{{ARCH | upper}}"
   PRETTIER_TARGETS: "*.{yaml,md,json} **/*.{yaml,md,json}"
   ZIG_WRAPPER_DIR: "{{.ROOT_DIR}}/hack"
+  CI_MODULE: ./ci
 
 env:
   HOSTNAME:
@@ -35,40 +36,79 @@ tasks:
       - task: test
       - task: build
 
+  # ---------------------------------------------------------------------------
+  # Dagger-based CI tasks
+  # ---------------------------------------------------------------------------
+
   format:
-    desc: Runs all format targets
-    deps: [go-format, prettier-format]
+    desc: Formats code via Dagger
+    cmds:
+      - dagger call -m {{.CI_MODULE}} format --source=. export --path=.
 
   lint:
-    desc: Runs all lint targets
+    desc: Runs all lint targets via Dagger
     deps:
-      - go-lint
-      - renovate-lint
-      - actions-lint
-      - goreleaser-lint
-      - prettier-lint
+      - lint:go
+      - lint:prettier
+      - lint:actions
+      - lint:releaser
+
+  lint:go:
+    desc: Lints Go code via Dagger
+    cmds:
+      - dagger call -m {{.CI_MODULE}} lint --source=.
+
+  lint:prettier:
+    desc: Checks formatting of YAML, JSON, and Markdown via Dagger
+    cmds:
+      - dagger call -m {{.CI_MODULE}} lint-prettier --source=.
+
+  lint:actions:
+    desc: Lints GitHub Actions workflows via Dagger
+    cmds:
+      - dagger call -m {{.CI_MODULE}} lint-actions --source=.
+
+  lint:releaser:
+    desc: Validates GoReleaser configuration via Dagger
+    cmds:
+      - dagger call -m {{.CI_MODULE}} lint-releaser --source=.
 
   test:
-    desc: Runs all test targets
-    deps: [go-test]
+    desc: Runs Go tests via Dagger
+    cmds:
+      - dagger call -m {{.CI_MODULE}} test --source=.
+
+  build:
+    desc: Builds all binaries via Dagger
+    cmds:
+      - dagger call -m {{.CI_MODULE}} build --source=. export --path=./dist
+
+  cover:
+    desc: Runs Go tests with coverage via Dagger
+    cmds:
+      - dagger call -m {{.CI_MODULE}} test-coverage --source=. export --path=coverage.txt
+
+  release:
+    desc: Runs full release via Dagger
+    requires:
+      vars: [GITHUB_TOKEN, TAG]
+    cmds:
+      - >-
+        dagger call -m {{.CI_MODULE}} release
+        --source=.
+        --github-token=env:GITHUB_TOKEN
+        --registry-username={{.REGISTRY_USERNAME}}
+        --registry-password=env:REGISTRY_PASSWORD
+        --tag={{.TAG}}
+        export --path=./dist
+
+  # ---------------------------------------------------------------------------
+  # Local-only tasks (no Dagger)
+  # ---------------------------------------------------------------------------
 
   pre-commit:
     desc: Runs all pre-commit targets
     deps: [lint, test]
-
-  build:
-    desc: Runs all build targets
-    deps: [go-build]
-
-  release:
-    desc: Runs all release targets
-    deps: [go-release]
-
-  dev-install:
-    desc: Installs development dependencies
-    cmds:
-      - devbox install
-      - nix-collect-garbage
 
   install:
     desc: Builds and installs binaries
@@ -78,49 +118,6 @@ tasks:
     cmds:
       - goreleaser build --snapshot --clean --single-target
       - sudo cp ./dist/*/kcl /usr/local/bin
-
-  go-format:
-    desc: Formats Go code including imports
-    cmds:
-      - golangci-lint run --fix
-
-  go-lint:
-    desc: Lints Go code
-    sources:
-      - "**/*.go"
-      - go.mod
-      - go.sum
-      - .golangci.yaml
-    cmds:
-      - golangci-lint run
-
-  go-test:
-    desc: Run Go tests
-    summary: |
-      Run Go tests
-
-      Args:
-        PKG: Go package to test (default: ./...)
-        FLAGS: Additional flags to pass to `go test` (default: "")
-        PKG_FLAGS: Additional flags to pass to test packages (default: "")
-    vars:
-      PKG: '{{.PKG | default "./..."}}'
-      FLAGS: '{{.FLAGS | default ""}}'
-      PKG_FLAGS: '{{.PKG_FLAGS | default ""}}'
-    sources:
-      - "**/*.go"
-      - go.mod
-      - go.sum
-    cmds:
-      - go test {{.FLAGS}} {{.PKG}} {{.PKG_FLAGS}}
-
-  go-cover:
-    desc: Runs Go tests with coverage
-    cmds:
-      - go install gotest.tools/gotestsum@latest
-      - cmd: mkdir -p .test/
-        silent: true
-      - gotestsum --junitfile=.test/junit.xml --format=pkgname -- -race -vet=all -coverprofile=.test/cover.out ./...
 
   go-bench:
     desc: Run Go benchmarks
@@ -144,53 +141,42 @@ tasks:
     cmds:
       - go generate ./...
 
-  go-build:
-    desc: Builds Go binaries
-    vars:
-      FLAGS: '{{.FLAGS | default "--skip=docker,homebrew,nix,sign"}}'
-    env:
-      HELM_VERSION:
-        sh: helm version --template="{{ "{{.Version}}" }}"
-    cmds:
-      - cmd: 'echo "Using SDK: {{.SDK_PATH}}"'
-        silent: true
-      - goreleaser release --snapshot --clean {{ .FLAGS }}
+  go-deadcode:
+    desc: Finds dead code in Go
+    summary: |
+      Finds dead code in Go.
 
-  go-build-images:
-    desc: Builds Go binaries and Docker images
-    vars:
-      FLAGS: '{{.FLAGS | default "--skip=homebrew,nix,sign"}}'
-    env:
-      HELM_VERSION:
-        sh: helm version --template="{{ "{{.Version}}" }}"
-    cmds:
-      - cmd: 'echo "Using SDK: {{.SDK_PATH}}"'
-        silent: true
-      - goreleaser release --snapshot --clean {{ .FLAGS }}
+      Args:
+        PKG: Go package(s) to evaluate (default: ./...)
+        FLAGS: Additional flags to pass to `deadcode` (default: "")
 
-  go-release:
-    desc: Releases Go binaries
+      Examples:
+        task go-deadcode FLAGS="-test -generated"
     vars:
+      PKG: '{{.PKG | default "./..."}}'
       FLAGS: '{{.FLAGS | default ""}}'
-    env:
-      HELM_VERSION:
-        sh: helm version --template="{{ "{{.Version}}" }}"
     cmds:
-      - goreleaser release --clean {{.FLAGS}}
+      - go install golang.org/x/tools/cmd/deadcode@latest
+      - deadcode {{.FLAGS}} {{.PKG}}
 
-  prettier-format:
-    desc: Formats YAML, JSON, and Markdown files
+  go-bench-init:
+    desc: Run Go benchmarks with init tracing
     cmds:
-      - prettier --config ./.prettierrc.yaml -w {{.PRETTIER_TARGETS}}
-
-  prettier-lint:
-    desc: Lints YAML, JSON, and Markdown files
-    sources:
-      - "*.{yaml,md,json}"
-      - "**/*.{yaml,md,json}"
-      - .prettierrc.yaml
-    cmds:
-      - prettier --config ./.prettierrc.yaml --check {{.PRETTIER_TARGETS}}
+      - |
+        echo "a=1" | GODEBUG=inittrace=1 kcl run - 2>&1 | awk '
+        BEGIN {
+            printf "%-100s %-15s %-15s %-10s %-10s\n", "Module", "Init Time (ms)", "Clock Time (ms)", "Bytes", "Allocs";
+            printf "%-100s %-15s %-15s %-10s %-10s\n", "------", "--------------", "---------------", "-----", "------";
+        }
+        $1 == "init" {
+            # Extract the relevant fields and format them into a table
+            module = $2;
+            init_time = substr($3, 2);  # Remove the "@" prefix
+            clock_time = $5;
+            bytes = $8;
+            allocs = $10;
+            printf "%-100s %-15s %-15s %-10s %-10s\n", module, init_time, clock_time, bytes, allocs;
+        }' | tail -n +3 | sort -k3,3n
 
   pull-upstream:
     desc: Pulls upstream KCL CLI
@@ -206,9 +192,7 @@ tasks:
   bench-diff:
     desc: Compares benchmark results
     deps:
-      - task: go-build
-        vars:
-          FLAGS: "--single-target"
+      - task: build
       - task: pull-upstream
     vars:
       KCLX_BIN: ../../dist/kclipper_{{OS}}_{{ARCH}}*/kcl
@@ -271,44 +255,7 @@ tasks:
       - kcl doc generate --file-path=./modules/{{.MODULE}} --target=./modules/{{.MODULE}}
       - cat ./modules/{{.MODULE}}/docs/README.md >> ./modules/{{.MODULE}}/README.md
       - rm -rf ./modules/{{.MODULE}}/docs
-      - task: prettier-format
-
-  go-deadcode:
-    desc: Finds dead code in Go
-    summary: |
-      Finds dead code in Go.
-
-      Args:
-        PKG: Go package(s) to evaluate (default: ./...)
-        FLAGS: Additional flags to pass to `deadcode` (default: "")
-
-      Examples:
-        task go-deadcode FLAGS="-test -generated"
-    vars:
-      PKG: '{{.PKG | default "./..."}}'
-      FLAGS: '{{.FLAGS | default ""}}'
-    cmds:
-      - go install golang.org/x/tools/cmd/deadcode@latest
-      - deadcode {{.FLAGS}} {{.PKG}}
-
-  go-bench-init:
-    desc: Run Go benchmarks with init tracing
-    cmds:
-      - |
-        echo "a=1" | GODEBUG=inittrace=1 kcl run - 2>&1 | awk '
-        BEGIN {
-            printf "%-100s %-15s %-15s %-10s %-10s\n", "Module", "Init Time (ms)", "Clock Time (ms)", "Bytes", "Allocs";
-            printf "%-100s %-15s %-15s %-10s %-10s\n", "------", "--------------", "---------------", "-----", "------";
-        }
-        $1 == "init" {
-            # Extract the relevant fields and format them into a table
-            module = $2;
-            init_time = substr($3, 2);  # Remove the "@" prefix
-            clock_time = $5;
-            bytes = $8;
-            allocs = $10;
-            printf "%-100s %-15s %-15s %-10s %-10s\n", module, init_time, clock_time, bytes, allocs;
-        }' | tail -n +3 | sort -k3,3n
+      - task: format
 
   run-chartmuseum:
     cmd: |-
@@ -324,28 +271,23 @@ tasks:
     # helm package .
     # curl -u user:hunter2 --data-binary "@simple-chart-0.1.0.tgz" http://localhost:8080/api/charts
 
-  renovate-lint:
-    desc: Lints Renovate configuration
-    sources:
-      - .github/renovate.json5
+  install-hooks:
+    desc: Install git hooks
     cmds:
-      - renovate-config-validator .github/renovate.json5
+      - lefthook install
 
-  actions-lint:
-    desc: Lints GitHub Actions
-    sources:
-      - .github/workflows/*.yml
-      - .github/workflows/*.yaml
-      - .github/zizmor.yaml
+  # Since these are impossible to compile properly on linux...
+  update-macos-sdk:
     cmds:
-      - zizmor .github/workflows --config .github/zizmor.yaml
-
-  goreleaser-lint:
-    desc: Lints GoReleaser configuration
-    sources:
-      - .goreleaser*
-    cmds:
-      - goreleaser check
+      - rm -rf {{.SDK_PATH}}
+      - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
+      - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
+      - mkdir -p {{.INCLUDE_PATH}}/mach
+      - mkdir -p {{.LIB_PATH}}
+      - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework/* {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
+      - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/Security.framework/* {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
+      - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/
+      - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach
 
   devcontainer:
     desc: Starts the devcontainer
@@ -372,24 +314,6 @@ tasks:
       - task: devcontainer
     cmds:
       - devcontainer exec --workspace-folder "{{.ROOT_DIR}}" claude --dangerously-skip-permissions
-
-  install-hooks:
-    desc: Install git hooks
-    cmds:
-      - lefthook install
-
-  # Since these are impossible to compile properly on linux...
-  update-macos-sdk:
-    cmds:
-      - rm -rf {{.SDK_PATH}}
-      - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
-      - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
-      - mkdir -p {{.INCLUDE_PATH}}/mach
-      - mkdir -p {{.LIB_PATH}}
-      - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework/* {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
-      - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/Security.framework/* {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
-      - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/
-      - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach
 
   git:worktree:add:
     desc: Adds a git worktree for the given branch

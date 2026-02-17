@@ -20,8 +20,8 @@ dist/
 .vscode/
 .idea/
 
-# Devbox
-.devbox/
+# Dagger
+.dagger/
 
 # Temp files
 .tmp/

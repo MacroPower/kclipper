@@ -1,5 +1,5 @@
 {
-  "name": "Devbox Remote Container",
+  "name": "Dagger Development Container",
   "build": {
     "dockerfile": "./Dockerfile",
     "context": "..",
@@ -10,21 +10,19 @@
     },
   },
   "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
-  "remoteUser": "devbox",
+  "remoteUser": "developer",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
   "workspaceFolder": "/workspace",
   "mounts": [
-    "source=${localEnv:HOME}/.claude,target=/home/devbox/.claude,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.claude.json,target=/home/devbox/.claude.json,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.config/git,target=/home/devbox/.config/git,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.config/ccstatusline,target=/home/devbox/.config/ccstatusline,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude,target=/home/developer/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/home/developer/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.config/git,target=/home/developer/.config/git,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.config/ccstatusline,target=/home/developer/.config/ccstatusline,type=bind,consistency=cached",
     "source=bashhistory-${devcontainerId},target=/commandhistory,type=volume",
-    "source=devbox-${devcontainerId},target=/workspace/.devbox,type=volume",
-    "source=gomodcache-${devcontainerId},target=/home/devbox/go/pkg/mod,type=volume",
-    "source=gobuildcache-${devcontainerId},target=/home/devbox/.cache/go-build,type=volume",
+    "source=gomodcache-${devcontainerId},target=/home/developer/go/pkg/mod,type=volume",
+    "source=gobuildcache-${devcontainerId},target=/home/developer/.cache/go-build,type=volume",
   ],
   "containerEnv": {
-    "NODE_OPTIONS": "--max-old-space-size=4096",
     "TERM": "xterm-256color",
   },
   "remoteEnv": {

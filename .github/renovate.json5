@@ -25,6 +25,13 @@
       matchStringsStrategy: "recursive",
       datasourceTemplate: "helm",
     },
+    {
+      customType: "regex",
+      managerFilePatterns: ["/ci/main\\.go$/"],
+      matchStrings: [
+        '\\w+Version\\s*=\\s*"(?<currentValue>[^"]+)"\\s*//\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)',
+      ],
+    },
   ],
   packageRules: [
     {
@@ -32,12 +39,13 @@
       automerge: false,
     },
     {
-      matchManagers: ["devbox"],
+      matchFileNames: ["ci/main.go"],
       matchPackageNames: ["go"],
       automerge: false,
     },
     {
       matchManagers: ["custom.regex"],
+      matchFileNames: ["**/charts/charts.k"],
       postUpgradeTasks: {
         commands: ['kcl chart update -q --chart="{{depName}}" --path="{{packageFileDir}}"'],
         executionMode: "update",

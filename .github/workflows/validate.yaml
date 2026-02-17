@@ -20,25 +20,16 @@ jobs:
           persist-credentials: false
           fetch-depth: 2
 
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      - name: Run tests with coverage
+        uses: dagger/dagger-for-github@v8
         with:
-          go-version: stable
-
-      - name: Install gotestsum
-        run: go install gotest.tools/gotestsum@latest
-
-      - name: Run Go test
-        run: gotestsum --junitfile=junit.xml --format=pkgname -- -race -vet=all -coverprofile=coverage.txt ./...
+          version: "0.19"
+          verb: call
+          module: ./ci
+          args: test-coverage --source=. export --path=coverage.txt
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -51,12 +42,34 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: stable
-
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v9
+        uses: dagger/dagger-for-github@v8
         with:
-          version: v2.9
+          version: "0.19"
+          verb: call
+          module: ./ci
+          args: lint --source=.
+
+      - name: Run prettier check
+        uses: dagger/dagger-for-github@v8
+        with:
+          version: "0.19"
+          verb: call
+          module: ./ci
+          args: lint-prettier --source=.
+
+      - name: Run actions lint
+        uses: dagger/dagger-for-github@v8
+        with:
+          version: "0.19"
+          verb: call
+          module: ./ci
+          args: lint-actions --source=.
+
+      - name: Run goreleaser check
+        uses: dagger/dagger-for-github@v8
+        with:
+          version: "0.19"
+          verb: call
+          module: ./ci
+          args: lint-releaser --source=.

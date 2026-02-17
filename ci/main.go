@@ -1,0 +1,460 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"golang.org/x/sync/errgroup"
+
+	"dagger/ci/internal/dagger"
+)
+
+const (
+	goVersion           = "1.25"           // renovate: datasource=golang-version depName=go
+	golangciLintVersion = "v2.9"           // renovate: datasource=github-releases depName=golangci/golangci-lint
+	goreleaserVersion   = "v2.13.3"        // renovate: datasource=github-releases depName=goreleaser/goreleaser
+	zigVersion          = "0.15.2"         // renovate: datasource=github-releases depName=ziglang/zig
+	cosignVersion       = "v3.0.4"         // renovate: datasource=github-releases depName=sigstore/cosign
+	syftVersion         = "v1.41.1"        // renovate: datasource=github-releases depName=anchore/syft
+	prettierVersion     = "3.5.3"          // renovate: datasource=npm depName=prettier
+	zizmorVersion       = "1.22.0"         // renovate: datasource=github-releases depName=woodruffw/zizmor
+	kclLSPVersion       = "v0.11.2"        // renovate: datasource=github-releases depName=kcl-lang/kcl
+
+	imageRegistry = "ghcr.io/macropower/kclipper"
+)
+
+// Ci provides CI/CD functions for kclipper.
+type Ci struct{}
+
+// ---------------------------------------------------------------------------
+// Testing
+// ---------------------------------------------------------------------------
+
+// Test runs Go tests with race detection and vet checking.
+func (m *Ci) Test(ctx context.Context, source *dagger.Directory) (string, error) {
+	return m.goBase(source).
+		WithExec([]string{
+			"go", "test", "-race", "-vet=all", "./...",
+		}).
+		Stdout(ctx)
+}
+
+// TestCoverage runs Go tests and returns the coverage profile file.
+func (m *Ci) TestCoverage(
+	ctx context.Context,
+	source *dagger.Directory,
+) *dagger.File {
+	return m.goBase(source).
+		WithExec([]string{
+			"go", "test", "-race", "-vet=all",
+			"-coverprofile=/tmp/coverage.txt", "./...",
+		}).
+		File("/tmp/coverage.txt")
+}
+
+// ---------------------------------------------------------------------------
+// Linting
+// ---------------------------------------------------------------------------
+
+// Lint runs golangci-lint on the source code.
+func (m *Ci) Lint(ctx context.Context, source *dagger.Directory) (string, error) {
+	return dag.Container().
+		From("golangci/golangci-lint:"+golangciLintVersion+"-alpine").
+		WithMountedDirectory("/src", source).
+		WithWorkdir("/src").
+		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint")).
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithExec([]string{"golangci-lint", "run"}).
+		Stdout(ctx)
+}
+
+// LintPrettier checks YAML, JSON, and Markdown formatting.
+func (m *Ci) LintPrettier(ctx context.Context, source *dagger.Directory) (string, error) {
+	return dag.Container().
+		From("node:lts-slim").
+		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion}).
+		WithMountedDirectory("/src", source).
+		WithWorkdir("/src").
+		WithExec([]string{
+			"prettier", "--config", "./.prettierrc.yaml", "--check",
+			"*.yaml", "*.md", "*.json",
+			"**/*.yaml", "**/*.md", "**/*.json",
+		}).
+		Stdout(ctx)
+}
+
+// LintActions runs zizmor to lint GitHub Actions workflows.
+func (m *Ci) LintActions(ctx context.Context, source *dagger.Directory) (string, error) {
+	return dag.Container().
+		From("ghcr.io/woodruffw/zizmor:"+zizmorVersion).
+		WithMountedDirectory("/src", source).
+		WithWorkdir("/src").
+		WithExec([]string{
+			"zizmor", ".github/workflows", "--config", ".github/zizmor.yaml",
+		}).
+		Stdout(ctx)
+}
+
+// LintReleaser validates the GoReleaser configuration.
+func (m *Ci) LintReleaser(ctx context.Context, source *dagger.Directory) (string, error) {
+	return m.releaserBase(source).
+		WithExec([]string{"goreleaser", "check"}).
+		Stdout(ctx)
+}
+
+// ---------------------------------------------------------------------------
+// Formatting
+// ---------------------------------------------------------------------------
+
+// Format runs golangci-lint --fix and prettier --write, returning the
+// modified source directory.
+func (m *Ci) Format(ctx context.Context, source *dagger.Directory) *dagger.Directory {
+	// Go formatting via golangci-lint --fix.
+	goFmt := dag.Container().
+		From("golangci/golangci-lint:"+golangciLintVersion+"-alpine").
+		WithMountedDirectory("/src", source).
+		WithWorkdir("/src").
+		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint")).
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithExec([]string{"golangci-lint", "run", "--fix"}).
+		Directory("/src")
+
+	// Prettier formatting.
+	return dag.Container().
+		From("node:lts-slim").
+		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion}).
+		WithMountedDirectory("/src", goFmt).
+		WithWorkdir("/src").
+		WithExec([]string{
+			"prettier", "--config", "./.prettierrc.yaml", "-w",
+			"*.yaml", "*.md", "*.json",
+			"**/*.yaml", "**/*.md", "**/*.json",
+		}).
+		Directory("/src")
+}
+
+// ---------------------------------------------------------------------------
+// Building
+// ---------------------------------------------------------------------------
+
+// Build runs GoReleaser in snapshot mode, producing binaries for all
+// platforms. Returns the dist/ directory.
+func (m *Ci) Build(ctx context.Context, source *dagger.Directory) *dagger.Directory {
+	return m.releaserBase(source).
+		WithExec([]string{
+			"goreleaser", "release", "--snapshot", "--clean",
+			"--skip=docker,docker_manifests,docker_signs,homebrew,nix,sign",
+		}).
+		Directory("/src/dist")
+}
+
+// PublishImages builds multi-arch container images using Dagger's native
+// Container API and publishes them to the registry.
+//
+// Multiple tags are published to match the current GoReleaser behavior:
+// :latest, :vX.Y.Z, :vX, :vX.Y.
+func (m *Ci) PublishImages(
+	ctx context.Context,
+	source *dagger.Directory,
+	// tags is the list of image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
+	tags []string,
+	registryUsername string,
+	registryPassword *dagger.Secret,
+	// +optional
+	cosignKey *dagger.Secret,
+) (string, error) {
+	// Build binaries via GoReleaser (Docker skipped).
+	dist := m.releaserBase(source).
+		WithExec([]string{
+			"goreleaser", "release", "--snapshot", "--clean",
+			"--skip=docker,docker_manifests,docker_signs,homebrew,nix,sign",
+		}).
+		Directory("/src/dist")
+
+	return m.publishImages(ctx, dist, tags, registryUsername, registryPassword, cosignKey)
+}
+
+// publishImages builds multi-arch container images from a pre-built dist/
+// directory and publishes them to the registry. This is the internal
+// implementation shared by PublishImages() and Release().
+func (m *Ci) publishImages(
+	ctx context.Context,
+	dist *dagger.Directory,
+	tags []string,
+	registryUsername string,
+	registryPassword *dagger.Secret,
+	cosignKey *dagger.Secret,
+) (string, error) {
+	// Build a container image for each platform.
+	platforms := []dagger.Platform{"linux/amd64", "linux/arm64"}
+	variants := make([]*dagger.Container, 0, len(platforms))
+
+	for _, platform := range platforms {
+		// Map platform to GoReleaser dist binary path.
+		// GoReleaser uses the build id (kclipper), not the binary name (kcl).
+		arch := "amd64"
+		if platform == "linux/arm64" {
+			arch = "arm64"
+		}
+		binaryPath := fmt.Sprintf("kclipper_linux_%s/kcl", arch)
+
+		ctr := dag.Container(dagger.ContainerOpts{Platform: platform}).
+			From("debian:13-slim").
+			// Match env vars from existing Dockerfile.
+			WithEnvVariable("LANG", "en_US.utf8").
+			WithEnvVariable("XDG_CACHE_HOME", "/tmp/xdg_cache").
+			WithEnvVariable("KCL_LIB_HOME", "/tmp/kcl_lib").
+			WithEnvVariable("KCL_PKG_PATH", "/tmp/kcl_pkg").
+			WithEnvVariable("KCL_CACHE_PATH", "/tmp/kcl_cache").
+			WithEnvVariable("KCL_FAST_EVAL", "1").
+			// Install runtime dependencies (curl/gpg for plugin installs).
+			WithExec([]string{"sh", "-c",
+				"apt-get update && apt-get install -y curl gpg apt-transport-https && rm -rf /var/lib/apt/lists/* /tmp/*"}).
+			WithFile("/usr/local/bin/kcl", dist.File(binaryPath)).
+			WithEntrypoint([]string{"kcl"})
+
+		variants = append(variants, ctr)
+	}
+
+	// Publish multi-arch manifest for each tag and collect digests.
+	var digests []string
+	for _, t := range tags {
+		ref := fmt.Sprintf("%s:%s", imageRegistry, t)
+		digest, err := dag.Container().
+			WithRegistryAuth("ghcr.io", registryUsername, registryPassword).
+			Publish(ctx, ref, dagger.ContainerPublishOpts{
+				PlatformVariants: variants,
+			})
+		if err != nil {
+			return "", fmt.Errorf("publish %s: %w", ref, err)
+		}
+		digests = append(digests, digest)
+	}
+
+	// Sign each published image with cosign (key-based signing).
+	if cosignKey != nil {
+		cosignCtr := dag.Container().
+			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
+			WithRegistryAuth("ghcr.io", registryUsername, registryPassword).
+			WithSecretVariable("COSIGN_KEY", cosignKey)
+
+		for _, digest := range digests {
+			_, err := cosignCtr.
+				WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
+				Stdout(ctx)
+			if err != nil {
+				return "", fmt.Errorf("sign image %s: %w", digest, err)
+			}
+		}
+	}
+
+	return fmt.Sprintf("published %d tags, %d digests\n%s", len(tags), len(digests), strings.Join(digests, "\n")), nil
+}
+
+// Release runs GoReleaser for binaries/archives/signing, then builds and
+// publishes container images using Dagger-native Container.Publish().
+// GoReleaser's Docker support is skipped entirely to avoid Docker-in-Docker.
+//
+// Returns the dist/ directory containing checksums.txt and digests.txt
+// for attestation in the calling workflow.
+func (m *Ci) Release(
+	ctx context.Context,
+	source *dagger.Directory,
+	githubToken *dagger.Secret,
+	registryUsername string,
+	registryPassword *dagger.Secret,
+	tag string,
+	// +optional
+	cosignKey *dagger.Secret,
+	// +optional
+	macosSignP12 *dagger.Secret,
+	// +optional
+	macosSignPassword *dagger.Secret,
+	// +optional
+	macosNotaryKey *dagger.Secret,
+	// +optional
+	macosNotaryKeyId *dagger.Secret,
+	// +optional
+	macosNotaryIssuerId *dagger.Secret,
+) (*dagger.Directory, error) {
+	ctr := m.releaserBase(source).
+		WithSecretVariable("GITHUB_TOKEN", githubToken)
+
+	// Conditionally add macOS signing secrets.
+	if macosSignP12 != nil {
+		ctr = ctr.
+			WithSecretVariable("MACOS_SIGN_P12", macosSignP12).
+			WithSecretVariable("MACOS_SIGN_PASSWORD", macosSignPassword).
+			WithSecretVariable("MACOS_NOTARY_KEY", macosNotaryKey).
+			WithSecretVariable("MACOS_NOTARY_KEY_ID", macosNotaryKeyId).
+			WithSecretVariable("MACOS_NOTARY_ISSUER_ID", macosNotaryIssuerId)
+	}
+
+	// Run GoReleaser for binaries, archives, signing, Homebrew, Nix.
+	// Docker is skipped -- images are published natively via Dagger below.
+	dist := ctr.
+		WithExec([]string{"goreleaser", "release", "--clean", "--skip=docker,docker_manifests,docker_signs"}).
+		Directory("/src/dist")
+
+	// Derive image tags from the version tag (e.g. v1.2.3 -> latest, v1.2.3, v1, v1.2).
+	tags := versionTags(tag)
+
+	// Publish multi-arch container images via Dagger-native API.
+	// Reuse the dist directory from the goreleaser run to avoid building twice.
+	result, err := m.publishImages(ctx, dist, tags, registryUsername, registryPassword, cosignKey)
+	if err != nil {
+		return nil, fmt.Errorf("publish images: %w", err)
+	}
+
+	// Extract digests from the publish result and write to dist for attestation.
+	lines := strings.Split(result, "\n")
+	var digestLines []string
+	for _, line := range lines {
+		// Digest lines contain "@sha256:".
+		if strings.Contains(line, "@sha256:") {
+			digestLines = append(digestLines, line)
+		}
+	}
+	if len(digestLines) > 0 {
+		dist = dist.WithNewFile("digests.txt", strings.Join(digestLines, "\n")+"\n")
+	}
+
+	return dist, nil
+}
+
+// ---------------------------------------------------------------------------
+// Composite
+// ---------------------------------------------------------------------------
+
+// Validate runs Test, Lint, LintPrettier, LintActions, and LintReleaser
+// concurrently. Use this for PR validation.
+func (m *Ci) Validate(ctx context.Context, source *dagger.Directory) (string, error) {
+	eg, ctx := errgroup.WithContext(ctx)
+
+	eg.Go(func() error {
+		_, err := m.Test(ctx, source)
+		return err
+	})
+
+	eg.Go(func() error {
+		_, err := m.Lint(ctx, source)
+		return err
+	})
+
+	eg.Go(func() error {
+		_, err := m.LintPrettier(ctx, source)
+		return err
+	})
+
+	eg.Go(func() error {
+		_, err := m.LintActions(ctx, source)
+		return err
+	})
+
+	eg.Go(func() error {
+		_, err := m.LintReleaser(ctx, source)
+		return err
+	})
+
+	if err := eg.Wait(); err != nil {
+		return "", err
+	}
+
+	return "validation passed", nil
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+// versionTags derives the set of image tags from a version tag string.
+// e.g. "v1.2.3" -> ["latest", "v1.2.3", "v1", "v1.2"].
+func versionTags(tag string) []string {
+	tags := []string{"latest", tag}
+	v := strings.TrimPrefix(tag, "v")
+	parts := strings.SplitN(v, ".", 3)
+	if len(parts) >= 1 {
+		tags = append(tags, "v"+parts[0])
+	}
+	if len(parts) >= 2 {
+		tags = append(tags, "v"+parts[0]+"."+parts[1])
+	}
+	return tags
+}
+
+// ---------------------------------------------------------------------------
+// Base containers (private helpers)
+// ---------------------------------------------------------------------------
+
+// goBase returns a Go container with source, module cache, and build cache.
+func (m *Ci) goBase(source *dagger.Directory) *dagger.Container {
+	return dag.Container().
+		From("golang:"+goVersion).
+		WithMountedDirectory("/src", source).
+		WithWorkdir("/src").
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithEnvVariable("GOCACHE", "/go/build-cache")
+}
+
+// releaserBase returns a container with Go, GoReleaser, Zig, cosign, and the
+// macOS SDK headers needed for CGO cross-compilation.
+func (m *Ci) releaserBase(source *dagger.Directory) *dagger.Container {
+	return dag.Container().
+		From("golang:"+goVersion).
+		// Install Zig for CGO cross-compilation, plus jq (used by
+		// GoReleaser before.hooks to download KCL LSP).
+		WithExec([]string{
+			"sh", "-c",
+			"apt-get update && apt-get install -y xz-utils jq && " +
+				"curl -fsSL https://ziglang.org/download/" + zigVersion +
+				"/zig-linux-x86_64-" + zigVersion + ".tar.xz | " +
+				"tar -xJ -C /usr/local --strip-components=1",
+		}).
+		// Install GoReleaser.
+		WithExec([]string{
+			"go", "install",
+			"github.com/goreleaser/goreleaser/v2@" + goreleaserVersion,
+		}).
+		// Install cosign for artifact signing.
+		WithExec([]string{
+			"go", "install",
+			"github.com/sigstore/cosign/v2/cmd/cosign@" + cosignVersion,
+		}).
+		// Install syft for SBOM generation.
+		WithExec([]string{
+			"go", "install",
+			"github.com/anchore/syft/cmd/syft@" + syftVersion,
+		}).
+		// Mount source and caches.
+		WithMountedDirectory("/src", source).
+		WithWorkdir("/src").
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		// Mount macOS SDK headers for Darwin cross-compilation.
+		WithMountedDirectory("/sdk/MacOSX.sdk",
+			source.Directory(".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")).
+		WithEnvVariable("SDK_PATH", "/sdk/MacOSX.sdk").
+		// Env vars used by GoReleaser ldflags and templates.
+		WithEnvVariable("KCL_LSP_VERSION", kclLSPVersion).
+		WithEnvVariable("BUILD_TAGS", "netgo").
+		WithEnvVariable("HOSTNAME", "dagger").
+		WithEnvVariable("USER", "dagger").
+		// CC/CXX env vars for GoReleaser cross-compilation via Zig.
+		WithEnvVariable("CC_LINUX_AMD64", "/src/hack/zig-gold-wrapper.sh -target x86_64-linux-gnu").
+		WithEnvVariable("CC_LINUX_ARM64", "/src/hack/zig-gold-wrapper.sh -target aarch64-linux-gnu").
+		WithEnvVariable("CC_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness").
+		WithEnvVariable("CC_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness").
+		WithEnvVariable("CXX_LINUX_AMD64", "/src/hack/zig-gold-wrapper.sh -target x86_64-linux-gnu").
+		WithEnvVariable("CXX_LINUX_ARM64", "/src/hack/zig-gold-wrapper.sh -target aarch64-linux-gnu").
+		WithEnvVariable("CXX_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness").
+		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness")
+}
