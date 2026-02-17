@@ -7,7 +7,7 @@
     "golangci-lint": "2.8.0",
     "go": "1.25.5",
     "git": "2.52.0",
-    "nodejs": "25.6.0",
+    "nodejs": "25.6.1",
     "nodePackages.prettier": "3.5.3",
     "uv": "0.9.30",
     "hyperfine": "1.20.0",
