@@ -369,51 +369,51 @@
         }
       }
     },
-    "devcontainer@0.82.0": {
-      "last_modified": "2026-02-06T12:24:04Z",
-      "resolved": "github:NixOS/nixpkgs/ae67888ff7ef9dff69b3cf0cc0fbfbcd3a722abe#devcontainer",
+    "devcontainer@0.83.0": {
+      "last_modified": "2026-02-13T23:34:13Z",
+      "resolved": "github:NixOS/nixpkgs/7d2ae6d8b8b697b5114a4249d0d958ee5f23d8fe#devcontainer",
       "source": "devbox-search",
-      "version": "0.82.0",
+      "version": "0.83.0",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/hxglr0h1wm82qhf196g7d1z6yywrlrv2-devcontainer-0.82.0",
+              "path": "/nix/store/xx6lm8inxizczvgpsbgls9b20m2l4q96-devcontainer-0.83.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/hxglr0h1wm82qhf196g7d1z6yywrlrv2-devcontainer-0.82.0"
+          "store_path": "/nix/store/xx6lm8inxizczvgpsbgls9b20m2l4q96-devcontainer-0.83.0"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/qh640dj8g46rlcp1j8qwcri1w6s21rbx-devcontainer-0.82.0",
+              "path": "/nix/store/vzhg6yrqwic4xf8r4bqzdaagi8bpr0v0-devcontainer-0.83.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/qh640dj8g46rlcp1j8qwcri1w6s21rbx-devcontainer-0.82.0"
+          "store_path": "/nix/store/vzhg6yrqwic4xf8r4bqzdaagi8bpr0v0-devcontainer-0.83.0"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/028xc21ca6kd8wf45i3zvx0ah68mfliw-devcontainer-0.82.0",
+              "path": "/nix/store/p3qi1ryv2g34d32hzrj6c8srqg6izk6w-devcontainer-0.83.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/028xc21ca6kd8wf45i3zvx0ah68mfliw-devcontainer-0.82.0"
+          "store_path": "/nix/store/p3qi1ryv2g34d32hzrj6c8srqg6izk6w-devcontainer-0.83.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/l6n8fmzal6yx82z0b6sqgmcxhk7q1l9n-devcontainer-0.82.0",
+              "path": "/nix/store/7kkbzww0qjqdlfck1jd2r4wchs04vkkg-devcontainer-0.83.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/l6n8fmzal6yx82z0b6sqgmcxhk7q1l9n-devcontainer-0.82.0"
+          "store_path": "/nix/store/7kkbzww0qjqdlfck1jd2r4wchs04vkkg-devcontainer-0.83.0"
         }
       }
     },
