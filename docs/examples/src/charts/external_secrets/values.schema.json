@@ -53,9 +53,20 @@
           "required": [],
           "type": "array"
         },
+        "hostAliases": {
+          "required": [],
+          "type": "array"
+        },
         "hostNetwork": {
           "required": [],
           "type": "boolean"
+        },
+        "hostUsers": {
+          "required": [],
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "image": {
           "properties": {
@@ -375,6 +386,14 @@
         "createPushSecret": {
           "required": [],
           "type": "boolean"
+        },
+        "createSecretStore": {
+          "required": [],
+          "type": "boolean"
+        },
+        "unsafeServeV1Beta1": {
+          "required": [],
+          "type": "boolean"
         }
       },
       "required": [],
@@ -436,6 +455,20 @@
       "required": [],
       "type": "string"
     },
+    "genericTargets": {
+      "properties": {
+        "enabled": {
+          "required": [],
+          "type": "boolean"
+        },
+        "resources": {
+          "required": [],
+          "type": "array"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
     "global": {
       "properties": {
         "affinity": {
@@ -458,9 +491,29 @@
           "required": [],
           "type": "object"
         },
+        "hostAliases": {
+          "required": [],
+          "type": "array"
+        },
+        "imagePullSecrets": {
+          "required": [],
+          "type": "array"
+        },
         "nodeSelector": {
           "required": [],
           "type": "object"
+        },
+        "podAnnotations": {
+          "required": [],
+          "type": "object"
+        },
+        "podLabels": {
+          "required": [],
+          "type": "object"
+        },
+        "repository": {
+          "required": [],
+          "type": "string"
         },
         "tolerations": {
           "required": [],
@@ -500,9 +553,20 @@
       "required": [],
       "type": "object"
     },
+    "hostAliases": {
+      "required": [],
+      "type": "array"
+    },
     "hostNetwork": {
       "required": [],
       "type": "boolean"
+    },
+    "hostUsers": {
+      "required": [],
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "image": {
       "properties": {
@@ -576,6 +640,10 @@
               "type": "integer"
             },
             "periodSeconds": {
+              "required": [],
+              "type": "integer"
+            },
+            "port": {
               "required": [],
               "type": "integer"
             },
@@ -745,6 +813,10 @@
       "type": "boolean"
     },
     "processPushSecret": {
+      "required": [],
+      "type": "boolean"
+    },
+    "processSecretStore": {
       "required": [],
       "type": "boolean"
     },
@@ -1005,6 +1077,10 @@
                   "required": [],
                   "type": "object"
                 },
+                "privateKey": {
+                  "required": [],
+                  "type": "object"
+                },
                 "renewBefore": {
                   "required": [],
                   "type": "string"
@@ -1012,6 +1088,10 @@
                 "revisionHistoryLimit": {
                   "required": [],
                   "type": "integer"
+                },
+                "signatureAlgorithm": {
+                  "required": [],
+                  "type": "string"
                 }
               },
               "required": [],
@@ -1057,9 +1137,20 @@
           "required": [],
           "type": "string"
         },
+        "hostAliases": {
+          "required": [],
+          "type": "array"
+        },
         "hostNetwork": {
           "required": [],
           "type": "boolean"
+        },
+        "hostUsers": {
+          "required": [],
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "image": {
           "properties": {

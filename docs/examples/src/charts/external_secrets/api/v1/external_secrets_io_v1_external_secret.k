@@ -45,12 +45,12 @@ schema ExternalSecretsIoV1ExternalSecretSpec:
     dataFrom : [ExternalSecretsIoV1ExternalSecretSpecDataFromItems0], default is Undefined, optional
         DataFrom is used to fetch all properties from a specific Provider data
         If multiple entries are specified, the Secret keys are merged in the specified order
-    refreshInterval : str, default is "1h", optional
+    refreshInterval : str, default is "1h0m0s", optional
         RefreshInterval is the amount of time before the values are read again from the SecretStore provider,
         specified as Golang Duration strings.
         Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h"
-        Example values: "1h", "2h30m", "10s"
-        May be set to zero to fetch and create it once. Defaults to 1h.
+        Example values: "1h0m0s", "2h30m0s", "10m0s"
+        May be set to "0s" to fetch and create it once. Defaults to 1h0m0s.
     refreshPolicy : str, default is Undefined, optional
         RefreshPolicy determines how the ExternalSecret should be refreshed:
         - CreatedOnce: Creates the Secret only if it does not exist and does not update it thereafter
@@ -64,7 +64,7 @@ schema ExternalSecretsIoV1ExternalSecretSpec:
     """
     data?: [ExternalSecretsIoV1ExternalSecretSpecDataItems0]
     dataFrom?: [ExternalSecretsIoV1ExternalSecretSpecDataFromItems0]
-    refreshInterval?: str = "1h"
+    refreshInterval?: str = "1h0m0s"
     refreshPolicy?: "CreatedOnce" | "Periodic" | "OnChange"
     secretStoreRef?: ExternalSecretsIoV1ExternalSecretSpecSecretStoreRef
     target?: ExternalSecretsIoV1ExternalSecretSpecTarget
@@ -435,6 +435,8 @@ schema ExternalSecretsIoV1ExternalSecretSpecTarget:
         Defaults to "Retain"
     immutable : bool, default is Undefined, optional
         Immutable defines if the final secret will be immutable
+    manifest : ExternalSecretsIoV1ExternalSecretSpecTargetManifest, default is Undefined, optional
+        manifest
     name : str, default is Undefined, optional
         The name of the Secret resource to be managed.
         Defaults to the .metadata.name of the ExternalSecret resource
@@ -444,6 +446,7 @@ schema ExternalSecretsIoV1ExternalSecretSpecTarget:
     creationPolicy?: "Owner" | "Orphan" | "Merge" | "None" = "Owner"
     deletionPolicy?: "Delete" | "Merge" | "Retain" = "Retain"
     immutable?: bool
+    manifest?: ExternalSecretsIoV1ExternalSecretSpecTargetManifest
     name?: str
     template?: ExternalSecretsIoV1ExternalSecretSpecTargetTemplate
 
@@ -451,6 +454,28 @@ schema ExternalSecretsIoV1ExternalSecretSpecTarget:
         len(name) <= 253 if name
         len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
+
+schema ExternalSecretsIoV1ExternalSecretSpecTargetManifest:
+    r"""
+    Manifest defines a custom Kubernetes resource to create instead of a Secret.
+    When specified, ExternalSecret will create the resource type defined here
+    (e.g., ConfigMap, Custom Resource) instead of a Secret.
+    Warning: Using Generic target. Make sure access policies and encryption are properly configured.
+
+    Attributes
+    ----------
+    apiVersion : str, default is Undefined, required
+        APIVersion of the target resource (e.g., "v1" for ConfigMap, "argoproj.io/v1alpha1" for ArgoCD Application)
+    kind : str, default is Undefined, required
+        Kind of the target resource (e.g., "ConfigMap", "Application")
+    """
+    apiVersion: str
+
+    kind: str
+
+    check:
+        len(apiVersion) >= 1
+        len(kind) >= 1
 
 schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplate:
     r"""
@@ -511,12 +536,15 @@ schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0:
     secret : ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0Secret, default is Undefined, optional
         secret
     target : str, default is "Data", optional
-        TemplateTarget specifies where the rendered templates should be applied.
+        Target specifies where to place the template result.
+        For Secret resources, common values are: "Data", "Annotations", "Labels".
+        For custom resources (when spec.target.manifest is set), this supports
+        nested paths like "spec.database.config" or "data".
     """
     configMap?: ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMap
     literal?: str
     secret?: ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0Secret
-    target?: "Data" | "Annotations" | "Labels" = "Data"
+    target?: str = "Data"
 
 schema ExternalSecretsIoV1ExternalSecretSpecTargetTemplateTemplateFromItems0ConfigMap:
     r"""
