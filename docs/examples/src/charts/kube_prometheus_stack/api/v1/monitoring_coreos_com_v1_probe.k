@@ -28,6 +28,8 @@ schema Probe:
         metadata
     spec : MonitoringCoreosComV1ProbeSpec, default is Undefined, required
         spec
+    status : MonitoringCoreosComV1ProbeStatus, default is Undefined, optional
+        status
     """
     apiVersion: "monitoring.coreos.com/v1" = "monitoring.coreos.com/v1"
 
@@ -36,9 +38,11 @@ schema Probe:
     metadata?: v1.ObjectMeta
     spec: MonitoringCoreosComV1ProbeSpec
 
+    status?: MonitoringCoreosComV1ProbeStatus
+
 schema MonitoringCoreosComV1ProbeSpec:
     r"""
-    Specification of desired Ingress selection for target discovery by Prometheus.
+    spec defines the specification of desired Ingress selection for target discovery by Prometheus.
 
     Attributes
     ----------
@@ -48,67 +52,84 @@ schema MonitoringCoreosComV1ProbeSpec:
         basic auth
     bearerTokenSecret : MonitoringCoreosComV1ProbeSpecBearerTokenSecret, default is Undefined, optional
         bearer token secret
+    convertClassicHistogramsToNHCB : bool, default is Undefined, optional
+        convertClassicHistogramsToNHCB defines whether to convert all scraped classic histograms into a native histogram with custom buckets.
+        It requires Prometheus >= v3.0.0.
+    enableHttp2 : bool, default is Undefined, optional
+        enableHttp2 can be used to disable HTTP2.
     fallbackScrapeProtocol : str, default is Undefined, optional
-        The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
+        fallbackScrapeProtocol defines the protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
 
         It requires Prometheus >= v3.0.0.
+    followRedirects : bool, default is Undefined, optional
+        followRedirects defines whether the client should follow HTTP 3xx
+        redirects.
     interval : str, default is Undefined, optional
-        Interval at which targets are probed using the configured prober.
+        interval at which targets are probed using the configured prober.
         If not specified Prometheus' global scrape interval is used.
     jobName : str, default is Undefined, optional
-        The job name assigned to scraped metrics by default.
+        jobName assigned to scraped metrics by default.
     keepDroppedTargets : int, default is Undefined, optional
-        Per-scrape limit on the number of targets dropped by relabeling
+        keepDroppedTargets defines the per-scrape limit on the number of targets dropped by relabeling
         that will be kept in memory. 0 means no limit.
 
         It requires Prometheus >= v2.47.0.
     labelLimit : int, default is Undefined, optional
-        Per-scrape limit on number of labels that will be accepted for a sample.
+        labelLimit defines the per-scrape limit on number of labels that will be accepted for a sample.
         Only valid in Prometheus versions 2.27.0 and newer.
     labelNameLengthLimit : int, default is Undefined, optional
-        Per-scrape limit on length of labels name that will be accepted for a sample.
+        labelNameLengthLimit defines the per-scrape limit on length of labels name that will be accepted for a sample.
         Only valid in Prometheus versions 2.27.0 and newer.
     labelValueLengthLimit : int, default is Undefined, optional
-        Per-scrape limit on length of labels value that will be accepted for a sample.
+        labelValueLengthLimit defines the per-scrape limit on length of labels value that will be accepted for a sample.
         Only valid in Prometheus versions 2.27.0 and newer.
     metricRelabelings : [MonitoringCoreosComV1ProbeSpecMetricRelabelingsItems0], default is Undefined, optional
-        MetricRelabelConfigs to apply to samples before ingestion.
+        metricRelabelings defines the RelabelConfig to apply to samples before ingestion.
     module : str, default is Undefined, optional
-        The module to use for probing specifying how to probe the target.
+        module to use for probing specifying how to probe the target.
         Example module configuring in the blackbox exporter:
         https://github.com/prometheus/blackbox_exporter/blob/master/example.yml
     nativeHistogramBucketLimit : int, default is Undefined, optional
-        If there are more than this many buckets in a native histogram,
+        nativeHistogramBucketLimit defines ff there are more than this many buckets in a native histogram,
         buckets will be merged to stay within the limit.
         It requires Prometheus >= v2.45.0.
     nativeHistogramMinBucketFactor : int | str, default is Undefined, optional
-        If the growth factor of one bucket to the next is smaller than this,
+        nativeHistogramMinBucketFactor defines if the growth factor of one bucket to the next is smaller than this,
         buckets will be merged to increase the factor sufficiently.
         It requires Prometheus >= v2.50.0.
     oauth2 : MonitoringCoreosComV1ProbeSpecOauth2, default is Undefined, optional
         oauth2
+    params : [MonitoringCoreosComV1ProbeSpecParamsItems0], default is Undefined, optional
+        params defines the list of HTTP query parameters for the scrape.
+        Please note that the `.spec.module` field takes precedence over the `module` parameter from this list when both are defined.
+        The module name must be added using Module under ProbeSpec.
     prober : MonitoringCoreosComV1ProbeSpecProber, default is Undefined, optional
         prober
     sampleLimit : int, default is Undefined, optional
-        SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
+        sampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
     scrapeClass : str, default is Undefined, optional
-        The scrape class to apply.
+        scrapeClass defines the scrape class to apply.
     scrapeClassicHistograms : bool, default is Undefined, optional
-        Whether to scrape a classic histogram that is also exposed as a native histogram.
+        scrapeClassicHistograms defines whether to scrape a classic histogram that is also exposed as a native histogram.
         It requires Prometheus >= v2.45.0.
+
+        Notice: `scrapeClassicHistograms` corresponds to the `always_scrape_classic_histograms` field in the Prometheus configuration.
+    scrapeNativeHistograms : bool, default is Undefined, optional
+        scrapeNativeHistograms defines whether to enable scraping of native histograms.
+        It requires Prometheus >= v3.8.0.
     scrapeProtocols : [str], default is Undefined, optional
-        `scrapeProtocols` defines the protocols to negotiate during a scrape. It tells clients the
+        scrapeProtocols defines the protocols to negotiate during a scrape. It tells clients the
         protocols supported by Prometheus in order of preference (from most to least preferred).
 
         If unset, Prometheus uses its default value.
 
         It requires Prometheus >= v2.49.0.
     scrapeTimeout : str, default is Undefined, optional
-        Timeout for scraping metrics from the Prometheus exporter.
+        scrapeTimeout defines the timeout for scraping metrics from the Prometheus exporter.
         If not specified, the Prometheus global scrape timeout is used.
         The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
     targetLimit : int, default is Undefined, optional
-        TargetLimit defines a limit on the number of scraped targets that will be accepted.
+        targetLimit defines a limit on the number of scraped targets that will be accepted.
     targets : MonitoringCoreosComV1ProbeSpecTargets, default is Undefined, optional
         targets
     tlsConfig : MonitoringCoreosComV1ProbeSpecTLSConfig, default is Undefined, optional
@@ -117,7 +138,10 @@ schema MonitoringCoreosComV1ProbeSpec:
     authorization?: MonitoringCoreosComV1ProbeSpecAuthorization
     basicAuth?: MonitoringCoreosComV1ProbeSpecBasicAuth
     bearerTokenSecret?: MonitoringCoreosComV1ProbeSpecBearerTokenSecret
+    convertClassicHistogramsToNHCB?: bool
+    enableHttp2?: bool
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
+    followRedirects?: bool
     interval?: str
     jobName?: str
     keepDroppedTargets?: int
@@ -129,10 +153,12 @@ schema MonitoringCoreosComV1ProbeSpec:
     nativeHistogramBucketLimit?: int
     nativeHistogramMinBucketFactor?: int | str
     oauth2?: MonitoringCoreosComV1ProbeSpecOauth2
+    params?: [MonitoringCoreosComV1ProbeSpecParamsItems0]
     prober?: MonitoringCoreosComV1ProbeSpecProber
     sampleLimit?: int
     scrapeClass?: str
     scrapeClassicHistograms?: bool
+    scrapeNativeHistograms?: bool
     scrapeProtocols?: [str]
     scrapeTimeout?: str
     targetLimit?: int
@@ -142,19 +168,23 @@ schema MonitoringCoreosComV1ProbeSpec:
     check:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
+        len(params) >= 1 if params
         len(scrapeClass) >= 1 if scrapeClass
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
 
 schema MonitoringCoreosComV1ProbeSpecAuthorization:
     r"""
-    Authorization section for this endpoint
+    authorization configures the Authorization header credentials used by
+    the client.
+
+    Cannot be set at the same time as `basicAuth`, `bearerTokenSecret` or `oauth2`.
 
     Attributes
     ----------
     credentials : MonitoringCoreosComV1ProbeSpecAuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -165,7 +195,7 @@ schema MonitoringCoreosComV1ProbeSpecAuthorization:
 
 schema MonitoringCoreosComV1ProbeSpecAuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -187,8 +217,10 @@ schema MonitoringCoreosComV1ProbeSpecAuthorizationCredentials:
 
 schema MonitoringCoreosComV1ProbeSpecBasicAuth:
     r"""
-    BasicAuth allow an endpoint to authenticate over basic authentication.
-    More info: https://prometheus.io/docs/operating/configuration/#endpoint
+    basicAuth defines the Basic Authentication credentials used by the
+    client.
+
+    Cannot be set at the same time as `authorization`, `bearerTokenSecret` or `oauth2`.
 
     Attributes
     ----------
@@ -202,7 +234,7 @@ schema MonitoringCoreosComV1ProbeSpecBasicAuth:
 
 schema MonitoringCoreosComV1ProbeSpecBasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -225,7 +257,7 @@ schema MonitoringCoreosComV1ProbeSpecBasicAuthPassword:
 
 schema MonitoringCoreosComV1ProbeSpecBasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -248,9 +280,14 @@ schema MonitoringCoreosComV1ProbeSpecBasicAuthUsername:
 
 schema MonitoringCoreosComV1ProbeSpecBearerTokenSecret:
     r"""
-    Secret to mount to read bearer token for scraping targets. The secret
-    needs to be in the same namespace as the probe and accessible by
-    the Prometheus Operator.
+    bearerTokenSecret defines a key of a Secret containing the bearer token
+    used by the client for authentication. The secret needs to be in the
+    same namespace as the custom resource and readable by the Prometheus
+    Operator.
+
+    Cannot be set at the same time as `authorization`, `basicAuth` or `oauth2`.
+
+    Deprecated: use `authorization` instead.
 
     Attributes
     ----------
@@ -280,31 +317,31 @@ schema MonitoringCoreosComV1ProbeSpecMetricRelabelingsItems0:
     Attributes
     ----------
     action : str, default is "replace", optional
-        Action to perform based on the regex matching.
+        action to perform based on the regex matching.
 
         `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
         `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
 
         Default: "Replace"
     modulus : int, default is Undefined, optional
-        Modulus to take of the hash of the source label values.
+        modulus to take of the hash of the source label values.
 
         Only applicable when the action is `HashMod`.
     regex : str, default is Undefined, optional
-        Regular expression against which the extracted value is matched.
+        regex defines the regular expression against which the extracted value is matched.
     replacement : str, default is Undefined, optional
-        Replacement value against which a Replace action is performed if the
+        replacement value against which a Replace action is performed if the
         regular expression matches.
 
         Regex capture groups are available.
     separator : str, default is Undefined, optional
-        Separator is the string between concatenated SourceLabels.
+        separator defines the string between concatenated SourceLabels.
     sourceLabels : [str], default is Undefined, optional
-        The source labels select values from existing labels. Their content is
+        sourceLabels defines the source labels select values from existing labels. Their content is
         concatenated using the configured Separator and matched against the
         configured regular expression.
     targetLabel : str, default is Undefined, optional
-        Label to which the resulting string is written in a replacement.
+        targetLabel defines the label to which the resulting string is written in a replacement.
 
         It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
         `KeepEqual` and `DropEqual` actions.
@@ -319,12 +356,13 @@ schema MonitoringCoreosComV1ProbeSpecMetricRelabelingsItems0:
     sourceLabels?: [str]
     targetLabel?: str
 
-    check:
-        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
-
 schema MonitoringCoreosComV1ProbeSpecOauth2:
     r"""
-    OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.
+    oauth2 defines the OAuth2 settings used by the client.
+
+    It requires Prometheus >= 2.27.0.
+
+    Cannot be set at the same time as `authorization`, `basicAuth` or `bearerTokenSecret`.
 
     Attributes
     ----------
@@ -333,31 +371,31 @@ schema MonitoringCoreosComV1ProbeSpecOauth2:
     clientSecret : MonitoringCoreosComV1ProbeSpecOauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1ProbeSpecOauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1ProbeSpecOauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1ProbeSpecOauth2ClientID
 
@@ -373,12 +411,12 @@ schema MonitoringCoreosComV1ProbeSpecOauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -393,7 +431,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ClientID:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -415,7 +453,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDConfigMap:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -437,7 +475,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDSecret:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -482,7 +520,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ProxyConnectHeaderItems0:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -492,19 +530,19 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfig:
     cert : MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1ProbeSpecOauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCa
     cert?: MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCert
@@ -516,7 +554,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfig:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -530,7 +568,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCa:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -552,7 +590,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaConfigMap:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -574,7 +612,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaSecret:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -588,7 +626,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCert:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -610,7 +648,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertConfigMap:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -632,7 +670,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertSecret:
 
 schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -652,33 +690,99 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigKeySecret:
     name?: str = ""
     optional?: bool
 
+schema MonitoringCoreosComV1ProbeSpecParamsItems0:
+    r"""
+    ProbeParam defines specification of extra parameters for a Probe.
+
+    Attributes
+    ----------
+    name : str, default is Undefined, required
+        name defines the parameter name
+    values : [str], default is Undefined, optional
+        values defines the parameter values
+    """
+    name: str
+
+    values?: [str]
+
+    check:
+        len(name) >= 1
+        len(values) >= 1 if values
+        all values in values {len(values) >= 1 if values not in [None, Undefined]} if values
+
 schema MonitoringCoreosComV1ProbeSpecProber:
     r"""
-    Specification for the prober to use for probing targets.
+    prober defines the specification for the prober to use for probing targets.
     The prober.URL parameter is required. Targets cannot be probed if left empty.
 
     Attributes
     ----------
+    noProxy : str, default is Undefined, optional
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     path : str, default is "/probe", optional
-        Path to collect metrics from.
+        path to collect metrics from.
         Defaults to `/probe`.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1ProbeSpecProberProxyConnectHeaderItems0]}, default is Undefined, optional
+        proxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        Optional ProxyURL.
+        proxyUrl defines the HTTP proxy server to use.
     scheme : str, default is Undefined, optional
-        HTTP scheme to use for scraping.
-        `http` and `https` are the expected values unless you rewrite the `__scheme__` label via relabeling.
-        If empty, Prometheus uses the default value `http`.
+        scheme defines the HTTP scheme to use when scraping the prober.
     url : str, default is Undefined, required
-        Mandatory URL of the prober.
+        url defines the address of the prober.
+
+        Unlike what the name indicates, the value should be in the form of
+        `address:port` without any scheme which should be specified in the
+        `scheme` field.
     """
+    noProxy?: str
     path?: str = "/probe"
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1ProbeSpecProberProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
     proxyUrl?: str
-    scheme?: "http" | "https"
+    scheme?: "http" | "https" | "HTTP" | "HTTPS"
     url: str
+
+    check:
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
+        len(url) >= 1
+
+schema MonitoringCoreosComV1ProbeSpecProberProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfig:
     r"""
-    TLS configuration to use when scraping the endpoint.
+    tlsConfig defines the TLS configuration used by the client.
 
     Attributes
     ----------
@@ -687,19 +791,19 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfig:
     cert : MonitoringCoreosComV1ProbeSpecTLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1ProbeSpecTLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1ProbeSpecTLSConfigCa
     cert?: MonitoringCoreosComV1ProbeSpecTLSConfigCert
@@ -711,7 +815,7 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfig:
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -725,7 +829,7 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCa:
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -747,7 +851,7 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCaConfigMap:
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -769,7 +873,7 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCaSecret:
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -783,7 +887,7 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCert:
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -805,7 +909,7 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCertConfigMap:
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -827,7 +931,7 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCertSecret:
 
 schema MonitoringCoreosComV1ProbeSpecTLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -849,7 +953,7 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigKeySecret:
 
 schema MonitoringCoreosComV1ProbeSpecTargets:
     r"""
-    Targets defines a set of static or dynamically discovered targets to probe.
+    targets defines a set of static or dynamically discovered targets to probe.
 
     Attributes
     ----------
@@ -872,7 +976,7 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngress:
     namespaceSelector : MonitoringCoreosComV1ProbeSpecTargetsIngressNamespaceSelector, default is Undefined, optional
         namespace selector
     relabelingConfigs : [MonitoringCoreosComV1ProbeSpecTargetsIngressRelabelingConfigsItems0], default is Undefined, optional
-        RelabelConfigs to apply to the label set of the target before it gets
+        relabelingConfigs to apply to the label set of the target before it gets
         scraped.
         The original ingress address is available via the
         `__tmp_prometheus_ingress_address` label. It can be used to customize the
@@ -888,15 +992,15 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngress:
 
 schema MonitoringCoreosComV1ProbeSpecTargetsIngressNamespaceSelector:
     r"""
-    From which namespaces to select Ingress objects.
+    namespaceSelector defines from which namespaces to select Ingress objects.
 
     Attributes
     ----------
     any : bool, default is Undefined, optional
-        Boolean describing whether all namespaces are selected in contrast to a
+        any defines the boolean describing whether all namespaces are selected in contrast to a
         list restricting them.
     matchNames : [str], default is Undefined, optional
-        List of namespace names to select from.
+        matchNames defines the list of namespace names to select from.
     """
     any?: bool
     matchNames?: [str]
@@ -911,31 +1015,31 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngressRelabelingConfigsItems0:
     Attributes
     ----------
     action : str, default is "replace", optional
-        Action to perform based on the regex matching.
+        action to perform based on the regex matching.
 
         `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
         `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
 
         Default: "Replace"
     modulus : int, default is Undefined, optional
-        Modulus to take of the hash of the source label values.
+        modulus to take of the hash of the source label values.
 
         Only applicable when the action is `HashMod`.
     regex : str, default is Undefined, optional
-        Regular expression against which the extracted value is matched.
+        regex defines the regular expression against which the extracted value is matched.
     replacement : str, default is Undefined, optional
-        Replacement value against which a Replace action is performed if the
+        replacement value against which a Replace action is performed if the
         regular expression matches.
 
         Regex capture groups are available.
     separator : str, default is Undefined, optional
-        Separator is the string between concatenated SourceLabels.
+        separator defines the string between concatenated SourceLabels.
     sourceLabels : [str], default is Undefined, optional
-        The source labels select values from existing labels. Their content is
+        sourceLabels defines the source labels select values from existing labels. Their content is
         concatenated using the configured Separator and matched against the
         configured regular expression.
     targetLabel : str, default is Undefined, optional
-        Label to which the resulting string is written in a replacement.
+        targetLabel defines the label to which the resulting string is written in a replacement.
 
         It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
         `KeepEqual` and `DropEqual` actions.
@@ -950,12 +1054,9 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngressRelabelingConfigsItems0:
     sourceLabels?: [str]
     targetLabel?: str
 
-    check:
-        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
-
 schema MonitoringCoreosComV1ProbeSpecTargetsIngressSelector:
     r"""
-    Selector to select the Ingress objects.
+    selector to select the Ingress objects.
 
     Attributes
     ----------
@@ -1003,13 +1104,13 @@ schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfig:
     Attributes
     ----------
     labels : {str:str}, default is Undefined, optional
-        Labels assigned to all metrics scraped from the targets.
+        labels defines all labels assigned to all metrics scraped from the targets.
     relabelingConfigs : [MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0], default is Undefined, optional
-        RelabelConfigs to apply to the label set of the targets before it gets
+        relabelingConfigs defines relabelings to be apply to the label set of the targets before it gets
         scraped.
         More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
     static : [str], default is Undefined, optional
-        The list of hosts to probe.
+        static defines the list of hosts to probe.
     """
     labels?: {str:str}
     relabelingConfigs?: [MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0]
@@ -1025,31 +1126,31 @@ schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0:
     Attributes
     ----------
     action : str, default is "replace", optional
-        Action to perform based on the regex matching.
+        action to perform based on the regex matching.
 
         `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
         `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
 
         Default: "Replace"
     modulus : int, default is Undefined, optional
-        Modulus to take of the hash of the source label values.
+        modulus to take of the hash of the source label values.
 
         Only applicable when the action is `HashMod`.
     regex : str, default is Undefined, optional
-        Regular expression against which the extracted value is matched.
+        regex defines the regular expression against which the extracted value is matched.
     replacement : str, default is Undefined, optional
-        Replacement value against which a Replace action is performed if the
+        replacement value against which a Replace action is performed if the
         regular expression matches.
 
         Regex capture groups are available.
     separator : str, default is Undefined, optional
-        Separator is the string between concatenated SourceLabels.
+        separator defines the string between concatenated SourceLabels.
     sourceLabels : [str], default is Undefined, optional
-        The source labels select values from existing labels. Their content is
+        sourceLabels defines the source labels select values from existing labels. Their content is
         concatenated using the configured Separator and matched against the
         configured regular expression.
     targetLabel : str, default is Undefined, optional
-        Label to which the resulting string is written in a replacement.
+        targetLabel defines the label to which the resulting string is written in a replacement.
 
         It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
         `KeepEqual` and `DropEqual` actions.
@@ -1064,6 +1165,85 @@ schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0:
     sourceLabels?: [str]
     targetLabel?: str
 
+schema MonitoringCoreosComV1ProbeStatus:
+    r"""
+    status defines the status subresource. It is under active development and is updated only when the
+    "StatusForConfigurationResources" feature gate is enabled.
+
+    Most recent observed status of the Probe. Read-only.
+    More info:
+    https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+
+    Attributes
+    ----------
+    bindings : [MonitoringCoreosComV1ProbeStatusBindingsItems0], default is Undefined, optional
+        bindings defines the list of workload resources (Prometheus, PrometheusAgent, ThanosRuler or Alertmanager) which select the configuration resource.
+    """
+    bindings?: [MonitoringCoreosComV1ProbeStatusBindingsItems0]
+
+schema MonitoringCoreosComV1ProbeStatusBindingsItems0:
+    r"""
+    WorkloadBinding is a link between a configuration resource and a workload resource.
+
+    Attributes
+    ----------
+    conditions : [MonitoringCoreosComV1ProbeStatusBindingsItems0ConditionsItems0], default is Undefined, optional
+        conditions defines the current state of the configuration resource when bound to the referenced Workload object.
+    group : str, default is Undefined, required
+        group defines the group of the referenced resource.
+    name : str, default is Undefined, required
+        name defines the name of the referenced object.
+    namespace : str, default is Undefined, required
+        namespace defines the namespace of the referenced object.
+    resource : str, default is Undefined, required
+        resource defines the type of resource being referenced (e.g. Prometheus, PrometheusAgent, ThanosRuler or Alertmanager).
+    """
+    conditions?: [MonitoringCoreosComV1ProbeStatusBindingsItems0ConditionsItems0]
+    group: "monitoring.coreos.com"
+
+    name: str
+
+    namespace: str
+
+    resource: "prometheuses" | "prometheusagents" | "thanosrulers" | "alertmanagers"
+
     check:
-        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
+        len(name) >= 1
+        len(namespace) >= 1
+
+schema MonitoringCoreosComV1ProbeStatusBindingsItems0ConditionsItems0:
+    r"""
+    ConfigResourceCondition describes the status of configuration resources linked to Prometheus, PrometheusAgent, Alertmanager or ThanosRuler.
+
+    Attributes
+    ----------
+    lastTransitionTime : str, default is Undefined, required
+        lastTransitionTime defines the time of the last update to the current status property.
+    message : str, default is Undefined, optional
+        message defines the human-readable message indicating details for the condition's last transition.
+    observedGeneration : int, default is Undefined, optional
+        observedGeneration defines the .metadata.generation that the
+        condition was set based upon. For instance, if `.metadata.generation` is
+        currently 12, but the `.status.conditions[].observedGeneration` is 9, the
+        condition is out of date with respect to the current state of the object.
+    reason : str, default is Undefined, optional
+        reason for the condition's last transition.
+    status : str, default is Undefined, required
+        status of the condition.
+    $type : str, default is Undefined, required
+        type of the condition being reported.
+        Currently, only "Accepted" is supported.
+    """
+    lastTransitionTime: str
+
+    message?: str
+    observedGeneration?: int
+    reason?: str
+    status: str
+
+    $type: "Accepted"
+
+    check:
+        len(status) >= 1
+        len($type) >= 1
 
