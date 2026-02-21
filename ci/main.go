@@ -393,28 +393,29 @@ func versionTags(tag string) []string {
 
 // goBase returns a Go container with source, module cache, and build cache.
 func (m *Ci) goBase(source *dagger.Directory) *dagger.Container {
-	return dag.Container().
+	return ensureGitRepo(dag.Container().
 		From("golang:"+goVersion).
 		WithMountedDirectory("/src", source).
 		WithWorkdir("/src").
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
-		WithEnvVariable("GOCACHE", "/go/build-cache")
+		WithEnvVariable("GOCACHE", "/go/build-cache"))
 }
 
 // releaserBase returns a container with Go, GoReleaser, Zig, cosign, and the
 // macOS SDK headers needed for CGO cross-compilation.
 func (m *Ci) releaserBase(source *dagger.Directory) *dagger.Container {
-	return dag.Container().
+	return ensureGitRepo(dag.Container().
 		From("golang:"+goVersion).
 		// Install Zig for CGO cross-compilation, plus jq (used by
 		// GoReleaser before.hooks to download KCL LSP).
 		WithExec([]string{
 			"sh", "-c",
 			"apt-get update && apt-get install -y xz-utils jq && " +
+				"ZIG_ARCH=$(uname -m | sed 's/arm64/aarch64/') && " +
 				"curl -fsSL https://ziglang.org/download/" + zigVersion +
-				"/zig-linux-x86_64-" + zigVersion + ".tar.xz | " +
+				"/zig-${ZIG_ARCH}-linux-" + zigVersion + ".tar.xz | " +
 				"tar -xJ -C /usr/local --strip-components=1",
 		}).
 		// Install GoReleaser.
@@ -425,7 +426,7 @@ func (m *Ci) releaserBase(source *dagger.Directory) *dagger.Container {
 		// Install cosign for artifact signing.
 		WithExec([]string{
 			"go", "install",
-			"github.com/sigstore/cosign/v2/cmd/cosign@" + cosignVersion,
+			"github.com/sigstore/cosign/v3/cmd/cosign@" + cosignVersion,
 		}).
 		// Install syft for SBOM generation.
 		WithExec([]string{
@@ -456,5 +457,22 @@ func (m *Ci) releaserBase(source *dagger.Directory) *dagger.Container {
 		WithEnvVariable("CXX_LINUX_AMD64", "/src/hack/zig-gold-wrapper.sh -target x86_64-linux-gnu").
 		WithEnvVariable("CXX_LINUX_ARM64", "/src/hack/zig-gold-wrapper.sh -target aarch64-linux-gnu").
 		WithEnvVariable("CXX_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness").
-		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness")
+		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness"))
+}
+
+// ensureGitRepo ensures the container has a valid git repository at its
+// working directory. When running from a git worktree, the .git file
+// references a host path that doesn't exist in the container. In that case,
+// a minimal git repository is initialized so that tools like GoReleaser and
+// tests that depend on git metadata continue to work.
+func ensureGitRepo(ctr *dagger.Container) *dagger.Container {
+	return ctr.WithExec([]string{
+		"sh", "-c",
+		"if ! git rev-parse --git-dir >/dev/null 2>&1; then " +
+			"rm -f .git && " +
+			"git init -q && " +
+			"git add -A && " +
+			"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init; " +
+			"fi",
+	})
 }
