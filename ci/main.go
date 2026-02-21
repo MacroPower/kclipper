@@ -227,60 +227,29 @@ func (m *Ci) publishImages(
 	registryPassword *dagger.Secret,
 	cosignKey *dagger.Secret,
 ) ([]string, error) {
-	// Build a container image for each platform.
-	platforms := []dagger.Platform{"linux/amd64", "linux/arm64"}
-	variants := make([]*dagger.Container, 0, len(platforms))
+	variants := runtimeImages(dist)
 
-	for _, platform := range platforms {
-		// Map platform to GoReleaser dist binary path.
-		// GoReleaser uses the build id (kclipper), not the binary name (kcl).
-		// Directory names include the GOAMD64/GOARM64 version suffix:
-		//   amd64 -> kclipper_linux_amd64_v1
-		//   arm64 -> kclipper_linux_arm64_v8.0
-		dir := "kclipper_linux_amd64_v1"
-		if platform == "linux/arm64" {
-			dir = "kclipper_linux_arm64_v8.0"
-		}
-		binaryPath := dir + "/kcl"
-
-		ctr := dag.Container(dagger.ContainerOpts{Platform: platform}).
-			From("debian:13-slim").
-			// OCI labels for container metadata.
-			WithLabel("org.opencontainers.image.title", "kclipper").
-			WithLabel("org.opencontainers.image.description", "A superset of KCL that integrates Helm chart management").
-			WithLabel("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
-			WithLabel("org.opencontainers.image.url", "https://github.com/macropower/kclipper").
-			WithLabel("org.opencontainers.image.licenses", "Apache-2.0").
-			// Match env vars from existing Dockerfile.
-			WithEnvVariable("LANG", "en_US.utf8").
-			WithEnvVariable("XDG_CACHE_HOME", "/tmp/xdg_cache").
-			WithEnvVariable("KCL_LIB_HOME", "/tmp/kcl_lib").
-			WithEnvVariable("KCL_PKG_PATH", "/tmp/kcl_pkg").
-			WithEnvVariable("KCL_CACHE_PATH", "/tmp/kcl_cache").
-			WithEnvVariable("KCL_FAST_EVAL", "1").
-			// Install runtime dependencies (curl/gpg for plugin installs).
-			WithExec([]string{"sh", "-c",
-				"apt-get update && apt-get install -y curl gpg apt-transport-https && rm -rf /var/lib/apt/lists/* /tmp/*"}).
-			WithFile("/usr/local/bin/kcl", dist.File(binaryPath)).
-			WithEntrypoint([]string{"kcl"})
-
-		variants = append(variants, ctr)
-	}
-
-	// Publish multi-arch manifest for each tag and collect digests.
+	// Publish multi-arch manifest for each tag concurrently.
 	publisher := dag.Container().
 		WithRegistryAuth("ghcr.io", registryUsername, registryPassword)
 
-	var digests []string
-	for _, t := range tags {
+	digests := make([]string, len(tags))
+	g, ctx := errgroup.WithContext(ctx)
+	for i, t := range tags {
 		ref := fmt.Sprintf("%s:%s", imageRegistry, t)
-		digest, err := publisher.Publish(ctx, ref, dagger.ContainerPublishOpts{
-			PlatformVariants: variants,
+		g.Go(func() error {
+			digest, err := publisher.Publish(ctx, ref, dagger.ContainerPublishOpts{
+				PlatformVariants: variants,
+			})
+			if err != nil {
+				return fmt.Errorf("publish %s: %w", ref, err)
+			}
+			digests[i] = digest
+			return nil
 		})
-		if err != nil {
-			return nil, fmt.Errorf("publish %s: %w", ref, err)
-		}
-		digests = append(digests, digest)
+	}
+	if err := g.Wait(); err != nil {
+		return nil, err
 	}
 
 	// Sign each published image with cosign (key-based signing).
@@ -462,6 +431,51 @@ func (m *Ci) Dev(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+// runtimeImages builds a multi-arch set of runtime container images from a
+// pre-built GoReleaser dist/ directory. Each image is based on debian:13-slim
+// with OCI labels, KCL environment variables, and runtime dependencies.
+func runtimeImages(dist *dagger.Directory) []*dagger.Container {
+	platforms := []dagger.Platform{"linux/amd64", "linux/arm64"}
+	variants := make([]*dagger.Container, 0, len(platforms))
+
+	for _, platform := range platforms {
+		// Map platform to GoReleaser dist binary path.
+		// GoReleaser uses the build id (kclipper), not the binary name (kcl).
+		// Directory names include the GOAMD64/GOARM64 version suffix:
+		//   amd64 -> kclipper_linux_amd64_v1
+		//   arm64 -> kclipper_linux_arm64_v8.0
+		dir := "kclipper_linux_amd64_v1"
+		if platform == "linux/arm64" {
+			dir = "kclipper_linux_arm64_v8.0"
+		}
+
+		ctr := dag.Container(dagger.ContainerOpts{Platform: platform}).
+			From("debian:13-slim").
+			// OCI labels for container metadata.
+			WithLabel("org.opencontainers.image.title", "kclipper").
+			WithLabel("org.opencontainers.image.description", "A superset of KCL that integrates Helm chart management").
+			WithLabel("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
+			WithLabel("org.opencontainers.image.url", "https://github.com/macropower/kclipper").
+			WithLabel("org.opencontainers.image.licenses", "Apache-2.0").
+			// Match env vars from existing Dockerfile.
+			WithEnvVariable("LANG", "en_US.utf8").
+			WithEnvVariable("XDG_CACHE_HOME", "/tmp/xdg_cache").
+			WithEnvVariable("KCL_LIB_HOME", "/tmp/kcl_lib").
+			WithEnvVariable("KCL_PKG_PATH", "/tmp/kcl_pkg").
+			WithEnvVariable("KCL_CACHE_PATH", "/tmp/kcl_cache").
+			WithEnvVariable("KCL_FAST_EVAL", "1").
+			// Install runtime dependencies (curl/gpg for plugin installs).
+			WithExec([]string{"sh", "-c",
+				"apt-get update && apt-get install -y curl gpg apt-transport-https && rm -rf /var/lib/apt/lists/* /tmp/*"}).
+			WithFile("/usr/local/bin/kcl", dist.File(dir+"/kcl")).
+			WithEntrypoint([]string{"kcl"})
+
+		variants = append(variants, ctr)
+	}
+
+	return variants
+}
 
 // formatDigestChecksums converts Dagger Publish output references to the
 // checksums format expected by actions/attest-build-provenance's
