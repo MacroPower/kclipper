@@ -45,9 +45,8 @@ jobs:
         uses: dagger/dagger-for-github@v8
         with:
           version: "0.19"
-          verb: call
+          verb: check
           module: ci/tests
-          args: all
 
   lint:
     name: lint

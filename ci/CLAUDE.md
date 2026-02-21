@@ -17,7 +17,7 @@ Or via the Taskfile:
 
 ```bash
 task test              # dagger check test
-task test:integration  # dagger call -m ci/tests all
+task test:integration  # dagger check -m ci/tests
 task lint              # dagger check lint lint-prettier lint-actions lint-releaser
 task format            # dagger generate --auto-apply
 task build             # dagger call build export --path=./dist
@@ -98,14 +98,17 @@ since `go test` cannot run directly on Dagger modules (the generated SDK's
 `init()` requires a running Dagger session).
 
 ```bash
-dagger call -m ci/tests all            # Run all integration tests
+dagger check -m ci/tests              # Run all integration tests via +check
+dagger call -m ci/tests all           # Run all tests via the All runner
 dagger call -m ci/tests test-source-filtering   # Run a specific test
 ```
 
-Tests are Dagger Functions that accept `context.Context` and return `error`
-for pass/fail. The `All` function runs all tests in parallel using
-`errgroup`. To add a new test, add a method on `Tests` and register it
-in `All`.
+Tests are Dagger Functions annotated with `+check` that accept
+`context.Context` and return `error` for pass/fail. Using `dagger check`
+runs them concurrently via Dagger's built-in check runner. The `All`
+function provides an alternative that runs tests in parallel using
+`errgroup`. To add a new test, add a `+check`-annotated method on
+`Tests` and register it in `All`.
 
 ## Adding a New Check
 

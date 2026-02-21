@@ -1,4 +1,5 @@
-// Integration tests for the [Ci] module.
+// Integration tests for the [Ci] module. Individual tests are annotated
+// with +check so `dagger check -m ci/tests` runs them all concurrently.
 
 package main
 
@@ -26,6 +27,8 @@ func (m *Tests) All(ctx context.Context) error {
 
 // TestSourceFiltering verifies that the +ignore annotation in [Ci.New]
 // excludes the expected directories from the source.
+//
+// +check
 func (m *Tests) TestSourceFiltering(ctx context.Context) error {
 	entries, err := dag.Ci().Source().Entries(ctx)
 	if err != nil {
@@ -63,6 +66,8 @@ func (m *Tests) TestSourceFiltering(ctx context.Context) error {
 // source produces an empty changeset. This exercises the full [Ci.Format]
 // pipeline (golangci-lint --fix + prettier --write) and confirms the source is
 // clean.
+//
+// +check
 func (m *Tests) TestFormatIdempotent(ctx context.Context) error {
 	changeset := dag.Ci().Format()
 
