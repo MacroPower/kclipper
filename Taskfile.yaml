@@ -45,37 +45,34 @@ tasks:
       - dagger generate --auto-apply
 
   lint:
-    desc: Runs all lint targets via Dagger
-    deps:
-      - lint:go
-      - lint:prettier
-      - lint:actions
-      - lint:releaser
+    desc: Runs all lint checks via Dagger
+    cmds:
+      - dagger check lint lint-prettier lint-actions lint-releaser
 
   lint:go:
     desc: Lints Go code via Dagger
     cmds:
-      - dagger call lint
+      - dagger check lint
 
   lint:prettier:
     desc: Checks formatting of YAML, JSON, and Markdown via Dagger
     cmds:
-      - dagger call lint-prettier
+      - dagger check lint-prettier
 
   lint:actions:
     desc: Lints GitHub Actions workflows via Dagger
     cmds:
-      - dagger call lint-actions
+      - dagger check lint-actions
 
   lint:releaser:
     desc: Validates GoReleaser configuration via Dagger
     cmds:
-      - dagger call lint-releaser
+      - dagger check lint-releaser
 
   test:
     desc: Runs Go tests via Dagger
     cmds:
-      - dagger call test
+      - dagger check test
 
   build:
     desc: Builds all binaries via Dagger

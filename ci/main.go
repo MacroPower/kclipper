@@ -240,14 +240,15 @@ func (m *Ci) publishImages(
 	}
 
 	// Publish multi-arch manifest for each tag and collect digests.
+	publisher := dag.Container().
+		WithRegistryAuth("ghcr.io", registryUsername, registryPassword)
+
 	var digests []string
 	for _, t := range tags {
 		ref := fmt.Sprintf("%s:%s", imageRegistry, t)
-		digest, err := dag.Container().
-			WithRegistryAuth("ghcr.io", registryUsername, registryPassword).
-			Publish(ctx, ref, dagger.ContainerPublishOpts{
-				PlatformVariants: variants,
-			})
+		digest, err := publisher.Publish(ctx, ref, dagger.ContainerPublishOpts{
+			PlatformVariants: variants,
+		})
 		if err != nil {
 			return "", fmt.Errorf("publish %s: %w", ref, err)
 		}
