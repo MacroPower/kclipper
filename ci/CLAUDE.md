@@ -45,16 +45,23 @@ ci/
 | Build       | (none)       | `dagger call <name>`   | Artifact production.                       |
 | Development | (none)       | `dagger call dev terminal` | Interactive containers.                |
 
+### Source Directory Filtering
+
+The `New` constructor uses `+ignore` to exclude directories that are never
+needed inside CI containers (`dist`, `.worktrees`, `.tmp`, `.devcontainer`).
+This reduces the context transfer size when invoking Dagger functions.
+
 ### Base Container Pattern
 
 Private helper methods build reusable container layers:
 
+- `prettierBase()` -- Node + prettier (standalone; callers mount source).
 - `goBase()` -- Go toolchain + source + module/build caches.
 - `lintBase()` -- golangci-lint Alpine image + linux-headers + caches.
 - `releaserBase()` -- Go + GoReleaser + Zig (CGO cross-compilation) + cosign + syft + macOS SDK.
 
-All base containers share the same cache volumes (`go-mod`, `go-build`) and
-set `GOMODCACHE`/`GOCACHE` environment variables to match.
+All Go-based base containers share the same cache volumes (`go-mod`,
+`go-build`) and set `GOMODCACHE`/`GOCACHE` environment variables to match.
 
 ### Git Worktree Handling
 
@@ -111,6 +118,17 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
 ```
 
 2. Run with `dagger generate --auto-apply` to apply changes locally.
+
+## Conventions
+
+- All public function parameters must have doc comments (they become
+  `dagger call --help` text).
+- Use Go doc link syntax (`[Name]`, `[*Name]`) in doc comments per the
+  project's root `CLAUDE.md`.
+- Cross-compilation macOS SDK flags are defined in the `macosSDKFlags`
+  constant to avoid repetition across `CC_*`/`CXX_*` env vars.
+- The `publishImages` helper returns `[]string` digests directly rather than
+  formatted strings, keeping callers clean.
 
 ## Version Management
 
