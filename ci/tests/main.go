@@ -185,8 +185,8 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("build images: %w", err)
 	}
-	if len(variants) == 0 {
-		return fmt.Errorf("expected at least one image variant")
+	if len(variants) != 2 {
+		return fmt.Errorf("expected 2 image variants (linux/amd64, linux/arm64), got %d", len(variants))
 	}
 
 	for i, ctr := range variants {
@@ -206,6 +206,15 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 		}
 		if title != "kclipper" {
 			return fmt.Errorf("variant %d: title label = %q, want %q", i, title, "kclipper")
+		}
+
+		// Verify OCI created label is present and non-empty.
+		created, err := ctr.Label(ctx, "org.opencontainers.image.created")
+		if err != nil {
+			return fmt.Errorf("variant %d: created label: %w", i, err)
+		}
+		if created == "" {
+			return fmt.Errorf("variant %d: created label is empty", i)
 		}
 
 		// Verify entrypoint.
