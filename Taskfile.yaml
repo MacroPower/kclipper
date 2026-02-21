@@ -74,6 +74,11 @@ tasks:
     cmds:
       - dagger check test
 
+  test:integration:
+    desc: Runs CI module integration tests via Dagger
+    cmds:
+      - dagger call -m ci/tests all
+
   build:
     desc: Builds all binaries via Dagger
     cmds:
