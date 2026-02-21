@@ -413,6 +413,8 @@ func (m *Ci) Dev(
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
 		WithEnvVariable("GOCACHE", "/go/build-cache").
+		// Pre-download Go modules so the first build/test is fast.
+		WithExec([]string{"go", "mod", "download"}).
 		WithEnvVariable("EDITOR", "nano").
 		WithEnvVariable("VISUAL", "nano").
 		WithEnvVariable("TERM", "xterm-256color").
