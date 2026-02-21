@@ -545,11 +545,22 @@ func formatDigestChecksums(refs []string) string {
 }
 
 // versionTags derives the set of image tags from a version tag string.
-// e.g. "v1.2.3" -> ["latest", "v1.2.3", "v1", "v1.2"].
+// Stable releases get "latest" and shorthand tags (e.g. "v1.2.3" yields
+// ["latest", "v1.2.3", "v1", "v1.2"]). Pre-release versions only get their
+// exact tag (e.g. "v1.0.0-rc.1" yields ["v1.0.0-rc.1"]).
 func versionTags(tag string) []string {
-	tags := []string{"latest", tag}
 	v := strings.TrimPrefix(tag, "v")
 	parts := strings.SplitN(v, ".", 3)
+
+	// Detect pre-release: any version component contains a hyphen
+	// (e.g. "1.0.0-rc.1" → third part is "0-rc.1").
+	for _, p := range parts {
+		if strings.Contains(p, "-") {
+			return []string{tag}
+		}
+	}
+
+	tags := []string{"latest", tag}
 	if len(parts) >= 1 {
 		tags = append(tags, "v"+parts[0])
 	}

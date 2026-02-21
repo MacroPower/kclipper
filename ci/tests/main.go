@@ -115,7 +115,7 @@ func (m *Tests) TestVersionTags(ctx context.Context) error {
 		},
 		"pre-release": {
 			tag:  "v0.5.1-rc.1",
-			want: []string{"latest", "v0.5.1-rc.1", "v0", "v0.5"},
+			want: []string{"v0.5.1-rc.1"},
 		},
 		"two-component": {
 			tag:  "v2.0",
