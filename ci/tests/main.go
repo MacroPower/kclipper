@@ -21,6 +21,7 @@ func (m *Tests) All(ctx context.Context) error {
 
 	g.Go(func() error { return m.TestSourceFiltering(ctx) })
 	g.Go(func() error { return m.TestFormatIdempotent(ctx) })
+	g.Go(func() error { return m.TestLintActionsClean(ctx) })
 
 	return g.Wait()
 }
@@ -83,4 +84,13 @@ func (m *Tests) TestFormatIdempotent(ctx context.Context) error {
 			modified, added, removed)
 	}
 	return nil
+}
+
+// TestLintActionsClean verifies that the GitHub Actions workflows pass
+// zizmor linting. This exercises the [Ci.LintActions] check and catches
+// workflow security or syntax issues.
+//
+// +check
+func (m *Tests) TestLintActionsClean(ctx context.Context) error {
+	return dag.Ci().LintActions(ctx)
 }
