@@ -32,6 +32,23 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  integration:
+    name: integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Run integration tests
+        uses: dagger/dagger-for-github@v8
+        with:
+          version: "0.19"
+          verb: call
+          module: ci/tests
+          args: all
+
   lint:
     name: lint
     runs-on: ubuntu-latest
