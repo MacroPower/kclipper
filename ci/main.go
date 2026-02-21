@@ -173,10 +173,13 @@ func (m *Ci) Build() *dagger.Directory {
 // :latest, :vX.Y.Z, :vX, :vX.Y.
 func (m *Ci) PublishImages(
 	ctx context.Context,
-	// tags is the list of image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
+	// Image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
 	tags []string,
+	// Registry username for authentication.
 	registryUsername string,
+	// Registry password or token for authentication.
 	registryPassword *dagger.Secret,
+	// Cosign private key for signing published images.
 	// +optional
 	cosignKey *dagger.Secret,
 ) (string, error) {
@@ -188,12 +191,20 @@ func (m *Ci) PublishImages(
 		}).
 		Directory("/src/dist")
 
-	return m.publishImages(ctx, dist, tags, registryUsername, registryPassword, cosignKey)
+	digests, err := m.publishImages(ctx, dist, tags, registryUsername, registryPassword, cosignKey)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("published %d tags, %d digests\n%s", len(tags), len(digests), strings.Join(digests, "\n")), nil
 }
 
 // publishImages builds multi-arch container images from a pre-built dist/
-// directory and publishes them to the registry. This is the internal
-// implementation shared by [Ci.PublishImages] and [Ci.Release].
+// directory and publishes them to the registry. It returns the list of
+// published image digests.
+//
+// This is the internal implementation shared by [Ci.PublishImages] and
+// [Ci.Release].
 func (m *Ci) publishImages(
 	ctx context.Context,
 	dist *dagger.Directory,
@@ -201,7 +212,7 @@ func (m *Ci) publishImages(
 	registryUsername string,
 	registryPassword *dagger.Secret,
 	cosignKey *dagger.Secret,
-) (string, error) {
+) ([]string, error) {
 	// Build a container image for each platform.
 	platforms := []dagger.Platform{"linux/amd64", "linux/arm64"}
 	variants := make([]*dagger.Container, 0, len(platforms))
@@ -247,7 +258,7 @@ func (m *Ci) publishImages(
 			PlatformVariants: variants,
 		})
 		if err != nil {
-			return "", fmt.Errorf("publish %s: %w", ref, err)
+			return nil, fmt.Errorf("publish %s: %w", ref, err)
 		}
 		digests = append(digests, digest)
 	}
@@ -264,12 +275,12 @@ func (m *Ci) publishImages(
 				WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
 				Stdout(ctx)
 			if err != nil {
-				return "", fmt.Errorf("sign image %s: %w", digest, err)
+				return nil, fmt.Errorf("sign image %s: %w", digest, err)
 			}
 		}
 	}
 
-	return fmt.Sprintf("published %d tags, %d digests\n%s", len(tags), len(digests), strings.Join(digests, "\n")), nil
+	return digests, nil
 }
 
 // Release runs GoReleaser for binaries/archives/signing, then builds and
@@ -280,20 +291,30 @@ func (m *Ci) publishImages(
 // for attestation in the calling workflow.
 func (m *Ci) Release(
 	ctx context.Context,
+	// GitHub token for creating the release.
 	githubToken *dagger.Secret,
+	// Registry username for container image authentication.
 	registryUsername string,
+	// Registry password or token for container image authentication.
 	registryPassword *dagger.Secret,
+	// Version tag to release (e.g. "v1.2.3").
 	tag string,
+	// Cosign private key for signing published images.
 	// +optional
 	cosignKey *dagger.Secret,
+	// macOS code signing PKCS#12 certificate (base64-encoded).
 	// +optional
 	macosSignP12 *dagger.Secret,
+	// Password for the macOS code signing certificate.
 	// +optional
 	macosSignPassword *dagger.Secret,
+	// Apple App Store Connect API key for notarization.
 	// +optional
 	macosNotaryKey *dagger.Secret,
+	// Apple App Store Connect API key ID.
 	// +optional
 	macosNotaryKeyId *dagger.Secret,
+	// Apple App Store Connect API issuer ID.
 	// +optional
 	macosNotaryIssuerId *dagger.Secret,
 ) (*dagger.Directory, error) {
@@ -321,22 +342,14 @@ func (m *Ci) Release(
 
 	// Publish multi-arch container images via Dagger-native API.
 	// Reuse the dist directory from the goreleaser run to avoid building twice.
-	result, err := m.publishImages(ctx, dist, tags, registryUsername, registryPassword, cosignKey)
+	digests, err := m.publishImages(ctx, dist, tags, registryUsername, registryPassword, cosignKey)
 	if err != nil {
 		return nil, fmt.Errorf("publish images: %w", err)
 	}
 
-	// Extract digests from the publish result and write to dist for attestation.
-	lines := strings.Split(result, "\n")
-	var digestLines []string
-	for _, line := range lines {
-		// Digest lines contain "@sha256:".
-		if strings.Contains(line, "@sha256:") {
-			digestLines = append(digestLines, line)
-		}
-	}
-	if len(digestLines) > 0 {
-		dist = dist.WithNewFile("digests.txt", strings.Join(digestLines, "\n")+"\n")
+	// Write digests to dist for attestation in the calling workflow.
+	if len(digests) > 0 {
+		dist = dist.WithNewFile("digests.txt", strings.Join(digests, "\n")+"\n")
 	}
 
 	return dist, nil
