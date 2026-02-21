@@ -18,6 +18,10 @@ const (
 	prettierVersion     = "3.5.3"          // renovate: datasource=npm depName=prettier
 	zizmorVersion       = "1.22.0"         // renovate: datasource=github-releases depName=zizmorcore/zizmor
 	kclLSPVersion       = "v0.11.2"        // renovate: datasource=github-releases depName=kcl-lang/kcl
+	taskVersion         = "v3.45.0"        // renovate: datasource=github-releases depName=go-task/task
+	conformVersion      = "v0.1.0-alpha.31" // renovate: datasource=github-releases depName=siderolabs/conform
+	lefthookVersion     = "v2.1.1"         // renovate: datasource=github-releases depName=evilmartians/lefthook
+	daggerVersion       = "v0.19.11"       // renovate: datasource=github-releases depName=dagger/dagger
 
 	imageRegistry = "ghcr.io/macropower/kclipper"
 )
@@ -125,17 +129,17 @@ func (m *Ci) LintReleaser(ctx context.Context) error {
 // ---------------------------------------------------------------------------
 
 // Format runs golangci-lint --fix and prettier --write, returning the
-// modified source directory.
+// changeset against the original source directory.
 //
 // +generate
-func (m *Ci) Format() *dagger.Directory {
+func (m *Ci) Format() *dagger.Changeset {
 	// Go formatting via golangci-lint --fix.
 	goFmt := m.lintBase().
 		WithExec([]string{"golangci-lint", "run", "--fix"}).
 		Directory("/src")
 
 	// Prettier formatting.
-	return dag.Container().
+	formatted := dag.Container().
 		From("node:lts-slim").
 		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion}).
 		WithMountedDirectory("/src", goFmt).
@@ -146,6 +150,8 @@ func (m *Ci) Format() *dagger.Directory {
 			"**/*.yaml", "**/*.md", "**/*.json",
 		}).
 		Directory("/src")
+
+	return formatted.Changes(m.Source)
 }
 
 // ---------------------------------------------------------------------------
@@ -336,6 +342,76 @@ func (m *Ci) Release(
 	}
 
 	return dist, nil
+}
+
+// ---------------------------------------------------------------------------
+// Development
+// ---------------------------------------------------------------------------
+
+// Dev returns an interactive development container with project tools
+// pre-installed. Pass optional config directories to enable Claude Code
+// and git inside the container.
+//
+// Config directories are mounted as read-only snapshots; any changes
+// made inside the container are ephemeral and will not persist back to
+// the host.
+//
+// Usage:
+//
+//	dagger call dev terminal
+//	dagger call dev --claude-config=~/.claude --git-config=~/.config/git terminal
+func (m *Ci) Dev(
+	// Claude Code configuration directory (~/.claude).
+	// +optional
+	claudeConfig *dagger.Directory,
+	// Claude Code settings file (~/.claude.json).
+	// +optional
+	claudeJSON *dagger.File,
+	// Git configuration directory (~/.config/git).
+	// +optional
+	gitConfig *dagger.Directory,
+) *dagger.Container {
+	ctr := ensureGitRepo(dag.Container().
+		From("golang:"+goVersion).
+		WithExec([]string{"sh", "-c",
+			"apt-get update && apt-get install -y --no-install-recommends " +
+				"curl less man-db gnupg2 nano vim xz-utils jq wget " +
+				"&& apt-get clean && rm -rf /var/lib/apt/lists/*",
+		}).
+		WithExec([]string{"go", "install", "github.com/go-task/task/v3/cmd/task@" + taskVersion}).
+		WithExec([]string{"go", "install", "github.com/siderolabs/conform/cmd/conform@" + conformVersion}).
+		WithExec([]string{"go", "install", "github.com/evilmartians/lefthook/v2@" + lefthookVersion}).
+		WithExec([]string{"sh", "-c", "curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=" + daggerVersion + " BIN_DIR=/usr/local/bin sh"}).
+		WithExec([]string{"sh", "-c", "wget -O - https://claude.ai/install.sh | bash"}).
+		WithMountedDirectory("/src", m.Source).
+		WithWorkdir("/src").
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithEnvVariable("EDITOR", "nano").
+		WithEnvVariable("VISUAL", "nano").
+		WithEnvVariable("TERM", "xterm-256color").
+		WithEnvVariable("PATH", "/root/.local/bin:$PATH",
+			dagger.ContainerWithEnvVariableOpts{Expand: true}))
+
+	if claudeConfig != nil {
+		ctr = ctr.WithMountedDirectory("/root/.claude", claudeConfig)
+	}
+	if claudeJSON != nil {
+		ctr = ctr.WithMountedFile("/root/.claude.json", claudeJSON)
+	}
+	if gitConfig != nil {
+		ctr = ctr.WithMountedDirectory("/root/.config/git", gitConfig)
+	}
+
+	// ExperimentalPrivilegedNesting gives the terminal session a
+	// connection to the parent Dagger engine, so nested `dagger call`
+	// invocations work without mounting the Docker socket.
+	return ctr.WithDefaultTerminalCmd([]string{"bash"},
+		dagger.ContainerWithDefaultTerminalCmdOpts{
+			ExperimentalPrivilegedNesting: true,
+		})
 }
 
 // ---------------------------------------------------------------------------

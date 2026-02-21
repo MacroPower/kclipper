@@ -42,7 +42,7 @@ tasks:
   format:
     desc: Formats code via Dagger
     cmds:
-      - dagger generate
+      - dagger generate --auto-apply
 
   lint:
     desc: Runs all lint targets via Dagger
@@ -292,31 +292,28 @@ tasks:
       - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/
       - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach
 
-  devcontainer:
-    desc: Starts the devcontainer
-    summary: |
-      Starts the devcontainer.
-
-      Args:
-        REBUILD: Remove existing container (default: false)
-    cmds:
-      - devcontainer up --workspace-folder "{{.ROOT_DIR}}" {{if .REBUILD}}--remove-existing-container{{end}}
-
-  shell:
-    desc: Launches a shell in the devcontainer
+  dev:
+    desc: Opens a development shell via Dagger
     interactive: true
-    deps:
-      - task: devcontainer
     cmds:
-      - devcontainer exec --workspace-folder "{{.ROOT_DIR}}" bash
+      - >-
+        dagger call dev
+        --git-config ~/.config/git
+        terminal
+        --experimental-privileged-nesting
 
   claude:
-    desc: Launches a Claude Code session in the devcontainer
+    desc: Launches Claude Code via Dagger
     interactive: true
-    deps:
-      - task: devcontainer
     cmds:
-      - devcontainer exec --workspace-folder "{{.ROOT_DIR}}" claude --dangerously-skip-permissions
+      - >-
+        dagger call dev
+        --claude-config ~/.claude
+        --claude-json ~/.claude.json
+        --git-config ~/.config/git
+        terminal
+        --experimental-privileged-nesting
+        --cmd claude,--dangerously-skip-permissions
 
   git:worktree:add:
     desc: Adds a git worktree for the given branch
