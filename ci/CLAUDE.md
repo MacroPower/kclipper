@@ -59,6 +59,22 @@ requirements. To update the dependency pin: `dagger update go`.
 | Build       | (none)         | `dagger call <name>`       | Artifact production.                         |
 | Development | (none)         | `dagger call dev terminal` | Interactive containers.                      |
 
+### Build & Image Functions
+
+- `Build()` -- Runs GoReleaser in snapshot mode, returns the `dist/` directory.
+- `BuildImages(version, dist)` -- Builds multi-arch runtime container images
+  from a GoReleaser dist directory. Accepts an optional pre-built dist to avoid
+  running GoReleaser when not needed (defaults to a snapshot build). Used by
+  `PublishImages` internally and useful for local image inspection/testing.
+- `VersionTags(tag)` -- Derives the set of image tags from a version tag string
+  (e.g. `"v1.2.3"` yields `["latest", "v1.2.3", "v1", "v1.2"]`). Public wrapper
+  around the internal `versionTags` helper for testability.
+- `PublishImages(tags, ..., dist)` -- Builds and publishes images to the
+  registry. Accepts an optional pre-built dist directory. Cosign signing
+  deduplicates digests before signing to avoid signing the same manifest
+  multiple times when tags share a digest.
+- `Release(tag, ...)` -- Full release pipeline (GoReleaser + image publish).
+
 ### Source Directory Filtering
 
 The `New` constructor uses `+ignore` to exclude directories that are never
@@ -109,6 +125,18 @@ runs them concurrently via Dagger's built-in check runner. The `All`
 function provides an alternative that runs tests in parallel using
 `errgroup`. To add a new test, add a `+check`-annotated method on
 `Tests` and register it in `All`.
+
+Current integration tests:
+
+- `TestSourceFiltering` -- Verifies `+ignore` excludes expected directories.
+- `TestFormatIdempotent` -- Checks formatter produces empty changeset on clean source.
+- `TestLintActionsClean` -- Exercises GitHub Actions workflow linting.
+- `TestVersionTags` -- Verifies `VersionTags` returns expected tags for semver,
+  pre-release, and two-component inputs.
+- `TestBuildDist` -- Verifies `Build` returns a dist directory with checksums
+  and platform archives.
+- `TestBuildImageMetadata` -- Verifies `BuildImages` produces containers with
+  correct OCI labels, environment variables, and entrypoint.
 
 ## Adding a New Check
 
@@ -252,7 +280,8 @@ Runtime images are built natively via Dagger (not Docker-in-Docker):
 - Multi-arch: `linux/amd64` + `linux/arm64`
 - Published to `ghcr.io/macropower/kclipper`
 - OCI labels: `org.opencontainers.image.{title,description,version,source,url,licenses}`
-- Optionally signed with cosign
+- Optionally signed with cosign (digests are deduplicated before signing
+  so that shared manifests across tags are only signed once)
 
 GoReleaser's Docker support is intentionally skipped (`--skip=docker`) in
 favor of Dagger's `Container.Publish()` for proper multi-arch manifests.

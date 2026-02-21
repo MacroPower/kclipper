@@ -178,6 +178,31 @@ func (m *Ci) Build() *dagger.Directory {
 		Directory("/src/dist")
 }
 
+// VersionTags returns the image tags derived from a version tag string.
+// For example, "v1.2.3" yields ["latest", "v1.2.3", "v1", "v1.2"].
+func (m *Ci) VersionTags(
+	// Version tag (e.g. "v1.2.3").
+	tag string,
+) []string {
+	return versionTags(tag)
+}
+
+// BuildImages builds multi-arch runtime container images from a GoReleaser
+// dist directory. If no dist is provided, a snapshot build is run.
+func (m *Ci) BuildImages(
+	// Version label for OCI metadata.
+	// +default="snapshot"
+	version string,
+	// Pre-built GoReleaser dist directory. If not provided, runs a snapshot build.
+	// +optional
+	dist *dagger.Directory,
+) []*dagger.Container {
+	if dist == nil {
+		dist = m.Build()
+	}
+	return runtimeImages(dist, version)
+}
+
 // PublishImages builds multi-arch container images using Dagger's native
 // Container API and publishes them to the registry.
 //
@@ -196,15 +221,10 @@ func (m *Ci) PublishImages(
 	// Cosign private key for signing published images.
 	// +optional
 	cosignKey *dagger.Secret,
+	// Pre-built GoReleaser dist directory. If not provided, runs a snapshot build.
+	// +optional
+	dist *dagger.Directory,
 ) (string, error) {
-	// Build binaries via GoReleaser (Docker skipped).
-	dist := m.releaserBase().
-		WithExec([]string{
-			"goreleaser", "release", "--snapshot", "--clean",
-			"--skip=docker,homebrew,nix,sign",
-		}).
-		Directory("/src/dist")
-
 	// Use the first non-"latest" tag as the version label, or fall back to "snapshot".
 	version := "snapshot"
 	for _, t := range tags {
@@ -214,7 +234,8 @@ func (m *Ci) PublishImages(
 		}
 	}
 
-	digests, err := m.publishImages(ctx, dist, tags, version, registryUsername, registryPassword, cosignKey)
+	variants := m.BuildImages(version, dist)
+	digests, err := m.publishImages(ctx, variants, tags, registryUsername, registryPassword, cosignKey)
 	if err != nil {
 		return "", err
 	}
@@ -222,23 +243,19 @@ func (m *Ci) PublishImages(
 	return fmt.Sprintf("published %d tags, %d digests\n%s", len(tags), len(digests), strings.Join(digests, "\n")), nil
 }
 
-// publishImages builds multi-arch container images from a pre-built dist/
-// directory and publishes them to the registry. It returns the list of
-// published image digests.
+// publishImages publishes pre-built container image variants to the registry
+// and returns the list of published image digests.
 //
 // This is the internal implementation shared by [Ci.PublishImages] and
 // [Ci.Release].
 func (m *Ci) publishImages(
 	ctx context.Context,
-	dist *dagger.Directory,
+	variants []*dagger.Container,
 	tags []string,
-	version string,
 	registryUsername string,
 	registryPassword *dagger.Secret,
 	cosignKey *dagger.Secret,
 ) ([]string, error) {
-	variants := runtimeImages(dist, version)
-
 	// Publish multi-arch manifest for each tag concurrently.
 	publisher := dag.Container().
 		WithRegistryAuth("ghcr.io", registryUsername, registryPassword)
@@ -263,15 +280,28 @@ func (m *Ci) publishImages(
 	}
 
 	// Sign each published image with cosign (key-based signing).
-	// Each signing is independent, so run them concurrently.
+	// Deduplicate first -- multiple tags often share one manifest digest.
 	if cosignKey != nil {
+		seen := make(map[string]bool)
+		var toSign []string
+		for _, d := range digests {
+			parts := strings.SplitN(d, "@sha256:", 2)
+			if len(parts) != 2 {
+				continue
+			}
+			if !seen[parts[1]] {
+				seen[parts[1]] = true
+				toSign = append(toSign, d)
+			}
+		}
+
 		cosignCtr := dag.Container().
 			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
 			WithRegistryAuth("ghcr.io", registryUsername, registryPassword).
 			WithSecretVariable("COSIGN_KEY", cosignKey)
 
 		g, ctx := errgroup.WithContext(ctx)
-		for _, digest := range digests {
+		for _, digest := range toSign {
 			g.Go(func() error {
 				_, err := cosignCtr.
 					WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
@@ -351,7 +381,8 @@ func (m *Ci) Release(
 
 	// Publish multi-arch container images via Dagger-native API.
 	// Reuse the dist directory from the goreleaser run to avoid building twice.
-	digests, err := m.publishImages(ctx, dist, tags, tag, registryUsername, registryPassword, cosignKey)
+	variants := runtimeImages(dist, tag)
+	digests, err := m.publishImages(ctx, variants, tags, registryUsername, registryPassword, cosignKey)
 	if err != nil {
 		return nil, fmt.Errorf("publish images: %w", err)
 	}
