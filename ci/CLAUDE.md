@@ -129,6 +129,8 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
   constant to avoid repetition across `CC_*`/`CXX_*` env vars.
 - The `publishImages` helper returns `[]string` digests directly rather than
   formatted strings, keeping callers clean.
+- Published container images include standard OCI labels
+  (`org.opencontainers.image.*`) for metadata discoverability.
 
 ## Version Management
 
@@ -148,6 +150,22 @@ When updating a version:
   and the `daggerVersion` constant (for the dev container).
 
 ## Caching Strategy
+
+### Function Caching
+
+Dagger v0.19.4+ supports function-level caching via `+cache` annotations.
+The default policy is a 7-day TTL, which works well for input-keyed
+functions (checks, builds) since they cache-miss automatically when the
+source changes. Functions with external side effects use `+cache="never"`:
+
+| Function         | Cache Policy          | Reason                                    |
+| ---------------- | --------------------- | ----------------------------------------- |
+| Checks/Generators | (default 7-day TTL)  | Input-keyed by source; auto-invalidates.  |
+| `PublishImages`  | `+cache="never"`      | Publishes to registry (side effect).       |
+| `Release`        | `+cache="never"`      | Creates GitHub release + publishes images. |
+| `Dev`            | `+cache="never"`      | Interactive; should always be fresh.       |
+
+### Volume Caching
 
 All Go-based containers use shared Dagger cache volumes:
 
@@ -179,6 +197,7 @@ Runtime images are built natively via Dagger (not Docker-in-Docker):
 - Base: `debian:13-slim`
 - Multi-arch: `linux/amd64` + `linux/arm64`
 - Published to `ghcr.io/macropower/kclipper`
+- OCI labels: `org.opencontainers.image.{title,description,source,url,licenses}`
 - Optionally signed with cosign
 
 GoReleaser's Docker support is intentionally skipped (`--skip=docker`) in

@@ -178,6 +178,8 @@ func (m *Ci) Build() *dagger.Directory {
 //
 // Multiple tags are published to match the current GoReleaser behavior:
 // :latest, :vX.Y.Z, :vX, :vX.Y.
+//
+// +cache="never"
 func (m *Ci) PublishImages(
 	ctx context.Context,
 	// Image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
@@ -238,6 +240,12 @@ func (m *Ci) publishImages(
 
 		ctr := dag.Container(dagger.ContainerOpts{Platform: platform}).
 			From("debian:13-slim").
+			// OCI labels for container metadata.
+			WithLabel("org.opencontainers.image.title", "kclipper").
+			WithLabel("org.opencontainers.image.description", "A superset of KCL that integrates Helm chart management").
+			WithLabel("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
+			WithLabel("org.opencontainers.image.url", "https://github.com/macropower/kclipper").
+			WithLabel("org.opencontainers.image.licenses", "Apache-2.0").
 			// Match env vars from existing Dockerfile.
 			WithEnvVariable("LANG", "en_US.utf8").
 			WithEnvVariable("XDG_CACHE_HOME", "/tmp/xdg_cache").
@@ -296,6 +304,8 @@ func (m *Ci) publishImages(
 //
 // Returns the dist/ directory containing checksums.txt and digests.txt
 // for attestation in the calling workflow.
+//
+// +cache="never"
 func (m *Ci) Release(
 	ctx context.Context,
 	// GitHub token for creating the release.
@@ -378,6 +388,8 @@ func (m *Ci) Release(
 //
 //	dagger call dev terminal
 //	dagger call dev --claude-config=~/.claude --git-config=~/.config/git terminal
+//
+// +cache="never"
 func (m *Ci) Dev(
 	// Claude Code configuration directory (~/.claude).
 	// +optional
