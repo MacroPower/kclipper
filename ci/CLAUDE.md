@@ -46,7 +46,7 @@ The module depends on the [Dagger Go toolchain](https://github.com/dagger/dagger
 environments with Wolfi-based containers, automatic cache management, and
 CGO support. It is used by `goToolchain()` / `goBase()` only; `lintBase()`,
 `releaserBase()`, and `Dev()` remain manually configured due to specialized
-requirements.
+requirements. To update the dependency pin: `dagger update go`.
 
 ### Function Categories
 
@@ -87,6 +87,13 @@ them explicitly. This is safe because Go caches are content-addressed.
 `ensureGitRepo()` detects when the source comes from a git worktree (where
 `.git` is a file referencing a host path that doesn't exist in the container)
 and initializes a minimal git repo so GoReleaser and tests work correctly.
+
+### Testing Constraint
+
+Dagger module code cannot be unit-tested with `go test` outside the Dagger
+engine because the generated SDK's `init()` function requires a running Dagger
+session (`DAGGER_SESSION_PORT`). Pure helper functions in `main.go` are
+verified through the module's Dagger Functions rather than standalone tests.
 
 ## Adding a New Check
 
