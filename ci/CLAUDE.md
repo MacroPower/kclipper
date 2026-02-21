@@ -139,8 +139,9 @@ Current integration tests:
   pre-release, and two-component inputs.
 - `TestBuildDist` -- Verifies `Build` returns a dist directory with checksums
   and platform archives.
-- `TestBuildImageMetadata` -- Verifies `BuildImages` produces containers with
-  correct OCI labels, environment variables, and entrypoint.
+- `TestBuildImageMetadata` -- Verifies `BuildImages` produces exactly 2 platform
+  variants with correct OCI labels (including `created`), environment variables,
+  and entrypoint.
 
 ## Adding a New Check
 
