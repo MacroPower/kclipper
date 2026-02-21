@@ -291,7 +291,7 @@ func (m *Ci) publishImages(
 		for _, digest := range digests {
 			_, err := cosignCtr.
 				WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
-				Stdout(ctx)
+				Sync(ctx)
 			if err != nil {
 				return nil, fmt.Errorf("sign image %s: %w", digest, err)
 			}
