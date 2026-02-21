@@ -12,7 +12,6 @@ vars:
   C_ENV: "{{OS | upper}}_{{ARCH | upper}}"
   PRETTIER_TARGETS: "*.{yaml,md,json} **/*.{yaml,md,json}"
   ZIG_WRAPPER_DIR: "{{.ROOT_DIR}}/hack"
-  CI_MODULE: ./ci
 
 env:
   HOSTNAME:
@@ -43,7 +42,7 @@ tasks:
   format:
     desc: Formats code via Dagger
     cmds:
-      - dagger call -m {{.CI_MODULE}} format --source=. export --path=.
+      - dagger call format export --path=.
 
   lint:
     desc: Runs all lint targets via Dagger
@@ -56,37 +55,42 @@ tasks:
   lint:go:
     desc: Lints Go code via Dagger
     cmds:
-      - dagger call -m {{.CI_MODULE}} lint --source=.
+      - dagger call lint
 
   lint:prettier:
     desc: Checks formatting of YAML, JSON, and Markdown via Dagger
     cmds:
-      - dagger call -m {{.CI_MODULE}} lint-prettier --source=.
+      - dagger call lint-prettier
 
   lint:actions:
     desc: Lints GitHub Actions workflows via Dagger
     cmds:
-      - dagger call -m {{.CI_MODULE}} lint-actions --source=.
+      - dagger call lint-actions
 
   lint:releaser:
     desc: Validates GoReleaser configuration via Dagger
     cmds:
-      - dagger call -m {{.CI_MODULE}} lint-releaser --source=.
+      - dagger call lint-releaser
 
   test:
     desc: Runs Go tests via Dagger
     cmds:
-      - dagger call -m {{.CI_MODULE}} test --source=.
+      - dagger call test
 
   build:
     desc: Builds all binaries via Dagger
     cmds:
-      - dagger call -m {{.CI_MODULE}} build --source=. export --path=./dist
+      - dagger call build export --path=./dist
 
   cover:
     desc: Runs Go tests with coverage via Dagger
     cmds:
-      - dagger call -m {{.CI_MODULE}} test-coverage --source=. export --path=coverage.txt
+      - dagger call test-coverage export --path=coverage.txt
+
+  check:
+    desc: Runs all checks via Dagger
+    cmds:
+      - dagger check
 
   release:
     desc: Runs full release via Dagger
@@ -94,8 +98,7 @@ tasks:
       vars: [GITHUB_TOKEN, TAG]
     cmds:
       - >-
-        dagger call -m {{.CI_MODULE}} release
-        --source=.
+        dagger call release
         --github-token=env:GITHUB_TOKEN
         --registry-username={{.REGISTRY_USERNAME}}
         --registry-password=env:REGISTRY_PASSWORD

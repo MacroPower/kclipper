@@ -25,27 +25,39 @@ const (
 )
 
 // Ci provides CI/CD functions for kclipper.
-type Ci struct{}
+type Ci struct {
+	// Project source directory.
+	Source *dagger.Directory
+}
+
+// New creates a Ci module with the given project source directory.
+func New(
+	// Project source directory.
+	// +defaultPath="/"
+	source *dagger.Directory,
+) *Ci {
+	return &Ci{Source: source}
+}
 
 // ---------------------------------------------------------------------------
 // Testing
 // ---------------------------------------------------------------------------
 
 // Test runs Go tests with race detection and vet checking.
-func (m *Ci) Test(ctx context.Context, source *dagger.Directory) (string, error) {
-	return m.goBase(source).
+//
+// +check
+func (m *Ci) Test(ctx context.Context) error {
+	_, err := m.goBase().
 		WithExec([]string{
 			"go", "test", "-race", "-vet=all", "./...",
 		}).
-		Stdout(ctx)
+		Sync(ctx)
+	return err
 }
 
 // TestCoverage runs Go tests and returns the coverage profile file.
-func (m *Ci) TestCoverage(
-	ctx context.Context,
-	source *dagger.Directory,
-) *dagger.File {
-	return m.goBase(source).
+func (m *Ci) TestCoverage() *dagger.File {
+	return m.goBase().
 		WithExec([]string{
 			"go", "test", "-race", "-vet=all",
 			"-coverprofile=/tmp/coverage.txt", "./...",
@@ -58,44 +70,56 @@ func (m *Ci) TestCoverage(
 // ---------------------------------------------------------------------------
 
 // Lint runs golangci-lint on the source code.
-func (m *Ci) Lint(ctx context.Context, source *dagger.Directory) (string, error) {
-	return m.lintBase(source).
+//
+// +check
+func (m *Ci) Lint(ctx context.Context) error {
+	_, err := m.lintBase().
 		WithExec([]string{"golangci-lint", "run"}).
-		Stdout(ctx)
+		Sync(ctx)
+	return err
 }
 
 // LintPrettier checks YAML, JSON, and Markdown formatting.
-func (m *Ci) LintPrettier(ctx context.Context, source *dagger.Directory) (string, error) {
-	return dag.Container().
+//
+// +check
+func (m *Ci) LintPrettier(ctx context.Context) error {
+	_, err := dag.Container().
 		From("node:lts-slim").
 		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion}).
-		WithMountedDirectory("/src", source).
+		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
 		WithExec([]string{
 			"prettier", "--config", "./.prettierrc.yaml", "--check",
 			"*.yaml", "*.md", "*.json",
 			"**/*.yaml", "**/*.md", "**/*.json",
 		}).
-		Stdout(ctx)
+		Sync(ctx)
+	return err
 }
 
 // LintActions runs zizmor to lint GitHub Actions workflows.
-func (m *Ci) LintActions(ctx context.Context, source *dagger.Directory) (string, error) {
-	return dag.Container().
+//
+// +check
+func (m *Ci) LintActions(ctx context.Context) error {
+	_, err := dag.Container().
 		From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion).
-		WithMountedDirectory("/src", source).
+		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
 		WithExec([]string{
 			"zizmor", ".github/workflows", "--config", ".github/zizmor.yaml",
 		}).
-		Stdout(ctx)
+		Sync(ctx)
+	return err
 }
 
 // LintReleaser validates the GoReleaser configuration.
-func (m *Ci) LintReleaser(ctx context.Context, source *dagger.Directory) (string, error) {
-	return m.releaserBase(source).
+//
+// +check
+func (m *Ci) LintReleaser(ctx context.Context) error {
+	_, err := m.releaserBase().
 		WithExec([]string{"goreleaser", "check"}).
-		Stdout(ctx)
+		Sync(ctx)
+	return err
 }
 
 // ---------------------------------------------------------------------------
@@ -104,9 +128,9 @@ func (m *Ci) LintReleaser(ctx context.Context, source *dagger.Directory) (string
 
 // Format runs golangci-lint --fix and prettier --write, returning the
 // modified source directory.
-func (m *Ci) Format(ctx context.Context, source *dagger.Directory) *dagger.Directory {
+func (m *Ci) Format() *dagger.Directory {
 	// Go formatting via golangci-lint --fix.
-	goFmt := m.lintBase(source).
+	goFmt := m.lintBase().
 		WithExec([]string{"golangci-lint", "run", "--fix"}).
 		Directory("/src")
 
@@ -130,8 +154,8 @@ func (m *Ci) Format(ctx context.Context, source *dagger.Directory) *dagger.Direc
 
 // Build runs GoReleaser in snapshot mode, producing binaries for all
 // platforms. Returns the dist/ directory.
-func (m *Ci) Build(ctx context.Context, source *dagger.Directory) *dagger.Directory {
-	return m.releaserBase(source).
+func (m *Ci) Build() *dagger.Directory {
+	return m.releaserBase().
 		WithExec([]string{
 			"goreleaser", "release", "--snapshot", "--clean",
 			"--skip=docker,homebrew,nix,sign",
@@ -146,7 +170,6 @@ func (m *Ci) Build(ctx context.Context, source *dagger.Directory) *dagger.Direct
 // :latest, :vX.Y.Z, :vX, :vX.Y.
 func (m *Ci) PublishImages(
 	ctx context.Context,
-	source *dagger.Directory,
 	// tags is the list of image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
 	tags []string,
 	registryUsername string,
@@ -155,7 +178,7 @@ func (m *Ci) PublishImages(
 	cosignKey *dagger.Secret,
 ) (string, error) {
 	// Build binaries via GoReleaser (Docker skipped).
-	dist := m.releaserBase(source).
+	dist := m.releaserBase().
 		WithExec([]string{
 			"goreleaser", "release", "--snapshot", "--clean",
 			"--skip=docker,homebrew,nix,sign",
@@ -253,7 +276,6 @@ func (m *Ci) publishImages(
 // for attestation in the calling workflow.
 func (m *Ci) Release(
 	ctx context.Context,
-	source *dagger.Directory,
 	githubToken *dagger.Secret,
 	registryUsername string,
 	registryPassword *dagger.Secret,
@@ -271,7 +293,7 @@ func (m *Ci) Release(
 	// +optional
 	macosNotaryIssuerId *dagger.Secret,
 ) (*dagger.Directory, error) {
-	ctr := m.releaserBase(source).
+	ctr := m.releaserBase().
 		WithSecretVariable("GITHUB_TOKEN", githubToken)
 
 	// Conditionally add macOS signing secrets.
@@ -322,39 +344,16 @@ func (m *Ci) Release(
 
 // Validate runs Test, Lint, LintPrettier, LintActions, and LintReleaser
 // concurrently. Use this for PR validation.
-func (m *Ci) Validate(ctx context.Context, source *dagger.Directory) (string, error) {
+func (m *Ci) Validate(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 
-	eg.Go(func() error {
-		_, err := m.Test(ctx, source)
-		return err
-	})
+	eg.Go(func() error { return m.Test(ctx) })
+	eg.Go(func() error { return m.Lint(ctx) })
+	eg.Go(func() error { return m.LintPrettier(ctx) })
+	eg.Go(func() error { return m.LintActions(ctx) })
+	eg.Go(func() error { return m.LintReleaser(ctx) })
 
-	eg.Go(func() error {
-		_, err := m.Lint(ctx, source)
-		return err
-	})
-
-	eg.Go(func() error {
-		_, err := m.LintPrettier(ctx, source)
-		return err
-	})
-
-	eg.Go(func() error {
-		_, err := m.LintActions(ctx, source)
-		return err
-	})
-
-	eg.Go(func() error {
-		_, err := m.LintReleaser(ctx, source)
-		return err
-	})
-
-	if err := eg.Wait(); err != nil {
-		return "", err
-	}
-
-	return "validation passed", nil
+	return eg.Wait()
 }
 
 // ---------------------------------------------------------------------------
@@ -383,11 +382,11 @@ func versionTags(tag string) []string {
 // lintBase returns a golangci-lint container with source and caches. It
 // installs linux-headers so that CGO transitive dependencies (e.g.
 // containers/storage) compile on Alpine.
-func (m *Ci) lintBase(source *dagger.Directory) *dagger.Container {
+func (m *Ci) lintBase() *dagger.Container {
 	return dag.Container().
 		From("golangci/golangci-lint:"+golangciLintVersion+"-alpine").
 		WithExec([]string{"apk", "add", "--no-cache", "linux-headers"}).
-		WithMountedDirectory("/src", source).
+		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
 		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint")).
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
@@ -396,10 +395,10 @@ func (m *Ci) lintBase(source *dagger.Directory) *dagger.Container {
 }
 
 // goBase returns a Go container with source, module cache, and build cache.
-func (m *Ci) goBase(source *dagger.Directory) *dagger.Container {
+func (m *Ci) goBase() *dagger.Container {
 	return ensureGitRepo(dag.Container().
 		From("golang:"+goVersion).
-		WithMountedDirectory("/src", source).
+		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
@@ -409,7 +408,7 @@ func (m *Ci) goBase(source *dagger.Directory) *dagger.Container {
 
 // releaserBase returns a container with Go, GoReleaser, Zig, cosign, and the
 // macOS SDK headers needed for CGO cross-compilation.
-func (m *Ci) releaserBase(source *dagger.Directory) *dagger.Container {
+func (m *Ci) releaserBase() *dagger.Container {
 	return ensureGitRepo(dag.Container().
 		From("golang:"+goVersion).
 		// Install Zig for CGO cross-compilation, plus jq (used by
@@ -439,7 +438,7 @@ func (m *Ci) releaserBase(source *dagger.Directory) *dagger.Container {
 			"github.com/anchore/syft/cmd/syft@" + syftVersion,
 		}).
 		// Mount source and caches.
-		WithMountedDirectory("/src", source).
+		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
@@ -447,7 +446,7 @@ func (m *Ci) releaserBase(source *dagger.Directory) *dagger.Container {
 		WithEnvVariable("GOCACHE", "/go/build-cache").
 		// Mount macOS SDK headers for Darwin cross-compilation.
 		WithMountedDirectory("/sdk/MacOSX.sdk",
-			source.Directory(".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")).
+			m.Source.Directory(".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")).
 		WithEnvVariable("SDK_PATH", "/sdk/MacOSX.sdk").
 		// Env vars used by GoReleaser ldflags and templates.
 		WithEnvVariable("KCL_LSP_VERSION", kclLSPVersion).

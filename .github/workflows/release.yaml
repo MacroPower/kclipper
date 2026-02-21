@@ -56,10 +56,8 @@ jobs:
         with:
           version: "0.19"
           verb: call
-          module: ./ci
           args: >-
             release
-            --source=.
             --github-token=env:GITHUB_TOKEN
             --registry-username="${{ github.actor }}"
             --registry-password=env:REGISTRY_PASSWORD

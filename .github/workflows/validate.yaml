@@ -25,8 +25,7 @@ jobs:
         with:
           version: "0.19"
           verb: call
-          module: ./ci
-          args: test-coverage --source=. export --path=coverage.txt
+          args: test-coverage export --path=coverage.txt
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -47,29 +46,25 @@ jobs:
         with:
           version: "0.19"
           verb: call
-          module: ./ci
-          args: lint --source=.
+          args: lint
 
       - name: Run prettier check
         uses: dagger/dagger-for-github@v8
         with:
           version: "0.19"
           verb: call
-          module: ./ci
-          args: lint-prettier --source=.
+          args: lint-prettier
 
       - name: Run actions lint
         uses: dagger/dagger-for-github@v8
         with:
           version: "0.19"
           verb: call
-          module: ./ci
-          args: lint-actions --source=.
+          args: lint-actions
 
       - name: Run goreleaser check
         uses: dagger/dagger-for-github@v8
         with:
           version: "0.19"
           verb: call
-          module: ./ci
-          args: lint-releaser --source=.
+          args: lint-releaser

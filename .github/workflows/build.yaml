@@ -29,5 +29,4 @@ jobs:
         with:
           version: "0.19"
           verb: call
-          module: ./ci
-          args: build --source=. export --path=./dist
+          args: build export --path=./dist
