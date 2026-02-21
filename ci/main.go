@@ -205,7 +205,16 @@ func (m *Ci) PublishImages(
 		}).
 		Directory("/src/dist")
 
-	digests, err := m.publishImages(ctx, dist, tags, registryUsername, registryPassword, cosignKey)
+	// Use the first non-"latest" tag as the version label, or fall back to "snapshot".
+	version := "snapshot"
+	for _, t := range tags {
+		if t != "latest" {
+			version = t
+			break
+		}
+	}
+
+	digests, err := m.publishImages(ctx, dist, tags, version, registryUsername, registryPassword, cosignKey)
 	if err != nil {
 		return "", err
 	}
@@ -223,11 +232,12 @@ func (m *Ci) publishImages(
 	ctx context.Context,
 	dist *dagger.Directory,
 	tags []string,
+	version string,
 	registryUsername string,
 	registryPassword *dagger.Secret,
 	cosignKey *dagger.Secret,
 ) ([]string, error) {
-	variants := runtimeImages(dist)
+	variants := runtimeImages(dist, version)
 
 	// Publish multi-arch manifest for each tag concurrently.
 	publisher := dag.Container().
@@ -341,7 +351,7 @@ func (m *Ci) Release(
 
 	// Publish multi-arch container images via Dagger-native API.
 	// Reuse the dist directory from the goreleaser run to avoid building twice.
-	digests, err := m.publishImages(ctx, dist, tags, registryUsername, registryPassword, cosignKey)
+	digests, err := m.publishImages(ctx, dist, tags, tag, registryUsername, registryPassword, cosignKey)
 	if err != nil {
 		return nil, fmt.Errorf("publish images: %w", err)
 	}
@@ -435,7 +445,7 @@ func (m *Ci) Dev(
 // runtimeImages builds a multi-arch set of runtime container images from a
 // pre-built GoReleaser dist/ directory. Each image is based on debian:13-slim
 // with OCI labels, KCL environment variables, and runtime dependencies.
-func runtimeImages(dist *dagger.Directory) []*dagger.Container {
+func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 	platforms := []dagger.Platform{"linux/amd64", "linux/arm64"}
 	variants := make([]*dagger.Container, 0, len(platforms))
 
@@ -457,6 +467,7 @@ func runtimeImages(dist *dagger.Directory) []*dagger.Container {
 			WithLabel("org.opencontainers.image.description", "A superset of KCL that integrates Helm chart management").
 			WithLabel("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
 			WithLabel("org.opencontainers.image.url", "https://github.com/macropower/kclipper").
+			WithLabel("org.opencontainers.image.version", version).
 			WithLabel("org.opencontainers.image.licenses", "Apache-2.0").
 			// Match env vars from existing Dockerfile.
 			WithEnvVariable("LANG", "en_US.utf8").

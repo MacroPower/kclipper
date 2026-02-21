@@ -251,7 +251,7 @@ Runtime images are built natively via Dagger (not Docker-in-Docker):
 - Base: `debian:13-slim`
 - Multi-arch: `linux/amd64` + `linux/arm64`
 - Published to `ghcr.io/macropower/kclipper`
-- OCI labels: `org.opencontainers.image.{title,description,source,url,licenses}`
+- OCI labels: `org.opencontainers.image.{title,description,version,source,url,licenses}`
 - Optionally signed with cosign
 
 GoReleaser's Docker support is intentionally skipped (`--skip=docker`) in
