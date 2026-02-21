@@ -58,16 +58,16 @@ jobs:
           verb: call
           args: >-
             release
-            --github-token=env:GITHUB_TOKEN
+            --github-token=env://GITHUB_TOKEN
             --registry-username="${{ github.actor }}"
-            --registry-password=env:REGISTRY_PASSWORD
+            --registry-password=env://REGISTRY_PASSWORD
             --tag="${{ steps.tag.outputs.value }}"
-            --cosign-key=env:COSIGN_KEY
-            --macos-sign-p12=env:MACOS_SIGN_P12
-            --macos-sign-password=env:MACOS_SIGN_PASSWORD
-            --macos-notary-key=env:MACOS_NOTARY_KEY
-            --macos-notary-key-id=env:MACOS_NOTARY_KEY_ID
-            --macos-notary-issuer-id=env:MACOS_NOTARY_ISSUER_ID
+            --cosign-key=env://COSIGN_KEY
+            --macos-sign-p12=env://MACOS_SIGN_P12
+            --macos-sign-password=env://MACOS_SIGN_PASSWORD
+            --macos-notary-key=env://MACOS_NOTARY_KEY
+            --macos-notary-key-id=env://MACOS_NOTARY_KEY_ID
+            --macos-notary-issuer-id=env://MACOS_NOTARY_ISSUER_ID
             export --path=./dist
         env:
           GITHUB_TOKEN: "${{ steps.app-token.outputs.token }}"

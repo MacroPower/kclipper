@@ -92,13 +92,13 @@ tasks:
   release:
     desc: Runs full release via Dagger
     requires:
-      vars: [GITHUB_TOKEN, TAG]
+      vars: [GITHUB_TOKEN, TAG, REGISTRY_USERNAME, REGISTRY_PASSWORD]
     cmds:
       - >-
         dagger call release
-        --github-token=env:GITHUB_TOKEN
+        --github-token=env://GITHUB_TOKEN
         --registry-username={{.REGISTRY_USERNAME}}
-        --registry-password=env:REGISTRY_PASSWORD
+        --registry-password=env://REGISTRY_PASSWORD
         --tag={{.TAG}}
         export --path=./dist
 
