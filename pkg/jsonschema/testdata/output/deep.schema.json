@@ -6,30 +6,20 @@
         "additionalProperties": false,
         "oneOf": [
           {
-            "required": [
-              "data"
-            ]
+            "required": ["data"]
           },
           {
-            "required": [
-              "binaryData"
-            ]
+            "required": ["binaryData"]
           }
         ],
         "properties": {
           "annotations": {
             "additionalProperties": {
               "required": [],
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             },
             "required": [],
-            "type": [
-              "object",
-              "null"
-            ]
+            "type": ["object", "null"]
           },
           "binaryData": {
             "additionalProperties": {
@@ -60,16 +50,10 @@
           "labels": {
             "additionalProperties": {
               "required": [],
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             },
             "required": [],
-            "type": [
-              "object",
-              "null"
-            ]
+            "type": ["object", "null"]
           },
           "nameOverride": {
             "required": [],

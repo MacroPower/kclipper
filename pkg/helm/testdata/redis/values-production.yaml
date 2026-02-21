@@ -13,7 +13,6 @@ image:
   # pullSecrets:
   #   - myRegistrKeySecretName
 
-
 ## Cluster settings
 cluster:
   enabled: true
@@ -26,8 +25,8 @@ metrics:
   service:
     type: ClusterIP
     annotations: {}
-  #   prometheus.io/scrape: "true"
-  #   prometheus.io/port: "9121"
+    #   prometheus.io/scrape: "true"
+    #   prometheus.io/port: "9121"
     loadBalancerIP:
   image:
     registry: docker.io
@@ -172,7 +171,7 @@ master:
     ##
     # storageClass: "-"
     accessModes:
-    - ReadWriteOnce
+      - ReadWriteOnce
     size: 8Gi
 
   ## Update strategy, can be set to RollingUpdate or onDelete by default.

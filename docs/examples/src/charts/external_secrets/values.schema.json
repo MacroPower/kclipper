@@ -147,10 +147,7 @@
             },
             "minAvailable": {
               "required": [],
-              "type": [
-                "integer",
-                "string"
-              ]
+              "type": ["integer", "string"]
             },
             "nameOverride": {
               "required": [],
@@ -562,10 +559,7 @@
                 },
                 "port": {
                   "required": [],
-                  "type": [
-                    "string",
-                    "integer"
-                  ]
+                  "type": ["string", "integer"]
                 }
               },
               "required": [],
@@ -693,10 +687,7 @@
         },
         "minAvailable": {
           "required": [],
-          "type": [
-            "integer",
-            "string"
-          ]
+          "type": ["integer", "string"]
         },
         "nameOverride": {
           "required": [],
@@ -917,11 +908,7 @@
           "type": "array"
         },
         "renderMode": {
-          "enum": [
-            "skipIfMissing",
-            "failIfMissing",
-            "alwaysRender"
-          ],
+          "enum": ["skipIfMissing", "failIfMissing", "alwaysRender"],
           "required": [],
           "type": "string"
         },
@@ -1155,10 +1142,7 @@
             },
             "minAvailable": {
               "required": [],
-              "type": [
-                "integer",
-                "string"
-              ]
+              "type": ["integer", "string"]
             },
             "nameOverride": {
               "required": [],

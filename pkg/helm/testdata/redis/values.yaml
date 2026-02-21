@@ -17,7 +17,6 @@ image:
   # pullSecrets:
   #   - myRegistrKeySecretName
 
-
 ## Cluster settings
 cluster:
   enabled: true
@@ -30,8 +29,8 @@ metrics:
   service:
     type: ClusterIP
     annotations: {}
-  #   prometheus.io/scrape: "true"
-  #   prometheus.io/port: "9121"
+    #   prometheus.io/scrape: "true"
+    #   prometheus.io/port: "9121"
     loadBalancerIP:
   image:
     registry: docker.io
@@ -98,7 +97,8 @@ password:
 # existingSecret:
 
 ## Persist data to a persistent volume
-persistence: {}
+persistence:
+  {}
   ## A manually managed Persistent Volume and Claim
   ## Requires persistence.enabled: true
   ## If defined, PVC must be created manually before volume will be bound
@@ -148,7 +148,6 @@ master:
   ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
   ##
   # schedulerName:
-
 
   ## Redis Master Liveness Probe
   livenessProbe:
@@ -216,7 +215,7 @@ master:
     ##
     # storageClass: "-"
     accessModes:
-    - ReadWriteOnce
+      - ReadWriteOnce
     size: 8Gi
 
   ## Update strategy, can be set to RollingUpdate or onDelete by default.
@@ -226,7 +225,6 @@ master:
     ## Partition update strategy
     ## https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#partitions
     # rollingUpdatePartition:
-
 
 ##
 ## Redis Slave properties

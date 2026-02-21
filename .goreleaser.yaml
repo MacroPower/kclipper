@@ -190,4 +190,3 @@ nix:
     description: "Kclipper Command Line Interface"
     license: "asl20"
     skip_upload: auto
-
