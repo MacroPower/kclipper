@@ -36,6 +36,7 @@ ci/
   go.mod             # Module dependencies (dagger SDK, otel, etc.)
   dagger.gen.go      # Auto-generated (do not edit)
   internal/dagger/   # Auto-generated SDK (do not edit)
+  tests/             # Test module (imports ci as dependency)
 ```
 
 ### Dependencies
@@ -50,12 +51,12 @@ requirements. To update the dependency pin: `dagger update go`.
 
 ### Function Categories
 
-| Category    | Annotation   | CLI                    | Purpose                                    |
-| ----------- | ------------ | ---------------------- | ------------------------------------------ |
-| Checks      | `// +check`  | `dagger check <name>`  | Validation (tests, lints). Return `error`. |
-| Generators  | `// +generate` | `dagger generate`    | Code formatting. Return `*dagger.Changeset`. |
-| Build       | (none)       | `dagger call <name>`   | Artifact production.                       |
-| Development | (none)       | `dagger call dev terminal` | Interactive containers.                |
+| Category    | Annotation     | CLI                        | Purpose                                      |
+| ----------- | -------------- | -------------------------- | -------------------------------------------- |
+| Checks      | `// +check`    | `dagger check <name>`      | Validation (tests, lints). Return `error`.   |
+| Generators  | `// +generate` | `dagger generate`          | Code formatting. Return `*dagger.Changeset`. |
+| Build       | (none)         | `dagger call <name>`       | Artifact production.                         |
+| Development | (none)         | `dagger call dev terminal` | Interactive containers.                      |
 
 ### Source Directory Filtering
 
@@ -88,12 +89,21 @@ them explicitly. This is safe because Go caches are content-addressed.
 `.git` is a file referencing a host path that doesn't exist in the container)
 and initializes a minimal git repo so GoReleaser and tests work correctly.
 
-### Testing Constraint
+### Test Module
 
-Dagger module code cannot be unit-tested with `go test` outside the Dagger
-engine because the generated SDK's `init()` function requires a running Dagger
-session (`DAGGER_SESSION_PORT`). Pure helper functions in `main.go` are
-verified through the module's Dagger Functions rather than standalone tests.
+`ci/tests/` is a separate Dagger module that imports the CI module as a
+dependency and tests its public API. This is the Dagger-recommended pattern
+since `go test` cannot run directly on Dagger modules (the generated SDK's
+`init()` requires a running Dagger session).
+
+```bash
+dagger call -m ci/tests all            # Run all integration tests
+dagger call -m ci/tests test-source-filtering   # Run a specific test
+```
+
+Tests are Dagger Functions that return `error` for pass/fail. The `All`
+function runs all tests sequentially. To add a new test, add a method on
+`Tests` and register it in the `All` runner.
 
 ## Adding a New Check
 
@@ -177,6 +187,7 @@ const (
 ```
 
 When updating a version:
+
 - Change the constant value.
 - The Renovate comment tells the bot which datasource and package to track.
 - The Dagger engine version is pinned in both `dagger.json` (`engineVersion`)
@@ -191,23 +202,23 @@ The default policy is a 7-day TTL, which works well for input-keyed
 functions (checks, builds) since they cache-miss automatically when the
 source changes. Functions with external side effects use `+cache="never"`:
 
-| Function         | Cache Policy          | Reason                                    |
-| ---------------- | --------------------- | ----------------------------------------- |
-| Checks/Generators | (default 7-day TTL)  | Input-keyed by source; auto-invalidates.  |
-| `PublishImages`  | `+cache="never"`      | Publishes to registry (side effect).       |
-| `Release`        | `+cache="never"`      | Creates GitHub release + publishes images. |
-| `Dev`            | `+cache="never"`      | Interactive; should always be fresh.       |
+| Function          | Cache Policy        | Reason                                     |
+| ----------------- | ------------------- | ------------------------------------------ |
+| Checks/Generators | (default 7-day TTL) | Input-keyed by source; auto-invalidates.   |
+| `PublishImages`   | `+cache="never"`    | Publishes to registry (side effect).       |
+| `Release`         | `+cache="never"`    | Creates GitHub release + publishes images. |
+| `Dev`             | `+cache="never"`    | Interactive; should always be fresh.       |
 
 ### Volume Caching
 
 All Go-based containers use shared Dagger cache volumes. The Go toolchain
 (`goBase`) manages mount paths automatically; other containers mount explicitly:
 
-| Volume Key        | Mount Path (toolchain)        | Mount Path (manual)  | Env Variable   |
-| ----------------- | ----------------------------- | -------------------- | -------------- |
-| `go-mod`          | (managed by toolchain)        | `/go/pkg/mod`        | `GOMODCACHE`   |
-| `go-build`        | (managed by toolchain)        | `/go/build-cache`    | `GOCACHE`      |
-| `golangci-lint`   | —                             | `/root/.cache/golangci-lint` | (implicit) |
+| Volume Key      | Mount Path (toolchain) | Mount Path (manual)          | Env Variable |
+| --------------- | ---------------------- | ---------------------------- | ------------ |
+| `go-mod`        | (managed by toolchain) | `/go/pkg/mod`                | `GOMODCACHE` |
+| `go-build`      | (managed by toolchain) | `/go/build-cache`            | `GOCACHE`    |
+| `golangci-lint` | —                      | `/root/.cache/golangci-lint` | (implicit)   |
 
 Different mount paths are safe because Go caches are content-addressed.
 When mounting manually, always set the corresponding env var so the tool
@@ -264,11 +275,11 @@ configs resolve correctly inside the container.
 
 ## GitHub Workflows
 
-| Workflow         | Trigger               | Dagger Usage                          |
-| ---------------- | --------------------- | ------------------------------------- |
-| `validate.yaml`  | Push/PR               | `dagger check` (lint) + `dagger call test-coverage` |
-| `build.yaml`     | Push to main, PR      | `dagger call build`                   |
-| `release.yaml`   | Tag push `v*`         | `dagger call release`                 |
+| Workflow        | Trigger          | Dagger Usage                                        |
+| --------------- | ---------------- | --------------------------------------------------- |
+| `validate.yaml` | Push/PR          | `dagger check` (lint) + `dagger call test-coverage` |
+| `build.yaml`    | Push to main, PR | `dagger call build`                                 |
+| `release.yaml`  | Tag push `v*`    | `dagger call release`                               |
 
 All workflows use `dagger/dagger-for-github@v8` with version `"0.19"`.
 Secrets are passed via the `env://VAR_NAME` provider syntax.
