@@ -16,12 +16,13 @@ dagger call dev terminal      # Interactive dev container
 Or via the Taskfile:
 
 ```bash
-task test      # dagger check test
-task lint      # dagger check lint lint-prettier lint-actions lint-releaser
-task format    # dagger generate --auto-apply
-task build     # dagger call build export --path=./dist
-task dev       # Interactive dev shell via Dagger
-task claude    # Claude Code inside Dagger dev container
+task test              # dagger check test
+task test:integration  # dagger call -m ci/tests all
+task lint              # dagger check lint lint-prettier lint-actions lint-releaser
+task format            # dagger generate --auto-apply
+task build             # dagger call build export --path=./dist
+task dev               # Interactive dev shell via Dagger
+task claude            # Claude Code inside Dagger dev container
 ```
 
 ## Architecture
@@ -101,9 +102,10 @@ dagger call -m ci/tests all            # Run all integration tests
 dagger call -m ci/tests test-source-filtering   # Run a specific test
 ```
 
-Tests are Dagger Functions that return `error` for pass/fail. The `All`
-function runs all tests sequentially. To add a new test, add a method on
-`Tests` and register it in the `All` runner.
+Tests are Dagger Functions that accept `context.Context` and return `error`
+for pass/fail. The `All` function runs all tests in parallel using
+`errgroup`. To add a new test, add a method on `Tests` and register it
+in `All`.
 
 ## Adding a New Check
 
@@ -275,11 +277,11 @@ configs resolve correctly inside the container.
 
 ## GitHub Workflows
 
-| Workflow        | Trigger          | Dagger Usage                                        |
-| --------------- | ---------------- | --------------------------------------------------- |
-| `validate.yaml` | Push/PR          | `dagger check` (lint) + `dagger call test-coverage` |
-| `build.yaml`    | Push to main, PR | `dagger call build`                                 |
-| `release.yaml`  | Tag push `v*`    | `dagger call release`                               |
+| Workflow        | Trigger          | Dagger Usage                                                       |
+| --------------- | ---------------- | ------------------------------------------------------------------ |
+| `validate.yaml` | Push/PR          | `dagger check` (lint) + `dagger call test-coverage` + test module  |
+| `build.yaml`    | Push to main, PR | `dagger call build`                                                |
+| `release.yaml`  | Tag push `v*`    | `dagger call release`                                              |
 
 All workflows use `dagger/dagger-for-github@v8` with version `"0.19"`.
 Secrets are passed via the `env://VAR_NAME` provider syntax.
