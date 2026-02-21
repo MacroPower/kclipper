@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"dagger/ci/internal/dagger"
+
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -282,19 +284,27 @@ func (m *Ci) publishImages(
 	}
 
 	// Sign each published image with cosign (key-based signing).
+	// Each signing is independent, so run them concurrently.
 	if cosignKey != nil {
 		cosignCtr := dag.Container().
 			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
 			WithRegistryAuth("ghcr.io", registryUsername, registryPassword).
 			WithSecretVariable("COSIGN_KEY", cosignKey)
 
+		g, ctx := errgroup.WithContext(ctx)
 		for _, digest := range digests {
-			_, err := cosignCtr.
-				WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
-				Sync(ctx)
-			if err != nil {
-				return nil, fmt.Errorf("sign image %s: %w", digest, err)
-			}
+			g.Go(func() error {
+				_, err := cosignCtr.
+					WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
+					Sync(ctx)
+				if err != nil {
+					return fmt.Errorf("sign image %s: %w", digest, err)
+				}
+				return nil
+			})
+		}
+		if err := g.Wait(); err != nil {
+			return nil, err
 		}
 	}
 
