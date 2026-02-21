@@ -417,7 +417,8 @@ func (m *Ci) releaserBase(source *dagger.Directory) *dagger.Container {
 				"ZIG_ARCH=$(uname -m | sed 's/arm64/aarch64/') && " +
 				"curl -fsSL https://ziglang.org/download/" + zigVersion +
 				"/zig-${ZIG_ARCH}-linux-" + zigVersion + ".tar.xz | " +
-				"tar -xJ -C /usr/local --strip-components=1",
+				"tar -xJ -C /usr/local --strip-components=1 && " +
+				"ln -sf /usr/local/zig /usr/local/bin/zig",
 		}).
 		// Install GoReleaser.
 		WithExec([]string{
