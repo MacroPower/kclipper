@@ -26,16 +26,17 @@ const (
 	imageRegistry = "ghcr.io/macropower/kclipper"
 )
 
-// Ci provides CI/CD functions for kclipper.
+// Ci provides CI/CD functions for kclipper. Create instances with [New].
 type Ci struct {
 	// Project source directory.
 	Source *dagger.Directory
 }
 
-// New creates a Ci module with the given project source directory.
+// New creates a [Ci] module with the given project source directory.
 func New(
 	// Project source directory.
 	// +defaultPath="/"
+	// +ignore=["dist", ".worktrees", ".tmp", ".devcontainer"]
 	source *dagger.Directory,
 ) *Ci {
 	return &Ci{Source: source}
@@ -85,9 +86,7 @@ func (m *Ci) Lint(ctx context.Context) error {
 //
 // +check
 func (m *Ci) LintPrettier(ctx context.Context) error {
-	_, err := dag.Container().
-		From("node:lts-slim").
-		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion}).
+	_, err := prettierBase().
 		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
 		WithExec([]string{
@@ -139,9 +138,7 @@ func (m *Ci) Format() *dagger.Changeset {
 		Directory("/src")
 
 	// Prettier formatting.
-	formatted := dag.Container().
-		From("node:lts-slim").
-		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion}).
+	formatted := prettierBase().
 		WithMountedDirectory("/src", goFmt).
 		WithWorkdir("/src").
 		WithExec([]string{
@@ -196,7 +193,7 @@ func (m *Ci) PublishImages(
 
 // publishImages builds multi-arch container images from a pre-built dist/
 // directory and publishes them to the registry. This is the internal
-// implementation shared by PublishImages() and Release().
+// implementation shared by [Ci.PublishImages] and [Ci.Release].
 func (m *Ci) publishImages(
 	ctx context.Context,
 	dist *dagger.Directory,
@@ -437,6 +434,14 @@ func versionTags(tag string) []string {
 // ---------------------------------------------------------------------------
 // Base containers (private helpers)
 // ---------------------------------------------------------------------------
+
+// prettierBase returns a Node container with prettier pre-installed.
+// Callers must mount their source directory and set the workdir.
+func prettierBase() *dagger.Container {
+	return dag.Container().
+		From("node:lts-slim").
+		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
+}
 
 // lintBase returns a golangci-lint container with source and caches. It
 // installs linux-headers so that CGO transitive dependencies (e.g.
