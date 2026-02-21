@@ -63,6 +63,7 @@ jobs:
             --registry-password=env://REGISTRY_PASSWORD
             --tag="${{ steps.tag.outputs.value }}"
             --cosign-key=env://COSIGN_KEY
+            --cosign-password=env://COSIGN_PASSWORD
             --macos-sign-p12=env://MACOS_SIGN_P12
             --macos-sign-password=env://MACOS_SIGN_PASSWORD
             --macos-notary-key=env://MACOS_NOTARY_KEY
@@ -73,6 +74,7 @@ jobs:
           GITHUB_TOKEN: "${{ steps.app-token.outputs.token }}"
           REGISTRY_PASSWORD: "${{ secrets.GITHUB_TOKEN }}"
           COSIGN_KEY: "${{ secrets.COSIGN_KEY }}"
+          COSIGN_PASSWORD: "${{ secrets.COSIGN_PASSWORD }}"
           MACOS_SIGN_P12: "${{ secrets.MACOS_SIGN_P12 }}"
           MACOS_SIGN_PASSWORD: "${{ secrets.MACOS_SIGN_PASSWORD }}"
           MACOS_NOTARY_KEY: "${{ secrets.MACOS_NOTARY_KEY }}"
