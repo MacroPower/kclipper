@@ -59,14 +59,7 @@ func (m *Ci) TestCoverage(
 
 // Lint runs golangci-lint on the source code.
 func (m *Ci) Lint(ctx context.Context, source *dagger.Directory) (string, error) {
-	return dag.Container().
-		From("golangci/golangci-lint:"+golangciLintVersion+"-alpine").
-		WithMountedDirectory("/src", source).
-		WithWorkdir("/src").
-		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint")).
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
+	return m.lintBase(source).
 		WithExec([]string{"golangci-lint", "run"}).
 		Stdout(ctx)
 }
@@ -89,7 +82,7 @@ func (m *Ci) LintPrettier(ctx context.Context, source *dagger.Directory) (string
 // LintActions runs zizmor to lint GitHub Actions workflows.
 func (m *Ci) LintActions(ctx context.Context, source *dagger.Directory) (string, error) {
 	return dag.Container().
-		From("ghcr.io/woodruffw/zizmor:"+zizmorVersion).
+		From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion).
 		WithMountedDirectory("/src", source).
 		WithWorkdir("/src").
 		WithExec([]string{
@@ -113,14 +106,7 @@ func (m *Ci) LintReleaser(ctx context.Context, source *dagger.Directory) (string
 // modified source directory.
 func (m *Ci) Format(ctx context.Context, source *dagger.Directory) *dagger.Directory {
 	// Go formatting via golangci-lint --fix.
-	goFmt := dag.Container().
-		From("golangci/golangci-lint:"+golangciLintVersion+"-alpine").
-		WithMountedDirectory("/src", source).
-		WithWorkdir("/src").
-		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint")).
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
+	goFmt := m.lintBase(source).
 		WithExec([]string{"golangci-lint", "run", "--fix"}).
 		Directory("/src")
 
@@ -148,7 +134,7 @@ func (m *Ci) Build(ctx context.Context, source *dagger.Directory) *dagger.Direct
 	return m.releaserBase(source).
 		WithExec([]string{
 			"goreleaser", "release", "--snapshot", "--clean",
-			"--skip=docker,docker_manifests,docker_signs,homebrew,nix,sign",
+			"--skip=docker,homebrew,nix,sign",
 		}).
 		Directory("/src/dist")
 }
@@ -172,7 +158,7 @@ func (m *Ci) PublishImages(
 	dist := m.releaserBase(source).
 		WithExec([]string{
 			"goreleaser", "release", "--snapshot", "--clean",
-			"--skip=docker,docker_manifests,docker_signs,homebrew,nix,sign",
+			"--skip=docker,homebrew,nix,sign",
 		}).
 		Directory("/src/dist")
 
@@ -298,7 +284,7 @@ func (m *Ci) Release(
 	// Run GoReleaser for binaries, archives, signing, Homebrew, Nix.
 	// Docker is skipped -- images are published natively via Dagger below.
 	dist := ctr.
-		WithExec([]string{"goreleaser", "release", "--clean", "--skip=docker,docker_manifests,docker_signs"}).
+		WithExec([]string{"goreleaser", "release", "--clean", "--skip=docker"}).
 		Directory("/src/dist")
 
 	// Derive image tags from the version tag (e.g. v1.2.3 -> latest, v1.2.3, v1, v1.2).
@@ -390,6 +376,21 @@ func versionTags(tag string) []string {
 // ---------------------------------------------------------------------------
 // Base containers (private helpers)
 // ---------------------------------------------------------------------------
+
+// lintBase returns a golangci-lint container with source and caches. It
+// installs linux-headers so that CGO transitive dependencies (e.g.
+// containers/storage) compile on Alpine.
+func (m *Ci) lintBase(source *dagger.Directory) *dagger.Container {
+	return dag.Container().
+		From("golangci/golangci-lint:"+golangciLintVersion+"-alpine").
+		WithExec([]string{"apk", "add", "--no-cache", "linux-headers"}).
+		WithMountedDirectory("/src", source).
+		WithWorkdir("/src").
+		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint")).
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithEnvVariable("GOCACHE", "/go/build-cache")
+}
 
 // goBase returns a Go container with source, module cache, and build cache.
 func (m *Ci) goBase(source *dagger.Directory) *dagger.Container {
