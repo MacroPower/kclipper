@@ -449,6 +449,7 @@ func (m *Ci) lintBase() *dagger.Container {
 		WithWorkdir("/src").
 		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint")).
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
 		WithEnvVariable("GOCACHE", "/go/build-cache")
 }
