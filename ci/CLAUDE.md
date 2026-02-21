@@ -295,14 +295,26 @@ favor of Dagger's `Container.Publish()` for proper multi-arch manifests.
 
 ### Signing Architecture
 
-The release pipeline uses two distinct cosign signing strategies:
+Both binary artifacts and container images use **key-based** cosign signing
+(`--key env://COSIGN_KEY`). Keyless OIDC signing is not used because the
+Dagger container does not have access to the GitHub Actions OIDC token
+provider.
 
-- **Binary artifacts** (checksums): Signed by GoReleaser using **keyless**
-  OIDC signing (Fulcio/Rekor). Requires `id-token: write` in the workflow.
-  No key or password needed.
-- **Container images**: Signed by Dagger using **key-based** signing
-  (`--key env://COSIGN_KEY`). The optional `COSIGN_PASSWORD` env var
-  supports encrypted private keys.
+- **Binary artifacts** (checksums): Signed by GoReleaser's `signs`
+  section using `cosign sign-blob --key=env://COSIGN_KEY`. The `Release`
+  function passes `COSIGN_KEY` and `COSIGN_PASSWORD` to the GoReleaser
+  container. When no key is provided, signing is skipped (`--skip=sign`).
+- **Container images**: Signed by the `publishImages` helper using
+  `cosign sign --key env://COSIGN_KEY`. Digests are deduplicated before
+  signing so shared manifests across tags are only signed once.
+
+### OCI Metadata
+
+Runtime images include both OCI **labels** (container config, visible in
+`docker inspect`) and OCI **annotations** (manifest-level, visible in
+`docker manifest inspect`). Labels carry the full set of
+`org.opencontainers.image.*` fields; annotations carry the subset most
+useful for registry discoverability (title, version, created, source).
 
 ## Development Containers
 
