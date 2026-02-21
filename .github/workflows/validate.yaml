@@ -41,30 +41,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run golangci-lint
+      - name: Run lint checks
         uses: dagger/dagger-for-github@v8
         with:
           version: "0.19"
-          verb: call
-          args: lint
-
-      - name: Run prettier check
-        uses: dagger/dagger-for-github@v8
-        with:
-          version: "0.19"
-          verb: call
-          args: lint-prettier
-
-      - name: Run actions lint
-        uses: dagger/dagger-for-github@v8
-        with:
-          version: "0.19"
-          verb: call
-          args: lint-actions
-
-      - name: Run goreleaser check
-        uses: dagger/dagger-for-github@v8
-        with:
-          version: "0.19"
-          verb: call
-          args: lint-releaser
+          verb: check
+          args: lint lint-prettier lint-actions lint-releaser

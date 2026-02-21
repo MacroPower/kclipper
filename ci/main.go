@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"golang.org/x/sync/errgroup"
-
 	"dagger/ci/internal/dagger"
 )
 
@@ -336,24 +334,6 @@ func (m *Ci) Release(
 	}
 
 	return dist, nil
-}
-
-// ---------------------------------------------------------------------------
-// Composite
-// ---------------------------------------------------------------------------
-
-// Validate runs Test, Lint, LintPrettier, LintActions, and LintReleaser
-// concurrently. Use this for PR validation.
-func (m *Ci) Validate(ctx context.Context) error {
-	eg, ctx := errgroup.WithContext(ctx)
-
-	eg.Go(func() error { return m.Test(ctx) })
-	eg.Go(func() error { return m.Lint(ctx) })
-	eg.Go(func() error { return m.LintPrettier(ctx) })
-	eg.Go(func() error { return m.LintActions(ctx) })
-	eg.Go(func() error { return m.LintReleaser(ctx) })
-
-	return eg.Wait()
 }
 
 // ---------------------------------------------------------------------------

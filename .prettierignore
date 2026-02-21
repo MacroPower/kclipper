@@ -1,0 +1,5 @@
+# Helm chart templates contain Go template syntax that is not valid YAML.
+**/templates/**
+
+# Intentionally invalid test fixtures.
+**/testdata/**/invalid*
