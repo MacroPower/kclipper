@@ -367,9 +367,11 @@ func (m *Ci) Release(
 		return nil, fmt.Errorf("publish images: %w", err)
 	}
 
-	// Write digests to dist for attestation in the calling workflow.
+	// Write digests in checksums format for attest-build-provenance.
+	// Dagger's Publish returns "registry/image:tag@sha256:hex" but the
+	// action's subject-checksums input expects "hex  name" per sha256sum.
 	if len(digests) > 0 {
-		dist = dist.WithNewFile("digests.txt", strings.Join(digests, "\n")+"\n")
+		dist = dist.WithNewFile("digests.txt", formatDigestChecksums(digests))
 	}
 
 	return dist, nil
@@ -450,6 +452,29 @@ func (m *Ci) Dev(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+// formatDigestChecksums converts Dagger Publish output references to the
+// checksums format expected by actions/attest-build-provenance's
+// subject-checksums input. Each reference has the form
+// "registry/image:tag@sha256:hex"; this function emits "hex  registry/image:tag"
+// lines, deduplicating by digest.
+func formatDigestChecksums(refs []string) string {
+	seen := make(map[string]bool)
+	var b strings.Builder
+	for _, ref := range refs {
+		parts := strings.SplitN(ref, "@sha256:", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		hex := parts[1]
+		if seen[hex] {
+			continue
+		}
+		seen[hex] = true
+		fmt.Fprintf(&b, "%s  %s\n", hex, parts[0])
+	}
+	return b.String()
+}
 
 // versionTags derives the set of image tags from a version tag string.
 // e.g. "v1.2.3" -> ["latest", "v1.2.3", "v1", "v1.2"].
