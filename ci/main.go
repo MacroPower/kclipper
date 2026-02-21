@@ -126,6 +126,8 @@ func (m *Ci) LintReleaser(ctx context.Context) error {
 
 // Format runs golangci-lint --fix and prettier --write, returning the
 // modified source directory.
+//
+// +generate
 func (m *Ci) Format() *dagger.Directory {
 	// Go formatting via golangci-lint --fix.
 	goFmt := m.lintBase().

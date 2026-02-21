@@ -42,7 +42,7 @@ tasks:
   format:
     desc: Formats code via Dagger
     cmds:
-      - dagger call format export --path=.
+      - dagger generate
 
   lint:
     desc: Runs all lint targets via Dagger
