@@ -179,6 +179,9 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
 - Use `env://VAR_NAME` syntax for Dagger secret providers on the CLI
   (e.g. `--token=env://GITHUB_TOKEN`). This is the canonical URI scheme
   documented for Dagger v0.19+.
+- Use `errgroup` for concurrent execution of independent operations
+  (e.g. signing, test execution). This allows Dagger to schedule
+  container operations in parallel via its DAG.
 
 ## Version Management
 
