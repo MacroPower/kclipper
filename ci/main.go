@@ -24,6 +24,13 @@ const (
 	daggerVersion       = "v0.19.11"       // renovate: datasource=github-releases depName=dagger/dagger
 
 	imageRegistry = "ghcr.io/macropower/kclipper"
+
+	// macosSDKFlags are the common compiler flags for macOS cross-compilation
+	// via Zig, pointing to the vendored macOS SDK headers.
+	macosSDKFlags = "-F/sdk/MacOSX.sdk/System/Library/Frameworks " +
+		"-I/sdk/MacOSX.sdk/usr/include " +
+		"-L/sdk/MacOSX.sdk/usr/lib " +
+		"-Wno-availability -Wno-nullability-completeness"
 )
 
 // Ci provides CI/CD functions for kclipper. Create instances with [New].
@@ -534,12 +541,12 @@ func (m *Ci) releaserBase() *dagger.Container {
 		// CC/CXX env vars for GoReleaser cross-compilation via Zig.
 		WithEnvVariable("CC_LINUX_AMD64", "/src/hack/zig-gold-wrapper.sh -target x86_64-linux-gnu").
 		WithEnvVariable("CC_LINUX_ARM64", "/src/hack/zig-gold-wrapper.sh -target aarch64-linux-gnu").
-		WithEnvVariable("CC_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness").
-		WithEnvVariable("CC_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness").
+		WithEnvVariable("CC_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none "+macosSDKFlags).
+		WithEnvVariable("CC_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none "+macosSDKFlags).
 		WithEnvVariable("CXX_LINUX_AMD64", "/src/hack/zig-gold-wrapper.sh -target x86_64-linux-gnu").
 		WithEnvVariable("CXX_LINUX_ARM64", "/src/hack/zig-gold-wrapper.sh -target aarch64-linux-gnu").
-		WithEnvVariable("CXX_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness").
-		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none -F/sdk/MacOSX.sdk/System/Library/Frameworks -I/sdk/MacOSX.sdk/usr/include -L/sdk/MacOSX.sdk/usr/lib -Wno-availability -Wno-nullability-completeness"))
+		WithEnvVariable("CXX_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none "+macosSDKFlags).
+		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none "+macosSDKFlags))
 }
 
 // ensureGitRepo ensures the container has a valid git repository at its
