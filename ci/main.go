@@ -381,6 +381,19 @@ func (m *Ci) Release(
 	ctr := m.releaserBase().
 		WithSecretVariable("GITHUB_TOKEN", githubToken)
 
+	// Conditionally add cosign secrets for GoReleaser binary signing.
+	// When no key is provided, signing is skipped entirely since keyless
+	// OIDC signing is unavailable inside the Dagger container.
+	skipFlags := "docker"
+	if cosignKey != nil {
+		ctr = ctr.WithSecretVariable("COSIGN_KEY", cosignKey)
+		if cosignPassword != nil {
+			ctr = ctr.WithSecretVariable("COSIGN_PASSWORD", cosignPassword)
+		}
+	} else {
+		skipFlags = "docker,sign"
+	}
+
 	// Conditionally add macOS signing secrets.
 	if macosSignP12 != nil {
 		ctr = ctr.
@@ -391,10 +404,11 @@ func (m *Ci) Release(
 			WithSecretVariable("MACOS_NOTARY_ISSUER_ID", macosNotaryIssuerId)
 	}
 
-	// Run GoReleaser for binaries, archives, signing, Homebrew, Nix.
-	// Docker is skipped -- images are published natively via Dagger below.
+	// Run GoReleaser for binaries, archives, Homebrew, Nix (and signing
+	// when cosignKey is provided). Docker is always skipped -- images are
+	// published natively via Dagger below.
 	dist := ctr.
-		WithExec([]string{"goreleaser", "release", "--clean", "--skip=docker"}).
+		WithExec([]string{"goreleaser", "release", "--clean", "--skip=" + skipFlags}).
 		Directory("/src/dist")
 
 	// Derive image tags from the version tag (e.g. v1.2.3 -> latest, v1.2.3, v1, v1.2).
@@ -517,7 +531,7 @@ func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 
 		ctr := dag.Container(dagger.ContainerOpts{Platform: platform}).
 			From("debian:13-slim").
-			// OCI labels for container metadata.
+			// OCI labels (container config) for metadata.
 			WithLabel("org.opencontainers.image.title", "kclipper").
 			WithLabel("org.opencontainers.image.description", "A superset of KCL that integrates Helm chart management").
 			WithLabel("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
@@ -525,6 +539,11 @@ func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 			WithLabel("org.opencontainers.image.version", version).
 			WithLabel("org.opencontainers.image.created", created).
 			WithLabel("org.opencontainers.image.licenses", "Apache-2.0").
+			// OCI annotations (manifest-level) for registry discoverability.
+			WithAnnotation("org.opencontainers.image.title", "kclipper").
+			WithAnnotation("org.opencontainers.image.version", version).
+			WithAnnotation("org.opencontainers.image.created", created).
+			WithAnnotation("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
 			// Match env vars from existing Dockerfile.
 			WithEnvVariable("LANG", "en_US.utf8").
 			WithEnvVariable("XDG_CACHE_HOME", "/tmp/xdg_cache").
