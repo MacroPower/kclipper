@@ -264,3 +264,16 @@ configs resolve correctly inside the container.
 | `release.yaml`   | Tag push `v*`         | `dagger call release`                 |
 
 All workflows use `dagger/dagger-for-github@v8` with version `"0.19"`.
+Secrets are passed via the `env://VAR_NAME` provider syntax.
+
+### Release Attestation
+
+The release workflow creates build provenance attestations using
+`actions/attest-build-provenance@v3`:
+
+- **checksums.txt** -- GoReleaser-generated SHA256 checksums of release
+  binaries and archives. Already in the standard checksums format.
+- **digests.txt** -- Container image digests written by the `Release`
+  function. `formatDigestChecksums()` converts Dagger's
+  `registry/image:tag@sha256:hex` output to the `hex  name` format
+  expected by `subject-checksums`, deduplicating by digest.
