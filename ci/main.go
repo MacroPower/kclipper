@@ -1,3 +1,6 @@
+// CI/CD functions for the kclipper project. Provides testing, linting,
+// formatting, building, releasing, and development container support.
+
 package main
 
 import (
