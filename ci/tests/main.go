@@ -6,28 +6,22 @@ import (
 	"context"
 	"fmt"
 	"strings"
+
+	"golang.org/x/sync/errgroup"
 )
 
+// Tests provides integration tests for the [Ci] module. Create instances
+// with [New].
 type Tests struct{}
 
-// All runs all tests sequentially.
+// All runs all tests in parallel.
 func (m *Tests) All(ctx context.Context) error {
-	tests := []struct {
-		name string
-		fn   func(context.Context) error
-	}{
-		{"TestSourceFiltering", m.TestSourceFiltering},
-		{"TestFormatIdempotent", m.TestFormatIdempotent},
-	}
-	for _, tt := range tests {
-		fmt.Printf("=== RUN   %s\n", tt.name)
-		if err := tt.fn(ctx); err != nil {
-			fmt.Printf("--- FAIL: %s\n", tt.name)
-			return fmt.Errorf("%s: %w", tt.name, err)
-		}
-		fmt.Printf("--- PASS: %s\n", tt.name)
-	}
-	return nil
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error { return m.TestSourceFiltering(ctx) })
+	g.Go(func() error { return m.TestFormatIdempotent(ctx) })
+
+	return g.Wait()
 }
 
 // TestSourceFiltering verifies that the +ignore annotation in [Ci.New]
