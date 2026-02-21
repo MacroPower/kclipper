@@ -18,7 +18,7 @@ const (
 	cosignVersion       = "v3.0.4"         // renovate: datasource=github-releases depName=sigstore/cosign
 	syftVersion         = "v1.41.1"        // renovate: datasource=github-releases depName=anchore/syft
 	prettierVersion     = "3.5.3"          // renovate: datasource=npm depName=prettier
-	zizmorVersion       = "1.22.0"         // renovate: datasource=github-releases depName=woodruffw/zizmor
+	zizmorVersion       = "1.22.0"         // renovate: datasource=github-releases depName=zizmorcore/zizmor
 	kclLSPVersion       = "v0.11.2"        // renovate: datasource=github-releases depName=kcl-lang/kcl
 
 	imageRegistry = "ghcr.io/macropower/kclipper"
@@ -183,11 +183,14 @@ func (m *Ci) publishImages(
 	for _, platform := range platforms {
 		// Map platform to GoReleaser dist binary path.
 		// GoReleaser uses the build id (kclipper), not the binary name (kcl).
-		arch := "amd64"
+		// Directory names include the GOAMD64/GOARM64 version suffix:
+		//   amd64 -> kclipper_linux_amd64_v1
+		//   arm64 -> kclipper_linux_arm64_v8.0
+		dir := "kclipper_linux_amd64_v1"
 		if platform == "linux/arm64" {
-			arch = "arm64"
+			dir = "kclipper_linux_arm64_v8.0"
 		}
-		binaryPath := fmt.Sprintf("kclipper_linux_%s/kcl", arch)
+		binaryPath := dir + "/kcl"
 
 		ctr := dag.Container(dagger.ContainerOpts{Platform: platform}).
 			From("debian:13-slim").
