@@ -66,14 +66,18 @@ requirements. To update the dependency pin: `dagger update go`.
   from a GoReleaser dist directory. Accepts an optional pre-built dist to avoid
   running GoReleaser when not needed (defaults to a snapshot build). Used by
   `PublishImages` internally and useful for local image inspection/testing.
-- `VersionTags(tag)` -- Derives the set of image tags from a version tag string
-  (e.g. `"v1.2.3"` yields `["latest", "v1.2.3", "v1", "v1.2"]`). Public wrapper
-  around the internal `versionTags` helper for testability.
-- `PublishImages(tags, ..., dist)` -- Builds and publishes images to the
-  registry. Accepts an optional pre-built dist directory. Cosign signing
-  deduplicates digests before signing to avoid signing the same manifest
-  multiple times when tags share a digest.
-- `Release(tag, ...)` -- Full release pipeline (GoReleaser + image publish).
+- `VersionTags(tag)` -- Derives the set of image tags from a version tag string.
+  Stable releases get `["latest", "v1.2.3", "v1", "v1.2"]`; pre-release
+  versions (containing a hyphen, e.g. `"v1.0.0-rc.1"`) only get their exact
+  tag. Public wrapper around the internal `versionTags` helper for testability.
+- `PublishImages(tags, ..., cosignPassword, dist)` -- Builds and publishes
+  images to the registry. Accepts optional `cosignKey` and `cosignPassword`
+  for image signing (password required for encrypted keys). Cosign signing
+  deduplicates digests via `deduplicateDigests()` before signing to avoid
+  signing the same manifest multiple times when tags share a digest.
+- `Release(tag, ..., cosignPassword, ...)` -- Full release pipeline
+  (GoReleaser + image publish). Accepts the same cosign parameters as
+  `PublishImages`.
 
 ### Source Directory Filtering
 
@@ -202,6 +206,8 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
   constant to avoid repetition across `CC_*`/`CXX_*` env vars.
 - The `publishImages` helper returns `[]string` digests directly rather than
   formatted strings, keeping callers clean.
+- The `deduplicateDigests` helper extracts unique image references by
+  sha256 digest, used by both cosign signing and `PublishImages` summary.
 - Published container images include standard OCI labels
   (`org.opencontainers.image.*`) for metadata discoverability.
 - Use `env://VAR_NAME` syntax for Dagger secret providers on the CLI
@@ -279,12 +285,24 @@ Runtime images are built natively via Dagger (not Docker-in-Docker):
 - Base: `debian:13-slim`
 - Multi-arch: `linux/amd64` + `linux/arm64`
 - Published to `ghcr.io/macropower/kclipper`
-- OCI labels: `org.opencontainers.image.{title,description,version,source,url,licenses}`
-- Optionally signed with cosign (digests are deduplicated before signing
-  so that shared manifests across tags are only signed once)
+- OCI labels: `org.opencontainers.image.{title,description,version,created,source,url,licenses}`
+- Optionally signed with cosign key-based signing (digests are
+  deduplicated before signing so shared manifests across tags are only
+  signed once). Supports encrypted keys via the `cosignPassword` parameter.
 
 GoReleaser's Docker support is intentionally skipped (`--skip=docker`) in
 favor of Dagger's `Container.Publish()` for proper multi-arch manifests.
+
+### Signing Architecture
+
+The release pipeline uses two distinct cosign signing strategies:
+
+- **Binary artifacts** (checksums): Signed by GoReleaser using **keyless**
+  OIDC signing (Fulcio/Rekor). Requires `id-token: write` in the workflow.
+  No key or password needed.
+- **Container images**: Signed by Dagger using **key-based** signing
+  (`--key env://COSIGN_KEY`). The optional `COSIGN_PASSWORD` env var
+  supports encrypted private keys.
 
 ## Development Containers
 
