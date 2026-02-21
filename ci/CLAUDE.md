@@ -20,6 +20,8 @@ task test      # dagger check test
 task lint      # dagger check lint lint-prettier lint-actions lint-releaser
 task format    # dagger generate --auto-apply
 task build     # dagger call build export --path=./dist
+task dev       # Interactive dev shell via Dagger
+task claude    # Claude Code inside Dagger dev container
 ```
 
 ## Architecture
@@ -152,6 +154,9 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
   formatted strings, keeping callers clean.
 - Published container images include standard OCI labels
   (`org.opencontainers.image.*`) for metadata discoverability.
+- Use `env://VAR_NAME` syntax for Dagger secret providers on the CLI
+  (e.g. `--token=env://GITHUB_TOKEN`). This is the canonical URI scheme
+  documented for Dagger v0.19+.
 
 ## Version Management
 
@@ -225,6 +230,30 @@ Runtime images are built natively via Dagger (not Docker-in-Docker):
 
 GoReleaser's Docker support is intentionally skipped (`--skip=docker`) in
 favor of Dagger's `Container.Publish()` for proper multi-arch manifests.
+
+## Development Containers
+
+### Dagger Dev Container (`Dev`)
+
+The `Dev()` function creates an interactive development container with Go,
+Task, conform, lefthook, Dagger CLI, and Claude Code pre-installed. Optional
+config directories can be bind-mounted for Claude Code and git:
+
+```bash
+task dev       # Git config only
+task claude    # Git + Claude config, launches Claude Code directly
+```
+
+`ExperimentalPrivilegedNesting` is enabled so nested `dagger call` invocations
+work inside the container without Docker socket mounting.
+
+### VS Code DevContainer
+
+`.devcontainer/` provides a VS Code Dev Container configuration using the
+same Go version and tools as the Dagger dev container. It mounts Claude Code
+config, git config, and uses Docker named volumes for Go caches. The
+`HOST_HOME` build arg creates a symlink so host-absolute paths in mounted
+configs resolve correctly inside the container.
 
 ## GitHub Workflows
 
