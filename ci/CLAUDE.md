@@ -125,6 +125,10 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
   `dagger call --help` text).
 - Use Go doc link syntax (`[Name]`, `[*Name]`) in doc comments per the
   project's root `CLAUDE.md`.
+- The package-level doc comment in `main.go` provides the module description
+  shown in `dagger functions` and `dagger call --help`.
+- Functions with external side effects (publishing, releasing) must use
+  `// +cache="never"` to prevent stale cached results.
 - Cross-compilation macOS SDK flags are defined in the `macosSDKFlags`
   constant to avoid repetition across `CC_*`/`CXX_*` env vars.
 - The `publishImages` helper returns `[]string` digests directly rather than
