@@ -471,6 +471,7 @@ func ensureGitRepo(ctr *dagger.Container) *dagger.Container {
 		"if ! git rev-parse --git-dir >/dev/null 2>&1; then " +
 			"rm -f .git && " +
 			"git init -q && " +
+			"git remote add origin https://github.com/macropower/kclipper.git && " +
 			"git add -A && " +
 			"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init; " +
 			"fi",
