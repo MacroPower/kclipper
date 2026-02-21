@@ -494,16 +494,20 @@ func (m *Ci) lintBase() *dagger.Container {
 		WithEnvVariable("GOCACHE", "/go/build-cache")
 }
 
+// goToolchain returns a configured [dagger.Go] toolchain for the project source.
+func (m *Ci) goToolchain() *dagger.Go {
+	return dag.Go(dagger.GoOpts{
+		Source:      m.Source,
+		Version:     goVersion,
+		ModuleCache: dag.CacheVolume("go-mod"),
+		BuildCache:  dag.CacheVolume("go-build"),
+		Cgo:         true,
+	})
+}
+
 // goBase returns a Go container with source, module cache, and build cache.
 func (m *Ci) goBase() *dagger.Container {
-	return ensureGitRepo(dag.Container().
-		From("golang:"+goVersion).
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
-		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
-		WithEnvVariable("GOCACHE", "/go/build-cache"))
+	return ensureGitRepo(m.goToolchain().Env())
 }
 
 // releaserBase returns a container with Go, GoReleaser, Zig, cosign, and the

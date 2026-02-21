@@ -36,6 +36,16 @@ ci/
   internal/dagger/   # Auto-generated SDK (do not edit)
 ```
 
+### Dependencies
+
+The module depends on the [Dagger Go toolchain](https://github.com/dagger/dagger/tree/main/toolchains/go)
+(`github.com/dagger/dagger/toolchains/go`), installed as a module dependency
+(not a Dagger toolchain). This provides `dag.Go()` for constructing Go build
+environments with Wolfi-based containers, automatic cache management, and
+CGO support. It is used by `goToolchain()` / `goBase()` only; `lintBase()`,
+`releaserBase()`, and `Dev()` remain manually configured due to specialized
+requirements.
+
 ### Function Categories
 
 | Category    | Annotation   | CLI                    | Purpose                                    |
@@ -56,12 +66,19 @@ This reduces the context transfer size when invoking Dagger functions.
 Private helper methods build reusable container layers:
 
 - `prettierBase()` -- Node + prettier (standalone; callers mount source).
-- `goBase()` -- Go toolchain + source + module/build caches.
-- `lintBase()` -- golangci-lint Alpine image + linux-headers + caches.
+- `goToolchain()` -- Configures the Dagger Go toolchain dependency (`dag.Go()`)
+  with the project source, Go version, cache volumes, and CGO enabled. Returns
+  a `*dagger.Go` instance used by `goBase()`.
+- `goBase()` -- Calls `goToolchain().Env()` to get a Wolfi-based container with
+  Go, source, and caches pre-configured, then wraps it with `ensureGitRepo()`.
+- `lintBase()` -- golangci-lint Alpine image + linux-headers + caches. Independent
+  of the Go toolchain because we pin a specific golangci-lint version via Renovate.
 - `releaserBase()` -- Go + GoReleaser + Zig (CGO cross-compilation) + cosign + syft + macOS SDK.
 
 All Go-based base containers share the same cache volumes (`go-mod`,
-`go-build`) and set `GOMODCACHE`/`GOCACHE` environment variables to match.
+`go-build`). The toolchain-based containers (`goBase`) mount them at
+toolchain-default paths, while `lintBase`, `releaserBase`, and `Dev` mount
+them explicitly. This is safe because Go caches are content-addressed.
 
 ### Git Worktree Handling
 
@@ -171,15 +188,17 @@ source changes. Functions with external side effects use `+cache="never"`:
 
 ### Volume Caching
 
-All Go-based containers use shared Dagger cache volumes:
+All Go-based containers use shared Dagger cache volumes. The Go toolchain
+(`goBase`) manages mount paths automatically; other containers mount explicitly:
 
-| Volume Key        | Mount Path          | Env Variable   |
-| ----------------- | ------------------- | -------------- |
-| `go-mod`          | `/go/pkg/mod`       | `GOMODCACHE`   |
-| `go-build`        | `/go/build-cache`   | `GOCACHE`      |
-| `golangci-lint`   | `/root/.cache/golangci-lint` | (implicit) |
+| Volume Key        | Mount Path (toolchain)        | Mount Path (manual)  | Env Variable   |
+| ----------------- | ----------------------------- | -------------------- | -------------- |
+| `go-mod`          | (managed by toolchain)        | `/go/pkg/mod`        | `GOMODCACHE`   |
+| `go-build`        | (managed by toolchain)        | `/go/build-cache`    | `GOCACHE`      |
+| `golangci-lint`   | —                             | `/root/.cache/golangci-lint` | (implicit) |
 
-Always set the corresponding env var when mounting a cache so the tool
+Different mount paths are safe because Go caches are content-addressed.
+When mounting manually, always set the corresponding env var so the tool
 actually uses it.
 
 ## Cross-Compilation
