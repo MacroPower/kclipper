@@ -540,7 +540,10 @@ func (m *Ci) Dev(
 		WithFile("/usr/local/bin/conform",
 			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
 				File("/conform")).
-		WithExec([]string{"go", "install", "github.com/evilmartians/lefthook/v2@" + lefthookVersion}).
+		WithExec([]string{"sh", "-c",
+			"curl -1sLf https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh | bash && " +
+				"apt-get install -y lefthook=" + strings.TrimPrefix(lefthookVersion, "v"),
+		}).
 		WithFile("/usr/local/bin/dagger",
 			dag.Container().From("registry.dagger.io/engine:"+daggerVersion).
 				File("/usr/local/bin/dagger")).
