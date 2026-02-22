@@ -300,11 +300,11 @@ func (m *Ci) publishImages(
 	}
 
 	digests := make([]string, len(tags))
-	g, ctx := errgroup.WithContext(ctx)
+	g, gCtx := errgroup.WithContext(ctx)
 	for i, t := range tags {
 		ref := fmt.Sprintf("%s:%s", m.Registry, t)
 		g.Go(func() error {
-			digest, err := publisher.Publish(ctx, ref, dagger.ContainerPublishOpts{
+			digest, err := publisher.Publish(gCtx, ref, dagger.ContainerPublishOpts{
 				PlatformVariants: variants,
 			})
 			if err != nil {
@@ -333,12 +333,12 @@ func (m *Ci) publishImages(
 			cosignCtr = cosignCtr.WithSecretVariable("COSIGN_PASSWORD", cosignPassword)
 		}
 
-		g, ctx := errgroup.WithContext(ctx)
+		g, gCtx := errgroup.WithContext(ctx)
 		for _, digest := range toSign {
 			g.Go(func() error {
 				_, err := cosignCtr.
 					WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
-					Sync(ctx)
+					Sync(gCtx)
 				if err != nil {
 					return fmt.Errorf("sign image %s: %w", digest, err)
 				}

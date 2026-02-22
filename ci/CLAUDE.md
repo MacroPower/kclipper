@@ -168,9 +168,12 @@ Current integration tests:
 - `TestBuildImageMetadata` -- Verifies `BuildImages` produces exactly 2 platform
   variants with correct OCI labels (including `created`), environment variables,
   and entrypoint.
-- `TestPublishImages` -- End-to-end publish test: builds images and publishes
-  to ttl.sh (anonymous temporary registry) with a unique path per run. Verifies
-  digest references and deduplication summary in the result. **Not** annotated
+- `TestPublishImages` -- End-to-end publish, sign, and verify test: generates
+  an ephemeral cosign key pair, builds images, publishes 2 tags to ttl.sh
+  (anonymous temporary registry) with a unique path per run, signs the
+  deduplicated digest with cosign, and verifies the signature using the
+  ephemeral public key. The 2-tag publish exercises the digest deduplication
+  path (both tags share one manifest, so cosign signs once). **Not** annotated
   with `+check` (depends on external network, ~5 min). Run manually with
   `dagger call -m ci/tests test-publish-images`.
 - `TestFormatDigestChecksums` -- Verifies `FormatDigestChecksums` converts
