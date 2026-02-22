@@ -32,6 +32,7 @@ const (
 	yqVersion           = "v4.52.4"         // renovate: datasource=github-releases depName=mikefarah/yq
 	uvVersion           = "0.10.4"          // renovate: datasource=github-releases depName=astral-sh/uv extractVersion=^(?P<version>.*)$
 	ghVersion           = "v2.87.2"         // renovate: datasource=github-releases depName=cli/cli
+	claudeCodeVersion   = "1.0.58"          // renovate: datasource=npm depName=@anthropic-ai/claude-code
 
 	defaultRegistry = "ghcr.io/macropower/kclipper"
 
@@ -639,51 +640,7 @@ func (m *Ci) Dev(
 	// +optional
 	termProgramVersion string,
 ) *dagger.Container {
-	ctr := ensureGitRepo(dag.Container().
-		From("golang:"+goVersion).
-		WithExec([]string{"sh", "-c",
-			"apt-get update && apt-get install -y --no-install-recommends " +
-				"curl less man-db gnupg2 nano vim xz-utils jq wget dnsutils direnv " +
-				"zsh zsh-autosuggestions zsh-syntax-highlighting " +
-				"ripgrep fd-find bat fzf tree htop " +
-				"&& apt-get clean && rm -rf /var/lib/apt/lists/*",
-		}).
-		// Symlink Debian-renamed binaries to their canonical names.
-		WithExec([]string{"sh", "-c",
-			"ln -s /usr/bin/batcat /usr/local/bin/bat && " +
-				"ln -s /usr/bin/fdfind /usr/local/bin/fd",
-		}).
-		// Install starship prompt.
-		WithExec([]string{"sh", "-c",
-			"curl -fsSL https://starship.rs/install.sh | sh -s -- --yes --version " + starshipVersion,
-		}).
-		WithExec([]string{"sh", "-c", "curl -fsSL https://taskfile.dev/install.sh | sh -s -- -b /usr/local/bin " + taskVersion}).
-		WithFile("/usr/local/bin/conform",
-			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
-				File("/conform")).
-		WithExec([]string{"sh", "-c",
-			"curl -1sLf https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh | bash && " +
-				"apt-get install -y lefthook=" + strings.TrimPrefix(lefthookVersion, "v"),
-		}).
-		WithFile("/usr/local/bin/dagger",
-			dag.Container().From("registry.dagger.io/engine:"+daggerVersion).
-				File("/usr/local/bin/dagger")).
-		// Install yq from official OCI image (tags omit the "v" prefix).
-		WithFile("/usr/local/bin/yq",
-			dag.Container().From("mikefarah/yq:"+strings.TrimPrefix(yqVersion, "v")).
-				File("/usr/bin/yq")).
-		// Install uv from official OCI image (tags omit the "v" prefix).
-		WithFile("/usr/local/bin/uv",
-			dag.Container().From("ghcr.io/astral-sh/uv:"+uvVersion).
-				File("/uv")).
-		// Install gh CLI from GitHub releases tarball.
-		WithExec([]string{"sh", "-c",
-			"ARCH=$(dpkg --print-architecture) && " +
-				"curl -fsSL https://github.com/cli/cli/releases/download/" + ghVersion +
-				"/gh_" + strings.TrimPrefix(ghVersion, "v") + "_linux_${ARCH}.tar.gz | " +
-				"tar -xz -C /usr/local --strip-components=1",
-		}).
-		WithExec([]string{"sh", "-c", "wget -O - https://claude.ai/install.sh | bash"}).
+	ctr := ensureGitRepo(devBase().
 		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
@@ -693,16 +650,7 @@ func (m *Ci) Dev(
 		// Pre-download Go modules so the first build/test is fast.
 		WithExec([]string{"go", "mod", "download"}).
 		// Persist shell history across sessions.
-		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")).
-		// Starship configuration.
-		WithNewFile("/root/.config/starship.toml", starshipConfig).
-		// Zsh configuration.
-		WithNewFile("/root/.zshrc", zshConfig).
-		WithEnvVariable("EDITOR", "nano").
-		WithEnvVariable("VISUAL", "nano").
-		WithEnvVariable("TERM", "xterm-256color").
-		WithEnvVariable("PATH", "/root/.local/bin:$PATH",
-			dagger.ContainerWithEnvVariableOpts{Expand: true}))
+		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")))
 
 	if claudeConfig != nil {
 		ctr = ctr.WithMountedDirectory("/root/.claude", claudeConfig)
@@ -793,6 +741,104 @@ func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 	}
 
 	return variants
+}
+
+// ---------------------------------------------------------------------------
+// Dev container base & tool builders (private helpers)
+// ---------------------------------------------------------------------------
+
+// devBase returns the base development container with all tools
+// pre-installed. All tool binaries are consolidated into a single
+// builder container ([devToolBins]) so Dagger resolves one
+// sub-pipeline instead of one per tool. Claude Code is a separate
+// directory install ([claudeCodeFiles]).
+func devBase() *dagger.Container {
+	return dag.Container().
+		From("golang:"+goVersion).
+		// Mount apt cache volumes so re-runs skip network downloads.
+		WithMountedCache("/var/cache/apt/archives", dag.CacheVolume("dev-apt-archives")).
+		WithMountedCache("/var/lib/apt/lists", dag.CacheVolume("dev-apt-lists")).
+		WithExec([]string{"sh", "-c",
+			"apt-get update && apt-get install -y --no-install-recommends " +
+				"curl less man-db gnupg2 nano vim xz-utils jq wget dnsutils direnv " +
+				"zsh zsh-autosuggestions zsh-syntax-highlighting " +
+				"ripgrep fd-find bat fzf tree htop",
+		}).
+		// Symlink Debian-renamed binaries to their canonical names.
+		WithExec([]string{"sh", "-c",
+			"ln -s /usr/bin/batcat /usr/local/bin/bat && " +
+				"ln -s /usr/bin/fdfind /usr/local/bin/fd",
+		}).
+		// All tool binaries from a single builder sub-pipeline.
+		WithDirectory("/usr/local/bin", devToolBins()).
+		WithDirectory("/root/.local", claudeCodeFiles()).
+		// Shell config.
+		WithNewFile("/root/.config/starship.toml", starshipConfig).
+		WithNewFile("/root/.zshrc", zshConfig).
+		// Editor and terminal env vars.
+		WithEnvVariable("EDITOR", "nano").
+		WithEnvVariable("VISUAL", "nano").
+		WithEnvVariable("TERM", "xterm-256color").
+		WithEnvVariable("PATH", "/root/.local/bin:$PATH",
+			dagger.ContainerWithEnvVariableOpts{Expand: true})
+}
+
+// devToolBins returns a directory containing all dev tool binaries.
+// Everything is built in a single alpine container so Dagger resolves
+// one sub-pipeline for all tools. GitHub release downloads run in one
+// exec; OCI image binaries are added via [dagger.Container.WithFile].
+func devToolBins() *dagger.Directory {
+	ghVer := strings.TrimPrefix(ghVersion, "v")
+	lefthookVer := strings.TrimPrefix(lefthookVersion, "v")
+	return dag.Container().
+		From("alpine:3").
+		WithExec([]string{"mkdir", "-p", "/tools"}).
+		// Download all GitHub release tools in one exec.
+		WithExec([]string{"sh", "-c",
+			"ARCH=$(uname -m) && " +
+				"GOARCH=$(echo $ARCH | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/') && " +
+				// starship
+				"wget -qO- https://github.com/starship/starship/releases/download/" + starshipVersion +
+				"/starship-${ARCH}-unknown-linux-musl.tar.gz | tar xz -C /tools && " +
+				// task
+				"wget -qO- https://github.com/go-task/task/releases/download/" + taskVersion +
+				"/task_linux_${GOARCH}.tar.gz | tar xz -C /tools task && " +
+				// lefthook
+				"wget -qO /tools/lefthook https://github.com/evilmartians/lefthook/releases/download/" + lefthookVersion +
+				"/lefthook_" + lefthookVer + "_Linux_${ARCH} && chmod +x /tools/lefthook && " +
+				// gh
+				"wget -qO- https://github.com/cli/cli/releases/download/" + ghVersion +
+				"/gh_" + ghVer + "_linux_${GOARCH}.tar.gz | " +
+				"tar xz -O gh_" + ghVer + "_linux_${GOARCH}/bin/gh > /tools/gh && chmod +x /tools/gh",
+		}).
+		// OCI image binaries.
+		WithFile("/tools/conform",
+			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
+				File("/conform")).
+		WithFile("/tools/dagger",
+			dag.Container().From("registry.dagger.io/engine:"+daggerVersion).
+				File("/usr/local/bin/dagger")).
+		WithFile("/tools/yq",
+			dag.Container().From("mikefarah/yq:"+strings.TrimPrefix(yqVersion, "v")).
+				File("/usr/bin/yq")).
+		WithFile("/tools/uv",
+			dag.Container().From("ghcr.io/astral-sh/uv:"+uvVersion).
+				File("/uv")).
+		Directory("/tools")
+}
+
+// claudeCodeFiles returns the Claude Code installation directory from a
+// pinned install script run inside a debian-slim builder.
+func claudeCodeFiles() *dagger.Directory {
+	return dag.Container().
+		From("debian:13-slim").
+		WithExec([]string{"sh", "-c",
+			"apt-get update && apt-get install -y --no-install-recommends curl ca-certificates",
+		}).
+		WithExec([]string{"sh", "-c",
+			"curl -fsSL https://claude.ai/install.sh | bash -s -- " + claudeCodeVersion,
+		}).
+		Directory("/root/.local")
 }
 
 // ---------------------------------------------------------------------------

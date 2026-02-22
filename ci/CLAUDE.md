@@ -91,6 +91,11 @@ Private helper methods build reusable container layers:
 - `lintBase()` -- golangci-lint Alpine image + linux-headers + caches.
 - `releaserBase()` -- Go + GoReleaser + Zig + cosign + syft + KCL LSP binaries
   - macOS SDK. Tool binaries extracted from OCI images via `Container.File()`.
+- `devBase()` -- Go + apt packages + all dev tool binaries. Uses `devToolBins()`
+  (one consolidated builder for all tool binaries) and `claudeCodeFiles()` so
+  Dagger resolves only two sub-pipelines instead of one per tool. `Dev()` calls
+  `devBase()` and adds only project-specific setup (source mount, Go caches,
+  optional config mounts).
 
 ### Git Worktree Handling
 
@@ -205,11 +210,12 @@ annotations for automated updates:
 
 ```go
 const (
-    goVersion       = "1.25"    // renovate: datasource=golang-version depName=go
-    starshipVersion = "v1.24.2" // renovate: datasource=github-releases depName=starship/starship
-    yqVersion       = "v4.52.4" // renovate: datasource=github-releases depName=mikefarah/yq
-    uvVersion       = "0.10.4"  // renovate: datasource=github-releases depName=astral-sh/uv
-    ghVersion       = "v2.87.2" // renovate: datasource=github-releases depName=cli/cli
+    goVersion         = "1.25"    // renovate: datasource=golang-version depName=go
+    starshipVersion   = "v1.24.2" // renovate: datasource=github-releases depName=starship/starship
+    yqVersion         = "v4.52.4" // renovate: datasource=github-releases depName=mikefarah/yq
+    uvVersion         = "0.10.4"  // renovate: datasource=github-releases depName=astral-sh/uv
+    ghVersion         = "v2.87.2" // renovate: datasource=github-releases depName=cli/cli
+    claudeCodeVersion = "1.0.58"  // renovate: datasource=npm depName=@anthropic-ai/claude-code
 )
 ```
 
@@ -225,12 +231,14 @@ When updating a version:
 All Go-based containers share Dagger cache volumes. The Go toolchain
 (`goBase`) manages mount paths automatically; other containers mount explicitly:
 
-| Volume Key      | Mount Path (toolchain) | Mount Path (manual)          | Env Variable |
-| --------------- | ---------------------- | ---------------------------- | ------------ |
-| `go-mod`        | (managed by toolchain) | `/go/pkg/mod`                | `GOMODCACHE` |
-| `go-build`      | (managed by toolchain) | `/go/build-cache`            | `GOCACHE`    |
-| `golangci-lint` | —                      | `/root/.cache/golangci-lint` | (implicit)   |
-| `shell-history` | —                      | `/commandhistory`            | `HISTFILE`   |
+| Volume Key         | Mount Path (toolchain) | Mount Path (manual)          | Env Variable |
+| ------------------ | ---------------------- | ---------------------------- | ------------ |
+| `go-mod`           | (managed by toolchain) | `/go/pkg/mod`                | `GOMODCACHE` |
+| `go-build`         | (managed by toolchain) | `/go/build-cache`            | `GOCACHE`    |
+| `golangci-lint`    | —                      | `/root/.cache/golangci-lint` | (implicit)   |
+| `shell-history`    | —                      | `/commandhistory`            | `HISTFILE`   |
+| `dev-apt-archives` | —                      | `/var/cache/apt/archives`    | —            |
+| `dev-apt-lists`    | —                      | `/var/lib/apt/lists`         | —            |
 
 Different mount paths are safe because Go caches are content-addressed.
 When mounting manually, always set the corresponding env var so the tool
@@ -260,6 +268,27 @@ ccstatusline. Shell history is persisted via a `shell-history` cache volume.
 `ExperimentalPrivilegedNesting` is enabled on the terminal command so nested
 `dagger call`/`dagger check` invocations work inside the container without
 Docker socket mounting.
+
+### Dev Container Caching
+
+The dev container is split into `devBase()` (tools and config) and `Dev()`
+(project-specific setup). Tool binaries are installed via `WithFile` /
+`WithDirectory` from independent sub-containers rather than `curl | sh` on
+the base image chain. This means:
+
+- `devToolBins()` consolidates all tool binaries (starship, task, lefthook,
+  gh from GitHub releases + conform, dagger, yq, uv from OCI images) into
+  a single alpine builder. Dagger resolves one sub-pipeline for all tools
+  instead of one per tool, minimizing per-pipeline cache resolution overhead.
+- `claudeCodeFiles()` is a separate sub-pipeline (debian-slim builder) since
+  it installs a directory tree rather than a single binary.
+- Even if the base image chain fully rebuilds (e.g. cache eviction, engine
+  restart), inserting the cached tool directory is near-instant.
+- Apt packages use `dev-apt-archives` and `dev-apt-lists` cache volumes so
+  re-runs skip network downloads.
+- Claude Code is pinned to `claudeCodeVersion` and installed in a
+  `debian:13-slim` builder. The entire `/root/.local` directory is copied
+  via `WithDirectory`.
 
 ### Dev Container Safety
 
