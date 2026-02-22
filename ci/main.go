@@ -24,7 +24,7 @@ const (
 	prettierVersion     = "3.5.3"          // renovate: datasource=npm depName=prettier
 	zizmorVersion       = "1.22.0"         // renovate: datasource=github-releases depName=zizmorcore/zizmor
 	kclLSPVersion       = "v0.11.2"        // renovate: datasource=github-releases depName=kcl-lang/kcl
-	taskVersion         = "v3.45.0"        // renovate: datasource=github-releases depName=go-task/task
+	taskVersion         = "v3.48.0"        // renovate: datasource=github-releases depName=go-task/task
 	conformVersion      = "v0.1.0-alpha.31" // renovate: datasource=github-releases depName=siderolabs/conform
 	lefthookVersion     = "v2.1.1"         // renovate: datasource=github-releases depName=evilmartians/lefthook
 	daggerVersion       = "v0.19.11"       // renovate: datasource=github-releases depName=dagger/dagger
@@ -536,7 +536,7 @@ func (m *Ci) Dev(
 				"curl less man-db gnupg2 nano vim xz-utils jq wget " +
 				"&& apt-get clean && rm -rf /var/lib/apt/lists/*",
 		}).
-		WithExec([]string{"go", "install", "github.com/go-task/task/v3/cmd/task@" + taskVersion}).
+		WithExec([]string{"sh", "-c", "curl -fsSL https://taskfile.dev/install.sh | sh -s -- -b /usr/local/bin " + taskVersion}).
 		WithFile("/usr/local/bin/conform",
 			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
 				File("/conform")).
