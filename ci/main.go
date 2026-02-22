@@ -734,6 +734,11 @@ func (m *Ci) Dev(
 	// ExperimentalPrivilegedNesting gives the terminal session a
 	// connection to the parent Dagger engine, so nested `dagger call`
 	// invocations work without mounting the Docker socket.
+	//
+	// Security note: this grants the dagger CLI inside the container
+	// client-level API access, including host directory access via
+	// GraphQL. This is appropriate for an interactive dev container
+	// but should not be used in CI functions or tests.
 	return ctr.WithDefaultTerminalCmd([]string{"zsh"},
 		dagger.ContainerWithDefaultTerminalCmdOpts{
 			ExperimentalPrivilegedNesting: true,

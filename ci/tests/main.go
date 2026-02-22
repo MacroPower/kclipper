@@ -1,5 +1,11 @@
 // Integration tests for the [Ci] module. Individual tests are annotated
 // with +check so `dagger check -m ci/tests` runs them all concurrently.
+//
+// Security invariant: no test in this module should use
+// InsecureRootCapabilities or ExperimentalPrivilegedNesting.
+// These options bypass container sandboxing and are only appropriate
+// for interactive use (Dev terminal). Adding either to a test
+// function requires explicit security review justification.
 
 package main
 

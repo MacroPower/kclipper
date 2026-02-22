@@ -448,6 +448,80 @@ task claude    # Git + Claude + ccstatusline config, launches Claude Code direct
 `ExperimentalPrivilegedNesting` is enabled so nested `dagger call` invocations
 work inside the container without Docker socket mounting.
 
+## Security Model
+
+### Isolation Boundaries
+
+Dagger containers are the primary isolation boundary. The Dagger engine
+itself runs as a privileged Docker container, so the host machine is the
+true security boundary (consistent with Dagger's
+[security guidance](https://docs.dagger.io/faq/)).
+
+| Context                  | Root Caps | Nesting | `dag.Host()` | Threat Level |
+| ------------------------ | --------- | ------- | ------------ | ------------ |
+| CI Functions (test/lint) | Sandboxed | No      | Unavailable  | Low          |
+| Test Module              | Sandboxed | No      | Unavailable  | Low          |
+| Dev terminal session     | Sandboxed | Yes     | Via CLI only | Interactive  |
+
+**CI and test containers** run as root but without full Linux capabilities
+(standard runc sandboxing). The module SDK does not expose `dag.Host()`,
+so Functions cannot directly access host directories.
+
+**The Dev terminal** has `ExperimentalPrivilegedNesting` enabled so nested
+`dagger call` works. The `dagger` CLI inside the container operates as a
+client (not a module) and can access `host { directory }` via GraphQL.
+This is intentional -- the Dev container is an interactive development
+environment equivalent to running Dagger on the host.
+
+### Available Capabilities in Module SDK
+
+The generated SDK exposes two security-relevant options on
+`ContainerWithExecOpts`:
+
+- `InsecureRootCapabilities` -- Grants full root capabilities (equivalent
+  to `docker run --privileged`). Allowed by default in the Dagger engine's
+  security policy. No CI or test functions use this.
+- `ExperimentalPrivilegedNesting` -- Provides a nested Dagger engine
+  session. Only used in `Dev()` for the terminal command.
+
+Neither option is used by any CI function or test. Adding either to a
+function would be visible in code review.
+
+### Engine Security Policy
+
+The Dagger engine defaults to an open security policy that allows
+`insecureRootCapabilities`. This can be restricted via `engine.json`:
+
+```json
+{
+  "security": {
+    "insecureRootCapabilities": false
+  }
+}
+```
+
+This project does not override the default because the CI module does
+not use `insecureRootCapabilities` and restricting it would prevent
+future legitimate use cases without adding meaningful protection (the
+code review process is the control).
+
+### Threat Model
+
+The primary security controls are **code review** and **principle of
+least privilege in CI function design**:
+
+- CI functions do not use `InsecureRootCapabilities` or
+  `ExperimentalPrivilegedNesting`.
+- Secrets are passed via Dagger's secret API and never written to the
+  container filesystem.
+- Cache volumes (`go-mod`, `go-build`, `shell-history`) are
+  content-addressed and shared safely.
+
+A malicious test would need to be committed, reviewed, and merged before
+execution. This is the same supply-chain risk as any CI pipeline and is
+mitigated by standard code review practices rather than runtime
+sandboxing.
+
 ## GitHub Workflows
 
 | Workflow        | Trigger          | Dagger Usage                                                      |
