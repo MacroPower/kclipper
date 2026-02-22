@@ -170,7 +170,9 @@ Current integration tests:
   and entrypoint.
 - `TestPublishImages` -- End-to-end publish test: builds images and publishes
   to ttl.sh (anonymous temporary registry) with a unique path per run. Verifies
-  digest references and deduplication summary in the result.
+  digest references and deduplication summary in the result. **Not** annotated
+  with `+check` (depends on external network, ~5 min). Run manually with
+  `dagger call -m ci/tests test-publish-images`.
 - `TestFormatDigestChecksums` -- Verifies `FormatDigestChecksums` converts
   publish output to `hex  name` checksums format with digest deduplication.
 - `TestDeduplicateDigests` -- Verifies `DeduplicateDigests` keeps only the

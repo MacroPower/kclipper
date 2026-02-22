@@ -28,7 +28,6 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestVersionTags(ctx) })
 	g.Go(func() error { return m.TestBuildDist(ctx) })
 	g.Go(func() error { return m.TestBuildImageMetadata(ctx) })
-	g.Go(func() error { return m.TestPublishImages(ctx) })
 	g.Go(func() error { return m.TestFormatDigestChecksums(ctx) })
 	g.Go(func() error { return m.TestDeduplicateDigests(ctx) })
 
@@ -247,7 +246,10 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 // multi-arch images to a registry. Uses ttl.sh as an anonymous temporary
 // registry (images expire after 1 hour).
 //
-// +check
+// Not annotated with +check because it depends on external network access
+// to ttl.sh and takes ~5 minutes. Run manually:
+//
+//	dagger call -m ci/tests test-publish-images
 func (m *Tests) TestPublishImages(ctx context.Context) error {
 	// Use a unique registry path on ttl.sh to avoid collisions between runs.
 	registry := fmt.Sprintf("ttl.sh/kclipper-ci-%d", time.Now().UnixNano())
