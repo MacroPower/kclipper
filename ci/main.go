@@ -28,6 +28,10 @@ const (
 	conformVersion      = "v0.1.0-alpha.31" // renovate: datasource=github-releases depName=siderolabs/conform
 	lefthookVersion     = "v2.1.1"         // renovate: datasource=github-releases depName=evilmartians/lefthook
 	daggerVersion       = "v0.19.11"       // renovate: datasource=github-releases depName=dagger/dagger
+	starshipVersion     = "v1.24.2"        // renovate: datasource=github-releases depName=starship/starship
+	yqVersion           = "v4.52.4"        // renovate: datasource=github-releases depName=mikefarah/yq
+	uvVersion           = "0.10.4"         // renovate: datasource=github-releases depName=astral-sh/uv extractVersion=^(?P<version>.*)$
+	ghVersion           = "v2.87.2"        // renovate: datasource=github-releases depName=cli/cli
 
 	defaultRegistry = "ghcr.io/macropower/kclipper"
 
@@ -504,13 +508,106 @@ func (m *Ci) Release(
 // Development
 // ---------------------------------------------------------------------------
 
+// starshipConfig is the starship prompt configuration written to
+// ~/.config/starship.toml inside the dev container.
+const starshipConfig = `add_newline = false
+palette = 'one_dark'
+format = "$directory$git_branch$git_status$golang$fill$cmd_duration$line_break$character"
+
+[fill]
+symbol = ' '
+
+[directory]
+truncation_length = 3
+style = 'bold blue'
+
+[git_branch]
+format = '[$symbol$branch]($style) '
+symbol = '@ '
+style = 'bold purple'
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = 'bold yellow'
+
+[golang]
+format = '[$symbol$version]($style) '
+symbol = 'go '
+style = 'bold cyan'
+
+[cmd_duration]
+min_time = 2_000
+format = '[$duration]($style)'
+style = 'comment'
+
+[character]
+success_symbol = '[>](bold green)'
+error_symbol = '[>](bold red)'
+
+[palettes.one_dark]
+red = '#E06C75'
+green = '#98C379'
+yellow = '#E5C07B'
+blue = '#61AFEF'
+purple = '#C678DD'
+cyan = '#56B6C2'
+white = '#ABB2BF'
+comment = '#5C6370'
+`
+
+// zshConfig is the zsh configuration written to ~/.zshrc inside the dev
+// container.
+const zshConfig = `# History (persisted via cache volume)
+HISTFILE=/commandhistory/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_IGNORE_ALL_DUPS SHARE_HISTORY APPEND_HISTORY INC_APPEND_HISTORY
+
+# Completions
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# Plugins
+source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=244'
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Colors
+eval "$(dircolors -b)"
+
+# fzf integration
+source /usr/share/doc/fzf/examples/key-bindings.zsh
+source /usr/share/doc/fzf/examples/completion.zsh
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_DEFAULT_OPTS='--height=40% --layout=reverse --border --color=fg:-1,bg:-1,hl:cyan,fg+:white,bg+:236,hl+:cyan,info:yellow,prompt:green,pointer:magenta,marker:magenta'
+
+# Tool config
+export BAT_THEME='ansi'
+
+# Aliases
+alias ls='ls --color=auto'
+alias ll='ls -lh'
+alias la='ls -lAh'
+alias l='ls -CF'
+alias grep='grep --color=auto'
+alias cat='bat --paging=never'
+
+# direnv
+eval "$(direnv hook zsh)"
+
+# Starship prompt (must be last)
+eval "$(starship init zsh)"
+`
+
 // Dev returns an interactive development container with project tools
 // pre-installed. Pass optional config directories to enable Claude Code
 // and git inside the container.
 //
 // Config directories are mounted as read-only snapshots; any changes
 // made inside the container are ephemeral and will not persist back to
-// the host. Bash history is persisted across sessions via a cache volume.
+// the host. Shell history is persisted across sessions via a cache volume.
 //
 // Usage:
 //
@@ -548,8 +645,19 @@ func (m *Ci) Dev(
 		From("golang:"+goVersion).
 		WithExec([]string{"sh", "-c",
 			"apt-get update && apt-get install -y --no-install-recommends " +
-				"curl less man-db gnupg2 nano vim xz-utils jq wget dnsutils " +
+				"curl less man-db gnupg2 nano vim xz-utils jq wget dnsutils direnv " +
+				"zsh zsh-autosuggestions zsh-syntax-highlighting " +
+				"ripgrep fd-find bat fzf tree htop " +
 				"&& apt-get clean && rm -rf /var/lib/apt/lists/*",
+		}).
+		// Symlink Debian-renamed binaries to their canonical names.
+		WithExec([]string{"sh", "-c",
+			"ln -s /usr/bin/batcat /usr/local/bin/bat && " +
+				"ln -s /usr/bin/fdfind /usr/local/bin/fd",
+		}).
+		// Install starship prompt.
+		WithExec([]string{"sh", "-c",
+			"curl -fsSL https://starship.rs/install.sh | sh -s -- --yes --version " + starshipVersion,
 		}).
 		WithExec([]string{"sh", "-c", "curl -fsSL https://taskfile.dev/install.sh | sh -s -- -b /usr/local/bin " + taskVersion}).
 		WithFile("/usr/local/bin/conform",
@@ -562,6 +670,21 @@ func (m *Ci) Dev(
 		WithFile("/usr/local/bin/dagger",
 			dag.Container().From("registry.dagger.io/engine:"+daggerVersion).
 				File("/usr/local/bin/dagger")).
+		// Install yq from official OCI image (tags omit the "v" prefix).
+		WithFile("/usr/local/bin/yq",
+			dag.Container().From("mikefarah/yq:"+strings.TrimPrefix(yqVersion, "v")).
+				File("/usr/bin/yq")).
+		// Install uv from official OCI image (tags omit the "v" prefix).
+		WithFile("/usr/local/bin/uv",
+			dag.Container().From("ghcr.io/astral-sh/uv:"+uvVersion).
+				File("/uv")).
+		// Install gh CLI from GitHub releases tarball.
+		WithExec([]string{"sh", "-c",
+			"ARCH=$(dpkg --print-architecture) && " +
+				"curl -fsSL https://github.com/cli/cli/releases/download/" + ghVersion +
+				"/gh_" + strings.TrimPrefix(ghVersion, "v") + "_linux_${ARCH}.tar.gz | " +
+				"tar -xz -C /usr/local --strip-components=1",
+		}).
 		WithExec([]string{"sh", "-c", "wget -O - https://claude.ai/install.sh | bash"}).
 		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
@@ -571,12 +694,12 @@ func (m *Ci) Dev(
 		WithEnvVariable("GOCACHE", "/go/build-cache").
 		// Pre-download Go modules so the first build/test is fast.
 		WithExec([]string{"go", "mod", "download"}).
-		// Persist bash history across sessions.
-		WithMountedCache("/commandhistory", dag.CacheVolume("bash-history")).
-		WithExec([]string{"sh", "-c",
-			`echo 'export HISTFILE=/commandhistory/.bash_history' >> /root/.bashrc && ` +
-				`echo 'export PROMPT_COMMAND="history -a"' >> /root/.bashrc`,
-		}).
+		// Persist shell history across sessions.
+		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")).
+		// Starship configuration.
+		WithNewFile("/root/.config/starship.toml", starshipConfig).
+		// Zsh configuration.
+		WithNewFile("/root/.zshrc", zshConfig).
 		WithEnvVariable("EDITOR", "nano").
 		WithEnvVariable("VISUAL", "nano").
 		WithEnvVariable("TERM", "xterm-256color").
@@ -611,7 +734,7 @@ func (m *Ci) Dev(
 	// ExperimentalPrivilegedNesting gives the terminal session a
 	// connection to the parent Dagger engine, so nested `dagger call`
 	// invocations work without mounting the Docker socket.
-	return ctr.WithDefaultTerminalCmd([]string{"bash"},
+	return ctr.WithDefaultTerminalCmd([]string{"zsh"},
 		dagger.ContainerWithDefaultTerminalCmdOpts{
 			ExperimentalPrivilegedNesting: true,
 		})

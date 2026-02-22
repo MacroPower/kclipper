@@ -477,7 +477,11 @@ func (m *Tests) TestLintReleaserClean(ctx context.Context) error {
 func (m *Tests) TestDevContainer(ctx context.Context) error {
 	ctr := dag.Ci().Dev()
 
-	tools := []string{"go", "task", "dagger", "conform", "lefthook", "claude"}
+	tools := []string{
+		"go", "task", "dagger", "conform", "lefthook", "claude",
+		"starship", "yq", "uv", "gh", "direnv",
+		"rg", "fd", "bat", "fzf", "tree", "htop",
+	}
 	for _, tool := range tools {
 		_, err := ctr.WithExec([]string{"which", tool}).Sync(ctx)
 		if err != nil {

@@ -193,7 +193,8 @@ Current integration tests:
 - `TestLintReleaserClean` -- Exercises GoReleaser configuration validation via
   `LintReleaser`.
 - `TestDevContainer` -- Verifies the `Dev` container has essential tools (go,
-  task, dagger, conform, lefthook, claude) available on PATH.
+  task, dagger, conform, lefthook, claude, starship, yq, uv, gh, direnv, rg,
+  fd, bat, fzf, tree, htop) available on PATH.
 - `TestCoverageProfile` -- Verifies `TestCoverage` returns a non-empty Go
   coverage profile with a `mode:` header line.
 
@@ -287,7 +288,11 @@ annotations for automated updates:
 
 ```go
 const (
-    goVersion = "1.25" // renovate: datasource=golang-version depName=go
+    goVersion       = "1.25"    // renovate: datasource=golang-version depName=go
+    starshipVersion = "v1.24.2" // renovate: datasource=github-releases depName=starship/starship
+    yqVersion       = "v4.52.4" // renovate: datasource=github-releases depName=mikefarah/yq
+    uvVersion       = "0.10.4"  // renovate: datasource=github-releases depName=astral-sh/uv
+    ghVersion       = "v2.87.2" // renovate: datasource=github-releases depName=cli/cli
 )
 ```
 
@@ -324,7 +329,7 @@ All Go-based containers use shared Dagger cache volumes. The Go toolchain
 | `go-mod`        | (managed by toolchain) | `/go/pkg/mod`                | `GOMODCACHE` |
 | `go-build`      | (managed by toolchain) | `/go/build-cache`            | `GOCACHE`    |
 | `golangci-lint` | —                      | `/root/.cache/golangci-lint` | (implicit)   |
-| `bash-history`  | —                      | `/commandhistory`            | `HISTFILE`   |
+| `shell-history` | —                      | `/commandhistory`            | `HISTFILE`   |
 
 Different mount paths are safe because Go caches are content-addressed.
 When mounting manually, always set the corresponding env var so the tool
@@ -351,11 +356,13 @@ syft) from source, which is slow and pollutes the Go build cache with tool
 artifacts. Dagger handles platform matching automatically (no architecture
 detection needed), and each `WithFile` call gets independent layer caching.
 
-| Tool       | OCI Image                           | Binary Path           |
-| ---------- | ----------------------------------- | --------------------- |
-| GoReleaser | `ghcr.io/goreleaser/goreleaser:{v}` | `/usr/bin/goreleaser` |
-| cosign     | `gcr.io/projectsigstore/cosign:{v}` | `/ko-app/cosign`      |
-| syft       | `ghcr.io/anchore/syft:{v}`          | `/syft`               |
+| Tool       | OCI Image                           | Binary Path           | Used In          |
+| ---------- | ----------------------------------- | --------------------- | ---------------- |
+| GoReleaser | `ghcr.io/goreleaser/goreleaser:{v}` | `/usr/bin/goreleaser` | `releaserBase()` |
+| cosign     | `gcr.io/projectsigstore/cosign:{v}` | `/ko-app/cosign`      | `releaserBase()` |
+| syft       | `ghcr.io/anchore/syft:{v}`          | `/syft`               | `releaserBase()` |
+| yq         | `mikefarah/yq:{v}`                  | `/usr/bin/yq`         | `Dev()`          |
+| uv         | `ghcr.io/astral-sh/uv:{v}`          | `/uv`                 | `Dev()`          |
 
 ### KCL LSP Pre-Download
 
@@ -416,10 +423,19 @@ useful for registry discoverability (title, version, created, source).
 
 ### Dagger Dev Container (`Dev`)
 
-The `Dev()` function creates an interactive development container with Go,
-Task, conform, lefthook, Dagger CLI, Claude Code, and dnsutils pre-installed.
+The `Dev()` function creates an interactive development container with zsh,
+starship prompt, and a curated set of tools pre-installed:
+
+- **Core**: Go, Task, conform, lefthook, Dagger CLI, Claude Code, gh
+- **Shell**: zsh with zsh-autosuggestions, zsh-syntax-highlighting, starship
+  prompt, and direnv
+- **CLI utilities**: ripgrep (`rg`), fd-find (`fd`), bat, fzf, tree, htop,
+  yq, jq, uv, dnsutils
+- **fzf integration**: Ctrl-R fuzzy history search, completion, fd as default
+  command
+
 Optional config directories can be bind-mounted for Claude Code, git, and
-ccstatusline. Bash history is persisted across sessions via a `bash-history`
+ccstatusline. Shell history is persisted across sessions via a `shell-history`
 cache volume. Optional environment variables (`TZ`, `COLORTERM`,
 `TERM_PROGRAM`, `TERM_PROGRAM_VERSION`) can be forwarded from the host via
 Taskfile shell interpolation.
