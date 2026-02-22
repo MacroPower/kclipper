@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"dagger/tests/internal/dagger"
 
@@ -27,6 +28,9 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestVersionTags(ctx) })
 	g.Go(func() error { return m.TestBuildDist(ctx) })
 	g.Go(func() error { return m.TestBuildImageMetadata(ctx) })
+	g.Go(func() error { return m.TestPublishImages(ctx) })
+	g.Go(func() error { return m.TestFormatDigestChecksums(ctx) })
+	g.Go(func() error { return m.TestDeduplicateDigests(ctx) })
 
 	return g.Wait()
 }
@@ -234,6 +238,95 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 		if fastEval != "1" {
 			return fmt.Errorf("variant %d: KCL_FAST_EVAL = %q, want %q", i, fastEval, "1")
 		}
+	}
+
+	return nil
+}
+
+// TestPublishImages verifies that [Ci.PublishImages] builds and publishes
+// multi-arch images to a registry. Uses ttl.sh as an anonymous temporary
+// registry (images expire after 1 hour).
+//
+// +check
+func (m *Tests) TestPublishImages(ctx context.Context) error {
+	// Use a unique registry path on ttl.sh to avoid collisions between runs.
+	registry := fmt.Sprintf("ttl.sh/kclipper-ci-%d", time.Now().UnixNano())
+	ci := dag.Ci(dagger.CiOpts{Registry: registry})
+
+	dist := ci.Build()
+	result, err := ci.PublishImages(ctx, []string{"1h"}, dagger.CiPublishImagesOpts{
+		Dist: dist,
+	})
+	if err != nil {
+		return fmt.Errorf("publish: %w", err)
+	}
+
+	// Verify the result contains digest references.
+	if !strings.Contains(result, "sha256:") {
+		return fmt.Errorf("expected sha256 digest in result, got: %s", result)
+	}
+	if !strings.Contains(result, "1 unique digests") {
+		return fmt.Errorf("expected 1 unique digest summary, got: %s", result)
+	}
+
+	return nil
+}
+
+// TestFormatDigestChecksums verifies that [Ci.FormatDigestChecksums] converts
+// publish output to the checksums format, deduplicating by digest.
+//
+// +check
+func (m *Tests) TestFormatDigestChecksums(ctx context.Context) error {
+	refs := []string{
+		"ghcr.io/test:v1@sha256:abc123",
+		"ghcr.io/test:v2@sha256:abc123", // duplicate digest
+		"ghcr.io/test:latest@sha256:def456",
+	}
+
+	result, err := dag.Ci().FormatDigestChecksums(ctx, refs)
+	if err != nil {
+		return fmt.Errorf("format: %w", err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(result), "\n")
+	if len(lines) != 2 {
+		return fmt.Errorf("expected 2 lines (deduplicated), got %d: %q", len(lines), result)
+	}
+
+	if lines[0] != "abc123  ghcr.io/test:v1" {
+		return fmt.Errorf("line 0 = %q, want %q", lines[0], "abc123  ghcr.io/test:v1")
+	}
+	if lines[1] != "def456  ghcr.io/test:latest" {
+		return fmt.Errorf("line 1 = %q, want %q", lines[1], "def456  ghcr.io/test:latest")
+	}
+
+	return nil
+}
+
+// TestDeduplicateDigests verifies that [Ci.DeduplicateDigests] keeps only the
+// first occurrence of each sha256 digest.
+//
+// +check
+func (m *Tests) TestDeduplicateDigests(ctx context.Context) error {
+	refs := []string{
+		"ghcr.io/test:v1@sha256:abc123",
+		"ghcr.io/test:latest@sha256:abc123",
+		"ghcr.io/test:v1.0@sha256:def456",
+	}
+
+	result, err := dag.Ci().DeduplicateDigests(ctx, refs)
+	if err != nil {
+		return fmt.Errorf("deduplicate: %w", err)
+	}
+
+	if len(result) != 2 {
+		return fmt.Errorf("expected 2 unique refs, got %d: %v", len(result), result)
+	}
+	if result[0] != "ghcr.io/test:v1@sha256:abc123" {
+		return fmt.Errorf("ref 0 = %q, want %q", result[0], "ghcr.io/test:v1@sha256:abc123")
+	}
+	if result[1] != "ghcr.io/test:v1.0@sha256:def456" {
+		return fmt.Errorf("ref 1 = %q, want %q", result[1], "ghcr.io/test:v1.0@sha256:def456")
 	}
 
 	return nil

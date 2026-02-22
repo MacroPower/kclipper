@@ -29,7 +29,7 @@ const (
 	lefthookVersion     = "v2.1.1"         // renovate: datasource=github-releases depName=evilmartians/lefthook
 	daggerVersion       = "v0.19.11"       // renovate: datasource=github-releases depName=dagger/dagger
 
-	imageRegistry = "ghcr.io/macropower/kclipper"
+	defaultRegistry = "ghcr.io/macropower/kclipper"
 
 	// macosSDKFlags are the common compiler flags for macOS cross-compilation
 	// via Zig, pointing to the vendored macOS SDK headers.
@@ -43,6 +43,8 @@ const (
 type Ci struct {
 	// Project source directory.
 	Source *dagger.Directory
+	// Container image registry address (e.g. "ghcr.io/macropower/kclipper").
+	Registry string
 }
 
 // New creates a [Ci] module with the given project source directory.
@@ -51,8 +53,14 @@ func New(
 	// +defaultPath="/"
 	// +ignore=["dist", ".worktrees", ".tmp", ".devcontainer"]
 	source *dagger.Directory,
+	// Container image registry address.
+	// +optional
+	registry string,
 ) *Ci {
-	return &Ci{Source: source}
+	if registry == "" {
+		registry = defaultRegistry
+	}
+	return &Ci{Source: source, Registry: registry}
 }
 
 // ---------------------------------------------------------------------------
@@ -188,6 +196,26 @@ func (m *Ci) VersionTags(
 	return versionTags(tag)
 }
 
+// FormatDigestChecksums converts [Ci.PublishImages] output references to the
+// checksums format expected by actions/attest-build-provenance. Each reference
+// has the form "registry/image:tag@sha256:hex"; this function emits
+// "hex  registry/image:tag" lines, deduplicating by digest.
+func (m *Ci) FormatDigestChecksums(
+	// Image references from [Ci.PublishImages] (e.g. "registry/image:tag@sha256:hex").
+	refs []string,
+) string {
+	return formatDigestChecksums(refs)
+}
+
+// DeduplicateDigests returns unique image references from a list, keeping
+// only the first occurrence of each sha256 digest.
+func (m *Ci) DeduplicateDigests(
+	// Image references (e.g. "registry/image:tag@sha256:hex").
+	refs []string,
+) []string {
+	return deduplicateDigests(refs)
+}
+
 // BuildImages builds multi-arch runtime container images from a GoReleaser
 // dist directory. If no dist is provided, a snapshot build is run.
 func (m *Ci) BuildImages(
@@ -216,8 +244,10 @@ func (m *Ci) PublishImages(
 	// Image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
 	tags []string,
 	// Registry username for authentication.
+	// +optional
 	registryUsername string,
 	// Registry password or token for authentication.
+	// +optional
 	registryPassword *dagger.Secret,
 	// Cosign private key for signing published images.
 	// +optional
@@ -264,13 +294,15 @@ func (m *Ci) publishImages(
 	cosignPassword *dagger.Secret,
 ) ([]string, error) {
 	// Publish multi-arch manifest for each tag concurrently.
-	publisher := dag.Container().
-		WithRegistryAuth("ghcr.io", registryUsername, registryPassword)
+	publisher := dag.Container()
+	if registryPassword != nil {
+		publisher = publisher.WithRegistryAuth(registryHost(m.Registry), registryUsername, registryPassword)
+	}
 
 	digests := make([]string, len(tags))
 	g, ctx := errgroup.WithContext(ctx)
 	for i, t := range tags {
-		ref := fmt.Sprintf("%s:%s", imageRegistry, t)
+		ref := fmt.Sprintf("%s:%s", m.Registry, t)
 		g.Go(func() error {
 			digest, err := publisher.Publish(ctx, ref, dagger.ContainerPublishOpts{
 				PlatformVariants: variants,
@@ -293,8 +325,10 @@ func (m *Ci) publishImages(
 
 		cosignCtr := dag.Container().
 			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
-			WithRegistryAuth("ghcr.io", registryUsername, registryPassword).
 			WithSecretVariable("COSIGN_KEY", cosignKey)
+		if registryPassword != nil {
+			cosignCtr = cosignCtr.WithRegistryAuth(registryHost(m.Registry), registryUsername, registryPassword)
+		}
 		if cosignPassword != nil {
 			cosignCtr = cosignCtr.WithSecretVariable("COSIGN_PASSWORD", cosignPassword)
 		}
@@ -509,6 +543,12 @@ func (m *Ci) Dev(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+// registryHost extracts the host (with optional port) from a registry address.
+// For example, "ghcr.io/macropower/kclipper" returns "ghcr.io".
+func registryHost(registry string) string {
+	return strings.SplitN(registry, "/", 2)[0]
+}
 
 // runtimeImages builds a multi-arch set of runtime container images from a
 // pre-built GoReleaser dist/ directory. Each image is based on debian:13-slim
