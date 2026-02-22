@@ -61,50 +61,18 @@ requirements. To update the dependency pin: `dagger update go`.
 
 ### Build & Image Functions
 
-- `Build()` -- Runs GoReleaser in snapshot mode, returns the `dist/` directory.
-- `BuildImages(version, dist)` -- Builds multi-arch runtime container images
-  from a GoReleaser dist directory. Accepts an optional pre-built dist to avoid
-  running GoReleaser when not needed (defaults to a snapshot build). Used by
-  `PublishImages` internally and useful for local image inspection/testing.
-- `VersionTags(tag)` -- Derives the set of image tags from a version tag string.
-  Stable releases get `["latest", "v1.2.3", "v1", "v1.2"]`; pre-release
-  versions (containing a hyphen, e.g. `"v1.0.0-rc.1"`) only get their exact
-  tag.
-- `FormatDigestChecksums(refs)` -- Converts `PublishImages` output references
-  (`registry/image:tag@sha256:hex`) to the checksums format expected by
-  `actions/attest-build-provenance` (`hex  registry/image:tag`), deduplicating
-  by digest.
-- `DeduplicateDigests(refs)` -- Returns unique image references from a list,
-  keeping only the first occurrence of each sha256 digest.
-- `RegistryHost(registry)` -- Extracts the host (with optional port) from a
-  registry address (e.g. `"ghcr.io/macropower/kclipper"` returns `"ghcr.io"`).
-- `PublishImages(tags, ..., cosignPassword, dist)` -- Builds and publishes
-  images to the registry configured on the module (defaults to
-  `ghcr.io/macropower/kclipper`). Registry credentials are optional to
-  support anonymous registries (e.g. ttl.sh for testing). Accepts optional
-  `cosignKey` and `cosignPassword` for image signing (password required for
-  encrypted keys). Cosign signing deduplicates digests via
-  `deduplicateDigests()` before signing to avoid signing the same manifest
-  multiple times when tags share a digest.
-- `Release(tag, ..., cosignPassword, ...)` -- Full release pipeline
-  (GoReleaser + image publish). Registry credentials are required (unlike
-  `PublishImages`, releases always target an authenticated registry). Accepts
-  the same cosign parameters as `PublishImages`.
-
-### Registry Configuration
+- `Build()` -- GoReleaser snapshot build, returns `dist/` directory.
+- `BuildImages(version, dist)` -- Multi-arch container images from GoReleaser dist.
+- `VersionTags(tag)` -- Derives image tags from a version string.
+- `FormatDigestChecksums(refs)` -- Converts publish output to checksums format.
+- `DeduplicateDigests(refs)` -- Unique image references by sha256 digest.
+- `RegistryHost(registry)` -- Extracts host from a registry address.
+- `PublishImages(tags, ..., cosignPassword, dist)` -- Build, publish, and optionally sign images.
+- `Release(tag, ..., cosignPassword, ...)` -- Full release pipeline (GoReleaser + image publish).
 
 The `New` constructor accepts an optional `registry` parameter (defaults to
-`ghcr.io/macropower/kclipper`). This address is stored in the `Registry`
-struct field and used by `PublishImages`, `Release`, and the internal
-`publishImages` helper for:
-
-- Constructing image references (`registry:tag`).
-- Extracting the registry host via `registryHost()` for `WithRegistryAuth`.
-- Passing to cosign for image signing.
-
-Override the registry for testing (e.g. `dag.Ci(dagger.CiOpts{Registry: "ttl.sh/test"})`)
-or to publish to a different registry. The release workflow does not pass
-`--registry` and uses the default.
+`ghcr.io/macropower/kclipper`). Override for testing:
+`dag.Ci(dagger.CiOpts{Registry: "ttl.sh/test"})`.
 
 ### Source Directory Filtering
 
@@ -117,25 +85,12 @@ This reduces the context transfer size when invoking Dagger functions.
 Private helper methods build reusable container layers:
 
 - `prettierBase()` -- Node + prettier (standalone; callers mount source).
-- `goToolchain()` -- Configures the Dagger Go toolchain dependency (`dag.Go()`)
-  with the project source, Go version, cache volumes, and CGO enabled. Returns
-  a `*dagger.Go` instance used by `goBase()`.
-- `goBase()` -- Calls `goToolchain().Env()` to get a Wolfi-based container with
-  Go, source, and caches pre-configured, then wraps it with `ensureGitRepo()`.
-- `lintBase()` -- golangci-lint Alpine image + linux-headers + caches. Independent
-  of the Go toolchain because we pin a specific golangci-lint version via Renovate.
-- `releaserBase()` -- Go + GoReleaser + Zig (CGO cross-compilation) + cosign +
-  syft + pre-downloaded KCL LSP binaries + macOS SDK. Tool binaries are
-  extracted from official OCI images via `Container.File()` (not `go install`)
-  for faster builds, smaller Go build cache, and automatic platform matching.
-  KCL LSP binaries for all four target platforms are pre-downloaded into
-  `/lsp/{os}/{arch}/` so the GoReleaser per-build hook uses a simple `cp`
-  instead of querying the GitHub API.
-
-All Go-based base containers share the same cache volumes (`go-mod`,
-`go-build`). The toolchain-based containers (`goBase`) mount them at
-toolchain-default paths, while `lintBase`, `releaserBase`, and `Dev` mount
-them explicitly. This is safe because Go caches are content-addressed.
+- `goToolchain()` -- Configures `dag.Go()` with project source, Go version,
+  caches, and CGO. Returns `*dagger.Go` used by `goBase()`.
+- `goBase()` -- Wolfi-based container via `goToolchain().Env()` + `ensureGitRepo()`.
+- `lintBase()` -- golangci-lint Alpine image + linux-headers + caches.
+- `releaserBase()` -- Go + GoReleaser + Zig + cosign + syft + KCL LSP binaries
+  + macOS SDK. Tool binaries extracted from OCI images via `Container.File()`.
 
 ### Git Worktree Handling
 
@@ -162,41 +117,6 @@ runs them concurrently via Dagger's built-in check runner. The `All`
 function provides an alternative that runs tests in parallel using
 `errgroup`. To add a new test, add a `+check`-annotated method on
 `Tests` and register it in `All`.
-
-Current integration tests:
-
-- `TestSourceFiltering` -- Verifies `+ignore` excludes expected directories.
-- `TestFormatIdempotent` -- Checks formatter produces empty changeset on clean source.
-- `TestLintActionsClean` -- Exercises GitHub Actions workflow linting.
-- `TestVersionTags` -- Verifies `VersionTags` returns expected tags for semver,
-  pre-release, two-component, single-component, four-component, empty-string,
-  no-v-prefix, and hyphen-in-first-component inputs.
-- `TestBuildDist` -- Verifies `Build` returns a dist directory with checksums
-  and platform archives.
-- `TestBuildImageMetadata` -- Verifies `BuildImages` produces exactly 2 platform
-  variants with correct OCI labels (including `created`), environment variables,
-  and entrypoint.
-- `TestPublishImages` -- End-to-end publish, sign, and verify test: generates
-  an ephemeral cosign key pair, builds images, publishes 2 tags to ttl.sh
-  (anonymous temporary registry) with a unique path per run, signs the
-  deduplicated digest with cosign, and verifies the signature using the
-  ephemeral public key. The 2-tag publish exercises the digest deduplication
-  path (both tags share one manifest, so cosign signs once). **Not** annotated
-  with `+check` (depends on external network, ~5 min). Run manually with
-  `dagger call -m ci/tests test-publish-images`.
-- `TestFormatDigestChecksums` -- Verifies `FormatDigestChecksums` converts
-  publish output to `hex  name` checksums format with digest deduplication.
-- `TestDeduplicateDigests` -- Verifies `DeduplicateDigests` keeps only the
-  first occurrence of each sha256 digest.
-- `TestRegistryHost` -- Verifies `RegistryHost` extracts the host from various
-  registry address formats (standard, with port, host-only, nested path, empty).
-- `TestLintReleaserClean` -- Exercises GoReleaser configuration validation via
-  `LintReleaser`.
-- `TestDevContainer` -- Verifies the `Dev` container has essential tools (go,
-  task, dagger, conform, lefthook, claude, starship, yq, uv, gh, direnv, rg,
-  fd, bat, fzf, tree, htop) available on PATH.
-- `TestCoverageProfile` -- Verifies `TestCoverage` returns a non-empty Go
-  coverage profile with a `mode:` header line.
 
 ## Adding a New Check
 
@@ -258,28 +178,25 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
   shown in `dagger functions` and `dagger call --help`.
 - Functions with external side effects (publishing, releasing) must use
   `// +cache="never"` to prevent stale cached results.
-- Cross-compilation macOS SDK flags are defined in the `macosSDKFlags`
-  constant to avoid repetition across `CC_*`/`CXX_*` env vars.
-- The `publishImages` helper returns `[]string` digests directly rather than
-  formatted strings, keeping callers clean.
-- `DeduplicateDigests` extracts unique image references by sha256 digest,
-  used by both cosign signing and `PublishImages` summary.
 - Pure-logic utilities (`FormatDigestChecksums`, `DeduplicateDigests`,
   `VersionTags`, `RegistryHost`) are public methods directly, with no
   private helper indirection. Internal callers use `m.MethodName(...)`.
   This keeps the logic in one place while remaining testable from the test
   module (since `go test` cannot run on Dagger modules).
-- Published container images include standard OCI labels
-  (`org.opencontainers.image.*`) for metadata discoverability.
 - Registry auth (`WithRegistryAuth`) is conditional: only applied when
   `registryPassword` is non-nil. This allows `PublishImages` to work with
   anonymous registries (e.g. ttl.sh) for integration testing.
 - Use `env://VAR_NAME` syntax for Dagger secret providers on the CLI
-  (e.g. `--token=env://GITHUB_TOKEN`). This is the canonical URI scheme
-  documented for Dagger v0.19+.
+  (e.g. `--token=env://GITHUB_TOKEN`).
 - Use `errgroup` for concurrent execution of independent operations
-  (e.g. signing, test execution). This allows Dagger to schedule
-  container operations in parallel via its DAG.
+  (e.g. signing, test execution).
+- Tool binaries are extracted from OCI images via `Container.File()`
+  (not `go install`) for faster builds and automatic platform matching.
+- Published container images include OCI labels and annotations for
+  metadata discoverability.
+- Cosign key-based signing (`--key env://COSIGN_KEY`) is used for both
+  binary artifacts and container images. Keyless OIDC is not available
+  inside Dagger containers.
 
 ## Version Management
 
@@ -305,23 +222,7 @@ When updating a version:
 
 ## Caching Strategy
 
-### Function Caching
-
-Dagger v0.19.4+ supports function-level caching via `+cache` annotations.
-The default policy is a 7-day TTL, which works well for input-keyed
-functions (checks, builds) since they cache-miss automatically when the
-source changes. Functions with external side effects use `+cache="never"`:
-
-| Function          | Cache Policy        | Reason                                     |
-| ----------------- | ------------------- | ------------------------------------------ |
-| Checks/Generators | (default 7-day TTL) | Input-keyed by source; auto-invalidates.   |
-| `PublishImages`   | `+cache="never"`    | Publishes to registry (side effect).       |
-| `Release`         | `+cache="never"`    | Creates GitHub release + publishes images. |
-| `Dev`             | `+cache="never"`    | Interactive; should always be fresh.       |
-
-### Volume Caching
-
-All Go-based containers use shared Dagger cache volumes. The Go toolchain
+All Go-based containers share Dagger cache volumes. The Go toolchain
 (`goBase`) manages mount paths automatically; other containers mount explicitly:
 
 | Volume Key      | Mount Path (toolchain) | Mount Path (manual)          | Env Variable |
@@ -337,91 +238,13 @@ actually uses it.
 
 ## Cross-Compilation
 
-Builds target four platforms: `linux/amd64`, `linux/arm64`, `darwin/amd64`,
-`darwin/arm64`. CGO cross-compilation uses Zig as the C/C++ compiler via
-wrapper scripts in `hack/`:
-
-- `hack/zig-gold-wrapper.sh` -- Linux targets
-- `hack/zig-macos-wrapper.sh` -- macOS targets (uses vendored SDK headers from `.nixpkgs/vendor/`)
-
-The `CC_*`/`CXX_*` env vars in `releaserBase()` are consumed by GoReleaser's
-`.goreleaser.yaml` per-target `env` blocks.
-
-## Tool Installation in `releaserBase()`
-
-Tools in `releaserBase()` are installed by extracting binaries from official
-OCI images via `dag.Container().From("image:tag").File("/path")`, not compiled
-via `go install`. This avoids compiling large codebases (GoReleaser, cosign,
-syft) from source, which is slow and pollutes the Go build cache with tool
-artifacts. Dagger handles platform matching automatically (no architecture
-detection needed), and each `WithFile` call gets independent layer caching.
-
-| Tool       | OCI Image                           | Binary Path           | Used In          |
-| ---------- | ----------------------------------- | --------------------- | ---------------- |
-| GoReleaser | `ghcr.io/goreleaser/goreleaser:{v}` | `/usr/bin/goreleaser` | `releaserBase()` |
-| cosign     | `gcr.io/projectsigstore/cosign:{v}` | `/ko-app/cosign`      | `releaserBase()` |
-| syft       | `ghcr.io/anchore/syft:{v}`          | `/syft`               | `releaserBase()` |
-| yq         | `mikefarah/yq:{v}`                  | `/usr/bin/yq`         | `Dev()`          |
-| uv         | `ghcr.io/astral-sh/uv:{v}`          | `/uv`                 | `Dev()`          |
-
-### KCL LSP Pre-Download
-
-The KCL Language Server binaries for all four target platforms
-(`linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`) are
-pre-downloaded into `/lsp/{os}/{arch}/kcl-language-server` during the
-`releaserBase()` container setup. The GoReleaser per-build hook in
-`.goreleaser.yaml` then copies the correct binary via
-`cp /lsp/{{ .Os }}/{{ .Arch }}/kcl-language-server .` instead of querying
-the GitHub API at build time. This eliminates:
-
-- GitHub API rate limiting (the old approach queried the API per build target)
-- Redundant downloads (4 builds previously each hit the API independently)
-- Dependency on `jq` for JSON parsing
-
-The pre-download is cacheable by Dagger since it depends only on the
-`kclLSPVersion` constant, not on the project source.
-
-## Container Images
-
-Runtime images are built natively via Dagger (not Docker-in-Docker):
-
-- Base: `debian:13-slim`
-- Multi-arch: `linux/amd64` + `linux/arm64`
-- Published to the configured registry (default: `ghcr.io/macropower/kclipper`)
-- OCI labels: `org.opencontainers.image.{title,description,version,created,source,url,licenses}`
-- Optionally signed with cosign key-based signing (digests are
-  deduplicated before signing so shared manifests across tags are only
-  signed once). Supports encrypted keys via the `cosignPassword` parameter.
-
-GoReleaser's Docker support is intentionally skipped (`--skip=docker`) in
-favor of Dagger's `Container.Publish()` for proper multi-arch manifests.
-
-### Signing Architecture
-
-Both binary artifacts and container images use **key-based** cosign signing
-(`--key env://COSIGN_KEY`). Keyless OIDC signing is not used because the
-Dagger container does not have access to the GitHub Actions OIDC token
-provider.
-
-- **Binary artifacts** (checksums): Signed by GoReleaser's `signs`
-  section using `cosign sign-blob --key=env://COSIGN_KEY`. The `Release`
-  function passes `COSIGN_KEY` and `COSIGN_PASSWORD` to the GoReleaser
-  container. When no key is provided, signing is skipped (`--skip=sign`).
-- **Container images**: Signed by the `publishImages` helper using
-  `cosign sign --key env://COSIGN_KEY`. Digests are deduplicated before
-  signing so shared manifests across tags are only signed once.
-
-### OCI Metadata
-
-Runtime images include both OCI **labels** (container config, visible in
-`docker inspect`) and OCI **annotations** (manifest-level, visible in
-`docker manifest inspect`). Labels carry the full set of
-`org.opencontainers.image.*` fields; annotations carry the subset most
-useful for registry discoverability (title, version, created, source).
+Builds target `linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`.
+CGO cross-compilation uses Zig via wrapper scripts (`hack/zig-gold-wrapper.sh`
+for Linux, `hack/zig-macos-wrapper.sh` for macOS). The `CC_*`/`CXX_*` env vars
+in `releaserBase()` are consumed by GoReleaser's `.goreleaser.yaml` per-target
+`env` blocks. macOS SDK flags are defined in the `macosSDKFlags` constant.
 
 ## Development Containers
-
-### Dagger Dev Container (`Dev`)
 
 The `Dev()` function creates an interactive development container with zsh,
 starship prompt, and a curated set of tools pre-installed:
@@ -431,96 +254,10 @@ starship prompt, and a curated set of tools pre-installed:
   prompt, and direnv
 - **CLI utilities**: ripgrep (`rg`), fd-find (`fd`), bat, fzf, tree, htop,
   yq, jq, uv, dnsutils
-- **fzf integration**: Ctrl-R fuzzy history search, completion, fd as default
-  command
 
 Optional config directories can be bind-mounted for Claude Code, git, and
-ccstatusline. Shell history is persisted across sessions via a `shell-history`
-cache volume. Optional environment variables (`TZ`, `COLORTERM`,
-`TERM_PROGRAM`, `TERM_PROGRAM_VERSION`) can be forwarded from the host via
-Taskfile shell interpolation.
-
-```bash
-task dev       # Git config + env vars
-task claude    # Git + Claude + ccstatusline config, launches Claude Code directly
-```
-
-`ExperimentalPrivilegedNesting` is enabled so nested `dagger call` invocations
-work inside the container without Docker socket mounting.
-
-## Security Model
-
-### Isolation Boundaries
-
-Dagger containers are the primary isolation boundary. The Dagger engine
-itself runs as a privileged Docker container, so the host machine is the
-true security boundary (consistent with Dagger's
-[security guidance](https://docs.dagger.io/faq/)).
-
-| Context                  | Root Caps | Nesting | `dag.Host()` | Threat Level |
-| ------------------------ | --------- | ------- | ------------ | ------------ |
-| CI Functions (test/lint) | Sandboxed | No      | Unavailable  | Low          |
-| Test Module              | Sandboxed | No      | Unavailable  | Low          |
-| Dev terminal session     | Sandboxed | Yes     | Via CLI only | Interactive  |
-
-**CI and test containers** run as root but without full Linux capabilities
-(standard runc sandboxing). The module SDK does not expose `dag.Host()`,
-so Functions cannot directly access host directories.
-
-**The Dev terminal** has `ExperimentalPrivilegedNesting` enabled so nested
-`dagger call` works. The `dagger` CLI inside the container operates as a
-client (not a module) and can access `host { directory }` via GraphQL.
-This is intentional -- the Dev container is an interactive development
-environment equivalent to running Dagger on the host.
-
-### Available Capabilities in Module SDK
-
-The generated SDK exposes two security-relevant options on
-`ContainerWithExecOpts`:
-
-- `InsecureRootCapabilities` -- Grants full root capabilities (equivalent
-  to `docker run --privileged`). Allowed by default in the Dagger engine's
-  security policy. No CI or test functions use this.
-- `ExperimentalPrivilegedNesting` -- Provides a nested Dagger engine
-  session. Only used in `Dev()` for the terminal command.
-
-Neither option is used by any CI function or test. Adding either to a
-function would be visible in code review.
-
-### Engine Security Policy
-
-The Dagger engine defaults to an open security policy that allows
-`insecureRootCapabilities`. This can be restricted via `engine.json`:
-
-```json
-{
-  "security": {
-    "insecureRootCapabilities": false
-  }
-}
-```
-
-This project does not override the default because the CI module does
-not use `insecureRootCapabilities` and restricting it would prevent
-future legitimate use cases without adding meaningful protection (the
-code review process is the control).
-
-### Threat Model
-
-The primary security controls are **code review** and **principle of
-least privilege in CI function design**:
-
-- CI functions do not use `InsecureRootCapabilities` or
-  `ExperimentalPrivilegedNesting`.
-- Secrets are passed via Dagger's secret API and never written to the
-  container filesystem.
-- Cache volumes (`go-mod`, `go-build`, `shell-history`) are
-  content-addressed and shared safely.
-
-A malicious test would need to be committed, reviewed, and merged before
-execution. This is the same supply-chain risk as any CI pipeline and is
-mitigated by standard code review practices rather than runtime
-sandboxing.
+ccstatusline. Shell history is persisted via a `shell-history` cache volume.
+`ExperimentalPrivilegedNesting` is enabled so nested `dagger call` works.
 
 ## GitHub Workflows
 
@@ -530,17 +267,4 @@ sandboxing.
 | `build.yaml`    | Push to main, PR | `dagger call build`                                               |
 | `release.yaml`  | Tag push `v*`    | `dagger call release`                                             |
 
-All workflows use `dagger/dagger-for-github@v8` with version `"0.19"`.
 Secrets are passed via the `env://VAR_NAME` provider syntax.
-
-### Release Attestation
-
-The release workflow creates build provenance attestations using
-`actions/attest-build-provenance@v3`:
-
-- **checksums.txt** -- GoReleaser-generated SHA256 checksums of release
-  binaries and archives. Already in the standard checksums format.
-- **digests.txt** -- Container image digests written by the `Release`
-  function. `formatDigestChecksums()` converts Dagger's
-  `registry/image:tag@sha256:hex` output to the `hex  name` format
-  expected by `subject-checksums`, deduplicating by digest.
