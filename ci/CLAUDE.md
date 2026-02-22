@@ -70,14 +70,40 @@ requirements. To update the dependency pin: `dagger update go`.
   Stable releases get `["latest", "v1.2.3", "v1", "v1.2"]`; pre-release
   versions (containing a hyphen, e.g. `"v1.0.0-rc.1"`) only get their exact
   tag. Public wrapper around the internal `versionTags` helper for testability.
+- `FormatDigestChecksums(refs)` -- Converts `PublishImages` output references
+  (`registry/image:tag@sha256:hex`) to the checksums format expected by
+  `actions/attest-build-provenance` (`hex  registry/image:tag`), deduplicating
+  by digest. Public wrapper around the internal `formatDigestChecksums` helper.
+- `DeduplicateDigests(refs)` -- Returns unique image references from a list,
+  keeping only the first occurrence of each sha256 digest. Public wrapper
+  around the internal `deduplicateDigests` helper.
 - `PublishImages(tags, ..., cosignPassword, dist)` -- Builds and publishes
-  images to the registry. Accepts optional `cosignKey` and `cosignPassword`
-  for image signing (password required for encrypted keys). Cosign signing
-  deduplicates digests via `deduplicateDigests()` before signing to avoid
-  signing the same manifest multiple times when tags share a digest.
+  images to the registry configured on the module (defaults to
+  `ghcr.io/macropower/kclipper`). Registry credentials are optional to
+  support anonymous registries (e.g. ttl.sh for testing). Accepts optional
+  `cosignKey` and `cosignPassword` for image signing (password required for
+  encrypted keys). Cosign signing deduplicates digests via
+  `deduplicateDigests()` before signing to avoid signing the same manifest
+  multiple times when tags share a digest.
 - `Release(tag, ..., cosignPassword, ...)` -- Full release pipeline
-  (GoReleaser + image publish). Accepts the same cosign parameters as
-  `PublishImages`.
+  (GoReleaser + image publish). Registry credentials are required (unlike
+  `PublishImages`, releases always target an authenticated registry). Accepts
+  the same cosign parameters as `PublishImages`.
+
+### Registry Configuration
+
+The `New` constructor accepts an optional `registry` parameter (defaults to
+`ghcr.io/macropower/kclipper`). This address is stored in the `Registry`
+struct field and used by `PublishImages`, `Release`, and the internal
+`publishImages` helper for:
+
+- Constructing image references (`registry:tag`).
+- Extracting the registry host via `registryHost()` for `WithRegistryAuth`.
+- Passing to cosign for image signing.
+
+Override the registry for testing (e.g. `dag.Ci(dagger.CiOpts{Registry: "ttl.sh/test"})`)
+or to publish to a different registry. The release workflow does not pass
+`--registry` and uses the default.
 
 ### Source Directory Filtering
 
@@ -142,6 +168,13 @@ Current integration tests:
 - `TestBuildImageMetadata` -- Verifies `BuildImages` produces exactly 2 platform
   variants with correct OCI labels (including `created`), environment variables,
   and entrypoint.
+- `TestPublishImages` -- End-to-end publish test: builds images and publishes
+  to ttl.sh (anonymous temporary registry) with a unique path per run. Verifies
+  digest references and deduplication summary in the result.
+- `TestFormatDigestChecksums` -- Verifies `FormatDigestChecksums` converts
+  publish output to `hex  name` checksums format with digest deduplication.
+- `TestDeduplicateDigests` -- Verifies `DeduplicateDigests` keeps only the
+  first occurrence of each sha256 digest.
 
 ## Adding a New Check
 
@@ -209,8 +242,15 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
   formatted strings, keeping callers clean.
 - The `deduplicateDigests` helper extracts unique image references by
   sha256 digest, used by both cosign signing and `PublishImages` summary.
+- Internal pure-logic helpers (`formatDigestChecksums`, `deduplicateDigests`,
+  `versionTags`, `registryHost`) have public Dagger Function wrappers for
+  testability from the test module (since `go test` cannot run on Dagger
+  modules).
 - Published container images include standard OCI labels
   (`org.opencontainers.image.*`) for metadata discoverability.
+- Registry auth (`WithRegistryAuth`) is conditional: only applied when
+  `registryPassword` is non-nil. This allows `PublishImages` to work with
+  anonymous registries (e.g. ttl.sh) for integration testing.
 - Use `env://VAR_NAME` syntax for Dagger secret providers on the CLI
   (e.g. `--token=env://GITHUB_TOKEN`). This is the canonical URI scheme
   documented for Dagger v0.19+.
@@ -285,7 +325,7 @@ Runtime images are built natively via Dagger (not Docker-in-Docker):
 
 - Base: `debian:13-slim`
 - Multi-arch: `linux/amd64` + `linux/arm64`
-- Published to `ghcr.io/macropower/kclipper`
+- Published to the configured registry (default: `ghcr.io/macropower/kclipper`)
 - OCI labels: `org.opencontainers.image.{title,description,version,created,source,url,licenses}`
 - Optionally signed with cosign key-based signing (digests are
   deduplicated before signing so shared manifests across tags are only
