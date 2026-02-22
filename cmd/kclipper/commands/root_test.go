@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,16 @@ import (
 	"github.com/macropower/kclipper/cmd/kclipper/commands"
 )
 
-var testDataDir string
+var (
+	testDataDir string
+
+	// rootCmdMu serializes NewRootCmd + Execute calls across parallel subtests.
+	// NewRootCmd writes to package-level globals in upstream kcl-lang.io/cli
+	// (pflag variables in mod.go, registry.go, server.go), and Execute writes to
+	// runtime.MemProfileRate via PersistentPreRunE. These globals cannot be
+	// avoided without modifying upstream.
+	rootCmdMu sync.Mutex
+)
 
 func init() {
 	_, filename, _, _ := runtime.Caller(0)
@@ -105,6 +115,9 @@ func TestRootCmdArgs(t *testing.T) {
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
+			rootCmdMu.Lock()
+			defer rootCmdMu.Unlock()
 
 			rootCmd := commands.NewRootCmd("test_logger", "", "")
 			stdout := &bytes.Buffer{}

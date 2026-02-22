@@ -3,3 +3,6 @@
 
 # Intentionally invalid test fixtures.
 **/testdata/**/invalid*
+
+# Generated Helm chart schemas.
+**/testdata/**/values.schema.json

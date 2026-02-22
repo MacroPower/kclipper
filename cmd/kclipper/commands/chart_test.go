@@ -193,6 +193,9 @@ func TestChartCmdRequiredFlagErrors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
+			rootCmdMu.Lock()
+			defer rootCmdMu.Unlock()
+
 			rootCmd := commands.NewRootCmd("test_chart_errors", "", "")
 			rootCmd.SetArgs(tc.args)
 
@@ -226,6 +229,9 @@ func TestChartCmdInvalidArgErrors(t *testing.T) {
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
+			rootCmdMu.Lock()
+			defer rootCmdMu.Unlock()
 
 			rootCmd := commands.NewRootCmd("test_chart_errors", "", "")
 			rootCmd.SetArgs(tc.args)
