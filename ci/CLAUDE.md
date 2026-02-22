@@ -69,17 +69,15 @@ requirements. To update the dependency pin: `dagger update go`.
 - `VersionTags(tag)` -- Derives the set of image tags from a version tag string.
   Stable releases get `["latest", "v1.2.3", "v1", "v1.2"]`; pre-release
   versions (containing a hyphen, e.g. `"v1.0.0-rc.1"`) only get their exact
-  tag. Public wrapper around the internal `versionTags` helper for testability.
+  tag.
 - `FormatDigestChecksums(refs)` -- Converts `PublishImages` output references
   (`registry/image:tag@sha256:hex`) to the checksums format expected by
   `actions/attest-build-provenance` (`hex  registry/image:tag`), deduplicating
-  by digest. Public wrapper around the internal `formatDigestChecksums` helper.
+  by digest.
 - `DeduplicateDigests(refs)` -- Returns unique image references from a list,
-  keeping only the first occurrence of each sha256 digest. Public wrapper
-  around the internal `deduplicateDigests` helper.
+  keeping only the first occurrence of each sha256 digest.
 - `RegistryHost(registry)` -- Extracts the host (with optional port) from a
   registry address (e.g. `"ghcr.io/macropower/kclipper"` returns `"ghcr.io"`).
-  Public wrapper around the internal `registryHost` helper for testability.
 - `PublishImages(tags, ..., cosignPassword, dist)` -- Builds and publishes
   images to the registry configured on the module (defaults to
   `ghcr.io/macropower/kclipper`). Registry credentials are optional to
@@ -257,13 +255,13 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
   constant to avoid repetition across `CC_*`/`CXX_*` env vars.
 - The `publishImages` helper returns `[]string` digests directly rather than
   formatted strings, keeping callers clean.
-- The `deduplicateDigests` helper extracts unique image references by
-  sha256 digest, used by both cosign signing and `PublishImages` summary.
-- Internal pure-logic helpers (`formatDigestChecksums`, `deduplicateDigests`,
-  `versionTags`) have public Dagger Function wrappers for testability from
-  the test module (since `go test` cannot run on Dagger modules).
-  `RegistryHost` is a public method directly (no private helper) since the
-  logic is trivial.
+- `DeduplicateDigests` extracts unique image references by sha256 digest,
+  used by both cosign signing and `PublishImages` summary.
+- Pure-logic utilities (`FormatDigestChecksums`, `DeduplicateDigests`,
+  `VersionTags`, `RegistryHost`) are public methods directly, with no
+  private helper indirection. Internal callers use `m.MethodName(...)`.
+  This keeps the logic in one place while remaining testable from the test
+  module (since `go test` cannot run on Dagger modules).
 - Published container images include standard OCI labels
   (`org.opencontainers.image.*`) for metadata discoverability.
 - Registry auth (`WithRegistryAuth`) is conditional: only applied when

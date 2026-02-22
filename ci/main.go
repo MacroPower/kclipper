@@ -193,7 +193,25 @@ func (m *Ci) VersionTags(
 	// Version tag (e.g. "v1.2.3").
 	tag string,
 ) []string {
-	return versionTags(tag)
+	v := strings.TrimPrefix(tag, "v")
+	parts := strings.SplitN(v, ".", 3)
+
+	// Detect pre-release: any version component contains a hyphen
+	// (e.g. "1.0.0-rc.1" → third part is "0-rc.1").
+	for _, p := range parts {
+		if strings.Contains(p, "-") {
+			return []string{tag}
+		}
+	}
+
+	tags := []string{"latest", tag}
+	if len(parts) >= 1 {
+		tags = append(tags, "v"+parts[0])
+	}
+	if len(parts) >= 2 {
+		tags = append(tags, "v"+parts[0]+"."+parts[1])
+	}
+	return tags
 }
 
 // FormatDigestChecksums converts [Ci.PublishImages] output references to the
@@ -204,7 +222,21 @@ func (m *Ci) FormatDigestChecksums(
 	// Image references from [Ci.PublishImages] (e.g. "registry/image:tag@sha256:hex").
 	refs []string,
 ) string {
-	return formatDigestChecksums(refs)
+	seen := make(map[string]bool)
+	var b strings.Builder
+	for _, ref := range refs {
+		parts := strings.SplitN(ref, "@sha256:", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		hex := parts[1]
+		if seen[hex] {
+			continue
+		}
+		seen[hex] = true
+		fmt.Fprintf(&b, "%s  %s\n", hex, parts[0])
+	}
+	return b.String()
 }
 
 // DeduplicateDigests returns unique image references from a list, keeping
@@ -213,7 +245,19 @@ func (m *Ci) DeduplicateDigests(
 	// Image references (e.g. "registry/image:tag@sha256:hex").
 	refs []string,
 ) []string {
-	return deduplicateDigests(refs)
+	seen := make(map[string]bool)
+	var unique []string
+	for _, ref := range refs {
+		parts := strings.SplitN(ref, "@sha256:", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		if !seen[parts[1]] {
+			seen[parts[1]] = true
+			unique = append(unique, ref)
+		}
+	}
+	return unique
 }
 
 // RegistryHost extracts the host (with optional port) from a registry
@@ -284,7 +328,7 @@ func (m *Ci) PublishImages(
 	}
 
 	// Deduplicate digests for the summary (tags may share a manifest).
-	unique := deduplicateDigests(digests)
+	unique := m.DeduplicateDigests(digests)
 	return fmt.Sprintf("published %d tags (%d unique digests)\n%s", len(tags), len(unique), strings.Join(digests, "\n")), nil
 }
 
@@ -330,7 +374,7 @@ func (m *Ci) publishImages(
 	// Sign each published image with cosign (key-based signing).
 	// Deduplicate first -- multiple tags often share one manifest digest.
 	if cosignKey != nil {
-		toSign := deduplicateDigests(digests)
+		toSign := m.DeduplicateDigests(digests)
 
 		cosignCtr := dag.Container().
 			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
@@ -360,25 +404,6 @@ func (m *Ci) publishImages(
 	}
 
 	return digests, nil
-}
-
-// deduplicateDigests returns unique image references from a list of
-// "registry/image:tag@sha256:hex" strings, keeping only the first
-// occurrence of each digest.
-func deduplicateDigests(refs []string) []string {
-	seen := make(map[string]bool)
-	var unique []string
-	for _, ref := range refs {
-		parts := strings.SplitN(ref, "@sha256:", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		if !seen[parts[1]] {
-			seen[parts[1]] = true
-			unique = append(unique, ref)
-		}
-	}
-	return unique
 }
 
 // Release runs GoReleaser for binaries/archives/signing, then builds and
@@ -455,7 +480,7 @@ func (m *Ci) Release(
 		Directory("/src/dist")
 
 	// Derive image tags from the version tag (e.g. v1.2.3 -> latest, v1.2.3, v1, v1.2).
-	tags := versionTags(tag)
+	tags := m.VersionTags(tag)
 
 	// Publish multi-arch container images via Dagger-native API.
 	// Reuse the dist directory from the goreleaser run to avoid building twice.
@@ -469,7 +494,7 @@ func (m *Ci) Release(
 	// Dagger's Publish returns "registry/image:tag@sha256:hex" but the
 	// action's subject-checksums input expects "hex  name" per sha256sum.
 	if len(digests) > 0 {
-		dist = dist.WithNewFile("digests.txt", formatDigestChecksums(digests))
+		dist = dist.WithNewFile("digests.txt", m.FormatDigestChecksums(digests))
 	}
 
 	return dist, nil
@@ -604,55 +629,6 @@ func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 	}
 
 	return variants
-}
-
-// formatDigestChecksums converts Dagger Publish output references to the
-// checksums format expected by actions/attest-build-provenance's
-// subject-checksums input. Each reference has the form
-// "registry/image:tag@sha256:hex"; this function emits "hex  registry/image:tag"
-// lines, deduplicating by digest.
-func formatDigestChecksums(refs []string) string {
-	seen := make(map[string]bool)
-	var b strings.Builder
-	for _, ref := range refs {
-		parts := strings.SplitN(ref, "@sha256:", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		hex := parts[1]
-		if seen[hex] {
-			continue
-		}
-		seen[hex] = true
-		fmt.Fprintf(&b, "%s  %s\n", hex, parts[0])
-	}
-	return b.String()
-}
-
-// versionTags derives the set of image tags from a version tag string.
-// Stable releases get "latest" and shorthand tags (e.g. "v1.2.3" yields
-// ["latest", "v1.2.3", "v1", "v1.2"]). Pre-release versions only get their
-// exact tag (e.g. "v1.0.0-rc.1" yields ["v1.0.0-rc.1"]).
-func versionTags(tag string) []string {
-	v := strings.TrimPrefix(tag, "v")
-	parts := strings.SplitN(v, ".", 3)
-
-	// Detect pre-release: any version component contains a hyphen
-	// (e.g. "1.0.0-rc.1" → third part is "0-rc.1").
-	for _, p := range parts {
-		if strings.Contains(p, "-") {
-			return []string{tag}
-		}
-	}
-
-	tags := []string{"latest", tag}
-	if len(parts) >= 1 {
-		tags = append(tags, "v"+parts[0])
-	}
-	if len(parts) >= 2 {
-		tags = append(tags, "v"+parts[0]+"."+parts[1])
-	}
-	return tags
 }
 
 // ---------------------------------------------------------------------------
