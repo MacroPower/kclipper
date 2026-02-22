@@ -541,7 +541,9 @@ func (m *Ci) Dev(
 			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
 				File("/conform")).
 		WithExec([]string{"go", "install", "github.com/evilmartians/lefthook/v2@" + lefthookVersion}).
-		WithExec([]string{"sh", "-c", "curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=" + daggerVersion + " BIN_DIR=/usr/local/bin sh"}).
+		WithFile("/usr/local/bin/dagger",
+			dag.Container().From("registry.dagger.io/engine:"+daggerVersion).
+				File("/usr/local/bin/dagger")).
 		WithExec([]string{"sh", "-c", "wget -O - https://claude.ai/install.sh | bash"}).
 		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
