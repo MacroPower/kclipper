@@ -34,6 +34,10 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestBuildImageMetadata(ctx) })
 	g.Go(func() error { return m.TestFormatDigestChecksums(ctx) })
 	g.Go(func() error { return m.TestDeduplicateDigests(ctx) })
+	g.Go(func() error { return m.TestRegistryHost(ctx) })
+	g.Go(func() error { return m.TestLintReleaserClean(ctx) })
+	g.Go(func() error { return m.TestDevContainer(ctx) })
+	g.Go(func() error { return m.TestCoverageProfile(ctx) })
 
 	return g.Wait()
 }
@@ -127,6 +131,26 @@ func (m *Tests) TestVersionTags(ctx context.Context) error {
 		"two-component": {
 			tag:  "v2.0",
 			want: []string{"latest", "v2.0", "v2", "v2.0"},
+		},
+		"single-component": {
+			tag:  "v1",
+			want: []string{"latest", "v1", "v1"},
+		},
+		"four-component": {
+			tag:  "v1.2.3.4",
+			want: []string{"latest", "v1.2.3.4", "v1", "v1.2"},
+		},
+		"empty-string": {
+			tag:  "",
+			want: []string{"latest", "", "v"},
+		},
+		"no-v-prefix": {
+			tag:  "1.2.3",
+			want: []string{"latest", "1.2.3", "v1", "v1.2"},
+		},
+		"hyphen-in-first-component": {
+			tag:  "v0-beta.1",
+			want: []string{"v0-beta.1"},
 		},
 	}
 
@@ -391,5 +415,93 @@ func (m *Tests) TestDeduplicateDigests(ctx context.Context) error {
 		return fmt.Errorf("ref 1 = %q, want %q", result[1], "ghcr.io/test:v1.0@sha256:def456")
 	}
 
+	return nil
+}
+
+// TestRegistryHost verifies that [Ci.RegistryHost] extracts the host (with
+// optional port) from various registry address formats.
+//
+// +check
+func (m *Tests) TestRegistryHost(ctx context.Context) error {
+	cases := map[string]struct {
+		registry string
+		want     string
+	}{
+		"standard-registry": {
+			registry: "ghcr.io/macropower/kclipper",
+			want:     "ghcr.io",
+		},
+		"with-port": {
+			registry: "localhost:5000/myimage",
+			want:     "localhost:5000",
+		},
+		"host-only": {
+			registry: "docker.io",
+			want:     "docker.io",
+		},
+		"nested-path": {
+			registry: "registry.example.com/org/team/image",
+			want:     "registry.example.com",
+		},
+		"empty-string": {
+			registry: "",
+			want:     "",
+		},
+	}
+
+	for name, tc := range cases {
+		got, err := dag.Ci().RegistryHost(ctx, tc.registry)
+		if err != nil {
+			return fmt.Errorf("%s: %w", name, err)
+		}
+		if got != tc.want {
+			return fmt.Errorf("%s: got %q, want %q", name, got, tc.want)
+		}
+	}
+
+	return nil
+}
+
+// TestLintReleaserClean verifies that the GoReleaser configuration passes
+// validation. This exercises the [Ci.LintReleaser] check.
+//
+// +check
+func (m *Tests) TestLintReleaserClean(ctx context.Context) error {
+	return dag.Ci().LintReleaser(ctx)
+}
+
+// TestDevContainer verifies that [Ci.Dev] returns a container with essential
+// development tools (go, task, dagger) available on PATH.
+//
+// +check
+func (m *Tests) TestDevContainer(ctx context.Context) error {
+	ctr := dag.Ci().Dev()
+
+	tools := []string{"go", "task", "dagger"}
+	for _, tool := range tools {
+		_, err := ctr.WithExec([]string{"which", tool}).Sync(ctx)
+		if err != nil {
+			return fmt.Errorf("%s not found in dev container: %w", tool, err)
+		}
+	}
+
+	return nil
+}
+
+// TestCoverageProfile verifies that [Ci.TestCoverage] returns a non-empty
+// Go coverage profile containing the expected "mode:" header line.
+//
+// +check
+func (m *Tests) TestCoverageProfile(ctx context.Context) error {
+	contents, err := dag.Ci().TestCoverage().Contents(ctx)
+	if err != nil {
+		return fmt.Errorf("read coverage profile: %w", err)
+	}
+	if len(contents) == 0 {
+		return fmt.Errorf("coverage profile is empty")
+	}
+	if !strings.Contains(contents, "mode:") {
+		return fmt.Errorf("coverage profile missing 'mode:' header (got %d bytes)", len(contents))
+	}
 	return nil
 }

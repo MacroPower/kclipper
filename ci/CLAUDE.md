@@ -77,6 +77,9 @@ requirements. To update the dependency pin: `dagger update go`.
 - `DeduplicateDigests(refs)` -- Returns unique image references from a list,
   keeping only the first occurrence of each sha256 digest. Public wrapper
   around the internal `deduplicateDigests` helper.
+- `RegistryHost(registry)` -- Extracts the host (with optional port) from a
+  registry address (e.g. `"ghcr.io/macropower/kclipper"` returns `"ghcr.io"`).
+  Public wrapper around the internal `registryHost` helper for testability.
 - `PublishImages(tags, ..., cosignPassword, dist)` -- Builds and publishes
   images to the registry configured on the module (defaults to
   `ghcr.io/macropower/kclipper`). Registry credentials are optional to
@@ -162,7 +165,8 @@ Current integration tests:
 - `TestFormatIdempotent` -- Checks formatter produces empty changeset on clean source.
 - `TestLintActionsClean` -- Exercises GitHub Actions workflow linting.
 - `TestVersionTags` -- Verifies `VersionTags` returns expected tags for semver,
-  pre-release, and two-component inputs.
+  pre-release, two-component, single-component, four-component, empty-string,
+  no-v-prefix, and hyphen-in-first-component inputs.
 - `TestBuildDist` -- Verifies `Build` returns a dist directory with checksums
   and platform archives.
 - `TestBuildImageMetadata` -- Verifies `BuildImages` produces exactly 2 platform
@@ -180,6 +184,14 @@ Current integration tests:
   publish output to `hex  name` checksums format with digest deduplication.
 - `TestDeduplicateDigests` -- Verifies `DeduplicateDigests` keeps only the
   first occurrence of each sha256 digest.
+- `TestRegistryHost` -- Verifies `RegistryHost` extracts the host from various
+  registry address formats (standard, with port, host-only, nested path, empty).
+- `TestLintReleaserClean` -- Exercises GoReleaser configuration validation via
+  `LintReleaser`.
+- `TestDevContainer` -- Verifies the `Dev` container has essential tools (go,
+  task, dagger) available on PATH.
+- `TestCoverageProfile` -- Verifies `TestCoverage` returns a non-empty Go
+  coverage profile with a `mode:` header line.
 
 ## Adding a New Check
 
@@ -248,9 +260,10 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
 - The `deduplicateDigests` helper extracts unique image references by
   sha256 digest, used by both cosign signing and `PublishImages` summary.
 - Internal pure-logic helpers (`formatDigestChecksums`, `deduplicateDigests`,
-  `versionTags`, `registryHost`) have public Dagger Function wrappers for
-  testability from the test module (since `go test` cannot run on Dagger
-  modules).
+  `versionTags`) have public Dagger Function wrappers for testability from
+  the test module (since `go test` cannot run on Dagger modules).
+  `RegistryHost` is a public method directly (no private helper) since the
+  logic is trivial.
 - Published container images include standard OCI labels
   (`org.opencontainers.image.*`) for metadata discoverability.
 - Registry auth (`WithRegistryAuth`) is conditional: only applied when

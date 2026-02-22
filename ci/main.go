@@ -216,6 +216,15 @@ func (m *Ci) DeduplicateDigests(
 	return deduplicateDigests(refs)
 }
 
+// RegistryHost extracts the host (with optional port) from a registry
+// address. For example, "ghcr.io/macropower/kclipper" returns "ghcr.io".
+func (m *Ci) RegistryHost(
+	// Registry address (e.g. "ghcr.io/macropower/kclipper").
+	registry string,
+) string {
+	return strings.SplitN(registry, "/", 2)[0]
+}
+
 // BuildImages builds multi-arch runtime container images from a GoReleaser
 // dist directory. If no dist is provided, a snapshot build is run.
 func (m *Ci) BuildImages(
@@ -296,7 +305,7 @@ func (m *Ci) publishImages(
 	// Publish multi-arch manifest for each tag concurrently.
 	publisher := dag.Container()
 	if registryPassword != nil {
-		publisher = publisher.WithRegistryAuth(registryHost(m.Registry), registryUsername, registryPassword)
+		publisher = publisher.WithRegistryAuth(m.RegistryHost(m.Registry), registryUsername, registryPassword)
 	}
 
 	digests := make([]string, len(tags))
@@ -327,7 +336,7 @@ func (m *Ci) publishImages(
 			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
 			WithSecretVariable("COSIGN_KEY", cosignKey)
 		if registryPassword != nil {
-			cosignCtr = cosignCtr.WithRegistryAuth(registryHost(m.Registry), registryUsername, registryPassword)
+			cosignCtr = cosignCtr.WithRegistryAuth(m.RegistryHost(m.Registry), registryUsername, registryPassword)
 		}
 		if cosignPassword != nil {
 			cosignCtr = cosignCtr.WithSecretVariable("COSIGN_PASSWORD", cosignPassword)
@@ -543,12 +552,6 @@ func (m *Ci) Dev(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-// registryHost extracts the host (with optional port) from a registry address.
-// For example, "ghcr.io/macropower/kclipper" returns "ghcr.io".
-func registryHost(registry string) string {
-	return strings.SplitN(registry, "/", 2)[0]
-}
 
 // runtimeImages builds a multi-arch set of runtime container images from a
 // pre-built GoReleaser dist/ directory. Each image is based on debian:13-slim
