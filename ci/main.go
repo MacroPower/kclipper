@@ -15,23 +15,23 @@ import (
 )
 
 const (
-	goVersion           = "1.25"           // renovate: datasource=golang-version depName=go
-	golangciLintVersion = "v2.9"           // renovate: datasource=github-releases depName=golangci/golangci-lint
-	goreleaserVersion   = "v2.13.3"        // renovate: datasource=github-releases depName=goreleaser/goreleaser
-	zigVersion          = "0.15.2"         // renovate: datasource=github-releases depName=ziglang/zig
-	cosignVersion       = "v3.0.4"         // renovate: datasource=github-releases depName=sigstore/cosign
-	syftVersion         = "v1.41.1"        // renovate: datasource=github-releases depName=anchore/syft
-	prettierVersion     = "3.5.3"          // renovate: datasource=npm depName=prettier
-	zizmorVersion       = "1.22.0"         // renovate: datasource=github-releases depName=zizmorcore/zizmor
-	kclLSPVersion       = "v0.11.2"        // renovate: datasource=github-releases depName=kcl-lang/kcl
-	taskVersion         = "v3.48.0"        // renovate: datasource=github-releases depName=go-task/task
+	goVersion           = "1.25"            // renovate: datasource=golang-version depName=go
+	golangciLintVersion = "v2.9"            // renovate: datasource=github-releases depName=golangci/golangci-lint
+	goreleaserVersion   = "v2.13.3"         // renovate: datasource=github-releases depName=goreleaser/goreleaser
+	zigVersion          = "0.15.2"          // renovate: datasource=github-releases depName=ziglang/zig
+	cosignVersion       = "v3.0.4"          // renovate: datasource=github-releases depName=sigstore/cosign
+	syftVersion         = "v1.41.1"         // renovate: datasource=github-releases depName=anchore/syft
+	prettierVersion     = "3.5.3"           // renovate: datasource=npm depName=prettier
+	zizmorVersion       = "1.22.0"          // renovate: datasource=github-releases depName=zizmorcore/zizmor
+	kclLSPVersion       = "v0.11.2"         // renovate: datasource=github-releases depName=kcl-lang/kcl
+	taskVersion         = "v3.48.0"         // renovate: datasource=github-releases depName=go-task/task
 	conformVersion      = "v0.1.0-alpha.31" // renovate: datasource=github-releases depName=siderolabs/conform
-	lefthookVersion     = "v2.1.1"         // renovate: datasource=github-releases depName=evilmartians/lefthook
-	daggerVersion       = "v0.19.11"       // renovate: datasource=github-releases depName=dagger/dagger
-	starshipVersion     = "v1.24.2"        // renovate: datasource=github-releases depName=starship/starship
-	yqVersion           = "v4.52.4"        // renovate: datasource=github-releases depName=mikefarah/yq
-	uvVersion           = "0.10.4"         // renovate: datasource=github-releases depName=astral-sh/uv extractVersion=^(?P<version>.*)$
-	ghVersion           = "v2.87.2"        // renovate: datasource=github-releases depName=cli/cli
+	lefthookVersion     = "v2.1.1"          // renovate: datasource=github-releases depName=evilmartians/lefthook
+	daggerVersion       = "v0.19.11"        // renovate: datasource=github-releases depName=dagger/dagger
+	starshipVersion     = "v1.24.2"         // renovate: datasource=github-releases depName=starship/starship
+	yqVersion           = "v4.52.4"         // renovate: datasource=github-releases depName=mikefarah/yq
+	uvVersion           = "0.10.4"          // renovate: datasource=github-releases depName=astral-sh/uv extractVersion=^(?P<version>.*)$
+	ghVersion           = "v2.87.2"         // renovate: datasource=github-releases depName=cli/cli
 
 	defaultRegistry = "ghcr.io/macropower/kclipper"
 
@@ -381,7 +381,7 @@ func (m *Ci) publishImages(
 		toSign := m.DeduplicateDigests(digests)
 
 		cosignCtr := dag.Container().
-			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
+			From("gcr.io/projectsigstore/cosign:"+cosignVersion).
 			WithSecretVariable("COSIGN_KEY", cosignKey)
 		if registryPassword != nil {
 			cosignCtr = cosignCtr.WithRegistryAuth(m.RegistryHost(m.Registry), registryUsername, registryPassword)
@@ -734,11 +734,6 @@ func (m *Ci) Dev(
 	// ExperimentalPrivilegedNesting gives the terminal session a
 	// connection to the parent Dagger engine, so nested `dagger call`
 	// invocations work without mounting the Docker socket.
-	//
-	// Security note: this grants the dagger CLI inside the container
-	// client-level API access, including host directory access via
-	// GraphQL. This is appropriate for an interactive dev container
-	// but should not be used in CI functions or tests.
 	return ctr.WithDefaultTerminalCmd([]string{"zsh"},
 		dagger.ContainerWithDefaultTerminalCmdOpts{
 			ExperimentalPrivilegedNesting: true,

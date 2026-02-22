@@ -90,7 +90,7 @@ Private helper methods build reusable container layers:
 - `goBase()` -- Wolfi-based container via `goToolchain().Env()` + `ensureGitRepo()`.
 - `lintBase()` -- golangci-lint Alpine image + linux-headers + caches.
 - `releaserBase()` -- Go + GoReleaser + Zig + cosign + syft + KCL LSP binaries
-  + macOS SDK. Tool binaries extracted from OCI images via `Container.File()`.
+  - macOS SDK. Tool binaries extracted from OCI images via `Container.File()`.
 
 ### Git Worktree Handling
 
@@ -257,7 +257,29 @@ starship prompt, and a curated set of tools pre-installed:
 
 Optional config directories can be bind-mounted for Claude Code, git, and
 ccstatusline. Shell history is persisted via a `shell-history` cache volume.
-`ExperimentalPrivilegedNesting` is enabled so nested `dagger call` works.
+`ExperimentalPrivilegedNesting` is enabled on the terminal command so nested
+`dagger call`/`dagger check` invocations work inside the container without
+Docker socket mounting.
+
+### Dev Container Safety
+
+AI agents run inside the Dev container with `ExperimentalPrivilegedNesting`
+enabled and can safely use `dagger` commands. The container is isolated from
+the host machine:
+
+| Property                   | Detail                                                                  |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `host { directory }` scope | Container filesystem only (not host machine)                            |
+| Docker socket              | Not mounted                                                             |
+| Root capabilities          | Standard runc sandboxing (no `InsecureRootCapabilities`)                |
+| Mounted directories        | Dagger snapshots (not live bind mounts; writes don't propagate to host) |
+| Network                    | Outbound only                                                           |
+| Cache volumes              | Content-addressed, shared safely across containers                      |
+
+Note: The Dagger SDK docs still warn that `ExperimentalPrivilegedNesting`
+grants "FULL ACCESS TO YOUR HOST FILESYSTEM." This warning predates
+sandboxing improvements (branching from dagger/dagger#6916). This has been
+verified empirically.
 
 ## GitHub Workflows
 
