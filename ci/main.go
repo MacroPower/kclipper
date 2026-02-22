@@ -537,7 +537,9 @@ func (m *Ci) Dev(
 				"&& apt-get clean && rm -rf /var/lib/apt/lists/*",
 		}).
 		WithExec([]string{"go", "install", "github.com/go-task/task/v3/cmd/task@" + taskVersion}).
-		WithExec([]string{"go", "install", "github.com/siderolabs/conform/cmd/conform@" + conformVersion}).
+		WithFile("/usr/local/bin/conform",
+			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
+				File("/conform")).
 		WithExec([]string{"go", "install", "github.com/evilmartians/lefthook/v2@" + lefthookVersion}).
 		WithExec([]string{"sh", "-c", "curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=" + daggerVersion + " BIN_DIR=/usr/local/bin sh"}).
 		WithExec([]string{"sh", "-c", "wget -O - https://claude.ai/install.sh | bash"}).
