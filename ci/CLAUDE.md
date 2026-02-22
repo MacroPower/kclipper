@@ -124,7 +124,13 @@ Private helper methods build reusable container layers:
   Go, source, and caches pre-configured, then wraps it with `ensureGitRepo()`.
 - `lintBase()` -- golangci-lint Alpine image + linux-headers + caches. Independent
   of the Go toolchain because we pin a specific golangci-lint version via Renovate.
-- `releaserBase()` -- Go + GoReleaser + Zig (CGO cross-compilation) + cosign + syft + macOS SDK.
+- `releaserBase()` -- Go + GoReleaser + Zig (CGO cross-compilation) + cosign +
+  syft + pre-downloaded KCL LSP binaries + macOS SDK. Tool binaries are
+  extracted from official OCI images via `Container.File()` (not `go install`)
+  for faster builds, smaller Go build cache, and automatic platform matching.
+  KCL LSP binaries for all four target platforms are pre-downloaded into
+  `/lsp/{os}/{arch}/` so the GoReleaser per-build hook uses a simple `cp`
+  instead of querying the GitHub API.
 
 All Go-based base containers share the same cache volumes (`go-mod`,
 `go-build`). The toolchain-based containers (`goBase`) mount them at
@@ -334,6 +340,38 @@ wrapper scripts in `hack/`:
 
 The `CC_*`/`CXX_*` env vars in `releaserBase()` are consumed by GoReleaser's
 `.goreleaser.yaml` per-target `env` blocks.
+
+## Tool Installation in `releaserBase()`
+
+Tools in `releaserBase()` are installed by extracting binaries from official
+OCI images via `dag.Container().From("image:tag").File("/path")`, not compiled
+via `go install`. This avoids compiling large codebases (GoReleaser, cosign,
+syft) from source, which is slow and pollutes the Go build cache with tool
+artifacts. Dagger handles platform matching automatically (no architecture
+detection needed), and each `WithFile` call gets independent layer caching.
+
+| Tool       | OCI Image                           | Binary Path           |
+| ---------- | ----------------------------------- | --------------------- |
+| GoReleaser | `ghcr.io/goreleaser/goreleaser:{v}` | `/usr/bin/goreleaser` |
+| cosign     | `gcr.io/projectsigstore/cosign:{v}` | `/ko-app/cosign`      |
+| syft       | `ghcr.io/anchore/syft:{v}`          | `/syft`               |
+
+### KCL LSP Pre-Download
+
+The KCL Language Server binaries for all four target platforms
+(`linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`) are
+pre-downloaded into `/lsp/{os}/{arch}/kcl-language-server` during the
+`releaserBase()` container setup. The GoReleaser per-build hook in
+`.goreleaser.yaml` then copies the correct binary via
+`cp /lsp/{{ .Os }}/{{ .Arch }}/kcl-language-server .` instead of querying
+the GitHub API at build time. This eliminates:
+
+- GitHub API rate limiting (the old approach queried the API per build target)
+- Redundant downloads (4 builds previously each hit the API independently)
+- Dependency on `jq` for JSON parsing
+
+The pre-download is cacheable by Dagger since it depends only on the
+`kclLSPVersion` constant, not on the project source.
 
 ## Container Images
 

@@ -182,7 +182,7 @@ func (m *Ci) Build() *dagger.Directory {
 	return m.releaserBase().
 		WithExec([]string{
 			"goreleaser", "release", "--snapshot", "--clean",
-			"--skip=docker,homebrew,nix,sign",
+			"--skip=docker,homebrew,nix,sign,sbom",
 		}).
 		Directory("/src/dist")
 }
@@ -675,36 +675,48 @@ func (m *Ci) goBase() *dagger.Container {
 	return ensureGitRepo(m.goToolchain().Env())
 }
 
-// releaserBase returns a container with Go, GoReleaser, Zig, cosign, and the
-// macOS SDK headers needed for CGO cross-compilation.
+// releaserBase returns a container with Go, GoReleaser, Zig, cosign, syft,
+// pre-downloaded KCL LSP binaries, and macOS SDK headers needed for CGO
+// cross-compilation. Tool binaries are extracted from official OCI images
+// via [dagger.Container.File] rather than compiled from source, giving
+// faster builds, smaller Go build cache, and automatic platform matching.
 func (m *Ci) releaserBase() *dagger.Container {
 	return ensureGitRepo(dag.Container().
 		From("golang:"+goVersion).
-		// Install Zig for CGO cross-compilation, plus jq (used by
-		// GoReleaser before.hooks to download KCL LSP).
+		// Install Zig for CGO cross-compilation.
 		WithExec([]string{
 			"sh", "-c",
-			"apt-get update && apt-get install -y xz-utils jq && " +
+			"apt-get update && apt-get install -y xz-utils && " +
 				"ZIG_ARCH=$(uname -m | sed 's/arm64/aarch64/') && " +
 				"curl -fsSL https://ziglang.org/download/" + zigVersion +
 				"/zig-${ZIG_ARCH}-linux-" + zigVersion + ".tar.xz | " +
 				"tar -xJ -C /usr/local --strip-components=1 && " +
 				"ln -sf /usr/local/zig /usr/local/bin/zig",
 		}).
-		// Install GoReleaser.
+		// Install GoReleaser from its official OCI image.
+		WithFile("/usr/local/bin/goreleaser",
+			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
+				File("/usr/bin/goreleaser")).
+		// Install cosign from its official OCI image.
+		WithFile("/usr/local/bin/cosign",
+			dag.Container().From("gcr.io/projectsigstore/cosign:"+cosignVersion).
+				File("/ko-app/cosign")).
+		// Install syft from its official OCI image.
+		WithFile("/usr/local/bin/syft",
+			dag.Container().From("ghcr.io/anchore/syft:"+syftVersion).
+				File("/syft")).
+		// Pre-download KCL Language Server for all target platforms so the
+		// GoReleaser per-build hook can copy it instead of hitting the
+		// GitHub API (which is rate-limited and uncacheable by Dagger).
 		WithExec([]string{
-			"go", "install",
-			"github.com/goreleaser/goreleaser/v2@" + goreleaserVersion,
-		}).
-		// Install cosign for artifact signing.
-		WithExec([]string{
-			"go", "install",
-			"github.com/sigstore/cosign/v3/cmd/cosign@" + cosignVersion,
-		}).
-		// Install syft for SBOM generation.
-		WithExec([]string{
-			"go", "install",
-			"github.com/anchore/syft/cmd/syft@" + syftVersion,
+			"sh", "-c",
+			"for pair in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64; do " +
+				"os=${pair%%/*} && arch=${pair##*/} && " +
+				"mkdir -p /lsp/${os}/${arch} && " +
+				"curl -fsSL https://github.com/kcl-lang/kcl/releases/download/" + kclLSPVersion +
+				"/kclvm-" + kclLSPVersion + "-${os}-${arch}.tar.gz | " +
+				"tar -xz --strip-components=2 -C /lsp/${os}/${arch} kclvm/bin/kcl-language-server; " +
+				"done",
 		}).
 		// Mount source and caches.
 		WithMountedDirectory("/src", m.Source).
