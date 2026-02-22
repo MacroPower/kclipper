@@ -52,7 +52,7 @@ func (m *Tests) TestSourceFiltering(ctx context.Context) error {
 		return fmt.Errorf("list source entries: %w", err)
 	}
 
-	excluded := []string{"dist", ".worktrees", ".tmp", ".devcontainer"}
+	excluded := []string{"dist", ".worktrees", ".tmp"}
 	for _, dir := range excluded {
 		for _, entry := range entries {
 			if strings.TrimRight(entry, "/") == dir {
@@ -477,7 +477,7 @@ func (m *Tests) TestLintReleaserClean(ctx context.Context) error {
 func (m *Tests) TestDevContainer(ctx context.Context) error {
 	ctr := dag.Ci().Dev()
 
-	tools := []string{"go", "task", "dagger"}
+	tools := []string{"go", "task", "dagger", "conform", "lefthook", "claude"}
 	for _, tool := range tools {
 		_, err := ctr.WithExec([]string{"which", tool}).Sync(ctx)
 		if err != nil {

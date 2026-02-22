@@ -301,6 +301,10 @@ tasks:
       - >-
         dagger call dev
         --git-config ~/.config/git
+        --tz="$TZ"
+        --colorterm="$COLORTERM"
+        --term-program="$TERM_PROGRAM"
+        --term-program-version="$TERM_PROGRAM_VERSION"
         terminal
         --experimental-privileged-nesting
 
@@ -313,6 +317,11 @@ tasks:
         --claude-config ~/.claude
         --claude-json ~/.claude.json
         --git-config ~/.config/git
+        --ccstatusline-config ~/.config/ccstatusline
+        --tz="$TZ"
+        --colorterm="$COLORTERM"
+        --term-program="$TERM_PROGRAM"
+        --term-program-version="$TERM_PROGRAM_VERSION"
         terminal
         --experimental-privileged-nesting
         --cmd claude,--dangerously-skip-permissions

@@ -51,7 +51,7 @@ type Ci struct {
 func New(
 	// Project source directory.
 	// +defaultPath="/"
-	// +ignore=["dist", ".worktrees", ".tmp", ".devcontainer"]
+	// +ignore=["dist", ".worktrees", ".tmp"]
 	source *dagger.Directory,
 	// Container image registry address.
 	// +optional
@@ -510,7 +510,7 @@ func (m *Ci) Release(
 //
 // Config directories are mounted as read-only snapshots; any changes
 // made inside the container are ephemeral and will not persist back to
-// the host.
+// the host. Bash history is persisted across sessions via a cache volume.
 //
 // Usage:
 //
@@ -528,12 +528,27 @@ func (m *Ci) Dev(
 	// Git configuration directory (~/.config/git).
 	// +optional
 	gitConfig *dagger.Directory,
+	// Claude Code status line configuration directory (~/.config/ccstatusline).
+	// +optional
+	ccstatuslineConfig *dagger.Directory,
+	// Timezone for the container (e.g. "America/New_York").
+	// +optional
+	tz string,
+	// COLORTERM value (e.g. "truecolor").
+	// +optional
+	colorterm string,
+	// TERM_PROGRAM value (e.g. "Apple_Terminal", "iTerm.app").
+	// +optional
+	termProgram string,
+	// TERM_PROGRAM_VERSION value.
+	// +optional
+	termProgramVersion string,
 ) *dagger.Container {
 	ctr := ensureGitRepo(dag.Container().
 		From("golang:"+goVersion).
 		WithExec([]string{"sh", "-c",
 			"apt-get update && apt-get install -y --no-install-recommends " +
-				"curl less man-db gnupg2 nano vim xz-utils jq wget " +
+				"curl less man-db gnupg2 nano vim xz-utils jq wget dnsutils " +
 				"&& apt-get clean && rm -rf /var/lib/apt/lists/*",
 		}).
 		WithExec([]string{"sh", "-c", "curl -fsSL https://taskfile.dev/install.sh | sh -s -- -b /usr/local/bin " + taskVersion}).
@@ -556,6 +571,12 @@ func (m *Ci) Dev(
 		WithEnvVariable("GOCACHE", "/go/build-cache").
 		// Pre-download Go modules so the first build/test is fast.
 		WithExec([]string{"go", "mod", "download"}).
+		// Persist bash history across sessions.
+		WithMountedCache("/commandhistory", dag.CacheVolume("bash-history")).
+		WithExec([]string{"sh", "-c",
+			`echo 'export HISTFILE=/commandhistory/.bash_history' >> /root/.bashrc && ` +
+				`echo 'export PROMPT_COMMAND="history -a"' >> /root/.bashrc`,
+		}).
 		WithEnvVariable("EDITOR", "nano").
 		WithEnvVariable("VISUAL", "nano").
 		WithEnvVariable("TERM", "xterm-256color").
@@ -570,6 +591,21 @@ func (m *Ci) Dev(
 	}
 	if gitConfig != nil {
 		ctr = ctr.WithMountedDirectory("/root/.config/git", gitConfig)
+	}
+	if ccstatuslineConfig != nil {
+		ctr = ctr.WithMountedDirectory("/root/.config/ccstatusline", ccstatuslineConfig)
+	}
+	if tz != "" {
+		ctr = ctr.WithEnvVariable("TZ", tz)
+	}
+	if colorterm != "" {
+		ctr = ctr.WithEnvVariable("COLORTERM", colorterm)
+	}
+	if termProgram != "" {
+		ctr = ctr.WithEnvVariable("TERM_PROGRAM", termProgram)
+	}
+	if termProgramVersion != "" {
+		ctr = ctr.WithEnvVariable("TERM_PROGRAM_VERSION", termProgramVersion)
 	}
 
 	// ExperimentalPrivilegedNesting gives the terminal session a

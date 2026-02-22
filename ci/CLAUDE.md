@@ -109,7 +109,7 @@ or to publish to a different registry. The release workflow does not pass
 ### Source Directory Filtering
 
 The `New` constructor uses `+ignore` to exclude directories that are never
-needed inside CI containers (`dist`, `.worktrees`, `.tmp`, `.devcontainer`).
+needed inside CI containers (`dist`, `.worktrees`, `.tmp`).
 This reduces the context transfer size when invoking Dagger functions.
 
 ### Base Container Pattern
@@ -193,7 +193,7 @@ Current integration tests:
 - `TestLintReleaserClean` -- Exercises GoReleaser configuration validation via
   `LintReleaser`.
 - `TestDevContainer` -- Verifies the `Dev` container has essential tools (go,
-  task, dagger) available on PATH.
+  task, dagger, conform, lefthook, claude) available on PATH.
 - `TestCoverageProfile` -- Verifies `TestCoverage` returns a non-empty Go
   coverage profile with a `mode:` header line.
 
@@ -324,6 +324,7 @@ All Go-based containers use shared Dagger cache volumes. The Go toolchain
 | `go-mod`        | (managed by toolchain) | `/go/pkg/mod`                | `GOMODCACHE` |
 | `go-build`      | (managed by toolchain) | `/go/build-cache`            | `GOCACHE`    |
 | `golangci-lint` | —                      | `/root/.cache/golangci-lint` | (implicit)   |
+| `bash-history`  | —                      | `/commandhistory`            | `HISTFILE`   |
 
 Different mount paths are safe because Go caches are content-addressed.
 When mounting manually, always set the corresponding env var so the tool
@@ -416,24 +417,20 @@ useful for registry discoverability (title, version, created, source).
 ### Dagger Dev Container (`Dev`)
 
 The `Dev()` function creates an interactive development container with Go,
-Task, conform, lefthook, Dagger CLI, and Claude Code pre-installed. Optional
-config directories can be bind-mounted for Claude Code and git:
+Task, conform, lefthook, Dagger CLI, Claude Code, and dnsutils pre-installed.
+Optional config directories can be bind-mounted for Claude Code, git, and
+ccstatusline. Bash history is persisted across sessions via a `bash-history`
+cache volume. Optional environment variables (`TZ`, `COLORTERM`,
+`TERM_PROGRAM`, `TERM_PROGRAM_VERSION`) can be forwarded from the host via
+Taskfile shell interpolation.
 
 ```bash
-task dev       # Git config only
-task claude    # Git + Claude config, launches Claude Code directly
+task dev       # Git config + env vars
+task claude    # Git + Claude + ccstatusline config, launches Claude Code directly
 ```
 
 `ExperimentalPrivilegedNesting` is enabled so nested `dagger call` invocations
 work inside the container without Docker socket mounting.
-
-### VS Code DevContainer
-
-`.devcontainer/` provides a VS Code Dev Container configuration using the
-same Go version and tools as the Dagger dev container. It mounts Claude Code
-config, git config, and uses Docker named volumes for Go caches. The
-`HOST_HOME` build arg creates a symlink so host-absolute paths in mounted
-configs resolve correctly inside the container.
 
 ## GitHub Workflows
 
