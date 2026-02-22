@@ -613,8 +613,6 @@ eval "$(starship init zsh)"
 //
 //	dagger call dev terminal
 //	dagger call dev --claude-config=~/.claude --git-config=~/.config/git terminal
-//
-// +cache="never"
 func (m *Ci) Dev(
 	// Claude Code configuration directory (~/.claude).
 	// +optional
