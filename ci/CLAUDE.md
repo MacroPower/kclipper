@@ -127,8 +127,10 @@ history. Key behaviors:
   the container.
 - **Translation layer**: The Taskfile `dev` and `claude` tasks handle converting
   between the container's standalone `.git` directory and the host's worktree
-  format. Commits are imported via `git fetch <export-dir> <branch>:<branch>`,
-  then source files are synced to the worktree via tar.
+  format. Commits are imported via `git fetch <export-dir> <branch>` to
+  FETCH_HEAD, then `git update-ref` updates the branch (avoiding the
+  "refusing to fetch into checked-out branch" error). Source files are
+  synced to the worktree via tar.
 - **Must use Taskfile tasks**: Running raw `dagger call dev export --path=.`
   would overwrite the host's `.git` worktree file. Always use `task dev` or
   `task claude` with a `BRANCH` argument for proper worktree handling.

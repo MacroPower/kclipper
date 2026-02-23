@@ -644,6 +644,8 @@ eval "$(starship init zsh)"
 //
 //	task dev BRANCH=feat/my-work
 //	task claude BRANCH=feat/my-work
+//
+// +cache="never"
 func (m *Ci) Dev(
 	// Branch to check out in the dev container. Each branch gets its
 	// own Dagger cache volume for workspace isolation.
