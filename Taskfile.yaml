@@ -295,7 +295,7 @@ tasks:
       - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach
 
   dev:
-    desc: Opens a development shell via Dagger
+    desc: Opens a development shell via Dagger (changes persist on exit)
     interactive: true
     cmds:
       - >-
@@ -305,11 +305,10 @@ tasks:
         --colorterm="$COLORTERM"
         --term-program="$TERM_PROGRAM"
         --term-program-version="$TERM_PROGRAM_VERSION"
-        terminal
-        --experimental-privileged-nesting
+        export --path=.
 
   claude:
-    desc: Launches Claude Code via Dagger
+    desc: Launches Claude Code via Dagger (changes persist on exit)
     interactive: true
     cmds:
       - >-
@@ -322,9 +321,8 @@ tasks:
         --colorterm="$COLORTERM"
         --term-program="$TERM_PROGRAM"
         --term-program-version="$TERM_PROGRAM_VERSION"
-        terminal
-        --experimental-privileged-nesting
         --cmd claude,--dangerously-skip-permissions
+        export --path=.
 
   git:worktree:add:
     desc: Adds a git worktree for the given branch

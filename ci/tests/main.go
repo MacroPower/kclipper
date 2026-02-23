@@ -42,7 +42,8 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestDeduplicateDigests(ctx) })
 	g.Go(func() error { return m.TestRegistryHost(ctx) })
 	g.Go(func() error { return m.TestLintReleaserClean(ctx) })
-	g.Go(func() error { return m.TestDevContainer(ctx) })
+	g.Go(func() error { return m.TestDevBase(ctx) })
+	g.Go(func() error { return m.TestDevExportPersistence(ctx) })
 	g.Go(func() error { return m.TestCoverageProfile(ctx) })
 
 	return g.Wait()
@@ -476,12 +477,15 @@ func (m *Tests) TestLintReleaserClean(ctx context.Context) error {
 	return dag.Ci().LintReleaser(ctx)
 }
 
-// TestDevContainer verifies that [Ci.Dev] returns a container with essential
-// development tools (go, task, dagger) available on PATH.
+// TestDevBase verifies that [devBase] produces a container with essential
+// development tools available on PATH. This validates the tool installation
+// pipeline without requiring an interactive terminal session.
 //
 // +check
-func (m *Tests) TestDevContainer(ctx context.Context) error {
-	ctr := dag.Ci().Dev()
+func (m *Tests) TestDevBase(ctx context.Context) error {
+	// Dev() returns a Directory (interactive terminal + export), so we
+	// test the underlying devBase container via a non-interactive build.
+	ctr := dag.Ci().DevBase()
 
 	tools := []string{
 		"go", "task", "dagger", "conform", "lefthook", "claude",
@@ -493,6 +497,92 @@ func (m *Tests) TestDevContainer(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("%s not found in dev container: %w", tool, err)
 		}
+	}
+
+	return nil
+}
+
+// TestDevExportPersistence verifies that the [Ci.Dev] export pipeline
+// correctly captures new files, preserves original source files, and
+// excludes the .git directory. This reconstructs the same cache-volume
+// pipeline that [Ci.Dev] uses but replaces [dagger.Container.Terminal]
+// with [dagger.Container.WithExec] to simulate interactive changes.
+//
+// +check
+func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
+	// Reconstruct the Dev() pipeline without Terminal().
+	// Use a test-specific cache volume to avoid interfering with real
+	// dev sessions.
+	exported := dag.Ci().DevBase().
+		WithDirectory("/tmp/src-seed", dag.Ci().Source()).
+		WithMountedCache("/src", dag.CacheVolume("test-dev-src")).
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithWorkdir("/src").
+		// Seed the cache volume with fresh source.
+		WithEnvVariable("_TEST_TS", time.Now().String()).
+		WithExec([]string{"sh", "-c", "rm -rf /src/.git && cp -a /tmp/src-seed/. /src/"}).
+		// Ensure git repo exists (same as Dev pipeline).
+		WithExec([]string{"sh", "-c",
+			"if ! git rev-parse --git-dir >/dev/null 2>&1; then "+
+				"rm -f .git && git init -q && "+
+				"git add -A && "+
+				"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init; fi",
+		}).
+		// Simulate interactive changes: create a new file + modify an existing one.
+		WithExec([]string{"sh", "-c",
+			"echo test-content > /src/test-sentinel && "+
+				"echo '# modified' >> /src/README.md",
+		}).
+		// Copy to output (same as Dev pipeline).
+		WithExec([]string{"sh", "-c", "mkdir -p /output && cp -a /src/. /output/"}).
+		Directory("/output").
+		WithoutDirectory(".git")
+
+	// Verify new file is captured.
+	content, err := exported.File("test-sentinel").Contents(ctx)
+	if err != nil {
+		return fmt.Errorf("read sentinel file: %w", err)
+	}
+	if strings.TrimSpace(content) != "test-content" {
+		return fmt.Errorf("sentinel content = %q, want %q", strings.TrimSpace(content), "test-content")
+	}
+
+	// Verify original source files are preserved.
+	entries, err := exported.Entries(ctx)
+	if err != nil {
+		return fmt.Errorf("list exported entries: %w", err)
+	}
+	foundGoMod := false
+	foundGit := false
+	for _, entry := range entries {
+		name := strings.TrimRight(entry, "/")
+		switch name {
+		case "go.mod":
+			foundGoMod = true
+		case ".git":
+			foundGit = true
+		}
+	}
+	if !foundGoMod {
+		return fmt.Errorf("go.mod not found in export (entries: %v)", entries)
+	}
+
+	// Verify .git is excluded from export.
+	if foundGit {
+		return fmt.Errorf(".git should be excluded from export but was present")
+	}
+
+	// Verify modified file has our change.
+	readme, err := exported.File("README.md").Contents(ctx)
+	if err != nil {
+		return fmt.Errorf("read README.md: %w", err)
+	}
+	if !strings.HasSuffix(strings.TrimSpace(readme), "# modified") {
+		return fmt.Errorf("README.md modification not captured (last 50 chars: %q)",
+			readme[max(0, len(readme)-50):])
 	}
 
 	return nil

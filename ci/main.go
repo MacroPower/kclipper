@@ -602,18 +602,20 @@ eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"
 `
 
-// Dev returns an interactive development container with project tools
-// pre-installed. Pass optional config directories to enable Claude Code
-// and git inside the container.
+// Dev opens an interactive development container and returns the modified
+// source directory when the session ends. Use export to persist changes
+// back to the host.
 //
-// Config directories are mounted as read-only snapshots; any changes
-// made inside the container are ephemeral and will not persist back to
-// the host. Shell history is persisted across sessions via a cache volume.
+// Source is staged into a Dagger cache volume so that filesystem changes
+// made during the interactive session survive the [dagger.Container.Terminal]
+// call. After the session ends, the modified source is copied to a regular
+// filesystem path for export. The .git directory is excluded from the
+// returned directory to avoid corrupting the host's git state.
 //
 // Usage:
 //
-//	dagger call dev terminal
-//	dagger call dev --claude-config=~/.claude --git-config=~/.config/git terminal
+//	dagger call dev export --path=.
+//	dagger call dev --cmd=claude,--dangerously-skip-permissions export --path=.
 func (m *Ci) Dev(
 	// Claude Code configuration directory (~/.claude).
 	// +optional
@@ -639,19 +641,75 @@ func (m *Ci) Dev(
 	// TERM_PROGRAM_VERSION value.
 	// +optional
 	termProgramVersion string,
-) *dagger.Container {
-	ctr := ensureGitRepo(devBase().
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
+	// Command to run in the terminal session. Defaults to ["zsh"].
+	// +optional
+	cmd []string,
+) *dagger.Directory {
+	ctr := devBase().
+		// Stage source on regular filesystem for the seed step.
+		WithDirectory("/tmp/src-seed", m.Source).
+		// Cache volume at /src so changes survive Terminal().
+		WithMountedCache("/src", dag.CacheVolume("dev-src")).
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
 		WithEnvVariable("GOCACHE", "/go/build-cache").
-		// Pre-download Go modules so the first build/test is fast.
-		WithExec([]string{"go", "mod", "download"}).
-		// Persist shell history across sessions.
-		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")))
+		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")).
+		WithWorkdir("/src")
 
+	ctr = applyDevConfig(ctr, claudeConfig, claudeJSON, gitConfig, ccstatuslineConfig,
+		tz, colorterm, termProgram, termProgramVersion)
+
+	// Always refresh source in the cache volume by busting Dagger's
+	// execution cache with a timestamp.
+	ctr = ctr.
+		WithEnvVariable("_DEV_TS", time.Now().String()).
+		WithExec([]string{"sh", "-c",
+			// Remove stale .git to avoid type conflicts (cached directory vs worktree file).
+			"rm -rf /src/.git && " +
+				// Copy fresh source into the cache volume.
+				"cp -a /tmp/src-seed/. /src/ && " +
+				// Init git if needed (worktree .git files reference host paths).
+				"if ! git rev-parse --git-dir >/dev/null 2>&1; then " +
+				"rm -f .git && git init -q && " +
+				"git remote add origin https://github.com/macropower/kclipper.git && " +
+				"git add -A && " +
+				"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init; " +
+				"fi && " +
+				// Pre-download Go modules.
+				"go mod download",
+		})
+
+	// Open interactive terminal. Changes to /src persist in the cache
+	// volume through the Terminal() call.
+	termOpts := dagger.ContainerTerminalOpts{
+		ExperimentalPrivilegedNesting: true,
+	}
+	if len(cmd) > 0 {
+		termOpts.Cmd = cmd
+	} else {
+		termOpts.Cmd = []string{"zsh"}
+	}
+	ctr = ctr.Terminal(termOpts)
+
+	// Copy from cache volume to regular filesystem so Directory() can
+	// read it (Container.Directory rejects cache mount paths).
+	ctr = ctr.WithExec([]string{"sh", "-c", "mkdir -p /output && cp -a /src/. /output/"})
+
+	// Exclude .git to avoid corrupting the host's git state.
+	return ctr.Directory("/output").WithoutDirectory(".git")
+}
+
+// applyDevConfig applies optional configuration mounts and environment
+// variables to a dev container.
+func applyDevConfig(
+	ctr *dagger.Container,
+	claudeConfig *dagger.Directory,
+	claudeJSON *dagger.File,
+	gitConfig *dagger.Directory,
+	ccstatuslineConfig *dagger.Directory,
+	tz, colorterm, termProgram, termProgramVersion string,
+) *dagger.Container {
 	if claudeConfig != nil {
 		ctr = ctr.WithMountedDirectory("/root/.claude", claudeConfig)
 	}
@@ -676,14 +734,7 @@ func (m *Ci) Dev(
 	if termProgramVersion != "" {
 		ctr = ctr.WithEnvVariable("TERM_PROGRAM_VERSION", termProgramVersion)
 	}
-
-	// ExperimentalPrivilegedNesting gives the terminal session a
-	// connection to the parent Dagger engine, so nested `dagger call`
-	// invocations work without mounting the Docker socket.
-	return ctr.WithDefaultTerminalCmd([]string{"zsh"},
-		dagger.ContainerWithDefaultTerminalCmdOpts{
-			ExperimentalPrivilegedNesting: true,
-		})
+	return ctr
 }
 
 // ---------------------------------------------------------------------------
@@ -741,6 +792,13 @@ func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 	}
 
 	return variants
+}
+
+// DevBase returns the base development container with all tools
+// pre-installed but no source mounted. Used by integration tests to
+// verify tool availability without requiring an interactive terminal.
+func (m *Ci) DevBase() *dagger.Container {
+	return devBase()
 }
 
 // ---------------------------------------------------------------------------

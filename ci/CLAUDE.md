@@ -10,7 +10,7 @@ dagger check                  # Run all checks (+check functions)
 dagger check lint             # Run specific check(s)
 dagger generate --auto-apply  # Run generators and apply changes
 dagger call build export --path=./dist  # Build binaries
-dagger call dev terminal      # Interactive dev container
+dagger call dev export --path=.  # Interactive dev container (changes persist)
 ```
 
 Or via the Taskfile:
@@ -21,8 +21,8 @@ task test:integration  # dagger check -m ci/tests
 task lint              # dagger check lint lint-prettier lint-actions lint-releaser
 task format            # dagger generate --auto-apply
 task build             # dagger call build export --path=./dist
-task dev               # Interactive dev shell via Dagger
-task claude            # Claude Code inside Dagger dev container
+task dev               # Dev shell via Dagger (changes persist on exit)
+task claude            # Claude Code via Dagger (changes persist on exit)
 ```
 
 ## Architecture
@@ -52,12 +52,12 @@ requirements. To update the dependency pin: `dagger update go`.
 
 ### Function Categories
 
-| Category    | Annotation     | CLI                        | Purpose                                      |
-| ----------- | -------------- | -------------------------- | -------------------------------------------- |
-| Checks      | `// +check`    | `dagger check <name>`      | Validation (tests, lints). Return `error`.   |
-| Generators  | `// +generate` | `dagger generate`          | Code formatting. Return `*dagger.Changeset`. |
-| Build       | (none)         | `dagger call <name>`       | Artifact production.                         |
-| Development | (none)         | `dagger call dev terminal` | Interactive containers.                      |
+| Category    | Annotation     | CLI                               | Purpose                                       |
+| ----------- | -------------- | --------------------------------- | --------------------------------------------- |
+| Checks      | `// +check`    | `dagger check <name>`             | Validation (tests, lints). Return `error`.    |
+| Generators  | `// +generate` | `dagger generate`                 | Code formatting. Return `*dagger.Changeset`.  |
+| Build       | (none)         | `dagger call <name>`              | Artifact production.                          |
+| Development | (none)         | `dagger call dev export --path=.` | Interactive container with persistent export. |
 
 ### Build & Image Functions
 
@@ -94,14 +94,21 @@ Private helper methods build reusable container layers:
 - `devBase()` -- Go + apt packages + all dev tool binaries. Uses `devToolBins()`
   (one consolidated builder for all tool binaries) and `claudeCodeFiles()` so
   Dagger resolves only two sub-pipelines instead of one per tool. `Dev()` calls
-  `devBase()` and adds only project-specific setup (source mount, Go caches,
-  optional config mounts).
+  `devBase()` and adds source staging, Go caches, optional config mounts, the
+  interactive terminal, and the export-to-regular-fs step.
 
 ### Git Worktree Handling
 
 `ensureGitRepo()` detects when the source comes from a git worktree (where
 `.git` is a file referencing a host path that doesn't exist in the container)
 and initializes a minimal git repo so GoReleaser and tests work correctly.
+
+The `Dev()` pipeline has an additional wrinkle: the `dev-src` cache volume at
+`/src` persists across runs. On the first run from a worktree, a `.git` file
+is copied in and then replaced by a `.git` directory via `git init`. On
+subsequent runs, `cp -a` would fail trying to overwrite the cached directory
+with the worktree file. To prevent this, `Dev()` removes `/src/.git` before
+copying fresh source (`rm -rf /src/.git && cp -a ...`).
 
 ### Test Module
 
@@ -237,6 +244,7 @@ All Go-based containers share Dagger cache volumes. The Go toolchain
 | `go-build`         | (managed by toolchain) | `/go/build-cache`            | `GOCACHE`    |
 | `golangci-lint`    | —                      | `/root/.cache/golangci-lint` | (implicit)   |
 | `shell-history`    | —                      | `/commandhistory`            | `HISTFILE`   |
+| `dev-src`          | —                      | `/src`                       | —            |
 | `dev-apt-archives` | —                      | `/var/cache/apt/archives`    | —            |
 | `dev-apt-lists`    | —                      | `/var/lib/apt/lists`         | —            |
 
@@ -252,10 +260,28 @@ for Linux, `hack/zig-macos-wrapper.sh` for macOS). The `CC_*`/`CXX_*` env vars
 in `releaserBase()` are consumed by GoReleaser's `.goreleaser.yaml` per-target
 `env` blocks. macOS SDK flags are defined in the `macosSDKFlags` constant.
 
-## Development Containers
+## Development Container
 
-The `Dev()` function creates an interactive development container with zsh,
-starship prompt, and a curated set of tools pre-installed:
+The `Dev()` function opens an interactive development container with zsh,
+starship prompt, and a curated set of tools pre-installed. Source is copied
+into a `dev-src` cache volume so that filesystem changes made during the
+interactive session survive the `Container.Terminal()` call. After the
+session ends, the modified source is copied to a regular filesystem path for
+export. The returned directory excludes `.git` to avoid corrupting the
+host's git state.
+
+```bash
+dagger call dev export --path=.
+dagger call dev --cmd=claude,--dangerously-skip-permissions export --path=.
+```
+
+`DevBase()` returns the raw base container (no source, no terminal) for use
+by integration tests that verify tool availability. `TestDevExportPersistence`
+reconstructs the `Dev` pipeline with `WithExec` instead of `Terminal()` to
+verify that new files, modified files, and source preservation work correctly,
+and that `.git` is excluded from the export.
+
+Pre-installed tooling:
 
 - **Core**: Go, Task, conform, lefthook, Dagger CLI, Claude Code, gh
 - **Shell**: zsh with zsh-autosuggestions, zsh-syntax-highlighting, starship
@@ -265,14 +291,15 @@ starship prompt, and a curated set of tools pre-installed:
 
 Optional config directories can be bind-mounted for Claude Code, git, and
 ccstatusline. Shell history is persisted via a `shell-history` cache volume.
-`ExperimentalPrivilegedNesting` is enabled on the terminal command so nested
-`dagger call`/`dagger check` invocations work inside the container without
-Docker socket mounting.
+`ExperimentalPrivilegedNesting` is enabled so nested `dagger call`/`dagger
+check` invocations work inside the container without Docker socket mounting.
+The shared config-mounting logic lives in the private `applyDevConfig()`
+helper.
 
 ### Dev Container Caching
 
 The dev container is split into `devBase()` (tools and config) and `Dev()`
-(project-specific setup). Tool binaries are installed via `WithFile` /
+(source staging, terminal, export). Tool binaries are installed via `WithFile` /
 `WithDirectory` from independent sub-containers rather than `curl | sh` on
 the base image chain. This means:
 
@@ -296,14 +323,14 @@ AI agents run inside the Dev container with `ExperimentalPrivilegedNesting`
 enabled and can safely use `dagger` commands. The container is isolated from
 the host machine:
 
-| Property                   | Detail                                                                  |
-| -------------------------- | ----------------------------------------------------------------------- |
-| `host { directory }` scope | Container filesystem only (not host machine)                            |
-| Docker socket              | Not mounted                                                             |
-| Root capabilities          | Standard runc sandboxing (no `InsecureRootCapabilities`)                |
-| Mounted directories        | Dagger snapshots (not live bind mounts; writes don't propagate to host) |
-| Network                    | Outbound only                                                           |
-| Cache volumes              | Content-addressed, shared safely across containers                      |
+| Property                   | Detail                                                          |
+| -------------------------- | --------------------------------------------------------------- |
+| `host { directory }` scope | Container filesystem only (not host machine)                    |
+| Docker socket              | Not mounted                                                     |
+| Root capabilities          | Standard runc sandboxing (no `InsecureRootCapabilities`)        |
+| Source                     | Cache volume at `/src`; copied to regular fs on exit for export |
+| Network                    | Outbound only                                                   |
+| Cache volumes              | Content-addressed, shared safely across containers              |
 
 Note: The Dagger SDK docs still warn that `ExperimentalPrivilegedNesting`
 grants "FULL ACCESS TO YOUR HOST FILESYSTEM." This warning predates
