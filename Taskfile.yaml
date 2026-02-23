@@ -304,22 +304,47 @@ tasks:
   dev:
     desc: Opens a development shell via Dagger (changes persist on exit)
     interactive: true
+    requires:
+      vars: [BRANCH]
+    vars:
+      DIR: '{{.BRANCH | replace "/" "-"}}'
     cmds:
       - >-
         dagger call dev
+        --branch={{.BRANCH}}
         --git-config ~/.config/git
         --tz="$TZ"
         --colorterm="$COLORTERM"
         --term-program="$TERM_PROGRAM"
         --term-program-version="$TERM_PROGRAM_VERSION"
-        export --path=.
+        export --path=/tmp/dagger-dev-{{.DIR}}
+      # Import container commits into host repo
+      - git fetch /tmp/dagger-dev-{{.DIR}} {{.BRANCH}}:{{.BRANCH}} || true
+      # Ensure host worktree exists
+      - |
+        if [ ! -d ".worktrees/{{.DIR}}" ]; then
+          if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
+            git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
+          else
+            git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
+          fi
+        fi
+      # Sync source files (tar preserves permissions, excludes .git)
+      - tar -C /tmp/dagger-dev-{{.DIR}} --exclude=.git -cf - . | tar -C .worktrees/{{.DIR}} -xf -
+      # Clean up temp
+      - rm -rf /tmp/dagger-dev-{{.DIR}}
 
   claude:
     desc: Launches Claude Code via Dagger (changes persist on exit)
     interactive: true
+    requires:
+      vars: [BRANCH]
+    vars:
+      DIR: '{{.BRANCH | replace "/" "-"}}'
     cmds:
       - >-
         dagger call dev
+        --branch={{.BRANCH}}
         --claude-config ~/.claude
         --claude-json ~/.claude.json
         --git-config ~/.config/git
@@ -329,7 +354,18 @@ tasks:
         --term-program="$TERM_PROGRAM"
         --term-program-version="$TERM_PROGRAM_VERSION"
         --cmd claude,--dangerously-skip-permissions
-        export --path=.
+        export --path=/tmp/dagger-dev-{{.DIR}}
+      - git fetch /tmp/dagger-dev-{{.DIR}} {{.BRANCH}}:{{.BRANCH}} || true
+      - |
+        if [ ! -d ".worktrees/{{.DIR}}" ]; then
+          if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
+            git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
+          else
+            git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
+          fi
+        fi
+      - tar -C /tmp/dagger-dev-{{.DIR}} --exclude=.git -cf - . | tar -C .worktrees/{{.DIR}} -xf -
+      - rm -rf /tmp/dagger-dev-{{.DIR}}
 
   git:worktree:add:
     desc: Adds a git worktree for the given branch
@@ -346,6 +382,8 @@ tasks:
     cmds:
       - |
         if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
+          git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
+        elif git show-ref --verify --quiet "refs/remotes/origin/{{.BRANCH}}"; then
           git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
         else
           git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"

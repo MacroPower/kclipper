@@ -626,21 +626,28 @@ eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"
 `
 
-// Dev opens an interactive development container and returns the modified
-// source directory when the session ends. Use export to persist changes
-// back to the host.
+// Dev opens an interactive development container with a real git
+// repository and returns the modified source directory when the session
+// ends. The container clones the upstream repo (blobless) and checks out
+// the specified branch, enabling pushes, rebases, and other git
+// operations.
 //
-// Source is staged into a Dagger cache volume so that filesystem changes
-// made during the interactive session survive the [dagger.Container.Terminal]
-// call. After the session ends, the modified source is copied to a regular
-// filesystem path for export. The .git directory is excluded from the
-// returned directory to avoid corrupting the host's git state.
+// Source files from the project directory are overlaid on top of the
+// checked-out branch, bringing in local uncommitted changes. Each branch
+// gets its own Dagger cache volume for workspace isolation.
+//
+// The returned directory includes .git with full commit history. Use the
+// Taskfile dev/claude tasks to handle the translation between the
+// container's standalone .git and the host's worktree format.
 //
 // Usage:
 //
-//	dagger call dev export --path=.
-//	dagger call dev --cmd=claude,--dangerously-skip-permissions export --path=.
+//	task dev BRANCH=feat/my-work
+//	task claude BRANCH=feat/my-work
 func (m *Ci) Dev(
+	// Branch to check out in the dev container. Each branch gets its
+	// own Dagger cache volume for workspace isolation.
+	branch string,
 	// Claude Code configuration directory (~/.claude).
 	// +optional
 	claudeConfig *dagger.Directory,
@@ -673,7 +680,8 @@ func (m *Ci) Dev(
 		// Stage source on regular filesystem for the seed step.
 		WithDirectory("/tmp/src-seed", m.Source).
 		// Cache volume at /src so changes survive Terminal().
-		WithMountedCache("/src", dag.CacheVolume("dev-src")).
+		// Each branch gets its own volume for workspace isolation.
+		WithMountedCache("/src", dag.CacheVolume("dev-src-"+sanitizeCacheKey(branch))).
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
@@ -684,24 +692,29 @@ func (m *Ci) Dev(
 	ctr = applyDevConfig(ctr, claudeConfig, claudeJSON, gitConfig, ccstatuslineConfig,
 		tz, colorterm, termProgram, termProgramVersion)
 
-	// Always refresh source in the cache volume by busting Dagger's
-	// execution cache with a timestamp.
+	// Clone the upstream repo (blobless) and check out the requested
+	// branch. Local source files are overlaid on top so uncommitted
+	// changes are available inside the container.
 	ctr = ctr.
+		WithEnvVariable("BRANCH", branch).
 		WithEnvVariable("_DEV_TS", time.Now().String()).
 		WithExec([]string{"sh", "-c",
-			// Remove stale .git to avoid type conflicts (cached directory vs worktree file).
-			"rm -rf /src/.git && " +
-				// Copy fresh source into the cache volume.
-				"cp -a /tmp/src-seed/. /src/ && " +
-				// Init git if needed (worktree .git files reference host paths).
-				"if ! git rev-parse --git-dir >/dev/null 2>&1; then " +
-				"rm -f .git && git init -q && " +
-				"git remote add origin https://github.com/macropower/kclipper.git && " +
-				"git add -A && " +
-				"GIT_COMMITTER_DATE='2000-01-01T00:00:00+00:00' " +
-				"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init " +
-				"--date='2000-01-01T00:00:00+00:00'; " +
+			// Clone if needed (blobless: full history, blobs fetched on demand).
+			"if [ ! -d /src/.git ]; then " +
+				"git clone --filter=blob:none --no-checkout " +
+				"https://github.com/macropower/kclipper.git /src; " +
 				"fi && " +
+				"cd /src && git fetch origin && " +
+				// Checkout or create branch.
+				"if git rev-parse --verify \"${BRANCH}\" >/dev/null 2>&1; then " +
+				"git checkout \"${BRANCH}\"; " +
+				"elif git rev-parse --verify \"origin/${BRANCH}\" >/dev/null 2>&1; then " +
+				"git checkout -b \"${BRANCH}\" \"origin/${BRANCH}\"; " +
+				"else " +
+				"git checkout -b \"${BRANCH}\" origin/main; " +
+				"fi && " +
+				// Overlay local source (m.Source excludes .git via +ignore).
+				"cp -a /tmp/src-seed/. /src/ && " +
 				// Pre-download Go modules.
 				"go mod download",
 		})
@@ -722,8 +735,7 @@ func (m *Ci) Dev(
 	// read it (Container.Directory rejects cache mount paths).
 	ctr = ctr.WithExec([]string{"sh", "-c", "mkdir -p /output && cp -a /src/. /output/"})
 
-	// Exclude .git to avoid corrupting the host's git state.
-	return ctr.Directory("/output").WithoutDirectory(".git")
+	return ctr.Directory("/output")
 }
 
 // applyDevConfig applies optional configuration mounts and environment
@@ -1037,6 +1049,12 @@ func (m *Ci) releaserBase() *dagger.Container {
 		WithEnvVariable("CXX_LINUX_ARM64", "/src/hack/zig-gold-wrapper.sh -target aarch64-linux-gnu").
 		WithEnvVariable("CXX_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none "+macosSDKFlags).
 		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none "+macosSDKFlags))
+}
+
+// sanitizeCacheKey replaces characters that are invalid in Dagger cache
+// volume names with hyphens.
+func sanitizeCacheKey(name string) string {
+	return strings.NewReplacer("/", "-", "\\", "-", ":", "-").Replace(name)
 }
 
 // ensureGitRepo ensures the container has a valid git repository at its

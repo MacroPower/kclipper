@@ -10,7 +10,8 @@ dagger check                  # Run all checks (+check functions)
 dagger check lint             # Run specific check(s)
 dagger generate --auto-apply  # Run generators and apply changes
 dagger call build export --path=./dist  # Build binaries
-dagger call dev export --path=.  # Interactive dev container (changes persist)
+task dev BRANCH=feat/foo    # Dev container (auto-creates worktree)
+task claude BRANCH=feat/foo # Claude Code container (auto-creates worktree)
 dagger call lint-commit-msg --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
 ```
 
@@ -111,6 +112,26 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
 - Use `errgroup` for concurrent execution of independent operations.
 - Tool binaries are extracted from OCI images via `Container.File()`
   (not `go install`) for faster builds and automatic platform matching.
+
+## Dev Container
+
+The `Dev()` function creates a git-aware development container with real commit
+history. Key behaviors:
+
+- **Blobless clone**: The upstream repo is cloned with `--filter=blob:none`,
+  providing full commit history while fetching file contents on demand.
+- **Branch isolation**: Each branch gets its own Dagger cache volume
+  (`dev-src-<branch>`), so switching branches doesn't clobber in-progress work.
+- **Source overlay**: Local source files (via `m.Source`, which excludes `.git`)
+  are copied on top of the checked-out branch, bringing uncommitted changes into
+  the container.
+- **Translation layer**: The Taskfile `dev` and `claude` tasks handle converting
+  between the container's standalone `.git` directory and the host's worktree
+  format. Commits are imported via `git fetch <export-dir> <branch>:<branch>`,
+  then source files are synced to the worktree via tar.
+- **Must use Taskfile tasks**: Running raw `dagger call dev export --path=.`
+  would overwrite the host's `.git` worktree file. Always use `task dev` or
+  `task claude` with a `BRANCH` argument for proper worktree handling.
 
 ## Version Management
 

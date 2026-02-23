@@ -505,44 +505,52 @@ func (m *Tests) TestDevBase(ctx context.Context) error {
 
 // TestDevExportPersistence verifies that the [Ci.Dev] export pipeline
 // correctly captures new files, preserves original source files, and
-// excludes the .git directory. This reconstructs the same cache-volume
-// pipeline that [Ci.Dev] uses but replaces [dagger.Container.Terminal]
-// with [dagger.Container.WithExec] to simulate interactive changes.
+// includes the .git directory with real commit history. This reconstructs
+// the same cache-volume pipeline that [Ci.Dev] uses but replaces
+// [dagger.Container.Terminal] with [dagger.Container.WithExec] to
+// simulate interactive changes.
 //
 // +check
 func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
 	// Reconstruct the Dev() pipeline without Terminal().
-	// Use a test-specific cache volume to avoid interfering with real
-	// dev sessions.
+	// Use a test-specific cache volume and branch to avoid interfering
+	// with real dev sessions.
+	branch := "test-dev-export"
+
 	exported := dag.Ci().DevBase().
 		WithDirectory("/tmp/src-seed", dag.Ci().Source()).
-		WithMountedCache("/src", dag.CacheVolume("test-dev-src")).
+		WithMountedCache("/src", dag.CacheVolume("test-dev-src-"+branch)).
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
 		WithEnvVariable("GOCACHE", "/go/build-cache").
 		WithWorkdir("/src").
-		// Seed the cache volume with fresh source.
+		// Clone and checkout branch (same as Dev pipeline).
+		WithEnvVariable("BRANCH", branch).
 		WithEnvVariable("_TEST_TS", time.Now().String()).
-		WithExec([]string{"sh", "-c", "rm -rf /src/.git && cp -a /tmp/src-seed/. /src/"}).
-		// Ensure git repo exists (same as Dev pipeline).
 		WithExec([]string{"sh", "-c",
-			"if ! git rev-parse --git-dir >/dev/null 2>&1; then "+
-				"rm -f .git && git init -q && "+
-				"git add -A && "+
-				"GIT_COMMITTER_DATE='2000-01-01T00:00:00+00:00' "+
-				"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init "+
-				"--date='2000-01-01T00:00:00+00:00'; fi",
+			"if [ ! -d /src/.git ]; then " +
+				"git clone --filter=blob:none --no-checkout " +
+				"https://github.com/macropower/kclipper.git /src; " +
+				"fi && " +
+				"cd /src && git fetch origin && " +
+				"if git rev-parse --verify \"${BRANCH}\" >/dev/null 2>&1; then " +
+				"git checkout \"${BRANCH}\"; " +
+				"elif git rev-parse --verify \"origin/${BRANCH}\" >/dev/null 2>&1; then " +
+				"git checkout -b \"${BRANCH}\" \"origin/${BRANCH}\"; " +
+				"else " +
+				"git checkout -b \"${BRANCH}\" origin/main; " +
+				"fi && " +
+				"cp -a /tmp/src-seed/. /src/",
 		}).
 		// Simulate interactive changes: create a new file + modify an existing one.
 		WithExec([]string{"sh", "-c",
-			"echo test-content > /src/test-sentinel && "+
+			"echo test-content > /src/test-sentinel && " +
 				"echo '# modified' >> /src/README.md",
 		}).
 		// Copy to output (same as Dev pipeline).
 		WithExec([]string{"sh", "-c", "mkdir -p /output && cp -a /src/. /output/"}).
-		Directory("/output").
-		WithoutDirectory(".git")
+		Directory("/output")
 
 	// Verify new file is captured.
 	content, err := exported.File("test-sentinel").Contents(ctx)
@@ -573,9 +581,9 @@ func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
 		return fmt.Errorf("go.mod not found in export (entries: %v)", entries)
 	}
 
-	// Verify .git is excluded from export.
-	if foundGit {
-		return fmt.Errorf(".git should be excluded from export but was present")
+	// Verify .git is present in export (real git repo).
+	if !foundGit {
+		return fmt.Errorf(".git should be present in export but was missing (entries: %v)", entries)
 	}
 
 	// Verify modified file has our change.
