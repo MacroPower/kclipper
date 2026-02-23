@@ -11,6 +11,7 @@ dagger check lint             # Run specific check(s)
 dagger generate --auto-apply  # Run generators and apply changes
 dagger call build export --path=./dist  # Build binaries
 dagger call dev export --path=.  # Interactive dev container (changes persist)
+dagger call lint-commit-msg --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
 ```
 
 Or via the Taskfile:
@@ -21,6 +22,7 @@ task test:integration  # dagger check -m ci/tests
 task lint              # dagger check lint lint-prettier lint-actions lint-releaser
 task format            # dagger generate --auto-apply
 task build             # dagger call build export --path=./dist
+task lint:commit-msg MSG_FILE=.git/COMMIT_EDITMSG  # Validate commit message
 task dev               # Dev shell via Dagger (changes persist on exit)
 task claude            # Claude Code via Dagger (changes persist on exit)
 ```
@@ -52,12 +54,16 @@ requirements. To update the dependency pin: `dagger update go`.
 
 ### Function Categories
 
-| Category    | Annotation     | CLI                               | Purpose                                       |
-| ----------- | -------------- | --------------------------------- | --------------------------------------------- |
-| Checks      | `// +check`    | `dagger check <name>`             | Validation (tests, lints). Return `error`.    |
-| Generators  | `// +generate` | `dagger generate`                 | Code formatting. Return `*dagger.Changeset`.  |
-| Build       | (none)         | `dagger call <name>`              | Artifact production.                          |
-| Development | (none)         | `dagger call dev export --path=.` | Interactive container with persistent export. |
+| Category    | Annotation     | CLI                               | Purpose                                        |
+| ----------- | -------------- | --------------------------------- | ---------------------------------------------- |
+| Checks      | `// +check`    | `dagger check <name>`             | Validation (tests, lints). Return `error`.     |
+| Generators  | `// +generate` | `dagger generate`                 | Code formatting. Return `*dagger.Changeset`.   |
+| Build       | (none)         | `dagger call <name>`              | Artifact production.                           |
+| Callable    | (none)         | `dagger call <name>`              | Requires arguments; invoked via `dagger call`. |
+| Development | (none)         | `dagger call dev export --path=.` | Interactive container with persistent export.  |
+
+`LintCommitMsg` is in the Callable category because it requires a mandatory
+`msgFile` argument and cannot be a `+check` function.
 
 ### Build & Image Functions
 
@@ -336,6 +342,20 @@ Note: The Dagger SDK docs still warn that `ExperimentalPrivilegedNesting`
 grants "FULL ACCESS TO YOUR HOST FILESYSTEM." This warning predates
 sandboxing improvements (branching from dagger/dagger#6916). This has been
 verified empirically.
+
+## Git Hooks (Lefthook)
+
+Both git hooks invoke Dagger directly (no host-only tools in the hook pipeline):
+
+| Hook         | Command                                      |
+| ------------ | -------------------------------------------- |
+| `pre-commit` | `dagger check test lint lint-prettier`       |
+| `commit-msg` | `dagger call lint-commit-msg --msg-file={1}` |
+
+The `commit-msg` hook uses `LintCommitMsg` which runs conform inside a
+container with the project's `.conform.yaml` policy. Lefthook's `{1}`
+expands to the commit message file path; the Dagger CLI converts local
+paths to `*dagger.File` automatically.
 
 ## GitHub Workflows
 

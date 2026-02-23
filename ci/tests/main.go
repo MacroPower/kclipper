@@ -45,6 +45,7 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestDevBase(ctx) })
 	g.Go(func() error { return m.TestDevExportPersistence(ctx) })
 	g.Go(func() error { return m.TestCoverageProfile(ctx) })
+	g.Go(func() error { return m.TestLintCommitMsg(ctx) })
 
 	return g.Wait()
 }
@@ -583,6 +584,28 @@ func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
 	if !strings.HasSuffix(strings.TrimSpace(readme), "# modified") {
 		return fmt.Errorf("README.md modification not captured (last 50 chars: %q)",
 			readme[max(0, len(readme)-50):])
+	}
+
+	return nil
+}
+
+// TestLintCommitMsg verifies that [Ci.LintCommitMsg] accepts valid
+// conventional commit messages and rejects invalid ones.
+//
+// +check
+func (m *Tests) TestLintCommitMsg(ctx context.Context) error {
+	validMsg := dag.Directory().
+		WithNewFile("COMMIT_EDITMSG", "feat(cli): add new flag for output format\n").
+		File("COMMIT_EDITMSG")
+	if err := dag.Ci().LintCommitMsg(ctx, validMsg); err != nil {
+		return fmt.Errorf("valid commit message rejected: %w", err)
+	}
+
+	invalidMsg := dag.Directory().
+		WithNewFile("COMMIT_EDITMSG", "This is not a conventional commit.\n").
+		File("COMMIT_EDITMSG")
+	if err := dag.Ci().LintCommitMsg(ctx, invalidMsg); err == nil {
+		return fmt.Errorf("invalid commit message was not rejected")
 	}
 
 	return nil

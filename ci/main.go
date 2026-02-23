@@ -149,6 +149,30 @@ func (m *Ci) LintReleaser(ctx context.Context) error {
 	return err
 }
 
+// LintCommitMsg validates a commit message against the project's conventional
+// commit policy using conform. The message file is typically provided by a
+// git commit-msg hook.
+func (m *Ci) LintCommitMsg(
+	ctx context.Context,
+	// Commit message file to validate (e.g. .git/COMMIT_EDITMSG).
+	msgFile *dagger.File,
+) error {
+	ctr := dag.Container().
+		From("alpine:3").
+		WithExec([]string{"apk", "add", "--no-cache", "git"}).
+		WithFile("/usr/local/bin/conform",
+			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
+				File("/conform")).
+		WithMountedDirectory("/src", m.Source).
+		WithWorkdir("/src")
+
+	_, err := ensureGitRepo(ctr).
+		WithMountedFile("/tmp/commit-msg", msgFile).
+		WithExec([]string{"conform", "enforce", "--commit-msg-file", "/tmp/commit-msg"}).
+		Sync(ctx)
+	return err
+}
+
 // ---------------------------------------------------------------------------
 // Formatting
 // ---------------------------------------------------------------------------

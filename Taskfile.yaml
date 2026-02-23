@@ -69,6 +69,13 @@ tasks:
     cmds:
       - dagger check lint-releaser
 
+  lint:commit-msg:
+    desc: Validates commit message format via Dagger
+    requires:
+      vars: [MSG_FILE]
+    cmds:
+      - dagger call lint-commit-msg --msg-file={{.MSG_FILE}}
+
   test:
     desc: Runs Go tests via Dagger
     cmds:
