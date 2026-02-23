@@ -723,15 +723,13 @@ func (m *Ci) Dev(
 
 	// Open interactive terminal. Changes to /src persist in the cache
 	// volume through the Terminal() call.
-	termOpts := dagger.ContainerTerminalOpts{
+	if len(cmd) == 0 {
+		cmd = []string{"zsh"}
+	}
+	ctr = ctr.Terminal(dagger.ContainerTerminalOpts{
+		Cmd:                          cmd,
 		ExperimentalPrivilegedNesting: true,
-	}
-	if len(cmd) > 0 {
-		termOpts.Cmd = cmd
-	} else {
-		termOpts.Cmd = []string{"zsh"}
-	}
-	ctr = ctr.Terminal(termOpts)
+	})
 
 	// Copy from cache volume to regular filesystem so Directory() can
 	// read it (Container.Directory rejects cache mount paths).

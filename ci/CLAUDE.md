@@ -125,12 +125,17 @@ history. Key behaviors:
 - **Source overlay**: Local source files (via `m.Source`, which excludes `.git`)
   are copied on top of the checked-out branch, bringing uncommitted changes into
   the container.
-- **Translation layer**: The Taskfile `dev` and `claude` tasks handle converting
-  between the container's standalone `.git` directory and the host's worktree
-  format. Commits are imported via `git fetch <export-dir> <branch>` to
-  FETCH_HEAD, then `git update-ref` updates the branch (avoiding the
-  "refusing to fetch into checked-out branch" error). Source files are
-  synced to the worktree via tar.
+- **Translation layer**: The Taskfile `_dev-sync` internal task (called by both
+  `dev` and `claude`) handles converting between the container's standalone `.git`
+  directory and the host's worktree format. Commits are imported via
+  `git fetch <export-dir> <branch>` to FETCH_HEAD, then `git update-ref` updates
+  the branch (avoiding the "refusing to fetch into checked-out branch" error).
+  After updating the ref, `git reset --hard` brings the worktree to the branch
+  tip, then `rsync --delete` overlays the container's uncommitted changes
+  (including file deletions).
+- **Single session per branch**: Concurrent `dev`/`claude` sessions for the same
+  branch on the same host are not supported. The shared cache volume and temp
+  export path (`/tmp/dagger-dev-<dir>`) assume a single active session per branch.
 - **Must use Taskfile tasks**: Running raw `dagger call dev export --path=.`
   would overwrite the host's `.git` worktree file. Always use `task dev` or
   `task claude` with a `BRANCH` argument for proper worktree handling.

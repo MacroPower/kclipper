@@ -301,23 +301,11 @@ tasks:
       - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/
       - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach
 
-  dev:
-    desc: Opens a development shell via Dagger (changes persist on exit)
-    interactive: true
+  _dev-sync:
+    internal: true
     requires:
-      vars: [BRANCH]
-    vars:
-      DIR: '{{.BRANCH | replace "/" "-"}}'
+      vars: [BRANCH, DIR]
     cmds:
-      - >-
-        dagger call dev
-        --branch={{.BRANCH}}
-        --git-config ~/.config/git
-        --tz="$TZ"
-        --colorterm="$COLORTERM"
-        --term-program="$TERM_PROGRAM"
-        --term-program-version="$TERM_PROGRAM_VERSION"
-        export --path=/tmp/dagger-dev-{{.DIR}}
       # Import container commits into host repo. Fetch to FETCH_HEAD
       # first, then update the branch ref via plumbing command to avoid
       # "refusing to fetch into branch checked out at ..." errors.
@@ -331,10 +319,35 @@ tasks:
             git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
           fi
         fi
-      # Sync source files (tar preserves permissions, excludes .git)
-      - tar -C /tmp/dagger-dev-{{.DIR}} --exclude=.git -cf - . | tar -C .worktrees/{{.DIR}} -xf -
+      # Update worktree to branch tip (handles existing worktrees)
+      - git -C .worktrees/{{.DIR}} reset --hard {{.BRANCH}}
+      # Sync export to worktree (rsync --delete mirrors exactly, including deletions)
+      - rsync -a --exclude=.git --delete /tmp/dagger-dev-{{.DIR}}/ .worktrees/{{.DIR}}/
       # Clean up temp
       - rm -rf /tmp/dagger-dev-{{.DIR}}
+
+  dev:
+    desc: Opens a development shell via Dagger (changes persist on exit)
+    interactive: true
+    requires:
+      vars: [BRANCH]
+    vars:
+      DIR: '{{.BRANCH | replace "/" "-"}}'
+    cmds:
+      - rm -rf /tmp/dagger-dev-{{.DIR}}
+      - >-
+        dagger call dev
+        --branch={{.BRANCH}}
+        --git-config ~/.config/git
+        --tz="$TZ"
+        --colorterm="$COLORTERM"
+        --term-program="$TERM_PROGRAM"
+        --term-program-version="$TERM_PROGRAM_VERSION"
+        export --path=/tmp/dagger-dev-{{.DIR}}
+      - task: _dev-sync
+        vars:
+          BRANCH: "{{.BRANCH}}"
+          DIR: "{{.DIR}}"
 
   claude:
     desc: Launches Claude Code via Dagger (changes persist on exit)
@@ -344,6 +357,7 @@ tasks:
     vars:
       DIR: '{{.BRANCH | replace "/" "-"}}'
     cmds:
+      - rm -rf /tmp/dagger-dev-{{.DIR}}
       - >-
         dagger call dev
         --branch={{.BRANCH}}
@@ -357,17 +371,10 @@ tasks:
         --term-program-version="$TERM_PROGRAM_VERSION"
         --cmd claude,--dangerously-skip-permissions
         export --path=/tmp/dagger-dev-{{.DIR}}
-      - (git fetch /tmp/dagger-dev-{{.DIR}} {{.BRANCH}} && git update-ref refs/heads/{{.BRANCH}} FETCH_HEAD) || true
-      - |
-        if [ ! -d ".worktrees/{{.DIR}}" ]; then
-          if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
-            git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
-          else
-            git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
-          fi
-        fi
-      - tar -C /tmp/dagger-dev-{{.DIR}} --exclude=.git -cf - . | tar -C .worktrees/{{.DIR}} -xf -
-      - rm -rf /tmp/dagger-dev-{{.DIR}}
+      - task: _dev-sync
+        vars:
+          BRANCH: "{{.BRANCH}}"
+          DIR: "{{.DIR}}"
 
   git:worktree:add:
     desc: Adds a git worktree for the given branch
