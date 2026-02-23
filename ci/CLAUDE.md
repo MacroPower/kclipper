@@ -14,19 +14,6 @@ dagger call dev export --path=.  # Interactive dev container (changes persist)
 dagger call lint-commit-msg --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
 ```
 
-Or via the Taskfile:
-
-```bash
-task test              # dagger check test
-task test:integration  # dagger check -m ci/tests
-task lint              # dagger check lint lint-prettier lint-actions lint-releaser
-task format            # dagger generate --auto-apply
-task build             # dagger call build export --path=./dist
-task lint:commit-msg MSG_FILE=.git/COMMIT_EDITMSG  # Validate commit message
-task dev               # Dev shell via Dagger (changes persist on exit)
-task claude            # Claude Code via Dagger (changes persist on exit)
-```
-
 ## Architecture
 
 The module is a single Go package (`ci/main.go`) exposing public methods as
@@ -42,15 +29,12 @@ ci/
   tests/             # Test module (imports ci as dependency)
 ```
 
-### Dependencies
+The module uses the [Dagger Go toolchain](https://github.com/dagger/dagger/tree/main/toolchains/go)
+(`dag.Go()`) for Go build environments. Update pin: `dagger update go`.
 
-The module depends on the [Dagger Go toolchain](https://github.com/dagger/dagger/tree/main/toolchains/go)
-(`github.com/dagger/dagger/toolchains/go`), installed as a module dependency
-(not a Dagger toolchain). This provides `dag.Go()` for constructing Go build
-environments with Wolfi-based containers, automatic cache management, and
-CGO support. It is used by `goToolchain()` / `goBase()` only; `lintBase()`,
-`releaserBase()`, and `Dev()` remain manually configured due to specialized
-requirements. To update the dependency pin: `dagger update go`.
+`ci/tests/` is a separate Dagger module that imports CI and tests its public
+API. To add a test: add a `+check`-annotated method on `Tests` and register it
+in `All`.
 
 ### Function Categories
 
@@ -64,83 +48,6 @@ requirements. To update the dependency pin: `dagger update go`.
 
 `LintCommitMsg` is in the Callable category because it requires a mandatory
 `msgFile` argument and cannot be a `+check` function.
-
-### Build & Image Functions
-
-- `Build()` -- GoReleaser snapshot build, returns `dist/` directory.
-- `BuildImages(version, dist)` -- Multi-arch container images from GoReleaser dist.
-- `VersionTags(tag)` -- Derives image tags from a version string.
-- `FormatDigestChecksums(refs)` -- Converts publish output to checksums format.
-- `DeduplicateDigests(refs)` -- Unique image references by sha256 digest.
-- `RegistryHost(registry)` -- Extracts host from a registry address.
-- `PublishImages(tags, ..., cosignPassword, dist)` -- Build, publish, and optionally sign images.
-- `Release(tag, ..., cosignPassword, ...)` -- Full release pipeline (GoReleaser + image publish).
-
-The `New` constructor accepts an optional `registry` parameter (defaults to
-`ghcr.io/macropower/kclipper`). Override for testing:
-`dag.Ci(dagger.CiOpts{Registry: "ttl.sh/test"})`.
-
-### Source Directory Filtering
-
-The `New` constructor uses `+ignore` to exclude directories that are never
-needed inside CI containers (`dist`, `.worktrees`, `.tmp`, `.git`).
-This reduces the context transfer size when invoking Dagger functions.
-The `.git` directory is excluded because `ensureGitRepo()` creates a fresh
-repo inside the container, and including it would add unnecessary content
-to source hashing.
-
-### Base Container Pattern
-
-Private helper methods build reusable container layers:
-
-- `prettierBase()` -- Node + prettier (standalone; callers mount source).
-- `goToolchain()` -- Configures `dag.Go()` with project source, Go version,
-  caches, and CGO. Returns `*dagger.Go` used by `goBase()`.
-- `goBase()` -- Wolfi-based container via `goToolchain().Env()` + `ensureGitRepo()`.
-- `lintBase()` -- golangci-lint Alpine image + linux-headers + caches.
-- `releaserBase()` -- Go + GoReleaser + Zig + cosign + syft + KCL LSP binaries
-  - macOS SDK. Tool binaries extracted from OCI images via `Container.File()`.
-- `devBase()` -- Go + apt packages + all dev tool binaries. Uses `devToolBins()`
-  (one consolidated builder for all tool binaries) and `claudeCodeFiles()` so
-  Dagger resolves only two sub-pipelines instead of one per tool. `Dev()` calls
-  `devBase()` and adds source staging, Go caches, optional config mounts, the
-  interactive terminal, and the export-to-regular-fs step.
-
-### Git Worktree Handling
-
-`ensureGitRepo()` detects when the source comes from a git worktree (where
-`.git` is a file referencing a host path that doesn't exist in the container)
-and initializes a minimal git repo so GoReleaser and tests work correctly.
-The commit uses fixed author/committer dates (`2000-01-01T00:00:00+00:00`)
-so that identical source always produces the same git commit hash, avoiding
-cache invalidation of all downstream layers.
-
-The `Dev()` pipeline has an additional wrinkle: the `dev-src` cache volume at
-`/src` persists across runs. On the first run from a worktree, a `.git` file
-is copied in and then replaced by a `.git` directory via `git init`. On
-subsequent runs, `cp -a` would fail trying to overwrite the cached directory
-with the worktree file. To prevent this, `Dev()` removes `/src/.git` before
-copying fresh source (`rm -rf /src/.git && cp -a ...`).
-
-### Test Module
-
-`ci/tests/` is a separate Dagger module that imports the CI module as a
-dependency and tests its public API. This is the Dagger-recommended pattern
-since `go test` cannot run directly on Dagger modules (the generated SDK's
-`init()` requires a running Dagger session).
-
-```bash
-dagger check -m ci/tests              # Run all integration tests via +check
-dagger call -m ci/tests all           # Run all tests via the All runner
-dagger call -m ci/tests test-source-filtering   # Run a specific test
-```
-
-Tests are Dagger Functions annotated with `+check` that accept
-`context.Context` and return `error` for pass/fail. Using `dagger check`
-runs them concurrently via Dagger's built-in check runner. The `All`
-function provides an alternative that runs tests in parallel using
-`errgroup`. To add a new test, add a `+check`-annotated method on
-`Tests` and register it in `All`.
 
 ## Adding a New Check
 
@@ -161,14 +68,7 @@ func (m *Ci) LintFoo(ctx context.Context) error {
 }
 ```
 
-2. Add to the lint task in `Taskfile.yaml`:
-
-```yaml
-lint:
-  cmds:
-    - dagger check lint lint-prettier lint-actions lint-releaser lint-foo
-```
-
+2. Add to the lint task in `Taskfile.yaml`.
 3. Add to `.github/workflows/validate.yaml` if it should run in CI.
 
 ## Adding a New Generator
@@ -201,180 +101,20 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
 - The package-level doc comment in `main.go` provides the module description
   shown in `dagger functions` and `dagger call --help`.
 - Functions with external side effects (publishing, releasing) must use
-  `// +cache="never"` to prevent stale cached results.
-- Pure-logic utilities (`FormatDigestChecksums`, `DeduplicateDigests`,
-  `VersionTags`, `RegistryHost`) are public methods directly, with no
-  private helper indirection. Internal callers use `m.MethodName(...)`.
-  This keeps the logic in one place while remaining testable from the test
-  module (since `go test` cannot run on Dagger modules).
+  `// +cache="never"` to prevent stale cached results. All other functions
+  use Dagger's default function caching.
+- Pure-logic utilities are public methods directly (no private helper
+  indirection) so they remain testable from the test module.
 - Registry auth (`WithRegistryAuth`) is conditional: only applied when
-  `registryPassword` is non-nil. This allows `PublishImages` to work with
-  anonymous registries (e.g. ttl.sh) for integration testing.
-- Use `env://VAR_NAME` syntax for Dagger secret providers on the CLI
-  (e.g. `--token=env://GITHUB_TOKEN`).
-- Use `errgroup` for concurrent execution of independent operations
-  (e.g. signing, test execution).
+  `registryPassword` is non-nil, allowing anonymous registries for testing.
+- Use `env://VAR_NAME` syntax for Dagger secret providers on the CLI.
+- Use `errgroup` for concurrent execution of independent operations.
 - Tool binaries are extracted from OCI images via `Container.File()`
   (not `go install`) for faster builds and automatic platform matching.
-- Published container images include OCI labels and annotations for
-  metadata discoverability.
-- Cosign key-based signing (`--key env://COSIGN_KEY`) is used for both
-  binary artifacts and container images. Keyless OIDC is not available
-  inside Dagger containers.
 
 ## Version Management
 
 Tool versions are declared as constants at the top of `main.go` with Renovate
-annotations for automated updates:
-
-```go
-const (
-    goVersion         = "1.25"    // renovate: datasource=golang-version depName=go
-    starshipVersion   = "v1.24.2" // renovate: datasource=github-releases depName=starship/starship
-    yqVersion         = "v4.52.4" // renovate: datasource=github-releases depName=mikefarah/yq
-    uvVersion         = "0.10.4"  // renovate: datasource=github-releases depName=astral-sh/uv
-    ghVersion         = "v2.87.2" // renovate: datasource=github-releases depName=cli/cli
-    claudeCodeVersion = "1.0.58"  // renovate: datasource=npm depName=@anthropic-ai/claude-code
-)
-```
-
-When updating a version:
-
-- Change the constant value.
-- The Renovate comment tells the bot which datasource and package to track.
-- The Dagger engine version is pinned in both `dagger.json` (`engineVersion`)
-  and the `daggerVersion` constant (for the dev container).
-
-## Caching Strategy
-
-Dagger provides two layers of caching: **layer caching** (individual container
-operations) and **function caching** (memoization of entire Dagger Function
-results with a 7-day TTL). Function caching is the default for modules on
-engine v0.19.4+. Functions with side effects must use `// +cache="never"`
-to opt out (`PublishImages` and `Release` already do this).
-
-All Go-based containers share Dagger cache volumes. The Go toolchain
-(`goBase`) manages mount paths automatically; other containers mount explicitly:
-
-| Volume Key         | Mount Path (toolchain) | Mount Path (manual)          | Env Variable |
-| ------------------ | ---------------------- | ---------------------------- | ------------ |
-| `go-mod`           | (managed by toolchain) | `/go/pkg/mod`                | `GOMODCACHE` |
-| `go-build`         | (managed by toolchain) | `/go/build-cache`            | `GOCACHE`    |
-| `golangci-lint`    | —                      | `/root/.cache/golangci-lint` | (implicit)   |
-| `shell-history`    | —                      | `/commandhistory`            | `HISTFILE`   |
-| `dev-src`          | —                      | `/src`                       | —            |
-| `dev-apt-archives` | —                      | `/var/cache/apt/archives`    | —            |
-| `dev-apt-lists`    | —                      | `/var/lib/apt/lists`         | —            |
-
-Different mount paths are safe because Go caches are content-addressed.
-When mounting manually, always set the corresponding env var so the tool
-actually uses it.
-
-## Cross-Compilation
-
-Builds target `linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`.
-CGO cross-compilation uses Zig via wrapper scripts (`hack/zig-gold-wrapper.sh`
-for Linux, `hack/zig-macos-wrapper.sh` for macOS). The `CC_*`/`CXX_*` env vars
-in `releaserBase()` are consumed by GoReleaser's `.goreleaser.yaml` per-target
-`env` blocks. macOS SDK flags are defined in the `macosSDKFlags` constant.
-
-## Development Container
-
-The `Dev()` function opens an interactive development container with zsh,
-starship prompt, and a curated set of tools pre-installed. Source is copied
-into a `dev-src` cache volume so that filesystem changes made during the
-interactive session survive the `Container.Terminal()` call. After the
-session ends, the modified source is copied to a regular filesystem path for
-export. The returned directory excludes `.git` to avoid corrupting the
-host's git state.
-
-```bash
-dagger call dev export --path=.
-dagger call dev --cmd=claude,--dangerously-skip-permissions export --path=.
-```
-
-`DevBase()` returns the raw base container (no source, no terminal) for use
-by integration tests that verify tool availability. `TestDevExportPersistence`
-reconstructs the `Dev` pipeline with `WithExec` instead of `Terminal()` to
-verify that new files, modified files, and source preservation work correctly,
-and that `.git` is excluded from the export.
-
-Pre-installed tooling:
-
-- **Core**: Go, Task, conform, lefthook, Dagger CLI, Claude Code, gh
-- **Shell**: zsh with zsh-autosuggestions, zsh-syntax-highlighting, starship
-  prompt, and direnv
-- **CLI utilities**: ripgrep (`rg`), fd-find (`fd`), bat, fzf, tree, htop,
-  yq, jq, uv, dnsutils
-
-Optional config directories can be bind-mounted for Claude Code, git, and
-ccstatusline. Shell history is persisted via a `shell-history` cache volume.
-`ExperimentalPrivilegedNesting` is enabled so nested `dagger call`/`dagger
-check` invocations work inside the container without Docker socket mounting.
-The shared config-mounting logic lives in the private `applyDevConfig()`
-helper.
-
-### Dev Container Caching
-
-The dev container is split into `devBase()` (tools and config) and `Dev()`
-(source staging, terminal, export). Tool binaries are installed via `WithFile` /
-`WithDirectory` from independent sub-containers rather than `curl | sh` on
-the base image chain. This means:
-
-- `devToolBins()` consolidates all tool binaries (starship, task, lefthook,
-  gh from GitHub releases + conform, dagger, yq, uv from OCI images) into
-  a single alpine builder. Dagger resolves one sub-pipeline for all tools
-  instead of one per tool, minimizing per-pipeline cache resolution overhead.
-- `claudeCodeFiles()` is a separate sub-pipeline (debian-slim builder) since
-  it installs a directory tree rather than a single binary.
-- Even if the base image chain fully rebuilds (e.g. cache eviction, engine
-  restart), inserting the cached tool directory is near-instant.
-- Apt packages use `dev-apt-archives` and `dev-apt-lists` cache volumes so
-  re-runs skip network downloads.
-- Claude Code is pinned to `claudeCodeVersion` and installed in a
-  `debian:13-slim` builder. The entire `/root/.local` directory is copied
-  via `WithDirectory`.
-
-### Dev Container Safety
-
-AI agents run inside the Dev container with `ExperimentalPrivilegedNesting`
-enabled and can safely use `dagger` commands. The container is isolated from
-the host machine:
-
-| Property                   | Detail                                                          |
-| -------------------------- | --------------------------------------------------------------- |
-| `host { directory }` scope | Container filesystem only (not host machine)                    |
-| Docker socket              | Not mounted                                                     |
-| Root capabilities          | Standard runc sandboxing (no `InsecureRootCapabilities`)        |
-| Source                     | Cache volume at `/src`; copied to regular fs on exit for export |
-| Network                    | Outbound only                                                   |
-| Cache volumes              | Content-addressed, shared safely across containers              |
-
-Note: The Dagger SDK docs still warn that `ExperimentalPrivilegedNesting`
-grants "FULL ACCESS TO YOUR HOST FILESYSTEM." This warning predates
-sandboxing improvements (branching from dagger/dagger#6916). This has been
-verified empirically.
-
-## Git Hooks (Lefthook)
-
-Both git hooks invoke Dagger directly (no host-only tools in the hook pipeline):
-
-| Hook         | Command                                      |
-| ------------ | -------------------------------------------- |
-| `pre-commit` | `dagger check test lint lint-prettier`       |
-| `commit-msg` | `dagger call lint-commit-msg --msg-file={1}` |
-
-The `commit-msg` hook uses `LintCommitMsg` which runs conform inside a
-container with the project's `.conform.yaml` policy. Lefthook's `{1}`
-expands to the commit message file path; the Dagger CLI converts local
-paths to `*dagger.File` automatically.
-
-## GitHub Workflows
-
-| Workflow        | Trigger          | Dagger Usage                                                      |
-| --------------- | ---------------- | ----------------------------------------------------------------- |
-| `validate.yaml` | Push/PR          | `dagger check` (lint) + `dagger call test-coverage` + test module |
-| `build.yaml`    | Push to main, PR | `dagger call build`                                               |
-| `release.yaml`  | Tag push `v*`    | `dagger call release`                                             |
-
-Secrets are passed via the `env://VAR_NAME` provider syntax.
+annotations for automated updates (e.g. `// renovate: datasource=... depName=...`).
+Change the constant value to update a version. The Dagger engine version is
+pinned in both `dagger.json` (`engineVersion`) and the `daggerVersion` constant.
