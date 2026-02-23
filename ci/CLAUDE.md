@@ -83,8 +83,11 @@ The `New` constructor accepts an optional `registry` parameter (defaults to
 ### Source Directory Filtering
 
 The `New` constructor uses `+ignore` to exclude directories that are never
-needed inside CI containers (`dist`, `.worktrees`, `.tmp`).
+needed inside CI containers (`dist`, `.worktrees`, `.tmp`, `.git`).
 This reduces the context transfer size when invoking Dagger functions.
+The `.git` directory is excluded because `ensureGitRepo()` creates a fresh
+repo inside the container, and including it would add unnecessary content
+to source hashing.
 
 ### Base Container Pattern
 
@@ -108,6 +111,9 @@ Private helper methods build reusable container layers:
 `ensureGitRepo()` detects when the source comes from a git worktree (where
 `.git` is a file referencing a host path that doesn't exist in the container)
 and initializes a minimal git repo so GoReleaser and tests work correctly.
+The commit uses fixed author/committer dates (`2000-01-01T00:00:00+00:00`)
+so that identical source always produces the same git commit hash, avoiding
+cache invalidation of all downstream layers.
 
 The `Dev()` pipeline has an additional wrinkle: the `dev-src` cache volume at
 `/src` persists across runs. On the first run from a worktree, a `.git` file
@@ -240,6 +246,12 @@ When updating a version:
   and the `daggerVersion` constant (for the dev container).
 
 ## Caching Strategy
+
+Dagger provides two layers of caching: **layer caching** (individual container
+operations) and **function caching** (memoization of entire Dagger Function
+results with a 7-day TTL). Function caching is the default for modules on
+engine v0.19.4+. Functions with side effects must use `// +cache="never"`
+to opt out (`PublishImages` and `Release` already do this).
 
 All Go-based containers share Dagger cache volumes. The Go toolchain
 (`goBase`) manages mount paths automatically; other containers mount explicitly:

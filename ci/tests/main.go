@@ -60,7 +60,7 @@ func (m *Tests) TestSourceFiltering(ctx context.Context) error {
 		return fmt.Errorf("list source entries: %w", err)
 	}
 
-	excluded := []string{"dist", ".worktrees", ".tmp"}
+	excluded := []string{"dist", ".worktrees", ".tmp", ".git"}
 	for _, dir := range excluded {
 		for _, entry := range entries {
 			if strings.TrimRight(entry, "/") == dir {
@@ -530,7 +530,9 @@ func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
 			"if ! git rev-parse --git-dir >/dev/null 2>&1; then "+
 				"rm -f .git && git init -q && "+
 				"git add -A && "+
-				"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init; fi",
+				"GIT_COMMITTER_DATE='2000-01-01T00:00:00+00:00' "+
+				"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init "+
+				"--date='2000-01-01T00:00:00+00:00'; fi",
 		}).
 		// Simulate interactive changes: create a new file + modify an existing one.
 		WithExec([]string{"sh", "-c",

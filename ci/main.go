@@ -56,7 +56,7 @@ type Ci struct {
 func New(
 	// Project source directory.
 	// +defaultPath="/"
-	// +ignore=["dist", ".worktrees", ".tmp"]
+	// +ignore=["dist", ".worktrees", ".tmp", ".git"]
 	source *dagger.Directory,
 	// Container image registry address.
 	// +optional
@@ -698,7 +698,9 @@ func (m *Ci) Dev(
 				"rm -f .git && git init -q && " +
 				"git remote add origin https://github.com/macropower/kclipper.git && " +
 				"git add -A && " +
-				"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init; " +
+				"GIT_COMMITTER_DATE='2000-01-01T00:00:00+00:00' " +
+				"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init " +
+				"--date='2000-01-01T00:00:00+00:00'; " +
 				"fi && " +
 				// Pre-download Go modules.
 				"go mod download",
@@ -1050,7 +1052,9 @@ func ensureGitRepo(ctr *dagger.Container) *dagger.Container {
 			"git init -q && " +
 			"git remote add origin https://github.com/macropower/kclipper.git && " +
 			"git add -A && " +
-			"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init; " +
+			"GIT_COMMITTER_DATE='2000-01-01T00:00:00+00:00' " +
+			"git -c user.email=ci@dagger -c user.name=ci commit -q --allow-empty -m init " +
+			"--date='2000-01-01T00:00:00+00:00'; " +
 			"fi",
 	})
 }
