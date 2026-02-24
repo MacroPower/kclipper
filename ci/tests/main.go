@@ -514,7 +514,7 @@ func (m *Tests) TestDevBase(ctx context.Context) error {
 func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
 	branch := "test-dev-export"
 
-	exported := dag.Ci().DevEnv(branch, "main").
+	exported := dag.Ci().DevEnv(branch, dagger.CiDevEnvOpts{Base: "main"}).
 		// Simulate interactive changes: create a new file + modify an existing one.
 		WithExec([]string{"sh", "-c",
 			"echo test-content > /src/test-sentinel && " +
