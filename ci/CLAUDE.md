@@ -48,9 +48,13 @@ in `All`.
 | Build       | (none)         | `dagger call <name>`              | Artifact production.                           |
 | Callable    | (none)         | `dagger call <name>`              | Requires arguments; invoked via `dagger call`. |
 | Development | (none)         | `dagger call dev export --path=.` | Interactive container with persistent export.  |
+| Testable    | (none)         | `dagger call <name>`              | Non-interactive building blocks for tests.     |
 
 `LintCommitMsg` is in the Callable category because it requires a mandatory
 `msgFile` argument and cannot be a `+check` function.
+
+`DevEnv` and `DevBase` are in the Testable category: they expose intermediate
+pipeline stages that the test module exercises without needing `Terminal()`.
 
 ## Adding a New Check
 
@@ -118,7 +122,12 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
 ## Dev Container
 
 The `Dev()` function creates a git-aware development container with real commit
-history. Key behaviors:
+history. It delegates to `DevEnv()` for environment setup (git clone, branch
+checkout, source overlay), then adds configuration mounts, `go mod download`,
+the interactive terminal, and export. The `devInitScript` constant holds the
+shared shell script for git initialization.
+
+Key behaviors:
 
 - **Blobless clone**: The upstream repo is cloned with `--filter=blob:none`,
   providing full commit history while fetching file contents on demand.
@@ -132,19 +141,31 @@ history. Key behaviors:
 - **Source overlay**: Local source files (via `m.Source`, which excludes `.git`)
   are synced on top of the checked-out branch via `rsync --delete`, bringing
   uncommitted changes (including file deletions) into the container.
+- **Non-fatal go mod download**: `go mod download` runs after source overlay but
+  failures are non-fatal (warning printed). This prevents malformed `go.mod` in
+  local changes from blocking container startup.
+- **Atomic export staging**: The Taskfile `dev` and `claude` tasks export to a
+  `.partial` staging directory, then atomically `mv` it to the final path. A
+  `defer` cleans up the staging directory on any exit (including ctrl+c). This
+  prevents partial exports from corrupting worktrees on interruption.
 - **Translation layer**: The Taskfile `_dev-sync` internal task (called by both
   `dev` and `claude`) handles converting between the container's standalone `.git`
   directory and the host's worktree format. When the export contains a `.git`
   directory, commits are imported via `git fetch` to FETCH_HEAD, then
   `git update-ref` updates the branch ref (avoiding the "refusing to fetch into
   checked-out branch" error). If the export lacks a `.git` directory, a warning
-  is printed and commit import is skipped. The worktree is then reset to the
-  branch tip and `rsync --delete` overlays the container's uncommitted changes
-  (including file deletions).
+  is printed and commit import is skipped. On fetch failure, the export is
+  preserved at `/tmp/dagger-dev-<dir>` for manual recovery. The worktree is then
+  reset to the branch tip and `rsync --delete` overlays the container's
+  uncommitted changes (including file deletions).
 - **Optional BRANCH**: The `dev` and `claude` Taskfile tasks default `BRANCH` to
   the current git branch (`git branch --show-current`). If the host is in
   detached HEAD state, a precondition fails with a message asking the user to set
   `BRANCH` explicitly.
+- **Branch name mapping**: Branch names are sanitized by replacing `/` with `-`
+  for cache volume names and worktree directories. Branches differing only by
+  `/` vs `-` (e.g., `feat/example` and `feat-example`) would collide. Avoid
+  using such conflicting names simultaneously.
 - **Single session per branch**: Concurrent `dev`/`claude` sessions for the same
   branch on the same host are not supported. The shared cache volume and temp
   export path (`/tmp/dagger-dev-<dir>`) assume a single active session per branch.
