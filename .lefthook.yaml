@@ -3,7 +3,7 @@
 pre-commit:
   commands:
     pre-commit:
-      run: dagger --silent check test lint lint-prettier
+      run: dagger --silent check
 
 commit-msg:
   commands:

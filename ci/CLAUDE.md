@@ -32,8 +32,8 @@ ci/
   tests/             # Test module (imports ci as dependency)
 ```
 
-The module uses the [Dagger Go toolchain](https://github.com/dagger/dagger/tree/main/toolchains/go)
-(`dag.Go()`) for Go build environments. Update pin: `dagger update go`.
+Go build environments are created manually using `golang:` base images (see
+`goBase()`, `lintBase()`, `releaserBase()`).
 
 `ci/tests/` is a separate Dagger module that imports CI and tests its public
 API. To add a test: add a `+check`-annotated method on `Tests` and register it
@@ -172,6 +172,62 @@ Key behaviors:
 - **Must use Taskfile tasks**: Running raw `dagger call dev export --path=.`
   would overwrite the host's `.git` worktree file. Always use `task dev` or
   `task claude` for proper worktree handling.
+
+## Git Initialization Helpers
+
+Containers need a `.git` directory when the host uses a worktree (where `.git`
+is a file pointing to a host path that doesn't exist in the container). There
+are three approaches, ordered from fastest to slowest:
+
+- **Static `.git/HEAD` injection** — uses `Directory.WithNewFile(".git/HEAD",
+...)` to create a minimal `.git` directory. This is a content-addressed
+  operation with zero container exec overhead. Sufficient when the tool just
+  needs to locate the repo root (e.g. `FindRepoRoot` checks for `.git/HEAD`).
+  Used by `goBase()`.
+
+- **`ensureGitInit`** — runs `git init` via a container exec. Slightly slower
+  than static injection but still fast. Used by `LintCommitMsg`.
+
+- **`ensureGitRepo`** — runs `git init`, `git add -A`, and `git commit`.
+  Required when the tool inspects committed files, dirty-tree state, or version
+  history. Used by `releaserBase()` (GoReleaser needs committed files for
+  dirty-tree detection, version derivation, and source archives).
+
+**Convention:** prefer static `.git/HEAD` injection for new pipelines. Use
+`ensureGitInit` only when a real git repository is needed but committed files
+are not. Use `ensureGitRepo` only when the tool requires committed files.
+
+## Test Functions
+
+- **`Test()`** — fast pre-commit check. Omits `-race` and `-vet=all` for
+  speed. Race detection is redundant here because CI runs `TestCoverage()`
+  (which includes `-race`), and `-vet=all` is redundant with `Lint()` (which
+  runs govet via golangci-lint).
+
+- **`TestCoverage()`** — full CI-grade test run with `-race -vet=all` and
+  coverage profiling. Used in `validate.yaml` via `TestCoverageProfile` in
+  the test module.
+
+## Caching Strategy
+
+The CI module uses a three-tier caching approach to minimize redundant work:
+
+1. **Dagger function caching** — Dagger caches function results by default
+   (7-day TTL). Functions with external side effects use `// +cache="never"`.
+
+2. **Module pre-download layer** (`goModBase`) — The `New` constructor accepts
+   a separate `goMod` directory parameter synced with
+   `+ignore=["*", "!go.mod", "!go.sum"]`. This gives it a content hash
+   independent of `source`, so its cache key changes only when dependency
+   files change. `goModBase` copies this directory into the container and runs
+   `go mod download` before mounting the full source and cache volumes. Both
+   `lintBase()` and `goBase()` delegate to `goModBase`.
+
+3. **Cache volumes** — Named Dagger cache volumes persist across runs:
+   - `go-mod` — Go module cache (`GOMODCACHE`)
+   - `go-build` — Go build cache (`GOCACHE`)
+   - `golangci-lint` — golangci-lint analysis cache
+   - `npm-cache` — npm download cache for prettier
 
 ## Version Management
 

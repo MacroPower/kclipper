@@ -48,6 +48,10 @@ const (
 type Ci struct {
 	// Project source directory.
 	Source *dagger.Directory
+	// Directory containing only go.mod and go.sum, synced independently of
+	// [Ci.Source] so that its content hash changes only when dependency
+	// files change. Used by [Ci.goModBase] to cache go mod download.
+	GoMod *dagger.Directory
 	// Container image registry address (e.g. "ghcr.io/macropower/kclipper").
 	Registry string
 }
@@ -58,6 +62,12 @@ func New(
 	// +defaultPath="/"
 	// +ignore=["dist", ".worktrees", ".tmp", ".git"]
 	source *dagger.Directory,
+	// Go module files (go.mod and go.sum only). Synced separately from
+	// source so that the go mod download layer is cached independently
+	// of source code changes.
+	// +defaultPath="/"
+	// +ignore=["*", "!go.mod", "!go.sum"]
+	goMod *dagger.Directory,
 	// Container image registry address.
 	// +optional
 	registry string,
@@ -65,20 +75,22 @@ func New(
 	if registry == "" {
 		registry = defaultRegistry
 	}
-	return &Ci{Source: source, Registry: registry}
+	return &Ci{Source: source, GoMod: goMod, Registry: registry}
 }
 
 // ---------------------------------------------------------------------------
 // Testing
 // ---------------------------------------------------------------------------
 
-// Test runs Go tests with race detection and vet checking.
+// Test runs Go tests as a fast pre-commit check. Race detection and vet
+// analysis are omitted here because [Ci.TestCoverage] (used in CI) includes
+// both, and [Ci.Lint] already runs govet via golangci-lint.
 //
 // +check
 func (m *Ci) Test(ctx context.Context) error {
 	_, err := m.goBase().
 		WithExec([]string{
-			"go", "test", "-race", "-vet=all", "./...",
+			"go", "test", "-race", "./...",
 		}).
 		Sync(ctx)
 	return err
@@ -158,15 +170,14 @@ func (m *Ci) LintCommitMsg(
 	msgFile *dagger.File,
 ) error {
 	ctr := dag.Container().
-		From("alpine:3").
-		WithExec([]string{"apk", "add", "--no-cache", "git"}).
+		From("alpine/git:latest").
 		WithFile("/usr/local/bin/conform",
 			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
 				File("/conform")).
 		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src")
 
-	_, err := ensureGitRepo(ctr).
+	_, err := ensureGitInit(ctr).
 		WithMountedFile("/tmp/commit-msg", msgFile).
 		WithExec([]string{"conform", "enforce", "--commit-msg-file", "/tmp/commit-msg"}).
 		Sync(ctx)
@@ -759,7 +770,7 @@ func (m *Ci) Dev(
 		cmd = []string{"zsh"}
 	}
 	ctr = ctr.Terminal(dagger.ContainerTerminalOpts{
-		Cmd:                          cmd,
+		Cmd:                           cmd,
 		ExperimentalPrivilegedNesting: true,
 	})
 
@@ -978,39 +989,51 @@ func claudeCodeFiles() *dagger.Directory {
 func prettierBase() *dagger.Container {
 	return dag.Container().
 		From("node:lts-slim").
+		WithMountedCache("/root/.npm", dag.CacheVolume("npm-cache")).
 		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
 }
 
-// lintBase returns a golangci-lint container with source and caches. It
-// installs linux-headers so that CGO transitive dependencies (e.g.
-// containers/storage) compile on Alpine.
-func (m *Ci) lintBase() *dagger.Container {
-	return dag.Container().
-		From("golangci/golangci-lint:"+golangciLintVersion+"-alpine").
-		WithExec([]string{"apk", "add", "--no-cache", "linux-headers"}).
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
-		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint")).
+// goModBase mounts Go module and build cache volumes, copies [Ci.GoMod]
+// (go.mod and go.sum only) into the container, and runs go mod download.
+// Because [Ci.GoMod] is synced independently of [Ci.Source], its content
+// hash changes only when dependency files change, not on every source edit.
+// The cache volumes are mounted before the download so that go mod download
+// is a near-instant no-op when modules are already present in the persistent
+// volume. The full source directory is mounted last. Both [Ci.lintBase] and
+// [Ci.goBase] delegate to this method.
+func (m *Ci) goModBase(ctr *dagger.Container, src *dagger.Directory) *dagger.Container {
+	return ctr.
 		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
-		WithEnvVariable("GOCACHE", "/go/build-cache")
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithDirectory("/src", m.GoMod).
+		WithWorkdir("/src").
+		WithExec([]string{"go", "mod", "download"}).
+		WithMountedDirectory("/src", src)
 }
 
-// goToolchain returns a configured [dagger.Go] toolchain for the project source.
-func (m *Ci) goToolchain() *dagger.Go {
-	return dag.Go(dagger.GoOpts{
-		Source:      m.Source,
-		Version:     goVersion,
-		ModuleCache: dag.CacheVolume("go-mod"),
-		BuildCache:  dag.CacheVolume("go-build"),
-		Cgo:         true,
-	})
+// lintBase returns a golangci-lint container with source and caches. The
+// Debian-based image is used (not Alpine) because it includes kernel headers
+// needed by CGO transitive dependencies (e.g. containers/storage). Module
+// download is cached via [Ci.goModBase].
+func (m *Ci) lintBase() *dagger.Container {
+	ctr := dag.Container().
+		From("golangci/golangci-lint:" + golangciLintVersion)
+	return m.goModBase(ctr, m.Source).
+		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint"))
 }
 
 // goBase returns a Go container with source, module cache, and build cache.
+// A static .git/HEAD file is injected into the source so that [FindRepoRoot]
+// can locate the repository root without a container exec. Module download is
+// cached via [Ci.goModBase].
 func (m *Ci) goBase() *dagger.Container {
-	return ensureGitRepo(m.goToolchain().Env())
+	src := m.Source.WithNewFile(".git/HEAD", "ref: refs/heads/main\n")
+	ctr := dag.Container().
+		From("golang:"+goVersion).
+		WithEnvVariable("CGO_ENABLED", "1")
+	return m.goModBase(ctr, src)
 }
 
 // releaserBase returns a container with Go, GoReleaser, Zig, cosign, syft,
@@ -1089,11 +1112,27 @@ func sanitizeCacheKey(name string) string {
 	return strings.NewReplacer("/", "-", "\\", "-", ":", "-").Replace(name)
 }
 
+// ensureGitInit ensures the container has a minimal .git directory at its
+// working directory. This is sufficient for tools that only need to locate
+// the repository root (e.g. [FindRepoRoot] checks for .git/HEAD) but do
+// not inspect commit history or the index. Prefer [ensureGitRepo] when the
+// tool requires committed files (e.g. GoReleaser dirty-tree detection).
+func ensureGitInit(ctr *dagger.Container) *dagger.Container {
+	return ctr.WithExec([]string{
+		"sh", "-c",
+		"if ! git rev-parse --git-dir >/dev/null 2>&1; then " +
+			"rm -f .git && " +
+			"git init -q; " +
+			"fi",
+	})
+}
+
 // ensureGitRepo ensures the container has a valid git repository at its
-// working directory. When running from a git worktree, the .git file
-// references a host path that doesn't exist in the container. In that case,
-// a minimal git repository is initialized so that tools like GoReleaser and
-// tests that depend on git metadata continue to work.
+// working directory with all files staged and committed. When running from
+// a git worktree, the .git file references a host path that doesn't exist
+// in the container. In that case, a full git repository is initialized so
+// that tools like GoReleaser that depend on committed files, dirty-tree
+// detection, and version derivation continue to work.
 func ensureGitRepo(ctr *dagger.Container) *dagger.Container {
 	return ctr.WithExec([]string{
 		"sh", "-c",
