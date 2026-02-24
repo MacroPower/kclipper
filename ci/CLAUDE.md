@@ -123,16 +123,16 @@ history. Key behaviors:
 - **Branch isolation**: Each branch gets its own Dagger cache volume
   (`dev-src-<branch>`), so switching branches doesn't clobber in-progress work.
 - **Source overlay**: Local source files (via `m.Source`, which excludes `.git`)
-  are copied on top of the checked-out branch, bringing uncommitted changes into
-  the container.
+  are synced on top of the checked-out branch via `rsync --delete`, bringing
+  uncommitted changes (including file deletions) into the container.
 - **Translation layer**: The Taskfile `_dev-sync` internal task (called by both
   `dev` and `claude`) handles converting between the container's standalone `.git`
-  directory and the host's worktree format. Commits are imported via
-  `git fetch <export-dir> <branch>` to FETCH_HEAD, then `git update-ref` updates
-  the branch (avoiding the "refusing to fetch into checked-out branch" error).
-  After updating the ref, `git reset --hard` brings the worktree to the branch
-  tip, then `rsync --delete` overlays the container's uncommitted changes
-  (including file deletions).
+  directory and the host's worktree format. When the export contains a `.git`
+  directory, commits are imported via `git fetch` to FETCH_HEAD, then
+  `git update-ref` updates the branch ref (avoiding the "refusing to fetch into
+  checked-out branch" error). The worktree is then reset to the branch tip and
+  `rsync --delete` overlays the container's uncommitted changes (including file
+  deletions).
 - **Single session per branch**: Concurrent `dev`/`claude` sessions for the same
   branch on the same host are not supported. The shared cache volume and temp
   export path (`/tmp/dagger-dev-<dir>`) assume a single active session per branch.
