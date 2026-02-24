@@ -527,6 +527,7 @@ func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
 		WithWorkdir("/src").
 		// Clone and checkout branch (same as Dev pipeline).
 		WithEnvVariable("BRANCH", branch).
+		WithEnvVariable("BASE", "main").
 		WithEnvVariable("_TEST_TS", time.Now().String()).
 		WithExec([]string{"sh", "-c",
 			"if [ ! -d /src/.git ]; then " +
@@ -539,9 +540,9 @@ func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
 				"elif git rev-parse --verify \"origin/${BRANCH}\" >/dev/null 2>&1; then " +
 				"git checkout -b \"${BRANCH}\" \"origin/${BRANCH}\"; " +
 				"else " +
-				"git checkout -b \"${BRANCH}\" origin/main; " +
+				"git checkout -b \"${BRANCH}\" \"origin/${BASE}\"; " +
 				"fi && " +
-				"cp -a /tmp/src-seed/. /src/",
+				"rsync -a --delete --exclude=.git /tmp/src-seed/ /src/",
 		}).
 		// Simulate interactive changes: create a new file + modify an existing one.
 		WithExec([]string{"sh", "-c",

@@ -313,6 +313,8 @@ tasks:
         if [ -d "/tmp/dagger-dev-{{.DIR}}/.git" ]; then
           git fetch "/tmp/dagger-dev-{{.DIR}}" "{{.BRANCH}}" &&
             git update-ref "refs/heads/{{.BRANCH}}" FETCH_HEAD
+        else
+          echo "WARNING: export has no .git directory; skipping commit import" >&2
         fi
       # Ensure host worktree exists
       - |
@@ -333,15 +335,21 @@ tasks:
   dev:
     desc: Opens a development shell via Dagger (changes persist on exit)
     interactive: true
-    requires:
-      vars: [BRANCH]
     vars:
+      BRANCH:
+        sh: "git branch --show-current"
+      BASE:
+        sh: "git branch --show-current"
       DIR: '{{.BRANCH | replace "/" "-"}}'
+    preconditions:
+      - sh: '[ -n "{{.BRANCH}}" ]'
+        msg: "BRANCH could not be determined (detached HEAD?). Set it explicitly: task dev BRANCH=feat/my-work"
     cmds:
       - rm -rf "/tmp/dagger-dev-{{.DIR}}"
       - >-
         dagger call dev
         --branch={{.BRANCH}}
+        --base={{.BASE}}
         --git-config ~/.config/git
         --tz="$TZ"
         --colorterm="$COLORTERM"
@@ -356,15 +364,21 @@ tasks:
   claude:
     desc: Launches Claude Code via Dagger (changes persist on exit)
     interactive: true
-    requires:
-      vars: [BRANCH]
     vars:
+      BRANCH:
+        sh: "git branch --show-current"
+      BASE:
+        sh: "git branch --show-current"
       DIR: '{{.BRANCH | replace "/" "-"}}'
+    preconditions:
+      - sh: '[ -n "{{.BRANCH}}" ]'
+        msg: "BRANCH could not be determined (detached HEAD?). Set it explicitly: task claude BRANCH=feat/my-work"
     cmds:
       - rm -rf "/tmp/dagger-dev-{{.DIR}}"
       - >-
         dagger call dev
         --branch={{.BRANCH}}
+        --base={{.BASE}}
         --claude-config ~/.claude
         --claude-json ~/.claude.json
         --git-config ~/.config/git

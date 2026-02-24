@@ -642,14 +642,20 @@ eval "$(starship init zsh)"
 //
 // Usage:
 //
-//	task dev BRANCH=feat/my-work
-//	task claude BRANCH=feat/my-work
+//	task dev                        # defaults to current branch
+//	task dev BRANCH=feat/my-work    # explicit branch, base = current branch
+//	task claude BRANCH=feat/my-work BASE=main  # explicit base
 //
 // +cache="never"
 func (m *Ci) Dev(
 	// Branch to check out in the dev container. Each branch gets its
 	// own Dagger cache volume for workspace isolation.
 	branch string,
+	// Base branch name used when creating a new branch that does not
+	// exist locally or on the remote. Looked up as origin/<base> in
+	// the container clone. Defaults to "main" when empty.
+	// +optional
+	base string,
 	// Claude Code configuration directory (~/.claude).
 	// +optional
 	claudeConfig *dagger.Directory,
@@ -697,8 +703,13 @@ func (m *Ci) Dev(
 	// Clone the upstream repo (blobless) and check out the requested
 	// branch. Local source files are overlaid on top so uncommitted
 	// changes are available inside the container.
+	if base == "" {
+		base = "main"
+	}
+
 	ctr = ctr.
 		WithEnvVariable("BRANCH", branch).
+		WithEnvVariable("BASE", base).
 		WithEnvVariable("_DEV_TS", time.Now().String()).
 		WithExec([]string{"sh", "-c",
 			// Clone if needed (blobless: full history, blobs fetched on demand).
@@ -713,7 +724,7 @@ func (m *Ci) Dev(
 				"elif git rev-parse --verify \"origin/${BRANCH}\" >/dev/null 2>&1; then " +
 				"git checkout -b \"${BRANCH}\" \"origin/${BRANCH}\"; " +
 				"else " +
-				"git checkout -b \"${BRANCH}\" origin/main; " +
+				"git checkout -b \"${BRANCH}\" \"origin/${BASE}\"; " +
 				"fi && " +
 				// Overlay local source (m.Source excludes .git via +ignore).
 				// rsync --delete removes files present in git but deleted locally.

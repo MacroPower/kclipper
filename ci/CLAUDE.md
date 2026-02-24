@@ -10,8 +10,10 @@ dagger check                  # Run all checks (+check functions)
 dagger check lint             # Run specific check(s)
 dagger generate --auto-apply  # Run generators and apply changes
 dagger call build export --path=./dist  # Build binaries
-task dev BRANCH=feat/foo    # Dev container (auto-creates worktree)
-task claude BRANCH=feat/foo # Claude Code container (auto-creates worktree)
+task dev                      # Dev container (branch defaults to current)
+task dev BRANCH=feat/foo      # Dev container with explicit branch
+task claude                   # Claude Code container (branch defaults to current)
+task claude BRANCH=feat/foo   # Claude Code container with explicit branch
 dagger call lint-commit-msg --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
 ```
 
@@ -122,6 +124,11 @@ history. Key behaviors:
   providing full commit history while fetching file contents on demand.
 - **Branch isolation**: Each branch gets its own Dagger cache volume
   (`dev-src-<branch>`), so switching branches doesn't clobber in-progress work.
+- **Base branch**: The optional `base` parameter (defaults to `"main"`) controls
+  which remote branch is used as the starting point when creating a new branch
+  that doesn't exist locally or on the remote (`origin/<base>`). The Taskfile
+  tasks default `BASE` to the current host branch, so `task dev BRANCH=feat/new`
+  inherits from where you are now rather than always branching from `main`.
 - **Source overlay**: Local source files (via `m.Source`, which excludes `.git`)
   are synced on top of the checked-out branch via `rsync --delete`, bringing
   uncommitted changes (including file deletions) into the container.
@@ -130,15 +137,20 @@ history. Key behaviors:
   directory and the host's worktree format. When the export contains a `.git`
   directory, commits are imported via `git fetch` to FETCH_HEAD, then
   `git update-ref` updates the branch ref (avoiding the "refusing to fetch into
-  checked-out branch" error). The worktree is then reset to the branch tip and
-  `rsync --delete` overlays the container's uncommitted changes (including file
-  deletions).
+  checked-out branch" error). If the export lacks a `.git` directory, a warning
+  is printed and commit import is skipped. The worktree is then reset to the
+  branch tip and `rsync --delete` overlays the container's uncommitted changes
+  (including file deletions).
+- **Optional BRANCH**: The `dev` and `claude` Taskfile tasks default `BRANCH` to
+  the current git branch (`git branch --show-current`). If the host is in
+  detached HEAD state, a precondition fails with a message asking the user to set
+  `BRANCH` explicitly.
 - **Single session per branch**: Concurrent `dev`/`claude` sessions for the same
   branch on the same host are not supported. The shared cache volume and temp
   export path (`/tmp/dagger-dev-<dir>`) assume a single active session per branch.
 - **Must use Taskfile tasks**: Running raw `dagger call dev export --path=.`
   would overwrite the host's `.git` worktree file. Always use `task dev` or
-  `task claude` with a `BRANCH` argument for proper worktree handling.
+  `task claude` for proper worktree handling.
 
 ## Version Management
 
