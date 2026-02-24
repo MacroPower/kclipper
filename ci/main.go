@@ -716,7 +716,8 @@ func (m *Ci) Dev(
 				"git checkout -b \"${BRANCH}\" origin/main; " +
 				"fi && " +
 				// Overlay local source (m.Source excludes .git via +ignore).
-				"cp -a /tmp/src-seed/. /src/ && " +
+				// rsync --delete removes files present in git but deleted locally.
+				"rsync -a --delete --exclude=.git /tmp/src-seed/ /src/ && " +
 				// Pre-download Go modules.
 				"go mod download",
 		})
@@ -858,7 +859,7 @@ func devBase() *dagger.Container {
 			"apt-get update && apt-get install -y --no-install-recommends " +
 				"curl less man-db gnupg2 nano vim xz-utils jq wget dnsutils direnv " +
 				"zsh zsh-autosuggestions zsh-syntax-highlighting " +
-				"ripgrep fd-find bat fzf tree htop",
+				"ripgrep fd-find bat fzf tree htop rsync",
 		}).
 		// Symlink Debian-renamed binaries to their canonical names.
 		WithExec([]string{"sh", "-c",
