@@ -505,45 +505,16 @@ func (m *Tests) TestDevBase(ctx context.Context) error {
 
 // TestDevExportPersistence verifies that the [Ci.Dev] export pipeline
 // correctly captures new files, preserves original source files, and
-// includes the .git directory with real commit history. This reconstructs
-// the same cache-volume pipeline that [Ci.Dev] uses but replaces
+// includes the .git directory with real commit history. This uses
+// [Ci.DevEnv] to set up the same environment as [Ci.Dev] but replaces
 // [dagger.Container.Terminal] with [dagger.Container.WithExec] to
 // simulate interactive changes.
 //
 // +check
 func (m *Tests) TestDevExportPersistence(ctx context.Context) error {
-	// Reconstruct the Dev() pipeline without Terminal().
-	// Use a test-specific cache volume and branch to avoid interfering
-	// with real dev sessions.
 	branch := "test-dev-export"
 
-	exported := dag.Ci().DevBase().
-		WithDirectory("/tmp/src-seed", dag.Ci().Source()).
-		WithMountedCache("/src", dag.CacheVolume("test-dev-src-"+branch)).
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
-		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
-		WithWorkdir("/src").
-		// Clone and checkout branch (same as Dev pipeline).
-		WithEnvVariable("BRANCH", branch).
-		WithEnvVariable("BASE", "main").
-		WithEnvVariable("_TEST_TS", time.Now().String()).
-		WithExec([]string{"sh", "-c",
-			"if [ ! -d /src/.git ]; then " +
-				"git clone --filter=blob:none --no-checkout " +
-				"https://github.com/macropower/kclipper.git /src; " +
-				"fi && " +
-				"cd /src && git fetch origin && " +
-				"if git rev-parse --verify \"${BRANCH}\" >/dev/null 2>&1; then " +
-				"git checkout \"${BRANCH}\"; " +
-				"elif git rev-parse --verify \"origin/${BRANCH}\" >/dev/null 2>&1; then " +
-				"git checkout -b \"${BRANCH}\" \"origin/${BRANCH}\"; " +
-				"else " +
-				"git checkout -b \"${BRANCH}\" \"origin/${BASE}\"; " +
-				"fi && " +
-				"rsync -a --delete --exclude=.git /tmp/src-seed/ /src/",
-		}).
+	exported := dag.Ci().DevEnv(branch, "main").
 		// Simulate interactive changes: create a new file + modify an existing one.
 		WithExec([]string{"sh", "-c",
 			"echo test-content > /src/test-sentinel && " +

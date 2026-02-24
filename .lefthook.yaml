@@ -3,9 +3,9 @@
 pre-commit:
   commands:
     pre-commit:
-      run: dagger check test lint lint-prettier
+      run: dagger --silent check test lint lint-prettier
 
 commit-msg:
   commands:
     conform:
-      run: dagger call lint-commit-msg --msg-file={1}
+      run: dagger --silent call lint-commit-msg --msg-file={1}

@@ -626,11 +626,70 @@ eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"
 `
 
+// devInitScript is the shell script that initializes the git repository
+// and overlays local source files in the dev container. It expects BRANCH
+// and BASE environment variables to be set.
+const devInitScript = "" +
+	// Clone if needed (blobless: full history, blobs fetched on demand).
+	"if [ ! -d /src/.git ]; then " +
+	"git clone --filter=blob:none --no-checkout " +
+	"https://github.com/macropower/kclipper.git /src; " +
+	"fi && " +
+	"cd /src && git fetch origin && " +
+	// Checkout or create branch.
+	"if git rev-parse --verify \"${BRANCH}\" >/dev/null 2>&1; then " +
+	"git checkout \"${BRANCH}\"; " +
+	"elif git rev-parse --verify \"origin/${BRANCH}\" >/dev/null 2>&1; then " +
+	"git checkout -b \"${BRANCH}\" \"origin/${BRANCH}\"; " +
+	"else " +
+	"git checkout -b \"${BRANCH}\" \"origin/${BASE}\"; " +
+	"fi && " +
+	// Overlay local source (m.Source excludes .git via +ignore).
+	// rsync --delete removes files present in git but deleted locally.
+	"rsync -a --delete --exclude=.git /tmp/src-seed/ /src/"
+
+// DevEnv returns a development container with the git repository cloned,
+// the requested branch checked out, and local source files overlaid.
+// Cache volumes provide per-branch workspace isolation and shared Go
+// module/build caches. Unlike [Ci.Dev], this does not open an interactive
+// terminal or export results.
+func (m *Ci) DevEnv(
+	// Branch to check out in the dev container. Each branch gets its
+	// own Dagger cache volume for workspace isolation.
+	branch string,
+	// Base branch name used when creating a new branch that does not
+	// exist locally or on the remote. Looked up as origin/<base> in
+	// the container clone. Defaults to "main" when empty.
+	// +optional
+	base string,
+) *dagger.Container {
+	if base == "" {
+		base = "main"
+	}
+
+	return devBase().
+		// Stage source on regular filesystem for the seed step.
+		WithDirectory("/tmp/src-seed", m.Source).
+		// Cache volume at /src so changes survive Terminal().
+		// Each branch gets its own volume for workspace isolation.
+		WithMountedCache("/src", dag.CacheVolume("dev-src-"+sanitizeCacheKey(branch))).
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")).
+		WithWorkdir("/src").
+		WithEnvVariable("BRANCH", branch).
+		WithEnvVariable("BASE", base).
+		WithEnvVariable("_DEV_TS", time.Now().String()).
+		WithExec([]string{"sh", "-c", devInitScript})
+}
+
 // Dev opens an interactive development container with a real git
 // repository and returns the modified source directory when the session
-// ends. The container clones the upstream repo (blobless) and checks out
-// the specified branch, enabling pushes, rebases, and other git
-// operations.
+// ends. The container is created via [Ci.DevEnv], which clones the
+// upstream repo (blobless) and checks out the specified branch, enabling
+// pushes, rebases, and other git operations.
 //
 // Source files from the project directory are overlaid on top of the
 // checked-out branch, bringing in local uncommitted changes. Each branch
@@ -684,54 +743,15 @@ func (m *Ci) Dev(
 	// +optional
 	cmd []string,
 ) *dagger.Directory {
-	ctr := devBase().
-		// Stage source on regular filesystem for the seed step.
-		WithDirectory("/tmp/src-seed", m.Source).
-		// Cache volume at /src so changes survive Terminal().
-		// Each branch gets its own volume for workspace isolation.
-		WithMountedCache("/src", dag.CacheVolume("dev-src-"+sanitizeCacheKey(branch))).
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
-		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
-		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")).
-		WithWorkdir("/src")
+	ctr := m.DevEnv(branch, base)
 
 	ctr = applyDevConfig(ctr, claudeConfig, claudeJSON, gitConfig, ccstatuslineConfig,
 		tz, colorterm, termProgram, termProgramVersion)
 
-	// Clone the upstream repo (blobless) and check out the requested
-	// branch. Local source files are overlaid on top so uncommitted
-	// changes are available inside the container.
-	if base == "" {
-		base = "main"
-	}
-
-	ctr = ctr.
-		WithEnvVariable("BRANCH", branch).
-		WithEnvVariable("BASE", base).
-		WithEnvVariable("_DEV_TS", time.Now().String()).
-		WithExec([]string{"sh", "-c",
-			// Clone if needed (blobless: full history, blobs fetched on demand).
-			"if [ ! -d /src/.git ]; then " +
-				"git clone --filter=blob:none --no-checkout " +
-				"https://github.com/macropower/kclipper.git /src; " +
-				"fi && " +
-				"cd /src && git fetch origin && " +
-				// Checkout or create branch.
-				"if git rev-parse --verify \"${BRANCH}\" >/dev/null 2>&1; then " +
-				"git checkout \"${BRANCH}\"; " +
-				"elif git rev-parse --verify \"origin/${BRANCH}\" >/dev/null 2>&1; then " +
-				"git checkout -b \"${BRANCH}\" \"origin/${BRANCH}\"; " +
-				"else " +
-				"git checkout -b \"${BRANCH}\" \"origin/${BASE}\"; " +
-				"fi && " +
-				// Overlay local source (m.Source excludes .git via +ignore).
-				// rsync --delete removes files present in git but deleted locally.
-				"rsync -a --delete --exclude=.git /tmp/src-seed/ /src/ && " +
-				// Pre-download Go modules.
-				"go mod download",
-		})
+	// Pre-download Go modules (non-fatal: user can fix go.mod interactively).
+	ctr = ctr.WithExec([]string{"sh", "-c",
+		"go mod download || echo 'WARNING: go mod download failed; run it manually' >&2",
+	})
 
 	// Open interactive terminal. Changes to /src persist in the cache
 	// volume through the Terminal() call.

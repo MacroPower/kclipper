@@ -311,8 +311,12 @@ tasks:
       # "refusing to fetch into branch checked out at ..." errors.
       - |
         if [ -d "/tmp/dagger-dev-{{.DIR}}/.git" ]; then
-          git fetch "/tmp/dagger-dev-{{.DIR}}" "{{.BRANCH}}" &&
-            git update-ref "refs/heads/{{.BRANCH}}" FETCH_HEAD
+          if ! git fetch "/tmp/dagger-dev-{{.DIR}}" "{{.BRANCH}}"; then
+            echo "ERROR: git fetch from export failed. Export preserved at /tmp/dagger-dev-{{.DIR}}" >&2
+            echo "You can manually inspect and recover commits." >&2
+            exit 1
+          fi
+          git update-ref "refs/heads/{{.BRANCH}}" FETCH_HEAD
         else
           echo "WARNING: export has no .git directory; skipping commit import" >&2
         fi
@@ -345,7 +349,8 @@ tasks:
       - sh: '[ -n "{{.BRANCH}}" ]'
         msg: "BRANCH could not be determined (detached HEAD?). Set it explicitly: task dev BRANCH=feat/my-work"
     cmds:
-      - rm -rf "/tmp/dagger-dev-{{.DIR}}"
+      - rm -rf "/tmp/dagger-dev-{{.DIR}}" "/tmp/dagger-dev-{{.DIR}}.partial"
+      - defer: rm -rf "/tmp/dagger-dev-{{.DIR}}.partial"
       - >-
         dagger call dev
         --branch={{.BRANCH}}
@@ -355,7 +360,8 @@ tasks:
         --colorterm="$COLORTERM"
         --term-program="$TERM_PROGRAM"
         --term-program-version="$TERM_PROGRAM_VERSION"
-        export --path="/tmp/dagger-dev-{{.DIR}}"
+        export --path="/tmp/dagger-dev-{{.DIR}}.partial"
+      - mv "/tmp/dagger-dev-{{.DIR}}.partial" "/tmp/dagger-dev-{{.DIR}}"
       - task: _dev-sync
         vars:
           BRANCH: "{{.BRANCH}}"
@@ -374,7 +380,8 @@ tasks:
       - sh: '[ -n "{{.BRANCH}}" ]'
         msg: "BRANCH could not be determined (detached HEAD?). Set it explicitly: task claude BRANCH=feat/my-work"
     cmds:
-      - rm -rf "/tmp/dagger-dev-{{.DIR}}"
+      - rm -rf "/tmp/dagger-dev-{{.DIR}}" "/tmp/dagger-dev-{{.DIR}}.partial"
+      - defer: rm -rf "/tmp/dagger-dev-{{.DIR}}.partial"
       - >-
         dagger call dev
         --branch={{.BRANCH}}
@@ -388,7 +395,8 @@ tasks:
         --term-program="$TERM_PROGRAM"
         --term-program-version="$TERM_PROGRAM_VERSION"
         --cmd claude,--dangerously-skip-permissions
-        export --path="/tmp/dagger-dev-{{.DIR}}"
+        export --path="/tmp/dagger-dev-{{.DIR}}.partial"
+      - mv "/tmp/dagger-dev-{{.DIR}}.partial" "/tmp/dagger-dev-{{.DIR}}"
       - task: _dev-sync
         vars:
           BRANCH: "{{.BRANCH}}"
