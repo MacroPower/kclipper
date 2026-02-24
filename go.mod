@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	charm.land/bubbles/v2 v2.0.0-rc.1
 	charm.land/bubbletea/v2 v2.0.0-rc.2.0.20251212194116-6348bd4b7475
-	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251205162909-7869489d8971
+	charm.land/lipgloss/v2 v2.0.0
 	github.com/charmbracelet/fang v0.4.4
 	github.com/charmbracelet/x/ansi v0.11.6
 	github.com/charmbracelet/x/exp/golden v0.0.0-20250806222409-83e3a29d542f
@@ -70,7 +70,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.30.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.20 // indirect
 	github.com/aws/smithy-go v1.22.3 // indirect
-	github.com/aymanbagabas/go-udiff v0.3.1 // indirect
+	github.com/aymanbagabas/go-udiff v0.4.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
@@ -81,16 +81,15 @@ require (
 	github.com/chai2010/jsonv v1.1.3 // indirect
 	github.com/chai2010/protorpc v1.1.4 // indirect
 	github.com/chainguard-dev/git-urls v1.0.2 // indirect
-	github.com/charmbracelet/colorprofile v0.4.1 // indirect
+	github.com/charmbracelet/colorprofile v0.4.2 // indirect
 	github.com/charmbracelet/harmonica v0.2.0 // indirect
 	github.com/charmbracelet/ultraviolet v0.0.0-20251212194010-b927aa605560 // indirect
 	github.com/charmbracelet/x/exp/charmtone v0.0.0-20251201173703-9f73bfd934ff // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
-	github.com/clipperhouse/displaywidth v0.9.0 // indirect
-	github.com/clipperhouse/stringish v0.1.1 // indirect
-	github.com/clipperhouse/uax29/v2 v2.5.0 // indirect
+	github.com/clipperhouse/displaywidth v0.11.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/containerd/containerd v1.7.30 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
