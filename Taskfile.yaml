@@ -309,7 +309,11 @@ tasks:
       # Import container commits into host repo. Fetch to FETCH_HEAD
       # first, then update the branch ref via plumbing command to avoid
       # "refusing to fetch into branch checked out at ..." errors.
-      - (git fetch /tmp/dagger-dev-{{.DIR}} {{.BRANCH}} && git update-ref refs/heads/{{.BRANCH}} FETCH_HEAD) || true
+      - |
+        if [ -d "/tmp/dagger-dev-{{.DIR}}/.git" ]; then
+          git fetch "/tmp/dagger-dev-{{.DIR}}" "{{.BRANCH}}" &&
+            git update-ref "refs/heads/{{.BRANCH}}" FETCH_HEAD
+        fi
       # Ensure host worktree exists
       - |
         if [ ! -d ".worktrees/{{.DIR}}" ]; then
@@ -320,11 +324,11 @@ tasks:
           fi
         fi
       # Update worktree to branch tip (handles existing worktrees)
-      - git -C .worktrees/{{.DIR}} reset --hard {{.BRANCH}}
+      - git -C ".worktrees/{{.DIR}}" reset --hard "{{.BRANCH}}"
       # Sync export to worktree (rsync --delete mirrors exactly, including deletions)
-      - rsync -a --exclude=.git --delete /tmp/dagger-dev-{{.DIR}}/ .worktrees/{{.DIR}}/
+      - rsync -a --exclude=.git --delete "/tmp/dagger-dev-{{.DIR}}/" ".worktrees/{{.DIR}}/"
       # Clean up temp
-      - rm -rf /tmp/dagger-dev-{{.DIR}}
+      - rm -rf "/tmp/dagger-dev-{{.DIR}}"
 
   dev:
     desc: Opens a development shell via Dagger (changes persist on exit)
@@ -334,7 +338,7 @@ tasks:
     vars:
       DIR: '{{.BRANCH | replace "/" "-"}}'
     cmds:
-      - rm -rf /tmp/dagger-dev-{{.DIR}}
+      - rm -rf "/tmp/dagger-dev-{{.DIR}}"
       - >-
         dagger call dev
         --branch={{.BRANCH}}
@@ -343,7 +347,7 @@ tasks:
         --colorterm="$COLORTERM"
         --term-program="$TERM_PROGRAM"
         --term-program-version="$TERM_PROGRAM_VERSION"
-        export --path=/tmp/dagger-dev-{{.DIR}}
+        export --path="/tmp/dagger-dev-{{.DIR}}"
       - task: _dev-sync
         vars:
           BRANCH: "{{.BRANCH}}"
@@ -357,7 +361,7 @@ tasks:
     vars:
       DIR: '{{.BRANCH | replace "/" "-"}}'
     cmds:
-      - rm -rf /tmp/dagger-dev-{{.DIR}}
+      - rm -rf "/tmp/dagger-dev-{{.DIR}}"
       - >-
         dagger call dev
         --branch={{.BRANCH}}
@@ -370,7 +374,7 @@ tasks:
         --term-program="$TERM_PROGRAM"
         --term-program-version="$TERM_PROGRAM_VERSION"
         --cmd claude,--dangerously-skip-permissions
-        export --path=/tmp/dagger-dev-{{.DIR}}
+        export --path="/tmp/dagger-dev-{{.DIR}}"
       - task: _dev-sync
         vars:
           BRANCH: "{{.BRANCH}}"
