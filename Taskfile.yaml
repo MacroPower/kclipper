@@ -288,6 +288,23 @@ tasks:
     internal: true
     requires:
       vars: [BRANCH, DIR]
+    vars:
+      # Resolve worktree path from git's tracking so _dev-sync works
+      # regardless of the caller's working directory (main repo or
+      # existing worktree). Falls back to the standard location under
+      # the main repo root when no worktree exists yet.
+      WT_DIR:
+        sh: |
+          EXISTING=$(git worktree list --porcelain | awk '
+            /^worktree /{ wt=substr($0,10) }
+            /^branch refs\/heads\/{{.BRANCH}}$/{ print wt; exit }
+          ')
+          if [ -n "$EXISTING" ]; then
+            echo "$EXISTING"
+          else
+            GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" && pwd)
+            echo "${GIT_COMMON%/.git}/.worktrees/{{.DIR}}"
+          fi
     cmds:
       # Import container commits into host repo. Fetch to FETCH_HEAD
       # first, then update the branch ref via plumbing command to avoid
@@ -311,18 +328,19 @@ tasks:
         else
           echo "WARNING: export has no .git directory; skipping commit import" >&2
         fi
-      # Ensure host worktree exists
+      # Ensure host worktree exists. Uses absolute path from git's
+      # worktree tracking so this works when invoked from a worktree.
       - |
-        if [ ! -d ".worktrees/{{.DIR}}" ]; then
-          mkdir -p .worktrees
+        if [ ! -d "{{.WT_DIR}}" ]; then
+          mkdir -p "$(dirname "{{.WT_DIR}}")"
           if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
-            git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
+            git worktree add "{{.WT_DIR}}" "{{.BRANCH}}"
           else
-            git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
+            git worktree add -b "{{.BRANCH}}" "{{.WT_DIR}}"
           fi
         fi
       # Update worktree to branch tip (handles existing worktrees)
-      - git -C ".worktrees/{{.DIR}}" reset --hard "{{.BRANCH}}"
+      - git -C "{{.WT_DIR}}" reset --hard "{{.BRANCH}}"
       # Validate export before rsync --delete to prevent wiping the worktree
       - |
         if [ ! -f "/tmp/dagger-dev-{{.DIR}}/go.mod" ]; then
@@ -331,7 +349,7 @@ tasks:
           exit 1
         fi
       # Sync export to worktree (rsync --delete mirrors exactly, including deletions)
-      - rsync -a --exclude=.git --delete "/tmp/dagger-dev-{{.DIR}}/" ".worktrees/{{.DIR}}/"
+      - rsync -a --exclude=.git --delete "/tmp/dagger-dev-{{.DIR}}/" "{{.WT_DIR}}/"
       # Clean up temp
       - rm -rf "/tmp/dagger-dev-{{.DIR}}"
 

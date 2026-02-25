@@ -147,11 +147,18 @@ Key behaviors:
   prior session). This allows offline use or recovery when the remote is
   temporarily unreachable. The fetch is only fatal when the branch has never
   been checked out before and has no local cache.
-- **Force checkout**: `git checkout -f` is used for existing branches to avoid
-  "untracked working tree files would be overwritten" errors. The cache volume
-  can retain untracked files from a previous session that become tracked after
-  a fetch. Since `rsync --delete` overlays the host's source files immediately
-  after checkout, the working tree state at checkout time doesn't matter.
+- **Force checkout**: All three checkout paths use `git checkout -f` (including
+  `-f -b` for branch creation) to avoid "untracked working tree files would be
+  overwritten" errors. The cache volume can retain files from a previous session
+  that conflict with the target branch after a fetch. Since `rsync --delete`
+  overlays the host's source files immediately after checkout, the working tree
+  state at checkout time doesn't matter.
+- **Branch reset to remote**: After checking out an existing local branch,
+  `devInitScript` runs `git reset --hard origin/${BRANCH}` to advance the local
+  ref to match the remote. Without this, the cache volume would hold a stale
+  branch tip from a previous session — `git fetch` updates `origin/${BRANCH}`
+  but doesn't move the local ref. Any prior-session commits were already
+  exported to the host by `_dev-sync`, so the reset is safe.
 - **Seed validation**: Before the `rsync --delete` overlay in the container,
   `devInitScript` checks that `/tmp/src-seed/go.mod` exists. This prevents
   wiping `/src` when `m.Source` is empty or corrupt.
@@ -217,11 +224,14 @@ Key behaviors:
   `-` for cache volume names and worktree directories. Branches differing only
   by `/` vs `-` (e.g., `feat/example` and `feat-example`) share the same cache
   volume and temp paths, causing collisions. Avoid using such conflicting names.
-- **Worktree auto-repair**: The `_dev-sync` task validates existing worktrees
-  with `git rev-parse --git-dir` before use. If a worktree directory exists but
-  is corrupted (`.git` file deleted, stale admin record), it is automatically
-  repaired via `git worktree remove --force` (falling back to `rm -rf`) and
-  `git worktree prune`, then recreated by the existing creation logic.
+- **Worktree path resolution**: `_dev-sync` resolves the target worktree path
+  via `git worktree list --porcelain`, matching on
+  `branch refs/heads/${BRANCH}`. This produces an absolute path that works
+  regardless of the caller's working directory — running `task dev` from inside
+  an existing worktree works correctly because the path is resolved from git's
+  tracking rather than relative to `$PWD`. When no worktree exists yet, the
+  path falls back to `<repo-root>/.worktrees/<dir>` derived from
+  `git rev-parse --git-common-dir`.
 - **`_DEV_TS` cache-busting**: `DevEnv()` sets a `_DEV_TS` environment variable
   to `time.Now().String()`, busting the Dagger function cache on every call.
   Without it, if `m.Source` hasn't changed, Dagger would return a cached result

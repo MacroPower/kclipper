@@ -698,10 +698,18 @@ fi
 # retains files from a previous session that are now tracked on the branch.
 if git rev-parse --verify "${BRANCH}" >/dev/null 2>&1; then
   git checkout -f "${BRANCH}"
+  # Advance local branch to match remote. The cache volume may hold a
+  # stale branch tip from a previous session; git fetch updated
+  # origin/${BRANCH} but the local ref wasn't moved. Any prior-session
+  # commits were already exported to the host by _dev-sync, and the
+  # working tree is about to be replaced by rsync, so reset is safe.
+  if git rev-parse --verify "origin/${BRANCH}" >/dev/null 2>&1; then
+    git reset --hard "origin/${BRANCH}"
+  fi
 elif git rev-parse --verify "origin/${BRANCH}" >/dev/null 2>&1; then
-  git checkout -b "${BRANCH}" "origin/${BRANCH}"
+  git checkout -f -b "${BRANCH}" "origin/${BRANCH}"
 elif git rev-parse --verify "origin/${BASE}" >/dev/null 2>&1; then
-  git checkout -b "${BRANCH}" "origin/${BASE}"
+  git checkout -f -b "${BRANCH}" "origin/${BASE}"
 else
   echo "ERROR: cannot create branch '${BRANCH}': ref 'origin/${BASE}' does not exist" >&2
   echo "Ensure the base branch '${BASE}' exists on the remote." >&2
