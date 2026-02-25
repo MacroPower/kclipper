@@ -992,6 +992,10 @@ func devBase() *dagger.Container {
 		WithEnvVariable("EDITOR", "nano").
 		WithEnvVariable("VISUAL", "nano").
 		WithEnvVariable("TERM", "xterm-256color").
+		// Signal that this environment is sandboxed (isolated Dagger
+		// container). Without this, Claude Code refuses to run with
+		// --dangerously-skip-permissions when the user is root.
+		WithEnvVariable("IS_SANDBOX", "1").
 		WithEnvVariable("PATH", "/root/.local/bin:$PATH",
 			dagger.ContainerWithEnvVariableOpts{Expand: true})
 }
