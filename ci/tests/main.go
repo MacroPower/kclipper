@@ -46,6 +46,7 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestDevExportPersistence(ctx) })
 	g.Go(func() error { return m.TestCoverageProfile(ctx) })
 	g.Go(func() error { return m.TestLintCommitMsg(ctx) })
+	g.Go(func() error { return m.TestDevEnvDefaultBase(ctx) })
 
 	return g.Wait()
 }
@@ -607,6 +608,21 @@ func (m *Tests) TestCoverageProfile(ctx context.Context) error {
 	}
 	if !strings.Contains(contents, "mode:") {
 		return fmt.Errorf("coverage profile missing 'mode:' header (got %d bytes)", len(contents))
+	}
+	return nil
+}
+
+// TestDevEnvDefaultBase verifies that [Ci.DevEnv] defaults the BASE
+// environment variable to "main" when no base is provided.
+//
+// +check
+func (m *Tests) TestDevEnvDefaultBase(ctx context.Context) error {
+	base, err := dag.Ci().DevEnv("test-default-base").EnvVariable(ctx, "BASE")
+	if err != nil {
+		return fmt.Errorf("read BASE env var: %w", err)
+	}
+	if base != "main" {
+		return fmt.Errorf("BASE = %q, want %q", base, "main")
 	}
 	return nil
 }

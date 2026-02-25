@@ -9,7 +9,7 @@ formatting, building, releasing) run in containers orchestrated by Dagger.
 dagger check                  # Run all checks (+check functions)
 dagger check lint             # Run specific check(s)
 dagger generate --auto-apply  # Run generators and apply changes
-dagger call build export --path=./dist  # Build binaries
+dagger call build --output=./dist       # Build binaries
 task dev                      # Dev container (branch defaults to current)
 task dev BRANCH=feat/foo      # Dev container with explicit branch
 task claude                   # Claude Code container (branch defaults to current)
@@ -41,14 +41,14 @@ in `All`.
 
 ### Function Categories
 
-| Category    | Annotation     | CLI                               | Purpose                                        |
-| ----------- | -------------- | --------------------------------- | ---------------------------------------------- |
-| Checks      | `// +check`    | `dagger check <name>`             | Validation (tests, lints). Return `error`.     |
-| Generators  | `// +generate` | `dagger generate`                 | Code formatting. Return `*dagger.Changeset`.   |
-| Build       | (none)         | `dagger call <name>`              | Artifact production.                           |
-| Callable    | (none)         | `dagger call <name>`              | Requires arguments; invoked via `dagger call`. |
-| Development | (none)         | `dagger call dev export --path=.` | Interactive container with persistent export.  |
-| Testable    | (none)         | `dagger call <name>`              | Non-interactive building blocks for tests.     |
+| Category    | Annotation     | CLI                          | Purpose                                        |
+| ----------- | -------------- | ---------------------------- | ---------------------------------------------- |
+| Checks      | `// +check`    | `dagger check <name>`        | Validation (tests, lints). Return `error`.     |
+| Generators  | `// +generate` | `dagger generate`            | Code formatting. Return `*dagger.Changeset`.   |
+| Build       | (none)         | `dagger call <name>`         | Artifact production.                           |
+| Callable    | (none)         | `dagger call <name>`         | Requires arguments; invoked via `dagger call`. |
+| Development | (none)         | `dagger call dev --output=.` | Interactive container with persistent export.  |
+| Testable    | (none)         | `dagger call <name>`         | Non-interactive building blocks for tests.     |
 
 `LintCommitMsg` is in the Callable category because it requires a mandatory
 `msgFile` argument and cannot be a `+check` function.
@@ -138,12 +138,33 @@ Key behaviors:
   that doesn't exist locally or on the remote (`origin/<base>`). The Taskfile
   tasks default `BASE` to the current host branch, so `task dev BRANCH=feat/new`
   inherits from where you are now rather than always branching from `main`.
+- **Non-fatal git fetch**: `git fetch origin` in `devInitScript` is non-fatal
+  when the branch already exists locally (cached in the Dagger volume from a
+  prior session). This allows offline use or recovery when the remote is
+  temporarily unreachable. The fetch is only fatal when the branch has never
+  been checked out before and has no local cache.
+- **Force checkout**: `git checkout -f` is used for existing branches to avoid
+  "untracked working tree files would be overwritten" errors. The cache volume
+  can retain untracked files from a previous session that become tracked after
+  a fetch. Since `rsync --delete` overlays the host's source files immediately
+  after checkout, the working tree state at checkout time doesn't matter.
+- **Seed validation**: Before the `rsync --delete` overlay in the container,
+  `devInitScript` checks that `/tmp/src-seed/go.mod` exists. This prevents
+  wiping `/src` when `m.Source` is empty or corrupt.
+- **Base branch error**: When creating a new branch fails because
+  `origin/${BASE}` doesn't exist, the init script prints an actionable error
+  message naming the missing ref instead of a raw git error.
 - **Source overlay**: Local source files (via `m.Source`, which excludes `.git`)
   are synced on top of the checked-out branch via `rsync --delete`, bringing
   uncommitted changes (including file deletions) into the container.
 - **Non-fatal go mod download**: `go mod download` runs after source overlay but
   failures are non-fatal (warning printed). This prevents malformed `go.mod` in
   local changes from blocking container startup.
+- **`_dev-session` shared logic**: The `dev` and `claude` Taskfile tasks delegate
+  to the internal `_dev-session` task, which handles lockfile management, cleanup
+  defers, the `dagger call dev` invocation, atomic export staging, and `_dev-sync`.
+  The `dev` task passes no extra args; `claude` passes `DEV_EXTRA_ARGS` with
+  `--claude-config`, `--claude-json`, `--ccstatusline-config`, and `--cmd`.
 - **Atomic export staging**: The Taskfile `dev` and `claude` tasks export to a
   `.partial` staging directory, then atomically `mv` it to the final path. A
   `defer` cleans up the staging directory on any exit (including ctrl+c). This
@@ -169,7 +190,42 @@ Key behaviors:
 - **Single session per branch**: Concurrent `dev`/`claude` sessions for the same
   branch on the same host are not supported. The shared cache volume and temp
   export path (`/tmp/dagger-dev-<dir>`) assume a single active session per branch.
-- **Must use Taskfile tasks**: Running raw `dagger call dev export --path=.`
+- **Export validation**: Before `rsync --delete` overwrites the worktree,
+  `_dev-sync` checks that the export contains `go.mod`. If the export is empty
+  or corrupt, the sync aborts with an error and preserves the export at
+  `/tmp/dagger-dev-<dir>` for manual inspection. This prevents accidental data
+  loss from a broken container export.
+- **FETCH_HEAD validation**: After `git fetch`, the sync verifies that
+  `FETCH_HEAD` is a valid ref before calling `git update-ref`. This prevents
+  pointing a branch at a stale or corrupt ref.
+- **Concurrent session lockfile**: The `dev` and `claude` tasks write a PID
+  lockfile at `/tmp/dagger-dev-<dir>.lock` before starting, using `$PPID` (the
+  Task process PID) rather than `$$` (which would be the transient `sh -c`
+  shell). This ensures the lockfile PID stays alive for the entire task duration,
+  providing correct concurrent session detection. If a lockfile exists and its
+  PID is still alive, the task refuses to start. Stale lockfiles (dead PIDs) are
+  automatically cleaned up with a warning. The lockfile is removed on exit via
+  `defer`.
+- **Branch tracking after sync**: After importing commits, `_dev-sync` sets
+  `branch.<name>.remote` and `branch.<name>.merge` so that `git push` works
+  without arguments in the worktree.
+- **Cache volume collision**: Branch names are sanitized by replacing `/` with
+  `-` for cache volume names and worktree directories. Branches differing only
+  by `/` vs `-` (e.g., `feat/example` and `feat-example`) share the same cache
+  volume and temp paths, causing collisions. Avoid using such conflicting names.
+- **Worktree auto-repair**: The `_dev-sync` task validates existing worktrees
+  with `git rev-parse --git-dir` before use. If a worktree directory exists but
+  is corrupted (`.git` file deleted, stale admin record), it is automatically
+  repaired via `git worktree remove --force` (falling back to `rm -rf`) and
+  `git worktree prune`, then recreated by the existing creation logic.
+- **`_DEV_TS` cache-busting**: `DevEnv()` sets a `_DEV_TS` environment variable
+  to `time.Now().String()`, busting the Dagger function cache on every call.
+  Without it, if `m.Source` hasn't changed, Dagger would return a cached result
+  and skip `git fetch origin`, so remote branch updates wouldn't be picked up.
+- **Hardcoded upstream URL**: The `devInitScript` in `ci/main.go` clones from
+  `github.com/macropower/kclipper.git`. Forks that change the remote URL must
+  update this constant.
+- **Must use Taskfile tasks**: Running raw `dagger call dev --output=.`
   would overwrite the host's `.git` worktree file. Always use `task dev` or
   `task claude` for proper worktree handling.
 

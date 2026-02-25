@@ -640,24 +640,52 @@ eval "$(starship init zsh)"
 // devInitScript is the shell script that initializes the git repository
 // and overlays local source files in the dev container. It expects BRANCH
 // and BASE environment variables to be set.
-const devInitScript = "" +
-	// Clone if needed (blobless: full history, blobs fetched on demand).
-	"if [ ! -d /src/.git ]; then " +
-	"git clone --filter=blob:none --no-checkout " +
-	"https://github.com/macropower/kclipper.git /src; " +
-	"fi && " +
-	"cd /src && git fetch origin && " +
-	// Checkout or create branch.
-	"if git rev-parse --verify \"${BRANCH}\" >/dev/null 2>&1; then " +
-	"git checkout \"${BRANCH}\"; " +
-	"elif git rev-parse --verify \"origin/${BRANCH}\" >/dev/null 2>&1; then " +
-	"git checkout -b \"${BRANCH}\" \"origin/${BRANCH}\"; " +
-	"else " +
-	"git checkout -b \"${BRANCH}\" \"origin/${BASE}\"; " +
-	"fi && " +
-	// Overlay local source (m.Source excludes .git via +ignore).
-	// rsync --delete removes files present in git but deleted locally.
-	"rsync -a --delete --exclude=.git /tmp/src-seed/ /src/"
+const devInitScript = `set -e
+
+# Clone if needed (blobless: full history, blobs fetched on demand).
+if [ ! -d /src/.git ]; then
+  git clone --filter=blob:none --no-checkout \
+    https://github.com/macropower/kclipper.git /src
+fi
+
+cd /src
+
+# Fetch latest refs from origin. Non-fatal when the branch already
+# exists locally (cached in the Dagger volume from a prior session).
+if ! git fetch origin; then
+  if git rev-parse --verify "${BRANCH}" >/dev/null 2>&1; then
+    echo "WARNING: git fetch origin failed, using cached branch '${BRANCH}'" >&2
+  else
+    echo "ERROR: git fetch origin failed and branch '${BRANCH}' has no local cache" >&2
+    exit 1
+  fi
+fi
+
+# Checkout or create the branch. Force checkout (-f) avoids "untracked
+# working tree files would be overwritten" errors when the cache volume
+# retains files from a previous session that are now tracked on the branch.
+if git rev-parse --verify "${BRANCH}" >/dev/null 2>&1; then
+  git checkout -f "${BRANCH}"
+elif git rev-parse --verify "origin/${BRANCH}" >/dev/null 2>&1; then
+  git checkout -b "${BRANCH}" "origin/${BRANCH}"
+elif git rev-parse --verify "origin/${BASE}" >/dev/null 2>&1; then
+  git checkout -b "${BRANCH}" "origin/${BASE}"
+else
+  echo "ERROR: cannot create branch '${BRANCH}': ref 'origin/${BASE}' does not exist" >&2
+  echo "Ensure the base branch '${BASE}' exists on the remote." >&2
+  exit 1
+fi
+
+# Validate seed before overlay to prevent wiping /src with empty source.
+if [ ! -f /tmp/src-seed/go.mod ]; then
+  echo "ERROR: seed validation failed: /tmp/src-seed/go.mod not found" >&2
+  exit 1
+fi
+
+# Overlay local source (m.Source excludes .git via +ignore).
+# rsync --delete removes files present in git but deleted locally.
+rsync -a --delete --exclude=.git /tmp/src-seed/ /src/
+`
 
 // DevEnv returns a development container with the git repository cloned,
 // the requested branch checked out, and local source files overlaid.
@@ -692,6 +720,10 @@ func (m *Ci) DevEnv(
 		WithWorkdir("/src").
 		WithEnvVariable("BRANCH", branch).
 		WithEnvVariable("BASE", base).
+		// _DEV_TS busts the Dagger function cache on every call. Without
+		// it, if m.Source hasn't changed, Dagger returns a cached DevEnv()
+		// result and skips git fetch origin, so remote branch updates
+		// would not be picked up.
 		WithEnvVariable("_DEV_TS", time.Now().String()).
 		WithExec([]string{"sh", "-c", devInitScript})
 }
