@@ -523,6 +523,7 @@ func (m *Tests) TestDevBase(ctx context.Context) error {
 		"go", "task", "dagger", "conform", "lefthook", "claude",
 		"starship", "yq", "uv", "gh", "direnv",
 		"rg", "fd", "bat", "fzf", "tree", "htop",
+		"node", "npm", "npx",
 	}
 	for _, tool := range tools {
 		_, err := ctr.WithExec([]string{"which", tool}).Sync(ctx)

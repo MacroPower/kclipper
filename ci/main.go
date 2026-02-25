@@ -33,7 +33,7 @@ const (
 	yqVersion           = "v4.52.4"         // renovate: datasource=github-releases depName=mikefarah/yq
 	uvVersion           = "0.10.4"          // renovate: datasource=github-releases depName=astral-sh/uv extractVersion=^(?P<version>.*)$
 	ghVersion           = "v2.87.2"         // renovate: datasource=github-releases depName=cli/cli
-	claudeCodeVersion   = "1.0.58"          // renovate: datasource=npm depName=@anthropic-ai/claude-code
+	claudeCodeVersion   = "2.1.50"          // renovate: datasource=npm depName=@anthropic-ai/claude-code
 
 	defaultRegistry = "ghcr.io/macropower/kclipper"
 
@@ -800,6 +800,7 @@ func (m *Ci) Dev(
 	base string,
 	// Claude Code configuration directory (~/.claude).
 	// +optional
+	// +ignore=["debug", "projects", "todos", "file-history", "plans", "tasks", "teams", "session-env", "backups", "paste-cache", "cache", "telemetry", "downloads", "shell-snapshots", "history.jsonl", ".claude.json*", "stats-cache.json", "statsig", "skills"]
 	claudeConfig *dagger.Directory,
 	// Claude Code settings file (~/.claude.json).
 	// +optional
@@ -973,7 +974,8 @@ func devBase() *dagger.Container {
 			"apt-get update && apt-get install -y --no-install-recommends " +
 				"curl less man-db gnupg2 nano vim xz-utils jq wget dnsutils direnv " +
 				"zsh zsh-autosuggestions zsh-syntax-highlighting " +
-				"ripgrep fd-find bat fzf tree htop rsync",
+				"ripgrep fd-find bat fzf tree htop rsync " +
+				"nodejs npm",
 		}).
 		// Symlink Debian-renamed binaries to their canonical names.
 		WithExec([]string{"sh", "-c",
