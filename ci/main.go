@@ -83,26 +83,27 @@ func New(
 // Testing
 // ---------------------------------------------------------------------------
 
-// Test runs Go tests as a fast pre-commit check. Race detection and vet
-// analysis are omitted here because [Ci.TestCoverage] (used in CI) includes
-// both, and [Ci.Lint] already runs govet via golangci-lint.
+// Test runs the Go test suite. Uses only cacheable flags so that Go's
+// internal test result cache (GOCACHE) can skip unchanged packages
+// across runs via the persistent go-build cache volume.
 //
 // +check
 func (m *Ci) Test(ctx context.Context) error {
 	_, err := m.goBase().
-		WithExec([]string{
-			"go", "test", "-race", "./...",
-		}).
+		WithExec([]string{"go", "test", "./..."}).
 		Sync(ctx)
 	return err
 }
 
-// TestCoverage runs Go tests and returns the coverage profile file.
+// TestCoverage runs Go tests with coverage profiling and returns the
+// profile file. Runs independently of [Ci.Test] because -coverprofile
+// disables Go's internal test result caching. Dagger's layer caching
+// still shares the base container layers (image, module download) with
+// [Ci.Test].
 func (m *Ci) TestCoverage() *dagger.File {
 	return m.goBase().
 		WithExec([]string{
-			"go", "test", "-race", "-vet=all",
-			"-coverprofile=/tmp/coverage.txt", "./...",
+			"go", "test", "-race", "-coverprofile=/tmp/coverage.txt", "./...",
 		}).
 		File("/tmp/coverage.txt")
 }
@@ -152,11 +153,14 @@ func (m *Ci) LintActions(ctx context.Context) error {
 	return err
 }
 
-// LintReleaser validates the GoReleaser configuration.
+// LintReleaser validates the GoReleaser configuration. Uses
+// [Ci.goreleaserCheckBase] instead of the full [Ci.releaserBase] since
+// goreleaser check only validates config syntax and does not need Zig,
+// cosign, syft, KCL LSP, or macOS SDK.
 //
 // +check
 func (m *Ci) LintReleaser(ctx context.Context) error {
-	_, err := m.releaserBase().
+	_, err := m.goreleaserCheckBase().
 		WithExec([]string{"goreleaser", "check"}).
 		Sync(ctx)
 	return err
@@ -200,11 +204,251 @@ func (m *Ci) LintCommitMsg(
 }
 
 // ---------------------------------------------------------------------------
+// Benchmarking
+// ---------------------------------------------------------------------------
+
+// BenchmarkResult holds the timing for a single pipeline stage.
+type BenchmarkResult struct {
+	// Pipeline stage name (e.g. "goBase", "lint", "test").
+	Name string
+	// Duration in seconds.
+	DurationSecs float64
+	// Whether the stage completed successfully.
+	Ok bool
+	// Error message if the stage failed.
+	Error string
+}
+
+// Benchmark measures the wall-clock time of key pipeline stages and
+// returns structured results. Use this to identify bottlenecks and track
+// performance regressions. Each stage is run sequentially to isolate
+// timings.
+//
+// +cache="never"
+func (m *Ci) Benchmark(ctx context.Context) ([]*BenchmarkResult, error) {
+	return m.runBenchmarks(ctx, false)
+}
+
+// BenchmarkSummary measures the wall-clock time of key pipeline stages
+// and returns a human-readable table. This is a convenience wrapper
+// around [Ci.Benchmark] for CLI use without jq post-processing.
+//
+// When parallel is true, all stages run concurrently to measure the
+// real-world wall-clock time of the full CI pipeline. The total row
+// shows overall elapsed time rather than the sum of individual stages.
+//
+// +cache="never"
+func (m *Ci) BenchmarkSummary(
+	ctx context.Context,
+	// Run stages concurrently to measure full-pipeline wall-clock time.
+	// +default=false
+	parallel bool,
+) (string, error) {
+	results, err := m.runBenchmarks(ctx, parallel)
+	if err != nil {
+		return "", err
+	}
+	return formatBenchmarkTable(results, parallel), nil
+}
+
+// formatBenchmarkTable formats benchmark results as an aligned text table.
+func formatBenchmarkTable(results []*BenchmarkResult, parallel bool) string {
+	var b strings.Builder
+
+	mode := "sequential"
+	if parallel {
+		mode = "parallel"
+	}
+	fmt.Fprintf(&b, "Benchmark (%s)\n", mode)
+	fmt.Fprintf(&b, "%-20s %10s %8s\n", "STAGE", "DURATION", "STATUS")
+	fmt.Fprintf(&b, "%-20s %10s %8s\n", "-----", "--------", "------")
+
+	var total float64
+	var maxDur float64
+	allOk := true
+	for _, r := range results {
+		status := "ok"
+		if !r.Ok {
+			status = "FAIL"
+			allOk = false
+		}
+		fmt.Fprintf(&b, "%-20s %9.1fs %8s\n", r.Name, r.DurationSecs, status)
+		total += r.DurationSecs
+		if r.DurationSecs > maxDur {
+			maxDur = r.DurationSecs
+		}
+	}
+
+	fmt.Fprintf(&b, "%-20s %10s %8s\n", "-----", "--------", "------")
+
+	// In parallel mode, show both the wall-clock (max) and sum of stages.
+	totalStatus := "ok"
+	if !allOk {
+		totalStatus = "FAIL"
+	}
+	if parallel {
+		fmt.Fprintf(&b, "%-20s %9.1fs %8s\n", "WALL-CLOCK", maxDur, totalStatus)
+		fmt.Fprintf(&b, "%-20s %9.1fs\n", "SUM", total)
+	} else {
+		fmt.Fprintf(&b, "%-20s %9.1fs %8s\n", "TOTAL", total, totalStatus)
+	}
+
+	return b.String()
+}
+
+// cacheBust returns a unique cache-busting environment variable
+// that forces Dagger to re-evaluate the pipeline instead of
+// returning cached results.
+func cacheBust(ctr *dagger.Container) *dagger.Container {
+	return ctr.WithEnvVariable("_BENCH_TS", time.Now().String())
+}
+
+// benchmarkStage pairs a stage name with its execution function.
+type benchmarkStage struct {
+	name string
+	fn   func(context.Context) error
+}
+
+// benchmarkStages returns the list of pipeline stages to benchmark.
+func (m *Ci) benchmarkStages() []benchmarkStage {
+	return []benchmarkStage{
+		{"goBase", func(ctx context.Context) error {
+			_, err := cacheBust(m.goBase()).Sync(ctx)
+			return err
+		}},
+		{"lint", func(ctx context.Context) error {
+			_, err := cacheBust(m.lintBase()).
+				WithExec([]string{"golangci-lint", "run"}).
+				Sync(ctx)
+			return err
+		}},
+		{"test", func(ctx context.Context) error {
+			_, err := cacheBust(m.goBase()).
+				WithExec([]string{"go", "test", "./..."}).
+				Sync(ctx)
+			return err
+		}},
+		{"lint-prettier", func(ctx context.Context) error {
+			_, err := cacheBust(prettierBase()).
+				WithMountedDirectory("/src", m.Source).
+				WithWorkdir("/src").
+				WithExec([]string{
+					"prettier", "--config", "./.prettierrc.yaml", "--check",
+					"*.yaml", "*.md", "*.json",
+					"**/*.yaml", "**/*.md", "**/*.json",
+				}).
+				Sync(ctx)
+			return err
+		}},
+		{"lint-actions", func(ctx context.Context) error {
+			_, err := cacheBust(dag.Container().
+				From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion)).
+				WithMountedDirectory("/src", m.Source).
+				WithWorkdir("/src").
+				WithExec([]string{
+					"zizmor", ".github/workflows", "--config", ".github/zizmor.yaml",
+				}).
+				Sync(ctx)
+			return err
+		}},
+		{"lint-releaser", func(ctx context.Context) error {
+			_, err := cacheBust(m.goreleaserCheckBase()).
+				WithExec([]string{"goreleaser", "check"}).
+				Sync(ctx)
+			return err
+		}},
+		{"build", func(ctx context.Context) error {
+			_, err := cacheBust(m.releaserBase()).
+				WithExec([]string{
+					"goreleaser", "release", "--snapshot", "--clean",
+					"--skip=docker,homebrew,nix,sign,sbom,source",
+					"--parallelism=0",
+				}).
+				Sync(ctx)
+			return err
+		}},
+	}
+}
+
+// runBenchmarks executes benchmark stages. When parallel is false, stages
+// run sequentially for isolated timings. When true, stages run concurrently
+// to measure real-world wall-clock time.
+func (m *Ci) runBenchmarks(ctx context.Context, parallel bool) ([]*BenchmarkResult, error) {
+	stages := m.benchmarkStages()
+
+	if parallel {
+		return m.runBenchmarksParallel(ctx, stages)
+	}
+	return m.runBenchmarksSequential(ctx, stages)
+}
+
+// runBenchmarksSequential runs each stage one at a time for isolated timings.
+func (m *Ci) runBenchmarksSequential(ctx context.Context, stages []benchmarkStage) ([]*BenchmarkResult, error) {
+	results := make([]*BenchmarkResult, 0, len(stages))
+	for _, s := range stages {
+		start := time.Now()
+		err := s.fn(ctx)
+		elapsed := time.Since(start).Seconds()
+
+		r := &BenchmarkResult{
+			Name:         s.name,
+			DurationSecs: elapsed,
+			Ok:           err == nil,
+		}
+		if err != nil {
+			r.Error = err.Error()
+		}
+		results = append(results, r)
+	}
+	return results, nil
+}
+
+// runBenchmarksParallel runs all stages concurrently and reports individual
+// wall-clock times. This measures what a real CI run looks like when Dagger
+// evaluates pipelines in parallel.
+func (m *Ci) runBenchmarksParallel(ctx context.Context, stages []benchmarkStage) ([]*BenchmarkResult, error) {
+	type indexedResult struct {
+		index  int
+		result *BenchmarkResult
+	}
+
+	results := make([]*BenchmarkResult, len(stages))
+	g, gCtx := errgroup.WithContext(ctx)
+
+	for i, s := range stages {
+		g.Go(func() error {
+			start := time.Now()
+			err := s.fn(gCtx)
+			elapsed := time.Since(start).Seconds()
+
+			r := &BenchmarkResult{
+				Name:         s.name,
+				DurationSecs: elapsed,
+				Ok:           err == nil,
+			}
+			if err != nil {
+				r.Error = err.Error()
+			}
+			results[i] = r
+			return nil // always collect results, don't abort on stage failure
+		})
+	}
+
+	_ = g.Wait()
+	return results, nil
+}
+
+// ---------------------------------------------------------------------------
 // Formatting
 // ---------------------------------------------------------------------------
 
 // Format runs golangci-lint --fix and prettier --write, returning the
 // changeset against the original source directory.
+//
+// Both formatters operate on non-overlapping file types (.go vs
+// .yaml/.md/.json), so they run against the original source in parallel.
+// The results are merged by overlaying Prettier's output onto the
+// Go-formatted source.
 //
 // +generate
 func (m *Ci) Format() *dagger.Changeset {
@@ -213,9 +457,9 @@ func (m *Ci) Format() *dagger.Changeset {
 		WithExec([]string{"golangci-lint", "run", "--fix"}).
 		Directory("/src")
 
-	// Prettier formatting.
-	formatted := prettierBase().
-		WithMountedDirectory("/src", goFmt).
+	// Prettier formatting (runs against original source in parallel with Go formatting).
+	prettierFmt := prettierBase().
+		WithMountedDirectory("/src", m.Source).
 		WithWorkdir("/src").
 		WithExec([]string{
 			"prettier", "--config", "./.prettierrc.yaml", "-w",
@@ -223,6 +467,16 @@ func (m *Ci) Format() *dagger.Changeset {
 			"**/*.yaml", "**/*.md", "**/*.json",
 		}).
 		Directory("/src")
+
+	// Merge: start with Go-formatted source, overlay Prettier-formatted files.
+	// Dagger evaluates lazily, so both pipelines execute concurrently when the
+	// changeset is resolved.
+	formatted := goFmt.WithDirectory(".", prettierFmt, dagger.DirectoryWithDirectoryOpts{
+		Include: []string{
+			"*.yaml", "*.md", "*.json",
+			"**/*.yaml", "**/*.md", "**/*.json",
+		},
+	})
 
 	return formatted.Changes(m.Source)
 }
@@ -249,12 +503,14 @@ func (m *Ci) Generate() *dagger.Changeset {
 // ---------------------------------------------------------------------------
 
 // Build runs GoReleaser in snapshot mode, producing binaries for all
-// platforms. Returns the dist/ directory.
+// platforms. Returns the dist/ directory. Source archives are skipped in
+// snapshot mode since they are only needed for releases.
 func (m *Ci) Build() *dagger.Directory {
 	return m.releaserBase().
 		WithExec([]string{
 			"goreleaser", "release", "--snapshot", "--clean",
-			"--skip=docker,homebrew,nix,sign,sbom",
+			"--skip=docker,homebrew,nix,sign,sbom,source",
+			"--parallelism=0",
 		}).
 		Directory("/src/dist")
 }
@@ -752,9 +1008,9 @@ func (m *Ci) DevEnv(
 		// Cache volume at /src so changes survive Terminal().
 		// Each branch gets its own volume for workspace isolation.
 		WithMountedCache("/src", dag.CacheVolume("dev-src-"+sanitizeCacheKey(branch))).
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod-"+goVersion)).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build-"+goVersion)).
 		WithEnvVariable("GOCACHE", "/go/build-cache").
 		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")).
 		WithWorkdir("/src").
@@ -901,6 +1157,10 @@ func applyDevConfig(
 // runtimeImages builds a multi-arch set of runtime container images from a
 // pre-built GoReleaser dist/ directory. Each image is based on debian:13-slim
 // with OCI labels, KCL environment variables, and runtime dependencies.
+//
+// The shared base layer (debian + runtime deps) is built once per platform
+// via [runtimeBase] so Dagger deduplicates the apt-get install across
+// variants. Only the final binary copy differs per platform.
 func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 	platforms := []dagger.Platform{"linux/amd64", "linux/arm64"}
 	variants := make([]*dagger.Container, 0, len(platforms))
@@ -917,31 +1177,13 @@ func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 			dir = "kclipper_linux_arm64_v8.0"
 		}
 
-		ctr := dag.Container(dagger.ContainerOpts{Platform: platform}).
-			From("debian:13-slim").
+		ctr := runtimeBase(platform).
 			// OCI labels (container config) for metadata.
-			WithLabel("org.opencontainers.image.title", "kclipper").
-			WithLabel("org.opencontainers.image.description", "A superset of KCL that integrates Helm chart management").
-			WithLabel("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
-			WithLabel("org.opencontainers.image.url", "https://github.com/macropower/kclipper").
 			WithLabel("org.opencontainers.image.version", version).
 			WithLabel("org.opencontainers.image.created", created).
-			WithLabel("org.opencontainers.image.licenses", "Apache-2.0").
 			// OCI annotations (manifest-level) for registry discoverability.
-			WithAnnotation("org.opencontainers.image.title", "kclipper").
 			WithAnnotation("org.opencontainers.image.version", version).
 			WithAnnotation("org.opencontainers.image.created", created).
-			WithAnnotation("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
-			// Match env vars from existing Dockerfile.
-			WithEnvVariable("LANG", "en_US.utf8").
-			WithEnvVariable("XDG_CACHE_HOME", "/tmp/xdg_cache").
-			WithEnvVariable("KCL_LIB_HOME", "/tmp/kcl_lib").
-			WithEnvVariable("KCL_PKG_PATH", "/tmp/kcl_pkg").
-			WithEnvVariable("KCL_CACHE_PATH", "/tmp/kcl_cache").
-			WithEnvVariable("KCL_FAST_EVAL", "1").
-			// Install runtime dependencies (curl/gpg for plugin installs).
-			WithExec([]string{"sh", "-c",
-				"apt-get update && apt-get install -y curl gpg apt-transport-https && rm -rf /var/lib/apt/lists/* /tmp/*"}).
 			WithFile("/usr/local/bin/kcl", dist.File(dir+"/kcl")).
 			WithEntrypoint([]string{"kcl"})
 
@@ -949,6 +1191,35 @@ func runtimeImages(dist *dagger.Directory, version string) []*dagger.Container {
 	}
 
 	return variants
+}
+
+// runtimeBase returns a debian:13-slim container for the given platform with
+// runtime dependencies, OCI labels, and KCL environment variables
+// pre-configured. Because this function takes only the platform as input,
+// Dagger caches the result and reuses it across calls with the same
+// platform, avoiding redundant apt-get installs.
+func runtimeBase(platform dagger.Platform) *dagger.Container {
+	return dag.Container(dagger.ContainerOpts{Platform: platform}).
+		From("debian:13-slim").
+		// Static OCI labels (container config) for metadata.
+		WithLabel("org.opencontainers.image.title", "kclipper").
+		WithLabel("org.opencontainers.image.description", "A superset of KCL that integrates Helm chart management").
+		WithLabel("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
+		WithLabel("org.opencontainers.image.url", "https://github.com/macropower/kclipper").
+		WithLabel("org.opencontainers.image.licenses", "Apache-2.0").
+		// Static OCI annotations (manifest-level) for registry discoverability.
+		WithAnnotation("org.opencontainers.image.title", "kclipper").
+		WithAnnotation("org.opencontainers.image.source", "https://github.com/macropower/kclipper").
+		// KCL environment variables.
+		WithEnvVariable("LANG", "en_US.utf8").
+		WithEnvVariable("XDG_CACHE_HOME", "/tmp/xdg_cache").
+		WithEnvVariable("KCL_LIB_HOME", "/tmp/kcl_lib").
+		WithEnvVariable("KCL_PKG_PATH", "/tmp/kcl_pkg").
+		WithEnvVariable("KCL_CACHE_PATH", "/tmp/kcl_cache").
+		WithEnvVariable("KCL_FAST_EVAL", "1").
+		// Install runtime dependencies (curl/gpg for plugin installs).
+		WithExec([]string{"sh", "-c",
+			"apt-get update && apt-get install -y curl gpg apt-transport-https && rm -rf /var/lib/apt/lists/* /tmp/*"})
 }
 
 // DevBase returns the base development container with all tools
@@ -1010,6 +1281,10 @@ func devBase() *dagger.Container {
 func devToolBins() *dagger.Directory {
 	ghVer := strings.TrimPrefix(ghVersion, "v")
 	lefthookVer := strings.TrimPrefix(lefthookVersion, "v")
+
+	// Reuse a single container for uv and uvx (same image).
+	uvCtr := dag.Container().From("ghcr.io/astral-sh/uv:" + uvVersion)
+
 	return dag.Container().
 		From("alpine:3").
 		WithExec([]string{"mkdir", "-p", "/tools"}).
@@ -1041,12 +1316,8 @@ func devToolBins() *dagger.Directory {
 		WithFile("/tools/yq",
 			dag.Container().From("mikefarah/yq:"+strings.TrimPrefix(yqVersion, "v")).
 				File("/usr/bin/yq")).
-		WithFile("/tools/uv",
-			dag.Container().From("ghcr.io/astral-sh/uv:"+uvVersion).
-				File("/uv")).
-		WithFile("/tools/uvx",
-			dag.Container().From("ghcr.io/astral-sh/uv:"+uvVersion).
-				File("/uvx")).
+		WithFile("/tools/uv", uvCtr.File("/uv")).
+		WithFile("/tools/uvx", uvCtr.File("/uvx")).
 		Directory("/tools")
 }
 
@@ -1085,11 +1356,15 @@ func prettierBase() *dagger.Container {
 // is a near-instant no-op when modules are already present in the persistent
 // volume. The full source directory is mounted last. Both [Ci.lintBase] and
 // [Ci.goBase] delegate to this method.
+//
+// Cache volumes include the Go version suffix (e.g. "go-mod-1.25") so that
+// a Go version bump automatically starts with a fresh cache instead of
+// inheriting potentially incompatible artifacts from the previous version.
 func (m *Ci) goModBase(ctr *dagger.Container, src *dagger.Directory) *dagger.Container {
 	return ctr.
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod-"+goVersion)).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
+		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build-"+goVersion)).
 		WithEnvVariable("GOCACHE", "/go/build-cache").
 		WithDirectory("/src", m.GoMod).
 		WithWorkdir("/src").
@@ -1100,12 +1375,13 @@ func (m *Ci) goModBase(ctr *dagger.Container, src *dagger.Directory) *dagger.Con
 // lintBase returns a golangci-lint container with source and caches. The
 // Debian-based image is used (not Alpine) because it includes kernel headers
 // needed by CGO transitive dependencies (e.g. containers/storage). Module
-// download is cached via [Ci.goModBase].
+// download is cached via [Ci.goModBase]. The golangci-lint cache volume
+// includes the linter version so that version bumps start fresh.
 func (m *Ci) lintBase() *dagger.Container {
 	ctr := dag.Container().
 		From("golangci/golangci-lint:" + golangciLintVersion)
 	return m.goModBase(ctr, m.Source).
-		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint"))
+		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint-"+golangciLintVersion))
 }
 
 // goBase returns a Go container with source, module cache, and build cache.
@@ -1120,13 +1396,27 @@ func (m *Ci) goBase() *dagger.Container {
 	return m.goModBase(ctr, src)
 }
 
+// goreleaserCheckBase returns a lightweight container with only Go, GoReleaser,
+// and the project source. This is sufficient for goreleaser check which only
+// validates config syntax and does not need the build toolchain (Zig, cosign,
+// syft, KCL LSP, macOS SDK) that [Ci.releaserBase] provides.
+func (m *Ci) goreleaserCheckBase() *dagger.Container {
+	ctr := dag.Container().
+		From("golang:"+goVersion).
+		// Install GoReleaser from its official OCI image.
+		WithFile("/usr/local/bin/goreleaser",
+			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
+				File("/usr/bin/goreleaser"))
+	return ensureGitRepo(m.goModBase(ctr, m.Source))
+}
+
 // releaserBase returns a container with Go, GoReleaser, Zig, cosign, syft,
 // pre-downloaded KCL LSP binaries, and macOS SDK headers needed for CGO
 // cross-compilation. Tool binaries are extracted from official OCI images
 // via [dagger.Container.File] rather than compiled from source, giving
 // faster builds, smaller Go build cache, and automatic platform matching.
 func (m *Ci) releaserBase() *dagger.Container {
-	return ensureGitRepo(dag.Container().
+	ctr := dag.Container().
 		From("golang:"+goVersion).
 		// Install Zig for CGO cross-compilation.
 		WithExec([]string{
@@ -1162,14 +1452,14 @@ func (m *Ci) releaserBase() *dagger.Container {
 				"/kclvm-" + kclLSPVersion + "-${os}-${arch}.tar.gz | " +
 				"tar -xz --strip-components=2 -C /lsp/${os}/${arch} kclvm/bin/kcl-language-server; " +
 				"done",
-		}).
-		// Mount source and caches.
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod")).
-		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build")).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
+		})
+
+	// Pre-download Go modules using the GoMod-only directory so that the
+	// download layer is cached independently of source changes. This avoids
+	// re-downloading all modules when only source code changes.
+	ctr = m.goModBase(ctr, m.Source)
+
+	return ensureGitRepo(ctr.
 		// Mount macOS SDK headers for Darwin cross-compilation.
 		WithMountedDirectory("/sdk/MacOSX.sdk",
 			m.Source.Directory(".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")).

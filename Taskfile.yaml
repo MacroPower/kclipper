@@ -101,6 +101,16 @@ tasks:
     cmds:
       - dagger check
 
+  benchmark:
+    desc: Measures pipeline stage timings via Dagger
+    cmds:
+      - dagger call benchmark-summary
+
+  benchmark:parallel:
+    desc: Measures full-pipeline wall-clock time via Dagger (parallel)
+    cmds:
+      - dagger call benchmark-summary --parallel
+
   release:
     desc: Runs full release via Dagger
     requires:

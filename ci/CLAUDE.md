@@ -275,14 +275,16 @@ are not. Use `ensureGitRepo` only when the tool requires committed files.
 
 ## Test Functions
 
-- **`Test()`** — fast pre-commit check. Omits `-race` and `-vet=all` for
-  speed. Race detection is redundant here because CI runs `TestCoverage()`
-  (which includes `-race`), and `-vet=all` is redundant with `Lint()` (which
-  runs govet via golangci-lint).
+- **`Test()`** — runs the Go test suite without `-coverprofile`, using only
+  cacheable flags so that Go's internal test result cache (`GOCACHE`) can
+  skip unchanged packages across runs via the persistent `go-build` cache
+  volume. On iterative local development, only affected packages re-run.
 
-- **`TestCoverage()`** — full CI-grade test run with `-race -vet=all` and
-  coverage profiling. Used in `validate.yaml` via `TestCoverageProfile` in
-  the test module.
+- **`TestCoverage()`** — runs Go tests with `-coverprofile` and returns the
+  coverage profile file. Runs independently of `Test()` because
+  `-coverprofile` disables Go's test result caching. Dagger's layer caching
+  still shares the base container layers (image, module download) with
+  `Test()`.
 
 ## Caching Strategy
 
@@ -299,10 +301,11 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    `go mod download` before mounting the full source and cache volumes. Both
    `lintBase()` and `goBase()` delegate to `goModBase`.
 
-3. **Cache volumes** — Named Dagger cache volumes persist across runs:
-   - `go-mod` — Go module cache (`GOMODCACHE`)
-   - `go-build` — Go build cache (`GOCACHE`)
-   - `golangci-lint` — golangci-lint analysis cache
+3. **Cache volumes** — Named Dagger cache volumes persist across runs.
+   Volume names include tool versions so that version bumps start fresh:
+   - `go-mod-<goVersion>` — Go module cache (`GOMODCACHE`)
+   - `go-build-<goVersion>` — Go build cache (`GOCACHE`)
+   - `golangci-lint-<lintVersion>` — golangci-lint analysis cache
    - `npm-cache` — npm download cache for prettier
 
 ## Taskfile Boundary

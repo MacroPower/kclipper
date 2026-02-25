@@ -6,12 +6,16 @@ on:
       - "main"
   pull_request:
 
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 permissions:
   contents: read
 
 jobs:
-  test:
-    name: test
+  check:
+    name: check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,7 +24,14 @@ jobs:
           persist-credentials: false
           fetch-depth: 2
 
-      - name: Run tests with coverage
+      - name: Run all checks (test + lint in parallel)
+        uses: dagger/dagger-for-github@v8
+        with:
+          version: "0.19"
+          verb: check
+          args: test lint lint-prettier lint-actions lint-releaser
+
+      - name: Export coverage profile
         uses: dagger/dagger-for-github@v8
         with:
           version: "0.19"
@@ -47,19 +58,3 @@ jobs:
           version: "0.19"
           verb: check
           module: ci/tests
-
-  lint:
-    name: lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Run lint checks
-        uses: dagger/dagger-for-github@v8
-        with:
-          version: "0.19"
-          verb: check
-          args: lint lint-prettier lint-actions lint-releaser
