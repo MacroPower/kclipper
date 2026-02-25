@@ -8,7 +8,8 @@ formatting, building, releasing) run in containers orchestrated by Dagger.
 ```bash
 dagger check                  # Run all checks (+check functions)
 dagger check lint             # Run specific check(s)
-dagger generate --auto-apply  # Run generators and apply changes
+dagger call lint-deadcode     # Run deadcode analysis (opt-in, advisory)
+dagger generate --auto-apply  # Run generators (Format + Generate) and apply changes
 dagger call build --output=./dist       # Build binaries
 task dev                      # Dev container (branch defaults to current)
 task dev BRANCH=feat/foo      # Dev container with explicit branch
@@ -52,6 +53,9 @@ in `All`.
 
 `LintCommitMsg` is in the Callable category because it requires a mandatory
 `msgFile` argument and cannot be a `+check` function.
+
+`LintDeadcode` is in the Callable category as an opt-in advisory lint. It is
+not a `+check` function so it does not run during `dagger check`.
 
 `DevEnv` and `DevBase` are in the Testable category: they expose intermediate
 pipeline stages that the test module exercises without needing `Terminal()`.
@@ -284,6 +288,20 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    - `go-build` — Go build cache (`GOCACHE`)
    - `golangci-lint` — golangci-lint analysis cache
    - `npm-cache` — npm download cache for prettier
+
+## Taskfile Boundary
+
+The Taskfile and Dagger module have a clear division of responsibilities:
+
+- **Thin wrappers** — most tasks (`lint`, `test`, `build`, `format`, `check`,
+  etc.) are one-line delegations to `dagger check`/`dagger call`/`dagger generate`
+  for developer convenience.
+- **Host orchestration** — `dev`, `claude`, `_dev-session`, `_dev-sync`, and
+  worktree tasks handle operations that cannot run inside Dagger containers:
+  host git state, PID lockfiles, atomic export staging, rsync to worktrees.
+
+Rule of thumb: if it touches the host filesystem, host git, or host processes,
+it belongs in the Taskfile. Everything else belongs in Dagger.
 
 ## Version Management
 

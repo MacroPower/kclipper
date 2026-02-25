@@ -25,6 +25,7 @@ const (
 	zizmorVersion       = "1.22.0"          // renovate: datasource=github-releases depName=zizmorcore/zizmor
 	kclLSPVersion       = "v0.11.2"         // renovate: datasource=github-releases depName=kcl-lang/kcl
 	taskVersion         = "v3.48.0"         // renovate: datasource=github-releases depName=go-task/task
+	deadcodeVersion     = "v0.42.0"         // renovate: datasource=go depName=golang.org/x/tools
 	conformVersion      = "v0.1.0-alpha.31" // renovate: datasource=github-releases depName=siderolabs/conform
 	lefthookVersion     = "v2.1.1"          // renovate: datasource=github-releases depName=evilmartians/lefthook
 	daggerVersion       = "v0.19.11"        // renovate: datasource=github-releases depName=dagger/dagger
@@ -161,6 +162,20 @@ func (m *Ci) LintReleaser(ctx context.Context) error {
 	return err
 }
 
+// LintDeadcode reports unreachable functions in the codebase using the
+// golang.org/x/tools deadcode analyzer. This is an advisory lint that
+// is not included in standard checks; invoke via dagger call lint-deadcode.
+func (m *Ci) LintDeadcode(ctx context.Context) error {
+	_, err := m.goBase().
+		WithExec([]string{
+			"go", "install",
+			"golang.org/x/tools/cmd/deadcode@" + deadcodeVersion,
+		}).
+		WithExec([]string{"deadcode", "./..."}).
+		Sync(ctx)
+	return err
+}
+
 // LintCommitMsg validates a commit message against the project's conventional
 // commit policy using conform. The message file is typically provided by a
 // git commit-msg hook.
@@ -210,6 +225,23 @@ func (m *Ci) Format() *dagger.Changeset {
 		Directory("/src")
 
 	return formatted.Changes(m.Source)
+}
+
+// ---------------------------------------------------------------------------
+// Generation
+// ---------------------------------------------------------------------------
+
+// Generate runs go generate and returns the changeset of generated files
+// against the original source. The project's gen.go directive produces KCL
+// module files under modules/helm/.
+//
+// +generate
+func (m *Ci) Generate() *dagger.Changeset {
+	generated := m.goBase().
+		WithExec([]string{"go", "generate", "./..."}).
+		Directory("/src").
+		WithoutDirectory(".git")
+	return generated.Changes(m.Source)
 }
 
 // ---------------------------------------------------------------------------

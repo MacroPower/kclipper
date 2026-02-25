@@ -42,6 +42,8 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestDeduplicateDigests(ctx) })
 	g.Go(func() error { return m.TestRegistryHost(ctx) })
 	g.Go(func() error { return m.TestLintReleaserClean(ctx) })
+	g.Go(func() error { return m.TestLintDeadcodeClean(ctx) })
+	g.Go(func() error { return m.TestGenerateIdempotent(ctx) })
 	g.Go(func() error { return m.TestDevBase(ctx) })
 	g.Go(func() error { return m.TestDevExportPersistence(ctx) })
 	g.Go(func() error { return m.TestCoverageProfile(ctx) })
@@ -477,6 +479,34 @@ func (m *Tests) TestRegistryHost(ctx context.Context) error {
 // +check
 func (m *Tests) TestLintReleaserClean(ctx context.Context) error {
 	return dag.Ci().LintReleaser(ctx)
+}
+
+// TestLintDeadcodeClean verifies that the codebase has no unreachable
+// functions. This exercises [Ci.LintDeadcode].
+func (m *Tests) TestLintDeadcodeClean(ctx context.Context) error {
+	return dag.Ci().LintDeadcode(ctx)
+}
+
+// TestGenerateIdempotent verifies that running the generator on
+// already-generated source produces an empty changeset. This exercises the
+// full [Ci.Generate] pipeline and confirms the source is clean.
+//
+// +check
+func (m *Tests) TestGenerateIdempotent(ctx context.Context) error {
+	changeset := dag.Ci().Generate()
+
+	empty, err := changeset.IsEmpty(ctx)
+	if err != nil {
+		return fmt.Errorf("check changeset: %w", err)
+	}
+	if !empty {
+		modified, _ := changeset.ModifiedPaths(ctx)
+		added, _ := changeset.AddedPaths(ctx)
+		removed, _ := changeset.RemovedPaths(ctx)
+		return fmt.Errorf("expected empty changeset on clean source, modified=%v added=%v removed=%v",
+			modified, added, removed)
+	}
+	return nil
 }
 
 // TestDevBase verifies that [devBase] produces a container with essential

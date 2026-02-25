@@ -40,7 +40,7 @@ tasks:
   # ---------------------------------------------------------------------------
 
   format:
-    desc: Formats code via Dagger
+    desc: Formats and generates code via Dagger
     cmds:
       - dagger generate --auto-apply
 
@@ -119,8 +119,9 @@ tasks:
   # ---------------------------------------------------------------------------
 
   pre-commit:
-    desc: Runs all pre-commit targets
-    deps: [lint, test]
+    desc: Runs all pre-commit checks via Dagger
+    cmds:
+      - dagger check
 
   install:
     desc: Builds and installs binaries
@@ -148,28 +149,10 @@ tasks:
     cmds:
       - go test -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
 
-  go-gen:
-    desc: Generates Go code
+  lint:deadcode:
+    desc: Checks for unreachable Go functions via Dagger
     cmds:
-      - go generate ./...
-
-  go-deadcode:
-    desc: Finds dead code in Go
-    summary: |
-      Finds dead code in Go.
-
-      Args:
-        PKG: Go package(s) to evaluate (default: ./...)
-        FLAGS: Additional flags to pass to `deadcode` (default: "")
-
-      Examples:
-        task go-deadcode FLAGS="-test -generated"
-    vars:
-      PKG: '{{.PKG | default "./..."}}'
-      FLAGS: '{{.FLAGS | default ""}}'
-    cmds:
-      - go install golang.org/x/tools/cmd/deadcode@latest
-      - deadcode {{.FLAGS}} {{.PKG}}
+      - dagger call lint-deadcode
 
   go-bench-init:
     desc: Run Go benchmarks with init tracing
