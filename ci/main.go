@@ -1037,6 +1037,9 @@ func devToolBins() *dagger.Directory {
 		WithFile("/tools/uv",
 			dag.Container().From("ghcr.io/astral-sh/uv:"+uvVersion).
 				File("/uv")).
+		WithFile("/tools/uvx",
+			dag.Container().From("ghcr.io/astral-sh/uv:"+uvVersion).
+				File("/uvx")).
 		Directory("/tools")
 }
 
