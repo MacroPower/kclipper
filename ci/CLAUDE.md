@@ -171,6 +171,12 @@ Key behaviors:
 - **Non-fatal go mod download**: `go mod download` runs after source overlay but
   failures are non-fatal (warning printed). This prevents malformed `go.mod` in
   local changes from blocking container startup.
+- **Persistent Claude config**: The host `~/.claude` directory is mounted at a
+  seed path and synced into a named cache volume (`claude-config`) at
+  `/root/.claude` via `rsync -a` (without `--delete`). Host settings, agents,
+  and plugins are refreshed each launch, while auth tokens and other state
+  written by Claude Code persist in the cache volume across sessions. The cache
+  is global (not per-branch) since auth is user-scoped.
 - **`_dev-session` shared logic**: The `dev` and `claude` Taskfile tasks delegate
   to the internal `_dev-session` task, which handles lockfile management, cleanup
   defers, the `dagger call dev` invocation, atomic export staging, and `_dev-sync`.

@@ -865,7 +865,10 @@ func applyDevConfig(
 	tz, colorterm, termProgram, termProgramVersion string,
 ) *dagger.Container {
 	if claudeConfig != nil {
-		ctr = ctr.WithMountedDirectory("/root/.claude", claudeConfig)
+		ctr = ctr.
+			WithMountedDirectory("/tmp/claude-config-seed", claudeConfig).
+			WithMountedCache("/root/.claude", dag.CacheVolume("claude-config")).
+			WithExec([]string{"rsync", "-a", "/tmp/claude-config-seed/", "/root/.claude/"})
 	}
 	if claudeJSON != nil {
 		ctr = ctr.WithMountedFile("/root/.claude.json", claudeJSON)
