@@ -421,6 +421,10 @@ tasks:
           BRANCH: "{{.BRANCH}}"
           BASE: "{{.BASE}}"
           DIR: "{{.DIR}}"
+          DEV_EXTRA_ARGS: >-
+            --claude-config ~/.claude
+            --claude-json ~/.claude.json
+            --ccstatusline-config ~/.config/ccstatusline
 
   claude:
     desc: Launches Claude Code via Dagger (changes persist on exit)
