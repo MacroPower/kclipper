@@ -284,6 +284,48 @@ tasks:
       - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/
       - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach
 
+  _dev-sync-import-commits:
+    internal: true
+    requires:
+      vars: [DIR, BRANCH]
+    if: '[ -d "/tmp/dagger-dev-{{.DIR}}/.git" ]'
+    preconditions:
+      - sh: git fetch "/tmp/dagger-dev-{{.DIR}}" "{{.BRANCH}}"
+        msg: "git fetch from export failed. Export preserved at /tmp/dagger-dev-{{.DIR}}. You can manually inspect and recover commits."
+      - sh: git rev-parse --verify FETCH_HEAD >/dev/null 2>&1
+        msg: "FETCH_HEAD not valid after fetch. Export preserved at /tmp/dagger-dev-{{.DIR}}"
+    cmds:
+      # Skip update if host branch is already ahead of (or equal to) the
+      # container's tip. This prevents overwriting host-side commits that
+      # were made while the container was running.
+      - cmd: git update-ref "refs/heads/{{.BRANCH}}" FETCH_HEAD
+        if: '! git merge-base --is-ancestor FETCH_HEAD "refs/heads/{{.BRANCH}}" 2>/dev/null'
+      - git config "branch.{{.BRANCH}}.remote" origin
+      - git config "branch.{{.BRANCH}}.merge" "refs/heads/{{.BRANCH}}"
+
+  _dev-sync-ensure-worktree:
+    internal: true
+    requires:
+      vars: [WT_DIR, BRANCH]
+    if: '[ ! -d "{{.WT_DIR}}" ]'
+    cmds:
+      - mkdir -p "$(dirname "{{.WT_DIR}}")"
+      - cmd: git worktree add "{{.WT_DIR}}" "{{.BRANCH}}"
+        if: 'git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"'
+      - cmd: git worktree add -b "{{.BRANCH}}" "{{.WT_DIR}}"
+        if: '! git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"'
+
+  _dev-sync-apply:
+    internal: true
+    requires:
+      vars: [DIR, WT_DIR]
+    preconditions:
+      - sh: '[ -f "/tmp/dagger-dev-{{.DIR}}/go.mod" ]'
+        msg: "export validation failed: go.mod not found in /tmp/dagger-dev-{{.DIR}}. Export preserved for manual inspection."
+    cmds:
+      - rsync -a --exclude=.git --delete "/tmp/dagger-dev-{{.DIR}}/" "{{.WT_DIR}}/"
+      - rm -rf "/tmp/dagger-dev-{{.DIR}}"
+
   _dev-sync:
     internal: true
     requires:
@@ -306,72 +348,43 @@ tasks:
             echo "${GIT_COMMON%/.git}/.worktrees/{{.DIR}}"
           fi
     cmds:
-      # Import container commits into host repo. Fetch to FETCH_HEAD
-      # first, then update the branch ref via plumbing command to avoid
-      # "refusing to fetch into branch checked out at ..." errors.
-      - |
-        if [ -d "/tmp/dagger-dev-{{.DIR}}/.git" ]; then
-          if ! git fetch "/tmp/dagger-dev-{{.DIR}}" "{{.BRANCH}}"; then
-            echo "ERROR: git fetch from export failed. Export preserved at /tmp/dagger-dev-{{.DIR}}" >&2
-            echo "You can manually inspect and recover commits." >&2
-            exit 1
-          fi
-          if ! git rev-parse --verify FETCH_HEAD >/dev/null 2>&1; then
-            echo "ERROR: FETCH_HEAD not valid after fetch. Export preserved at /tmp/dagger-dev-{{.DIR}}" >&2
-            exit 1
-          fi
-          git update-ref "refs/heads/{{.BRANCH}}" FETCH_HEAD
-          git config "branch.{{.BRANCH}}.remote" origin
-          git config "branch.{{.BRANCH}}.merge" "refs/heads/{{.BRANCH}}"
-        elif [ -f "/tmp/dagger-dev-{{.DIR}}/.git" ]; then
-          echo "WARNING: export has a .git file (worktree pointer) instead of a directory; skipping commit import" >&2
-        else
-          echo "WARNING: export has no .git directory; skipping commit import" >&2
-        fi
-      # Ensure host worktree exists. Uses absolute path from git's
-      # worktree tracking so this works when invoked from a worktree.
-      - |
-        if [ ! -d "{{.WT_DIR}}" ]; then
-          mkdir -p "$(dirname "{{.WT_DIR}}")"
-          if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
-            git worktree add "{{.WT_DIR}}" "{{.BRANCH}}"
-          else
-            git worktree add -b "{{.BRANCH}}" "{{.WT_DIR}}"
-          fi
-        fi
+      # Import container commits into host repo
+      - task: _dev-sync-import-commits
+        vars:
+          DIR: "{{.DIR}}"
+          BRANCH: "{{.BRANCH}}"
+      - cmd: 'echo "WARNING: export has a .git file (worktree pointer) instead of a directory; skipping commit import" >&2'
+        if: '[ -f "/tmp/dagger-dev-{{.DIR}}/.git" ]'
+      - cmd: 'echo "WARNING: export has no .git directory; skipping commit import" >&2'
+        if: '[ ! -d "/tmp/dagger-dev-{{.DIR}}/.git" ] && [ ! -f "/tmp/dagger-dev-{{.DIR}}/.git" ]'
+      # Ensure host worktree exists
+      - task: _dev-sync-ensure-worktree
+        vars:
+          WT_DIR: "{{.WT_DIR}}"
+          BRANCH: "{{.BRANCH}}"
       # Update worktree to branch tip (handles existing worktrees)
       - git -C "{{.WT_DIR}}" reset --hard "{{.BRANCH}}"
-      # Validate export before rsync --delete to prevent wiping the worktree
-      - |
-        if [ ! -f "/tmp/dagger-dev-{{.DIR}}/go.mod" ]; then
-          echo "ERROR: export validation failed: go.mod not found in /tmp/dagger-dev-{{.DIR}}" >&2
-          echo "Export preserved for manual inspection." >&2
-          exit 1
-        fi
-      # Sync export to worktree (rsync --delete mirrors exactly, including deletions)
-      - rsync -a --exclude=.git --delete "/tmp/dagger-dev-{{.DIR}}/" "{{.WT_DIR}}/"
-      # Clean up temp
-      - rm -rf "/tmp/dagger-dev-{{.DIR}}"
+      # Validate export and sync to worktree
+      - task: _dev-sync-apply
+        vars:
+          DIR: "{{.DIR}}"
+          WT_DIR: "{{.WT_DIR}}"
 
   _dev-session:
     internal: true
     interactive: true
     requires:
       vars: [BRANCH, BASE, DIR]
+    vars:
+      LOCKFILE: /tmp/dagger-dev-{{.DIR}}.lock
+    preconditions:
+      - sh: '! [ -f "{{.LOCKFILE}}" ] || ! kill -0 $(cat "{{.LOCKFILE}}") 2>/dev/null'
+        msg: "another dev session for branch '{{.BRANCH}}' is running. If this is stale, remove {{.LOCKFILE}} and retry."
     cmds:
-      - |
-        LOCKFILE="/tmp/dagger-dev-{{.DIR}}.lock"
-        if [ -f "$LOCKFILE" ]; then
-          EXISTING_PID=$(cat "$LOCKFILE")
-          if kill -0 "$EXISTING_PID" 2>/dev/null; then
-            echo "ERROR: another dev session for branch '{{.BRANCH}}' is running (PID $EXISTING_PID)" >&2
-            echo "If this is stale, remove $LOCKFILE and retry." >&2
-            exit 1
-          fi
-          echo "WARNING: removing stale lockfile (PID $EXISTING_PID no longer running)" >&2
-        fi
-        echo $PPID > "$LOCKFILE"
-      - defer: rm -f "/tmp/dagger-dev-{{.DIR}}.lock"
+      - cmd: 'echo "WARNING: removing stale lockfile (PID $(cat "{{.LOCKFILE}}") no longer running)" >&2'
+        if: '[ -f "{{.LOCKFILE}}" ]'
+      - cmd: 'echo $PPID > "{{.LOCKFILE}}"'
+      - defer: rm -f "{{.LOCKFILE}}"
       - rm -rf "/tmp/dagger-dev-{{.DIR}}" "/tmp/dagger-dev-{{.DIR}}.partial"
       - defer: rm -rf "/tmp/dagger-dev-{{.DIR}}.partial"
       - >-
@@ -445,15 +458,11 @@ tasks:
     vars:
       DIR: '{{.BRANCH | replace "/" "-"}}'
     cmds:
-      - |
-        mkdir -p .worktrees
-        if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
-          git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
-        elif git show-ref --verify --quiet "refs/remotes/origin/{{.BRANCH}}"; then
-          git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
-        else
-          git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
-        fi
+      - mkdir -p .worktrees
+      - cmd: git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
+        if: 'git show-ref --verify --quiet "refs/heads/{{.BRANCH}}" || git show-ref --verify --quiet "refs/remotes/origin/{{.BRANCH}}"'
+      - cmd: git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
+        if: '! git show-ref --verify --quiet "refs/heads/{{.BRANCH}}" && ! git show-ref --verify --quiet "refs/remotes/origin/{{.BRANCH}}"'
 
   dev:clean:
     desc: Removes orphaned /tmp/dagger-dev-* directories and lockfiles
@@ -490,15 +499,7 @@ tasks:
     vars:
       DIR: '{{.BRANCH | replace "/" "-"}}'
     cmds:
-      - |
-        if [ -d ".worktrees/{{.DIR}}" ]; then
-          git worktree remove ".worktrees/{{.DIR}}"
-        else
-          echo "WARNING: worktree .worktrees/{{.DIR}} does not exist; skipping removal" >&2
-        fi
-      - |
-        if git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"; then
-          git branch -D "{{.BRANCH}}"
-        else
-          echo "WARNING: branch {{.BRANCH}} does not exist; skipping deletion" >&2
-        fi
+      - cmd: git worktree remove ".worktrees/{{.DIR}}"
+        if: '[ -d ".worktrees/{{.DIR}}" ]'
+      - cmd: git branch -D "{{.BRANCH}}"
+        if: 'git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"'
