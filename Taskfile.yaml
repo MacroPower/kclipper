@@ -81,10 +81,15 @@ tasks:
     cmds:
       - dagger check test
 
+  test:goci:
+    desc: Runs go toolchain module integration tests via Dagger
+    cmds:
+      - dagger check -m toolchains/go/tests
+
   test:integration:
     desc: Runs CI module integration tests via Dagger
     cmds:
-      - dagger check -m ci/tests
+      - dagger check -m .dagger/tests
 
   build:
     desc: Builds all binaries via Dagger

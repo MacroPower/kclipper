@@ -1,7 +1,7 @@
 # CI Module
 
-Dagger-based CI/CD module for kclipper. All CI tasks (testing, linting,
-formatting, building, releasing) run in containers orchestrated by Dagger.
+Dagger-based CI/CD for kclipper. All CI tasks (testing, linting, formatting,
+building, releasing) run in containers orchestrated by Dagger.
 
 ## Quick Reference
 
@@ -20,25 +20,54 @@ dagger call lint-commit-msg --msg-file=.git/COMMIT_EDITMSG  # Validate commit me
 
 ## Architecture
 
-The module is a single Go package (`ci/main.go`) exposing public methods as
-Dagger Functions. The `dagger.json` at the repo root configures the module:
+Three Dagger modules work together:
+
+- **`go`** (toolchain) — Reusable Go CI module with generic functions (test,
+  lint, format, publish). Lives at `toolchains/go/` with its own `dagger.json`.
+  Can be consumed by any Go project.
+- **`dev`** (toolchain) — Reusable development container module (DevBase,
+  DevEnv, Dev). Lives at `toolchains/dev/` with its own `dagger.json`. Fully
+  independent from the `go` module.
+- **`kclipper-dev`** — Kclipper-specific thin layer that delegates generic
+  work to the `go` and `dev` toolchains and adds project-specific functions
+  (build, release, runtime images). Lives at `.dagger/` and is the root module
+  configured in `dagger.json`.
 
 ```
-dagger.json          # Module config (name, engine version, SDK, source dir)
-ci/
-  main.go            # All CI functions
-  go.mod             # Module dependencies (dagger SDK, otel, etc.)
-  dagger.gen.go      # Auto-generated (do not edit)
-  internal/dagger/   # Auto-generated SDK (do not edit)
-  tests/             # Test module (imports ci as dependency)
+dagger.json          # Root module config (name=kclipper-dev, depends on go + dev)
+toolchains/
+  go/
+    dagger.json      # Reusable module config (name=go)
+    main.go          # Generic Go CI functions
+    tests/           # Generic function tests
+  dev/
+    dagger.json      # Reusable module config (name=dev)
+    main.go          # Dev container functions
+    tests/           # Dev container tests
+.dagger/
+  main.go            # Kclipper-specific wrappers + functions
+  tests/             # Kclipper-specific integration tests
 ```
 
-Go build environments are created manually using `golang:` base images (see
-`goBase()`, `lintBase()`, `releaserBase()`).
+The `kclipper-dev` module depends on both toolchains via local path
+dependencies in `dagger.json`. Most kclipper-dev functions are thin one-liner
+wrappers that call `m.goToolchain().Method(...)` or
+`m.devToolchain().Method(...)`. This is necessary because Dagger
+`+check`/`+generate` annotations don't propagate across module boundaries.
 
-`ci/tests/` is a separate Dagger module that imports CI and tests its public
-API. To add a test: add a `+check`-annotated method on `Tests` and register it
-in `All`.
+### What lives where
+
+| `go` toolchain (CI)                                                        | `dev` toolchain (dev containers)  | `kclipper-dev` (kclipper-specific)                                  |
+| -------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------- |
+| Test, TestCoverage                                                         | DevBase, DevEnv, Dev              | Build, Release                                                      |
+| Lint, LintPrettier, LintActions, LintReleaser, LintDeadcode, LintCommitMsg | applyDevConfig, devToolBins       | BuildImages, PublishImages (builds images, delegates publish to go) |
+| Format, Generate                                                           | claudeCodeFiles, sanitizeCacheKey | releaserBase (Zig cross-compilation, macOS SDK, KCL LSP)            |
+| GoBase, LintBase, PrettierBase, GoModBase                                  | Shell/tool version constants      | runtimeImages, runtimeBase (KCL env, OCI labels)                    |
+| EnsureGitInit, EnsureGitRepo                                               | starshipConfig, zshConfig         | DevBase/DevEnv/Dev wrappers (pass clone URL)                        |
+| PublishImages (publish+sign workflow)                                      | devInitScript                     | Benchmark/BenchmarkSummary (add build stage)                        |
+| VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost       |                                   |                                                                     |
+| Benchmark (generic stages), BenchmarkSummary                               |                                   |                                                                     |
+| CI version constants (Go, golangci-lint, prettier, etc.)                   |                                   | Project-specific versions (Zig, syft, KCL LSP)                      |
 
 ### Function Categories
 
@@ -62,20 +91,19 @@ pipeline stages that the test module exercises without needing `Terminal()`.
 
 ## Adding a New Check
 
+For **generic CI** checks (useful to any Go project), add to `toolchains/go/main.go`.
+For **dev container** functions, add to `toolchains/dev/main.go`.
+For **kclipper-specific** checks, add to `.dagger/main.go` (or add a thin wrapper
+that delegates to the appropriate toolchain).
+
 1. Add a public method with `// +check` annotation:
 
 ```go
 // LintFoo checks foo.
 //
 // +check
-func (m *Ci) LintFoo(ctx context.Context) error {
-    _, err := dag.Container().
-        From("image:tag").
-        WithMountedDirectory("/src", m.Source).
-        WithWorkdir("/src").
-        WithExec([]string{"foo", "check"}).
-        Sync(ctx)
-    return err
+func (m *KclipperDev) LintFoo(ctx context.Context) error {
+    return m.goToolchain().LintFoo(ctx)  // delegate to go toolchain
 }
 ```
 
@@ -90,14 +118,8 @@ func (m *Ci) LintFoo(ctx context.Context) error {
 // GenerateFoo generates foo files.
 //
 // +generate
-func (m *Ci) GenerateFoo() *dagger.Changeset {
-    generated := dag.Container().
-        From("image:tag").
-        WithMountedDirectory("/src", m.Source).
-        WithWorkdir("/src").
-        WithExec([]string{"foo", "generate"}).
-        Directory("/src")
-    return generated.Changes(m.Source)
+func (m *KclipperDev) GenerateFoo() *dagger.Changeset {
+    return m.goToolchain().GenerateFoo()  // delegate to go toolchain
 }
 ```
 
@@ -126,15 +148,15 @@ func (m *Ci) GenerateFoo() *dagger.Changeset {
 ## Dev Container
 
 The `Dev()` function creates a git-aware development container with real commit
-history. It delegates to `DevEnv()` for environment setup (git clone, branch
-checkout, source overlay), then adds configuration mounts, `go mod download`,
-the interactive terminal, and export. The `devInitScript` constant holds the
-shared shell script for git initialization.
+history. The kclipper-dev module's `Dev()` wraps `dev.Dev()` with the kclipper
+clone URL. The dev toolchain module handles the generic dev container setup:
+tool installation (`DevBase`), git clone + source overlay (`DevEnv`), and
+interactive terminal + export (`Dev`).
 
 **Always use `task dev` or `task claude`** — raw `dagger call dev --output=.`
 would overwrite the host's `.git` worktree file.
 
-Container behaviors (see `devInitScript` for details):
+Container behaviors (see `devInitScript` in `toolchains/dev/main.go` for details):
 
 - Blobless clone (`--filter=blob:none`) for full history with on-demand blobs.
 - Per-branch cache volumes (`dev-src-<branch>`) for branch isolation.
@@ -167,10 +189,13 @@ approaches, fastest to slowest:
 
 - **Static `.git/HEAD` injection** — `Directory.WithNewFile(".git/HEAD", ...)`.
   Zero exec overhead. Use when the tool just needs to locate the repo root.
-- **`ensureGitInit`** — runs `git init`. Use when a real git repo is needed
+- **`EnsureGitInit`** — runs `git init`. Use when a real git repo is needed
   but committed files are not.
-- **`ensureGitRepo`** — runs `git init`, `git add -A`, `git commit`. Use when
+- **`EnsureGitRepo`** — runs `git init`, `git add -A`, `git commit`. Use when
   the tool requires committed files (e.g. GoReleaser).
+
+These helpers live in the `go` toolchain and are called via
+`m.goToolchain().EnsureGitInit(...)`.
 
 **Convention:** prefer static injection for new pipelines.
 
@@ -194,13 +219,13 @@ The CI module uses a three-tier caching approach to minimize redundant work:
 1. **Dagger function caching** — Dagger caches function results by default
    (7-day TTL). Functions with external side effects use `// +cache="never"`.
 
-2. **Module pre-download layer** (`goModBase`) — The `New` constructor accepts
-   a separate `goMod` directory parameter synced with
+2. **Module pre-download layer** (`GoModBase`) — The constructor accepts a
+   separate `goMod` directory parameter synced with
    `+ignore=["*", "!go.mod", "!go.sum"]`. This gives it a content hash
    independent of `source`, so its cache key changes only when dependency
-   files change. `goModBase` copies this directory into the container and runs
+   files change. `GoModBase` copies this directory into the container and runs
    `go mod download` before mounting the full source and cache volumes. Both
-   `lintBase()` and `goBase()` delegate to `goModBase`.
+   `LintBase()` and `GoBase()` delegate to `GoModBase`.
 
 3. **Cache volumes** — Named Dagger cache volumes persist across runs.
    Volume names include tool versions so that version bumps start fresh:
@@ -227,5 +252,14 @@ it belongs in the Taskfile. Everything else belongs in Dagger.
 
 Tool versions are declared as constants at the top of `main.go` with Renovate
 annotations for automated updates (e.g. `// renovate: datasource=... depName=...`).
-Change the constant value to update a version. The Dagger engine version is
-pinned in both `dagger.json` (`engineVersion`) and the `daggerVersion` constant.
+
+- **CI tool versions** (Go, golangci-lint, prettier, etc.) are in
+  `toolchains/go/main.go`. Updating the go toolchain updates these for all
+  consumers.
+- **Dev tool versions** (task, lefthook, dagger, starship, yq, uv, gh,
+  claude-code) are in `toolchains/dev/main.go`.
+- **Project-specific versions** (Zig, syft, KCL LSP, GoReleaser Go version)
+  are in `.dagger/main.go`.
+
+The Dagger engine version is pinned in `dagger.json` (`engineVersion`) and
+the `daggerVersion` constant in `toolchains/dev/main.go`.

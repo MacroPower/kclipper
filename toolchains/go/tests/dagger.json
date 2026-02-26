@@ -6,8 +6,8 @@
   },
   "dependencies": [
     {
-      "name": "ci",
-      "source": "../.."
+      "name": "go",
+      "source": ".."
     }
   ]
 }

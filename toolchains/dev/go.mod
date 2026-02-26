@@ -1,4 +1,4 @@
-module dagger/ci
+module dagger/dev
 
 go 1.25.6
 

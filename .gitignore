@@ -20,9 +20,6 @@ dist/
 .vscode/
 .idea/
 
-# Dagger
-.dagger/
-
 # Temp files
 .tmp/
 .task/
