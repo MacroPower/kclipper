@@ -15,12 +15,12 @@ task dev                              # Dev container (branch defaults to curren
 task dev BRANCH=feat/foo              # Dev container with explicit branch
 task claude                           # Claude Code container (branch defaults to current)
 task claude BRANCH=feat/foo           # Claude Code container with explicit branch
-dagger call go lint-commit-msg --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
+dagger call commitlint lint --source=. --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
 ```
 
 ## Architecture
 
-Three Dagger toolchain modules work together:
+Four Dagger toolchain modules work together:
 
 - **`go`** (toolchain) — Reusable Go CI module with generic functions (test,
   lint, format, publish). Lives at `toolchains/go/` with its own `dagger.json`.
@@ -29,6 +29,10 @@ Three Dagger toolchain modules work together:
 - **`dev`** (toolchain) — Reusable development container module (DevBase,
   DevEnv, Dev). Lives at `toolchains/dev/` with its own `dagger.json`. Fully
   independent from the `go` module.
+- **`commitlint`** (toolchain) — Standalone commitlint module for validating
+  commit messages against conventional commit rules. Lives at
+  `toolchains/commitlint/` with its own `dagger.json`. Independent of all
+  other toolchains.
 - **`kclipper`** (toolchain) — Kclipper-specific CI layer that depends on `go`
   and `dev` and adds project-specific functions (build, release, runtime
   images, dev container wrappers). Lives at `toolchains/kclipper/`.
@@ -39,11 +43,15 @@ toolchains/
   go/
     dagger.json      # Reusable module config (name=go)
     main.go          # Struct, constructor, constants, base containers, helpers
-    check.go         # Test, TestCoverage, Lint, LintPrettier, LintActions, LintReleaser, LintDeadcode, LintCommitMsg
+    check.go         # Test, TestCoverage, Lint, LintPrettier, LintActions, LintReleaser, LintDeadcode
     generate.go      # Format, Generate
     publish.go       # PublishImages, VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost
     bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, CacheBust, benchmarkStages, runBenchmarks
     tests/           # Generic function tests
+  commitlint/
+    dagger.json      # Standalone module config (name=commitlint)
+    main.go          # Struct, constructor, Lint
+    tests/           # Commitlint tests
   dev/
     dagger.json      # Reusable module config (name=dev)
     main.go          # Dev container functions
@@ -58,26 +66,26 @@ toolchains/
     tests/           # Kclipper-specific integration tests
 ```
 
-The root `dagger.json` registers `go` and `kclipper` as toolchains with
-`customizations` that declare source ignore patterns (e.g. `dist`,
-`.worktrees`, `.tmp`, `.git`) at the project level. The `kclipper` module
-depends on both `go` and `dev` via local path dependencies and delegates
-generic CI work to those modules.
+The root `dagger.json` registers `go`, `commitlint`, and `kclipper` as
+toolchains with `customizations` that declare source ignore patterns (e.g.
+`dist`, `.worktrees`, `.tmp`, `.git`) at the project level. The `kclipper`
+module depends on both `go` and `dev` via local path dependencies and
+delegates generic CI work to those modules.
 
 ### What lives where
 
-| `go` toolchain (CI)                                                  | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                            |
-| -------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------- |
-| Test (+check), TestCoverage                                          | DevBase, DevEnv, Dev              | Build, Release                                                      |
-| Lint (+check), LintPrettier (+check), LintActions (+check)           | applyDevConfig, devToolBins       | BuildImages, PublishImages (builds images, delegates publish to go) |
-| LintReleaser, LintDeadcode, LintCommitMsg                            | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check, uses kclipper clone URL)                      |
-| Format (+generate), Generate (+generate)                             | Shell/tool version constants      | releaserBase (extends ReleaserBase with Zig, macOS SDK, KCL LSP)    |
-| GoBase, LintBase, PrettierBase, GoModBase, ReleaserBase              | starshipConfig, zshConfig         | runtimeImages, runtimeBase (KCL env, OCI labels)                    |
-| EnsureGitInit, EnsureGitRepo                                         | devInitScript                     | DevEnv/Dev wrappers (pass clone URL)                                |
-| PublishImages (publish+sign workflow)                                |                                   | Benchmark/BenchmarkSummary (add build stage)                        |
-| VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost |                                   |                                                                     |
-| Benchmark (generic stages), BenchmarkSummary                         |                                   |                                                                     |
-| CI version constants (Go, golangci-lint, prettier, cosign, syft)     |                                   | Project-specific versions (Zig, KCL LSP)                            |
+| `go` toolchain (CI)                                                  | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                            |
+| -------------------------------------------------------------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------- |
+| Test (+check), TestCoverage                                          | Lint                     | DevBase, DevEnv, Dev              | Build, Release                                                      |
+| Lint (+check), LintPrettier (+check), LintActions (+check)           |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages (builds images, delegates publish to go) |
+| LintReleaser, LintDeadcode                                           |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check, uses kclipper clone URL)                      |
+| Format (+generate), Generate (+generate)                             |                          | Shell/tool version constants      | releaserBase (extends ReleaserBase with Zig, macOS SDK, KCL LSP)    |
+| GoBase, LintBase, PrettierBase, GoModBase, ReleaserBase              |                          | starshipConfig, zshConfig         | runtimeImages, runtimeBase (KCL env, OCI labels)                    |
+| EnsureGitInit, EnsureGitRepo                                         |                          | devInitScript                     | DevEnv/Dev wrappers (pass clone URL)                                |
+| PublishImages (publish+sign workflow)                                |                          |                                   | Benchmark/BenchmarkSummary (add build stage)                        |
+| VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost |                          |                                   |                                                                     |
+| Benchmark (generic stages), BenchmarkSummary                         |                          |                                   |                                                                     |
+| CI version constants (Go, golangci-lint, prettier, cosign, syft)     | commitlint image version |                                   | Project-specific versions (Zig, KCL LSP)                            |
 
 ### Function Categories
 
@@ -90,8 +98,8 @@ generic CI work to those modules.
 | Development | (none)         | `dagger call kclipper dev --output=.` | Interactive container with persistent export.  |
 | Testable    | (none)         | `dagger call <toolchain> <name>`      | Non-interactive building blocks for tests.     |
 
-`LintCommitMsg` is in the Callable category because it requires a mandatory
-`msgFile` argument and cannot be a `+check` function.
+`commitlint lint` is in the Callable category because it requires mandatory
+`source` and `args` arguments and cannot be a `+check` function.
 
 `LintDeadcode` is in the Callable category as an opt-in advisory lint. It is
 not a `+check` function so it does not run during `dagger check`.
@@ -276,6 +284,8 @@ with Renovate annotations for automated updates (e.g.
 - **CI tool versions** (Go, golangci-lint, prettier, cosign, syft, etc.) are
   in `toolchains/go/main.go`. The Go version is also configurable via the
   constructor's optional `goVersion` parameter (defaults to `defaultGoVersion`).
+- **Commitlint image version** is in `toolchains/commitlint/main.go`
+  (`defaultImage` constant with a Renovate Docker datasource annotation).
 - **Dev tool versions** (task, lefthook, dagger, starship, yq, uv, gh,
   claude-code) are in `toolchains/dev/main.go`.
 - **Project-specific versions** (Zig, KCL LSP) are in

@@ -48,7 +48,7 @@ func (m *Tests) TestDevBase(ctx context.Context) error {
 	ctr := dag.Dev().DevBase()
 
 	tools := []string{
-		"go", "task", "dagger", "conform", "lefthook", "claude",
+		"go", "task", "dagger", "lefthook", "claude",
 		"starship", "yq", "uv", "gh", "direnv",
 		"rg", "fd", "bat", "fzf", "tree", "htop",
 		"node", "npm", "npx",

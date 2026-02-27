@@ -20,7 +20,6 @@ const (
 	prettierVersion     = "3.5.3"           // renovate: datasource=npm depName=prettier
 	zizmorVersion       = "1.22.0"          // renovate: datasource=github-releases depName=zizmorcore/zizmor
 	deadcodeVersion     = "v0.42.0"         // renovate: datasource=go depName=golang.org/x/tools
-	conformVersion      = "v0.1.0-alpha.31" // renovate: datasource=github-releases depName=siderolabs/conform
 	cosignVersion       = "v3.0.4"          // renovate: datasource=github-releases depName=sigstore/cosign
 	syftVersion         = "v1.41.1"         // renovate: datasource=github-releases depName=anchore/syft
 )

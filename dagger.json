@@ -38,6 +38,10 @@
           ]
         }
       ]
+    },
+    {
+      "name": "commitlint",
+      "source": "toolchains/commitlint"
     }
   ],
   "include": [

@@ -36,7 +36,6 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestRegistryHost(ctx) })
 	g.Go(func() error { return m.TestGenerateIdempotent(ctx) })
 	g.Go(func() error { return m.TestCoverageProfile(ctx) })
-	g.Go(func() error { return m.TestLintCommitMsg(ctx) })
 	g.Go(func() error { return m.TestEnv(ctx) })
 	g.Go(func() error { return m.TestBuild(ctx) })
 	g.Go(func() error { return m.TestBinary(ctx) })
@@ -298,28 +297,6 @@ func (m *Tests) TestGenerateIdempotent(ctx context.Context) error {
 		return fmt.Errorf("expected empty changeset on clean source, modified=%v added=%v removed=%v",
 			modified, added, removed)
 	}
-	return nil
-}
-
-// TestLintCommitMsg verifies that [Go.LintCommitMsg] accepts valid
-// conventional commit messages and rejects invalid ones.
-//
-// +check
-func (m *Tests) TestLintCommitMsg(ctx context.Context) error {
-	validMsg := dag.Directory().
-		WithNewFile("COMMIT_EDITMSG", "feat(cli): add new flag for output format\n").
-		File("COMMIT_EDITMSG")
-	if err := dag.Go().LintCommitMsg(ctx, validMsg); err != nil {
-		return fmt.Errorf("valid commit message rejected: %w", err)
-	}
-
-	invalidMsg := dag.Directory().
-		WithNewFile("COMMIT_EDITMSG", "This is not a conventional commit.\n").
-		File("COMMIT_EDITMSG")
-	if err := dag.Go().LintCommitMsg(ctx, invalidMsg); err == nil {
-		return fmt.Errorf("invalid commit message was not rejected")
-	}
-
 	return nil
 }
 

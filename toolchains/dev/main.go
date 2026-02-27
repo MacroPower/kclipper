@@ -13,7 +13,6 @@ import (
 
 const (
 	goVersion         = "1.25"            // renovate: datasource=golang-version depName=go
-	conformVersion    = "v0.1.0-alpha.31" // renovate: datasource=github-releases depName=siderolabs/conform
 	taskVersion       = "v3.48.0"         // renovate: datasource=github-releases depName=go-task/task
 	lefthookVersion   = "v2.1.1"          // renovate: datasource=github-releases depName=evilmartians/lefthook
 	daggerVersion     = "v0.19.11"        // renovate: datasource=github-releases depName=dagger/dagger
@@ -448,9 +447,6 @@ func devToolBins() *dagger.Directory {
 				"tar xz -O gh_" + ghVer + "_linux_${GOARCH}/bin/gh > /tools/gh && chmod +x /tools/gh",
 		}).
 		// OCI image binaries.
-		WithFile("/tools/conform",
-			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
-				File("/conform")).
 		WithFile("/tools/dagger",
 			dag.Container().From("registry.dagger.io/engine:"+daggerVersion).
 				File("/usr/local/bin/dagger")).

@@ -7,5 +7,5 @@ pre-commit:
 
 commit-msg:
   commands:
-    conform:
-      run: dagger --silent call go lint-commit-msg --msg-file={1}
+    commitlint:
+      run: dagger --silent call commitlint lint --source=. --msg-file={1}
