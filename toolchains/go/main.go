@@ -65,6 +65,8 @@ func New(
 // Test runs the Go test suite. Uses only cacheable flags so that Go's
 // internal test result cache (GOCACHE) can skip unchanged packages
 // across runs via the persistent go-build cache volume.
+//
+// +check
 func (m *Go) Test(ctx context.Context) error {
 	_, err := m.GoBase().
 		WithExec([]string{"go", "test", "./..."}).
@@ -90,6 +92,8 @@ func (m *Go) TestCoverage() *dagger.File {
 // ---------------------------------------------------------------------------
 
 // Lint runs golangci-lint on the source code.
+//
+// +check
 func (m *Go) Lint(ctx context.Context) error {
 	_, err := m.LintBase().
 		WithExec([]string{"golangci-lint", "run"}).
@@ -98,6 +102,8 @@ func (m *Go) Lint(ctx context.Context) error {
 }
 
 // LintPrettier checks YAML, JSON, and Markdown formatting.
+//
+// +check
 func (m *Go) LintPrettier(
 	ctx context.Context,
 	// Prettier config file path relative to source root.
@@ -123,6 +129,8 @@ func (m *Go) LintPrettier(
 }
 
 // LintActions runs zizmor to lint GitHub Actions workflows.
+//
+// +check
 func (m *Go) LintActions(ctx context.Context) error {
 	_, err := dag.Container().
 		From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion).
@@ -415,6 +423,8 @@ func (m *Go) runBenchmarksParallel(ctx context.Context, stages []benchmarkStage)
 // .yaml/.md/.json), so they run against the original source in parallel.
 // The results are merged by overlaying Prettier's output onto the
 // Go-formatted source.
+//
+// +generate
 func (m *Go) Format() *dagger.Changeset {
 	patterns := defaultPrettierPatterns()
 
@@ -449,6 +459,8 @@ func (m *Go) Format() *dagger.Changeset {
 
 // Generate runs go generate and returns the changeset of generated files
 // against the original source.
+//
+// +generate
 func (m *Go) Generate() *dagger.Changeset {
 	generated := m.GoBase().
 		WithExec([]string{"go", "generate", "./..."}).

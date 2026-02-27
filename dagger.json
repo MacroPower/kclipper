@@ -1,24 +1,14 @@
 {
   "name": "kclipper-dev",
-  "engineVersion": "v0.19.11",
-  "sdk": {
-    "source": "go"
-  },
+  "engineVersion": "v0.20.0",
   "toolchains": [
-    {
-      "name": "go",
-      "source": "toolchains/go"
-    }
-  ],
-  "dependencies": [
     {
       "name": "go",
       "source": "toolchains/go"
     },
     {
-      "name": "dev",
-      "source": "toolchains/dev"
+      "name": "kclipper",
+      "source": "toolchains/kclipper"
     }
-  ],
-  "source": ".dagger"
+  ]
 }

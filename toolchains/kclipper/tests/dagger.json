@@ -1,0 +1,21 @@
+{
+  "name": "tests",
+  "engineVersion": "v0.20.0",
+  "sdk": {
+    "source": "go"
+  },
+  "dependencies": [
+    {
+      "name": "kclipper",
+      "source": ".."
+    },
+    {
+      "name": "go",
+      "source": "../../go"
+    },
+    {
+      "name": "dev",
+      "source": "../../dev"
+    }
+  ]
+}

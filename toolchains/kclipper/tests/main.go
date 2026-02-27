@@ -1,5 +1,5 @@
-// Integration tests for the [KclipperDev] module. Individual tests are annotated
-// with +check so `dagger check -m .dagger/tests` runs them all concurrently.
+// Integration tests for the [Kclipper] module. Individual tests are annotated
+// with +check so `dagger check -m toolchains/kclipper/tests` runs them all concurrently.
 package main
 
 import (
@@ -17,7 +17,7 @@ const (
 	cosignVersion = "v3.0.4" // renovate: datasource=github-releases depName=sigstore/cosign
 )
 
-// Tests provides integration tests for the [KclipperDev] module. Create instances
+// Tests provides integration tests for the [Kclipper] module. Create instances
 // with [New].
 type Tests struct{}
 
@@ -33,12 +33,12 @@ func (m *Tests) All(ctx context.Context) error {
 	return g.Wait()
 }
 
-// TestBuildDist verifies that [KclipperDev.Build] returns a dist directory containing
+// TestBuildDist verifies that [Kclipper.Build] returns a dist directory containing
 // expected entries (checksums and at least one platform archive).
 //
 // +check
 func (m *Tests) TestBuildDist(ctx context.Context) error {
-	entries, err := dag.KclipperDev().Build().Entries(ctx)
+	entries, err := dag.Kclipper().Build().Entries(ctx)
 	if err != nil {
 		return fmt.Errorf("list dist entries: %w", err)
 	}
@@ -64,13 +64,13 @@ func (m *Tests) TestBuildDist(ctx context.Context) error {
 	return nil
 }
 
-// TestBuildImageMetadata verifies that [KclipperDev.BuildImages] produces containers
+// TestBuildImageMetadata verifies that [Kclipper.BuildImages] produces containers
 // with expected OCI labels, environment variables, and entrypoint.
 //
 // +check
 func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
-	dist := dag.KclipperDev().Build()
-	variants, err := dag.KclipperDev().BuildImages(ctx, dagger.KclipperDevBuildImagesOpts{
+	dist := dag.Kclipper().Build()
+	variants, err := dag.Kclipper().BuildImages(ctx, dagger.KclipperBuildImagesOpts{
 		Version: "v0.0.0-test",
 		Dist:    dist,
 	})
@@ -131,7 +131,7 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 	return nil
 }
 
-// TestPublishImages verifies that [KclipperDev.PublishImages] builds, publishes,
+// TestPublishImages verifies that [Kclipper.PublishImages] builds, publishes,
 // signs, and produces verifiable cosign signatures. Uses ttl.sh as an
 // anonymous temporary registry (images expire after the tag duration).
 //
@@ -143,7 +143,7 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 // Not annotated with +check because it depends on external network access
 // to ttl.sh and takes ~5 minutes. Run manually:
 //
-//	dagger call -m .dagger/tests test-publish-images
+//	dagger call -m toolchains/kclipper/tests test-publish-images
 func (m *Tests) TestPublishImages(ctx context.Context) error {
 	// Generate an ephemeral cosign key pair for signing and verification.
 	cosignCtr := dag.Container().
@@ -160,11 +160,11 @@ func (m *Tests) TestPublishImages(ctx context.Context) error {
 
 	// Use a unique registry path on ttl.sh to avoid collisions between runs.
 	registry := fmt.Sprintf("ttl.sh/kclipper-ci-%d", time.Now().UnixNano())
-	ci := dag.KclipperDev(dagger.KclipperDevOpts{Registry: registry})
+	ci := dag.Kclipper(dagger.KclipperOpts{Registry: registry})
 
 	// Publish 2 tags to exercise deduplication (both tags share one manifest digest).
 	dist := ci.Build()
-	result, err := ci.PublishImages(ctx, []string{"1h", "2h"}, dagger.KclipperDevPublishImagesOpts{
+	result, err := ci.PublishImages(ctx, []string{"1h", "2h"}, dagger.KclipperPublishImagesOpts{
 		Dist:           dist,
 		CosignKey:      cosignKey,
 		CosignPassword: cosignPassword,
@@ -220,30 +220,30 @@ func (m *Tests) TestPublishImages(ctx context.Context) error {
 }
 
 // TestLintReleaserClean verifies that the GoReleaser configuration passes
-// validation. This exercises the [KclipperDev.LintReleaser] check, which requires
+// validation. This exercises the [Kclipper.LintReleaser] check, which requires
 // the kclipper git remote for homebrew/nix repository resolution.
 //
 // +check
 func (m *Tests) TestLintReleaserClean(ctx context.Context) error {
-	return dag.KclipperDev().LintReleaser(ctx)
+	return dag.Kclipper().LintReleaser(ctx)
 }
 
 // TestLintDeadcodeClean verifies that the codebase has no unreachable
-// functions. This exercises [KclipperDev.LintDeadcode].
+// functions. This exercises [Go.LintDeadcode].
 func (m *Tests) TestLintDeadcodeClean(ctx context.Context) error {
-	return dag.KclipperDev().LintDeadcode(ctx)
+	return dag.Go().LintDeadcode(ctx)
 }
 
-// TestBenchmarkReturnsResults verifies that [KclipperDev.Benchmark] returns
+// TestBenchmarkReturnsResults verifies that [Kclipper.Benchmark] returns
 // non-empty results with expected stage names and positive durations.
 //
 // Not annotated with +check because benchmarks run the full pipeline
 // with cache-busting, which would duplicate all CI work in the
 // integration test suite. Run manually:
 //
-//	dagger call -m .dagger/tests test-benchmark-returns-results
+//	dagger call -m toolchains/kclipper/tests test-benchmark-returns-results
 func (m *Tests) TestBenchmarkReturnsResults(ctx context.Context) error {
-	results, err := dag.KclipperDev().Benchmark(ctx)
+	results, err := dag.Kclipper().Benchmark(ctx)
 	if err != nil {
 		return fmt.Errorf("run benchmark: %w", err)
 	}
@@ -297,15 +297,15 @@ func (m *Tests) TestBenchmarkReturnsResults(ctx context.Context) error {
 	return nil
 }
 
-// TestBenchmarkSummaryFormat verifies that [KclipperDev.BenchmarkSummary] returns
+// TestBenchmarkSummaryFormat verifies that [Kclipper.BenchmarkSummary] returns
 // a non-empty string containing the expected table header and stage names.
 //
 // Not annotated with +check because benchmarks run the full pipeline
 // with cache-busting (see [Tests.TestBenchmarkReturnsResults]). Run manually:
 //
-//	dagger call -m .dagger/tests test-benchmark-summary-format
+//	dagger call -m toolchains/kclipper/tests test-benchmark-summary-format
 func (m *Tests) TestBenchmarkSummaryFormat(ctx context.Context) error {
-	summary, err := dag.KclipperDev().BenchmarkSummary(ctx)
+	summary, err := dag.Kclipper().BenchmarkSummary(ctx)
 	if err != nil {
 		return fmt.Errorf("run benchmark summary: %w", err)
 	}

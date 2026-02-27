@@ -8,4 +8,4 @@ pre-commit:
 commit-msg:
   commands:
     conform:
-      run: dagger --silent call lint-commit-msg --msg-file={1}
+      run: dagger --silent call go lint-commit-msg --msg-file={1}

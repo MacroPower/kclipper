@@ -1,5 +1,5 @@
 {
-  "name": "tests",
+  "name": "kclipper",
   "engineVersion": "v0.20.0",
   "sdk": {
     "source": "go"
@@ -7,7 +7,11 @@
   "dependencies": [
     {
       "name": "go",
-      "source": ".."
+      "source": "../go"
+    },
+    {
+      "name": "dev",
+      "source": "../dev"
     }
   ]
 }

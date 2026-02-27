@@ -47,39 +47,39 @@ tasks:
   lint:
     desc: Runs all lint checks via Dagger
     cmds:
-      - dagger check lint lint-prettier lint-actions lint-releaser
+      - dagger check go:lint go:lint-prettier go:lint-actions kclipper:lint-releaser
 
   lint:go:
     desc: Lints Go code via Dagger
     cmds:
-      - dagger check lint
+      - dagger check go:lint
 
   lint:prettier:
     desc: Checks formatting of YAML, JSON, and Markdown via Dagger
     cmds:
-      - dagger check lint-prettier
+      - dagger check go:lint-prettier
 
   lint:actions:
     desc: Lints GitHub Actions workflows via Dagger
     cmds:
-      - dagger check lint-actions
+      - dagger check go:lint-actions
 
   lint:releaser:
     desc: Validates GoReleaser configuration via Dagger
     cmds:
-      - dagger check lint-releaser
+      - dagger check kclipper:lint-releaser
 
   lint:commit-msg:
     desc: Validates commit message format via Dagger
     requires:
       vars: [MSG_FILE]
     cmds:
-      - dagger call lint-commit-msg --msg-file={{.MSG_FILE}}
+      - dagger call go lint-commit-msg --msg-file={{.MSG_FILE}}
 
   test:
     desc: Runs Go tests via Dagger
     cmds:
-      - dagger check test
+      - dagger check go:test
 
   test:goci:
     desc: Runs go toolchain module integration tests via Dagger
@@ -89,17 +89,17 @@ tasks:
   test:integration:
     desc: Runs CI module integration tests via Dagger
     cmds:
-      - dagger check -m .dagger/tests
+      - dagger check -m toolchains/kclipper/tests
 
   build:
     desc: Builds all binaries via Dagger
     cmds:
-      - dagger call build --output=./dist
+      - dagger call kclipper build --output=./dist
 
   cover:
     desc: Runs Go tests with coverage via Dagger
     cmds:
-      - dagger call test-coverage --output=coverage.txt
+      - dagger call go test-coverage --output=coverage.txt
 
   check:
     desc: Runs all checks via Dagger
@@ -109,12 +109,12 @@ tasks:
   benchmark:
     desc: Measures pipeline stage timings via Dagger
     cmds:
-      - dagger call benchmark-summary
+      - dagger call kclipper benchmark-summary
 
   benchmark:parallel:
     desc: Measures full-pipeline wall-clock time via Dagger (parallel)
     cmds:
-      - dagger call benchmark-summary --parallel
+      - dagger call kclipper benchmark-summary --parallel
 
   release:
     desc: Runs full release via Dagger
@@ -122,7 +122,7 @@ tasks:
       vars: [GITHUB_TOKEN, TAG, REGISTRY_USERNAME, REGISTRY_PASSWORD]
     cmds:
       - >-
-        dagger call release
+        dagger call kclipper release
         --github-token=env://GITHUB_TOKEN
         --registry-username={{.REGISTRY_USERNAME}}
         --registry-password=env://REGISTRY_PASSWORD
@@ -167,7 +167,7 @@ tasks:
   lint:deadcode:
     desc: Checks for unreachable Go functions via Dagger
     cmds:
-      - dagger call lint-deadcode
+      - dagger call go lint-deadcode
 
   go-bench-init:
     desc: Run Go benchmarks with init tracing
@@ -403,7 +403,7 @@ tasks:
       - rm -rf "/tmp/dagger-dev-{{.DIR}}" "/tmp/dagger-dev-{{.DIR}}.partial"
       - defer: rm -rf "/tmp/dagger-dev-{{.DIR}}.partial"
       - >-
-        dagger call dev
+        dagger call kclipper dev
         --branch={{.BRANCH}}
         --base={{.BASE}}
         --git-config ~/.config/git

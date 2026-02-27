@@ -6,79 +6,79 @@ building, releasing) run in containers orchestrated by Dagger.
 ## Quick Reference
 
 ```bash
-dagger check                  # Run all checks (+check functions)
-dagger check lint             # Run specific check(s)
-dagger call lint-deadcode     # Run deadcode analysis (opt-in, advisory)
-dagger generate --auto-apply  # Run generators (Format + Generate) and apply changes
-dagger call build --output=./dist       # Build binaries
-task dev                      # Dev container (branch defaults to current)
-task dev BRANCH=feat/foo      # Dev container with explicit branch
-task claude                   # Claude Code container (branch defaults to current)
-task claude BRANCH=feat/foo   # Claude Code container with explicit branch
-dagger call lint-commit-msg --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
+dagger check                          # Run all checks (+check functions)
+dagger check go:lint                  # Run specific check(s)
+dagger call go lint-deadcode          # Run deadcode analysis (opt-in, advisory)
+dagger generate --auto-apply          # Run generators (Format + Generate) and apply changes
+dagger call kclipper build --output=./dist       # Build binaries
+task dev                              # Dev container (branch defaults to current)
+task dev BRANCH=feat/foo              # Dev container with explicit branch
+task claude                           # Claude Code container (branch defaults to current)
+task claude BRANCH=feat/foo           # Claude Code container with explicit branch
+dagger call go lint-commit-msg --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
 ```
 
 ## Architecture
 
-Three Dagger modules work together:
+Three Dagger toolchain modules work together:
 
 - **`go`** (toolchain) — Reusable Go CI module with generic functions (test,
   lint, format, publish). Lives at `toolchains/go/` with its own `dagger.json`.
-  Can be consumed by any Go project.
+  Can be consumed by any Go project. Carries `+check` and `+generate`
+  annotations directly.
 - **`dev`** (toolchain) — Reusable development container module (DevBase,
   DevEnv, Dev). Lives at `toolchains/dev/` with its own `dagger.json`. Fully
   independent from the `go` module.
-- **`kclipper-dev`** — Kclipper-specific thin layer that delegates generic
-  work to the `go` and `dev` toolchains and adds project-specific functions
-  (build, release, runtime images). Lives at `.dagger/` and is the root module
-  configured in `dagger.json`.
+- **`kclipper`** (toolchain) — Kclipper-specific CI layer that depends on `go`
+  and `dev` and adds project-specific functions (build, release, runtime
+  images, dev container wrappers). Lives at `toolchains/kclipper/`.
 
 ```
-dagger.json          # Root module config (name=kclipper-dev, depends on go + dev)
+dagger.json          # Root module config (toolchains only, no code)
 toolchains/
   go/
     dagger.json      # Reusable module config (name=go)
-    main.go          # Generic Go CI functions
+    main.go          # Generic Go CI functions (+check, +generate)
     tests/           # Generic function tests
   dev/
     dagger.json      # Reusable module config (name=dev)
     main.go          # Dev container functions
     tests/           # Dev container tests
-.dagger/
-  main.go            # Kclipper-specific wrappers + functions
-  tests/             # Kclipper-specific integration tests
+  kclipper/
+    dagger.json      # Kclipper-specific (depends on go + dev)
+    main.go          # Kclipper-specific build/release/dev functions
+    tests/           # Kclipper-specific integration tests
 ```
 
-The `kclipper-dev` module depends on both toolchains via local path
-dependencies in `dagger.json`. Most kclipper-dev functions are thin one-liner
-wrappers that call `m.goToolchain().Method(...)` or
-`m.devToolchain().Method(...)`. This is necessary because Dagger
-`+check`/`+generate` annotations don't propagate across module boundaries.
+The root `dagger.json` registers `go` and `kclipper` as toolchains. The
+`kclipper` module depends on both `go` and `dev` via local path dependencies
+and delegates generic CI work to those modules.
 
 ### What lives where
 
-| `go` toolchain (CI)                                                        | `dev` toolchain (dev containers)  | `kclipper-dev` (kclipper-specific)                                  |
-| -------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------- |
-| Test, TestCoverage                                                         | DevBase, DevEnv, Dev              | Build, Release                                                      |
-| Lint, LintPrettier, LintActions, LintReleaser, LintDeadcode, LintCommitMsg | applyDevConfig, devToolBins       | BuildImages, PublishImages (builds images, delegates publish to go) |
-| Format, Generate                                                           | claudeCodeFiles, sanitizeCacheKey | releaserBase (Zig cross-compilation, macOS SDK, KCL LSP)            |
-| GoBase, LintBase, PrettierBase, GoModBase                                  | Shell/tool version constants      | runtimeImages, runtimeBase (KCL env, OCI labels)                    |
-| EnsureGitInit, EnsureGitRepo                                               | starshipConfig, zshConfig         | DevBase/DevEnv/Dev wrappers (pass clone URL)                        |
-| PublishImages (publish+sign workflow)                                      | devInitScript                     | Benchmark/BenchmarkSummary (add build stage)                        |
-| VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost       |                                   |                                                                     |
-| Benchmark (generic stages), BenchmarkSummary                               |                                   |                                                                     |
-| CI version constants (Go, golangci-lint, prettier, etc.)                   |                                   | Project-specific versions (Zig, syft, KCL LSP)                      |
+| `go` toolchain (CI)                                                  | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                            |
+| -------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------- |
+| Test (+check), TestCoverage                                          | DevBase, DevEnv, Dev              | Build, Release                                                      |
+| Lint (+check), LintPrettier (+check), LintActions (+check)           | applyDevConfig, devToolBins       | BuildImages, PublishImages (builds images, delegates publish to go) |
+| LintReleaser, LintDeadcode, LintCommitMsg                            | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check, uses kclipper clone URL)                      |
+| Format (+generate), Generate (+generate)                             | Shell/tool version constants      | releaserBase (Zig cross-compilation, macOS SDK, KCL LSP)            |
+| GoBase, LintBase, PrettierBase, GoModBase                            | starshipConfig, zshConfig         | runtimeImages, runtimeBase (KCL env, OCI labels)                    |
+| EnsureGitInit, EnsureGitRepo                                         | devInitScript                     | DevEnv/Dev wrappers (pass clone URL)                                |
+| PublishImages (publish+sign workflow)                                |                                   | Benchmark/BenchmarkSummary (add build stage)                        |
+| VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost |                                   |                                                                     |
+| Benchmark (generic stages), BenchmarkSummary                         |                                   |                                                                     |
+| CI version constants (Go, golangci-lint, prettier, etc.)             |                                   | Project-specific versions (Zig, syft, KCL LSP)                      |
 
 ### Function Categories
 
-| Category    | Annotation     | CLI                          | Purpose                                        |
-| ----------- | -------------- | ---------------------------- | ---------------------------------------------- |
-| Checks      | `// +check`    | `dagger check <name>`        | Validation (tests, lints). Return `error`.     |
-| Generators  | `// +generate` | `dagger generate`            | Code formatting. Return `*dagger.Changeset`.   |
-| Build       | (none)         | `dagger call <name>`         | Artifact production.                           |
-| Callable    | (none)         | `dagger call <name>`         | Requires arguments; invoked via `dagger call`. |
-| Development | (none)         | `dagger call dev --output=.` | Interactive container with persistent export.  |
-| Testable    | (none)         | `dagger call <name>`         | Non-interactive building blocks for tests.     |
+| Category    | Annotation     | CLI                                   | Purpose                                        |
+| ----------- | -------------- | ------------------------------------- | ---------------------------------------------- |
+| Checks      | `// +check`    | `dagger check <toolchain>:<name>`     | Validation (tests, lints). Return `error`.     |
+| Generators  | `// +generate` | `dagger generate`                     | Code formatting. Return `*dagger.Changeset`.   |
+| Build       | (none)         | `dagger call kclipper <name>`         | Artifact production.                           |
+| Callable    | (none)         | `dagger call <toolchain> <name>`      | Requires arguments; invoked via `dagger call`. |
+| Development | (none)         | `dagger call kclipper dev --output=.` | Interactive container with persistent export.  |
+| Testable    | (none)         | `dagger call <toolchain> <name>`      | Non-interactive building blocks for tests.     |
 
 `LintCommitMsg` is in the Callable category because it requires a mandatory
 `msgFile` argument and cannot be a `+check` function.
@@ -93,8 +93,8 @@ pipeline stages that the test module exercises without needing `Terminal()`.
 
 For **generic CI** checks (useful to any Go project), add to `toolchains/go/main.go`.
 For **dev container** functions, add to `toolchains/dev/main.go`.
-For **kclipper-specific** checks, add to `.dagger/main.go` (or add a thin wrapper
-that delegates to the appropriate toolchain).
+For **kclipper-specific** checks, add to `toolchains/kclipper/main.go` (delegating
+to the appropriate toolchain where possible).
 
 1. Add a public method with `// +check` annotation:
 
@@ -102,7 +102,7 @@ that delegates to the appropriate toolchain).
 // LintFoo checks foo.
 //
 // +check
-func (m *KclipperDev) LintFoo(ctx context.Context) error {
+func (m *Kclipper) LintFoo(ctx context.Context) error {
     return m.goToolchain().LintFoo(ctx)  // delegate to go toolchain
 }
 ```
@@ -118,8 +118,8 @@ func (m *KclipperDev) LintFoo(ctx context.Context) error {
 // GenerateFoo generates foo files.
 //
 // +generate
-func (m *KclipperDev) GenerateFoo() *dagger.Changeset {
-    return m.goToolchain().GenerateFoo()  // delegate to go toolchain
+func (m *Go) GenerateFoo() *dagger.Changeset {
+    // ...
 }
 ```
 
@@ -148,12 +148,12 @@ func (m *KclipperDev) GenerateFoo() *dagger.Changeset {
 ## Dev Container
 
 The `Dev()` function creates a git-aware development container with real commit
-history. The kclipper-dev module's `Dev()` wraps `dev.Dev()` with the kclipper
+history. The kclipper module's `Dev()` wraps `dev.Dev()` with the kclipper
 clone URL. The dev toolchain module handles the generic dev container setup:
 tool installation (`DevBase`), git clone + source overlay (`DevEnv`), and
 interactive terminal + export (`Dev`).
 
-**Always use `task dev` or `task claude`** — raw `dagger call dev --output=.`
+**Always use `task dev` or `task claude`** — raw `dagger call kclipper dev --output=.`
 would overwrite the host's `.git` worktree file.
 
 Container behaviors (see `devInitScript` in `toolchains/dev/main.go` for details):
@@ -259,7 +259,7 @@ annotations for automated updates (e.g. `// renovate: datasource=... depName=...
 - **Dev tool versions** (task, lefthook, dagger, starship, yq, uv, gh,
   claude-code) are in `toolchains/dev/main.go`.
 - **Project-specific versions** (Zig, syft, KCL LSP, GoReleaser Go version)
-  are in `.dagger/main.go`.
+  are in `toolchains/kclipper/main.go`.
 
 The Dagger engine version is pinned in `dagger.json` (`engineVersion`) and
 the `daggerVersion` constant in `toolchains/dev/main.go`.

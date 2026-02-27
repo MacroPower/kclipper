@@ -1,7 +1,8 @@
-// CI/CD functions for the kclipper project. Provides testing, linting,
-// formatting, building, releasing, and development container support.
-// Generic CI functions are delegated to the [Go] toolchain module; this module
-// adds kclipper-specific build, release, and runtime image logic.
+// CI/CD functions specific to the kclipper project. Provides building,
+// releasing, benchmarking, and development container support. Generic CI
+// functions (testing, linting, formatting) are provided by the [Go] toolchain
+// module; this module adds kclipper-specific logic that depends on the project
+// clone URL, cross-compilation tooling, and runtime image configuration.
 
 package main
 
@@ -11,18 +12,18 @@ import (
 	"strings"
 	"time"
 
-	"dagger/kclipper-dev/internal/dagger"
+	"dagger/kclipper/internal/dagger"
 
 	"golang.org/x/sync/errgroup"
 )
 
 const (
-	goVersion   = "1.25"            // renovate: datasource=golang-version depName=go
-	zigVersion  = "0.15.2"          // renovate: datasource=github-releases depName=ziglang/zig
-	cosignVersion = "v3.0.4"       // renovate: datasource=github-releases depName=sigstore/cosign
-	syftVersion = "v1.41.1"         // renovate: datasource=github-releases depName=anchore/syft
-	kclLSPVersion = "v0.11.2"      // renovate: datasource=github-releases depName=kcl-lang/kcl
-	goreleaserVersion = "v2.13.3"  // renovate: datasource=github-releases depName=goreleaser/goreleaser
+	goVersion         = "1.25"            // renovate: datasource=golang-version depName=go
+	zigVersion        = "0.15.2"          // renovate: datasource=github-releases depName=ziglang/zig
+	cosignVersion     = "v3.0.4"          // renovate: datasource=github-releases depName=sigstore/cosign
+	syftVersion       = "v1.41.1"         // renovate: datasource=github-releases depName=anchore/syft
+	kclLSPVersion     = "v0.11.2"         // renovate: datasource=github-releases depName=kcl-lang/kcl
+	goreleaserVersion = "v2.13.3"         // renovate: datasource=github-releases depName=goreleaser/goreleaser
 
 	defaultRegistry = "ghcr.io/macropower/kclipper"
 
@@ -36,19 +37,19 @@ const (
 		"-Wno-availability -Wno-nullability-completeness"
 )
 
-// KclipperDev provides CI/CD functions for kclipper. Create instances with [New].
-type KclipperDev struct {
+// Kclipper provides CI/CD functions for kclipper. Create instances with [New].
+type Kclipper struct {
 	// Project source directory.
 	Source *dagger.Directory
 	// Directory containing only go.mod and go.sum, synced independently of
-	// [KclipperDev.Source] so that its content hash changes only when dependency
+	// [Kclipper.Source] so that its content hash changes only when dependency
 	// files change. Used by [Go.GoModBase] to cache go mod download.
 	GoMod *dagger.Directory
 	// Container image registry address (e.g. "ghcr.io/macropower/kclipper").
 	Registry string
 }
 
-// New creates a [KclipperDev] module with the given project source directory.
+// New creates a [Kclipper] module with the given project source directory.
 func New(
 	// Project source directory.
 	// +defaultPath="/"
@@ -63,15 +64,15 @@ func New(
 	// Container image registry address.
 	// +optional
 	registry string,
-) *KclipperDev {
+) *Kclipper {
 	if registry == "" {
 		registry = defaultRegistry
 	}
-	return &KclipperDev{Source: source, GoMod: goMod, Registry: registry}
+	return &Kclipper{Source: source, GoMod: goMod, Registry: registry}
 }
 
 // goToolchain returns the configured [Go] toolchain module instance for delegation.
-func (m *KclipperDev) goToolchain() *dagger.Go {
+func (m *Kclipper) goToolchain() *dagger.Go {
 	return dag.Go(dagger.GoOpts{
 		Source:   m.Source,
 		GoMod:    m.GoMod,
@@ -80,56 +81,13 @@ func (m *KclipperDev) goToolchain() *dagger.Go {
 }
 
 // devToolchain returns the configured [Dev] toolchain module instance for delegation.
-func (m *KclipperDev) devToolchain() *dagger.Dev {
+func (m *Kclipper) devToolchain() *dagger.Dev {
 	return dag.Dev(dagger.DevOpts{Source: m.Source})
 }
 
 // ---------------------------------------------------------------------------
-// Testing (delegated to go toolchain)
+// Linting (kclipper-specific)
 // ---------------------------------------------------------------------------
-
-// Test runs the Go test suite. Uses only cacheable flags so that Go's
-// internal test result cache (GOCACHE) can skip unchanged packages
-// across runs via the persistent go-build cache volume.
-//
-// +check
-func (m *KclipperDev) Test(ctx context.Context) error {
-	return m.goToolchain().Test(ctx)
-}
-
-// TestCoverage runs Go tests with coverage profiling and returns the
-// profile file. Runs independently of [KclipperDev.Test] because -coverprofile
-// disables Go's internal test result caching. Dagger's layer caching
-// still shares the base container layers (image, module download) with
-// [KclipperDev.Test].
-func (m *KclipperDev) TestCoverage() *dagger.File {
-	return m.goToolchain().TestCoverage()
-}
-
-// ---------------------------------------------------------------------------
-// Linting (delegated to go toolchain)
-// ---------------------------------------------------------------------------
-
-// Lint runs golangci-lint on the source code.
-//
-// +check
-func (m *KclipperDev) Lint(ctx context.Context) error {
-	return m.goToolchain().Lint(ctx)
-}
-
-// LintPrettier checks YAML, JSON, and Markdown formatting.
-//
-// +check
-func (m *KclipperDev) LintPrettier(ctx context.Context) error {
-	return m.goToolchain().LintPrettier(ctx)
-}
-
-// LintActions runs zizmor to lint GitHub Actions workflows.
-//
-// +check
-func (m *KclipperDev) LintActions(ctx context.Context) error {
-	return m.goToolchain().LintActions(ctx)
-}
 
 // LintReleaser validates the GoReleaser configuration. Uses
 // [Go.GoreleaserCheckBase] with the kclipper remote URL because the
@@ -137,31 +95,13 @@ func (m *KclipperDev) LintActions(ctx context.Context) error {
 // resolution.
 //
 // +check
-func (m *KclipperDev) LintReleaser(ctx context.Context) error {
+func (m *Kclipper) LintReleaser(ctx context.Context) error {
 	_, err := m.goToolchain().GoreleaserCheckBase(dagger.GoGoreleaserCheckBaseOpts{
 		RemoteURL: kclipperCloneURL,
 	}).
 		WithExec([]string{"goreleaser", "check"}).
 		Sync(ctx)
 	return err
-}
-
-// LintDeadcode reports unreachable functions in the codebase using the
-// golang.org/x/tools deadcode analyzer. This is an advisory lint that
-// is not included in standard checks; invoke via dagger call lint-deadcode.
-func (m *KclipperDev) LintDeadcode(ctx context.Context) error {
-	return m.goToolchain().LintDeadcode(ctx)
-}
-
-// LintCommitMsg validates a commit message against the project's conventional
-// commit policy using conform. The message file is typically provided by a
-// git commit-msg hook.
-func (m *KclipperDev) LintCommitMsg(
-	ctx context.Context,
-	// Commit message file to validate (e.g. .git/COMMIT_EDITMSG).
-	msgFile *dagger.File,
-) error {
-	return m.goToolchain().LintCommitMsg(ctx, msgFile)
 }
 
 // ---------------------------------------------------------------------------
@@ -186,20 +126,20 @@ type BenchmarkResult struct {
 // timings.
 //
 // +cache="never"
-func (m *KclipperDev) Benchmark(ctx context.Context) ([]*BenchmarkResult, error) {
+func (m *Kclipper) Benchmark(ctx context.Context) ([]*BenchmarkResult, error) {
 	return m.runBenchmarks(ctx, false)
 }
 
 // BenchmarkSummary measures the wall-clock time of key pipeline stages
 // and returns a human-readable table. This is a convenience wrapper
-// around [KclipperDev.Benchmark] for CLI use without jq post-processing.
+// around [Kclipper.Benchmark] for CLI use without jq post-processing.
 //
 // When parallel is true, all stages run concurrently to measure the
 // real-world wall-clock time of the full CI pipeline. The total row
 // shows overall elapsed time rather than the sum of individual stages.
 //
 // +cache="never"
-func (m *KclipperDev) BenchmarkSummary(
+func (m *Kclipper) BenchmarkSummary(
 	ctx context.Context,
 	// Run stages concurrently to measure full-pipeline wall-clock time.
 	// +default=false
@@ -265,7 +205,7 @@ type benchmarkStage struct {
 
 // benchmarkStages returns the list of pipeline stages to benchmark,
 // including the kclipper-specific build stage.
-func (m *KclipperDev) benchmarkStages() []benchmarkStage {
+func (m *Kclipper) benchmarkStages() []benchmarkStage {
 	gt := m.goToolchain()
 	return []benchmarkStage{
 		{"goBase", func(ctx context.Context) error {
@@ -331,7 +271,7 @@ func (m *KclipperDev) benchmarkStages() []benchmarkStage {
 // runBenchmarks executes benchmark stages. When parallel is false, stages
 // run sequentially for isolated timings. When true, stages run concurrently
 // to measure real-world wall-clock time.
-func (m *KclipperDev) runBenchmarks(ctx context.Context, parallel bool) ([]*BenchmarkResult, error) {
+func (m *Kclipper) runBenchmarks(ctx context.Context, parallel bool) ([]*BenchmarkResult, error) {
 	stages := m.benchmarkStages()
 
 	if parallel {
@@ -341,7 +281,7 @@ func (m *KclipperDev) runBenchmarks(ctx context.Context, parallel bool) ([]*Benc
 }
 
 // runBenchmarksSequential runs each stage one at a time for isolated timings.
-func (m *KclipperDev) runBenchmarksSequential(ctx context.Context, stages []benchmarkStage) ([]*BenchmarkResult, error) {
+func (m *Kclipper) runBenchmarksSequential(ctx context.Context, stages []benchmarkStage) ([]*BenchmarkResult, error) {
 	results := make([]*BenchmarkResult, 0, len(stages))
 	for _, s := range stages {
 		start := time.Now()
@@ -364,7 +304,7 @@ func (m *KclipperDev) runBenchmarksSequential(ctx context.Context, stages []benc
 // runBenchmarksParallel runs all stages concurrently and reports individual
 // wall-clock times. This measures what a real CI run looks like when Dagger
 // evaluates pipelines in parallel.
-func (m *KclipperDev) runBenchmarksParallel(ctx context.Context, stages []benchmarkStage) ([]*BenchmarkResult, error) {
+func (m *Kclipper) runBenchmarksParallel(ctx context.Context, stages []benchmarkStage) ([]*BenchmarkResult, error) {
 	results := make([]*BenchmarkResult, len(stages))
 	g, gCtx := errgroup.WithContext(ctx)
 
@@ -392,38 +332,13 @@ func (m *KclipperDev) runBenchmarksParallel(ctx context.Context, stages []benchm
 }
 
 // ---------------------------------------------------------------------------
-// Formatting (delegated to go toolchain)
-// ---------------------------------------------------------------------------
-
-// Format runs golangci-lint --fix and prettier --write, returning the
-// changeset against the original source directory.
-//
-// +generate
-func (m *KclipperDev) Format() *dagger.Changeset {
-	return m.goToolchain().Format()
-}
-
-// ---------------------------------------------------------------------------
-// Generation (delegated to go toolchain)
-// ---------------------------------------------------------------------------
-
-// Generate runs go generate and returns the changeset of generated files
-// against the original source. The project's gen.go directive produces KCL
-// module files under modules/helm/.
-//
-// +generate
-func (m *KclipperDev) Generate() *dagger.Changeset {
-	return m.goToolchain().Generate()
-}
-
-// ---------------------------------------------------------------------------
 // Building (kclipper-specific)
 // ---------------------------------------------------------------------------
 
 // Build runs GoReleaser in snapshot mode, producing binaries for all
 // platforms. Returns the dist/ directory. Source archives are skipped in
 // snapshot mode since they are only needed for releases.
-func (m *KclipperDev) Build() *dagger.Directory {
+func (m *Kclipper) Build() *dagger.Directory {
 	return m.releaserBase().
 		WithExec([]string{
 			"goreleaser", "release", "--snapshot", "--clean",
@@ -433,51 +348,9 @@ func (m *KclipperDev) Build() *dagger.Directory {
 		Directory("/src/dist")
 }
 
-// VersionTags returns the image tags derived from a version tag string.
-// For example, "v1.2.3" yields ["latest", "v1.2.3", "v1", "v1.2"].
-func (m *KclipperDev) VersionTags(
-	ctx context.Context,
-	// Version tag (e.g. "v1.2.3").
-	tag string,
-) ([]string, error) {
-	return m.goToolchain().VersionTags(ctx, tag)
-}
-
-// FormatDigestChecksums converts [KclipperDev.PublishImages] output references to the
-// checksums format expected by actions/attest-build-provenance. Each reference
-// has the form "registry/image:tag@sha256:hex"; this function emits
-// "hex  registry/image:tag" lines, deduplicating by digest.
-func (m *KclipperDev) FormatDigestChecksums(
-	ctx context.Context,
-	// Image references from [KclipperDev.PublishImages] (e.g. "registry/image:tag@sha256:hex").
-	refs []string,
-) (string, error) {
-	return m.goToolchain().FormatDigestChecksums(ctx, refs)
-}
-
-// DeduplicateDigests returns unique image references from a list, keeping
-// only the first occurrence of each sha256 digest.
-func (m *KclipperDev) DeduplicateDigests(
-	ctx context.Context,
-	// Image references (e.g. "registry/image:tag@sha256:hex").
-	refs []string,
-) ([]string, error) {
-	return m.goToolchain().DeduplicateDigests(ctx, refs)
-}
-
-// RegistryHost extracts the host (with optional port) from a registry
-// address. For example, "ghcr.io/macropower/kclipper" returns "ghcr.io".
-func (m *KclipperDev) RegistryHost(
-	ctx context.Context,
-	// Registry address (e.g. "ghcr.io/macropower/kclipper").
-	registry string,
-) (string, error) {
-	return m.goToolchain().RegistryHost(ctx, registry)
-}
-
 // BuildImages builds multi-arch runtime container images from a GoReleaser
 // dist directory. If no dist is provided, a snapshot build is run.
-func (m *KclipperDev) BuildImages(
+func (m *Kclipper) BuildImages(
 	// Version label for OCI metadata.
 	// +default="snapshot"
 	version string,
@@ -498,7 +371,7 @@ func (m *KclipperDev) BuildImages(
 // :vX.Y. Pre-release versions are published with only their exact tag.
 //
 // +cache="never"
-func (m *KclipperDev) PublishImages(
+func (m *Kclipper) PublishImages(
 	ctx context.Context,
 	// Image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
 	tags []string,
@@ -539,7 +412,7 @@ func (m *KclipperDev) PublishImages(
 	}
 
 	// Deduplicate digests for the summary (tags may share a manifest).
-	unique, err := m.DeduplicateDigests(ctx, digests)
+	unique, err := m.goToolchain().DeduplicateDigests(ctx, digests)
 	if err != nil {
 		return "", fmt.Errorf("deduplicate digests: %w", err)
 	}
@@ -554,7 +427,7 @@ func (m *KclipperDev) PublishImages(
 // for attestation in the calling workflow.
 //
 // +cache="never"
-func (m *KclipperDev) Release(
+func (m *Kclipper) Release(
 	ctx context.Context,
 	// GitHub token for creating the release.
 	githubToken *dagger.Secret,
@@ -618,7 +491,7 @@ func (m *KclipperDev) Release(
 		Directory("/src/dist")
 
 	// Derive image tags from the version tag.
-	tags, err := m.VersionTags(ctx, tag)
+	tags, err := m.goToolchain().VersionTags(ctx, tag)
 	if err != nil {
 		return nil, fmt.Errorf("version tags: %w", err)
 	}
@@ -637,7 +510,7 @@ func (m *KclipperDev) Release(
 
 	// Write digests in checksums format for attest-build-provenance.
 	if len(digests) > 0 {
-		checksums, err := m.FormatDigestChecksums(ctx, digests)
+		checksums, err := m.goToolchain().FormatDigestChecksums(ctx, digests)
 		if err != nil {
 			return nil, fmt.Errorf("format digest checksums: %w", err)
 		}
@@ -648,22 +521,15 @@ func (m *KclipperDev) Release(
 }
 
 // ---------------------------------------------------------------------------
-// Development (delegated to go toolchain with kclipper clone URL)
+// Development (delegated to dev toolchain with kclipper clone URL)
 // ---------------------------------------------------------------------------
-
-// DevBase returns the base development container with all tools
-// pre-installed but no source mounted. Used by integration tests to
-// verify tool availability without requiring an interactive terminal.
-func (m *KclipperDev) DevBase() *dagger.Container {
-	return m.devToolchain().DevBase()
-}
 
 // DevEnv returns a development container with the git repository cloned,
 // the requested branch checked out, and local source files overlaid.
 // Cache volumes provide per-branch workspace isolation and shared Go
-// module/build caches. Unlike [KclipperDev.Dev], this does not open an interactive
+// module/build caches. Unlike [Kclipper.Dev], this does not open an interactive
 // terminal or export results.
-func (m *KclipperDev) DevEnv(
+func (m *Kclipper) DevEnv(
 	// Branch to check out in the dev container. Each branch gets its
 	// own Dagger cache volume for workspace isolation.
 	branch string,
@@ -680,7 +546,7 @@ func (m *KclipperDev) DevEnv(
 
 // Dev opens an interactive development container with a real git
 // repository and returns the modified source directory when the session
-// ends. The container is created via [KclipperDev.DevEnv], which clones the
+// ends. The container is created via [Kclipper.DevEnv], which clones the
 // upstream repo (blobless) and checks out the specified branch, enabling
 // pushes, rebases, and other git operations.
 //
@@ -699,7 +565,7 @@ func (m *KclipperDev) DevEnv(
 //	task claude BRANCH=feat/my-work BASE=main  # explicit base
 //
 // +cache="never"
-func (m *KclipperDev) Dev(
+func (m *Kclipper) Dev(
 	// Branch to check out in the dev container. Each branch gets its
 	// own Dagger cache volume for workspace isolation.
 	branch string,
@@ -816,7 +682,7 @@ func runtimeBase(platform dagger.Platform) *dagger.Container {
 // releaserBase returns a container with Go, GoReleaser, Zig, cosign, syft,
 // pre-downloaded KCL Language Server binaries, and macOS SDK headers needed
 // for CGO cross-compilation.
-func (m *KclipperDev) releaserBase() *dagger.Container {
+func (m *Kclipper) releaserBase() *dagger.Container {
 	ctr := dag.Container().
 		From("golang:"+goVersion).
 		// Install Zig for CGO cross-compilation.

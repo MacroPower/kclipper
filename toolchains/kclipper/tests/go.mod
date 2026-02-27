@@ -1,6 +1,6 @@
-module dagger/kclipper-dev
+module dagger/tests
 
-go 1.25.6
+go 1.26.0
 
 require (
 	dagger.io/dagger v0.19.11
