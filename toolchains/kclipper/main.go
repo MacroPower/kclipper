@@ -18,12 +18,8 @@ import (
 )
 
 const (
-	goVersion         = "1.25"            // renovate: datasource=golang-version depName=go
-	zigVersion        = "0.15.2"          // renovate: datasource=github-releases depName=ziglang/zig
-	cosignVersion     = "v3.0.4"          // renovate: datasource=github-releases depName=sigstore/cosign
-	syftVersion       = "v1.41.1"         // renovate: datasource=github-releases depName=anchore/syft
-	kclLSPVersion     = "v0.11.2"         // renovate: datasource=github-releases depName=kcl-lang/kcl
-	goreleaserVersion = "v2.13.3"         // renovate: datasource=github-releases depName=goreleaser/goreleaser
+	zigVersion    = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
+	kclLSPVersion = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
 
 	defaultRegistry = "ghcr.io/macropower/kclipper"
 
@@ -679,12 +675,15 @@ func runtimeBase(platform dagger.Platform) *dagger.Container {
 			"apt-get update && apt-get install -y curl gpg apt-transport-https && rm -rf /var/lib/apt/lists/* /tmp/*"})
 }
 
-// releaserBase returns a container with Go, GoReleaser, Zig, cosign, syft,
+// releaserBase returns a container with Go, GoReleaser, cosign, syft, Zig,
 // pre-downloaded KCL Language Server binaries, and macOS SDK headers needed
-// for CGO cross-compilation.
+// for CGO cross-compilation. The generic release toolset (Go, GoReleaser,
+// cosign, syft, module cache, git repo) is provided by [Go.ReleaserBase];
+// this method layers kclipper-specific tools on top.
 func (m *Kclipper) releaserBase() *dagger.Container {
-	ctr := dag.Container().
-		From("golang:"+goVersion).
+	return m.goToolchain().ReleaserBase(dagger.GoReleaserBaseOpts{
+		RemoteURL: kclipperCloneURL,
+	}).
 		// Install Zig for CGO cross-compilation.
 		WithExec([]string{
 			"sh", "-c",
@@ -695,18 +694,6 @@ func (m *Kclipper) releaserBase() *dagger.Container {
 				"tar -xJ -C /usr/local --strip-components=1 && " +
 				"ln -sf /usr/local/zig /usr/local/bin/zig",
 		}).
-		// Install GoReleaser from its official OCI image.
-		WithFile("/usr/local/bin/goreleaser",
-			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
-				File("/usr/bin/goreleaser")).
-		// Install cosign from its official OCI image.
-		WithFile("/usr/local/bin/cosign",
-			dag.Container().From("gcr.io/projectsigstore/cosign:"+cosignVersion).
-				File("/ko-app/cosign")).
-		// Install syft from its official OCI image.
-		WithFile("/usr/local/bin/syft",
-			dag.Container().From("ghcr.io/anchore/syft:"+syftVersion).
-				File("/syft")).
 		// Pre-download KCL Language Server for all target platforms.
 		WithExec([]string{
 			"sh", "-c",
@@ -717,14 +704,7 @@ func (m *Kclipper) releaserBase() *dagger.Container {
 				"/kclvm-" + kclLSPVersion + "-${os}-${arch}.tar.gz | " +
 				"tar -xz --strip-components=2 -C /lsp/${os}/${arch} kclvm/bin/kcl-language-server; " +
 				"done",
-		})
-
-	// Pre-download Go modules using the GoMod-only directory.
-	ctr = m.goToolchain().GoModBase(ctr, dagger.GoGoModBaseOpts{Src: m.Source})
-
-	return m.goToolchain().EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
-		RemoteURL: kclipperCloneURL,
-	}).
+		}).
 		// Mount macOS SDK headers for Darwin cross-compilation.
 		WithMountedDirectory("/sdk/MacOSX.sdk",
 			m.Source.Directory(".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")).

@@ -24,6 +24,7 @@ const (
 	deadcodeVersion     = "v0.42.0"         // renovate: datasource=go depName=golang.org/x/tools
 	conformVersion      = "v0.1.0-alpha.31" // renovate: datasource=github-releases depName=siderolabs/conform
 	cosignVersion       = "v3.0.4"          // renovate: datasource=github-releases depName=sigstore/cosign
+	syftVersion         = "v1.41.1"         // renovate: datasource=github-releases depName=anchore/syft
 )
 
 // Go provides reusable Go CI functions for testing, linting, formatting,
@@ -725,6 +726,33 @@ func (m *Go) GoreleaserCheckBase(
 		WithFile("/usr/local/bin/goreleaser",
 			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
 				File("/usr/bin/goreleaser"))
+	return m.EnsureGitRepo(m.GoModBase(ctr, nil), remoteURL)
+}
+
+// ReleaserBase returns a container with Go, GoReleaser, cosign, syft,
+// module cache, build cache, and a committed git repository. This is the
+// starting point for running goreleaser release with signing and SBOM
+// support. Project-specific tools (cross-compilers, SDKs) can be layered
+// on top by the caller.
+//
+// Unlike [Go.GoreleaserCheckBase], which is intentionally lightweight for
+// config validation, this method installs the complete release toolset.
+func (m *Go) ReleaserBase(
+	// Remote URL to configure as origin.
+	// +optional
+	remoteURL string,
+) *dagger.Container {
+	ctr := dag.Container().
+		From("golang:"+goVersion).
+		WithFile("/usr/local/bin/goreleaser",
+			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
+				File("/usr/bin/goreleaser")).
+		WithFile("/usr/local/bin/cosign",
+			dag.Container().From("gcr.io/projectsigstore/cosign:"+cosignVersion).
+				File("/ko-app/cosign")).
+		WithFile("/usr/local/bin/syft",
+			dag.Container().From("ghcr.io/anchore/syft:"+syftVersion).
+				File("/syft"))
 	return m.EnsureGitRepo(m.GoModBase(ctr, nil), remoteURL)
 }
 

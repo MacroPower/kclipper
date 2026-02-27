@@ -61,13 +61,13 @@ and delegates generic CI work to those modules.
 | Test (+check), TestCoverage                                          | DevBase, DevEnv, Dev              | Build, Release                                                      |
 | Lint (+check), LintPrettier (+check), LintActions (+check)           | applyDevConfig, devToolBins       | BuildImages, PublishImages (builds images, delegates publish to go) |
 | LintReleaser, LintDeadcode, LintCommitMsg                            | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check, uses kclipper clone URL)                      |
-| Format (+generate), Generate (+generate)                             | Shell/tool version constants      | releaserBase (Zig cross-compilation, macOS SDK, KCL LSP)            |
-| GoBase, LintBase, PrettierBase, GoModBase                            | starshipConfig, zshConfig         | runtimeImages, runtimeBase (KCL env, OCI labels)                    |
+| Format (+generate), Generate (+generate)                             | Shell/tool version constants      | releaserBase (extends ReleaserBase with Zig, macOS SDK, KCL LSP)    |
+| GoBase, LintBase, PrettierBase, GoModBase, ReleaserBase              | starshipConfig, zshConfig         | runtimeImages, runtimeBase (KCL env, OCI labels)                    |
 | EnsureGitInit, EnsureGitRepo                                         | devInitScript                     | DevEnv/Dev wrappers (pass clone URL)                                |
 | PublishImages (publish+sign workflow)                                |                                   | Benchmark/BenchmarkSummary (add build stage)                        |
 | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost |                                   |                                                                     |
 | Benchmark (generic stages), BenchmarkSummary                         |                                   |                                                                     |
-| CI version constants (Go, golangci-lint, prettier, etc.)             |                                   | Project-specific versions (Zig, syft, KCL LSP)                      |
+| CI version constants (Go, golangci-lint, prettier, cosign, syft)     |                                   | Project-specific versions (Zig, KCL LSP)                            |
 
 ### Function Categories
 
@@ -253,13 +253,13 @@ it belongs in the Taskfile. Everything else belongs in Dagger.
 Tool versions are declared as constants at the top of `main.go` with Renovate
 annotations for automated updates (e.g. `// renovate: datasource=... depName=...`).
 
-- **CI tool versions** (Go, golangci-lint, prettier, etc.) are in
-  `toolchains/go/main.go`. Updating the go toolchain updates these for all
+- **CI tool versions** (Go, golangci-lint, prettier, cosign, syft, etc.) are
+  in `toolchains/go/main.go`. Updating the go toolchain updates these for all
   consumers.
 - **Dev tool versions** (task, lefthook, dagger, starship, yq, uv, gh,
   claude-code) are in `toolchains/dev/main.go`.
-- **Project-specific versions** (Zig, syft, KCL LSP, GoReleaser Go version)
-  are in `toolchains/kclipper/main.go`.
+- **Project-specific versions** (Zig, KCL LSP) are in
+  `toolchains/kclipper/main.go`.
 
 The Dagger engine version is pinned in `dagger.json` (`engineVersion`) and
 the `daggerVersion` constant in `toolchains/dev/main.go`.
