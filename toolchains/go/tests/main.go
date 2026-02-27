@@ -14,6 +14,8 @@ import (
 	"fmt"
 	"strings"
 
+	"dagger/tests/internal/dagger"
+
 	"golang.org/x/sync/errgroup"
 )
 
@@ -35,6 +37,10 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestGenerateIdempotent(ctx) })
 	g.Go(func() error { return m.TestCoverageProfile(ctx) })
 	g.Go(func() error { return m.TestLintCommitMsg(ctx) })
+	g.Go(func() error { return m.TestEnv(ctx) })
+	g.Go(func() error { return m.TestBuild(ctx) })
+	g.Go(func() error { return m.TestBinary(ctx) })
+	g.Go(func() error { return m.TestDownload(ctx) })
 
 	return g.Wait()
 }
@@ -335,3 +341,99 @@ func (m *Tests) TestCoverageProfile(ctx context.Context) error {
 	return nil
 }
 
+// TestEnv verifies that [Go.Env] returns a working Go container with
+// the expected environment configuration.
+//
+// +check
+func (m *Tests) TestEnv(ctx context.Context) error {
+	// Verify the container can run go version.
+	out, err := dag.Go().Env(dagger.GoEnvOpts{}).
+		WithExec([]string{"go", "version"}).
+		Stdout(ctx)
+	if err != nil {
+		return fmt.Errorf("go version: %w", err)
+	}
+	if !strings.Contains(out, "go1.") {
+		return fmt.Errorf("expected go version output, got: %s", out)
+	}
+
+	// Verify source is mounted.
+	_, err = dag.Go().Env(dagger.GoEnvOpts{}).
+		WithExec([]string{"test", "-f", "go.mod"}).
+		Sync(ctx)
+	if err != nil {
+		return fmt.Errorf("go.mod not found in env: %w", err)
+	}
+
+	return nil
+}
+
+// TestBuild verifies that [Go.Build] compiles packages to the output directory.
+//
+// +check
+func (m *Tests) TestBuild(ctx context.Context) error {
+	dir, err := dag.Go(dagger.GoOpts{Cgo: true}).Build(ctx, dagger.GoBuildOpts{
+		Pkgs:   []string{"./cmd/kclipper"},
+		OutDir: "./bin/",
+	})
+	if err != nil {
+		return fmt.Errorf("build: %w", err)
+	}
+
+	entries, err := dir.Entries(ctx)
+	if err != nil {
+		return fmt.Errorf("list entries: %w", err)
+	}
+	if len(entries) == 0 {
+		return fmt.Errorf("build produced no output")
+	}
+
+	// Verify there's a bin directory or binary.
+	hasBin := false
+	for _, entry := range entries {
+		if strings.Contains(entry, "bin") {
+			hasBin = true
+			break
+		}
+	}
+	if !hasBin {
+		return fmt.Errorf("expected bin directory in output, got: %v", entries)
+	}
+
+	return nil
+}
+
+// TestBinary verifies that [Go.Binary] compiles a single package and
+// returns the binary file.
+//
+// +check
+func (m *Tests) TestBinary(ctx context.Context) error {
+	binary, err := dag.Go(dagger.GoOpts{Cgo: true}).Binary(ctx, "./cmd/kclipper", dagger.GoBinaryOpts{
+		NoSymbols: true,
+		NoDwarf:   true,
+	})
+	if err != nil {
+		return fmt.Errorf("binary: %w", err)
+	}
+
+	size, err := binary.Size(ctx)
+	if err != nil {
+		return fmt.Errorf("binary size: %w", err)
+	}
+	if size == 0 {
+		return fmt.Errorf("binary has zero size")
+	}
+
+	return nil
+}
+
+// TestDownload verifies that [Go.Download] warms the module cache.
+//
+// +check
+func (m *Tests) TestDownload(ctx context.Context) error {
+	_, err := dag.Go().Download(ctx)
+	if err != nil {
+		return fmt.Errorf("download: %w", err)
+	}
+	return nil
+}

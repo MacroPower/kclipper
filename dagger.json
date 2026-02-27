@@ -1,14 +1,48 @@
 {
   "name": "kclipper-dev",
   "engineVersion": "v0.20.0",
+  "sdk": {
+    "source": "go"
+  },
   "toolchains": [
     {
       "name": "go",
-      "source": "toolchains/go"
+      "source": "toolchains/go",
+      "customizations": [
+        {
+          "argument": "source",
+          "ignore": [
+            "dist",
+            ".worktrees",
+            ".tmp",
+            ".git"
+          ]
+        },
+        {
+          "argument": "cgo",
+          "default": "true"
+        }
+      ]
     },
     {
       "name": "kclipper",
-      "source": "toolchains/kclipper"
+      "source": "toolchains/kclipper",
+      "customizations": [
+        {
+          "argument": "source",
+          "ignore": [
+            "dist",
+            ".worktrees",
+            ".tmp",
+            ".git"
+          ]
+        }
+      ]
     }
-  ]
+  ],
+  "include": [
+    "go.mod",
+    "go.sum"
+  ],
+  "source": ".dagger"
 }

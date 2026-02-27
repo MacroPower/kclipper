@@ -7,16 +7,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
-	"time"
 
 	"dagger/go/internal/dagger"
-
-	"golang.org/x/sync/errgroup"
 )
 
 const (
-	goVersion           = "1.25"            // renovate: datasource=golang-version depName=go
+	defaultGoVersion    = "1.25"            // renovate: datasource=golang-version depName=go
 	golangciLintVersion = "v2.9"            // renovate: datasource=github-releases depName=golangci/golangci-lint
 	goreleaserVersion   = "v2.13.3"         // renovate: datasource=github-releases depName=goreleaser/goreleaser
 	prettierVersion     = "3.5.3"           // renovate: datasource=npm depName=prettier
@@ -30,14 +28,33 @@ const (
 // Go provides reusable Go CI functions for testing, linting, formatting,
 // and publishing. Create instances with [New].
 type Go struct {
+	// Go version used for base images and cache volume names.
+	Version string
 	// Project source directory.
 	Source *dagger.Directory
-	// Directory containing only go.mod and go.sum, synced independently of
-	// [Go.Source] so that its content hash changes only when dependency
-	// files change. Used by [Go.GoModBase] to cache go mod download.
-	GoMod *dagger.Directory
+	// Cache volume for Go module downloads (GOMODCACHE).
+	ModuleCache *dagger.CacheVolume
+	// Cache volume for Go build artifacts (GOCACHE).
+	BuildCache *dagger.CacheVolume
+	// Base container with Go installed and caches mounted. When nil in
+	// the constructor, a default container is built from the official
+	// golang:<version> image.
+	Base *dagger.Container
+	// Arguments passed to go build -ldflags.
+	Ldflags []string
+	// String value definitions of the form importpath.name=value,
+	// added to -ldflags as -X entries.
+	Values []string
+	// Enable CGO.
+	Cgo bool
+	// Enable the race detector. Implies [Go.Cgo].
+	Race bool
 	// Container image registry address (e.g. "ghcr.io/org/image").
 	Registry string
+	// Directory containing only go.mod and go.sum, synced independently
+	// of [Go.Source] so that its content hash changes only when
+	// dependency files change.
+	GoMod *dagger.Directory // +private
 }
 
 // New creates a [Go] module with the given project source directory.
@@ -55,616 +72,288 @@ func New(
 	// Container image registry address.
 	// +optional
 	registry string,
+	// Go version for base images and cache volume naming. Defaults to
+	// the version pinned in this module.
+	// +optional
+	version string,
+	// Cache volume for Go module downloads (GOMODCACHE). Defaults to
+	// a volume named "go-mod-<version>".
+	// +optional
+	moduleCache *dagger.CacheVolume,
+	// Cache volume for Go build artifacts (GOCACHE). Defaults to
+	// a volume named "go-build-<version>".
+	// +optional
+	buildCache *dagger.CacheVolume,
+	// Custom base container with Go installed. When provided, the
+	// default golang:<version> image is not used.
+	// +optional
+	base *dagger.Container,
+	// Arguments passed to go build -ldflags.
+	// +optional
+	ldflags []string,
+	// String value definitions of the form importpath.name=value,
+	// added to -ldflags as -X entries.
+	// +optional
+	values []string,
+	// Enable CGO.
+	// +optional
+	cgo bool,
+	// Enable the race detector. Implies cgo=true.
+	// +optional
+	race bool,
 ) *Go {
-	return &Go{Source: source, GoMod: goMod, Registry: registry}
+	if version == "" {
+		version = defaultGoVersion
+	}
+	if moduleCache == nil {
+		moduleCache = dag.CacheVolume("go-mod-" + version)
+	}
+	if buildCache == nil {
+		buildCache = dag.CacheVolume("go-build-" + version)
+	}
+	if base == nil {
+		base = dag.Container().
+			From("golang:"+version).
+			WithMountedCache("/go/pkg/mod", moduleCache).
+			WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+			WithMountedCache("/go/build-cache", buildCache).
+			WithEnvVariable("GOCACHE", "/go/build-cache").
+			WithDirectory("/src", goMod).
+			WithWorkdir("/src").
+			WithExec([]string{"go", "mod", "download"})
+	}
+	return &Go{
+		Version:     version,
+		Source:      source,
+		ModuleCache: moduleCache,
+		BuildCache:  buildCache,
+		Base:        base,
+		Ldflags:     ldflags,
+		Values:      values,
+		Cgo:         cgo,
+		Race:        race,
+		Registry:    registry,
+		GoMod:       goMod,
+	}
 }
 
 // ---------------------------------------------------------------------------
-// Testing
+// Core environment
 // ---------------------------------------------------------------------------
 
-// Test runs the Go test suite. Uses only cacheable flags so that Go's
-// internal test result cache (GOCACHE) can skip unchanged packages
-// across runs via the persistent go-build cache volume.
-//
-// +check
-func (m *Go) Test(ctx context.Context) error {
-	_, err := m.GoBase().
-		WithExec([]string{"go", "test", "./..."}).
-		Sync(ctx)
-	return err
-}
-
-// TestCoverage runs Go tests with coverage profiling and returns the
-// profile file. Runs independently of [Go.Test] because -coverprofile
-// disables Go's internal test result caching. Dagger's layer caching
-// still shares the base container layers (image, module download) with
-// [Go.Test].
-func (m *Go) TestCoverage() *dagger.File {
-	return m.GoBase().
-		WithExec([]string{
-			"go", "test", "-race", "-coverprofile=/tmp/coverage.txt", "./...",
-		}).
-		File("/tmp/coverage.txt")
-}
-
-// ---------------------------------------------------------------------------
-// Linting
-// ---------------------------------------------------------------------------
-
-// Lint runs golangci-lint on the source code.
-//
-// +check
-func (m *Go) Lint(ctx context.Context) error {
-	_, err := m.LintBase().
-		WithExec([]string{"golangci-lint", "run"}).
-		Sync(ctx)
-	return err
-}
-
-// LintPrettier checks YAML, JSON, and Markdown formatting.
-//
-// +check
-func (m *Go) LintPrettier(
-	ctx context.Context,
-	// Prettier config file path relative to source root.
+// Env returns a Go build environment container with CGO configured,
+// platform env vars set, and source mounted. This is the primary entry
+// point for running Go commands against the project source.
+func (m *Go) Env(
+	// Target platform (e.g. "linux/amd64"). When empty, uses the
+	// host platform.
 	// +optional
-	configPath string,
-	// File patterns to check.
-	// +optional
-	patterns []string,
-) error {
-	if configPath == "" {
-		configPath = "./.prettierrc.yaml"
-	}
-	if len(patterns) == 0 {
-		patterns = defaultPrettierPatterns()
-	}
-	args := append([]string{"prettier", "--config", configPath, "--check"}, patterns...)
-	_, err := m.PrettierBase().
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
-		WithExec(args).
-		Sync(ctx)
-	return err
-}
-
-// LintActions runs zizmor to lint GitHub Actions workflows.
-//
-// +check
-func (m *Go) LintActions(ctx context.Context) error {
-	_, err := dag.Container().
-		From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion).
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
-		WithExec([]string{
-			"zizmor", ".github/workflows", "--config", ".github/zizmor.yaml",
-		}).
-		Sync(ctx)
-	return err
-}
-
-// LintReleaser validates the GoReleaser configuration. Uses
-// [Go.GoreleaserCheckBase] instead of a full release environment since
-// goreleaser check only validates config syntax.
-func (m *Go) LintReleaser(ctx context.Context) error {
-	_, err := m.GoreleaserCheckBase("").
-		WithExec([]string{"goreleaser", "check"}).
-		Sync(ctx)
-	return err
-}
-
-// LintDeadcode reports unreachable functions in the codebase using the
-// golang.org/x/tools deadcode analyzer. This is an advisory lint that
-// is not included in standard checks; invoke via dagger call lint-deadcode.
-func (m *Go) LintDeadcode(ctx context.Context) error {
-	_, err := m.GoBase().
-		WithExec([]string{
-			"go", "install",
-			"golang.org/x/tools/cmd/deadcode@" + deadcodeVersion,
-		}).
-		WithExec([]string{"deadcode", "./..."}).
-		Sync(ctx)
-	return err
-}
-
-// LintCommitMsg validates a commit message against the project's conventional
-// commit policy using conform. The message file is typically provided by a
-// git commit-msg hook.
-func (m *Go) LintCommitMsg(
-	ctx context.Context,
-	// Commit message file to validate (e.g. .git/COMMIT_EDITMSG).
-	msgFile *dagger.File,
-) error {
-	ctr := dag.Container().
-		From("alpine/git:latest").
-		WithFile("/usr/local/bin/conform",
-			dag.Container().From("ghcr.io/siderolabs/conform:"+conformVersion).
-				File("/conform")).
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src")
-
-	_, err := m.EnsureGitInit(ctr).
-		WithMountedFile("/tmp/commit-msg", msgFile).
-		WithExec([]string{"conform", "enforce", "--commit-msg-file", "/tmp/commit-msg"}).
-		Sync(ctx)
-	return err
-}
-
-// ---------------------------------------------------------------------------
-// Benchmarking
-// ---------------------------------------------------------------------------
-
-// BenchmarkResult holds the timing for a single pipeline stage.
-type BenchmarkResult struct {
-	// Pipeline stage name (e.g. "goBase", "lint", "test").
-	Name string
-	// Duration in seconds.
-	DurationSecs float64
-	// Whether the stage completed successfully.
-	Ok bool
-	// Error message if the stage failed.
-	Error string
-}
-
-// Benchmark measures the wall-clock time of key pipeline stages and
-// returns structured results. Use this to identify bottlenecks and track
-// performance regressions. Each stage is run sequentially to isolate
-// timings.
-//
-// +cache="never"
-func (m *Go) Benchmark(ctx context.Context) ([]*BenchmarkResult, error) {
-	return m.runBenchmarks(ctx, false)
-}
-
-// BenchmarkSummary measures the wall-clock time of key pipeline stages
-// and returns a human-readable table. This is a convenience wrapper
-// around [Go.Benchmark] for CLI use without jq post-processing.
-//
-// When parallel is true, all stages run concurrently to measure the
-// real-world wall-clock time of the full CI pipeline. The total row
-// shows overall elapsed time rather than the sum of individual stages.
-//
-// +cache="never"
-func (m *Go) BenchmarkSummary(
-	ctx context.Context,
-	// Run stages concurrently to measure full-pipeline wall-clock time.
-	// +default=false
-	parallel bool,
-) (string, error) {
-	results, err := m.runBenchmarks(ctx, parallel)
-	if err != nil {
-		return "", err
-	}
-	return formatBenchmarkTable(results, parallel), nil
-}
-
-// formatBenchmarkTable formats benchmark results as an aligned text table.
-func formatBenchmarkTable(results []*BenchmarkResult, parallel bool) string {
-	var b strings.Builder
-
-	mode := "sequential"
-	if parallel {
-		mode = "parallel"
-	}
-	fmt.Fprintf(&b, "Benchmark (%s)\n", mode)
-	fmt.Fprintf(&b, "%-20s %10s %8s\n", "STAGE", "DURATION", "STATUS")
-	fmt.Fprintf(&b, "%-20s %10s %8s\n", "-----", "--------", "------")
-
-	var total float64
-	var maxDur float64
-	allOk := true
-	for _, r := range results {
-		status := "ok"
-		if !r.Ok {
-			status = "FAIL"
-			allOk = false
-		}
-		fmt.Fprintf(&b, "%-20s %9.1fs %8s\n", r.Name, r.DurationSecs, status)
-		total += r.DurationSecs
-		if r.DurationSecs > maxDur {
-			maxDur = r.DurationSecs
-		}
-	}
-
-	fmt.Fprintf(&b, "%-20s %10s %8s\n", "-----", "--------", "------")
-
-	// In parallel mode, show both the wall-clock (max) and sum of stages.
-	totalStatus := "ok"
-	if !allOk {
-		totalStatus = "FAIL"
-	}
-	if parallel {
-		fmt.Fprintf(&b, "%-20s %9.1fs %8s\n", "WALL-CLOCK", maxDur, totalStatus)
-		fmt.Fprintf(&b, "%-20s %9.1fs\n", "SUM", total)
-	} else {
-		fmt.Fprintf(&b, "%-20s %9.1fs %8s\n", "TOTAL", total, totalStatus)
-	}
-
-	return b.String()
-}
-
-// CacheBust returns a container with a unique cache-busting environment
-// variable that forces Dagger to re-evaluate the pipeline instead of
-// returning cached results.
-func (m *Go) CacheBust(
-	// Container to bust the cache for.
-	ctr *dagger.Container,
+	platform dagger.Platform,
 ) *dagger.Container {
-	return ctr.WithEnvVariable("_BENCH_TS", time.Now().String())
-}
+	src := m.Source.WithNewFile(".git/HEAD", "ref: refs/heads/main\n")
 
-// benchmarkStage pairs a stage name with its execution function.
-type benchmarkStage struct {
-	name string
-	fn   func(context.Context) error
-}
-
-// benchmarkStages returns the list of generic pipeline stages to benchmark.
-func (m *Go) benchmarkStages() []benchmarkStage {
-	return []benchmarkStage{
-		{"goBase", func(ctx context.Context) error {
-			_, err := m.CacheBust(m.GoBase()).Sync(ctx)
-			return err
-		}},
-		{"lint", func(ctx context.Context) error {
-			_, err := m.CacheBust(m.LintBase()).
-				WithExec([]string{"golangci-lint", "run"}).
-				Sync(ctx)
-			return err
-		}},
-		{"test", func(ctx context.Context) error {
-			_, err := m.CacheBust(m.GoBase()).
-				WithExec([]string{"go", "test", "./..."}).
-				Sync(ctx)
-			return err
-		}},
-		{"lint-prettier", func(ctx context.Context) error {
-			_, err := m.CacheBust(m.PrettierBase()).
-				WithMountedDirectory("/src", m.Source).
-				WithWorkdir("/src").
-				WithExec(append(
-					[]string{"prettier", "--config", "./.prettierrc.yaml", "--check"},
-					defaultPrettierPatterns()...,
-				)).
-				Sync(ctx)
-			return err
-		}},
-		{"lint-actions", func(ctx context.Context) error {
-			_, err := m.CacheBust(dag.Container().
-				From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion)).
-				WithMountedDirectory("/src", m.Source).
-				WithWorkdir("/src").
-				WithExec([]string{
-					"zizmor", ".github/workflows", "--config", ".github/zizmor.yaml",
-				}).
-				Sync(ctx)
-			return err
-		}},
-		{"lint-releaser", func(ctx context.Context) error {
-			_, err := m.CacheBust(m.GoreleaserCheckBase("")).
-				WithExec([]string{"goreleaser", "check"}).
-				Sync(ctx)
-			return err
-		}},
+	cgoEnabled := "0"
+	if m.Cgo || m.Race {
+		cgoEnabled = "1"
 	}
-}
 
-// runBenchmarks executes benchmark stages. When parallel is false, stages
-// run sequentially for isolated timings. When true, stages run concurrently
-// to measure real-world wall-clock time.
-func (m *Go) runBenchmarks(ctx context.Context, parallel bool) ([]*BenchmarkResult, error) {
-	stages := m.benchmarkStages()
+	ctr := m.Base.
+		WithEnvVariable("CGO_ENABLED", cgoEnabled).
+		WithMountedDirectory("/src", src)
 
-	if parallel {
-		return m.runBenchmarksParallel(ctx, stages)
-	}
-	return m.runBenchmarksSequential(ctx, stages)
-}
-
-// runBenchmarksSequential runs each stage one at a time for isolated timings.
-func (m *Go) runBenchmarksSequential(ctx context.Context, stages []benchmarkStage) ([]*BenchmarkResult, error) {
-	results := make([]*BenchmarkResult, 0, len(stages))
-	for _, s := range stages {
-		start := time.Now()
-		err := s.fn(ctx)
-		elapsed := time.Since(start).Seconds()
-
-		r := &BenchmarkResult{
-			Name:         s.name,
-			DurationSecs: elapsed,
-			Ok:           err == nil,
+	if platform != "" {
+		parts := strings.SplitN(string(platform), "/", 3)
+		if len(parts) >= 2 {
+			ctr = ctr.
+				WithEnvVariable("GOOS", parts[0]).
+				WithEnvVariable("GOARCH", parts[1])
 		}
-		if err != nil {
-			r.Error = err.Error()
-		}
-		results = append(results, r)
-	}
-	return results, nil
-}
-
-// runBenchmarksParallel runs all stages concurrently and reports individual
-// wall-clock times. This measures what a real CI run looks like when Dagger
-// evaluates pipelines in parallel.
-func (m *Go) runBenchmarksParallel(ctx context.Context, stages []benchmarkStage) ([]*BenchmarkResult, error) {
-	results := make([]*BenchmarkResult, len(stages))
-	g, gCtx := errgroup.WithContext(ctx)
-
-	for i, s := range stages {
-		g.Go(func() error {
-			start := time.Now()
-			err := s.fn(gCtx)
-			elapsed := time.Since(start).Seconds()
-
-			r := &BenchmarkResult{
-				Name:         s.name,
-				DurationSecs: elapsed,
-				Ok:           err == nil,
-			}
-			if err != nil {
-				r.Error = err.Error()
-			}
-			results[i] = r
-			return nil // always collect results, don't abort on stage failure
-		})
 	}
 
-	_ = g.Wait()
-	return results, nil
+	return ctr
 }
 
-// ---------------------------------------------------------------------------
-// Formatting
-// ---------------------------------------------------------------------------
-
-// Format runs golangci-lint --fix and prettier --write, returning the
-// changeset against the original source directory.
+// Download runs go mod download using only go.mod and go.sum, warming
+// the module cache for subsequent operations.
 //
-// Both formatters operate on non-overlapping file types (.go vs
-// .yaml/.md/.json), so they run against the original source in parallel.
-// The results are merged by overlaying Prettier's output onto the
-// Go-formatted source.
-//
-// +generate
-func (m *Go) Format() *dagger.Changeset {
-	patterns := defaultPrettierPatterns()
-
-	// Go formatting via golangci-lint --fix.
-	goFmt := m.LintBase().
-		WithExec([]string{"golangci-lint", "run", "--fix"}).
-		Directory("/src")
-
-	// Prettier formatting (runs against original source in parallel with Go formatting).
-	prettierFmt := m.PrettierBase().
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
-		WithExec(append(
-			[]string{"prettier", "--config", "./.prettierrc.yaml", "-w"},
-			patterns...,
-		)).
-		Directory("/src")
-
-	// Merge: start with Go-formatted source, overlay Prettier-formatted files.
-	// Dagger evaluates lazily, so both pipelines execute concurrently when the
-	// changeset is resolved.
-	formatted := goFmt.WithDirectory(".", prettierFmt, dagger.DirectoryWithDirectoryOpts{
-		Include: patterns,
-	})
-
-	return formatted.Changes(m.Source)
+// +cache="session"
+func (m *Go) Download(ctx context.Context) (*Go, error) {
+	_, err := m.Base.Sync(ctx)
+	if err != nil {
+		return m, err
+	}
+	return m, nil
 }
 
 // ---------------------------------------------------------------------------
-// Generation
+// Build
 // ---------------------------------------------------------------------------
 
-// Generate runs go generate and returns the changeset of generated files
-// against the original source.
-//
-// +generate
-func (m *Go) Generate() *dagger.Changeset {
-	generated := m.GoBase().
-		WithExec([]string{"go", "generate", "./..."}).
-		Directory("/src").
-		WithoutDirectory(".git")
-	return generated.Changes(m.Source)
-}
-
-// ---------------------------------------------------------------------------
-// Publishing
-// ---------------------------------------------------------------------------
-
-// VersionTags returns the image tags derived from a version tag string.
-// For example, "v1.2.3" yields ["latest", "v1.2.3", "v1", "v1.2"].
-func (m *Go) VersionTags(
-	// Version tag (e.g. "v1.2.3").
-	tag string,
-) []string {
-	v := strings.TrimPrefix(tag, "v")
-	parts := strings.SplitN(v, ".", 3)
-
-	// Detect pre-release: any version component contains a hyphen
-	// (e.g. "1.0.0-rc.1" -> third part is "0-rc.1").
-	for _, p := range parts {
-		if strings.Contains(p, "-") {
-			return []string{tag}
-		}
-	}
-
-	tags := []string{"latest", tag}
-	if len(parts) >= 1 {
-		tags = append(tags, "v"+parts[0])
-	}
-	if len(parts) >= 2 {
-		tags = append(tags, "v"+parts[0]+"."+parts[1])
-	}
-	return tags
-}
-
-// FormatDigestChecksums converts publish output references to the
-// checksums format expected by actions/attest-build-provenance. Each reference
-// has the form "registry/image:tag@sha256:hex"; this function emits
-// "hex  registry/image:tag" lines, deduplicating by digest.
-func (m *Go) FormatDigestChecksums(
-	// Image references (e.g. "registry/image:tag@sha256:hex").
-	refs []string,
-) string {
-	seen := make(map[string]bool)
-	var b strings.Builder
-	for _, ref := range refs {
-		parts := strings.SplitN(ref, "@sha256:", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		hex := parts[1]
-		if seen[hex] {
-			continue
-		}
-		seen[hex] = true
-		fmt.Fprintf(&b, "%s  %s\n", hex, parts[0])
-	}
-	return b.String()
-}
-
-// DeduplicateDigests returns unique image references from a list, keeping
-// only the first occurrence of each sha256 digest.
-func (m *Go) DeduplicateDigests(
-	// Image references (e.g. "registry/image:tag@sha256:hex").
-	refs []string,
-) []string {
-	seen := make(map[string]bool)
-	var unique []string
-	for _, ref := range refs {
-		parts := strings.SplitN(ref, "@sha256:", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		if !seen[parts[1]] {
-			seen[parts[1]] = true
-			unique = append(unique, ref)
-		}
-	}
-	return unique
-}
-
-// RegistryHost extracts the host (with optional port) from a registry
-// address. For example, "ghcr.io/macropower/kclipper" returns "ghcr.io".
-func (m *Go) RegistryHost(
-	// Registry address (e.g. "ghcr.io/macropower/kclipper").
-	registry string,
-) string {
-	return strings.SplitN(registry, "/", 2)[0]
-}
-
-// PublishImages publishes pre-built container image variants to the registry,
-// optionally signing them with cosign. Returns the list of published digest
-// references (one per tag, e.g. "registry/image:tag@sha256:hex").
-//
-// +cache="never"
-func (m *Go) PublishImages(
+// Build compiles the given main packages and returns the output directory.
+func (m *Go) Build(
 	ctx context.Context,
-	// Pre-built container image variants to publish.
-	variants []*dagger.Container,
-	// Image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
-	tags []string,
-	// Registry username for authentication.
+	// Packages to build.
 	// +optional
-	registryUsername string,
-	// Registry password or token for authentication.
+	// +default=["./..."]
+	pkgs []string,
+	// Disable symbol table.
 	// +optional
-	registryPassword *dagger.Secret,
-	// Cosign private key for signing published images.
+	noSymbols bool,
+	// Disable DWARF generation.
 	// +optional
-	cosignKey *dagger.Secret,
-	// Password for the cosign private key. Required when the key is encrypted.
+	noDwarf bool,
+	// Target build platform.
 	// +optional
-	cosignPassword *dagger.Secret,
-) ([]string, error) {
-	// Publish multi-arch manifest for each tag concurrently.
-	publisher := dag.Container()
-	if registryPassword != nil {
-		publisher = publisher.WithRegistryAuth(m.RegistryHost(m.Registry), registryUsername, registryPassword)
+	platform dagger.Platform,
+	// Output directory path inside the container.
+	// +optional
+	// +default="./bin/"
+	outDir string,
+) (*dagger.Directory, error) {
+	if m.Race {
+		m.Cgo = true
 	}
 
-	digests := make([]string, len(tags))
-	g, gCtx := errgroup.WithContext(ctx)
-	for i, t := range tags {
-		ref := fmt.Sprintf("%s:%s", m.Registry, t)
-		g.Go(func() error {
-			digest, err := publisher.Publish(gCtx, ref, dagger.ContainerPublishOpts{
-				PlatformVariants: variants,
-			})
-			if err != nil {
-				return fmt.Errorf("publish %s: %w", ref, err)
-			}
-			digests[i] = digest
-			return nil
-		})
+	ldflags := m.Ldflags
+	if noSymbols {
+		ldflags = append(ldflags, "-s")
 	}
-	if err := g.Wait(); err != nil {
+	if noDwarf {
+		ldflags = append(ldflags, "-w")
+	}
+
+	env := m.Env(platform)
+	cmd := []string{"go", "build", "-buildvcs=false", "-o", outDir}
+	for _, pkg := range pkgs {
+		env = env.WithExec(goCommand(cmd, []string{pkg}, ldflags, m.Values, m.Race))
+	}
+	return dag.Directory().WithDirectory(outDir, env.Directory(outDir)), nil
+}
+
+// Binary compiles a single main package and returns the binary file.
+func (m *Go) Binary(
+	ctx context.Context,
+	// Package to build.
+	pkg string,
+	// Disable symbol table.
+	// +optional
+	noSymbols bool,
+	// Disable DWARF generation.
+	// +optional
+	noDwarf bool,
+	// Target build platform.
+	// +optional
+	platform dagger.Platform,
+) (*dagger.File, error) {
+	dir, err := m.Build(ctx, []string{pkg}, noSymbols, noDwarf, platform, "./bin/")
+	if err != nil {
 		return nil, err
 	}
-
-	// Sign each published image with cosign (key-based signing).
-	// Deduplicate first -- multiple tags often share one manifest digest.
-	if cosignKey != nil {
-		toSign := m.DeduplicateDigests(digests)
-
-		cosignCtr := dag.Container().
-			From("gcr.io/projectsigstore/cosign:"+cosignVersion).
-			WithSecretVariable("COSIGN_KEY", cosignKey)
-		if registryPassword != nil {
-			cosignCtr = cosignCtr.WithRegistryAuth(m.RegistryHost(m.Registry), registryUsername, registryPassword)
-		}
-		if cosignPassword != nil {
-			cosignCtr = cosignCtr.WithSecretVariable("COSIGN_PASSWORD", cosignPassword)
-		}
-
-		g, gCtx := errgroup.WithContext(ctx)
-		for _, digest := range toSign {
-			g.Go(func() error {
-				_, err := cosignCtr.
-					WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
-					Sync(gCtx)
-				if err != nil {
-					return fmt.Errorf("sign image %s: %w", digest, err)
-				}
-				return nil
-			})
-		}
-		if err := g.Wait(); err != nil {
-			return nil, err
-		}
+	files, err := dir.Glob(ctx, "bin/"+path.Base(pkg)+"*")
+	if err != nil {
+		return nil, err
 	}
+	if len(files) == 0 {
+		return nil, fmt.Errorf("no matching binary for %q", pkg)
+	}
+	return dir.File(files[0]), nil
+}
 
-	return digests, nil
+// goCommand assembles a go build/test command with ldflags, values, and
+// race detector support.
+func goCommand(
+	cmd []string,
+	pkgs []string,
+	ldflags []string,
+	values []string,
+	race bool,
+) []string {
+	for _, val := range values {
+		ldflags = append(ldflags, "-X '"+val+"'")
+	}
+	if len(ldflags) > 0 {
+		cmd = append(cmd, "-ldflags", strings.Join(ldflags, " "))
+	}
+	if race {
+		cmd = append(cmd, "-race")
+	}
+	cmd = append(cmd, pkgs...)
+	return cmd
 }
 
 // ---------------------------------------------------------------------------
-// Base containers (public)
+// Tidy
+// ---------------------------------------------------------------------------
+
+// CheckTidy verifies that go.mod and go.sum are tidy by running
+// go mod tidy and checking for differences.
+//
+// +check
+func (m *Go) CheckTidy(ctx context.Context) error {
+	changeset, err := m.tidy()
+	if err != nil {
+		return err
+	}
+	patch, err := changeset.AsPatch().Contents(ctx)
+	if err != nil {
+		return err
+	}
+	if len(patch) > 0 {
+		return fmt.Errorf("go.mod/go.sum are not tidy:\n%s", patch)
+	}
+	return nil
+}
+
+// Tidy runs go mod tidy and returns the changeset.
+//
+// +generate
+func (m *Go) Tidy() *dagger.Changeset {
+	changeset, _ := m.tidy()
+	return changeset
+}
+
+// tidy runs go mod tidy and returns the changeset of go.mod/go.sum changes.
+func (m *Go) tidy() (*dagger.Changeset, error) {
+	tidied := m.Env("").
+		WithExec([]string{"go", "mod", "tidy"}).
+		Directory("/src")
+
+	updated := m.Source.
+		WithFile("go.mod", tidied.File("go.mod")).
+		WithFile("go.sum", tidied.File("go.sum"))
+
+	return updated.Changes(m.Source), nil
+}
+
+// ---------------------------------------------------------------------------
+// Base containers
 // ---------------------------------------------------------------------------
 
 // GoBase returns a Go container with source, module cache, and build cache.
 // A static .git/HEAD file is injected into the source so that tools
 // can locate the repository root without a container exec. Module download
-// is cached via [Go.GoModBase].
+// is cached via the base container.
+//
+// Deprecated: Use [Go.Env] instead.
 func (m *Go) GoBase() *dagger.Container {
-	src := m.Source.WithNewFile(".git/HEAD", "ref: refs/heads/main\n")
-	ctr := dag.Container().
-		From("golang:"+goVersion).
-		WithEnvVariable("CGO_ENABLED", "1")
-	return m.GoModBase(ctr, src)
+	return m.Env("")
 }
 
-// LintBase returns a golangci-lint container with source and caches. The
+// lintBase returns a golangci-lint container with source and caches. The
 // Debian-based image is used (not Alpine) because it includes kernel headers
-// needed by CGO transitive dependencies. Module download is cached via
-// [Go.GoModBase]. The golangci-lint cache volume includes the linter
-// version so that version bumps start fresh.
-func (m *Go) LintBase() *dagger.Container {
-	ctr := dag.Container().
-		From("golangci/golangci-lint:" + golangciLintVersion)
-	return m.GoModBase(ctr, nil).
+// needed by CGO transitive dependencies. The golangci-lint cache volume
+// includes the linter version so that version bumps start fresh.
+func (m *Go) lintBase() *dagger.Container {
+	return dag.Container().
+		From("golangci/golangci-lint:"+golangciLintVersion).
+		WithMountedCache("/go/pkg/mod", m.ModuleCache).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", m.BuildCache).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithDirectory("/src", m.GoMod).
+		WithWorkdir("/src").
+		WithExec([]string{"go", "mod", "download"}).
+		WithMountedDirectory("/src", m.Source).
 		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint-"+golangciLintVersion))
 }
 
@@ -677,40 +366,6 @@ func (m *Go) PrettierBase() *dagger.Container {
 		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
 }
 
-// GoModBase mounts Go module and build cache volumes, copies [Go.GoMod]
-// (go.mod and go.sum only) into the container, and runs go mod download.
-// Because [Go.GoMod] is synced independently of [Go.Source], its content
-// hash changes only when dependency files change, not on every source edit.
-// The cache volumes are mounted before the download so that go mod download
-// is a near-instant no-op when modules are already present in the persistent
-// volume. The full source directory is mounted last. Both [Go.LintBase]
-// and [Go.GoBase] delegate to this method.
-//
-// Cache volumes include the Go version suffix (e.g. "go-mod-1.25") so that
-// a Go version bump automatically starts with a fresh cache instead of
-// inheriting potentially incompatible artifacts from the previous version.
-func (m *Go) GoModBase(
-	// Base container to add module caches and source to.
-	ctr *dagger.Container,
-	// Source directory to mount after module download. Defaults to the
-	// module's [Go.Source].
-	// +optional
-	src *dagger.Directory,
-) *dagger.Container {
-	if src == nil {
-		src = m.Source
-	}
-	return ctr.
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod-"+goVersion)).
-		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build-"+goVersion)).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
-		WithDirectory("/src", m.GoMod).
-		WithWorkdir("/src").
-		WithExec([]string{"go", "mod", "download"}).
-		WithMountedDirectory("/src", src)
-}
-
 // GoreleaserCheckBase returns a lightweight container with only Go,
 // GoReleaser, and the project source. This is sufficient for
 // goreleaser check which only validates config syntax.
@@ -721,12 +376,20 @@ func (m *Go) GoreleaserCheckBase(
 	remoteURL string,
 ) *dagger.Container {
 	ctr := dag.Container().
-		From("golang:"+goVersion).
+		From("golang:"+m.Version).
 		// Install GoReleaser from its official OCI image.
 		WithFile("/usr/local/bin/goreleaser",
 			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
-				File("/usr/bin/goreleaser"))
-	return m.EnsureGitRepo(m.GoModBase(ctr, nil), remoteURL)
+				File("/usr/bin/goreleaser")).
+		WithMountedCache("/go/pkg/mod", m.ModuleCache).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", m.BuildCache).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithDirectory("/src", m.GoMod).
+		WithWorkdir("/src").
+		WithExec([]string{"go", "mod", "download"}).
+		WithMountedDirectory("/src", m.Source)
+	return m.EnsureGitRepo(ctr, remoteURL)
 }
 
 // ReleaserBase returns a container with Go, GoReleaser, cosign, syft,
@@ -743,7 +406,7 @@ func (m *Go) ReleaserBase(
 	remoteURL string,
 ) *dagger.Container {
 	ctr := dag.Container().
-		From("golang:"+goVersion).
+		From("golang:"+m.Version).
 		WithFile("/usr/local/bin/goreleaser",
 			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
 				File("/usr/bin/goreleaser")).
@@ -752,8 +415,16 @@ func (m *Go) ReleaserBase(
 				File("/ko-app/cosign")).
 		WithFile("/usr/local/bin/syft",
 			dag.Container().From("ghcr.io/anchore/syft:"+syftVersion).
-				File("/syft"))
-	return m.EnsureGitRepo(m.GoModBase(ctr, nil), remoteURL)
+				File("/syft")).
+		WithMountedCache("/go/pkg/mod", m.ModuleCache).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", m.BuildCache).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithDirectory("/src", m.GoMod).
+		WithWorkdir("/src").
+		WithExec([]string{"go", "mod", "download"}).
+		WithMountedDirectory("/src", m.Source)
+	return m.EnsureGitRepo(ctr, remoteURL)
 }
 
 // ---------------------------------------------------------------------------

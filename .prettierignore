@@ -6,3 +6,6 @@
 
 # Generated Helm chart schemas.
 **/testdata/**/values.schema.json
+
+# Dagger module configs are managed by `dagger develop`.
+**/dagger.json

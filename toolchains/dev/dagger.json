@@ -3,5 +3,9 @@
   "engineVersion": "v0.20.0",
   "sdk": {
     "source": "go"
-  }
+  },
+  "include": [
+    "../../go.mod",
+    "../../go.sum"
+  ]
 }

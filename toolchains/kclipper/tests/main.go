@@ -29,6 +29,7 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestBuildImageMetadata(ctx) })
 	g.Go(func() error { return m.TestLintReleaserClean(ctx) })
 	g.Go(func() error { return m.TestLintDeadcodeClean(ctx) })
+	g.Go(func() error { return m.TestBinary(ctx) })
 
 	return g.Wait()
 }
@@ -234,6 +235,21 @@ func (m *Tests) TestLintDeadcodeClean(ctx context.Context) error {
 	return dag.Go().LintDeadcode(ctx)
 }
 
+// TestBinary verifies that [Kclipper.Binary] compiles the kcl binary.
+//
+// +check
+func (m *Tests) TestBinary(ctx context.Context) error {
+	binary := dag.Kclipper().Binary(dagger.KclipperBinaryOpts{})
+	size, err := binary.Size(ctx)
+	if err != nil {
+		return fmt.Errorf("binary: %w", err)
+	}
+	if size == 0 {
+		return fmt.Errorf("binary has zero size")
+	}
+	return nil
+}
+
 // TestBenchmarkReturnsResults verifies that [Kclipper.Benchmark] returns
 // non-empty results with expected stage names and positive durations.
 //
@@ -252,7 +268,7 @@ func (m *Tests) TestBenchmarkReturnsResults(ctx context.Context) error {
 	}
 
 	expectedStages := map[string]bool{
-		"goBase":        false,
+		"env":           false,
 		"lint":          false,
 		"test":          false,
 		"lint-prettier": false,
@@ -319,7 +335,7 @@ func (m *Tests) TestBenchmarkSummaryFormat(ctx context.Context) error {
 	}
 
 	// Verify key stages appear in the output.
-	for _, stage := range []string{"goBase", "lint", "test", "build"} {
+	for _, stage := range []string{"env", "lint", "test", "build"} {
 		if !strings.Contains(summary, stage) {
 			return fmt.Errorf("benchmark summary missing stage %q: %s", stage, summary)
 		}

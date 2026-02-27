@@ -34,11 +34,15 @@ Three Dagger toolchain modules work together:
   images, dev container wrappers). Lives at `toolchains/kclipper/`.
 
 ```
-dagger.json          # Root module config (toolchains only, no code)
+dagger.json          # Root module config (toolchains + customizations)
 toolchains/
   go/
     dagger.json      # Reusable module config (name=go)
-    main.go          # Generic Go CI functions (+check, +generate)
+    main.go          # Struct, constructor, constants, base containers, helpers
+    check.go         # Test, TestCoverage, Lint, LintPrettier, LintActions, LintReleaser, LintDeadcode, LintCommitMsg
+    generate.go      # Format, Generate
+    publish.go       # PublishImages, VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost
+    bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, CacheBust, benchmarkStages, runBenchmarks
     tests/           # Generic function tests
   dev/
     dagger.json      # Reusable module config (name=dev)
@@ -46,13 +50,19 @@ toolchains/
     tests/           # Dev container tests
   kclipper/
     dagger.json      # Kclipper-specific (depends on go + dev)
-    main.go          # Kclipper-specific build/release/dev functions
+    main.go          # Struct, constructor, constants, goToolchain, devToolchain, LintReleaser
+    build.go         # Build, BuildImages, runtimeImages, runtimeBase, releaserBase
+    publish.go       # PublishImages, Release
+    bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, benchmarkStages, runBenchmarks
+    dev.go           # DevEnv, Dev
     tests/           # Kclipper-specific integration tests
 ```
 
-The root `dagger.json` registers `go` and `kclipper` as toolchains. The
-`kclipper` module depends on both `go` and `dev` via local path dependencies
-and delegates generic CI work to those modules.
+The root `dagger.json` registers `go` and `kclipper` as toolchains with
+`customizations` that declare source ignore patterns (e.g. `dist`,
+`.worktrees`, `.tmp`, `.git`) at the project level. The `kclipper` module
+depends on both `go` and `dev` via local path dependencies and delegates
+generic CI work to those modules.
 
 ### What lives where
 
@@ -91,7 +101,7 @@ pipeline stages that the test module exercises without needing `Terminal()`.
 
 ## Adding a New Check
 
-For **generic CI** checks (useful to any Go project), add to `toolchains/go/main.go`.
+For **generic CI** checks (useful to any Go project), add to `toolchains/go/check.go`.
 For **dev container** functions, add to `toolchains/dev/main.go`.
 For **kclipper-specific** checks, add to `toolchains/kclipper/main.go` (delegating
 to the appropriate toolchain where possible).
@@ -133,9 +143,10 @@ func (m *Go) GenerateFoo() *dagger.Changeset {
   project's root `CLAUDE.md`.
 - The package-level doc comment in `main.go` provides the module description
   shown in `dagger functions` and `dagger call --help`.
-- Functions with external side effects (publishing, releasing) must use
-  `// +cache="never"` to prevent stale cached results. All other functions
-  use Dagger's default function caching.
+- Functions with external side effects (publishing, releasing) use
+  `// +cache="never"`. Functions that should re-run each session (Test,
+  Benchmark) use `// +cache="session"`. Deterministic functions use
+  Dagger's default function caching.
 - Pure-logic utilities are public methods directly (no private helper
   indirection) so they remain testable from the test module.
 - Registry auth (`WithRegistryAuth`) is conditional: only applied when
@@ -217,7 +228,13 @@ These helpers live in the `go` toolchain and are called via
 The CI module uses a three-tier caching approach to minimize redundant work:
 
 1. **Dagger function caching** — Dagger caches function results by default
-   (7-day TTL). Functions with external side effects use `// +cache="never"`.
+   (7-day TTL). Three cache tiers are used:
+
+   - **Default** — deterministic functions (lint, format) use the 7-day TTL.
+   - **`+cache="session"`** — functions that should re-run each session but
+     not be cached across sessions (Test, Benchmark, BenchmarkSummary).
+   - **`+cache="never"`** — functions with external side effects (PublishImages,
+     Release, Dev) that must never return stale results.
 
 2. **Module pre-download layer** (`GoModBase`) — The constructor accepts a
    separate `goMod` directory parameter synced with
@@ -228,7 +245,9 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    `LintBase()` and `GoBase()` delegate to `GoModBase`.
 
 3. **Cache volumes** — Named Dagger cache volumes persist across runs.
-   Volume names include tool versions so that version bumps start fresh:
+   Volume names include tool versions so that version bumps start fresh.
+   The Go toolchain constructor accepts optional `moduleCache` and
+   `buildCache` parameters; when omitted, versioned defaults are used:
    - `go-mod-<goVersion>` — Go module cache (`GOMODCACHE`)
    - `go-build-<goVersion>` — Go build cache (`GOCACHE`)
    - `golangci-lint-<lintVersion>` — golangci-lint analysis cache
@@ -250,12 +269,13 @@ it belongs in the Taskfile. Everything else belongs in Dagger.
 
 ## Version Management
 
-Tool versions are declared as constants at the top of `main.go` with Renovate
-annotations for automated updates (e.g. `// renovate: datasource=... depName=...`).
+Tool versions are declared as constants at the top of each module's `main.go`
+with Renovate annotations for automated updates (e.g.
+`// renovate: datasource=... depName=...`).
 
 - **CI tool versions** (Go, golangci-lint, prettier, cosign, syft, etc.) are
-  in `toolchains/go/main.go`. Updating the go toolchain updates these for all
-  consumers.
+  in `toolchains/go/main.go`. The Go version is also configurable via the
+  constructor's optional `goVersion` parameter (defaults to `defaultGoVersion`).
 - **Dev tool versions** (task, lefthook, dagger, starship, yq, uv, gh,
   claude-code) are in `toolchains/dev/main.go`.
 - **Project-specific versions** (Zig, KCL LSP) are in
