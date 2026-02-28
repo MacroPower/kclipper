@@ -8,7 +8,7 @@ building, releasing) run in containers orchestrated by Dagger.
 ```bash
 dagger check                          # Run all checks (+check functions)
 dagger check go:lint                  # Run specific check(s)
-dagger call go lint-deadcode          # Run deadcode analysis (opt-in, advisory)
+dagger call kclipper lint-deadcode    # Run deadcode analysis (opt-in, advisory)
 dagger generate --auto-apply          # Run generators (Format + Generate) and apply changes
 dagger call kclipper build --output=./dist       # Build binaries
 task dev                              # Dev container (branch defaults to current)
@@ -22,10 +22,10 @@ dagger call commitlint lint --source=. --msg-file=.git/COMMIT_EDITMSG  # Validat
 
 Four Dagger toolchain modules work together:
 
-- **`go`** (toolchain) — Reusable Go CI module with generic functions (test,
-  lint, format, publish). Lives at `toolchains/go/` with its own `dagger.json`.
-  Can be consumed by any Go project. Carries `+check` and `+generate`
-  annotations directly.
+- **`go`** (toolchain) — Reusable Go CI module with Go-specific functions
+  (test, lint, format-go, tidy, env, build). Lives at `toolchains/go/` with
+  its own `dagger.json`. Can be consumed by any Go project. Carries `+check`
+  and `+generate` annotations directly.
 - **`dev`** (toolchain) — Reusable development container module (DevBase,
   DevEnv, Dev). Lives at `toolchains/dev/` with its own `dagger.json`. Fully
   independent from the `go` module.
@@ -34,20 +34,20 @@ Four Dagger toolchain modules work together:
   `toolchains/commitlint/` with its own `dagger.json`. Independent of all
   other toolchains.
 - **`kclipper`** (toolchain) — Kclipper-specific CI layer that depends on `go`
-  and `dev` and adds project-specific functions (build, release, runtime
-  images, dev container wrappers). Lives at `toolchains/kclipper/`.
+  and `dev` and adds project-specific functions (build, release, non-Go
+  linting, formatting, publishing, runtime images, dev container wrappers).
+  Lives at `toolchains/kclipper/`.
 
 ```
 dagger.json          # Root module config (toolchains + customizations)
 toolchains/
   go/
     dagger.json      # Reusable module config (name=go)
-    main.go          # Struct, constructor, constants, base containers, helpers
-    check.go         # Test, TestCoverage, Lint, LintPrettier, LintActions, LintReleaser, LintDeadcode
-    generate.go      # Format, Generate
-    publish.go       # PublishImages, VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost
+    main.go          # Struct, constructor, constants, lintBase, helpers
+    check.go         # Test, TestCoverage, Lint
+    generate.go      # FormatGo, Generate
     bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, CacheBust, benchmarkStages, runBenchmarks
-    tests/           # Generic function tests
+    tests/           # Go module tests
   commitlint/
     dagger.json      # Standalone module config (name=commitlint)
     main.go          # Struct, constructor, Lint
@@ -58,9 +58,11 @@ toolchains/
     tests/           # Dev container tests
   kclipper/
     dagger.json      # Kclipper-specific (depends on go + dev)
-    main.go          # Struct, constructor, constants, goToolchain, devToolchain, LintReleaser
+    main.go          # Struct, constructor, constants, prettierBase, goreleaserCheckBase, defaultPrettierPatterns
     build.go         # Build, BuildImages, runtimeImages, runtimeBase, releaserBase
-    publish.go       # PublishImages, Release
+    check.go         # LintReleaser, LintPrettier, LintActions, LintDeadcode
+    generate.go      # Format
+    publish.go       # VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost, PublishImages, Release, publishImages
     bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, benchmarkStages, runBenchmarks
     dev.go           # DevEnv, Dev
     tests/           # Kclipper-specific integration tests
@@ -70,22 +72,24 @@ The root `dagger.json` registers `go`, `commitlint`, and `kclipper` as
 toolchains with `customizations` that declare source ignore patterns (e.g.
 `dist`, `.worktrees`, `.tmp`, `.git`) at the project level. The `kclipper`
 module depends on both `go` and `dev` via local path dependencies and
-delegates generic CI work to those modules.
+delegates generic Go CI work to the `go` module while owning project-specific
+tooling.
 
 ### What lives where
 
-| `go` toolchain (CI)                                                  | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                            |
-| -------------------------------------------------------------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------- |
-| Test (+check), TestCoverage                                          | Lint                     | DevBase, DevEnv, Dev              | Build, Release                                                      |
-| Lint (+check), LintPrettier (+check), LintActions (+check)           |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages (builds images, delegates publish to go) |
-| LintReleaser, LintDeadcode                                           |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check, uses kclipper clone URL)                      |
-| Format (+generate), Generate (+generate)                             |                          | Shell/tool version constants      | releaserBase (extends ReleaserBase with Zig, macOS SDK, KCL LSP)    |
-| GoBase, LintBase, PrettierBase, GoModBase, ReleaserBase              |                          | starshipConfig, zshConfig         | runtimeImages, runtimeBase (KCL env, OCI labels)                    |
-| EnsureGitInit, EnsureGitRepo                                         |                          | devInitScript                     | DevEnv/Dev wrappers (pass clone URL)                                |
-| PublishImages (publish+sign workflow)                                |                          |                                   | Benchmark/BenchmarkSummary (add build stage)                        |
-| VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost |                          |                                   |                                                                     |
-| Benchmark (generic stages), BenchmarkSummary                         |                          |                                   |                                                                     |
-| CI version constants (Go, golangci-lint, prettier, cosign, syft)     | commitlint image version |                                   | Project-specific versions (Zig, KCL LSP)                            |
+| `go` toolchain (Go CI)                     | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                   |
+| ------------------------------------------ | ------------------------ | --------------------------------- | -------------------------------------------------------------------------- |
+| Test (+check), TestCoverage                | Lint                     | DevBase, DevEnv, Dev              | Build, Release                                                             |
+| Lint (+check)                              |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, publishImages                                  |
+| FormatGo, Generate (+generate)             |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)         |
+| CheckTidy (+check), Tidy (+generate)       |                          | Shell/tool version constants      | LintDeadcode (advisory)                                                    |
+| Env, Build, Binary, Download               |                          | starshipConfig, zshConfig         | Format (+generate, merges FormatGo + prettier)                             |
+| EnsureGitInit, EnsureGitRepo               |                          | devInitScript                     | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost       |
+| Benchmark (Go stages), BenchmarkSummary    |                          |                                   | prettierBase, goreleaserCheckBase, releaserBase (private)                  |
+| CacheBust                                  |                          |                                   | runtimeImages, runtimeBase (KCL env, OCI labels)                           |
+| Go version, golangci-lint version          | commitlint image version |                                   | DevEnv/Dev wrappers (pass clone URL)                                       |
+|                                            |                          |                                   | Benchmark/BenchmarkSummary (all stages incl. build)                        |
+|                                            |                          |                                   | Tool versions (prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig)  |
 
 ### Function Categories
 
@@ -109,10 +113,9 @@ pipeline stages that the test module exercises without needing `Terminal()`.
 
 ## Adding a New Check
 
-For **generic CI** checks (useful to any Go project), add to `toolchains/go/check.go`.
+For **Go-specific** checks (useful to any Go project), add to `toolchains/go/check.go`.
 For **dev container** functions, add to `toolchains/dev/main.go`.
-For **kclipper-specific** checks, add to `toolchains/kclipper/main.go` (delegating
-to the appropriate toolchain where possible).
+For **kclipper-specific** or **non-Go** checks, add to `toolchains/kclipper/check.go`.
 
 1. Add a public method with `// +check` annotation:
 
@@ -121,7 +124,7 @@ to the appropriate toolchain where possible).
 //
 // +check
 func (m *Kclipper) LintFoo(ctx context.Context) error {
-    return m.goToolchain().LintFoo(ctx)  // delegate to go toolchain
+    // kclipper-specific check logic
 }
 ```
 
@@ -136,7 +139,7 @@ func (m *Kclipper) LintFoo(ctx context.Context) error {
 // GenerateFoo generates foo files.
 //
 // +generate
-func (m *Go) GenerateFoo() *dagger.Changeset {
+func (m *Kclipper) GenerateFoo() *dagger.Changeset {
     // ...
 }
 ```
@@ -163,6 +166,8 @@ func (m *Go) GenerateFoo() *dagger.Changeset {
 - Use `errgroup` for concurrent execution of independent operations.
 - Tool binaries are extracted from OCI images via `Container.File()`
   (not `go install`) for faster builds and automatic platform matching.
+- Ignore patterns for source directories are declared only in the root
+  `dagger.json` customizations, not duplicated in module `+ignore` annotations.
 
 ## Dev Container
 
@@ -214,7 +219,7 @@ approaches, fastest to slowest:
   the tool requires committed files (e.g. GoReleaser).
 
 These helpers live in the `go` toolchain and are called via
-`m.goToolchain().EnsureGitInit(...)`.
+`m.Go.EnsureGitInit(...)`.
 
 **Convention:** prefer static injection for new pipelines.
 
@@ -244,13 +249,12 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    - **`+cache="never"`** — functions with external side effects (PublishImages,
      Release, Dev) that must never return stale results.
 
-2. **Module pre-download layer** (`GoModBase`) — The constructor accepts a
-   separate `goMod` directory parameter synced with
-   `+ignore=["*", "!go.mod", "!go.sum"]`. This gives it a content hash
-   independent of `source`, so its cache key changes only when dependency
-   files change. `GoModBase` copies this directory into the container and runs
-   `go mod download` before mounting the full source and cache volumes. Both
-   `LintBase()` and `GoBase()` delegate to `GoModBase`.
+2. **Module pre-download layer** — The constructor accepts a separate `goMod`
+   directory parameter synced with `+ignore=["*", "!go.mod", "!go.sum"]`.
+   This gives it a content hash independent of `source`, so its cache key
+   changes only when dependency files change. The base container copies this
+   directory and runs `go mod download` before mounting the full source and
+   cache volumes.
 
 3. **Cache volumes** — Named Dagger cache volumes persist across runs.
    Volume names include tool versions so that version bumps start fresh.
@@ -281,15 +285,15 @@ Tool versions are declared as constants at the top of each module's `main.go`
 with Renovate annotations for automated updates (e.g.
 `// renovate: datasource=... depName=...`).
 
-- **CI tool versions** (Go, golangci-lint, prettier, cosign, syft, etc.) are
-  in `toolchains/go/main.go`. The Go version is also configurable via the
+- **Go-specific tool versions** (Go, golangci-lint) are in
+  `toolchains/go/main.go`. The Go version is also configurable via the
   constructor's optional `goVersion` parameter (defaults to `defaultGoVersion`).
+- **Project-level tool versions** (prettier, zizmor, goreleaser, cosign, syft,
+  deadcode, Zig, KCL LSP) are in `toolchains/kclipper/main.go`.
 - **Commitlint image version** is in `toolchains/commitlint/main.go`
   (`defaultImage` constant with a Renovate Docker datasource annotation).
 - **Dev tool versions** (task, lefthook, dagger, starship, yq, uv, gh,
   claude-code) are in `toolchains/dev/main.go`.
-- **Project-specific versions** (Zig, KCL LSP) are in
-  `toolchains/kclipper/main.go`.
 
 The Dagger engine version is pinned in `dagger.json` (`engineVersion`) and
 the `daggerVersion` constant in `toolchains/dev/main.go`.
