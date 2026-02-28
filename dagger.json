@@ -12,31 +12,15 @@
         {
           "argument": "source",
           "ignore": [
-            "dist",
-            ".worktrees",
-            ".tmp",
-            ".git",
-            ".claude/**",
-            "**/*.md",
-            "LICENSE",
-            ".github/**",
-            "**/.changes/**",
-            "CHANGELOG*",
-            ".editorconfig",
-            ".gitignore",
-            ".golangci.yaml",
-            ".goreleaser.yaml",
-            ".lefthook.yaml",
-            ".prettierignore",
-            ".prettierrc*",
-            ".trivyignore",
-            ".commitlintrc*",
-            "Taskfile.yaml",
-            "docs/**",
-            "hack/**",
-            "modules/**",
-            "resources/**",
-            ".nixpkgs/**"
+            "**",
+            "!**/*.go",
+            "!**/go.mod",
+            "!**/go.sum",
+            "!**/dagger.json",
+            "!**/testdata/**",
+            "!.golangci.yaml",
+            "!modules/**",
+            "!resources/**"
           ]
         },
         {
@@ -52,31 +36,20 @@
         {
           "argument": "source",
           "ignore": [
-            "dist",
-            ".worktrees",
-            ".tmp",
-            ".git",
-            ".claude/**",
-            "**/*.md",
-            "LICENSE",
-            ".github/**",
-            "**/.changes/**",
-            "CHANGELOG*",
-            ".editorconfig",
-            ".gitignore",
-            ".golangci.yaml",
-            ".goreleaser.yaml",
-            ".lefthook.yaml",
-            ".prettierignore",
-            ".prettierrc*",
-            ".trivyignore",
-            ".commitlintrc*",
-            "Taskfile.yaml",
-            "docs/**",
-            "hack/**",
-            "modules/**",
-            "resources/**",
-            ".nixpkgs/**"
+            "**",
+            "!**/*.go",
+            "!**/go.mod",
+            "!**/go.sum",
+            "!**/testdata/**",
+            "!**/*.yaml",
+            "!**/*.json",
+            "!**/*.md",
+            "!.prettierignore",
+            "!.github/**",
+            "!hack/**",
+            "!.nixpkgs/**",
+            "!modules/**",
+            "!resources/**"
           ]
         }
       ]
@@ -90,33 +63,16 @@
       "source": "toolchains/security",
       "customizations": [
         {
-          "function": ["scanSource"],
+          "function": [
+            "scanSource"
+          ],
           "argument": "source",
           "ignore": [
-            "dist",
-            ".worktrees",
-            ".tmp",
-            ".git",
-            ".claude/**",
-            "**/*.md",
-            "LICENSE",
-            ".github/**",
-            "**/.changes/**",
-            "CHANGELOG*",
-            ".editorconfig",
-            ".gitignore",
-            ".golangci.yaml",
-            ".goreleaser.yaml",
-            ".lefthook.yaml",
-            ".prettierignore",
-            ".prettierrc*",
-            ".commitlintrc*",
-            "Taskfile.yaml",
-            "docs/**",
-            "hack/**",
-            "modules/**",
-            "resources/**",
-            ".nixpkgs/**"
+            "**",
+            "!**/*.go",
+            "!**/go.mod",
+            "!**/go.sum",
+            "!.trivyignore"
           ]
         }
       ]

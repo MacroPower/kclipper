@@ -4,6 +4,9 @@
 # Intentionally invalid test fixtures.
 **/testdata/**/invalid*
 
+# Test output directories (also gitignored).
+**/testdata/got/
+
 # Generated Helm chart schemas.
 **/testdata/**/values.schema.json
 
