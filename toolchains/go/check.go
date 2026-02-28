@@ -15,7 +15,6 @@ import (
 // internal test result cache (GOCACHE) can skip unchanged packages
 // across runs via the persistent go-build cache volume.
 //
-// +check
 // +cache="session"
 func (m *Go) Test(
 	ctx context.Context,

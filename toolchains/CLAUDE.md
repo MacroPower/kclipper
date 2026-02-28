@@ -50,7 +50,7 @@ toolchains/
   go/
     dagger.json      # Reusable module config (name=go)
     main.go          # Struct, constructor, constants, lintBase, Modules, TidyModule, Tidy, CheckTidy, helpers
-    check.go         # Test, TestCoverage, Lint, LintModule
+    check.go         # Test, TestUnit, TestIntegration, TestCoverage, Lint, LintModule
     generate.go      # FormatGo, FormatGoModule, Generate
     parallel.go      # parallelJobs (bounded parallel execution with OTEL spans)
     bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, CacheBust, benchmarkStages, runBenchmarks
@@ -89,7 +89,7 @@ tooling.
 
 | `go` toolchain (Go CI)                  | `commitlint` toolchain   | `security` toolchain | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                  |
 | --------------------------------------- | ------------------------ | -------------------- | --------------------------------- | ------------------------------------------------------------------------- |
-| Test (+check), TestCoverage             | Lint                     | ScanSource           | DevBase, DevEnv, Dev              | Build, Release, ReleaseDryRun                                             |
+| TestUnit (+check), Test, TestCoverage   | Lint                     | ScanSource           | DevBase, DevEnv, Dev              | Build, Release, ReleaseDryRun                                             |
 | Lint (+check), LintModule               |                          | ScanImage            | applyDevConfig, devToolBins       | BuildImages, PublishImages, PublishKCLModules, publishImages              |
 | FormatGo, FormatGoModule                |                          | trivyBase (private)  | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
 | Generate (+generate)                    |                          | Trivy image version  | Shell/tool version constants      | LintKCLModules (+check), LintDeadcode (advisory)                          |
