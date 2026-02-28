@@ -52,11 +52,9 @@ jobs:
           fi
 
       - name: Release via Dagger
-        uses: dagger/dagger-for-github@v8
+        uses: ./.github/actions/dagger-call
         with:
-          version: "0.19"
-          verb: call
-          args: >-
+          function: >-
             release
             --github-token=env://GITHUB_TOKEN
             --registry-username="${{ github.actor }}"
@@ -117,11 +115,9 @@ jobs:
           fi
 
       - name: Publish KCL modules via Dagger
-        uses: dagger/dagger-for-github@v8
+        uses: ./.github/actions/dagger-call
         with:
-          version: "0.19"
-          verb: call
-          args: >-
+          function: >-
             kclipper publish-kclmodules
             --tag="${{ steps.tag.outputs.value }}"
             --registry-username="${{ github.actor }}"

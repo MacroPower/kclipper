@@ -1,0 +1,138 @@
+name: Dagger Call
+description: Install Dagger and run a dagger command with version validation
+
+inputs:
+  verb:
+    description: Dagger CLI verb (call or check)
+    required: false
+    default: call
+  function:
+    description: Function(s) to invoke (optional for check)
+    required: false
+    default: ""
+  module:
+    description: Dagger module path
+    required: false
+    default: "."
+  version:
+    description: "Dagger version; empty = read from dagger.json engineVersion"
+    required: false
+    default: ""
+  cloud-token:
+    description: Dagger Cloud token (falls back to inherited DAGGER_CLOUD_TOKEN env)
+    required: false
+    default: ""
+  upload-logs:
+    description: Upload dagger logs as artifact on failure
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve dagger version
+      id: version
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.version }}" ]; then
+          v="${{ inputs.version }}"
+        else
+          v="$(jq -r '.engineVersion' dagger.json)"
+        fi
+        # Normalize to v-prefixed
+        v="v${v#v}"
+        echo "value=$v" >> "$GITHUB_OUTPUT"
+
+    - name: Install dagger
+      shell: bash
+      env:
+        EXPECTED: ${{ steps.version.outputs.value }}
+      run: |
+        if command -v dagger &>/dev/null; then
+          actual="v$(dagger --silent version)"
+          if [ "$actual" != "$EXPECTED" ]; then
+            echo "::error::Dagger version mismatch: found $actual, expected $EXPECTED"
+            exit 1
+          fi
+          echo "Dagger $EXPECTED already installed"
+        else
+          echo "Installing Dagger $EXPECTED"
+          curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION="$EXPECTED" BIN_DIR=/usr/local/bin sudo -E sh
+        fi
+
+    - name: Validate dagger connectivity
+      shell: bash
+      run: |
+        echo "::group::dagger version"
+        dagger --silent version
+        echo "::endgroup::"
+        echo "::group::dagger core version"
+        dagger --silent core version
+        echo "::endgroup::"
+
+    - name: Run dagger
+      id: dagger
+      shell: bash
+      env:
+        DAGGER_CLOUD_TOKEN: ${{ inputs.cloud-token || env.DAGGER_CLOUD_TOKEN }}
+      run: |
+        set -o pipefail
+
+        log_dir="${{ runner.temp }}/dagger-call"
+        mkdir -p "$log_dir"
+
+        cmd=(dagger --silent)
+        if [ "${{ inputs.module }}" != "." ]; then
+          cmd+=(-m "${{ inputs.module }}")
+        fi
+        cmd+=(${{ inputs.verb }})
+        if [ -n "${{ inputs.function }}" ]; then
+          cmd+=(${{ inputs.function }})
+        fi
+
+        echo "::group::${cmd[*]}"
+        "${cmd[@]}" 2> >(tee "$log_dir/stderr.log" >&2) | tee "$log_dir/stdout.log"
+        echo "::endgroup::"
+
+    - name: Step summary
+      if: always()
+      shell: bash
+      run: |
+        cmd="dagger --silent"
+        if [ "${{ inputs.module }}" != "." ]; then
+          cmd+=" -m ${{ inputs.module }}"
+        fi
+        cmd+=" ${{ inputs.verb }}"
+        if [ -n "${{ inputs.function }}" ]; then
+          cmd+=" ${{ inputs.function }}"
+        fi
+
+        {
+          echo "### Dagger"
+          echo ""
+          echo "| | |"
+          echo "|---|---|"
+          echo "| **Command** | \`$cmd\` |"
+          echo "| **Version** | ${{ steps.version.outputs.value }} |"
+          if [ "${{ inputs.module }}" != "." ]; then
+            echo "| **Module** | \`${{ inputs.module }}\` |"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        # Extract Dagger Cloud trace URL from stderr if available
+        log_dir="${{ runner.temp }}/dagger-call"
+        if [ -f "$log_dir/stderr.log" ]; then
+          trace_url="$(grep -oP 'https://dagger\.cloud/traces/\S+' "$log_dir/stderr.log" || true)"
+          if [ -n "$trace_url" ]; then
+            echo "| **Trace** | $trace_url |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        fi
+
+    - name: Upload logs
+      if: failure() && inputs.upload-logs == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: dagger-logs-${{ github.job }}
+        path: ${{ runner.temp }}/dagger-call/
+        retention-days: 7
+        overwrite: true

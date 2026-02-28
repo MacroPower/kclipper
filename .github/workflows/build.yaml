@@ -29,8 +29,6 @@ jobs:
           persist-credentials: false
 
       - name: Build via Dagger
-        uses: dagger/dagger-for-github@v8
+        uses: ./.github/actions/dagger-call
         with:
-          version: "0.19"
-          verb: call
-          args: build --output=./dist
+          function: build --output=./dist
