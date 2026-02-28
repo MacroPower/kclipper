@@ -92,3 +92,52 @@ func (m *Security) ScanImage(
 		Sync(ctx)
 	return err
 }
+
+// ScanSourceSarif scans source dependencies for known vulnerabilities and
+// returns the results in SARIF format. The SARIF file can be uploaded to
+// GitHub's Security tab for Code Scanning visibility on PRs.
+//
+// Unlike [Security.ScanSource], this function does not use --exit-code=1.
+// SARIF output is intended to capture results as structured data for
+// consumption by GitHub Code Scanning; failing the pipeline here would
+// prevent the SARIF file from being produced and uploaded.
+func (m *Security) ScanSourceSarif() *dagger.File {
+	return m.trivyBase().
+		WithMountedDirectory(".", m.Source).
+		WithExec([]string{
+			"trivy", "fs",
+			"--scanners=vuln",
+			"--pkg-types=library",
+			"--severity=CRITICAL,HIGH",
+			"--format=sarif",
+			"--output=/tmp/trivy-results.sarif",
+			".",
+		}).
+		File("/tmp/trivy-results.sarif")
+}
+
+// ScanImageSarif scans a container image for known vulnerabilities in both
+// OS packages and application libraries and returns the results in SARIF
+// format. The SARIF file can be uploaded to GitHub's Security tab for Code
+// Scanning visibility on PRs.
+//
+// Unlike [Security.ScanImage], this function does not use --exit-code=1.
+// SARIF output is intended to capture results as structured data for
+// consumption by GitHub Code Scanning; failing the pipeline here would
+// prevent the SARIF file from being produced and uploaded.
+func (m *Security) ScanImageSarif(
+	// Container to scan.
+	target *dagger.Container,
+) *dagger.File {
+	return m.trivyBase().
+		WithMountedFile("target.tar", target.AsTarball()).
+		WithExec([]string{
+			"trivy", "image",
+			"--pkg-types=os,library",
+			"--severity=CRITICAL,HIGH",
+			"--format=sarif",
+			"--output=/tmp/trivy-results.sarif",
+			"--input=target.tar",
+		}).
+		File("/tmp/trivy-results.sarif")
+}

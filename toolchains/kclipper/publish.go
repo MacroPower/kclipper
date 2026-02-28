@@ -11,25 +11,95 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// ReleaseReport captures the results of a release operation including
+// image digests, artifact checksums, and a human-readable summary.
+// Create instances via [Kclipper.Release].
+type ReleaseReport struct {
+	// Dist directory containing release artifacts.
+	Dist *dagger.Directory
+	// Tag is the version tag that was released (e.g. "v1.2.3").
+	Tag string
+	// ImageDigests contains published image digest references
+	// (e.g. "registry/image:tag@sha256:hex"), one per tag published.
+	ImageDigests []string
+	// UniqueDigestCount is the number of unique image digests.
+	// Tags may share a manifest, so this can be less than [TagCount].
+	UniqueDigestCount int
+	// TagCount is the number of tags published.
+	TagCount int
+}
+
+// Summary returns a Markdown summary of the release suitable for
+// $GITHUB_STEP_SUMMARY.
+func (r *ReleaseReport) Summary() string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "## Release Summary\n\n")
+	if r.Tag != "" {
+		fmt.Fprintf(&b, "- **Version:** `%s`\n", r.Tag)
+	}
+	fmt.Fprintf(&b, "- **Tags published:** %d\n", r.TagCount)
+	fmt.Fprintf(&b, "- **Unique image digests:** %d\n\n", r.UniqueDigestCount)
+
+	if len(r.ImageDigests) > 0 {
+		fmt.Fprintf(&b, "### Published Image Digests\n\n")
+		fmt.Fprintf(&b, "| Tag Reference | Digest |\n")
+		fmt.Fprintf(&b, "| --- | --- |\n")
+		for _, ref := range r.ImageDigests {
+			parts := strings.SplitN(ref, "@", 2)
+			if len(parts) == 2 {
+				fmt.Fprintf(&b, "| `%s` | `%s` |\n", parts[0], parts[1])
+			} else {
+				fmt.Fprintf(&b, "| `%s` | — |\n", ref)
+			}
+		}
+	}
+
+	return b.String()
+}
+
+// optSecretVariable returns a [dagger.WithContainerFunc] that conditionally
+// adds a secret environment variable. If the secret is nil, the container
+// is returned unchanged.
+func optSecretVariable(name string, secret *dagger.Secret) dagger.WithContainerFunc {
+	return func(ctr *dagger.Container) *dagger.Container {
+		if secret != nil {
+			return ctr.WithSecretVariable(name, secret)
+		}
+		return ctr
+	}
+}
+
 // reKCLModVersion matches the version line in kcl.mod files.
 var reKCLModVersion = regexp.MustCompile(`(?m)^version\s*=\s*"[^"]*"`)
 
+// isPrerelease reports whether the version tag contains a pre-release
+// identifier (e.g. "v1.0.0-rc.1", "v2.0.0-beta.1"). Detection checks for
+// a hyphen in any of the first three dot-separated version components after
+// stripping the "v" prefix. Build metadata (e.g. "v1.0.0+build.1") does not
+// contain a hyphen and is correctly treated as a stable release.
+func isPrerelease(tag string) bool {
+	v := strings.TrimPrefix(tag, "v")
+	for _, part := range strings.SplitN(v, ".", 3) {
+		if strings.Contains(part, "-") {
+			return true
+		}
+	}
+	return false
+}
+
 // VersionTags returns the image tags derived from a version tag string.
 // For example, "v1.2.3" yields ["latest", "v1.2.3", "v1", "v1.2"].
+// Pre-release versions (e.g. "v1.0.0-rc.1") yield only the exact tag.
 func (m *Kclipper) VersionTags(
 	// Version tag (e.g. "v1.2.3").
 	tag string,
 ) []string {
+	if isPrerelease(tag) {
+		return []string{tag}
+	}
+
 	v := strings.TrimPrefix(tag, "v")
 	parts := strings.SplitN(v, ".", 3)
-
-	// Detect pre-release: any version component contains a hyphen
-	// (e.g. "1.0.0-rc.1" -> third part is "0-rc.1").
-	for _, p := range parts {
-		if strings.Contains(p, "-") {
-			return []string{tag}
-		}
-	}
 
 	tags := []string{"latest", tag}
 	if len(parts) >= 1 {
@@ -127,6 +197,9 @@ func (m *Kclipper) patchedModulesDir(ctx context.Context, version string) (*dagg
 // registry with the version derived from the given tag. The kclipper binary
 // itself is used as the KCL CLI (it wraps kcl-lang.io/cli and kcl-lang.io/kpm).
 //
+// Pre-release tags (e.g. "v1.0.0-rc.1") are skipped; only stable releases
+// are published to the module registry.
+//
 // +cache="never"
 func (m *Kclipper) PublishKCLModules(
 	ctx context.Context,
@@ -140,6 +213,10 @@ func (m *Kclipper) PublishKCLModules(
 	// +optional
 	registryPassword *dagger.Secret,
 ) error {
+	if isPrerelease(tag) {
+		return nil
+	}
+
 	version := strings.TrimPrefix(tag, "v")
 
 	patched, names, err := m.patchedModulesDir(ctx, version)
@@ -230,8 +307,9 @@ func (m *Kclipper) PublishImages(
 // publishes container images using Dagger-native Container.Publish().
 // GoReleaser's Docker support is skipped entirely to avoid Docker-in-Docker.
 //
-// Returns the dist/ directory containing checksums.txt and digests.txt
-// for attestation in the calling workflow.
+// Returns a [ReleaseReport] containing the dist/ directory (with checksums.txt
+// and digests.txt for attestation), published image digests, and a Markdown
+// summary suitable for $GITHUB_STEP_SUMMARY.
 //
 // +cache="never"
 func (m *Kclipper) Release(
@@ -265,7 +343,7 @@ func (m *Kclipper) Release(
 	// Apple App Store Connect API issuer ID.
 	// +optional
 	macosNotaryIssuerId *dagger.Secret,
-) (*dagger.Directory, error) {
+) (*ReleaseReport, error) {
 	ctr, err := m.releaserBase(ctx)
 	if err != nil {
 		return nil, err
@@ -274,24 +352,20 @@ func (m *Kclipper) Release(
 
 	// Conditionally add cosign secrets for GoReleaser binary signing.
 	skipFlags := "docker"
-	if cosignKey != nil {
-		ctr = ctr.WithSecretVariable("COSIGN_KEY", cosignKey)
-		if cosignPassword != nil {
-			ctr = ctr.WithSecretVariable("COSIGN_PASSWORD", cosignPassword)
-		}
-	} else {
+	if cosignKey == nil {
 		skipFlags = "docker,sign"
 	}
+	ctr = ctr.
+		With(optSecretVariable("COSIGN_KEY", cosignKey)).
+		With(optSecretVariable("COSIGN_PASSWORD", cosignPassword))
 
 	// Conditionally add macOS signing secrets.
-	if macosSignP12 != nil {
-		ctr = ctr.
-			WithSecretVariable("MACOS_SIGN_P12", macosSignP12).
-			WithSecretVariable("MACOS_SIGN_PASSWORD", macosSignPassword).
-			WithSecretVariable("MACOS_NOTARY_KEY", macosNotaryKey).
-			WithSecretVariable("MACOS_NOTARY_KEY_ID", macosNotaryKeyId).
-			WithSecretVariable("MACOS_NOTARY_ISSUER_ID", macosNotaryIssuerId)
-	}
+	ctr = ctr.
+		With(optSecretVariable("MACOS_SIGN_P12", macosSignP12)).
+		With(optSecretVariable("MACOS_SIGN_PASSWORD", macosSignPassword)).
+		With(optSecretVariable("MACOS_NOTARY_KEY", macosNotaryKey)).
+		With(optSecretVariable("MACOS_NOTARY_KEY_ID", macosNotaryKeyId)).
+		With(optSecretVariable("MACOS_NOTARY_ISSUER_ID", macosNotaryIssuerId))
 
 	// Run GoReleaser for binaries, archives, Homebrew, Nix (and signing
 	// when cosignKey is provided). Docker is always skipped -- images are
@@ -304,7 +378,10 @@ func (m *Kclipper) Release(
 	tags := m.VersionTags(tag)
 
 	// Publish multi-arch container images via Dagger-native API.
-	variants := runtimeImages(dist, tag)
+	variants, err := runtimeImages(ctx, dist, tag)
+	if err != nil {
+		return nil, fmt.Errorf("build runtime images: %w", err)
+	}
 	digests, err := m.publishImages(ctx, variants, tags, registryUsername, registryPassword, cosignKey, cosignPassword)
 	if err != nil {
 		return nil, fmt.Errorf("publish images: %w", err)
@@ -316,7 +393,14 @@ func (m *Kclipper) Release(
 		dist = dist.WithNewFile("digests.txt", checksums)
 	}
 
-	return dist, nil
+	unique := m.DeduplicateDigests(digests)
+	return &ReleaseReport{
+		Dist:              dist,
+		Tag:               tag,
+		ImageDigests:      digests,
+		UniqueDigestCount: len(unique),
+		TagCount:          len(tags),
+	}, nil
 }
 
 // publishImages publishes pre-built container image variants to the registry,
@@ -363,12 +447,10 @@ func (m *Kclipper) publishImages(
 
 		cosignCtr := dag.Container().
 			From("gcr.io/projectsigstore/cosign:"+cosignVersion).
-			WithSecretVariable("COSIGN_KEY", cosignKey)
+			With(optSecretVariable("COSIGN_KEY", cosignKey)).
+			With(optSecretVariable("COSIGN_PASSWORD", cosignPassword))
 		if registryPassword != nil {
 			cosignCtr = cosignCtr.WithRegistryAuth(m.RegistryHost(m.Registry), registryUsername, registryPassword)
-		}
-		if cosignPassword != nil {
-			cosignCtr = cosignCtr.WithSecretVariable("COSIGN_PASSWORD", cosignPassword)
 		}
 
 		g, gCtx := errgroup.WithContext(ctx)

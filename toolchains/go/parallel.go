@@ -5,6 +5,8 @@ import (
 
 	"github.com/sourcegraph/conc/pool"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // parallelJob pairs a name with a function to execute.
@@ -39,6 +41,11 @@ func (p parallelJobs) withLimit(n int) parallelJobs {
 }
 
 // run executes all jobs concurrently, creating an OTEL span per job.
+//
+// Each job span carries the dagger.io/ui.rollup.logs and
+// dagger.io/ui.rollup.spans attributes, which collapse per-job log streams
+// and child spans into a single aggregated parent in the Dagger TUI. This
+// produces cleaner output when many parallel jobs run under dagger check.
 func (p parallelJobs) run(ctx context.Context) error {
 	pl := pool.New().WithErrors().WithContext(ctx)
 	if p.limit > 0 {
@@ -46,7 +53,12 @@ func (p parallelJobs) run(ctx context.Context) error {
 	}
 	for _, j := range p.jobs {
 		pl.Go(func(ctx context.Context) error {
-			ctx, span := otel.Tracer("dagger").Start(ctx, j.name)
+			ctx, span := otel.Tracer("dagger").Start(ctx, j.name,
+				trace.WithAttributes(
+					attribute.Bool("dagger.io/ui.rollup.logs", true),
+					attribute.Bool("dagger.io/ui.rollup.spans", true),
+				),
+			)
 			defer span.End()
 			return j.fn(ctx)
 		})

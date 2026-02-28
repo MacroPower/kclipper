@@ -112,28 +112,15 @@ func (m *Kclipper) prettierBase() *dagger.Container {
 		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
 }
 
-// goreleaserCheckBase returns a lightweight container with only Go,
-// GoReleaser, and the project source. This is sufficient for
-// goreleaser check which only validates config syntax.
+// goreleaserCheckBase extends [Kclipper.goreleaserBase] with a minimal git
+// repo (via [Go.EnsureGitRepo]) for the given remoteURL. This is sufficient
+// for goreleaser check, which only validates config syntax and does not
+// require the full release toolset provided by [Kclipper.releaserBase].
 func (m *Kclipper) goreleaserCheckBase(ctx context.Context, remoteURL string) (*dagger.Container, error) {
-	goVersion, err := m.Go.Version(ctx)
+	ctr, err := m.goreleaserBase(ctx)
 	if err != nil {
 		return nil, err
 	}
-	ctr := dag.Container().
-		From("golang:"+goVersion).
-		// Install GoReleaser from its official OCI image.
-		WithFile("/usr/local/bin/goreleaser",
-			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
-				File("/usr/bin/goreleaser")).
-		WithMountedCache("/go/pkg/mod", m.Go.ModuleCache()).
-		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", m.Go.BuildCache()).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
-		WithDirectory("/src", m.GoMod).
-		WithWorkdir("/src").
-		WithExec([]string{"go", "mod", "download"}).
-		WithMountedDirectory("/src", m.Source)
 	return m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
 		RemoteURL: remoteURL,
 	}), nil

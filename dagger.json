@@ -15,7 +15,28 @@
             "dist",
             ".worktrees",
             ".tmp",
-            ".git"
+            ".git",
+            ".claude/**",
+            "**/*.md",
+            "LICENSE",
+            ".github/**",
+            "**/.changes/**",
+            "CHANGELOG*",
+            ".editorconfig",
+            ".gitignore",
+            ".golangci.yaml",
+            ".goreleaser.yaml",
+            ".lefthook.yaml",
+            ".prettierignore",
+            ".prettierrc*",
+            ".trivyignore",
+            ".commitlintrc*",
+            "Taskfile.yaml",
+            "docs/**",
+            "hack/**",
+            "modules/**",
+            "resources/**",
+            ".nixpkgs/**"
           ]
         },
         {
@@ -34,7 +55,28 @@
             "dist",
             ".worktrees",
             ".tmp",
-            ".git"
+            ".git",
+            ".claude/**",
+            "**/*.md",
+            "LICENSE",
+            ".github/**",
+            "**/.changes/**",
+            "CHANGELOG*",
+            ".editorconfig",
+            ".gitignore",
+            ".golangci.yaml",
+            ".goreleaser.yaml",
+            ".lefthook.yaml",
+            ".prettierignore",
+            ".prettierrc*",
+            ".trivyignore",
+            ".commitlintrc*",
+            "Taskfile.yaml",
+            "docs/**",
+            "hack/**",
+            "modules/**",
+            "resources/**",
+            ".nixpkgs/**"
           ]
         }
       ]
@@ -50,7 +92,32 @@
         {
           "function": ["scanSource"],
           "argument": "source",
-          "ignore": ["dist", ".worktrees", ".tmp", ".git"]
+          "ignore": [
+            "dist",
+            ".worktrees",
+            ".tmp",
+            ".git",
+            ".claude/**",
+            "**/*.md",
+            "LICENSE",
+            ".github/**",
+            "**/.changes/**",
+            "CHANGELOG*",
+            ".editorconfig",
+            ".gitignore",
+            ".golangci.yaml",
+            ".goreleaser.yaml",
+            ".lefthook.yaml",
+            ".prettierignore",
+            ".prettierrc*",
+            ".commitlintrc*",
+            "Taskfile.yaml",
+            "docs/**",
+            "hack/**",
+            "modules/**",
+            "resources/**",
+            ".nixpkgs/**"
+          ]
         }
       ]
     }

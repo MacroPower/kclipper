@@ -72,6 +72,91 @@ func (m *Go) Test(
 	return err
 }
 
+// TestUnit runs only unit tests by skipping tests that match common
+// integration test naming patterns. Uses -skip to exclude tests whose
+// names match the pattern. If skip is provided, it overrides the
+// default pattern. Delegates to [Go.Test].
+//
+// +check
+// +cache="session"
+func (m *Go) TestUnit(
+	ctx context.Context,
+	// Skip tests matching this regex. Overrides the default integration
+	// test pattern when provided.
+	// +optional
+	skip string,
+	// Only run tests matching this regex.
+	// +optional
+	run string,
+	// Abort test run on first failure.
+	// +optional
+	failfast bool,
+	// How many tests to run in parallel. Defaults to the number of CPUs.
+	// +optional
+	// +default=0
+	parallel int,
+	// How long before timing out the test run.
+	// +optional
+	// +default="30m"
+	timeout string,
+	// Number of times to run each test. Zero uses Go's default (enables
+	// test result caching).
+	// +optional
+	// +default=0
+	count int,
+	// Packages to test.
+	// +optional
+	// +default=["./..."]
+	pkgs []string,
+) error {
+	if skip == "" {
+		skip = "Integration"
+	}
+	return m.Test(ctx, run, skip, failfast, parallel, timeout, count, pkgs)
+}
+
+// TestIntegration runs only integration tests by selecting tests whose
+// names match common integration test naming patterns. Uses -run to
+// include only tests matching the pattern. If run is provided, it
+// overrides the default pattern. Delegates to [Go.Test].
+//
+// +cache="session"
+func (m *Go) TestIntegration(
+	ctx context.Context,
+	// Only run tests matching this regex. Overrides the default
+	// integration test pattern when provided.
+	// +optional
+	run string,
+	// Skip tests matching this regex.
+	// +optional
+	skip string,
+	// Abort test run on first failure.
+	// +optional
+	failfast bool,
+	// How many tests to run in parallel. Defaults to the number of CPUs.
+	// +optional
+	// +default=0
+	parallel int,
+	// How long before timing out the test run.
+	// +optional
+	// +default="30m"
+	timeout string,
+	// Number of times to run each test. Zero uses Go's default (enables
+	// test result caching).
+	// +optional
+	// +default=0
+	count int,
+	// Packages to test.
+	// +optional
+	// +default=["./..."]
+	pkgs []string,
+) error {
+	if run == "" {
+		run = "Integration"
+	}
+	return m.Test(ctx, run, skip, failfast, parallel, timeout, count, pkgs)
+}
+
 // TestCoverage runs Go tests with coverage profiling and returns the
 // profile file. Runs independently of [Go.Test] because -coverprofile
 // disables Go's internal test result caching. Dagger's layer caching
