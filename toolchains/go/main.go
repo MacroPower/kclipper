@@ -7,9 +7,12 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"dagger/go/internal/dagger"
+
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 const (
@@ -288,47 +291,237 @@ func goCommand(
 }
 
 // ---------------------------------------------------------------------------
+// Module scanning
+// ---------------------------------------------------------------------------
+
+// Modules returns the list of Go module directories discovered in the
+// source tree. Each entry is a relative directory path (e.g. "." for the
+// root module, "toolchains/go" for a nested one). Results are filtered by
+// the optional include and exclude glob patterns.
+func (m *Go) Modules(
+	ctx context.Context,
+	// Include only modules whose directory matches one of these globs.
+	// An empty list matches all modules.
+	// +optional
+	include []string,
+	// Exclude modules whose directory matches any of these globs.
+	// Checked before include.
+	// +optional
+	exclude []string,
+) ([]string, error) {
+	return findModuleDirs(ctx, m.Source, include, exclude)
+}
+
+// findModuleDirs discovers Go module directories by globbing for go.mod
+// files and filtering with include/exclude patterns. Dagger-related
+// directories are automatically excluded: non-root directories containing
+// a dagger.json (Dagger module roots) and .dagger directories (Dagger
+// module runtime code). Both depend on generated SDK code that is not
+// present in the source tree.
+func findModuleDirs(
+	ctx context.Context,
+	dir *dagger.Directory,
+	include, exclude []string,
+) ([]string, error) {
+	matches, err := dir.Glob(ctx, "**/go.mod")
+	if err != nil {
+		return nil, fmt.Errorf("glob go.mod: %w", err)
+	}
+
+	// Build a set of directories that contain dagger.json so we can
+	// skip Dagger modules whose generated SDK code is not in source.
+	daggerFiles, err := dir.Glob(ctx, "**/dagger.json")
+	if err != nil {
+		return nil, fmt.Errorf("glob dagger.json: %w", err)
+	}
+	daggerDirs := make(map[string]bool, len(daggerFiles))
+	for _, df := range daggerFiles {
+		daggerDirs[filepath.Dir(df)] = true
+	}
+
+	var dirs []string
+	for _, match := range matches {
+		modDir := filepath.Dir(match)
+
+		// Skip Dagger-related directories: module roots (dagger.json)
+		// and runtime directories (.dagger). Their generated SDK code
+		// is gitignored and absent from the source directory.
+		if modDir != "." && (daggerDirs[modDir] || isDaggerRuntime(modDir)) {
+			continue
+		}
+
+		ok, err := filterPath(modDir, include, exclude)
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			dirs = append(dirs, modDir)
+		}
+	}
+	return dirs, nil
+}
+
+// isDaggerRuntime returns true if the path is or is inside a .dagger
+// directory (Dagger module runtime code).
+func isDaggerRuntime(p string) bool {
+	for _, seg := range strings.Split(p, string(filepath.Separator)) {
+		if seg == ".dagger" {
+			return true
+		}
+	}
+	return false
+}
+
+// filterPath returns true when path passes the include/exclude filters.
+// Exclude patterns are checked first; if any match, the path is rejected.
+// Then include patterns are checked; an empty include list matches all.
+func filterPath(path string, include, exclude []string) (bool, error) {
+	for _, pat := range exclude {
+		matched, err := doublestar.PathMatch(pat, path)
+		if err != nil {
+			return false, fmt.Errorf("exclude pattern %q: %w", pat, err)
+		}
+		if matched {
+			return false, nil
+		}
+	}
+	if len(include) == 0 {
+		return true, nil
+	}
+	for _, pat := range include {
+		matched, err := doublestar.PathMatch(pat, path)
+		if err != nil {
+			return false, fmt.Errorf("include pattern %q: %w", pat, err)
+		}
+		if matched {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// ---------------------------------------------------------------------------
+// Changeset merging
+// ---------------------------------------------------------------------------
+
+// mergeChangesets combines multiple changesets into one using octopus merge.
+// Nil entries are skipped.
+func mergeChangesets(changesets []*dagger.Changeset) *dagger.Changeset {
+	var nonNil []*dagger.Changeset
+	for _, cs := range changesets {
+		if cs != nil {
+			nonNil = append(nonNil, cs)
+		}
+	}
+	if len(nonNil) == 0 {
+		return nil
+	}
+	if len(nonNil) == 1 {
+		return nonNil[0]
+	}
+	return nonNil[0].WithChangesets(nonNil[1:])
+}
+
+// ---------------------------------------------------------------------------
 // Tidy
 // ---------------------------------------------------------------------------
 
-// CheckTidy verifies that go.mod and go.sum are tidy by running
-// go mod tidy and checking for differences.
+// CheckTidy verifies that go.mod and go.sum are tidy across all discovered
+// Go modules by running go mod tidy per module and checking for differences.
 //
 // +check
-func (m *Go) CheckTidy(ctx context.Context) error {
-	changeset, err := m.tidy()
+func (m *Go) CheckTidy(
+	ctx context.Context,
+	// Include only modules whose directory matches one of these globs.
+	// +optional
+	include []string,
+	// Exclude modules whose directory matches any of these globs.
+	// +optional
+	exclude []string,
+) error {
+	mods, err := m.Modules(ctx, include, exclude)
 	if err != nil {
 		return err
 	}
-	patch, err := changeset.AsPatch().Contents(ctx)
-	if err != nil {
-		return err
+
+	p := newParallel().withLimit(3)
+	for _, mod := range mods {
+		p = p.withJob("check-tidy:"+mod, func(ctx context.Context) error {
+			changeset, err := m.TidyModule(ctx, mod)
+			if err != nil {
+				return err
+			}
+			patch, err := changeset.AsPatch().Contents(ctx)
+			if err != nil {
+				return err
+			}
+			if len(patch) > 0 {
+				return fmt.Errorf("go.mod/go.sum are not tidy in %s:\n%s", mod, patch)
+			}
+			return nil
+		})
 	}
-	if len(patch) > 0 {
-		return fmt.Errorf("go.mod/go.sum are not tidy:\n%s", patch)
-	}
-	return nil
+	return p.run(ctx)
 }
 
-// Tidy runs go mod tidy and returns the changeset.
-//
-// +generate
-func (m *Go) Tidy() *dagger.Changeset {
-	changeset, _ := m.tidy()
-	return changeset
-}
+// TidyModule runs go mod tidy for a single module directory and returns
+// the changeset of go.mod/go.sum changes. The mod parameter is a relative
+// directory path (e.g. "." for root, "toolchains/go" for nested).
+func (m *Go) TidyModule(ctx context.Context,
+	// Module directory relative to the source root.
+	mod string,
+) (*dagger.Changeset, error) {
+	workdir := filepath.Join("/src", mod)
 
-// tidy runs go mod tidy and returns the changeset of go.mod/go.sum changes.
-func (m *Go) tidy() (*dagger.Changeset, error) {
 	tidied := m.Env("").
+		WithWorkdir(workdir).
 		WithExec([]string{"go", "mod", "tidy"}).
-		Directory("/src")
+		Directory(workdir)
+
+	modFile := filepath.Join(mod, "go.mod")
+	sumFile := filepath.Join(mod, "go.sum")
 
 	updated := m.Source.
-		WithFile("go.mod", tidied.File("go.mod")).
-		WithFile("go.sum", tidied.File("go.sum"))
+		WithFile(modFile, tidied.File("go.mod")).
+		WithFile(sumFile, tidied.File("go.sum"))
 
 	return updated.Changes(m.Source), nil
+}
+
+// Tidy runs go mod tidy across all discovered Go modules and returns the
+// merged changeset.
+//
+// +generate
+func (m *Go) Tidy(
+	ctx context.Context,
+	// Include only modules whose directory matches one of these globs.
+	// +optional
+	include []string,
+	// Exclude modules whose directory matches any of these globs.
+	// +optional
+	exclude []string,
+) (*dagger.Changeset, error) {
+	mods, err := m.Modules(ctx, include, exclude)
+	if err != nil {
+		return nil, err
+	}
+
+	changesets := make([]*dagger.Changeset, len(mods))
+	p := newParallel().withLimit(3)
+	for i, mod := range mods {
+		p = p.withJob("tidy:"+mod, func(ctx context.Context) error {
+			cs, err := m.TidyModule(ctx, mod)
+			if err != nil {
+				return err
+			}
+			changesets[i] = cs
+			return nil
+		})
+	}
+	if err := p.run(ctx); err != nil {
+		return nil, err
+	}
+	return mergeChangesets(changesets), nil
 }
 
 // ---------------------------------------------------------------------------
@@ -339,8 +532,11 @@ func (m *Go) tidy() (*dagger.Changeset, error) {
 // Debian-based image is used (not Alpine) because it includes kernel headers
 // needed by CGO transitive dependencies. The golangci-lint cache volume
 // includes the linter version so that version bumps start fresh.
-func (m *Go) lintBase() *dagger.Container {
-	return dag.Container().
+//
+// When mod is non-empty and not ".", the container's working directory is
+// set to the module subdirectory so golangci-lint operates on that module.
+func (m *Go) lintBase(mod string) *dagger.Container {
+	ctr := dag.Container().
 		From("golangci/golangci-lint:"+golangciLintVersion).
 		WithMountedCache("/go/pkg/mod", m.ModuleCache).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
@@ -351,6 +547,12 @@ func (m *Go) lintBase() *dagger.Container {
 		WithExec([]string{"go", "mod", "download"}).
 		WithMountedDirectory("/src", m.Source).
 		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume(m.CacheNamespace+":golangci-lint-"+golangciLintVersion))
+
+	if mod != "" && mod != "." {
+		ctr = ctr.WithWorkdir(filepath.Join("/src", mod))
+	}
+
+	return ctr
 }
 
 // ---------------------------------------------------------------------------

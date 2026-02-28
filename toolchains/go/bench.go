@@ -124,7 +124,7 @@ func (m *Go) benchmarkStages() []benchmarkStage {
 			return err
 		}},
 		{"lint", func(ctx context.Context) error {
-			_, err := m.CacheBust(m.lintBase()).
+			_, err := m.CacheBust(m.lintBase("")).
 				WithExec([]string{"golangci-lint", "run"}).
 				Sync(ctx)
 			return err

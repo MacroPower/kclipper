@@ -89,12 +89,44 @@ func (m *Go) TestCoverage() *dagger.File {
 // Linting
 // ---------------------------------------------------------------------------
 
-// Lint runs golangci-lint on the source code.
+// Lint runs golangci-lint on all discovered Go modules. Modules are linted
+// in parallel with bounded concurrency.
 //
 // +check
-func (m *Go) Lint(ctx context.Context) error {
-	_, err := m.lintBase().
-		WithExec([]string{"golangci-lint", "run"}).
+func (m *Go) Lint(
+	ctx context.Context,
+	// Include only modules whose directory matches one of these globs.
+	// +optional
+	include []string,
+	// Exclude modules whose directory matches any of these globs.
+	// +optional
+	exclude []string,
+) error {
+	mods, err := m.Modules(ctx, include, exclude)
+	if err != nil {
+		return err
+	}
+
+	p := newParallel().withLimit(3)
+	for _, mod := range mods {
+		p = p.withJob("lint:"+mod, func(ctx context.Context) error {
+			return m.LintModule(ctx, mod)
+		})
+	}
+	return p.run(ctx)
+}
+
+// LintModule runs golangci-lint on a single module directory.
+func (m *Go) LintModule(ctx context.Context,
+	// Module directory relative to the source root.
+	mod string,
+) error {
+	cmd := []string{"golangci-lint", "run"}
+	if mod != "" && mod != "." {
+		cmd = append(cmd, "--path-prefix", mod)
+	}
+	_, err := m.lintBase(mod).
+		WithExec(cmd).
 		Sync(ctx)
 	return err
 }

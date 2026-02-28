@@ -24,9 +24,9 @@ dagger call commitlint lint --source=. --msg-file=.git/COMMIT_EDITMSG  # Validat
 Four Dagger toolchain modules work together:
 
 - **`go`** (toolchain) — Reusable Go CI module with Go-specific functions
-  (test, lint, format-go, tidy, env, build). Lives at `toolchains/go/` with
-  its own `dagger.json`. Can be consumed by any Go project. Carries `+check`
-  and `+generate` annotations directly.
+  (test, lint, format-go, tidy, env, build) and multi-module support.
+  Lives at `toolchains/go/` with its own `dagger.json`. Can be consumed by
+  any Go project. Carries `+check` and `+generate` annotations directly.
 - **`dev`** (toolchain) — Reusable development container module (DevBase,
   DevEnv, Dev). Lives at `toolchains/dev/` with its own `dagger.json`. Fully
   independent from the `go` module.
@@ -44,9 +44,10 @@ dagger.json          # Root module config (toolchains + customizations)
 toolchains/
   go/
     dagger.json      # Reusable module config (name=go)
-    main.go          # Struct, constructor, constants, lintBase, helpers
-    check.go         # Test, TestCoverage, Lint
-    generate.go      # FormatGo, Generate
+    main.go          # Struct, constructor, constants, lintBase, Modules, TidyModule, Tidy, CheckTidy, helpers
+    check.go         # Test, TestCoverage, Lint, LintModule
+    generate.go      # FormatGo, FormatGoModule, Generate
+    parallel.go      # parallelJobs (bounded parallel execution with OTEL spans)
     bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, CacheBust, benchmarkStages, runBenchmarks
     tests/           # Go module tests
   commitlint/
@@ -81,16 +82,16 @@ tooling.
 | `go` toolchain (Go CI)                  | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                  |
 | --------------------------------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------------- |
 | Test (+check), TestCoverage             | Lint                     | DevBase, DevEnv, Dev              | Build, Release                                                            |
-| Lint (+check)                           |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, PublishKCLModules, publishImages              |
-| FormatGo, Generate (+generate)          |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
-| CheckTidy (+check), Tidy (+generate)    |                          | Shell/tool version constants      | LintKCLModules (+check), LintDeadcode (advisory)                          |
-| Env, Build, Binary, Download            |                          | starshipConfig, zshConfig         | Format (+generate, merges FormatGo + prettier)                            |
-| EnsureGitInit, EnsureGitRepo            |                          | devInitScript                     | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost      |
-| Benchmark (Go stages), BenchmarkSummary |                          |                                   | prettierBase, goreleaserCheckBase, releaserBase (private)                 |
-| CacheBust                               |                          |                                   | runtimeImages, runtimeBase (KCL env, OCI labels)                          |
-| Go version, golangci-lint version       | commitlint image version |                                   | DevEnv/Dev wrappers (pass clone URL)                                      |
-|                                         |                          |                                   | Benchmark/BenchmarkSummary (all stages incl. build)                       |
-|                                         |                          |                                   | Tool versions (prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig) |
+| Lint (+check), LintModule               |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, PublishKCLModules, publishImages              |
+| FormatGo, FormatGoModule                |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
+| Generate (+generate)                    |                          | Shell/tool version constants      | LintKCLModules (+check), LintDeadcode (advisory)                          |
+| CheckTidy (+check), Tidy (+generate)    |                          | starshipConfig, zshConfig         | Format (+generate, merges FormatGo + prettier)                            |
+| Modules, TidyModule                     |                          | devInitScript                     | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost      |
+| Env, Build, Binary, Download            |                          |                                   | prettierBase, goreleaserCheckBase, releaserBase (private)                 |
+| EnsureGitInit, EnsureGitRepo            |                          |                                   | runtimeImages, runtimeBase (KCL env, OCI labels)                          |
+| Benchmark (Go stages), BenchmarkSummary |                          |                                   | DevEnv/Dev wrappers (pass clone URL)                                      |
+| CacheBust                               |                          |                                   | Benchmark/BenchmarkSummary (all stages incl. build)                       |
+| Go version, golangci-lint version       | commitlint image version |                                   | Tool versions (prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig) |
 
 ### Function Categories
 
@@ -164,11 +165,38 @@ func (m *Kclipper) GenerateFoo() *dagger.Changeset {
 - Registry auth (`WithRegistryAuth`) is conditional: only applied when
   `registryPassword` is non-nil, allowing anonymous registries for testing.
 - Use `env://VAR_NAME` syntax for Dagger secret providers on the CLI.
-- Use `errgroup` for concurrent execution of independent operations.
+- Use `errgroup` or `parallelJobs` for concurrent execution of independent
+  operations.
 - Tool binaries are extracted from OCI images via `Container.File()`
   (not `go install`) for faster builds and automatic platform matching.
 - Ignore patterns for source directories are declared only in the root
   `dagger.json` customizations, not duplicated in module `+ignore` annotations.
+
+## Multi-Module Support
+
+The `go` toolchain supports monorepos with multiple Go modules. Module
+discovery scans for `go.mod` files and filters results with include/exclude
+glob patterns (powered by `doublestar.PathMatch`).
+
+- **`Modules(ctx, include, exclude)`** — discovers Go module directories.
+  Returns relative paths (e.g. `"."`, `"toolchains/go"`). Empty include
+  matches all; exclude is checked first. Non-root directories containing
+  `dagger.json` are auto-excluded (their generated SDK code is gitignored
+  and absent from the source tree).
+- **Per-module operations** — `LintModule(ctx, mod)`, `TidyModule(ctx, mod)`,
+  and `FormatGoModule(mod)` operate on a single module directory.
+- **Multi-module wrappers** — `Lint`, `CheckTidy`, `Tidy`, and `FormatGo`
+  accept optional `include`/`exclude` params. They scan modules and run the
+  per-module operation in parallel using `parallelJobs` with `withLimit(3)`
+  for bounded memory usage.
+- **`parallelJobs`** (`parallel.go`) — internal utility using
+  `sourcegraph/conc/pool` with OTEL span creation per job for Dagger TUI
+  visibility. Uses a value-receiver builder pattern (`withJob`, `withLimit`).
+
+Dependencies added for multi-module support:
+
+- `github.com/bmatcuk/doublestar/v4` — glob pattern matching (zero transitive deps)
+- `github.com/sourcegraph/conc` — bounded parallel execution with error collection
 
 ## Dev Container
 
