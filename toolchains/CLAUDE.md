@@ -184,7 +184,7 @@ would overwrite the host's `.git` worktree file.
 Container behaviors (see `devInitScript` in `toolchains/dev/main.go` for details):
 
 - Blobless clone (`--filter=blob:none`) for full history with on-demand blobs.
-- Per-branch cache volumes (`dev-src-<branch>`) for branch isolation.
+- Per-branch cache volumes (`dev:src-<branch>`) for branch isolation.
 - `_DEV_TS` env var busts Dagger's function cache so `git fetch` always runs.
 - Non-fatal `git fetch` allows offline use when a local cache exists.
 - Force checkout (`-f`) avoids conflicts from stale cache volume files; safe
@@ -258,13 +258,28 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    cache volumes.
 
 3. **Cache volumes** — Named Dagger cache volumes persist across runs.
-   Volume names include tool versions so that version bumps start fresh.
-   The Go toolchain constructor accepts optional `moduleCache` and
-   `buildCache` parameters; when omitted, versioned defaults are used:
-   - `go-mod-<goVersion>` — Go module cache (`GOMODCACHE`)
-   - `go-build-<goVersion>` — Go build cache (`GOCACHE`)
-   - `golangci-lint-<lintVersion>` — golangci-lint analysis cache
-   - `npm-cache` — npm download cache for prettier
+   Volume names follow a `<module-path>:<purpose>` convention to avoid
+   collisions when modules are consumed by other projects. The Go
+   toolchain constructor accepts optional `cacheNamespace`, `moduleCache`,
+   and `buildCache` parameters; when omitted, the module's canonical path
+   is used as the namespace prefix:
+
+   - `<cacheNamespace>:modules` — Go module cache (`GOMODCACHE`)
+   - `<cacheNamespace>:build` — Go build cache (`GOCACHE`)
+   - `<cacheNamespace>:golangci-lint-<lintVersion>` — golangci-lint analysis
+     cache (version suffix kept because different versions produce incompatible
+     caches)
+   - `<devNamespace>:apt-archives`, `<devNamespace>:apt-lists` — apt caches
+   - `<devNamespace>:src-<branch>` — per-branch workspace (`CacheSharingMode: PRIVATE`)
+   - `<devNamespace>:shell-history` — shell history
+   - `<devNamespace>:claude-config` — Claude Code config (`CacheSharingMode: PRIVATE`)
+   - `<kclipperNamespace>:npm` — npm download cache for prettier
+
+   The dev toolchain accepts a `goCacheNamespace` parameter (defaults to the
+   Go toolchain's canonical path) so dev containers share the same module
+   and build caches as CI pipelines. `CacheSharingMode: PRIVATE` is set on
+   `dev:src-<branch>` (interactive workspace) and `dev:claude-config`
+   (stateful config) to prevent concurrent corruption.
 
 ## Taskfile Boundary
 

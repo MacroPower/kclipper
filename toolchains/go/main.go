@@ -15,12 +15,17 @@ import (
 const (
 	defaultGoVersion    = "1.25" // renovate: datasource=golang-version depName=go
 	golangciLintVersion = "v2.9" // renovate: datasource=github-releases depName=golangci/golangci-lint
+
+	// defaultCacheNamespace is the default prefix for cache volume names.
+	// Override via the cacheNamespace constructor parameter when consuming
+	// this module from another project.
+	defaultCacheNamespace = "github.com/macropower/kclipper/toolchains/go"
 )
 
 // Go provides reusable Go CI functions for testing, linting, and
 // formatting. Create instances with [New].
 type Go struct {
-	// Go version used for base images and cache volume names.
+	// Go version used for base images.
 	Version string
 	// Project source directory.
 	Source *dagger.Directory
@@ -41,6 +46,9 @@ type Go struct {
 	Cgo bool
 	// Enable the race detector. Implies [Go.Cgo].
 	Race bool
+	// Namespace prefix for cache volume names, used to avoid collisions
+	// when multiple projects consume this module.
+	CacheNamespace string // +private
 	// Directory containing only go.mod and go.sum, synced independently
 	// of [Go.Source] so that its content hash changes only when
 	// dependency files change.
@@ -58,16 +66,16 @@ func New(
 	// +defaultPath="/"
 	// +ignore=["*", "!go.mod", "!go.sum"]
 	goMod *dagger.Directory,
-	// Go version for base images and cache volume naming. Defaults to
-	// the version pinned in this module.
+	// Go version for base images. Defaults to the version pinned in
+	// this module.
 	// +optional
 	version string,
 	// Cache volume for Go module downloads (GOMODCACHE). Defaults to
-	// a volume named "go-mod-<version>".
+	// a namespaced volume named "<cacheNamespace>:modules".
 	// +optional
 	moduleCache *dagger.CacheVolume,
 	// Cache volume for Go build artifacts (GOCACHE). Defaults to
-	// a volume named "go-build-<version>".
+	// a namespaced volume named "<cacheNamespace>:build".
 	// +optional
 	buildCache *dagger.CacheVolume,
 	// Custom base container with Go installed. When provided, the
@@ -87,15 +95,27 @@ func New(
 	// Enable the race detector. Implies cgo=true.
 	// +optional
 	race bool,
+	// Namespace prefix for cache volume names. Defaults to this module's
+	// canonical path. Override when consuming this module from another
+	// project to avoid cache volume collisions between projects.
+	// +optional
+	cacheNamespace string,
 ) *Go {
 	if version == "" {
 		version = defaultGoVersion
 	}
+	if cacheNamespace == "" {
+		cacheNamespace = defaultCacheNamespace
+	}
 	if moduleCache == nil {
-		moduleCache = dag.CacheVolume("go-mod-" + version)
+		// Cache volumes should be namespaced by module, but they aren't (yet).
+		// For now, we namespace them explicitly here.
+		moduleCache = dag.CacheVolume(cacheNamespace + ":modules")
 	}
 	if buildCache == nil {
-		buildCache = dag.CacheVolume("go-build-" + version)
+		// Cache volumes should be namespaced by module, but they aren't (yet).
+		// For now, we namespace them explicitly here.
+		buildCache = dag.CacheVolume(cacheNamespace + ":build")
 	}
 	if base == nil {
 		base = dag.Container().
@@ -109,16 +129,17 @@ func New(
 			WithExec([]string{"go", "mod", "download"})
 	}
 	return &Go{
-		Version:     version,
-		Source:      source,
-		ModuleCache: moduleCache,
-		BuildCache:  buildCache,
-		Base:        base,
-		Ldflags:     ldflags,
-		Values:      values,
-		Cgo:         cgo,
-		Race:        race,
-		GoMod:       goMod,
+		Version:        version,
+		Source:         source,
+		ModuleCache:    moduleCache,
+		BuildCache:     buildCache,
+		Base:           base,
+		Ldflags:        ldflags,
+		Values:         values,
+		Cgo:            cgo,
+		Race:           race,
+		CacheNamespace: cacheNamespace,
+		GoMod:          goMod,
 	}
 }
 
@@ -329,7 +350,7 @@ func (m *Go) lintBase() *dagger.Container {
 		WithWorkdir("/src").
 		WithExec([]string{"go", "mod", "download"}).
 		WithMountedDirectory("/src", m.Source).
-		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint-"+golangciLintVersion))
+		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume(m.CacheNamespace+":golangci-lint-"+golangciLintVersion))
 }
 
 // ---------------------------------------------------------------------------

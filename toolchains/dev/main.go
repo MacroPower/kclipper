@@ -12,6 +12,14 @@ import (
 )
 
 const (
+	// devCacheNamespace is the namespace prefix for dev-specific cache volumes.
+	devCacheNamespace = "github.com/macropower/kclipper/toolchains/dev"
+
+	// defaultGoCacheNamespace is the default namespace prefix for Go cache
+	// volumes, matching the go toolchain module's default so that dev
+	// containers share the same module and build caches as CI pipelines.
+	defaultGoCacheNamespace = "github.com/macropower/kclipper/toolchains/go"
+
 	goVersion         = "1.25"            // renovate: datasource=golang-version depName=go
 	taskVersion       = "v3.48.0"         // renovate: datasource=github-releases depName=go-task/task
 	lefthookVersion   = "v2.1.1"          // renovate: datasource=github-releases depName=evilmartians/lefthook
@@ -179,6 +187,9 @@ rsync -a --delete --exclude=.git /tmp/src-seed/ /src/
 type Dev struct {
 	// Project source directory.
 	Source *dagger.Directory
+	// Namespace prefix for Go cache volumes, used to share caches with
+	// the Go toolchain module.
+	GoCacheNamespace string // +private
 }
 
 // New creates a [Dev] module with the given project source directory.
@@ -187,8 +198,19 @@ func New(
 	// +defaultPath="/"
 	// +ignore=["dist", ".worktrees", ".tmp", ".git"]
 	source *dagger.Directory,
+	// Namespace prefix for Go cache volumes. Defaults to the Go
+	// toolchain module's canonical path so that dev containers share
+	// the same module and build caches as CI pipelines.
+	// +optional
+	goCacheNamespace string,
 ) *Dev {
-	return &Dev{Source: source}
+	if goCacheNamespace == "" {
+		goCacheNamespace = defaultGoCacheNamespace
+	}
+	return &Dev{
+		Source:           source,
+		GoCacheNamespace: goCacheNamespace,
+	}
 }
 
 // DevBase returns a base development container with Go, shell tools,
@@ -199,8 +221,8 @@ func (m *Dev) DevBase() *dagger.Container {
 	return dag.Container().
 		From("golang:"+goVersion).
 		// Mount apt cache volumes so re-runs skip network downloads.
-		WithMountedCache("/var/cache/apt/archives", dag.CacheVolume("dev-apt-archives")).
-		WithMountedCache("/var/lib/apt/lists", dag.CacheVolume("dev-apt-lists")).
+		WithMountedCache("/var/cache/apt/archives", dag.CacheVolume(devCacheNamespace+":apt-archives")).
+		WithMountedCache("/var/lib/apt/lists", dag.CacheVolume(devCacheNamespace+":apt-lists")).
 		WithExec([]string{"sh", "-c",
 			"apt-get update && apt-get install -y --no-install-recommends " +
 				"curl less man-db gnupg2 nano vim xz-utils jq wget dnsutils direnv " +
@@ -263,12 +285,14 @@ func (m *Dev) DevEnv(
 		WithDirectory("/tmp/src-seed", m.Source).
 		// Cache volume at /src so changes survive Terminal().
 		// Each branch gets its own volume for workspace isolation.
-		WithMountedCache("/src", dag.CacheVolume("dev-src-"+sanitizeCacheKey(branch))).
-		WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod-"+goVersion)).
+		WithMountedCache("/src",
+			dag.CacheVolume(devCacheNamespace+":src-"+sanitizeCacheKey(branch)),
+			dagger.ContainerWithMountedCacheOpts{Sharing: dagger.CacheSharingModePrivate}).
+		WithMountedCache("/go/pkg/mod", dag.CacheVolume(m.GoCacheNamespace+":modules")).
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", dag.CacheVolume("go-build-"+goVersion)).
+		WithMountedCache("/go/build-cache", dag.CacheVolume(m.GoCacheNamespace+":build")).
 		WithEnvVariable("GOCACHE", "/go/build-cache").
-		WithMountedCache("/commandhistory", dag.CacheVolume("shell-history")).
+		WithMountedCache("/commandhistory", dag.CacheVolume(devCacheNamespace+":shell-history")).
 		WithWorkdir("/src").
 		WithEnvVariable("BRANCH", branch).
 		WithEnvVariable("BASE", base).
@@ -377,7 +401,9 @@ func applyDevConfig(
 	if claudeConfig != nil {
 		ctr = ctr.
 			WithMountedDirectory("/tmp/claude-config-seed", claudeConfig).
-			WithMountedCache("/root/.claude", dag.CacheVolume("claude-config")).
+			WithMountedCache("/root/.claude",
+				dag.CacheVolume(devCacheNamespace+":claude-config"),
+				dagger.ContainerWithMountedCacheOpts{Sharing: dagger.CacheSharingModePrivate}).
 			WithExec([]string{"rsync", "-a", "/tmp/claude-config-seed/", "/root/.claude/"})
 	}
 	if claudeJSON != nil {

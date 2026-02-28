@@ -23,6 +23,8 @@ const (
 	zigVersion        = "0.15.2"   // renovate: datasource=github-releases depName=ziglang/zig
 	kclLSPVersion     = "v0.11.2"  // renovate: datasource=github-releases depName=kcl-lang/kcl
 
+	kclipperCacheNamespace = "github.com/macropower/kclipper/toolchains/kclipper"
+
 	defaultRegistry = "ghcr.io/macropower/kclipper"
 
 	kclipperCloneURL = "https://github.com/macropower/kclipper.git"
@@ -106,7 +108,7 @@ func (m *Kclipper) Binary(
 func (m *Kclipper) prettierBase() *dagger.Container {
 	return dag.Container().
 		From("node:lts-slim").
-		WithMountedCache("/root/.npm", dag.CacheVolume("npm-cache")).
+		WithMountedCache("/root/.npm", dag.CacheVolume(kclipperCacheNamespace+":npm")).
 		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
 }
 
