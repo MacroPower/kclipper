@@ -9,6 +9,7 @@ building, releasing) run in containers orchestrated by Dagger.
 dagger check                          # Run all checks (+check functions)
 dagger check go:lint                  # Run specific check(s)
 dagger call kclipper lint-deadcode    # Run deadcode analysis (opt-in, advisory)
+dagger call kclipper publish-kclmodules --tag=v1.2.3 ...  # Publish KCL modules
 dagger generate --auto-apply          # Run generators (Format + Generate) and apply changes
 dagger call kclipper build --output=./dist       # Build binaries
 task dev                              # Dev container (branch defaults to current)
@@ -60,9 +61,9 @@ toolchains/
     dagger.json      # Kclipper-specific (depends on go + dev)
     main.go          # Struct, constructor, constants, prettierBase, goreleaserCheckBase, defaultPrettierPatterns
     build.go         # Build, BuildImages, runtimeImages, runtimeBase, releaserBase
-    check.go         # LintReleaser, LintPrettier, LintActions, LintDeadcode
+    check.go         # LintReleaser, LintPrettier, LintActions, LintKCLModules, LintDeadcode
     generate.go      # Format
-    publish.go       # VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost, PublishImages, Release, publishImages
+    publish.go       # VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost, PublishKCLModules, PublishImages, Release, publishImages, patchedModulesDir
     bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, benchmarkStages, runBenchmarks
     dev.go           # DevEnv, Dev
     tests/           # Kclipper-specific integration tests
@@ -80,9 +81,9 @@ tooling.
 | `go` toolchain (Go CI)                  | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                  |
 | --------------------------------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------------- |
 | Test (+check), TestCoverage             | Lint                     | DevBase, DevEnv, Dev              | Build, Release                                                            |
-| Lint (+check)                           |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, publishImages                                 |
+| Lint (+check)                           |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, PublishKCLModules, publishImages              |
 | FormatGo, Generate (+generate)          |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
-| CheckTidy (+check), Tidy (+generate)    |                          | Shell/tool version constants      | LintDeadcode (advisory)                                                   |
+| CheckTidy (+check), Tidy (+generate)    |                          | Shell/tool version constants      | LintKCLModules (+check), LintDeadcode (advisory)                          |
 | Env, Build, Binary, Download            |                          | starshipConfig, zshConfig         | Format (+generate, merges FormatGo + prettier)                            |
 | EnsureGitInit, EnsureGitRepo            |                          | devInitScript                     | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost      |
 | Benchmark (Go stages), BenchmarkSummary |                          |                                   | prettierBase, goreleaserCheckBase, releaserBase (private)                 |
@@ -247,7 +248,7 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    - **`+cache="session"`** — functions that should re-run each session but
      not be cached across sessions (Test, Benchmark, BenchmarkSummary).
    - **`+cache="never"`** — functions with external side effects (PublishImages,
-     Release, Dev) that must never return stale results.
+     PublishKCLModules, Release, Dev) that must never return stale results.
 
 2. **Module pre-download layer** — The constructor accepts a separate `goMod`
    directory parameter synced with `+ignore=["*", "!go.mod", "!go.sum"]`.

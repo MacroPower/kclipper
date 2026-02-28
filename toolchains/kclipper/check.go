@@ -65,6 +65,34 @@ func (m *Kclipper) LintActions(ctx context.Context) error {
 	return err
 }
 
+// LintKCLModules validates that all KCL modules under modules/ can be
+// packaged correctly. Uses a placeholder version and runs kcl mod pkg
+// for each module without pushing to any registry.
+//
+// +check
+func (m *Kclipper) LintKCLModules(ctx context.Context) error {
+	patched, names, err := m.patchedModulesDir(ctx, "0.0.0-check")
+	if err != nil {
+		return err
+	}
+
+	ctr := runtimeBase("").
+		WithFile("/usr/local/bin/kcl", m.Binary("")).
+		WithMountedDirectory("/modules", patched).
+		WithWorkdir("/modules")
+
+	for _, name := range names {
+		ctr = ctr.
+			WithWorkdir("/modules/" + name).
+			WithExec([]string{
+				"kcl", "mod", "pkg", "--target", "/tmp/" + name + ".tar",
+			})
+	}
+
+	_, err = ctr.Sync(ctx)
+	return err
+}
+
 // LintDeadcode reports unreachable functions in the codebase using the
 // golang.org/x/tools deadcode analyzer. This is an advisory lint that
 // is not included in standard checks; invoke via dagger call kclipper lint-deadcode.

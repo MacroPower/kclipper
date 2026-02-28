@@ -3,12 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"dagger/kclipper/internal/dagger"
 
 	"golang.org/x/sync/errgroup"
 )
+
+// reKCLModVersion matches the version line in kcl.mod files.
+var reKCLModVersion = regexp.MustCompile(`(?m)^version\s*=\s*"[^"]*"`)
 
 // VersionTags returns the image tags derived from a version tag string.
 // For example, "v1.2.3" yields ["latest", "v1.2.3", "v1", "v1.2"].
@@ -90,6 +94,86 @@ func (m *Kclipper) RegistryHost(
 	registry string,
 ) string {
 	return strings.SplitN(registry, "/", 2)[0]
+}
+
+// patchedModulesDir discovers KCL modules under modules/ and rewrites each
+// kcl.mod file's version line to the given version. Returns the patched
+// directory and the list of module names.
+func (m *Kclipper) patchedModulesDir(ctx context.Context, version string) (*dagger.Directory, []string, error) {
+	modulesDir := m.Source.Directory("modules")
+	entries, err := modulesDir.Entries(ctx)
+	if err != nil {
+		return nil, nil, fmt.Errorf("list modules: %w", err)
+	}
+
+	patched := modulesDir
+	var names []string
+	for _, entry := range entries {
+		modFile := modulesDir.File(entry + "/kcl.mod")
+		content, err := modFile.Contents(ctx)
+		if err != nil {
+			// Skip directories without kcl.mod.
+			continue
+		}
+		content = reKCLModVersion.ReplaceAllString(content, `version = "`+version+`"`)
+		patched = patched.WithNewFile(entry+"/kcl.mod", content)
+		names = append(names, entry)
+	}
+
+	return patched, names, nil
+}
+
+// PublishKCLModules pushes all KCL modules under modules/ to the OCI
+// registry with the version derived from the given tag. The kclipper binary
+// itself is used as the KCL CLI (it wraps kcl-lang.io/cli and kcl-lang.io/kpm).
+//
+// +cache="never"
+func (m *Kclipper) PublishKCLModules(
+	ctx context.Context,
+	// Version tag (e.g. "v1.2.3"). The "v" prefix is stripped for the
+	// module version.
+	tag string,
+	// Registry username for authentication.
+	// +optional
+	registryUsername string,
+	// Registry password or token for authentication.
+	// +optional
+	registryPassword *dagger.Secret,
+) error {
+	version := strings.TrimPrefix(tag, "v")
+
+	patched, names, err := m.patchedModulesDir(ctx, version)
+	if err != nil {
+		return err
+	}
+
+	ctr := runtimeBase("").
+		WithFile("/usr/local/bin/kcl", m.Binary("")).
+		WithMountedDirectory("/modules", patched).
+		WithWorkdir("/modules")
+
+	// Conditional registry login (matching cosign pattern).
+	if registryPassword != nil {
+		ctr = ctr.
+			WithSecretVariable("REGISTRY_PASSWORD", registryPassword).
+			WithExec([]string{
+				"sh", "-c",
+				"kcl registry login -u " + registryUsername + " -p \"$REGISTRY_PASSWORD\" " + m.RegistryHost(m.Registry),
+			})
+	}
+
+	// Push each module sequentially.
+	for _, name := range names {
+		ctr = ctr.
+			WithWorkdir("/modules/" + name).
+			WithExec([]string{
+				"kcl", "mod", "push",
+				"oci://" + m.Registry + "/" + name,
+			})
+	}
+
+	_, err = ctr.Sync(ctx)
+	return err
 }
 
 // PublishImages builds multi-arch container images using Dagger's native

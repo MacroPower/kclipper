@@ -47,7 +47,7 @@ tasks:
   lint:
     desc: Runs all lint checks via Dagger
     cmds:
-      - dagger check go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser
+      - dagger check go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules
 
   lint:go:
     desc: Lints Go code via Dagger
@@ -68,6 +68,11 @@ tasks:
     desc: Validates GoReleaser configuration via Dagger
     cmds:
       - dagger check kclipper:lint-releaser
+
+  lint:kcl-modules:
+    desc: Validates KCL module packaging via Dagger
+    cmds:
+      - dagger check kclipper:lint-kclmodules
 
   lint:commit-msg:
     desc: Validates commit message format via Dagger

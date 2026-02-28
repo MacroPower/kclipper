@@ -36,6 +36,7 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestRegistryHost(ctx) })
 	g.Go(func() error { return m.TestFormatIdempotent(ctx) })
 	g.Go(func() error { return m.TestLintActionsClean(ctx) })
+	g.Go(func() error { return m.TestLintKCLModulesClean(ctx) })
 
 	return g.Wait()
 }
@@ -286,6 +287,14 @@ func (m *Tests) TestFormatIdempotent(ctx context.Context) error {
 // +check
 func (m *Tests) TestLintActionsClean(ctx context.Context) error {
 	return dag.Kclipper().LintActions(ctx)
+}
+
+// TestLintKCLModulesClean verifies that all KCL modules under modules/ can be
+// packaged correctly. This exercises the [Kclipper.LintKCLModules] check.
+//
+// +check
+func (m *Tests) TestLintKCLModulesClean(ctx context.Context) error {
+	return dag.Kclipper().LintKCLModules(ctx)
 }
 
 // TestVersionTags verifies that [Kclipper.VersionTags] returns the expected
