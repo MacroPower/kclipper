@@ -146,13 +146,21 @@ func (m *Kclipper) benchmarkStages() []benchmarkStage {
 			return err
 		}},
 		{"lint-releaser", func(ctx context.Context) error {
-			_, err := m.Go.CacheBust(m.goreleaserCheckBase(kclipperCloneURL)).
+			ctr, err := m.goreleaserCheckBase(ctx, kclipperCloneURL)
+			if err != nil {
+				return err
+			}
+			_, err = m.Go.CacheBust(ctr).
 				WithExec([]string{"goreleaser", "check"}).
 				Sync(ctx)
 			return err
 		}},
 		{"build", func(ctx context.Context) error {
-			_, err := m.Go.CacheBust(m.releaserBase()).
+			ctr, err := m.releaserBase(ctx)
+			if err != nil {
+				return err
+			}
+			_, err = m.Go.CacheBust(ctr).
 				WithExec([]string{
 					"goreleaser", "release", "--snapshot", "--clean",
 					"--skip=docker,homebrew,nix,sign,sbom",

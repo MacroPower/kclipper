@@ -13,7 +13,11 @@ import (
 //
 // +check
 func (m *Kclipper) LintReleaser(ctx context.Context) error {
-	_, err := m.goreleaserCheckBase(kclipperCloneURL).
+	ctr, err := m.goreleaserCheckBase(ctx, kclipperCloneURL)
+	if err != nil {
+		return err
+	}
+	_, err = ctr.
 		WithExec([]string{"goreleaser", "check"}).
 		Sync(ctx)
 	return err

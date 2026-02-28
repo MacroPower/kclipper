@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"time"
 
 	"dagger/kclipper/internal/dagger"
@@ -9,30 +10,39 @@ import (
 // Build runs GoReleaser in snapshot mode, producing binaries for all
 // platforms. Returns the dist/ directory. Source archives are skipped in
 // snapshot mode since they are only needed for releases.
-func (m *Kclipper) Build() *dagger.Directory {
-	return m.releaserBase().
+func (m *Kclipper) Build(ctx context.Context) (*dagger.Directory, error) {
+	ctr, err := m.releaserBase(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return ctr.
 		WithExec([]string{
 			"goreleaser", "release", "--snapshot", "--clean",
 			"--skip=docker,homebrew,nix,sign,sbom",
 			"--parallelism=0",
 		}).
-		Directory("/src/dist")
+		Directory("/src/dist"), nil
 }
 
 // BuildImages builds multi-arch runtime container images from a GoReleaser
 // dist directory. If no dist is provided, a snapshot build is run.
 func (m *Kclipper) BuildImages(
+	ctx context.Context,
 	// Version label for OCI metadata.
 	// +default="snapshot"
 	version string,
 	// Pre-built GoReleaser dist directory. If not provided, runs a snapshot build.
 	// +optional
 	dist *dagger.Directory,
-) []*dagger.Container {
+) ([]*dagger.Container, error) {
 	if dist == nil {
-		dist = m.Build()
+		var err error
+		dist, err = m.Build(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return runtimeImages(dist, version)
+	return runtimeImages(dist, version), nil
 }
 
 // runtimeImages builds a multi-arch set of runtime container images from a
@@ -97,9 +107,13 @@ func runtimeBase(platform dagger.Platform) *dagger.Container {
 // pre-downloaded KCL Language Server binaries, and macOS SDK headers needed
 // for CGO cross-compilation. Provides the complete release toolset for
 // goreleaser release with signing, SBOM, and cross-compilation support.
-func (m *Kclipper) releaserBase() *dagger.Container {
+func (m *Kclipper) releaserBase(ctx context.Context) (*dagger.Container, error) {
+	goVersion, err := m.Go.Version(ctx)
+	if err != nil {
+		return nil, err
+	}
 	ctr := dag.Container().
-		From("golang:"+m.Go.Version()).
+		From("golang:"+goVersion).
 		WithFile("/usr/local/bin/goreleaser",
 			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
 				File("/usr/bin/goreleaser")).
@@ -159,5 +173,5 @@ func (m *Kclipper) releaserBase() *dagger.Container {
 		WithEnvVariable("CXX_LINUX_AMD64", "/src/hack/zig-gold-wrapper.sh -target x86_64-linux-gnu").
 		WithEnvVariable("CXX_LINUX_ARM64", "/src/hack/zig-gold-wrapper.sh -target aarch64-linux-gnu").
 		WithEnvVariable("CXX_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none "+macosSDKFlags).
-		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none "+macosSDKFlags)
+		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none "+macosSDKFlags), nil
 }

@@ -26,7 +26,7 @@ func (dev *KclipperDev) Generated(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(os.Stderr, patch)
+		fmt.Fprintln(os.Stderr, summarizePatch(patch))
 		return errors.New("generated files are not up-to-date")
 	}
 	return nil

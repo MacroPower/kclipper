@@ -7,7 +7,11 @@
 
 package main
 
-import "dagger/kclipper/internal/dagger"
+import (
+	"context"
+
+	"dagger/kclipper/internal/dagger"
+)
 
 const (
 	goreleaserVersion = "v2.13.3"  // renovate: datasource=github-releases depName=goreleaser/goreleaser
@@ -109,9 +113,13 @@ func (m *Kclipper) prettierBase() *dagger.Container {
 // goreleaserCheckBase returns a lightweight container with only Go,
 // GoReleaser, and the project source. This is sufficient for
 // goreleaser check which only validates config syntax.
-func (m *Kclipper) goreleaserCheckBase(remoteURL string) *dagger.Container {
+func (m *Kclipper) goreleaserCheckBase(ctx context.Context, remoteURL string) (*dagger.Container, error) {
+	goVersion, err := m.Go.Version(ctx)
+	if err != nil {
+		return nil, err
+	}
 	ctr := dag.Container().
-		From("golang:"+m.Go.Version()).
+		From("golang:"+goVersion).
 		// Install GoReleaser from its official OCI image.
 		WithFile("/usr/local/bin/goreleaser",
 			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
@@ -126,7 +134,7 @@ func (m *Kclipper) goreleaserCheckBase(remoteURL string) *dagger.Container {
 		WithMountedDirectory("/src", m.Source)
 	return m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
 		RemoteURL: remoteURL,
-	})
+	}), nil
 }
 
 // defaultPrettierPatterns returns the default file patterns for prettier

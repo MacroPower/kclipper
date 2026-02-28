@@ -128,7 +128,10 @@ func (m *Kclipper) PublishImages(
 		}
 	}
 
-	variants := m.BuildImages(version, dist)
+	variants, err := m.BuildImages(ctx, version, dist)
+	if err != nil {
+		return "", err
+	}
 	digests, err := m.publishImages(ctx, variants, tags, registryUsername, registryPassword, cosignKey, cosignPassword)
 	if err != nil {
 		return "", err
@@ -179,8 +182,11 @@ func (m *Kclipper) Release(
 	// +optional
 	macosNotaryIssuerId *dagger.Secret,
 ) (*dagger.Directory, error) {
-	ctr := m.releaserBase().
-		WithSecretVariable("GITHUB_TOKEN", githubToken)
+	ctr, err := m.releaserBase(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ctr = ctr.WithSecretVariable("GITHUB_TOKEN", githubToken)
 
 	// Conditionally add cosign secrets for GoReleaser binary signing.
 	skipFlags := "docker"

@@ -77,19 +77,19 @@ tooling.
 
 ### What lives where
 
-| `go` toolchain (Go CI)                     | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                   |
-| ------------------------------------------ | ------------------------ | --------------------------------- | -------------------------------------------------------------------------- |
-| Test (+check), TestCoverage                | Lint                     | DevBase, DevEnv, Dev              | Build, Release                                                             |
-| Lint (+check)                              |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, publishImages                                  |
-| FormatGo, Generate (+generate)             |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)         |
-| CheckTidy (+check), Tidy (+generate)       |                          | Shell/tool version constants      | LintDeadcode (advisory)                                                    |
-| Env, Build, Binary, Download               |                          | starshipConfig, zshConfig         | Format (+generate, merges FormatGo + prettier)                             |
-| EnsureGitInit, EnsureGitRepo               |                          | devInitScript                     | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost       |
-| Benchmark (Go stages), BenchmarkSummary    |                          |                                   | prettierBase, goreleaserCheckBase, releaserBase (private)                  |
-| CacheBust                                  |                          |                                   | runtimeImages, runtimeBase (KCL env, OCI labels)                           |
-| Go version, golangci-lint version          | commitlint image version |                                   | DevEnv/Dev wrappers (pass clone URL)                                       |
-|                                            |                          |                                   | Benchmark/BenchmarkSummary (all stages incl. build)                        |
-|                                            |                          |                                   | Tool versions (prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig)  |
+| `go` toolchain (Go CI)                  | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                  |
+| --------------------------------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------------- |
+| Test (+check), TestCoverage             | Lint                     | DevBase, DevEnv, Dev              | Build, Release                                                            |
+| Lint (+check)                           |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, publishImages                                 |
+| FormatGo, Generate (+generate)          |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
+| CheckTidy (+check), Tidy (+generate)    |                          | Shell/tool version constants      | LintDeadcode (advisory)                                                   |
+| Env, Build, Binary, Download            |                          | starshipConfig, zshConfig         | Format (+generate, merges FormatGo + prettier)                            |
+| EnsureGitInit, EnsureGitRepo            |                          | devInitScript                     | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost      |
+| Benchmark (Go stages), BenchmarkSummary |                          |                                   | prettierBase, goreleaserCheckBase, releaserBase (private)                 |
+| CacheBust                               |                          |                                   | runtimeImages, runtimeBase (KCL env, OCI labels)                          |
+| Go version, golangci-lint version       | commitlint image version |                                   | DevEnv/Dev wrappers (pass clone URL)                                      |
+|                                         |                          |                                   | Benchmark/BenchmarkSummary (all stages incl. build)                       |
+|                                         |                          |                                   | Tool versions (prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig) |
 
 ### Function Categories
 
