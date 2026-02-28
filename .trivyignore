@@ -1,0 +1,6 @@
+# Trivy ignore file — add CVE IDs with justification comments.
+# See https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/#by-finding-ids
+
+# Pre-existing transitive dependency via Dagger SDK; fix requires upstream
+# otel SDK bump to v1.40.0+.
+CVE-2026-24051

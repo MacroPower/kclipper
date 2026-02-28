@@ -30,8 +30,6 @@ func (m *Kclipper) LintReleaser(ctx context.Context) error {
 // image build errors that would surface only during a real release.
 //
 // For a fast goreleaser config-only check, see [Kclipper.LintReleaser].
-//
-// +check
 func (m *Kclipper) ReleaseDryRun(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 

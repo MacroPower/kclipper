@@ -8,6 +8,7 @@ building, releasing) run in containers orchestrated by Dagger.
 ```bash
 dagger check                          # Run all checks (+check functions)
 dagger check go:lint                  # Run specific check(s)
+dagger call kclipper release-dry-run  # Full release pipeline validation (~15 min)
 dagger call kclipper lint-deadcode    # Run deadcode analysis (opt-in, advisory)
 dagger call kclipper publish-kclmodules --tag=v1.2.3 ...  # Publish KCL modules
 dagger generate --auto-apply          # Run generators (Format + Generate) and apply changes
@@ -21,7 +22,7 @@ dagger call commitlint lint --source=. --msg-file=.git/COMMIT_EDITMSG  # Validat
 
 ## Architecture
 
-Four Dagger toolchain modules work together:
+Five Dagger toolchain modules work together:
 
 - **`go`** (toolchain) — Reusable Go CI module with Go-specific functions
   (test, lint, format-go, tidy, env, build) and multi-module support.
@@ -34,6 +35,10 @@ Four Dagger toolchain modules work together:
   commit messages against conventional commit rules. Lives at
   `toolchains/commitlint/` with its own `dagger.json`. Independent of all
   other toolchains.
+- **`security`** (toolchain) — Standalone vulnerability scanning module using
+  Trivy. Scans source dependencies (`ScanSource`, `+check`) and container
+  images (`ScanImage`, callable). Lives at `toolchains/security/` with its own
+  `dagger.json`. Independent of all other toolchains.
 - **`kclipper`** (toolchain) — Kclipper-specific CI layer that depends on `go`
   and `dev` and adds project-specific functions (build, release, non-Go
   linting, formatting, publishing, runtime images, dev container wrappers).
@@ -54,6 +59,9 @@ toolchains/
     dagger.json      # Standalone module config (name=commitlint)
     main.go          # Struct, constructor, Lint
     tests/           # Commitlint tests
+  security/
+    dagger.json      # Standalone module config (name=security)
+    main.go          # Struct, constructor, ScanSource (+check), ScanImage
   dev/
     dagger.json      # Reusable module config (name=dev)
     main.go          # Dev container functions
@@ -70,28 +78,28 @@ toolchains/
     tests/           # Kclipper-specific integration tests
 ```
 
-The root `dagger.json` registers `go`, `commitlint`, and `kclipper` as
-toolchains with `customizations` that declare source ignore patterns (e.g.
-`dist`, `.worktrees`, `.tmp`, `.git`) at the project level. The `kclipper`
+The root `dagger.json` registers `go`, `commitlint`, `security`, and
+`kclipper` as toolchains with `customizations` that declare source ignore
+patterns (e.g. `dist`, `.worktrees`, `.tmp`, `.git`) at the project level. The `kclipper`
 module depends on both `go` and `dev` via local path dependencies and
 delegates generic Go CI work to the `go` module while owning project-specific
 tooling.
 
 ### What lives where
 
-| `go` toolchain (Go CI)                  | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                  |
-| --------------------------------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------------- |
-| Test (+check), TestCoverage             | Lint                     | DevBase, DevEnv, Dev              | Build, Release, ReleaseDryRun (+check)                                    |
-| Lint (+check), LintModule               |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, PublishKCLModules, publishImages              |
-| FormatGo, FormatGoModule                |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
-| Generate (+generate)                    |                          | Shell/tool version constants      | LintKCLModules (+check), LintDeadcode (advisory)                          |
-| CheckTidy (+check), Tidy (+generate)    |                          | starshipConfig, zshConfig         | Format (+generate, merges FormatGo + prettier)                            |
-| Modules, TidyModule                     |                          | devInitScript                     | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost      |
-| Env, Build, Binary, Download            |                          |                                   | prettierBase, goreleaserCheckBase, releaserBase (private)                 |
-| EnsureGitInit, EnsureGitRepo            |                          |                                   | runtimeImages, runtimeBase (KCL env, OCI labels)                          |
-| Benchmark (Go stages), BenchmarkSummary |                          |                                   | DevEnv/Dev wrappers (pass clone URL)                                      |
-| CacheBust                               |                          |                                   | Benchmark/BenchmarkSummary (all stages incl. build)                       |
-| Go version, golangci-lint version       | commitlint image version |                                   | Tool versions (prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig) |
+| `go` toolchain (Go CI)                  | `commitlint` toolchain   | `security` toolchain | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                  |
+| --------------------------------------- | ------------------------ | -------------------- | --------------------------------- | ------------------------------------------------------------------------- |
+| Test (+check), TestCoverage             | Lint                     | ScanSource (+check)  | DevBase, DevEnv, Dev              | Build, Release, ReleaseDryRun                                             |
+| Lint (+check), LintModule               |                          | ScanImage            | applyDevConfig, devToolBins       | BuildImages, PublishImages, PublishKCLModules, publishImages              |
+| FormatGo, FormatGoModule                |                          | trivyBase (private)  | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
+| Generate (+generate)                    |                          | Trivy image version  | Shell/tool version constants      | LintKCLModules (+check), LintDeadcode (advisory)                          |
+| CheckTidy (+check), Tidy (+generate)    |                          |                      | starshipConfig, zshConfig         | Format (+generate, merges FormatGo + prettier)                            |
+| Modules, TidyModule                     |                          |                      | devInitScript                     | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost      |
+| Env, Build, Binary, Download            |                          |                      |                                   | prettierBase, goreleaserCheckBase, releaserBase (private)                 |
+| EnsureGitInit, EnsureGitRepo            |                          |                      |                                   | runtimeImages, runtimeBase (KCL env, OCI labels)                          |
+| Benchmark (Go stages), BenchmarkSummary |                          |                      |                                   | DevEnv/Dev wrappers (pass clone URL)                                      |
+| CacheBust                               |                          |                      |                                   | Benchmark/BenchmarkSummary (all stages incl. build)                       |
+| Go version, golangci-lint version       | commitlint image version |                      |                                   | Tool versions (prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig) |
 
 ### Function Categories
 
@@ -106,6 +114,11 @@ tooling.
 
 `commitlint lint` is in the Callable category because it requires mandatory
 `source` and `args` arguments and cannot be a `+check` function.
+
+`ReleaseDryRun` is in the Callable category because it exercises the full
+build pipeline (~15 min). Invoke explicitly via
+`dagger call kclipper release-dry-run`. For fast config validation, use
+`LintReleaser` (+check) instead.
 
 `LintDeadcode` is in the Callable category as an opt-in advisory lint. It is
 not a `+check` function so it does not run during `dagger check`.
@@ -302,6 +315,8 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    - `<devNamespace>:shell-history` — shell history
    - `<devNamespace>:claude-config` — Claude Code config (`CacheSharingMode: PRIVATE`)
    - `<kclipperNamespace>:npm` — npm download cache for prettier
+   - `trivy-cache` — Trivy vulnerability database cache
+     (`CacheSharingMode: LOCKED`)
 
    The dev toolchain accepts a `goCacheNamespace` parameter (defaults to the
    Go toolchain's canonical path) so dev containers share the same module
@@ -336,6 +351,8 @@ with Renovate annotations for automated updates (e.g.
   deadcode, Zig, KCL LSP) are in `toolchains/kclipper/main.go`.
 - **Commitlint image version** is in `toolchains/commitlint/main.go`
   (`defaultImage` constant with a Renovate Docker datasource annotation).
+- **Trivy image version** is in `toolchains/security/main.go`
+  (`defaultTrivyImage` constant with a Renovate Docker datasource annotation).
 - **Dev tool versions** (task, lefthook, dagger, starship, yq, uv, gh,
   claude-code) are in `toolchains/dev/main.go`.
 

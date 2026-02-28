@@ -42,6 +42,17 @@
     {
       "name": "commitlint",
       "source": "toolchains/commitlint"
+    },
+    {
+      "name": "security",
+      "source": "toolchains/security",
+      "customizations": [
+        {
+          "function": ["scanSource"],
+          "argument": "source",
+          "ignore": ["dist", ".worktrees", ".tmp", ".git"]
+        }
+      ]
     }
   ],
   "include": [

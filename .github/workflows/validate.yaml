@@ -29,7 +29,7 @@ jobs:
         with:
           version: "0.19"
           verb: check
-          args: test lint lint-prettier lint-actions lint-releaser lint-kclmodules
+          args: test lint lint-prettier lint-actions lint-releaser lint-kclmodules scan-source
 
       - name: Export coverage profile
         uses: dagger/dagger-for-github@v8
