@@ -176,6 +176,12 @@ func (m *Go) Env(
 			ctr = ctr.
 				WithEnvVariable("GOOS", parts[0]).
 				WithEnvVariable("GOARCH", parts[1])
+			if m.Cgo || m.Race {
+				// Use platform-specific build cache to avoid CGO
+				// cross-compilation cache pollution between architectures.
+				platCache := dag.CacheVolume(m.CacheNamespace + ":build-" + parts[0] + "-" + parts[1])
+				ctr = ctr.WithMountedCache("/go/build-cache", platCache)
+			}
 		}
 	}
 
@@ -542,10 +548,8 @@ func (m *Go) lintBase(mod string) *dagger.Container {
 		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 		WithMountedCache("/go/build-cache", m.BuildCache).
 		WithEnvVariable("GOCACHE", "/go/build-cache").
-		WithDirectory("/src", m.GoMod).
-		WithWorkdir("/src").
-		WithExec([]string{"go", "mod", "download"}).
 		WithMountedDirectory("/src", m.Source).
+		WithWorkdir("/src").
 		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume(m.CacheNamespace+":golangci-lint-"+golangciLintVersion))
 
 	if mod != "" && mod != "." {

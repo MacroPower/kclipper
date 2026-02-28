@@ -145,11 +145,11 @@ var platformToFileArch = map[string]string{
 	"arm64": "aarch64",
 }
 
-// goreleaserBase returns a container with Go, GoReleaser, module caches, and
-// the project source pre-downloaded. This is the common base shared by
-// [Kclipper.releaserBase] and [Kclipper.goreleaserCheckBase]. Callers are
-// responsible for initializing a git repo (e.g. via [Go.EnsureGitRepo]) with
-// their appropriate remote URL before use.
+// goreleaserBase returns a container with Go, GoReleaser, and module caches.
+// This is the common base shared by [Kclipper.releaserBase] and
+// [Kclipper.goreleaserCheckBase]. Callers are responsible for mounting
+// project source and initializing a git repo (e.g. via [Go.EnsureGitRepo])
+// with their appropriate remote URL before use.
 //
 // The container is built on top of [Go.Base], reusing the pre-built Go image
 // with module cache and go mod download already completed.
@@ -157,8 +157,7 @@ func (m *Kclipper) goreleaserBase(_ context.Context) (*dagger.Container, error) 
 	return m.Go.Base().
 		WithFile("/usr/local/bin/goreleaser",
 			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
-				File("/usr/bin/goreleaser")).
-		WithMountedDirectory("/src", m.Source), nil
+				File("/usr/bin/goreleaser")), nil
 }
 
 // zigDirectory returns the Zig compiler distribution directory for the host
@@ -231,9 +230,10 @@ func (m *Kclipper) releaserBase(ctx context.Context) (*dagger.Container, error) 
 		WithEnvVariable("CXX_LINUX_AMD64", "/src/hack/zig-gold-wrapper.sh -target x86_64-linux-gnu").
 		WithEnvVariable("CXX_LINUX_ARM64", "/src/hack/zig-gold-wrapper.sh -target aarch64-linux-gnu").
 		WithEnvVariable("CXX_DARWIN_AMD64", "/src/hack/zig-macos-wrapper.sh -target x86_64-macos-none "+macosSDKFlags).
-		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none "+macosSDKFlags)
-	// Commit source last so that source changes only invalidate layers from
-	// here onward, preserving the tool installation layers above.
+		WithEnvVariable("CXX_DARWIN_ARM64", "/src/hack/zig-macos-wrapper.sh -target aarch64-macos-none "+macosSDKFlags).
+		// Mount source after all tools so that source changes only invalidate
+		// layers from here onward, preserving the tool installation layers above.
+		WithMountedDirectory("/src", m.Source)
 	ctr = m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
 		RemoteURL: kclipperCloneURL,
 	})

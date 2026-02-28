@@ -307,6 +307,8 @@ The CI module uses a three-tier caching approach to minimize redundant work:
 
    - `<cacheNamespace>:modules` — Go module cache (`GOMODCACHE`)
    - `<cacheNamespace>:build` — Go build cache (`GOCACHE`)
+   - `<cacheNamespace>:build-<os>-<arch>` — platform-specific Go build cache
+     for CGO cross-compilation (avoids cache pollution between architectures)
    - `<cacheNamespace>:golangci-lint-<lintVersion>` — golangci-lint analysis
      cache (version suffix kept because different versions produce incompatible
      caches)

@@ -121,6 +121,7 @@ func (m *Kclipper) goreleaserCheckBase(ctx context.Context, remoteURL string) (*
 	if err != nil {
 		return nil, err
 	}
+	ctr = ctr.WithMountedDirectory("/src", m.Source)
 	return m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
 		RemoteURL: remoteURL,
 	}), nil
