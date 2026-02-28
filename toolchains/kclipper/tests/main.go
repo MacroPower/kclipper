@@ -30,6 +30,10 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestLintReleaserClean(ctx) })
 	g.Go(func() error { return m.TestLintDeadcodeClean(ctx) })
 	g.Go(func() error { return m.TestBinary(ctx) })
+	g.Go(func() error { return m.TestVersionTags(ctx) })
+	g.Go(func() error { return m.TestFormatDigestChecksums(ctx) })
+	g.Go(func() error { return m.TestDeduplicateDigests(ctx) })
+	g.Go(func() error { return m.TestRegistryHost(ctx) })
 
 	return g.Wait()
 }
@@ -247,6 +251,171 @@ func (m *Tests) TestBinary(ctx context.Context) error {
 	if size == 0 {
 		return fmt.Errorf("binary has zero size")
 	}
+	return nil
+}
+
+// TestVersionTags verifies that [Kclipper.VersionTags] returns the expected
+// set of image tags for various version strings.
+//
+// +check
+func (m *Tests) TestVersionTags(ctx context.Context) error {
+	cases := map[string]struct {
+		tag  string
+		want []string
+	}{
+		"semver": {
+			tag:  "v1.2.3",
+			want: []string{"latest", "v1.2.3", "v1", "v1.2"},
+		},
+		"pre-release": {
+			tag:  "v0.5.1-rc.1",
+			want: []string{"v0.5.1-rc.1"},
+		},
+		"two-component": {
+			tag:  "v2.0",
+			want: []string{"latest", "v2.0", "v2", "v2.0"},
+		},
+		"single-component": {
+			tag:  "v1",
+			want: []string{"latest", "v1", "v1"},
+		},
+		"four-component": {
+			tag:  "v1.2.3.4",
+			want: []string{"latest", "v1.2.3.4", "v1", "v1.2"},
+		},
+		"empty-string": {
+			tag:  "",
+			want: []string{"latest", "", "v"},
+		},
+		"no-v-prefix": {
+			tag:  "1.2.3",
+			want: []string{"latest", "1.2.3", "v1", "v1.2"},
+		},
+		"hyphen-in-first-component": {
+			tag:  "v0-beta.1",
+			want: []string{"v0-beta.1"},
+		},
+	}
+
+	for name, tc := range cases {
+		got, err := dag.Kclipper().VersionTags(ctx, tc.tag)
+		if err != nil {
+			return fmt.Errorf("%s: %w", name, err)
+		}
+		if len(got) != len(tc.want) {
+			return fmt.Errorf("%s: got %v, want %v", name, got, tc.want)
+		}
+		for i := range got {
+			if got[i] != tc.want[i] {
+				return fmt.Errorf("%s: index %d: got %q, want %q", name, i, got[i], tc.want[i])
+			}
+		}
+	}
+
+	return nil
+}
+
+// TestFormatDigestChecksums verifies that [Kclipper.FormatDigestChecksums]
+// converts publish output to the checksums format, deduplicating by digest.
+//
+// +check
+func (m *Tests) TestFormatDigestChecksums(ctx context.Context) error {
+	refs := []string{
+		"ghcr.io/test:v1@sha256:abc123",
+		"ghcr.io/test:v2@sha256:abc123", // duplicate digest
+		"ghcr.io/test:latest@sha256:def456",
+	}
+
+	result, err := dag.Kclipper().FormatDigestChecksums(ctx, refs)
+	if err != nil {
+		return fmt.Errorf("format: %w", err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(result), "\n")
+	if len(lines) != 2 {
+		return fmt.Errorf("expected 2 lines (deduplicated), got %d: %q", len(lines), result)
+	}
+
+	if lines[0] != "abc123  ghcr.io/test:v1" {
+		return fmt.Errorf("line 0 = %q, want %q", lines[0], "abc123  ghcr.io/test:v1")
+	}
+	if lines[1] != "def456  ghcr.io/test:latest" {
+		return fmt.Errorf("line 1 = %q, want %q", lines[1], "def456  ghcr.io/test:latest")
+	}
+
+	return nil
+}
+
+// TestDeduplicateDigests verifies that [Kclipper.DeduplicateDigests] keeps
+// only the first occurrence of each sha256 digest.
+//
+// +check
+func (m *Tests) TestDeduplicateDigests(ctx context.Context) error {
+	refs := []string{
+		"ghcr.io/test:v1@sha256:abc123",
+		"ghcr.io/test:latest@sha256:abc123",
+		"ghcr.io/test:v1.0@sha256:def456",
+	}
+
+	result, err := dag.Kclipper().DeduplicateDigests(ctx, refs)
+	if err != nil {
+		return fmt.Errorf("deduplicate: %w", err)
+	}
+
+	if len(result) != 2 {
+		return fmt.Errorf("expected 2 unique refs, got %d: %v", len(result), result)
+	}
+	if result[0] != "ghcr.io/test:v1@sha256:abc123" {
+		return fmt.Errorf("ref 0 = %q, want %q", result[0], "ghcr.io/test:v1@sha256:abc123")
+	}
+	if result[1] != "ghcr.io/test:v1.0@sha256:def456" {
+		return fmt.Errorf("ref 1 = %q, want %q", result[1], "ghcr.io/test:v1.0@sha256:def456")
+	}
+
+	return nil
+}
+
+// TestRegistryHost verifies that [Kclipper.RegistryHost] extracts the host
+// (with optional port) from various registry address formats.
+//
+// +check
+func (m *Tests) TestRegistryHost(ctx context.Context) error {
+	cases := map[string]struct {
+		registry string
+		want     string
+	}{
+		"standard-registry": {
+			registry: "ghcr.io/macropower/kclipper",
+			want:     "ghcr.io",
+		},
+		"with-port": {
+			registry: "localhost:5000/myimage",
+			want:     "localhost:5000",
+		},
+		"host-only": {
+			registry: "docker.io",
+			want:     "docker.io",
+		},
+		"nested-path": {
+			registry: "registry.example.com/org/team/image",
+			want:     "registry.example.com",
+		},
+		"empty-string": {
+			registry: "",
+			want:     "",
+		},
+	}
+
+	for name, tc := range cases {
+		got, err := dag.Kclipper().RegistryHost(ctx, tc.registry)
+		if err != nil {
+			return fmt.Errorf("%s: %w", name, err)
+		}
+		if got != tc.want {
+			return fmt.Errorf("%s: got %q, want %q", name, got, tc.want)
+		}
+	}
+
 	return nil
 }
 

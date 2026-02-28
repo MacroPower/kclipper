@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	cosignVersion = "v3.0.4"  // renovate: datasource=github-releases depName=sigstore/cosign
 	zigVersion    = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
 	kclLSPVersion = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
 
@@ -65,10 +66,9 @@ func New(
 		GoMod:    goMod,
 		Registry: registry,
 		Go: dag.Go(dagger.GoOpts{
-			Source:   source,
-			GoMod:    goMod,
-			Registry: registry,
-			Cgo:      true,
+			Source: source,
+			GoMod:  goMod,
+			Cgo:    true,
 		}),
 	}
 }

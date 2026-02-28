@@ -48,8 +48,6 @@ type Go struct {
 	Cgo bool
 	// Enable the race detector. Implies [Go.Cgo].
 	Race bool
-	// Container image registry address (e.g. "ghcr.io/org/image").
-	Registry string
 	// Directory containing only go.mod and go.sum, synced independently
 	// of [Go.Source] so that its content hash changes only when
 	// dependency files change.
@@ -67,9 +65,6 @@ func New(
 	// +defaultPath="/"
 	// +ignore=["*", "!go.mod", "!go.sum"]
 	goMod *dagger.Directory,
-	// Container image registry address.
-	// +optional
-	registry string,
 	// Go version for base images and cache volume naming. Defaults to
 	// the version pinned in this module.
 	// +optional
@@ -130,7 +125,6 @@ func New(
 		Values:      values,
 		Cgo:         cgo,
 		Race:        race,
-		Registry:    registry,
 		GoMod:       goMod,
 	}
 }
