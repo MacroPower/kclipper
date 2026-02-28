@@ -62,7 +62,7 @@ toolchains/
     dagger.json      # Kclipper-specific (depends on go + dev)
     main.go          # Struct, constructor, constants, prettierBase, goreleaserCheckBase, defaultPrettierPatterns
     build.go         # Build, BuildImages, runtimeImages, runtimeBase, releaserBase
-    check.go         # LintReleaser, LintPrettier, LintActions, LintKCLModules, LintDeadcode
+    check.go         # LintReleaser, ReleaseDryRun, LintPrettier, LintActions, LintKCLModules, LintDeadcode
     generate.go      # Format
     publish.go       # VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost, PublishKCLModules, PublishImages, Release, publishImages, patchedModulesDir
     bench.go         # BenchmarkResult, Benchmark, BenchmarkSummary, benchmarkStages, runBenchmarks
@@ -81,7 +81,7 @@ tooling.
 
 | `go` toolchain (Go CI)                  | `commitlint` toolchain   | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                  |
 | --------------------------------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------------- |
-| Test (+check), TestCoverage             | Lint                     | DevBase, DevEnv, Dev              | Build, Release                                                            |
+| Test (+check), TestCoverage             | Lint                     | DevBase, DevEnv, Dev              | Build, Release, ReleaseDryRun (+check)                                    |
 | Lint (+check), LintModule               |                          | applyDevConfig, devToolBins       | BuildImages, PublishImages, PublishKCLModules, publishImages              |
 | FormatGo, FormatGoModule                |                          | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
 | Generate (+generate)                    |                          | Shell/tool version constants      | LintKCLModules (+check), LintDeadcode (advisory)                          |

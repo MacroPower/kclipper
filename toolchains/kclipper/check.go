@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"dagger/kclipper/internal/dagger"
+	"golang.org/x/sync/errgroup"
 )
 
 // LintReleaser validates the GoReleaser configuration. Uses
@@ -21,6 +22,43 @@ func (m *Kclipper) LintReleaser(ctx context.Context) error {
 		WithExec([]string{"goreleaser", "check"}).
 		Sync(ctx)
 	return err
+}
+
+// ReleaseDryRun validates the full release pipeline without publishing.
+// Builds snapshot binaries via GoReleaser and constructs multi-arch container
+// images, catching cross-compilation failures, missing tool binaries, and
+// image build errors that would surface only during a real release.
+//
+// For a fast goreleaser config-only check, see [Kclipper.LintReleaser].
+//
+// +check
+func (m *Kclipper) ReleaseDryRun(ctx context.Context) error {
+	g, ctx := errgroup.WithContext(ctx)
+
+	// Snapshot build — exercises goreleaser cross-compilation for all
+	// platforms, releaserBase tool setup (cosign, syft, zig), and
+	// archive/checksum generation.
+	g.Go(func() error {
+		_, err := m.Build(ctx)
+		return err
+	})
+
+	// Container image build — exercises runtime base image construction,
+	// binary packaging, and OCI metadata for all platforms.
+	g.Go(func() error {
+		containers, err := m.BuildImages(ctx, "dry-run", nil)
+		if err != nil {
+			return err
+		}
+		for _, ctr := range containers {
+			if _, err := ctr.Sync(ctx); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+
+	return g.Wait()
 }
 
 // LintPrettier checks YAML, JSON, and Markdown formatting.
