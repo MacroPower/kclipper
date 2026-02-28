@@ -135,34 +135,6 @@ func (m *Go) benchmarkStages() []benchmarkStage {
 				Sync(ctx)
 			return err
 		}},
-		{"lint-prettier", func(ctx context.Context) error {
-			_, err := m.CacheBust(m.PrettierBase()).
-				WithMountedDirectory("/src", m.Source).
-				WithWorkdir("/src").
-				WithExec(append(
-					[]string{"prettier", "--config", "./.prettierrc.yaml", "--check"},
-					defaultPrettierPatterns()...,
-				)).
-				Sync(ctx)
-			return err
-		}},
-		{"lint-actions", func(ctx context.Context) error {
-			_, err := m.CacheBust(dag.Container().
-				From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion)).
-				WithMountedDirectory("/src", m.Source).
-				WithWorkdir("/src").
-				WithExec([]string{
-					"zizmor", ".github/workflows", "--config", ".github/zizmor.yaml",
-				}).
-				Sync(ctx)
-			return err
-		}},
-		{"lint-releaser", func(ctx context.Context) error {
-			_, err := m.CacheBust(m.GoreleaserCheckBase("")).
-				WithExec([]string{"goreleaser", "check"}).
-				Sync(ctx)
-			return err
-		}},
 	}
 }
 

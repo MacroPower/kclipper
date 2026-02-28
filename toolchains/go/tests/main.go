@@ -28,8 +28,6 @@ func (m *Tests) All(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error { return m.TestSourceFiltering(ctx) })
-	g.Go(func() error { return m.TestFormatIdempotent(ctx) })
-	g.Go(func() error { return m.TestLintActionsClean(ctx) })
 	g.Go(func() error { return m.TestGenerateIdempotent(ctx) })
 	g.Go(func() error { return m.TestCoverageProfile(ctx) })
 	g.Go(func() error { return m.TestEnv(ctx) })
@@ -75,38 +73,6 @@ func (m *Tests) TestSourceFiltering(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// TestFormatIdempotent verifies that running the formatter on already-formatted
-// source produces an empty changeset. This exercises the full [Go.Format]
-// pipeline (golangci-lint --fix + prettier --write) and confirms the source is
-// clean.
-//
-// +check
-func (m *Tests) TestFormatIdempotent(ctx context.Context) error {
-	changeset := dag.Go().Format()
-
-	empty, err := changeset.IsEmpty(ctx)
-	if err != nil {
-		return fmt.Errorf("check changeset: %w", err)
-	}
-	if !empty {
-		modified, _ := changeset.ModifiedPaths(ctx)
-		added, _ := changeset.AddedPaths(ctx)
-		removed, _ := changeset.RemovedPaths(ctx)
-		return fmt.Errorf("expected empty changeset on clean source, modified=%v added=%v removed=%v",
-			modified, added, removed)
-	}
-	return nil
-}
-
-// TestLintActionsClean verifies that the GitHub Actions workflows pass
-// zizmor linting. This exercises the [Go.LintActions] check and catches
-// workflow security or syntax issues.
-//
-// +check
-func (m *Tests) TestLintActionsClean(ctx context.Context) error {
-	return dag.Go().LintActions(ctx)
 }
 
 // TestGenerateIdempotent verifies that running the generator on

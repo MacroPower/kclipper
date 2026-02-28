@@ -1,6 +1,5 @@
-// Reusable Go CI functions for testing, linting, formatting, and
-// publishing. Provides common pipeline stages that any Go project can
-// consume.
+// Reusable Go CI functions for testing, linting, and formatting.
+// Provides common pipeline stages that any Go project can consume.
 
 package main
 
@@ -14,18 +13,12 @@ import (
 )
 
 const (
-	defaultGoVersion    = "1.25"            // renovate: datasource=golang-version depName=go
-	golangciLintVersion = "v2.9"            // renovate: datasource=github-releases depName=golangci/golangci-lint
-	goreleaserVersion   = "v2.13.3"         // renovate: datasource=github-releases depName=goreleaser/goreleaser
-	prettierVersion     = "3.5.3"           // renovate: datasource=npm depName=prettier
-	zizmorVersion       = "1.22.0"          // renovate: datasource=github-releases depName=zizmorcore/zizmor
-	deadcodeVersion     = "v0.42.0"         // renovate: datasource=go depName=golang.org/x/tools
-	cosignVersion       = "v3.0.4"          // renovate: datasource=github-releases depName=sigstore/cosign
-	syftVersion         = "v1.41.1"         // renovate: datasource=github-releases depName=anchore/syft
+	defaultGoVersion    = "1.25" // renovate: datasource=golang-version depName=go
+	golangciLintVersion = "v2.9" // renovate: datasource=github-releases depName=golangci/golangci-lint
 )
 
-// Go provides reusable Go CI functions for testing, linting, formatting,
-// and publishing. Create instances with [New].
+// Go provides reusable Go CI functions for testing, linting, and
+// formatting. Create instances with [New].
 type Go struct {
 	// Go version used for base images and cache volume names.
 	Version string
@@ -321,16 +314,6 @@ func (m *Go) tidy() (*dagger.Changeset, error) {
 // Base containers
 // ---------------------------------------------------------------------------
 
-// GoBase returns a Go container with source, module cache, and build cache.
-// A static .git/HEAD file is injected into the source so that tools
-// can locate the repository root without a container exec. Module download
-// is cached via the base container.
-//
-// Deprecated: Use [Go.Env] instead.
-func (m *Go) GoBase() *dagger.Container {
-	return m.Env("")
-}
-
 // lintBase returns a golangci-lint container with source and caches. The
 // Debian-based image is used (not Alpine) because it includes kernel headers
 // needed by CGO transitive dependencies. The golangci-lint cache volume
@@ -347,76 +330,6 @@ func (m *Go) lintBase() *dagger.Container {
 		WithExec([]string{"go", "mod", "download"}).
 		WithMountedDirectory("/src", m.Source).
 		WithMountedCache("/root/.cache/golangci-lint", dag.CacheVolume("golangci-lint-"+golangciLintVersion))
-}
-
-// PrettierBase returns a Node container with prettier pre-installed.
-// Callers must mount their source directory and set the workdir.
-func (m *Go) PrettierBase() *dagger.Container {
-	return dag.Container().
-		From("node:lts-slim").
-		WithMountedCache("/root/.npm", dag.CacheVolume("npm-cache")).
-		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
-}
-
-// GoreleaserCheckBase returns a lightweight container with only Go,
-// GoReleaser, and the project source. This is sufficient for
-// goreleaser check which only validates config syntax.
-func (m *Go) GoreleaserCheckBase(
-	// Remote URL to configure as origin. Some GoReleaser configs
-	// reference a git remote; pass the repo URL when needed.
-	// +optional
-	remoteURL string,
-) *dagger.Container {
-	ctr := dag.Container().
-		From("golang:"+m.Version).
-		// Install GoReleaser from its official OCI image.
-		WithFile("/usr/local/bin/goreleaser",
-			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
-				File("/usr/bin/goreleaser")).
-		WithMountedCache("/go/pkg/mod", m.ModuleCache).
-		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", m.BuildCache).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
-		WithDirectory("/src", m.GoMod).
-		WithWorkdir("/src").
-		WithExec([]string{"go", "mod", "download"}).
-		WithMountedDirectory("/src", m.Source)
-	return m.EnsureGitRepo(ctr, remoteURL)
-}
-
-// ReleaserBase returns a container with Go, GoReleaser, cosign, syft,
-// module cache, build cache, and a committed git repository. This is the
-// starting point for running goreleaser release with signing and SBOM
-// support. Project-specific tools (cross-compilers, SDKs) can be layered
-// on top by the caller.
-//
-// Unlike [Go.GoreleaserCheckBase], which is intentionally lightweight for
-// config validation, this method installs the complete release toolset.
-func (m *Go) ReleaserBase(
-	// Remote URL to configure as origin.
-	// +optional
-	remoteURL string,
-) *dagger.Container {
-	ctr := dag.Container().
-		From("golang:"+m.Version).
-		WithFile("/usr/local/bin/goreleaser",
-			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
-				File("/usr/bin/goreleaser")).
-		WithFile("/usr/local/bin/cosign",
-			dag.Container().From("gcr.io/projectsigstore/cosign:"+cosignVersion).
-				File("/ko-app/cosign")).
-		WithFile("/usr/local/bin/syft",
-			dag.Container().From("ghcr.io/anchore/syft:"+syftVersion).
-				File("/syft")).
-		WithMountedCache("/go/pkg/mod", m.ModuleCache).
-		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-		WithMountedCache("/go/build-cache", m.BuildCache).
-		WithEnvVariable("GOCACHE", "/go/build-cache").
-		WithDirectory("/src", m.GoMod).
-		WithWorkdir("/src").
-		WithExec([]string{"go", "mod", "download"}).
-		WithMountedDirectory("/src", m.Source)
-	return m.EnsureGitRepo(ctr, remoteURL)
 }
 
 // ---------------------------------------------------------------------------
@@ -471,11 +384,3 @@ func (m *Go) EnsureGitRepo(
 	})
 }
 
-// defaultPrettierPatterns returns the default file patterns for prettier
-// formatting and linting.
-func defaultPrettierPatterns() []string {
-	return []string{
-		"*.yaml", "*.md", "*.json",
-		"**/*.yaml", "**/*.md", "**/*.json",
-	}
-}

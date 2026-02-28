@@ -115,10 +115,7 @@ func (m *Kclipper) benchmarkStages() []benchmarkStage {
 			return err
 		}},
 		{"lint", func(ctx context.Context) error {
-			_, err := m.Go.CacheBust(m.Go.LintBase()).
-				WithExec([]string{"golangci-lint", "run"}).
-				Sync(ctx)
-			return err
+			return m.Go.Lint(ctx)
 		}},
 		{"test", func(ctx context.Context) error {
 			_, err := m.Go.CacheBust(m.Go.Env(dagger.GoEnvOpts{})).
@@ -127,20 +124,19 @@ func (m *Kclipper) benchmarkStages() []benchmarkStage {
 			return err
 		}},
 		{"lint-prettier", func(ctx context.Context) error {
-			_, err := m.Go.CacheBust(m.Go.PrettierBase()).
+			_, err := m.Go.CacheBust(m.prettierBase()).
 				WithMountedDirectory("/src", m.Source).
 				WithWorkdir("/src").
-				WithExec([]string{
-					"prettier", "--config", "./.prettierrc.yaml", "--check",
-					"*.yaml", "*.md", "*.json",
-					"**/*.yaml", "**/*.md", "**/*.json",
-				}).
+				WithExec(append(
+					[]string{"prettier", "--config", "./.prettierrc.yaml", "--check"},
+					defaultPrettierPatterns()...,
+				)).
 				Sync(ctx)
 			return err
 		}},
 		{"lint-actions", func(ctx context.Context) error {
 			_, err := m.Go.CacheBust(dag.Container().
-				From("ghcr.io/zizmorcore/zizmor:1.22.0")).
+				From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion)).
 				WithMountedDirectory("/src", m.Source).
 				WithWorkdir("/src").
 				WithExec([]string{
@@ -150,9 +146,7 @@ func (m *Kclipper) benchmarkStages() []benchmarkStage {
 			return err
 		}},
 		{"lint-releaser", func(ctx context.Context) error {
-			_, err := m.Go.CacheBust(m.Go.GoreleaserCheckBase(dagger.GoGoreleaserCheckBaseOpts{
-				RemoteURL: kclipperCloneURL,
-			})).
+			_, err := m.Go.CacheBust(m.goreleaserCheckBase(kclipperCloneURL)).
 				WithExec([]string{"goreleaser", "check"}).
 				Sync(ctx)
 			return err

@@ -1,21 +1,23 @@
 // CI/CD functions specific to the kclipper project. Provides building,
-// releasing, benchmarking, and development container support. Generic CI
-// functions (testing, linting, formatting) are provided by the [Go] toolchain
-// module; this module adds kclipper-specific logic that depends on the project
-// clone URL, cross-compilation tooling, and runtime image configuration.
+// releasing, linting non-Go files, benchmarking, and development container
+// support. Generic Go CI functions (testing, Go linting, Go formatting) are
+// provided by the [Go] toolchain module; this module adds kclipper-specific
+// logic and project-level tooling (prettier, zizmor, goreleaser, cosign,
+// syft, deadcode).
 
 package main
 
-import (
-	"context"
-
-	"dagger/kclipper/internal/dagger"
-)
+import "dagger/kclipper/internal/dagger"
 
 const (
-	cosignVersion = "v3.0.4"  // renovate: datasource=github-releases depName=sigstore/cosign
-	zigVersion    = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
-	kclLSPVersion = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
+	goreleaserVersion = "v2.13.3"  // renovate: datasource=github-releases depName=goreleaser/goreleaser
+	prettierVersion   = "3.5.3"    // renovate: datasource=npm depName=prettier
+	zizmorVersion     = "1.22.0"   // renovate: datasource=github-releases depName=zizmorcore/zizmor
+	deadcodeVersion   = "v0.42.0"  // renovate: datasource=go depName=golang.org/x/tools
+	cosignVersion     = "v3.0.4"   // renovate: datasource=github-releases depName=sigstore/cosign
+	syftVersion       = "v1.41.1"  // renovate: datasource=github-releases depName=anchore/syft
+	zigVersion        = "0.15.2"   // renovate: datasource=github-releases depName=ziglang/zig
+	kclLSPVersion     = "v0.11.2"  // renovate: datasource=github-releases depName=kcl-lang/kcl
 
 	defaultRegistry = "ghcr.io/macropower/kclipper"
 
@@ -91,17 +93,47 @@ func (m *Kclipper) Binary(
 	})
 }
 
-// LintReleaser validates the GoReleaser configuration. Uses
-// [Go.GoreleaserCheckBase] with the kclipper remote URL because the
-// goreleaser config references a git remote for homebrew/nix repository
-// resolution.
-//
-// +check
-func (m *Kclipper) LintReleaser(ctx context.Context) error {
-	_, err := m.Go.GoreleaserCheckBase(dagger.GoGoreleaserCheckBaseOpts{
-		RemoteURL: kclipperCloneURL,
-	}).
-		WithExec([]string{"goreleaser", "check"}).
-		Sync(ctx)
-	return err
+// ---------------------------------------------------------------------------
+// Base containers (private)
+// ---------------------------------------------------------------------------
+
+// prettierBase returns a Node container with prettier pre-installed.
+// Callers must mount their source directory and set the workdir.
+func (m *Kclipper) prettierBase() *dagger.Container {
+	return dag.Container().
+		From("node:lts-slim").
+		WithMountedCache("/root/.npm", dag.CacheVolume("npm-cache")).
+		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
+}
+
+// goreleaserCheckBase returns a lightweight container with only Go,
+// GoReleaser, and the project source. This is sufficient for
+// goreleaser check which only validates config syntax.
+func (m *Kclipper) goreleaserCheckBase(remoteURL string) *dagger.Container {
+	ctr := dag.Container().
+		From("golang:"+m.Go.Version()).
+		// Install GoReleaser from its official OCI image.
+		WithFile("/usr/local/bin/goreleaser",
+			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
+				File("/usr/bin/goreleaser")).
+		WithMountedCache("/go/pkg/mod", m.Go.ModuleCache()).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", m.Go.BuildCache()).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithDirectory("/src", m.GoMod).
+		WithWorkdir("/src").
+		WithExec([]string{"go", "mod", "download"}).
+		WithMountedDirectory("/src", m.Source)
+	return m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
+		RemoteURL: remoteURL,
+	})
+}
+
+// defaultPrettierPatterns returns the default file patterns for prettier
+// formatting and linting.
+func defaultPrettierPatterns() []string {
+	return []string{
+		"*.yaml", "*.md", "*.json",
+		"**/*.yaml", "**/*.md", "**/*.json",
+	}
 }

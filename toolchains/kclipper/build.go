@@ -95,13 +95,32 @@ func runtimeBase(platform dagger.Platform) *dagger.Container {
 
 // releaserBase returns a container with Go, GoReleaser, cosign, syft, Zig,
 // pre-downloaded KCL Language Server binaries, and macOS SDK headers needed
-// for CGO cross-compilation. The generic release toolset (Go, GoReleaser,
-// cosign, syft, module cache, git repo) is provided by [Go.ReleaserBase];
-// this method layers kclipper-specific tools on top.
+// for CGO cross-compilation. Provides the complete release toolset for
+// goreleaser release with signing, SBOM, and cross-compilation support.
 func (m *Kclipper) releaserBase() *dagger.Container {
-	return m.Go.ReleaserBase(dagger.GoReleaserBaseOpts{
+	ctr := dag.Container().
+		From("golang:"+m.Go.Version()).
+		WithFile("/usr/local/bin/goreleaser",
+			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
+				File("/usr/bin/goreleaser")).
+		WithFile("/usr/local/bin/cosign",
+			dag.Container().From("gcr.io/projectsigstore/cosign:"+cosignVersion).
+				File("/ko-app/cosign")).
+		WithFile("/usr/local/bin/syft",
+			dag.Container().From("ghcr.io/anchore/syft:"+syftVersion).
+				File("/syft")).
+		WithMountedCache("/go/pkg/mod", m.Go.ModuleCache()).
+		WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+		WithMountedCache("/go/build-cache", m.Go.BuildCache()).
+		WithEnvVariable("GOCACHE", "/go/build-cache").
+		WithDirectory("/src", m.GoMod).
+		WithWorkdir("/src").
+		WithExec([]string{"go", "mod", "download"}).
+		WithMountedDirectory("/src", m.Source)
+	ctr = m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
 		RemoteURL: kclipperCloneURL,
-	}).
+	})
+	return ctr.
 		// Install Zig for CGO cross-compilation.
 		WithExec([]string{
 			"sh", "-c",

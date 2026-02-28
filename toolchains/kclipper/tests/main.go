@@ -34,6 +34,8 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestFormatDigestChecksums(ctx) })
 	g.Go(func() error { return m.TestDeduplicateDigests(ctx) })
 	g.Go(func() error { return m.TestRegistryHost(ctx) })
+	g.Go(func() error { return m.TestFormatIdempotent(ctx) })
+	g.Go(func() error { return m.TestLintActionsClean(ctx) })
 
 	return g.Wait()
 }
@@ -234,9 +236,9 @@ func (m *Tests) TestLintReleaserClean(ctx context.Context) error {
 }
 
 // TestLintDeadcodeClean verifies that the codebase has no unreachable
-// functions. This exercises [Go.LintDeadcode].
+// functions. This exercises [Kclipper.LintDeadcode].
 func (m *Tests) TestLintDeadcodeClean(ctx context.Context) error {
-	return dag.Go().LintDeadcode(ctx)
+	return dag.Kclipper().LintDeadcode(ctx)
 }
 
 // TestBinary verifies that [Kclipper.Binary] compiles the kcl binary.
@@ -252,6 +254,38 @@ func (m *Tests) TestBinary(ctx context.Context) error {
 		return fmt.Errorf("binary has zero size")
 	}
 	return nil
+}
+
+// TestFormatIdempotent verifies that running the formatter on already-formatted
+// source produces an empty changeset. This exercises the full
+// [Kclipper.Format] pipeline (golangci-lint --fix + prettier --write) and
+// confirms the source is clean.
+//
+// +check
+func (m *Tests) TestFormatIdempotent(ctx context.Context) error {
+	changeset := dag.Kclipper().Format()
+
+	empty, err := changeset.IsEmpty(ctx)
+	if err != nil {
+		return fmt.Errorf("check changeset: %w", err)
+	}
+	if !empty {
+		modified, _ := changeset.ModifiedPaths(ctx)
+		added, _ := changeset.AddedPaths(ctx)
+		removed, _ := changeset.RemovedPaths(ctx)
+		return fmt.Errorf("expected empty changeset on clean source, modified=%v added=%v removed=%v",
+			modified, added, removed)
+	}
+	return nil
+}
+
+// TestLintActionsClean verifies that the GitHub Actions workflows pass
+// zizmor linting. This exercises the [Kclipper.LintActions] check and catches
+// workflow security or syntax issues.
+//
+// +check
+func (m *Tests) TestLintActionsClean(ctx context.Context) error {
+	return dag.Kclipper().LintActions(ctx)
 }
 
 // TestVersionTags verifies that [Kclipper.VersionTags] returns the expected
