@@ -3,9 +3,9 @@
 pre-commit:
   commands:
     pre-commit:
-      run: dagger --silent check
+      run: dagger --progress=logs check
 
 commit-msg:
   commands:
     commitlint:
-      run: dagger --silent call commitlint lint --source=. --msg-file={1}
+      run: dagger --progress=logs call commitlint lint --source=. --msg-file={1}

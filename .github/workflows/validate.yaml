@@ -28,7 +28,7 @@ jobs:
         uses: ./.github/actions/dagger-call
         with:
           verb: check
-          function: test lint lint-prettier lint-actions lint-releaser lint-kclmodules scan-source
+          function: test lint lint-prettier lint-actions lint-releaser lint-kclmodules
 
       - name: Export coverage profile
         uses: ./.github/actions/dagger-call

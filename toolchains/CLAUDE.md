@@ -36,7 +36,7 @@ Five Dagger toolchain modules work together:
   `toolchains/commitlint/` with its own `dagger.json`. Independent of all
   other toolchains.
 - **`security`** (toolchain) — Standalone vulnerability scanning module using
-  Trivy. Scans source dependencies (`ScanSource`, `+check`) and container
+  Trivy. Scans source dependencies (`ScanSource`, callable) and container
   images (`ScanImage`, callable). Lives at `toolchains/security/` with its own
   `dagger.json`. Independent of all other toolchains.
 - **`kclipper`** (toolchain) — Kclipper-specific CI layer that depends on `go`
@@ -61,7 +61,7 @@ toolchains/
     tests/           # Commitlint tests
   security/
     dagger.json      # Standalone module config (name=security)
-    main.go          # Struct, constructor, ScanSource (+check), ScanImage
+    main.go          # Struct, constructor, ScanSource, ScanImage
   dev/
     dagger.json      # Reusable module config (name=dev)
     main.go          # Dev container functions
@@ -89,7 +89,7 @@ tooling.
 
 | `go` toolchain (Go CI)                  | `commitlint` toolchain   | `security` toolchain | `dev` toolchain (dev containers)  | `kclipper` toolchain (kclipper-specific)                                  |
 | --------------------------------------- | ------------------------ | -------------------- | --------------------------------- | ------------------------------------------------------------------------- |
-| Test (+check), TestCoverage             | Lint                     | ScanSource (+check)  | DevBase, DevEnv, Dev              | Build, Release, ReleaseDryRun                                             |
+| Test (+check), TestCoverage             | Lint                     | ScanSource           | DevBase, DevEnv, Dev              | Build, Release, ReleaseDryRun                                             |
 | Lint (+check), LintModule               |                          | ScanImage            | applyDevConfig, devToolBins       | BuildImages, PublishImages, PublishKCLModules, publishImages              |
 | FormatGo, FormatGoModule                |                          | trivyBase (private)  | claudeCodeFiles, sanitizeCacheKey | LintReleaser (+check), LintPrettier (+check), LintActions (+check)        |
 | Generate (+generate)                    |                          | Trivy image version  | Shell/tool version constants      | LintKCLModules (+check), LintDeadcode (advisory)                          |

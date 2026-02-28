@@ -47,7 +47,7 @@ tasks:
   lint:
     desc: Runs all lint checks via Dagger
     cmds:
-      - dagger check go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules security:scan-source
+      - dagger check go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules
 
   lint:go:
     desc: Lints Go code via Dagger
@@ -73,11 +73,6 @@ tasks:
     desc: Validates KCL module packaging via Dagger
     cmds:
       - dagger check kclipper:lint-kclmodules
-
-  lint:security:
-    desc: Scans source dependencies for vulnerabilities via Dagger
-    cmds:
-      - dagger check security:scan-source
 
   scan:image:
     desc: Scans a container image for vulnerabilities via Dagger

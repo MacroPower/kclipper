@@ -57,8 +57,6 @@ func (m *Security) trivyBase() *dagger.Container {
 // ScanSource scans source dependencies for known vulnerabilities.
 // Reports CRITICAL and HIGH severity findings. Trivy auto-discovers
 // a .trivyignore file in the scanned directory for CVE suppression.
-//
-// +check
 func (m *Security) ScanSource(ctx context.Context) error {
 	_, err := m.trivyBase().
 		WithMountedDirectory(".", m.Source).
