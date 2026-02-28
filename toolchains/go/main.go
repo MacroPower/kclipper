@@ -60,7 +60,6 @@ type Go struct {
 func New(
 	// Project source directory.
 	// +defaultPath="/"
-	// +ignore=["dist", ".worktrees", ".tmp", ".git"]
 	source *dagger.Directory,
 	// Go module files (go.mod and go.sum only). Synced separately from
 	// source so that the go mod download layer is cached independently
