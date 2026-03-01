@@ -183,6 +183,383 @@
       "title": "h2c",
       "type": "object"
     },
+    "hooks": {
+      "additionalProperties": true,
+      "description": "Helm hooks (for testing purposes)",
+      "properties": {
+        "postDelete": {
+          "additionalProperties": true,
+          "properties": {
+            "job": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "exitCode": {
+                  "default": 0,
+                  "required": [],
+                  "title": "exitCode",
+                  "type": "integer"
+                },
+                "hookDeletePolicy": {
+                  "default": "hook-succeeded,hook-failed",
+                  "required": [],
+                  "title": "hookDeletePolicy",
+                  "type": "string"
+                },
+                "sleepSeconds": {
+                  "default": "",
+                  "required": [],
+                  "title": "sleepSeconds",
+                  "type": "null"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": "",
+                  "required": [],
+                  "title": "ttlSecondsAfterFinished",
+                  "type": "null"
+                }
+              },
+              "required": [],
+              "title": "job",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "postDelete",
+          "type": "object"
+        },
+        "postInstall": {
+          "additionalProperties": true,
+          "properties": {
+            "job": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "exitCode": {
+                  "default": 0,
+                  "required": [],
+                  "title": "exitCode",
+                  "type": "integer"
+                },
+                "hookDeletePolicy": {
+                  "default": "hook-succeeded,hook-failed",
+                  "required": [],
+                  "title": "hookDeletePolicy",
+                  "type": "string"
+                },
+                "sleepSeconds": {
+                  "default": "",
+                  "required": [],
+                  "title": "sleepSeconds",
+                  "type": "null"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": "",
+                  "required": [],
+                  "title": "ttlSecondsAfterFinished",
+                  "type": "null"
+                }
+              },
+              "required": [],
+              "title": "job",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "postInstall",
+          "type": "object"
+        },
+        "postRollback": {
+          "additionalProperties": true,
+          "properties": {
+            "job": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "exitCode": {
+                  "default": 0,
+                  "required": [],
+                  "title": "exitCode",
+                  "type": "integer"
+                },
+                "hookDeletePolicy": {
+                  "default": "hook-succeeded,hook-failed",
+                  "required": [],
+                  "title": "hookDeletePolicy",
+                  "type": "string"
+                },
+                "sleepSeconds": {
+                  "default": "",
+                  "required": [],
+                  "title": "sleepSeconds",
+                  "type": "null"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": "",
+                  "required": [],
+                  "title": "ttlSecondsAfterFinished",
+                  "type": "null"
+                }
+              },
+              "required": [],
+              "title": "job",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "postRollback",
+          "type": "object"
+        },
+        "postUpgrade": {
+          "additionalProperties": true,
+          "properties": {
+            "job": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "exitCode": {
+                  "default": 0,
+                  "required": [],
+                  "title": "exitCode",
+                  "type": "integer"
+                },
+                "hookDeletePolicy": {
+                  "default": "hook-succeeded,hook-failed",
+                  "required": [],
+                  "title": "hookDeletePolicy",
+                  "type": "string"
+                },
+                "sleepSeconds": {
+                  "default": "",
+                  "required": [],
+                  "title": "sleepSeconds",
+                  "type": "null"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": "",
+                  "required": [],
+                  "title": "ttlSecondsAfterFinished",
+                  "type": "null"
+                }
+              },
+              "required": [],
+              "title": "job",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "postUpgrade",
+          "type": "object"
+        },
+        "preDelete": {
+          "additionalProperties": true,
+          "properties": {
+            "job": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "exitCode": {
+                  "default": 0,
+                  "required": [],
+                  "title": "exitCode",
+                  "type": "integer"
+                },
+                "hookDeletePolicy": {
+                  "default": "hook-succeeded,hook-failed",
+                  "required": [],
+                  "title": "hookDeletePolicy",
+                  "type": "string"
+                },
+                "sleepSeconds": {
+                  "default": "",
+                  "required": [],
+                  "title": "sleepSeconds",
+                  "type": "null"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": "",
+                  "required": [],
+                  "title": "ttlSecondsAfterFinished",
+                  "type": "null"
+                }
+              },
+              "required": [],
+              "title": "job",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "preDelete",
+          "type": "object"
+        },
+        "preInstall": {
+          "additionalProperties": true,
+          "properties": {
+            "job": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "exitCode": {
+                  "default": 0,
+                  "required": [],
+                  "title": "exitCode",
+                  "type": "integer"
+                },
+                "hookDeletePolicy": {
+                  "default": "hook-succeeded,hook-failed",
+                  "required": [],
+                  "title": "hookDeletePolicy",
+                  "type": "string"
+                },
+                "sleepSeconds": {
+                  "default": "",
+                  "required": [],
+                  "title": "sleepSeconds",
+                  "type": "null"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": "",
+                  "required": [],
+                  "title": "ttlSecondsAfterFinished",
+                  "type": "null"
+                }
+              },
+              "required": [],
+              "title": "job",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "preInstall",
+          "type": "object"
+        },
+        "preRollback": {
+          "additionalProperties": true,
+          "properties": {
+            "job": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "exitCode": {
+                  "default": 0,
+                  "required": [],
+                  "title": "exitCode",
+                  "type": "integer"
+                },
+                "hookDeletePolicy": {
+                  "default": "hook-succeeded,hook-failed",
+                  "required": [],
+                  "title": "hookDeletePolicy",
+                  "type": "string"
+                },
+                "sleepSeconds": {
+                  "default": "",
+                  "required": [],
+                  "title": "sleepSeconds",
+                  "type": "null"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": "",
+                  "required": [],
+                  "title": "ttlSecondsAfterFinished",
+                  "type": "null"
+                }
+              },
+              "required": [],
+              "title": "job",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "preRollback",
+          "type": "object"
+        },
+        "preUpgrade": {
+          "additionalProperties": true,
+          "properties": {
+            "job": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "exitCode": {
+                  "default": 0,
+                  "required": [],
+                  "title": "exitCode",
+                  "type": "integer"
+                },
+                "hookDeletePolicy": {
+                  "default": "hook-succeeded,hook-failed",
+                  "required": [],
+                  "title": "hookDeletePolicy",
+                  "type": "string"
+                },
+                "sleepSeconds": {
+                  "default": "",
+                  "required": [],
+                  "title": "sleepSeconds",
+                  "type": "null"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": "",
+                  "required": [],
+                  "title": "ttlSecondsAfterFinished",
+                  "type": "null"
+                }
+              },
+              "required": [],
+              "title": "job",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "preUpgrade",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "hooks",
+      "type": "object"
+    },
     "host": {
       "default": "",
       "required": [],
@@ -231,6 +608,116 @@
       "title": "hpa",
       "type": "object"
     },
+    "httpRoute": {
+      "additionalProperties": true,
+      "description": "Expose the service via Gateway HTTPRoute\nRequires a Gateway controller\nDocs https://gateway-api.sigs.k8s.io/guides/",
+      "properties": {
+        "additionalLabels": {
+          "additionalProperties": true,
+          "description": "Add additional labels to the HTTPRoute.",
+          "required": [],
+          "title": "additionalLabels",
+          "type": "object"
+        },
+        "annotations": {
+          "additionalProperties": true,
+          "description": "HTTPRoute annotations.",
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "enabled": {
+          "default": false,
+          "description": "HTTPRoute enabled.",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "hostnames": {
+          "description": "Hostnames matching HTTP header.",
+          "items": {
+            "required": [],
+            "type": "string"
+          },
+          "required": [],
+          "title": "hostnames",
+          "type": "array"
+        },
+        "parentRefs": {
+          "description": "Which Gateways this Route is attached to.",
+          "items": {
+            "additionalProperties": true,
+            "properties": {
+              "name": {
+                "default": "gateway",
+                "required": [],
+                "title": "name",
+                "type": "string"
+              },
+              "sectionName": {
+                "default": "http",
+                "required": [],
+                "title": "sectionName",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "required": [],
+          "title": "parentRefs",
+          "type": "array"
+        },
+        "rules": {
+          "description": "List of rules and filters applied.",
+          "items": {
+            "additionalProperties": true,
+            "properties": {
+              "matches": {
+                "items": {
+                  "additionalProperties": true,
+                  "properties": {
+                    "path": {
+                      "additionalProperties": true,
+                      "properties": {
+                        "type": {
+                          "default": "PathPrefix",
+                          "required": [],
+                          "title": "type",
+                          "type": "string"
+                        },
+                        "value": {
+                          "default": "/",
+                          "required": [],
+                          "title": "value",
+                          "type": "string"
+                        }
+                      },
+                      "required": [],
+                      "title": "path",
+                      "type": "object"
+                    }
+                  },
+                  "required": [],
+                  "type": "object"
+                },
+                "required": [],
+                "title": "matches",
+                "type": "array"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "required": [],
+          "title": "rules",
+          "type": "array"
+        }
+      },
+      "required": [],
+      "title": "httpRoute",
+      "type": "object"
+    },
     "image": {
       "additionalProperties": true,
       "properties": {
@@ -240,6 +727,14 @@
           "title": "pullPolicy",
           "type": "string"
         },
+        "pullSecrets": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "pullSecrets",
+          "type": "array"
+        },
         "repository": {
           "default": "ghcr.io/stefanprodan/podinfo",
           "required": [],
@@ -247,7 +742,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "6.7.1",
+          "default": "6.10.2",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -259,6 +754,7 @@
     },
     "ingress": {
       "additionalProperties": true,
+      "description": "Expose the service via Kubernetes Ingress\nRequires an Ingress controller\nDocs https://kubernetes.io/docs/concepts/services-networking/ingress/",
       "properties": {
         "additionalLabels": {
           "additionalProperties": true,
@@ -340,28 +836,6 @@
       "title": "ingress",
       "type": "object"
     },
-    "linkerd": {
-      "additionalProperties": true,
-      "properties": {
-        "profile": {
-          "additionalProperties": true,
-          "properties": {
-            "enabled": {
-              "default": false,
-              "required": [],
-              "title": "enabled",
-              "type": "boolean"
-            }
-          },
-          "required": [],
-          "title": "profile",
-          "type": "object"
-        }
-      },
-      "required": [],
-      "title": "linkerd",
-      "type": "object"
-    },
     "logLevel": {
       "default": "info",
       "required": [],
@@ -385,6 +859,13 @@
       "description": "Disruption budget will be configured only when the replicaCount is greater than 1",
       "required": [],
       "title": "podDisruptionBudget",
+      "type": "object"
+    },
+    "podSecurityContext": {
+      "additionalProperties": true,
+      "description": "set pod security context",
+      "required": [],
+      "title": "podSecurityContext",
       "type": "object"
     },
     "probes": {
@@ -526,14 +1007,22 @@
           "title": "enabled",
           "type": "boolean"
         },
+        "imagePullSecrets": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "imagePullSecrets",
+          "type": "array"
+        },
         "repository": {
-          "default": "redis",
+          "default": "docker.io/redis",
           "required": [],
           "title": "repository",
           "type": "string"
         },
         "tag": {
-          "default": "7.0.7",
+          "default": "8.6.1",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -602,6 +1091,12 @@
       "additionalProperties": true,
       "description": "Kubernetes Service settings",
       "properties": {
+        "additionalLabels": {
+          "additionalProperties": true,
+          "required": [],
+          "title": "additionalLabels",
+          "type": "object"
+        },
         "annotations": {
           "additionalProperties": true,
           "required": [],
@@ -619,6 +1114,12 @@
           "required": [],
           "title": "externalPort",
           "type": "integer"
+        },
+        "externalTrafficPolicy": {
+          "default": "",
+          "required": [],
+          "title": "externalTrafficPolicy",
+          "type": "string"
         },
         "grpcPort": {
           "default": 9999,
@@ -656,6 +1157,13 @@
           "required": [],
           "title": "nodePort",
           "type": "integer"
+        },
+        "trafficDistribution": {
+          "default": "",
+          "description": "Stable from Kubernetes v1.33+ with a value of PreferClose. Additional values are PreferSameZone and PreferSameNode from v1.34+. Empty string means it's disabled.",
+          "required": [],
+          "title": "trafficDistribution",
+          "type": "string"
         },
         "type": {
           "default": "ClusterIP",
