@@ -6,7 +6,7 @@ require (
 	charm.land/bubbles/v2 v2.0.0-rc.1
 	charm.land/bubbletea/v2 v2.0.0-rc.2.0.20251212194116-6348bd4b7475
 	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251205162909-7869489d8971
-	github.com/charmbracelet/fang v0.4.4
+	github.com/charmbracelet/fang/v2 v2.0.1
 	github.com/charmbracelet/x/ansi v0.11.6
 	github.com/charmbracelet/x/exp/golden v0.0.0-20250806222409-83e3a29d542f
 	github.com/dadav/go-jsonpointer v0.0.0-20240918181927-335cbee8c279
