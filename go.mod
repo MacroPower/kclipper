@@ -28,7 +28,7 @@ require (
 	kcl-lang.io/cli v0.12.3
 	kcl-lang.io/kcl-go v0.12.3
 	kcl-lang.io/kcl-openapi v0.10.1
-	kcl-lang.io/kpm v0.12.3
+	kcl-lang.io/kpm v0.12.4
 )
 
 require (
@@ -177,7 +177,7 @@ require (
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/kubescape/go-git-url v0.0.30 // indirect
+	github.com/kubescape/go-git-url v0.0.31 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
