@@ -25,10 +25,10 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.20.0
 	k8s.io/apimachinery v0.35.1
-	kcl-lang.io/cli v0.12.3
+	kcl-lang.io/cli v0.12.4
 	kcl-lang.io/kcl-go v0.12.3
-	kcl-lang.io/kcl-openapi v0.10.1
-	kcl-lang.io/kpm v0.12.3
+	kcl-lang.io/kcl-openapi v0.10.2
+	kcl-lang.io/kpm v0.12.4
 )
 
 require (
@@ -177,7 +177,7 @@ require (
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/kubescape/go-git-url v0.0.30 // indirect
+	github.com/kubescape/go-git-url v0.0.31 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
@@ -268,7 +268,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.48.0 // indirect
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
-	golang.org/x/mod v0.33.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/net v0.50.0 // indirect
 	golang.org/x/oauth2 v0.32.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
