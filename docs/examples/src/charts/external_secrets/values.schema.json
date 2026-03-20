@@ -53,9 +53,20 @@
           "required": [],
           "type": "array"
         },
+        "hostAliases": {
+          "required": [],
+          "type": "array"
+        },
         "hostNetwork": {
           "required": [],
           "type": "boolean"
+        },
+        "hostUsers": {
+          "required": [],
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "image": {
           "properties": {
@@ -375,6 +386,14 @@
         "createPushSecret": {
           "required": [],
           "type": "boolean"
+        },
+        "createSecretStore": {
+          "required": [],
+          "type": "boolean"
+        },
+        "unsafeServeV1Beta1": {
+          "required": [],
+          "type": "boolean"
         }
       },
       "required": [],
@@ -436,6 +455,20 @@
       "required": [],
       "type": "string"
     },
+    "genericTargets": {
+      "properties": {
+        "enabled": {
+          "required": [],
+          "type": "boolean"
+        },
+        "resources": {
+          "required": [],
+          "type": "array"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
     "global": {
       "properties": {
         "affinity": {
@@ -458,9 +491,29 @@
           "required": [],
           "type": "object"
         },
+        "hostAliases": {
+          "required": [],
+          "type": "array"
+        },
+        "imagePullSecrets": {
+          "required": [],
+          "type": "array"
+        },
         "nodeSelector": {
           "required": [],
           "type": "object"
+        },
+        "podAnnotations": {
+          "required": [],
+          "type": "object"
+        },
+        "podLabels": {
+          "required": [],
+          "type": "object"
+        },
+        "repository": {
+          "required": [],
+          "type": "string"
         },
         "tolerations": {
           "required": [],
@@ -500,9 +553,20 @@
       "required": [],
       "type": "object"
     },
+    "hostAliases": {
+      "required": [],
+      "type": "array"
+    },
     "hostNetwork": {
       "required": [],
       "type": "boolean"
+    },
+    "hostUsers": {
+      "required": [],
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "image": {
       "properties": {
@@ -576,6 +640,10 @@
               "type": "integer"
             },
             "periodSeconds": {
+              "required": [],
+              "type": "integer"
+            },
+            "port": {
               "required": [],
               "type": "integer"
             },
@@ -748,6 +816,10 @@
       "required": [],
       "type": "boolean"
     },
+    "processSecretStore": {
+      "required": [],
+      "type": "boolean"
+    },
     "rbac": {
       "properties": {
         "aggregateToEdit": {
@@ -767,6 +839,59 @@
             "create": {
               "required": [],
               "type": "boolean"
+            }
+          },
+          "required": [],
+          "type": "object"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "readinessProbe": {
+      "properties": {
+        "enabled": {
+          "required": [],
+          "type": "boolean"
+        },
+        "spec": {
+          "properties": {
+            "failureThreshold": {
+              "required": [],
+              "type": "integer"
+            },
+            "httpGet": {
+              "properties": {
+                "path": {
+                  "required": [],
+                  "type": "string"
+                },
+                "port": {
+                  "required": [],
+                  "type": [
+                    "string",
+                    "integer"
+                  ]
+                }
+              },
+              "required": [],
+              "type": "object"
+            },
+            "initialDelaySeconds": {
+              "required": [],
+              "type": "integer"
+            },
+            "periodSeconds": {
+              "required": [],
+              "type": "integer"
+            },
+            "successThreshold": {
+              "required": [],
+              "type": "integer"
+            },
+            "timeoutSeconds": {
+              "required": [],
+              "type": "integer"
             }
           },
           "required": [],
@@ -1005,6 +1130,10 @@
                   "required": [],
                   "type": "object"
                 },
+                "privateKey": {
+                  "required": [],
+                  "type": "object"
+                },
                 "renewBefore": {
                   "required": [],
                   "type": "string"
@@ -1012,6 +1141,10 @@
                 "revisionHistoryLimit": {
                   "required": [],
                   "type": "integer"
+                },
+                "signatureAlgorithm": {
+                  "required": [],
+                  "type": "string"
                 }
               },
               "required": [],
@@ -1057,9 +1190,20 @@
           "required": [],
           "type": "string"
         },
+        "hostAliases": {
+          "required": [],
+          "type": "array"
+        },
         "hostNetwork": {
           "required": [],
           "type": "boolean"
+        },
+        "hostUsers": {
+          "required": [],
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "image": {
           "properties": {
