@@ -91,7 +91,7 @@ Kubernetes resource.
 
 ### ValueInferenceConfig
 
-ValueInferenceConfig defines configuration for value inference via dadav/helm-schema.
+ValueInferenceConfig defines configuration for value inference via magicschema.
 
 #### Attributes
 

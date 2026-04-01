@@ -125,14 +125,9 @@ func (g *ReaderGenerator) FromReader(r io.Reader, refBasePath string) ([]byte, e
 }
 
 func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, error) {
-	hs, err := unmarshalHelmSchema(data)
+	hs, err := unmarshalSchema(data)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
-	}
-
-	err = hs.Validate()
-	if err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
 	}
 
 	err = handleSchemaRefs(hs, refBasePath)
@@ -140,16 +135,11 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 		return nil, fmt.Errorf("handle schema refs: %w", err)
 	}
 
-	err = hs.Validate()
-	if err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
-	}
-
 	if len(hs.Properties) == 0 {
 		return nil, errors.New("empty schema")
 	}
 
-	resolvedData, err := hs.ToJson()
+	resolvedData, err := marshalSchemaIndent(hs)
 	if err != nil {
 		return nil, fmt.Errorf("convert schema to JSON: %w", err)
 	}

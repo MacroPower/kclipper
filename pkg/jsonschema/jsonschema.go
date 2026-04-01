@@ -1,14 +1,15 @@
 package jsonschema
 
 import (
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	"gopkg.in/yaml.v3"
+	"go.jacobcolvin.com/niceyaml"
 
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
+	gjs "github.com/google/jsonschema-go/jsonschema"
 )
 
 type (
@@ -114,22 +115,38 @@ func isJSONFile(f string) bool {
 	return filepath.Ext(f) == ".json"
 }
 
-// unmarshalHelmSchema unmarshals data (JSON or YAML) into a [helmschema.Schema].
+// unmarshalSchema unmarshals data (JSON or YAML) into a [gjs.Schema].
 // YAML is a superset of JSON, so this works for both formats.
-func unmarshalHelmSchema(data []byte) (*helmschema.Schema, error) {
-	var node yaml.Node
+func unmarshalSchema(data []byte) (*gjs.Schema, error) {
+	var v any
 
-	err := yaml.Unmarshal(data, &node)
+	src := niceyaml.NewSourceFromBytes(data)
+
+	dec, err := src.Decoder()
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal YAML: %w", err)
 	}
 
-	hs := &helmschema.Schema{}
+	for _, doc := range dec.Documents() {
+		err = doc.Decode(&v)
+		if err != nil {
+			return nil, fmt.Errorf("unmarshal YAML: %w", err)
+		}
 
-	err = hs.UnmarshalYAML(&node)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshal helm schema: %w", err)
+		break
 	}
 
-	return hs, nil
+	jsonData, err := json.Marshal(v)
+	if err != nil {
+		return nil, fmt.Errorf("marshal to JSON: %w", err)
+	}
+
+	s := &gjs.Schema{}
+
+	err = json.Unmarshal(jsonData, s)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
+	}
+
+	return s, nil
 }

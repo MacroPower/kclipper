@@ -5,40 +5,17 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 
 schema ValueInferenceConfig:
     r"""
-    ValueInferenceConfig defines configuration for value inference via dadav/helm-schema.
+    ValueInferenceConfig defines configuration for value inference via magicschema.
 
     Attributes
     ----------
-    uncommentYAMLBlocks : bool, optional
-        Consider yaml which is commented out.
-    helmDocsCompatibilityMode : bool, optional
-        Parse and use helm-docs comments.
-    keepHelmDocsPrefix : bool, optional
-        Keep the helm-docs prefix (--) in the schema.
-    keepFullComment : bool, optional
-        Keep the whole leading comment (default: cut at empty line).
-    removeGlobal : bool, optional
-        Remove the global key from the schema.
-    skipTitle : bool, optional
-        Skip auto-generation of Title.
-    skipDescription : bool, optional
-        Skip auto-generation of Description.
-    skipRequired : bool, optional, default is True
-        Skip auto-generation of Required.
-    skipDefault : bool, optional
-        Skip auto-generation of Default.
-    skipAdditionalProperties : bool, optional
-        Skip auto-generation of AdditionalProperties.
+    annotators : str, optional
+        Comma-separated list of annotators to enable (e.g. "dadav,norwoodj,bitnami,losisin").
+        When empty, all built-in annotators are enabled.
+    strict : bool, optional
+        When true, sets additionalProperties to false on generated schemas.
     """
 
-    uncommentYAMLBlocks?: bool
-    helmDocsCompatibilityMode?: bool
-    keepHelmDocsPrefix?: bool
-    keepFullComment?: bool
-    removeGlobal?: bool
-    skipTitle?: bool
-    skipDescription?: bool
-    skipRequired?: bool = True
-    skipDefault?: bool
-    skipAdditionalProperties?: bool
+    annotators?: str
+    strict?: bool
 

@@ -305,16 +305,16 @@ The following schema generators are currently available:
 | :-------------- | :------------------------------------------------------------------------------------ | ---------------: |
 | NONE (default)  | Do not use a schema generator (Values will be `[...str]: any`).                       |                  |
 | AUTO            | Try to automatically select the best schema generator for the chart.                  |                  |
-| VALUE-INFERENCE | Infer the schema from one or more values.yaml files (uses [helm-schema][helm-schema]) | `valueInference` |
+| VALUE-INFERENCE | Infer the schema from one or more values.yaml files (uses [magicschema][magicschema]) | `valueInference` |
 | URL             | Use a JSON Schema file located at a specified URL.                                    |     `schemaPath` |
 | CHART-PATH      | Use a JSON Schema file located at a specified path within the chart files.            |     `schemaPath` |
 | LOCAL-PATH      | Use a JSON Schema file located at a specified path within the project.                |     `schemaPath` |
 
 `AUTO` is generally the best option. It currently looks for `values.schema.json` files in the chart directory (i.e. `CHART-PATH` with `schemaPath: "values.schema.json"`), and falls back `VALUE-INFERENCE` (with default arguments) if none are found.
 
-If `VALUE-INFERENCE` is used, the `valueInference` argument will be passed to [helm-schema][helm-schema]. This allows you to use custom arguments with [helm-schema][helm-schema]. See the [helm module docs](./modules/helm/README.md) for more details.
+If `VALUE-INFERENCE` is used, the `valueInference` argument configures [magicschema][magicschema]. See the [helm module docs](./modules/helm/README.md) for more details.
 
-[helm-schema]: https://github.com/dadav/helm-schema
+[magicschema]: https://pkg.go.dev/go.jacobcolvin.com/x/magicschema
 
 ### CRD Schema Generators
 
@@ -445,5 +445,5 @@ Also, thanks all of the contributors to other KCL packages and plugins. Notably,
 
 Also, special thanks to:
 
-- [@dadav](https://github.com/dadav) for maintaining [helm-schema](https://github.com/dadav/helm-schema) and [go-jsonpointer](https://github.com/dadav/go-jsonpointer), which are both heavily used in klipper's schema generators.
+- [@dadav](https://github.com/dadav) for creating [helm-schema](https://github.com/dadav/helm-schema), which inspired kclipper's schema generation approach.
 - [@carinacolvin_art](https://www.instagram.com/carinacolvin_art/) for creating the kclipper logo.

@@ -11,9 +11,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/dadav/go-jsonpointer"
-
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
+	gjs "github.com/google/jsonschema-go/jsonschema"
 )
 
 // handleSchemaRefs processes and resolves JSON Schema references ($ref) within a schema.
@@ -26,7 +24,7 @@ import (
 // Parameters:
 //   - schema: Pointer to the Schema object containing the references to resolve.
 //   - basePath: Path to the current file, used for resolving relative paths.
-func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
+func handleSchemaRefs(schema *gjs.Schema, basePath string) error {
 	// Handle $ref in PatternProperties.
 	if schema.PatternProperties != nil {
 		for pattern, subSchema := range schema.PatternProperties {
@@ -56,7 +54,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 	// Handle $ref in AdditionalProperties.
 	err := derefAdditionalProperties(schema, basePath)
 	if err != nil {
-		schema.AdditionalProperties = true
+		schema.AdditionalProperties = &gjs.Schema{}
 	}
 
 	// Handle $ref in Items.
@@ -173,19 +171,13 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			schema.Ref = ""
 		} else {
 			*schema = *relSchema
-			schema.HasData = true
 		}
-	}
-
-	err = schema.Validate()
-	if err != nil {
-		return fmt.Errorf("invalid schema: %w", err)
 	}
 
 	return nil
 }
 
-func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helmschema.Schema, error) {
+func resolveLocalRef(schema *gjs.Schema, jsonSchemaPointer string) (*gjs.Schema, error) {
 	relData, err := json.Marshal(schema)
 	if err != nil {
 		return nil, fmt.Errorf("marshal schema for json pointer: %w", err)
@@ -199,7 +191,7 @@ func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helm
 	return relSchema, nil
 }
 
-func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer string) error {
+func resolveFilePath(schema *gjs.Schema, relPath, jsonSchemaPointer string) error {
 	//nolint:gosec // G304 not relevant for client-side generation.
 	byteValue, err := os.ReadFile(relPath)
 	if err != nil {
@@ -217,23 +209,17 @@ func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer strin
 	}
 
 	*schema = *relSchema
-	schema.HasData = true
 
 	return nil
 }
 
-func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Schema, error) {
-	relSchema := &helmschema.Schema{}
+func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*gjs.Schema, error) {
+	relSchema := &gjs.Schema{}
 
 	if jsonSchemaPointer == "" {
-		err := json.Unmarshal(data, &relSchema)
+		err := json.Unmarshal(data, relSchema)
 		if err != nil {
 			return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
-		}
-
-		err = relSchema.Validate()
-		if err != nil {
-			return nil, fmt.Errorf("invalid schema: %w", err)
 		}
 
 		return relSchema, nil
@@ -246,7 +232,7 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 	}
 
-	jsonPointerResultRaw, err := jsonpointer.Get(obj, jsonSchemaPointer)
+	jsonPointerResultRaw, err := resolveJSONPointer(obj, jsonSchemaPointer)
 	if err != nil {
 		return nil, fmt.Errorf("resolve JSON pointer: %w", err)
 	}
@@ -261,50 +247,36 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 		return nil, fmt.Errorf("unmarshal JSON pointer result: %w", err)
 	}
 
-	err = relSchema.Validate()
-	if err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
-	}
-
 	return relSchema, nil
 }
 
-func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error {
-	//nolint:revive // Boolean literal used due to SchemaOrBool type.
-	if schema.AdditionalProperties == nil || schema.AdditionalProperties == true ||
-		schema.AdditionalProperties == false {
+func derefAdditionalProperties(schema *gjs.Schema, basePath string) error {
+	if schema.AdditionalProperties == nil || isBooleanSchema(schema.AdditionalProperties) {
 		return nil
 	}
 
-	apData, err := json.Marshal(schema.AdditionalProperties)
-	if err != nil {
-		return fmt.Errorf("marshal additional properties: %w", err)
-	}
-
-	subSchema, err := unmarshalHelmSchema(apData)
-	if err != nil {
-		return fmt.Errorf("unmarshal additional properties: %w", err)
-	}
-
-	err = handleSchemaRefs(subSchema, basePath)
+	err := handleSchemaRefs(schema.AdditionalProperties, basePath)
 	if err != nil {
 		return fmt.Errorf("handle schema refs in additional properties: %w", err)
 	}
 
-	err = subSchema.Validate()
-	if err != nil {
-		return fmt.Errorf("invalid schema: %w", err)
-	}
-
-	// No idea why, but Required isn't marshaled correctly without recreating the struct.
-	subSchema.Required = helmschema.BoolOrArrayOfString{
-		Bool:    subSchema.Required.Bool,
-		Strings: subSchema.Required.Strings,
-	}
-
-	schema.AdditionalProperties = subSchema
-
 	return nil
+}
+
+// isBooleanSchema reports whether s is a boolean schema (true or false).
+// In [gjs.Schema], true is represented as an empty schema and false as
+// a schema containing only {Not: &Schema{}}.
+func isBooleanSchema(s *gjs.Schema) bool {
+	if s == nil {
+		return false
+	}
+
+	data, err := json.Marshal(s)
+	if err != nil {
+		return false
+	}
+
+	return string(data) == "true" || string(data) == "false"
 }
 
 // isRelativeFile checks if the given string is a relative path to a file.

@@ -7,13 +7,11 @@
         "properties": {
           "annotations": {
             "additionalProperties": {
-              "required": [],
               "type": [
                 "string",
                 "null"
               ]
             },
-            "required": [],
             "type": [
               "object",
               "null"
@@ -21,54 +19,42 @@
           },
           "binaryData": {
             "additionalProperties": {
-              "required": [],
               "type": "string"
             },
-            "required": [],
             "type": "object"
           },
           "data": {
             "additionalProperties": {
-              "required": [],
               "type": "string"
             },
-            "required": [],
             "type": "object"
           },
           "enabled": {
             "default": true,
-            "required": [],
             "type": "boolean"
           },
           "includeInChecksum": {
             "default": true,
-            "required": [],
             "type": "boolean"
           },
           "labels": {
             "additionalProperties": {
-              "required": [],
               "type": [
                 "string",
                 "null"
               ]
             },
-            "required": [],
             "type": [
               "object",
               "null"
             ]
           },
           "nameOverride": {
-            "required": [],
             "type": "string"
           }
         },
-        "required": [],
         "type": "object"
-      },
-      "required": []
+      }
     }
-  },
-  "required": []
+  }
 }
