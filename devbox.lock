@@ -1418,51 +1418,51 @@
         }
       }
     },
-    "vhs@0.10.0": {
-      "last_modified": "2026-02-06T12:24:04Z",
-      "resolved": "github:NixOS/nixpkgs/ae67888ff7ef9dff69b3cf0cc0fbfbcd3a722abe#vhs",
+    "vhs@0.11.0": {
+      "last_modified": "2026-04-01T01:09:41Z",
+      "resolved": "github:NixOS/nixpkgs/62e3050a29278c985725a86704faa1e99236b51a#vhs",
       "source": "devbox-search",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/lxr46ksxyk5hqr28zm1nq3d31kmqbrid-vhs-0.10.0",
+              "path": "/nix/store/zvyjgi203d6z2d6lvh20gmr6gnmxagvs-vhs-0.11.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/lxr46ksxyk5hqr28zm1nq3d31kmqbrid-vhs-0.10.0"
+          "store_path": "/nix/store/zvyjgi203d6z2d6lvh20gmr6gnmxagvs-vhs-0.11.0"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/avilf6nl8d93gpqi85kiwj75qpy2jxhb-vhs-0.10.0",
+              "path": "/nix/store/m0aqaq1ic2h3wq7lbyvgwsqf6bmrrify-vhs-0.11.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/avilf6nl8d93gpqi85kiwj75qpy2jxhb-vhs-0.10.0"
+          "store_path": "/nix/store/m0aqaq1ic2h3wq7lbyvgwsqf6bmrrify-vhs-0.11.0"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/fgmgvnal3312agsp8c55g682q7g3qzf5-vhs-0.10.0",
+              "path": "/nix/store/dix06p23wp45d3z2nj0g96wnislzz4w3-vhs-0.11.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/fgmgvnal3312agsp8c55g682q7g3qzf5-vhs-0.10.0"
+          "store_path": "/nix/store/dix06p23wp45d3z2nj0g96wnislzz4w3-vhs-0.11.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/aksxkjpcjg1as84rxi64q88v7rhaqjnn-vhs-0.10.0",
+              "path": "/nix/store/mdyv9x6765h5bkj9zk384pp1mpnywknc-vhs-0.11.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/aksxkjpcjg1as84rxi64q88v7rhaqjnn-vhs-0.10.0"
+          "store_path": "/nix/store/mdyv9x6765h5bkj9zk384pp1mpnywknc-vhs-0.11.0"
         }
       }
     },

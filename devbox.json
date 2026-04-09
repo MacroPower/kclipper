@@ -18,7 +18,7 @@
     "conform": "0.1.0-alpha.29",
     "syft": "1.41.1",
     "cosign": "3.0.4",
-    "vhs": "0.10.0",
+    "vhs": "0.11.0",
     "bashInteractive": "5.2p37",
     "tmux": "3.5",
     "renovate": "42.76.4",
