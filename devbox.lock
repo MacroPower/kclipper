@@ -1254,51 +1254,51 @@
         }
       }
     },
-    "syft@1.41.1": {
-      "last_modified": "2026-02-03T17:56:14Z",
-      "resolved": "github:NixOS/nixpkgs/41965737c1797c1d83cfb0b644ed0840a6220bd1#syft",
+    "syft@1.42.4": {
+      "last_modified": "2026-04-09T02:28:59Z",
+      "resolved": "github:NixOS/nixpkgs/0f7663154ff2fec150f9dbf5f81ec2785dc1e0db#syft",
       "source": "devbox-search",
-      "version": "1.41.1",
+      "version": "1.42.4",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/64yc26c4ww2zsqwn0pwdm2s9prncsafv-syft-1.41.1",
+              "path": "/nix/store/x3qaxj6rpr3h0hx8rffm893pz6j70fvn-syft-1.42.4",
               "default": true
             }
           ],
-          "store_path": "/nix/store/64yc26c4ww2zsqwn0pwdm2s9prncsafv-syft-1.41.1"
+          "store_path": "/nix/store/x3qaxj6rpr3h0hx8rffm893pz6j70fvn-syft-1.42.4"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/xgpqycqnlhyy9rzk0s2rlwvf02rn8h73-syft-1.41.1",
+              "path": "/nix/store/ajk87w97a7cp9pvwk8siyvbk24pfjpm5-syft-1.42.4",
               "default": true
             }
           ],
-          "store_path": "/nix/store/xgpqycqnlhyy9rzk0s2rlwvf02rn8h73-syft-1.41.1"
+          "store_path": "/nix/store/ajk87w97a7cp9pvwk8siyvbk24pfjpm5-syft-1.42.4"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/yi1lnpsdg68rqpg1ci7gira0niyv0k4v-syft-1.41.1",
+              "path": "/nix/store/q1i9zmm537zwfsqsw84xgbky0w5r1fhc-syft-1.42.4",
               "default": true
             }
           ],
-          "store_path": "/nix/store/yi1lnpsdg68rqpg1ci7gira0niyv0k4v-syft-1.41.1"
+          "store_path": "/nix/store/q1i9zmm537zwfsqsw84xgbky0w5r1fhc-syft-1.42.4"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/w09g5rc16b8kq6z8c8f5gmc0mz9w1b5y-syft-1.41.1",
+              "path": "/nix/store/p46rwrdhk9lydzwpqnn59f4ybszxvqkg-syft-1.42.4",
               "default": true
             }
           ],
-          "store_path": "/nix/store/w09g5rc16b8kq6z8c8f5gmc0mz9w1b5y-syft-1.41.1"
+          "store_path": "/nix/store/p46rwrdhk9lydzwpqnn59f4ybszxvqkg-syft-1.42.4"
         }
       }
     },
