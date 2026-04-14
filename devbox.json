@@ -3,7 +3,7 @@
   "packages": {
     "coreutils-full": "9.9",
     "go-task": "3.48.0",
-    "goreleaser": "2.13.3",
+    "goreleaser": "2.15.2",
     "golangci-lint": "2.8.0",
     "go": "1.25.5",
     "git": "2.52.0",
