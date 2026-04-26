@@ -1,6 +1,6 @@
 module github.com/macropower/kclipper
 
-go 1.25.0
+go 1.26.0
 
 require (
 	charm.land/bubbles/v2 v2.0.0-rc.1
@@ -24,7 +24,7 @@ require (
 	golang.org/x/text v0.34.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.20.0
-	k8s.io/apimachinery v0.35.1
+	k8s.io/apimachinery v0.36.0
 	kcl-lang.io/cli v0.12.3
 	kcl-lang.io/kcl-go v0.12.3
 	kcl-lang.io/kcl-openapi v0.10.1
@@ -151,7 +151,6 @@ require (
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/cel-go v0.26.0 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
@@ -273,14 +272,14 @@ require (
 	golang.org/x/oauth2 v0.32.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
 	golang.org/x/term v0.40.0 // indirect
-	golang.org/x/time v0.12.0 // indirect
+	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.42.0 // indirect
 	google.golang.org/api v0.171.0 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251022142026-3a174f9686a8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8 // indirect
 	google.golang.org/grpc v1.77.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -292,10 +291,10 @@ require (
 	k8s.io/cli-runtime v0.35.0 // indirect
 	k8s.io/client-go v0.35.0 // indirect
 	k8s.io/component-base v0.35.0 // indirect
-	k8s.io/klog/v2 v2.130.1 // indirect
-	k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 // indirect
+	k8s.io/klog/v2 v2.140.0 // indirect
+	k8s.io/kube-openapi v0.0.0-20260317180543-43fb72c5454a // indirect
 	k8s.io/kubectl v0.35.0 // indirect
-	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4 // indirect
+	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 // indirect
 	kcl-lang.io/lib v0.12.3 // indirect
 	oras.land/oras-go v1.2.6 // indirect
 	oras.land/oras-go/v2 v2.6.0 // indirect
@@ -303,6 +302,6 @@ require (
 	sigs.k8s.io/kustomize/api v0.20.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.20.1 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
-	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
+	sigs.k8s.io/structured-merge-diff/v6 v6.3.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
