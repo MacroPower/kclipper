@@ -44,12 +44,12 @@ schema ExternalSecretsIoV1beta1ExternalSecretSpec:
     dataFrom : [ExternalSecretsIoV1beta1ExternalSecretSpecDataFromItems0], default is Undefined, optional
         DataFrom is used to fetch all properties from a specific Provider data
         If multiple entries are specified, the Secret keys are merged in the specified order
-    refreshInterval : str, default is "1h", optional
+    refreshInterval : str, default is "1h0m0s", optional
         RefreshInterval is the amount of time before the values are read again from the SecretStore provider,
         specified as Golang Duration strings.
         Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h"
-        Example values: "1h", "2h30m", "10s"
-        May be set to zero to fetch and create it once. Defaults to 1h.
+        Example values: "1h0m0s", "2h30m0s", "10m0s"
+        May be set to "0s" to fetch and create it once. Defaults to 1h0m0s.
     refreshPolicy : str, default is Undefined, optional
         RefreshPolicy determines how the ExternalSecret should be refreshed:
         - CreatedOnce: Creates the Secret only if it does not exist and does not update it thereafter
@@ -63,7 +63,7 @@ schema ExternalSecretsIoV1beta1ExternalSecretSpec:
     """
     data?: [ExternalSecretsIoV1beta1ExternalSecretSpecDataItems0]
     dataFrom?: [ExternalSecretsIoV1beta1ExternalSecretSpecDataFromItems0]
-    refreshInterval?: str = "1h"
+    refreshInterval?: str = "1h0m0s"
     refreshPolicy?: "CreatedOnce" | "Periodic" | "OnChange"
     secretStoreRef?: ExternalSecretsIoV1beta1ExternalSecretSpecSecretStoreRef
     target?: ExternalSecretsIoV1beta1ExternalSecretSpecTarget
