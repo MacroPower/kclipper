@@ -29,6 +29,8 @@ schema PodMonitor:
         metadata
     spec : MonitoringCoreosComV1PodMonitorSpec, default is Undefined, required
         spec
+    status : MonitoringCoreosComV1PodMonitorStatus, default is Undefined, optional
+        status
     """
     apiVersion: "monitoring.coreos.com/v1" = "monitoring.coreos.com/v1"
 
@@ -37,25 +39,30 @@ schema PodMonitor:
     metadata?: v1.ObjectMeta
     spec: MonitoringCoreosComV1PodMonitorSpec
 
+    status?: MonitoringCoreosComV1PodMonitorStatus
+
 schema MonitoringCoreosComV1PodMonitorSpec:
     r"""
-    Specification of desired Pod selection for target discovery by Prometheus.
+    spec defines the specification of desired Pod selection for target discovery by Prometheus.
 
     Attributes
     ----------
     attachMetadata : MonitoringCoreosComV1PodMonitorSpecAttachMetadata, default is Undefined, optional
         attach metadata
     bodySizeLimit : str, default is Undefined, optional
-        When defined, bodySizeLimit specifies a job level limit on the size
+        bodySizeLimit when defined specifies a job level limit on the size
         of uncompressed response body that will be accepted by Prometheus.
 
         It requires Prometheus >= v2.28.0.
+    convertClassicHistogramsToNHCB : bool, default is Undefined, optional
+        convertClassicHistogramsToNHCB defines whether to convert all scraped classic histograms into a native histogram with custom buckets.
+        It requires Prometheus >= v3.0.0.
     fallbackScrapeProtocol : str, default is Undefined, optional
-        The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
+        fallbackScrapeProtocol defines the protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
 
         It requires Prometheus >= v3.0.0.
     jobLabel : str, default is Undefined, optional
-        The label to use to retrieve the job name from.
+        jobLabel defines the label to use to retrieve the job name from.
         `jobLabel` selects the label from the associated Kubernetes `Pod`
         object which will be used as the `job` label for all metrics.
 
@@ -66,47 +73,52 @@ schema MonitoringCoreosComV1PodMonitorSpec:
         If the value of this field is empty, the `job` label of the metrics
         defaults to the namespace and name of the PodMonitor object (e.g. `<namespace>/<name>`).
     keepDroppedTargets : int, default is Undefined, optional
-        Per-scrape limit on the number of targets dropped by relabeling
+        keepDroppedTargets defines the per-scrape limit on the number of targets dropped by relabeling
         that will be kept in memory. 0 means no limit.
 
         It requires Prometheus >= v2.47.0.
     labelLimit : int, default is Undefined, optional
-        Per-scrape limit on number of labels that will be accepted for a sample.
+        labelLimit defines the per-scrape limit on number of labels that will be accepted for a sample.
 
         It requires Prometheus >= v2.27.0.
     labelNameLengthLimit : int, default is Undefined, optional
-        Per-scrape limit on length of labels name that will be accepted for a sample.
+        labelNameLengthLimit defines the per-scrape limit on length of labels name that will be accepted for a sample.
 
         It requires Prometheus >= v2.27.0.
     labelValueLengthLimit : int, default is Undefined, optional
-        Per-scrape limit on length of labels value that will be accepted for a sample.
+        labelValueLengthLimit defines the per-scrape limit on length of labels value that will be accepted for a sample.
 
         It requires Prometheus >= v2.27.0.
     namespaceSelector : MonitoringCoreosComV1PodMonitorSpecNamespaceSelector, default is Undefined, optional
         namespace selector
     nativeHistogramBucketLimit : int, default is Undefined, optional
-        If there are more than this many buckets in a native histogram,
+        nativeHistogramBucketLimit defines ff there are more than this many buckets in a native histogram,
         buckets will be merged to stay within the limit.
         It requires Prometheus >= v2.45.0.
     nativeHistogramMinBucketFactor : int | str, default is Undefined, optional
-        If the growth factor of one bucket to the next is smaller than this,
+        nativeHistogramMinBucketFactor defines if the growth factor of one bucket to the next is smaller than this,
         buckets will be merged to increase the factor sufficiently.
         It requires Prometheus >= v2.50.0.
     podMetricsEndpoints : [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0], default is Undefined, optional
-        Defines how to scrape metrics from the selected pods.
+        podMetricsEndpoints defines how to scrape metrics from the selected pods.
     podTargetLabels : [str], default is Undefined, optional
-        `podTargetLabels` defines the labels which are transferred from the
+        podTargetLabels defines the labels which are transferred from the
         associated Kubernetes `Pod` object onto the ingested metrics.
     sampleLimit : int, default is Undefined, optional
-        `sampleLimit` defines a per-scrape limit on the number of scraped samples
+        sampleLimit defines a per-scrape limit on the number of scraped samples
         that will be accepted.
     scrapeClass : str, default is Undefined, optional
-        The scrape class to apply.
+        scrapeClass defines the scrape class to apply.
     scrapeClassicHistograms : bool, default is Undefined, optional
-        Whether to scrape a classic histogram that is also exposed as a native histogram.
+        scrapeClassicHistograms defines whether to scrape a classic histogram that is also exposed as a native histogram.
         It requires Prometheus >= v2.45.0.
+
+        Notice: `scrapeClassicHistograms` corresponds to the `always_scrape_classic_histograms` field in the Prometheus configuration.
+    scrapeNativeHistograms : bool, default is Undefined, optional
+        scrapeNativeHistograms defines whether to enable scraping of native histograms.
+        It requires Prometheus >= v3.8.0.
     scrapeProtocols : [str], default is Undefined, optional
-        `scrapeProtocols` defines the protocols to negotiate during a scrape. It tells clients the
+        scrapeProtocols defines the protocols to negotiate during a scrape. It tells clients the
         protocols supported by Prometheus in order of preference (from most to least preferred).
 
         If unset, Prometheus uses its default value.
@@ -115,18 +127,19 @@ schema MonitoringCoreosComV1PodMonitorSpec:
     selector : MonitoringCoreosComV1PodMonitorSpecSelector, default is Undefined, required
         selector
     selectorMechanism : str, default is Undefined, optional
-        Mechanism used to select the endpoints to scrape.
+        selectorMechanism defines the mechanism used to select the endpoints to scrape.
         By default, the selection process relies on relabel configurations to filter the discovered targets.
         Alternatively, you can opt in for role selectors, which may offer better efficiency in large clusters.
         Which strategy is best for your use case needs to be carefully evaluated.
 
         It requires Prometheus >= v2.17.0.
     targetLimit : int, default is Undefined, optional
-        `targetLimit` defines a limit on the number of scraped targets that will
+        targetLimit defines a limit on the number of scraped targets that will
         be accepted.
     """
     attachMetadata?: MonitoringCoreosComV1PodMonitorSpecAttachMetadata
     bodySizeLimit?: str
+    convertClassicHistogramsToNHCB?: bool
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
     jobLabel?: str
     keepDroppedTargets?: int
@@ -141,6 +154,7 @@ schema MonitoringCoreosComV1PodMonitorSpec:
     sampleLimit?: int
     scrapeClass?: str
     scrapeClassicHistograms?: bool
+    scrapeNativeHistograms?: bool
     scrapeProtocols?: [str]
     selector: MonitoringCoreosComV1PodMonitorSpecSelector
 
@@ -154,7 +168,7 @@ schema MonitoringCoreosComV1PodMonitorSpec:
 
 schema MonitoringCoreosComV1PodMonitorSpecAttachMetadata:
     r"""
-    `attachMetadata` defines additional metadata which is added to the
+    attachMetadata defines additional metadata which is added to the
     discovered targets.
 
     It requires Prometheus >= v2.35.0.
@@ -162,7 +176,7 @@ schema MonitoringCoreosComV1PodMonitorSpecAttachMetadata:
     Attributes
     ----------
     node : bool, default is Undefined, optional
-        When set to true, Prometheus attaches node metadata to the discovered
+        node when set to true, Prometheus attaches node metadata to the discovered
         targets.
 
         The Prometheus service account must have the `list` and `watch`
@@ -172,16 +186,16 @@ schema MonitoringCoreosComV1PodMonitorSpecAttachMetadata:
 
 schema MonitoringCoreosComV1PodMonitorSpecNamespaceSelector:
     r"""
-    `namespaceSelector` defines in which namespace(s) Prometheus should discover the pods.
+    namespaceSelector defines in which namespace(s) Prometheus should discover the pods.
     By default, the pods are discovered in the same namespace as the `PodMonitor` object but it is possible to select pods across different/all namespaces.
 
     Attributes
     ----------
     any : bool, default is Undefined, optional
-        Boolean describing whether all namespaces are selected in contrast to a
+        any defines the boolean describing whether all namespaces are selected in contrast to a
         list restricting them.
     matchNames : [str], default is Undefined, optional
-        List of namespace names to select from.
+        matchNames defines the list of namespace names to select from.
     """
     any?: bool
     matchNames?: [str]
@@ -200,49 +214,81 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
     bearerTokenSecret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BearerTokenSecret, default is Undefined, optional
         bearer token secret
     enableHttp2 : bool, default is Undefined, optional
-        `enableHttp2` can be used to disable HTTP2 when scraping the target.
+        enableHttp2 can be used to disable HTTP2.
     filterRunning : bool, default is Undefined, optional
-        When true, the pods which are not running (e.g. either in Failed or
+        filterRunning when true, the pods which are not running (e.g. either in Failed or
         Succeeded state) are dropped during the target discovery.
 
         If unset, the filtering is enabled.
 
         More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
     followRedirects : bool, default is Undefined, optional
-        `followRedirects` defines whether the scrape requests should follow HTTP
-        3xx redirects.
+        followRedirects defines whether the client should follow HTTP 3xx
+        redirects.
     honorLabels : bool, default is Undefined, optional
-        When true, `honorLabels` preserves the metric's labels when they collide
+        honorLabels when true preserves the metric's labels when they collide
         with the target's labels.
     honorTimestamps : bool, default is Undefined, optional
-        `honorTimestamps` controls whether Prometheus preserves the timestamps
+        honorTimestamps defines whether Prometheus preserves the timestamps
         when exposed by the target.
     interval : str, default is Undefined, optional
-        Interval at which Prometheus scrapes the metrics from the target.
+        interval at which Prometheus scrapes the metrics from the target.
 
         If empty, Prometheus uses the global scrape interval.
     metricRelabelings : [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabelingsItems0], default is Undefined, optional
-        `metricRelabelings` configures the relabeling rules to apply to the
+        metricRelabelings defines the relabeling rules to apply to the
         samples before ingestion.
+    noProxy : str, default is Undefined, optional
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
+        that should be excluded from proxying. IP and domain names can
+        contain port numbers.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     oauth2 : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2, default is Undefined, optional
         oauth2
     params : {str:[str]}, default is Undefined, optional
-        `params` define optional HTTP URL parameters.
+        params define optional HTTP URL parameters.
     path : str, default is Undefined, optional
-        HTTP path from which to scrape for metrics.
+        path defines the HTTP path from which to scrape for metrics.
 
         If empty, Prometheus uses the default value (e.g. `/metrics`).
     port : str, default is Undefined, optional
-        The `Pod` port name which exposes the endpoint.
+        port defines the `Pod` port name which exposes the endpoint.
+
+        If the pod doesn't expose a port with the same name, it will result
+        in no targets being discovered.
+
+        If a `Pod` has multiple `Port`s with the same name (which is not
+        recommended), one target instance per unique port number will be
+        generated.
 
         It takes precedence over the `portNumber` and `targetPort` fields.
     portNumber : int, default is Undefined, optional
-        The `Pod` port number which exposes the endpoint.
+        portNumber defines the `Pod` port number which exposes the endpoint.
+
+        The `Pod` must declare the specified `Port` in its spec or the
+        target will be dropped by Prometheus.
+
+        This cannot be used to enable scraping of an undeclared port.
+        To scrape targets on a port which isn't exposed, you need to use
+        relabeling to override the `__address__` label (but beware of
+        duplicate targets if the `Pod` has other declared ports).
+
+        In practice Prometheus will select targets for which the
+        matches the target's __meta_kubernetes_pod_container_port_number.
+    proxyConnectHeader : {str:[MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
+        proxyConnectHeader optionally specifies headers to send to
+        proxies during CONNECT requests.
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
+    proxyFromEnvironment : bool, default is Undefined, optional
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` configures the HTTP Proxy URL (e.g.
-        "http://proxyserver:2195") to go through when scraping the target.
+        proxyUrl defines the HTTP proxy server to use.
     relabelings : [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsItems0], default is Undefined, optional
-        `relabelings` configures the relabeling rules to apply the target's
+        relabelings defines the relabeling rules to apply the target's
         metadata labels.
 
         The Operator automatically adds relabelings for a few standard Kubernetes fields.
@@ -251,27 +297,22 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
 
         More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
     scheme : str, default is Undefined, optional
-        HTTP scheme to use for scraping.
-
-        `http` and `https` are the expected values unless you rewrite the
-        `__scheme__` label via relabeling.
-
-        If empty, Prometheus uses the default value `http`.
+        scheme defines the HTTP scheme to use for scraping.
     scrapeTimeout : str, default is Undefined, optional
-        Timeout after which Prometheus considers the scrape to be failed.
+        scrapeTimeout defines the timeout after which Prometheus considers the scrape to be failed.
 
         If empty, Prometheus uses the global scrape timeout unless it is less
         than the target's scrape interval value in which the latter is used.
         The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
     targetPort : int | str, default is Undefined, optional
-        Name or number of the target port of the `Pod` object behind the Service, the
+        targetPort defines the name or number of the target port of the `Pod` object behind the Service, the
         port must be specified with container port property.
 
         Deprecated: use 'port' or 'portNumber' instead.
     tlsConfig : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig, default is Undefined, optional
         tls config
     trackTimestampsStaleness : bool, default is Undefined, optional
-        `trackTimestampsStaleness` defines whether Prometheus tracks staleness of
+        trackTimestampsStaleness defines whether Prometheus tracks staleness of
         the metrics that have an explicit timestamp present in scraped data.
         Has no effect if `honorTimestamps` is false.
 
@@ -287,14 +328,17 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
     honorTimestamps?: bool
     interval?: str
     metricRelabelings?: [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabelingsItems0]
+    noProxy?: str
     oauth2?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2
     params?: {str:[str]}
     path?: str
     port?: str
     portNumber?: int
+    proxyConnectHeader?: {str:[MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0ProxyConnectHeaderItems0]}
+    proxyFromEnvironment?: bool
     proxyUrl?: str
     relabelings?: [MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsItems0]
-    scheme?: "http" | "https"
+    scheme?: "http" | "https" | "HTTP" | "HTTPS"
     scrapeTimeout?: str
     targetPort?: int | str
     tlsConfig?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig
@@ -304,21 +348,22 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
         portNumber <= 65535 if portNumber not in [None, Undefined]
         portNumber >= 1 if portNumber not in [None, Undefined]
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Authorization:
     r"""
-    `authorization` configures the Authorization header credentials to use when
-    scraping the target.
+    authorization configures the Authorization header credentials used by
+    the client.
 
-    Cannot be set at the same time as `basicAuth`, or `oauth2`.
+    Cannot be set at the same time as `basicAuth`, `bearerTokenSecret` or `oauth2`.
 
     Attributes
     ----------
     credentials : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0AuthorizationCredentials, default is Undefined, optional
         credentials
     $type : str, default is Undefined, optional
-        Defines the authentication type. The value is case-insensitive.
+        type defines the authentication type. The value is case-insensitive.
 
         "Basic" is not a supported value.
 
@@ -329,7 +374,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Authorization
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0AuthorizationCredentials:
     r"""
-    Selects a key of a Secret in the namespace that contains the credentials for authentication.
+    credentials defines a key of a Secret in the namespace that contains the credentials for authentication.
 
     Attributes
     ----------
@@ -351,10 +396,10 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Authorization
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuth:
     r"""
-    `basicAuth` configures the Basic Authentication credentials to use when
-    scraping the target.
+    basicAuth defines the Basic Authentication credentials used by the
+    client.
 
-    Cannot be set at the same time as `authorization`, or `oauth2`.
+    Cannot be set at the same time as `authorization`, `bearerTokenSecret` or `oauth2`.
 
     Attributes
     ----------
@@ -368,7 +413,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuth:
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthPassword:
     r"""
-    `password` specifies a key of a Secret containing the password for
+    password defines a key of a Secret containing the password for
     authentication.
 
     Attributes
@@ -391,7 +436,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthPass
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthUsername:
     r"""
-    `username` specifies a key of a Secret containing the username for
+    username defines a key of a Secret containing the username for
     authentication.
 
     Attributes
@@ -414,9 +459,12 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BasicAuthUser
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0BearerTokenSecret:
     r"""
-    `bearerTokenSecret` specifies a key of a Secret containing the bearer
-    token for scraping targets. The secret needs to be in the same namespace
-    as the PodMonitor object and readable by the Prometheus Operator.
+    bearerTokenSecret defines a key of a Secret containing the bearer token
+    used by the client for authentication. The secret needs to be in the
+    same namespace as the custom resource and readable by the Prometheus
+    Operator.
+
+    Cannot be set at the same time as `authorization`, `basicAuth` or `oauth2`.
 
     Deprecated: use `authorization` instead.
 
@@ -448,31 +496,31 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabel
     Attributes
     ----------
     action : str, default is "replace", optional
-        Action to perform based on the regex matching.
+        action to perform based on the regex matching.
 
         `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
         `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
 
         Default: "Replace"
     modulus : int, default is Undefined, optional
-        Modulus to take of the hash of the source label values.
+        modulus to take of the hash of the source label values.
 
         Only applicable when the action is `HashMod`.
     regex : str, default is Undefined, optional
-        Regular expression against which the extracted value is matched.
+        regex defines the regular expression against which the extracted value is matched.
     replacement : str, default is Undefined, optional
-        Replacement value against which a Replace action is performed if the
+        replacement value against which a Replace action is performed if the
         regular expression matches.
 
         Regex capture groups are available.
     separator : str, default is Undefined, optional
-        Separator is the string between concatenated SourceLabels.
+        separator defines the string between concatenated SourceLabels.
     sourceLabels : [str], default is Undefined, optional
-        The source labels select values from existing labels. Their content is
+        sourceLabels defines the source labels select values from existing labels. Their content is
         concatenated using the configured Separator and matched against the
         configured regular expression.
     targetLabel : str, default is Undefined, optional
-        Label to which the resulting string is written in a replacement.
+        targetLabel defines the label to which the resulting string is written in a replacement.
 
         It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
         `KeepEqual` and `DropEqual` actions.
@@ -487,16 +535,13 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabel
     sourceLabels?: [str]
     targetLabel?: str
 
-    check:
-        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
-
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
     r"""
-    `oauth2` configures the OAuth2 settings to use when scraping the target.
+    oauth2 defines the OAuth2 settings used by the client.
 
     It requires Prometheus >= 2.27.0.
 
-    Cannot be set at the same time as `authorization`, or `basicAuth`.
+    Cannot be set at the same time as `authorization`, `basicAuth` or `bearerTokenSecret`.
 
     Attributes
     ----------
@@ -505,31 +550,31 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
     clientSecret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientSecret, default is Undefined, required
         client secret
     endpointParams : {str:str}, default is Undefined, optional
-        `endpointParams` configures the HTTP parameters to append to the token
+        endpointParams configures the HTTP parameters to append to the token
         URL.
     noProxy : str, default is Undefined, optional
-        `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+        noProxy defines a comma-separated string that can contain IPs, CIDR notation, domain names
         that should be excluded from proxying. IP and domain names can
         contain port numbers.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyConnectHeader : {str:[MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ProxyConnectHeaderItems0]}, default is Undefined, optional
-        ProxyConnectHeader optionally specifies headers to send to
+        proxyConnectHeader optionally specifies headers to send to
         proxies during CONNECT requests.
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyFromEnvironment : bool, default is Undefined, optional
-        Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+        proxyFromEnvironment defines whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
 
-        It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+        It requires Prometheus >= v2.43.0, Alertmanager >= v0.25.0 or Thanos >= v0.32.0.
     proxyUrl : str, default is Undefined, optional
-        `proxyURL` defines the HTTP proxy server to use.
+        proxyUrl defines the HTTP proxy server to use.
     scopes : [str], default is Undefined, optional
-        `scopes` defines the OAuth2 scopes used for the token request.
+        scopes defines the OAuth2 scopes used for the token request.
     tlsConfig : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfig, default is Undefined, optional
         tls config
     tokenUrl : str, default is Undefined, required
-        `tokenURL` configures the URL to fetch the token from.
+        tokenUrl defines the URL to fetch the token from.
     """
     clientId: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientID
 
@@ -545,12 +590,12 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
     tokenUrl: str
 
     check:
-        _regex_match(str(proxyUrl), r"^http(s)?://.+$") if proxyUrl
+        _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(tokenUrl) >= 1
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientID:
     r"""
-    `clientId` specifies a key of a Secret or ConfigMap containing the
+    clientId defines a key of a Secret or ConfigMap containing the
     OAuth2 client's ID.
 
     Attributes
@@ -565,7 +610,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientI
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientIDConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -587,7 +632,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientI
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientIDSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -609,7 +654,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientI
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientSecret:
     r"""
-    `clientSecret` specifies a key of a Secret containing the OAuth2
+    clientSecret defines a key of a Secret containing the OAuth2
     client's secret.
 
     Attributes
@@ -654,7 +699,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ProxyCo
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfig:
     r"""
-    TLS configuration to use when connecting to the OAuth2 server.
+    tlsConfig defines the TLS configuration to use when connecting to the OAuth2 server.
     It requires Prometheus >= v2.43.0.
 
     Attributes
@@ -664,19 +709,19 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
     cert : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCa
     cert?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCert
@@ -688,7 +733,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -702,7 +747,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -724,7 +769,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -746,7 +791,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -760,7 +805,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -782,7 +827,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -804,7 +849,29 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConf
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
+
+    Attributes
+    ----------
+    key : str, default is Undefined, required
+        The key of the secret to select from.  Must be a valid secret key.
+    name : str, default is Undefined, optional
+        Name of the referent.
+        This field is effectively required, but due to backwards compatibility is
+        allowed to be empty. Instances of this type with an empty value here are
+        almost certainly wrong.
+        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+    optional : bool, default is Undefined, optional
+        Specify whether the Secret or its key must be defined
+    """
+    key: str
+
+    name?: str = ""
+    optional?: bool
+
+schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0ProxyConnectHeaderItems0:
+    r"""
+    SecretKeySelector selects a key of a Secret.
 
     Attributes
     ----------
@@ -834,31 +901,31 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsIt
     Attributes
     ----------
     action : str, default is "replace", optional
-        Action to perform based on the regex matching.
+        action to perform based on the regex matching.
 
         `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
         `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
 
         Default: "Replace"
     modulus : int, default is Undefined, optional
-        Modulus to take of the hash of the source label values.
+        modulus to take of the hash of the source label values.
 
         Only applicable when the action is `HashMod`.
     regex : str, default is Undefined, optional
-        Regular expression against which the extracted value is matched.
+        regex defines the regular expression against which the extracted value is matched.
     replacement : str, default is Undefined, optional
-        Replacement value against which a Replace action is performed if the
+        replacement value against which a Replace action is performed if the
         regular expression matches.
 
         Regex capture groups are available.
     separator : str, default is Undefined, optional
-        Separator is the string between concatenated SourceLabels.
+        separator defines the string between concatenated SourceLabels.
     sourceLabels : [str], default is Undefined, optional
-        The source labels select values from existing labels. Their content is
+        sourceLabels defines the source labels select values from existing labels. Their content is
         concatenated using the configured Separator and matched against the
         configured regular expression.
     targetLabel : str, default is Undefined, optional
-        Label to which the resulting string is written in a replacement.
+        targetLabel defines the label to which the resulting string is written in a replacement.
 
         It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
         `KeepEqual` and `DropEqual` actions.
@@ -873,12 +940,9 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsIt
     sourceLabels?: [str]
     targetLabel?: str
 
-    check:
-        all sourceLabels in sourceLabels {_regex_match(str(sourceLabels), r"^[a-zA-Z_][a-zA-Z0-9_]*$") if sourceLabels} if sourceLabels
-
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig:
     r"""
-    TLS configuration to use when scraping the target.
+    tlsConfig defines the TLS configuration used by the client.
 
     Attributes
     ----------
@@ -887,19 +951,19 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig:
     cert : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert, default is Undefined, optional
         cert
     insecureSkipVerify : bool, default is Undefined, optional
-        Disable target certificate validation.
+        insecureSkipVerify defines how to disable target certificate validation.
     keySecret : MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigKeySecret, default is Undefined, optional
         key secret
     maxVersion : str, default is Undefined, optional
-        Maximum acceptable TLS version.
+        maxVersion defines the maximum acceptable TLS version.
 
-        It requires Prometheus >= v2.41.0.
+        It requires Prometheus >= v2.41.0 or Thanos >= v0.31.0.
     minVersion : str, default is Undefined, optional
-        Minimum acceptable TLS version.
+        minVersion defines the minimum acceptable TLS version.
 
-        It requires Prometheus >= v2.35.0.
+        It requires Prometheus >= v2.35.0 or Thanos >= v0.28.0.
     serverName : str, default is Undefined, optional
-        Used to verify the hostname for the targets.
+        serverName is used to verify the hostname for the targets.
     """
     ca?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCa
     cert?: MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert
@@ -911,7 +975,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig:
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCa:
     r"""
-    Certificate authority used when verifying server certificates.
+    ca defines the Certificate authority used when verifying server certificates.
 
     Attributes
     ----------
@@ -925,7 +989,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCa:
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -947,7 +1011,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaCo
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -969,7 +1033,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCaSe
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert:
     r"""
-    Client certificate to present when doing client-authentication.
+    cert defines the Client certificate to present when doing client-authentication.
 
     Attributes
     ----------
@@ -983,7 +1047,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCertConfigMap:
     r"""
-    ConfigMap containing data to use for the targets.
+    configMap defines the ConfigMap containing data to use for the targets.
 
     Attributes
     ----------
@@ -1005,7 +1069,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCertSecret:
     r"""
-    Secret containing data to use for the targets.
+    secret defines the Secret containing data to use for the targets.
 
     Attributes
     ----------
@@ -1027,7 +1091,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigCert
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigKeySecret:
     r"""
-    Secret containing the client key file for the targets.
+    keySecret defines the Secret containing the client key file for the targets.
 
     Attributes
     ----------
@@ -1049,7 +1113,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfigKeyS
 
 schema MonitoringCoreosComV1PodMonitorSpecSelector:
     r"""
-    Label selector to select the Kubernetes `Pod` objects to scrape metrics from.
+    selector defines the label selector to select the Kubernetes `Pod` objects to scrape metrics from.
 
     Attributes
     ----------
@@ -1086,4 +1150,86 @@ schema MonitoringCoreosComV1PodMonitorSpecSelectorMatchExpressionsItems0:
     operator: str
 
     values?: [str]
+
+schema MonitoringCoreosComV1PodMonitorStatus:
+    r"""
+    status defines the status subresource. It is under active development and is updated only when the
+    "StatusForConfigurationResources" feature gate is enabled.
+
+    Most recent observed status of the PodMonitor. Read-only.
+    More info:
+    https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+
+    Attributes
+    ----------
+    bindings : [MonitoringCoreosComV1PodMonitorStatusBindingsItems0], default is Undefined, optional
+        bindings defines the list of workload resources (Prometheus, PrometheusAgent, ThanosRuler or Alertmanager) which select the configuration resource.
+    """
+    bindings?: [MonitoringCoreosComV1PodMonitorStatusBindingsItems0]
+
+schema MonitoringCoreosComV1PodMonitorStatusBindingsItems0:
+    r"""
+    WorkloadBinding is a link between a configuration resource and a workload resource.
+
+    Attributes
+    ----------
+    conditions : [MonitoringCoreosComV1PodMonitorStatusBindingsItems0ConditionsItems0], default is Undefined, optional
+        conditions defines the current state of the configuration resource when bound to the referenced Workload object.
+    group : str, default is Undefined, required
+        group defines the group of the referenced resource.
+    name : str, default is Undefined, required
+        name defines the name of the referenced object.
+    namespace : str, default is Undefined, required
+        namespace defines the namespace of the referenced object.
+    resource : str, default is Undefined, required
+        resource defines the type of resource being referenced (e.g. Prometheus, PrometheusAgent, ThanosRuler or Alertmanager).
+    """
+    conditions?: [MonitoringCoreosComV1PodMonitorStatusBindingsItems0ConditionsItems0]
+    group: "monitoring.coreos.com"
+
+    name: str
+
+    namespace: str
+
+    resource: "prometheuses" | "prometheusagents" | "thanosrulers" | "alertmanagers"
+
+    check:
+        len(name) >= 1
+        len(namespace) >= 1
+
+schema MonitoringCoreosComV1PodMonitorStatusBindingsItems0ConditionsItems0:
+    r"""
+    ConfigResourceCondition describes the status of configuration resources linked to Prometheus, PrometheusAgent, Alertmanager or ThanosRuler.
+
+    Attributes
+    ----------
+    lastTransitionTime : str, default is Undefined, required
+        lastTransitionTime defines the time of the last update to the current status property.
+    message : str, default is Undefined, optional
+        message defines the human-readable message indicating details for the condition's last transition.
+    observedGeneration : int, default is Undefined, optional
+        observedGeneration defines the .metadata.generation that the
+        condition was set based upon. For instance, if `.metadata.generation` is
+        currently 12, but the `.status.conditions[].observedGeneration` is 9, the
+        condition is out of date with respect to the current state of the object.
+    reason : str, default is Undefined, optional
+        reason for the condition's last transition.
+    status : str, default is Undefined, required
+        status of the condition.
+    $type : str, default is Undefined, required
+        type of the condition being reported.
+        Currently, only "Accepted" is supported.
+    """
+    lastTransitionTime: str
+
+    message?: str
+    observedGeneration?: int
+    reason?: str
+    status: str
+
+    $type: "Accepted"
+
+    check:
+        len(status) >= 1
+        len($type) >= 1
 
