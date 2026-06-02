@@ -8,8 +8,6 @@
 package main
 
 import (
-	"context"
-
 	"dagger/kclipper/internal/dagger"
 )
 
@@ -49,6 +47,8 @@ type Kclipper struct {
 	GoMod *dagger.Directory // +private
 	// Go toolchain module instance for delegation.
 	Go *dagger.Go // +private
+	// GoReleaser toolchain module instance for config validation.
+	Goreleaser *dagger.Goreleaser // +private
 }
 
 // New creates a [Kclipper] module with the given project source directory.
@@ -69,16 +69,23 @@ func New(
 	if registry == "" {
 		registry = defaultRegistry
 	}
+	goToolchain := dag.Go(dagger.GoOpts{
+		Source:         source,
+		GoMod:          goMod,
+		Cgo:            true,
+		Version:        "1.25",
+		CacheNamespace: "github.com/macropower/kclipper/toolchains/go",
+	})
 	return &Kclipper{
 		Source:   source,
 		GoMod:    goMod,
 		Registry: registry,
-		Go: dag.Go(dagger.GoOpts{
-			Source:         source,
-			GoMod:          goMod,
-			Cgo:            true,
-			Version:        "1.25",
-			CacheNamespace: "github.com/macropower/kclipper/toolchains/go",
+		Go:       goToolchain,
+		Goreleaser: dag.Goreleaser(dagger.GoreleaserOpts{
+			Source:    source,
+			Base:      goToolchain.Base(),
+			Version:   goreleaserVersion,
+			RemoteURL: kclipperCloneURL,
 		}),
 	}
 }
@@ -112,21 +119,6 @@ func (m *Kclipper) prettierBase() *dagger.Container {
 		From("node:lts-slim").
 		WithMountedCache("/root/.npm", dag.CacheVolume(kclipperCacheNamespace+":npm")).
 		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
-}
-
-// goreleaserCheckBase extends [Kclipper.goreleaserBase] with a minimal git
-// repo (via [Go.EnsureGitRepo]) for the given remoteURL. This is sufficient
-// for goreleaser check, which only validates config syntax and does not
-// require the full release toolset provided by [Kclipper.releaserBase].
-func (m *Kclipper) goreleaserCheckBase(ctx context.Context, remoteURL string) (*dagger.Container, error) {
-	ctr, err := m.goreleaserBase(ctx)
-	if err != nil {
-		return nil, err
-	}
-	ctr = ctr.WithMountedDirectory("/src", m.Source)
-	return m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
-		RemoteURL: remoteURL,
-	}), nil
 }
 
 // defaultPrettierPatterns returns the default file patterns for prettier

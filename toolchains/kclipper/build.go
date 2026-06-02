@@ -146,10 +146,11 @@ var platformToFileArch = map[string]string{
 }
 
 // goreleaserBase returns a container with Go, GoReleaser, and module caches.
-// This is the common base shared by [Kclipper.releaserBase] and
-// [Kclipper.goreleaserCheckBase]. Callers are responsible for mounting
-// project source and initializing a git repo (e.g. via [Go.EnsureGitRepo])
-// with their appropriate remote URL before use.
+// This is the base used by [Kclipper.releaserBase] for the full release
+// toolset. (Config-only validation goes through the shared [Goreleaser]
+// toolchain instead -- see [Kclipper.LintReleaser].) Callers are responsible
+// for mounting project source and initializing a git repo (e.g. via
+// [Go.EnsureGitRepo]) with their appropriate remote URL before use.
 //
 // The container is built on top of [Go.Base], reusing the pre-built Go image
 // with module cache and go mod download already completed.

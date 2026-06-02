@@ -17,21 +17,15 @@ func (m *Kclipper) TestUnit(ctx context.Context) error {
 	return m.Go.TestUnit(ctx)
 }
 
-// LintReleaser validates the GoReleaser configuration. Uses
-// [Kclipper.goreleaserCheckBase] with the kclipper remote URL because the
+// LintReleaser validates the GoReleaser configuration. Delegates to the
+// shared [Goreleaser] toolchain, which mounts the source over a minimal git
+// repo (the kclipper remote URL is configured at construction) because the
 // goreleaser config references a git remote for homebrew/nix repository
 // resolution.
 //
 // +check
 func (m *Kclipper) LintReleaser(ctx context.Context) error {
-	ctr, err := m.goreleaserCheckBase(ctx, kclipperCloneURL)
-	if err != nil {
-		return err
-	}
-	_, err = ctr.
-		WithExec([]string{"goreleaser", "check"}).
-		Sync(ctx)
-	return err
+	return m.Goreleaser.Check(ctx)
 }
 
 // ReleaseDryRun validates the full release pipeline without publishing.
