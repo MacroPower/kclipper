@@ -89,12 +89,7 @@ tasks:
   test:
     desc: Runs Go tests via Dagger
     cmds:
-      - dagger check go:test
-
-  test:goci:
-    desc: Runs go toolchain module integration tests via Dagger
-    cmds:
-      - dagger check -m toolchains/go/tests
+      - dagger check kclipper:test-unit
 
   test:integration:
     desc: Runs CI module integration tests via Dagger

@@ -14,14 +14,14 @@ import (
 )
 
 const (
-	goreleaserVersion = "v2.13.3"  // renovate: datasource=github-releases depName=goreleaser/goreleaser
-	prettierVersion   = "3.5.3"    // renovate: datasource=npm depName=prettier
-	zizmorVersion     = "1.22.0"   // renovate: datasource=github-releases depName=zizmorcore/zizmor
-	deadcodeVersion   = "v0.42.0"  // renovate: datasource=go depName=golang.org/x/tools
-	cosignVersion     = "v3.0.4"   // renovate: datasource=github-releases depName=sigstore/cosign
-	syftVersion       = "v1.41.1"  // renovate: datasource=github-releases depName=anchore/syft
-	zigVersion        = "0.15.2"   // renovate: datasource=github-releases depName=ziglang/zig
-	kclLSPVersion     = "v0.11.2"  // renovate: datasource=github-releases depName=kcl-lang/kcl
+	goreleaserVersion = "v2.13.3" // renovate: datasource=github-releases depName=goreleaser/goreleaser
+	prettierVersion   = "3.5.3"   // renovate: datasource=npm depName=prettier
+	zizmorVersion     = "1.22.0"  // renovate: datasource=github-releases depName=zizmorcore/zizmor
+	deadcodeVersion   = "v0.42.0" // renovate: datasource=go depName=golang.org/x/tools
+	cosignVersion     = "v3.0.4"  // renovate: datasource=github-releases depName=sigstore/cosign
+	syftVersion       = "v1.41.1" // renovate: datasource=github-releases depName=anchore/syft
+	zigVersion        = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
+	kclLSPVersion     = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
 
 	kclipperCacheNamespace = "github.com/macropower/kclipper/toolchains/kclipper"
 
@@ -74,9 +74,11 @@ func New(
 		GoMod:    goMod,
 		Registry: registry,
 		Go: dag.Go(dagger.GoOpts{
-			Source: source,
-			GoMod:  goMod,
-			Cgo:    true,
+			Source:         source,
+			GoMod:          goMod,
+			Cgo:            true,
+			Version:        "1.25",
+			CacheNamespace: "github.com/macropower/kclipper/toolchains/go",
 		}),
 	}
 }

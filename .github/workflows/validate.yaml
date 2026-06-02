@@ -49,12 +49,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run go toolchain integration tests
-        uses: ./.github/actions/dagger-call
-        with:
-          verb: check
-          module: toolchains/go/tests
-
       - name: Run kclipper-dev integration tests
         uses: ./.github/actions/dagger-call
         with:

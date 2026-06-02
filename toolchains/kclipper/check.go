@@ -8,6 +8,15 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// TestUnit runs the Go unit tests via the go toolchain. The shared go module
+// does not mark TestUnit as a check, so this thin wrapper keeps unit tests in
+// the kclipper check fan-out (dagger check, lefthook pre-commit, and CI).
+//
+// +check
+func (m *Kclipper) TestUnit(ctx context.Context) error {
+	return m.Go.TestUnit(ctx)
+}
+
 // LintReleaser validates the GoReleaser configuration. Uses
 // [Kclipper.goreleaserCheckBase] with the kclipper remote URL because the
 // goreleaser config references a git remote for homebrew/nix repository

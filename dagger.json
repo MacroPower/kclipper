@@ -1,13 +1,13 @@
 {
   "name": "kclipper-dev",
-  "engineVersion": "v0.20.0",
+  "engineVersion": "v0.20.8",
   "sdk": {
     "source": "go"
   },
   "toolchains": [
     {
       "name": "go",
-      "source": "toolchains/go",
+      "source": "github.com/MacroPower/x/toolchains/go@main",
       "customizations": [
         {
           "argument": "source",
@@ -26,6 +26,14 @@
         {
           "argument": "cgo",
           "default": "true"
+        },
+        {
+          "argument": "version",
+          "default": "1.25"
+        },
+        {
+          "argument": "cacheNamespace",
+          "default": "github.com/macropower/kclipper/toolchains/go"
         }
       ]
     },
@@ -61,7 +69,7 @@
     },
     {
       "name": "security",
-      "source": "toolchains/security",
+      "source": "github.com/MacroPower/x/toolchains/security@main",
       "customizations": [
         {
           "function": ["scanSource"],

@@ -1,6 +1,6 @@
 {
   "name": "tests",
-  "engineVersion": "v0.20.0",
+  "engineVersion": "v0.20.8",
   "sdk": {
     "source": "go"
   },
@@ -11,7 +11,7 @@
     },
     {
       "name": "go",
-      "source": "../../go"
+      "source": "github.com/MacroPower/x/toolchains/go@main"
     },
     {
       "name": "dev",
