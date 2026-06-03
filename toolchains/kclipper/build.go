@@ -101,22 +101,6 @@ func runtimeBase(platform dagger.Platform) *dagger.Container {
 			"apt-get update && apt-get install -y curl gpg apt-transport-https && rm -rf /var/lib/apt/lists/* /tmp/*"})
 }
 
-// goreleaserBase returns a container with Go, GoReleaser, and module caches.
-// This is the base used by [Kclipper.releaserBase] for the full release
-// toolset. (Config-only validation goes through the shared [Goreleaser]
-// toolchain instead -- see [Kclipper.LintReleaser].) Callers are responsible
-// for mounting project source and initializing a git repo (e.g. via
-// [Go.EnsureGitRepo]) with their appropriate remote URL before use.
-//
-// The container is built on top of [Go.Base], reusing the pre-built Go image
-// with module cache and go mod download already completed.
-func (m *Kclipper) goreleaserBase(_ context.Context) (*dagger.Container, error) {
-	return m.Go.Base().
-		WithFile("/usr/local/bin/goreleaser",
-			dag.Container().From("ghcr.io/goreleaser/goreleaser:"+goreleaserVersion).
-				File("/usr/bin/goreleaser")), nil
-}
-
 // zigDirectory returns the Zig compiler distribution directory for the host
 // platform, extracted from the official tarball in a dedicated container for
 // independent caching.
@@ -146,15 +130,14 @@ func kclLSPBinary(goos, goarch string) *dagger.File {
 		File("/kcl-language-server")
 }
 
-// releaserBase extends [Kclipper.goreleaserBase] with cosign, syft, Zig,
-// pre-downloaded KCL Language Server binaries, and macOS SDK headers needed
-// for CGO cross-compilation. Provides the complete release toolset for
-// goreleaser release with signing, SBOM, and cross-compilation support.
-func (m *Kclipper) releaserBase(ctx context.Context) (*dagger.Container, error) {
-	ctr, err := m.goreleaserBase(ctx)
-	if err != nil {
-		return nil, err
-	}
+// releaserBase builds the complete release toolset: the shared GoReleaser base
+// (the Go build base plus the goreleaser binary, from the [Goreleaser]
+// toolchain) extended with cosign, syft, Zig, pre-downloaded KCL Language
+// Server binaries, and macOS SDK headers for CGO cross-compilation. Config-only
+// validation goes through the [Goreleaser] toolchain directly -- see
+// [Kclipper.LintReleaser].
+func (m *Kclipper) releaserBase(_ context.Context) (*dagger.Container, error) {
+	ctr := m.Goreleaser.GoreleaserBase()
 	// Install stable tools before committing source so that source changes
 	// only invalidate layers from EnsureGitRepo onward, not the tool layers.
 	// cosign and syft binaries are installed via their toolchain modules.
