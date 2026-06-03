@@ -293,74 +293,12 @@ func (m *Tests) TestLintKCLModulesClean(ctx context.Context) error {
 	return dag.Kclipper().LintKCLModules(ctx)
 }
 
-// TestBenchmarkReturnsResults verifies that [Kclipper.Benchmark] returns
-// non-empty results with expected stage names and positive durations.
-//
-// Not annotated with +check because benchmarks run the full pipeline
-// with cache-busting, which would duplicate all CI work in the
-// integration test suite. Run manually:
-//
-//	dagger call -m toolchains/kclipper/tests test-benchmark-returns-results
-func (m *Tests) TestBenchmarkReturnsResults(ctx context.Context) error {
-	results, err := dag.Kclipper().Benchmark(ctx)
-	if err != nil {
-		return fmt.Errorf("run benchmark: %w", err)
-	}
-	if len(results) == 0 {
-		return fmt.Errorf("benchmark returned no results")
-	}
-
-	expectedStages := map[string]bool{
-		"env":           false,
-		"lint":          false,
-		"test":          false,
-		"lint-prettier": false,
-		"lint-actions":  false,
-		"lint-releaser": false,
-		"build":         false,
-	}
-
-	for _, r := range results {
-		name, err := r.Name(ctx)
-		if err != nil {
-			return fmt.Errorf("read result name: %w", err)
-		}
-		if _, ok := expectedStages[name]; ok {
-			expectedStages[name] = true
-		}
-
-		dur, err := r.DurationSecs(ctx)
-		if err != nil {
-			return fmt.Errorf("read duration for %s: %w", name, err)
-		}
-		if dur < 0 {
-			return fmt.Errorf("stage %s has negative duration: %f", name, dur)
-		}
-
-		ok, err := r.Ok(ctx)
-		if err != nil {
-			return fmt.Errorf("read ok for %s: %w", name, err)
-		}
-		if !ok {
-			errMsg, _ := r.Error(ctx)
-			return fmt.Errorf("stage %s failed: %s", name, errMsg)
-		}
-	}
-
-	for stage, found := range expectedStages {
-		if !found {
-			return fmt.Errorf("expected stage %q not found in results", stage)
-		}
-	}
-
-	return nil
-}
-
 // TestBenchmarkSummaryFormat verifies that [Kclipper.BenchmarkSummary] returns
 // a non-empty string containing the expected table header and stage names.
 //
 // Not annotated with +check because benchmarks run the full pipeline
-// with cache-busting (see [Tests.TestBenchmarkReturnsResults]). Run manually:
+// with cache-busting, which would duplicate all CI work in the integration
+// test suite. Run manually:
 //
 //	dagger call -m toolchains/kclipper/tests test-benchmark-summary-format
 func (m *Tests) TestBenchmarkSummaryFormat(ctx context.Context) error {

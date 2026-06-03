@@ -14,6 +14,14 @@
       "source": "../dev"
     },
     {
+      "name": "bench",
+      "source": "github.com/MacroPower/x/toolchains/bench@main"
+    },
+    {
+      "name": "cosign",
+      "source": "github.com/MacroPower/x/toolchains/cosign@main"
+    },
+    {
       "name": "go",
       "source": "github.com/MacroPower/x/toolchains/go@main",
       "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"

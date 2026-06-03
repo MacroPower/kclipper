@@ -377,35 +377,21 @@ func (m *Kclipper) publishImages(
 		return nil, err
 	}
 
-	// Sign each published image with cosign (key-based signing).
-	// Deduplicate first -- multiple tags often share one manifest digest.
+	// Sign each published image with cosign (key-based signing) via the
+	// cosign toolchain module. Deduplicate first -- multiple tags often
+	// share one manifest digest.
 	if cosignKey != nil {
 		toSign, err := m.Goreleaser.DeduplicateDigests(ctx, digests)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("deduplicate digests: %w", err)
 		}
-
-		cosignCtr := dag.Container().
-			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
-			With(optSecretVariable("COSIGN_KEY", cosignKey)).
-			With(optSecretVariable("COSIGN_PASSWORD", cosignPassword))
-		if registryPassword != nil {
-			cosignCtr = cosignCtr.WithRegistryAuth(host, registryUsername, registryPassword)
-		}
-
-		g, gCtx := errgroup.WithContext(ctx)
-		for _, digest := range toSign {
-			g.Go(func() error {
-				_, err := cosignCtr.
-					WithExec([]string{"cosign", "sign", "--key", "env://COSIGN_KEY", digest, "--yes"}).
-					Sync(gCtx)
-				if err != nil {
-					return fmt.Errorf("sign image %s: %w", digest, err)
-				}
-				return nil
-			})
-		}
-		if err := g.Wait(); err != nil {
+		if err := m.Cosign.SignWithKey(ctx, toSign, cosignKey,
+			dagger.CosignSignWithKeyOpts{
+				Password:         cosignPassword,
+				RegistryHost:     host,
+				RegistryUsername: registryUsername,
+				RegistryPassword: registryPassword,
+			}); err != nil {
 			return nil, err
 		}
 	}
