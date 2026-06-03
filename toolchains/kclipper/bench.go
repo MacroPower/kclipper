@@ -21,13 +21,8 @@ func (m *Kclipper) benchSuite(ctx context.Context) (*dagger.Bench, error) {
 			WithExec([]string{"golangci-lint", "run"})).
 		WithStage("test", m.Go.CacheBust(m.Go.Env(dagger.GoEnvOpts{})).
 			WithExec([]string{"go", "test", "./..."})).
-		WithStage("lint-prettier", m.Go.CacheBust(m.prettierBase()).
-			WithMountedDirectory("/src", m.Source).
-			WithWorkdir("/src").
-			WithExec(append(
-				[]string{"prettier", "--config", "./.prettierrc.yaml", "--check"},
-				defaultPrettierPatterns()...,
-			))).
+		WithStage("lint-prettier", m.Go.CacheBust(m.Prettier.LintBase()).
+			WithExec([]string{"prettier", "--config", "./.prettierrc.yaml", "--check", "."})).
 		WithStage("lint-actions", m.Go.CacheBust(m.Zizmor.LintBase()).
 			WithExec([]string{
 				"zizmor", ".github/workflows", "--config", ".github/zizmor.yaml",

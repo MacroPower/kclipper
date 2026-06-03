@@ -32,6 +32,14 @@
       "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"
     },
     {
+      "name": "prettier",
+      "source": "github.com/MacroPower/x/toolchains/prettier@main"
+    },
+    {
+      "name": "syft",
+      "source": "github.com/MacroPower/x/toolchains/syft@main"
+    },
+    {
       "name": "zizmor",
       "source": "github.com/MacroPower/x/toolchains/zizmor@main",
       "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"

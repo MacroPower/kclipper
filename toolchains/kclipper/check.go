@@ -86,7 +86,9 @@ func (m *Kclipper) ReleaseDryRun(ctx context.Context) error {
 	return g.Wait()
 }
 
-// LintPrettier checks YAML, JSON, and Markdown formatting.
+// LintPrettier checks YAML, JSON, and Markdown formatting by delegating to the
+// shared [Prettier] toolchain. Empty configPath/patterns let the prettier
+// module apply its own defaults.
 //
 // +check
 func (m *Kclipper) LintPrettier(
@@ -98,19 +100,10 @@ func (m *Kclipper) LintPrettier(
 	// +optional
 	patterns []string,
 ) error {
-	if configPath == "" {
-		configPath = "./.prettierrc.yaml"
-	}
-	if len(patterns) == 0 {
-		patterns = defaultPrettierPatterns()
-	}
-	args := append([]string{"prettier", "--config", configPath, "--check"}, patterns...)
-	_, err := m.prettierBase().
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
-		WithExec(args).
-		Sync(ctx)
-	return err
+	return m.Prettier.Lint(ctx, dagger.PrettierLintOpts{
+		ConfigPath: configPath,
+		Patterns:   patterns,
+	})
 }
 
 // LintActions lints GitHub Actions workflows by delegating to the shared

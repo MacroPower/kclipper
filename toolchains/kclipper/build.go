@@ -157,13 +157,10 @@ func (m *Kclipper) releaserBase(ctx context.Context) (*dagger.Container, error) 
 	}
 	// Install stable tools before committing source so that source changes
 	// only invalidate layers from EnsureGitRepo onward, not the tool layers.
+	// cosign and syft binaries are installed via their toolchain modules.
+	ctr = m.Cosign.WithCosign(ctr)
+	ctr = m.Syft.WithSyft(ctr)
 	ctr = ctr.
-		WithFile("/usr/local/bin/cosign",
-			dag.Container().From("gcr.io/projectsigstore/cosign:"+cosignVersion).
-				File("/ko-app/cosign")).
-		WithFile("/usr/local/bin/syft",
-			dag.Container().From("ghcr.io/anchore/syft:"+syftVersion).
-				File("/syft")).
 		// Install Zig for CGO cross-compilation from a dedicated cached container.
 		WithDirectory("/usr/local", zigDirectory()).
 		WithExec([]string{"ln", "-sf", "/usr/local/zig", "/usr/local/bin/zig"}).

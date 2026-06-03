@@ -13,9 +13,6 @@ import (
 
 const (
 	goreleaserVersion = "v2.13.3" // renovate: datasource=github-releases depName=goreleaser/goreleaser
-	prettierVersion   = "3.5.3"   // renovate: datasource=npm depName=prettier
-	cosignVersion     = "v3.0.4"  // renovate: datasource=github-releases depName=sigstore/cosign
-	syftVersion       = "v1.41.1" // renovate: datasource=github-releases depName=anchore/syft
 	zigVersion        = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
 	kclLSPVersion     = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
 
@@ -51,6 +48,10 @@ type Kclipper struct {
 	Zizmor *dagger.Zizmor // +private
 	// Cosign toolchain module instance for container image signing.
 	Cosign *dagger.Cosign // +private
+	// Prettier toolchain module instance for non-Go formatting and linting.
+	Prettier *dagger.Prettier // +private
+	// Syft toolchain module instance for SBOM binary installation.
+	Syft *dagger.Syft // +private
 }
 
 // New creates a [Kclipper] module with the given project source directory.
@@ -91,6 +92,11 @@ func New(
 		}),
 		Zizmor: dag.Zizmor(dagger.ZizmorOpts{Source: source}),
 		Cosign: dag.Cosign(),
+		Prettier: dag.Prettier(dagger.PrettierOpts{
+			Source:         source,
+			CacheNamespace: kclipperCacheNamespace,
+		}),
+		Syft: dag.Syft(),
 	}
 }
 
@@ -110,26 +116,4 @@ func (m *Kclipper) Binary(
 		NoDwarf:   true,
 		Platform:  platform,
 	})
-}
-
-// ---------------------------------------------------------------------------
-// Base containers (private)
-// ---------------------------------------------------------------------------
-
-// prettierBase returns a Node container with prettier pre-installed.
-// Callers must mount their source directory and set the workdir.
-func (m *Kclipper) prettierBase() *dagger.Container {
-	return dag.Container().
-		From("node:lts-slim").
-		WithMountedCache("/root/.npm", dag.CacheVolume(kclipperCacheNamespace+":npm")).
-		WithExec([]string{"npm", "install", "-g", "prettier@" + prettierVersion})
-}
-
-// defaultPrettierPatterns returns the default file patterns for prettier
-// formatting and linting.
-func defaultPrettierPatterns() []string {
-	return []string{
-		"*.yaml", "*.md", "*.json",
-		"**/*.yaml", "**/*.md", "**/*.json",
-	}
 }
