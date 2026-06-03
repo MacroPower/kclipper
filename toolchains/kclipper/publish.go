@@ -72,100 +72,6 @@ func optSecretVariable(name string, secret *dagger.Secret) dagger.WithContainerF
 // reKCLModVersion matches the version line in kcl.mod files.
 var reKCLModVersion = regexp.MustCompile(`(?m)^version\s*=\s*"[^"]*"`)
 
-// isPrerelease reports whether the version tag contains a pre-release
-// identifier (e.g. "v1.0.0-rc.1", "v2.0.0-beta.1"). Detection checks for
-// a hyphen in any of the first three dot-separated version components after
-// stripping the "v" prefix. Build metadata (e.g. "v1.0.0+build.1") does not
-// contain a hyphen and is correctly treated as a stable release.
-func isPrerelease(tag string) bool {
-	v := strings.TrimPrefix(tag, "v")
-	for _, part := range strings.SplitN(v, ".", 3) {
-		if strings.Contains(part, "-") {
-			return true
-		}
-	}
-	return false
-}
-
-// VersionTags returns the image tags derived from a version tag string.
-// For example, "v1.2.3" yields ["latest", "v1.2.3", "v1", "v1.2"].
-// Pre-release versions (e.g. "v1.0.0-rc.1") yield only the exact tag.
-func (m *Kclipper) VersionTags(
-	// Version tag (e.g. "v1.2.3").
-	tag string,
-) []string {
-	if isPrerelease(tag) {
-		return []string{tag}
-	}
-
-	v := strings.TrimPrefix(tag, "v")
-	parts := strings.SplitN(v, ".", 3)
-
-	tags := []string{"latest", tag}
-	if len(parts) >= 1 {
-		tags = append(tags, "v"+parts[0])
-	}
-	if len(parts) >= 2 {
-		tags = append(tags, "v"+parts[0]+"."+parts[1])
-	}
-	return tags
-}
-
-// FormatDigestChecksums converts publish output references to the
-// checksums format expected by actions/attest-build-provenance. Each reference
-// has the form "registry/image:tag@sha256:hex"; this function emits
-// "hex  registry/image:tag" lines, deduplicating by digest.
-func (m *Kclipper) FormatDigestChecksums(
-	// Image references (e.g. "registry/image:tag@sha256:hex").
-	refs []string,
-) string {
-	seen := make(map[string]bool)
-	var b strings.Builder
-	for _, ref := range refs {
-		parts := strings.SplitN(ref, "@sha256:", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		hex := parts[1]
-		if seen[hex] {
-			continue
-		}
-		seen[hex] = true
-		fmt.Fprintf(&b, "%s  %s\n", hex, parts[0])
-	}
-	return b.String()
-}
-
-// DeduplicateDigests returns unique image references from a list, keeping
-// only the first occurrence of each sha256 digest.
-func (m *Kclipper) DeduplicateDigests(
-	// Image references (e.g. "registry/image:tag@sha256:hex").
-	refs []string,
-) []string {
-	seen := make(map[string]bool)
-	var unique []string
-	for _, ref := range refs {
-		parts := strings.SplitN(ref, "@sha256:", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		if !seen[parts[1]] {
-			seen[parts[1]] = true
-			unique = append(unique, ref)
-		}
-	}
-	return unique
-}
-
-// RegistryHost extracts the host (with optional port) from a registry
-// address. For example, "ghcr.io/macropower/kclipper" returns "ghcr.io".
-func (m *Kclipper) RegistryHost(
-	// Registry address (e.g. "ghcr.io/macropower/kclipper").
-	registry string,
-) string {
-	return strings.SplitN(registry, "/", 2)[0]
-}
-
 // patchedModulesDir discovers KCL modules under modules/ and rewrites each
 // kcl.mod file's version line to the given version. Returns the patched
 // directory and the list of module names.
@@ -213,7 +119,11 @@ func (m *Kclipper) PublishKCLModules(
 	// +optional
 	registryPassword *dagger.Secret,
 ) error {
-	if isPrerelease(tag) {
+	pre, err := m.Goreleaser.IsPrerelease(ctx, tag)
+	if err != nil {
+		return err
+	}
+	if pre {
 		return nil
 	}
 
@@ -231,11 +141,15 @@ func (m *Kclipper) PublishKCLModules(
 
 	// Conditional registry login (matching cosign pattern).
 	if registryPassword != nil {
+		host, err := m.Goreleaser.RegistryHost(ctx, m.Registry)
+		if err != nil {
+			return err
+		}
 		ctr = ctr.
 			WithSecretVariable("REGISTRY_PASSWORD", registryPassword).
 			WithExec([]string{
 				"sh", "-c",
-				"kcl registry login -u " + registryUsername + " -p \"$REGISTRY_PASSWORD\" " + m.RegistryHost(m.Registry),
+				"kcl registry login -u " + registryUsername + " -p \"$REGISTRY_PASSWORD\" " + host,
 			})
 	}
 
@@ -299,7 +213,10 @@ func (m *Kclipper) PublishImages(
 	}
 
 	// Deduplicate digests for the summary (tags may share a manifest).
-	unique := m.DeduplicateDigests(digests)
+	unique, err := m.Goreleaser.DeduplicateDigests(ctx, digests)
+	if err != nil {
+		return "", err
+	}
 	return fmt.Sprintf("published %d tags (%d unique digests)\n%s", len(tags), len(unique), strings.Join(digests, "\n")), nil
 }
 
@@ -375,7 +292,10 @@ func (m *Kclipper) Release(
 		Directory("/src/dist")
 
 	// Derive image tags from the version tag.
-	tags := m.VersionTags(tag)
+	tags, err := m.Goreleaser.VersionTags(ctx, tag)
+	if err != nil {
+		return nil, fmt.Errorf("derive version tags: %w", err)
+	}
 
 	// Publish multi-arch container images via Dagger-native API.
 	variants, err := runtimeImages(ctx, dist, tag)
@@ -389,11 +309,17 @@ func (m *Kclipper) Release(
 
 	// Write digests in checksums format for attest-build-provenance.
 	if len(digests) > 0 {
-		checksums := m.FormatDigestChecksums(digests)
+		checksums, err := m.Goreleaser.FormatDigestChecksums(ctx, digests)
+		if err != nil {
+			return nil, fmt.Errorf("format digest checksums: %w", err)
+		}
 		dist = dist.WithNewFile("digests.txt", checksums)
 	}
 
-	unique := m.DeduplicateDigests(digests)
+	unique, err := m.Goreleaser.DeduplicateDigests(ctx, digests)
+	if err != nil {
+		return nil, fmt.Errorf("deduplicate digests: %w", err)
+	}
 	return &ReleaseReport{
 		Dist:              dist,
 		Tag:               tag,
@@ -415,10 +341,21 @@ func (m *Kclipper) publishImages(
 	cosignKey *dagger.Secret,
 	cosignPassword *dagger.Secret,
 ) ([]string, error) {
+	// Resolve the registry host once; it is reused for both the publish and
+	// cosign auth chains below. Only needed when authenticating.
+	var host string
+	if registryPassword != nil {
+		var err error
+		host, err = m.Goreleaser.RegistryHost(ctx, m.Registry)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Publish multi-arch manifest for each tag concurrently.
 	publisher := dag.Container()
 	if registryPassword != nil {
-		publisher = publisher.WithRegistryAuth(m.RegistryHost(m.Registry), registryUsername, registryPassword)
+		publisher = publisher.WithRegistryAuth(host, registryUsername, registryPassword)
 	}
 
 	digests := make([]string, len(tags))
@@ -443,14 +380,17 @@ func (m *Kclipper) publishImages(
 	// Sign each published image with cosign (key-based signing).
 	// Deduplicate first -- multiple tags often share one manifest digest.
 	if cosignKey != nil {
-		toSign := m.DeduplicateDigests(digests)
+		toSign, err := m.Goreleaser.DeduplicateDigests(ctx, digests)
+		if err != nil {
+			return nil, err
+		}
 
 		cosignCtr := dag.Container().
-			From("gcr.io/projectsigstore/cosign:"+cosignVersion).
+			From("gcr.io/projectsigstore/cosign:" + cosignVersion).
 			With(optSecretVariable("COSIGN_KEY", cosignKey)).
 			With(optSecretVariable("COSIGN_PASSWORD", cosignPassword))
 		if registryPassword != nil {
-			cosignCtr = cosignCtr.WithRegistryAuth(m.RegistryHost(m.Registry), registryUsername, registryPassword)
+			cosignCtr = cosignCtr.WithRegistryAuth(host, registryUsername, registryPassword)
 		}
 
 		g, gCtx := errgroup.WithContext(ctx)

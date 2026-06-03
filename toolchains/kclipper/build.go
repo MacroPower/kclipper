@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"dagger/kclipper/internal/dagger"
@@ -102,47 +99,6 @@ func runtimeBase(platform dagger.Platform) *dagger.Container {
 		// Install runtime dependencies (curl/gpg for plugin installs).
 		WithExec([]string{"sh", "-c",
 			"apt-get update && apt-get install -y curl gpg apt-transport-https && rm -rf /var/lib/apt/lists/* /tmp/*"})
-}
-
-// verifyBinaryPlatform runs the `file` command on a built binary and asserts
-// that the reported architecture matches the expected architecture for the
-// given platform. Returns an error if the architecture string is absent from
-// the output, indicating a cross-compilation mismatch.
-func verifyBinaryPlatform(ctx context.Context, bin *dagger.File, platform dagger.Platform) error {
-	name, err := bin.Name(ctx)
-	if err != nil {
-		return fmt.Errorf("get binary name: %w", err)
-	}
-
-	arch := filepath.Base(strings.SplitN(string(platform), "/", 2)[1])
-	expected, ok := platformToFileArch[arch]
-	if !ok {
-		return fmt.Errorf("unknown platform architecture %q", arch)
-	}
-
-	mntPath := filepath.Join("/mnt", name)
-	out, err := dag.Container().
-		From("debian:13-slim").
-		WithExec([]string{"sh", "-c", "apt-get update -qq && apt-get install -y -qq file"}).
-		WithMountedFile(mntPath, bin).
-		WithExec([]string{"file", mntPath}).
-		Stdout(ctx)
-	if err != nil {
-		return fmt.Errorf("run file on binary %s: %w", name, err)
-	}
-
-	if !strings.Contains(out, expected) {
-		return fmt.Errorf("binary %s: expected architecture %q (%s) not found in file output: %s", name, expected, arch, out)
-	}
-
-	return nil
-}
-
-// platformToFileArch maps a Go platform architecture name to the architecture
-// string produced by the `file` command.
-var platformToFileArch = map[string]string{
-	"amd64": "x86-64",
-	"arm64": "aarch64",
 }
 
 // goreleaserBase returns a container with Go, GoReleaser, and module caches.

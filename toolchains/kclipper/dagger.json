@@ -10,18 +10,23 @@
   ],
   "dependencies": [
     {
+      "name": "dev",
+      "source": "../dev"
+    },
+    {
       "name": "go",
       "source": "github.com/MacroPower/x/toolchains/go@main",
-      "pin": "9e8753a513d4e8800b3d3179de298283f3cb7cec"
+      "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"
     },
     {
       "name": "goreleaser",
       "source": "github.com/MacroPower/x/toolchains/goreleaser@main",
-      "pin": "9e8753a513d4e8800b3d3179de298283f3cb7cec"
+      "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"
     },
     {
-      "name": "dev",
-      "source": "../dev"
+      "name": "zizmor",
+      "source": "github.com/MacroPower/x/toolchains/zizmor@main",
+      "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"
     }
   ]
 }

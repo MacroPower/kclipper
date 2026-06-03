@@ -61,7 +61,7 @@ func (m *Kclipper) ReleaseDryRun(ctx context.Context) error {
 	for _, t := range targets {
 		g.Go(func() error {
 			bin := dist.File(t.distDir + "/kcl")
-			if err := verifyBinaryPlatform(ctx, bin, t.platform); err != nil {
+			if err := m.Goreleaser.VerifyBinaryPlatform(ctx, bin, t.platform); err != nil {
 				return fmt.Errorf("platform verification for %s: %w", t.platform, err)
 			}
 			return nil
@@ -113,19 +113,13 @@ func (m *Kclipper) LintPrettier(
 	return err
 }
 
-// LintActions runs zizmor to lint GitHub Actions workflows.
+// LintActions lints GitHub Actions workflows by delegating to the shared
+// [Zizmor] toolchain, which runs zizmor against .github/workflows using the
+// project's .github/zizmor.yaml configuration.
 //
 // +check
 func (m *Kclipper) LintActions(ctx context.Context) error {
-	_, err := dag.Container().
-		From("ghcr.io/zizmorcore/zizmor:"+zizmorVersion).
-		WithMountedDirectory("/src", m.Source).
-		WithWorkdir("/src").
-		WithExec([]string{
-			"zizmor", ".github/workflows", "--config", ".github/zizmor.yaml",
-		}).
-		Sync(ctx)
-	return err
+	return m.Zizmor.Lint(ctx)
 }
 
 // LintKCLModules validates that all KCL modules under modules/ can be
@@ -156,16 +150,9 @@ func (m *Kclipper) LintKCLModules(ctx context.Context) error {
 	return err
 }
 
-// LintDeadcode reports unreachable functions in the codebase using the
-// golang.org/x/tools deadcode analyzer. This is an advisory lint that
+// LintDeadcode reports unreachable functions in the codebase by delegating to
+// the shared [Go] toolchain's deadcode analyzer. This is an advisory lint that
 // is not included in standard checks; invoke via dagger call kclipper lint-deadcode.
 func (m *Kclipper) LintDeadcode(ctx context.Context) error {
-	_, err := m.Go.Env(dagger.GoEnvOpts{}).
-		WithExec([]string{
-			"go", "install",
-			"golang.org/x/tools/cmd/deadcode@" + deadcodeVersion,
-		}).
-		WithExec([]string{"deadcode", "./..."}).
-		Sync(ctx)
-	return err
+	return m.Go.LintDeadcode(ctx)
 }

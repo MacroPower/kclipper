@@ -14,8 +14,6 @@ import (
 const (
 	goreleaserVersion = "v2.13.3" // renovate: datasource=github-releases depName=goreleaser/goreleaser
 	prettierVersion   = "3.5.3"   // renovate: datasource=npm depName=prettier
-	zizmorVersion     = "1.22.0"  // renovate: datasource=github-releases depName=zizmorcore/zizmor
-	deadcodeVersion   = "v0.42.0" // renovate: datasource=go depName=golang.org/x/tools
 	cosignVersion     = "v3.0.4"  // renovate: datasource=github-releases depName=sigstore/cosign
 	syftVersion       = "v1.41.1" // renovate: datasource=github-releases depName=anchore/syft
 	zigVersion        = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
@@ -49,6 +47,8 @@ type Kclipper struct {
 	Go *dagger.Go // +private
 	// GoReleaser toolchain module instance for config validation.
 	Goreleaser *dagger.Goreleaser // +private
+	// Zizmor toolchain module instance for GitHub Actions linting.
+	Zizmor *dagger.Zizmor // +private
 }
 
 // New creates a [Kclipper] module with the given project source directory.
@@ -87,6 +87,7 @@ func New(
 			Version:   goreleaserVersion,
 			RemoteURL: kclipperCloneURL,
 		}),
+		Zizmor: dag.Zizmor(dagger.ZizmorOpts{Source: source}),
 	}
 }
 
