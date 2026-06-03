@@ -290,7 +290,7 @@ func (m *Tests) TestLintActionsClean(ctx context.Context) error {
 //
 // +check
 func (m *Tests) TestLintKCLModulesClean(ctx context.Context) error {
-	return dag.Kclipper().LintKCLModules(ctx)
+	return dag.Kclipper().LintKclmodules(ctx)
 }
 
 // TestBenchmarkSummaryFormat verifies that [Kclipper.BenchmarkSummary] returns

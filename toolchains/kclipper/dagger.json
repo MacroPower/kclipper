@@ -10,39 +10,43 @@
   ],
   "dependencies": [
     {
+      "name": "bench",
+      "source": "github.com/MacroPower/x/toolchains/bench@main",
+      "pin": "483dc69c30e485db85d928723096efa22c3603c6"
+    },
+    {
+      "name": "cosign",
+      "source": "github.com/MacroPower/x/toolchains/cosign@main",
+      "pin": "483dc69c30e485db85d928723096efa22c3603c6"
+    },
+    {
       "name": "dev",
       "source": "../dev"
     },
     {
-      "name": "bench",
-      "source": "github.com/MacroPower/x/toolchains/bench@main"
-    },
-    {
-      "name": "cosign",
-      "source": "github.com/MacroPower/x/toolchains/cosign@main"
-    },
-    {
       "name": "go",
       "source": "github.com/MacroPower/x/toolchains/go@main",
-      "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"
+      "pin": "483dc69c30e485db85d928723096efa22c3603c6"
     },
     {
       "name": "goreleaser",
       "source": "github.com/MacroPower/x/toolchains/goreleaser@main",
-      "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"
+      "pin": "483dc69c30e485db85d928723096efa22c3603c6"
     },
     {
       "name": "prettier",
-      "source": "github.com/MacroPower/x/toolchains/prettier@main"
+      "source": "github.com/MacroPower/x/toolchains/prettier@main",
+      "pin": "483dc69c30e485db85d928723096efa22c3603c6"
     },
     {
       "name": "syft",
-      "source": "github.com/MacroPower/x/toolchains/syft@main"
+      "source": "github.com/MacroPower/x/toolchains/syft@main",
+      "pin": "483dc69c30e485db85d928723096efa22c3603c6"
     },
     {
       "name": "zizmor",
       "source": "github.com/MacroPower/x/toolchains/zizmor@main",
-      "pin": "b81212f76a9a727677530c23aca224d8ccabc88d"
+      "pin": "483dc69c30e485db85d928723096efa22c3603c6"
     }
   ]
 }
