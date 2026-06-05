@@ -25,15 +25,21 @@ jobs:
           fetch-depth: 2
 
       - name: Run all checks (test + lint in parallel)
-        uses: ./.github/actions/dagger-call
+        uses: dagger/dagger-for-github@v8.4.1
         with:
+          version: "v0.21.4"
           verb: check
-          function: test lint lint-prettier lint-actions lint-releaser lint-kclmodules
+          args: test lint lint-prettier lint-actions lint-releaser lint-kclmodules
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+          enable-github-summary: "true"
 
       - name: Export coverage profile
-        uses: ./.github/actions/dagger-call
+        uses: dagger/dagger-for-github@v8.4.1
         with:
-          function: test-coverage --output=coverage.txt
+          version: "v0.21.4"
+          call: test-coverage --output=coverage.txt
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+          enable-github-summary: "true"
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -50,7 +56,10 @@ jobs:
           persist-credentials: false
 
       - name: Run kclipper-dev integration tests
-        uses: ./.github/actions/dagger-call
+        uses: dagger/dagger-for-github@v8.4.1
         with:
+          version: "v0.21.4"
           verb: check
           module: .dagger/tests
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+          enable-github-summary: "true"

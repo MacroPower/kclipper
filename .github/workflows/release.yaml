@@ -52,9 +52,10 @@ jobs:
           fi
 
       - name: Release via Dagger
-        uses: ./.github/actions/dagger-call
+        uses: dagger/dagger-for-github@v8.4.1
         with:
-          function: >-
+          version: "v0.21.4"
+          call: >-
             release
             --github-token=env://GITHUB_TOKEN
             --registry-username="${{ github.actor }}"
@@ -68,6 +69,8 @@ jobs:
             --macos-notary-key-id=env://MACOS_NOTARY_KEY_ID
             --macos-notary-issuer-id=env://MACOS_NOTARY_ISSUER_ID
             --output=./dist
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+          enable-github-summary: "true"
         env:
           GITHUB_TOKEN: "${{ steps.app-token.outputs.token }}"
           REGISTRY_PASSWORD: "${{ secrets.GITHUB_TOKEN }}"
@@ -115,12 +118,15 @@ jobs:
           fi
 
       - name: Publish KCL modules via Dagger
-        uses: ./.github/actions/dagger-call
+        uses: dagger/dagger-for-github@v8.4.1
         with:
-          function: >-
+          version: "v0.21.4"
+          call: >-
             kclipper publish-kclmodules
             --tag="${{ steps.tag.outputs.value }}"
             --registry-username="${{ github.actor }}"
             --registry-password=env://REGISTRY_PASSWORD
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+          enable-github-summary: "true"
         env:
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
