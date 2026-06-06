@@ -685,8 +685,8 @@ go.etcd.io/etcd/client/pkg/v3 v3.6.5 h1:Duz9fAzIZFhYWgRjp/FgNq2gO1jId9Yae/rLn3Rr
 go.etcd.io/etcd/client/pkg/v3 v3.6.5/go.mod h1:8Wx3eGRPiy0qOFMZT/hfvdos+DjEaPxdIDiCDUv/FQk=
 go.etcd.io/etcd/client/v3 v3.6.5 h1:yRwZNFBx/35VKHTcLDeO7XVLbCBFbPi+XV4OC3QJf2U=
 go.etcd.io/etcd/client/v3 v3.6.5/go.mod h1:ZqwG/7TAFZ0BJ0jXRPoJjKQJtbFo/9NIY8uoFFKcCyo=
-go.jacobcolvin.com/niceyaml v0.0.0-20260213125854-8d47722f42f5 h1:AfdA0Cw/WO3bSDAcT3QF5fiHcWTSbzb3LEtocNYy46Q=
-go.jacobcolvin.com/niceyaml v0.0.0-20260213125854-8d47722f42f5/go.mod h1:IKkRz7ha8uLG2G7lknugdpRu4V5VNE271oZ1LoCwEYc=
+go.jacobcolvin.com/niceyaml v0.0.0-20260606070754-4b3c7a02856f h1:LWQ/e5B+1OPKgx0cGLmnJZsoy7qVJBuLqh5aOGDNvyU=
+go.jacobcolvin.com/niceyaml v0.0.0-20260606070754-4b3c7a02856f/go.mod h1:IKkRz7ha8uLG2G7lknugdpRu4V5VNE271oZ1LoCwEYc=
 go.jacobcolvin.com/x/log v0.0.0-20260606030626-0add6a0111c9 h1:xbAnTfbHIaGtFxNl1CaHUdRMCfDhEheB667od9tb8JA=
 go.jacobcolvin.com/x/log v0.0.0-20260606030626-0add6a0111c9/go.mod h1:ucGT7Cl11O/2Bmz7kAWz6cWhbGacYvisu+u3m212nL8=
 go.jacobcolvin.com/x/profile v0.0.0-20260606030626-0add6a0111c9 h1:ypqjj2PckKl/Hr/ykXGI9Vo4R6W8qDGCLUEKguMk8KA=
