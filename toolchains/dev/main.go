@@ -20,7 +20,7 @@ const (
 	// containers share the same module and build caches as CI pipelines.
 	defaultGoCacheNamespace = "github.com/macropower/kclipper/toolchains/go"
 
-	goVersion         = "1.25"            // renovate: datasource=golang-version depName=go
+	goVersion         = "1.26"            // renovate: datasource=golang-version depName=go
 	taskVersion       = "v3.48.0"         // renovate: datasource=github-releases depName=go-task/task
 	lefthookVersion   = "v2.1.1"          // renovate: datasource=github-releases depName=evilmartians/lefthook
 	daggerVersion     = "v0.19.11"        // renovate: datasource=github-releases depName=dagger/dagger

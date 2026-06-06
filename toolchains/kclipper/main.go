@@ -76,7 +76,7 @@ func New(
 		Source:         source,
 		GoMod:          goMod,
 		Cgo:            true,
-		Version:        "1.25",
+		Version:        "1.26",
 		CacheNamespace: "github.com/macropower/kclipper/toolchains/go",
 		// Tests resolve the repository root via .git/HEAD, but source is
 		// synced without git state; inject a synthetic .git/HEAD so
