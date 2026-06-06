@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"dagger/kclipper/internal/dagger"
@@ -22,6 +23,30 @@ func (m *Kclipper) Build(ctx context.Context) (*dagger.Directory, error) {
 			"--parallelism=0",
 		}).
 		Directory("/src/dist"), nil
+}
+
+// BinarySnapshot builds the kcl binary for a single platform via GoReleaser
+// in snapshot mode.
+func (m *Kclipper) BinarySnapshot(
+	ctx context.Context,
+	// Target build platform (e.g. "darwin/arm64").
+	platform dagger.Platform,
+) (*dagger.File, error) {
+	ctr, err := m.releaserBase(ctx)
+	if err != nil {
+		return nil, err
+	}
+	goos, goarch, _ := strings.Cut(string(platform), "/")
+	return ctr.
+		WithEnvVariable("GOOS", goos).
+		WithEnvVariable("GOARCH", goarch).
+		// GoReleaser does not create the --output parent directory.
+		WithDirectory("/out", dag.Directory()).
+		WithExec([]string{
+			"goreleaser", "build", "--snapshot", "--clean",
+			"--single-target", "--output", "/out/kcl",
+		}).
+		File("/out/kcl"), nil
 }
 
 // BuildImages builds multi-arch runtime container images from a GoReleaser
@@ -116,6 +141,45 @@ func zigDirectory() *dagger.Directory {
 		Directory("/opt")
 }
 
+// macosSDKDirectory returns the trimmed macOS SDK subset needed for darwin
+// CGO cross-compilation (CoreFoundation and Security frameworks, libobjc,
+// and mach headers), substituted from the NixOS binary cache in a dedicated
+// container for independent caching.
+func macosSDKDirectory() *dagger.Directory {
+	// Substitute the SDK closure from cache.nixos.org. No build occurs;
+	// darwin store paths are downloadable on linux.
+	store := dag.Container().
+		From("nixos/nix:"+nixImageVersion).
+		WithExec([]string{"nix-store", "--realise", macosSDKStorePath}).
+		Directory(macosSDKStorePath)
+	sdk := macosSDKStorePath + "/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+	// The trim runs in debian because the nix image lacks sed.
+	return dag.Container().
+		From("debian:13-slim").
+		// Mount at the original store path so absolute intra-SDK symlinks resolve.
+		WithMountedDirectory(macosSDKStorePath, store).
+		// Copy the needed subset, dereferencing symlinks (-L) to flatten the
+		// intra-framework relative links (Headers -> Versions/Current/Headers)
+		// into real files. The .tbd stubs may carry absolute store-path
+		// references; rewrite them back to /usr and /System so the stubs
+		// resolve under the /sdk/MacOSX.sdk mount, then assert no store
+		// paths remain. The sed pattern is intentionally version-agnostic
+		// (embedded paths use the versioned SDK name, e.g. MacOSX15.5.sdk);
+		// any miss trips the guard.
+		WithExec([]string{"sh", "-c",
+			"mkdir -p /out/System/Library/Frameworks /out/usr/include/mach /out/usr/lib && " +
+				"cp -rL " + sdk + "/System/Library/Frameworks/CoreFoundation.framework /out/System/Library/Frameworks/ && " +
+				"cp -rL " + sdk + "/System/Library/Frameworks/Security.framework /out/System/Library/Frameworks/ && " +
+				"cp -rL " + sdk + "/usr/lib/libobjc* /out/usr/lib/ && " +
+				"cp -rL " + sdk + "/usr/include/mach/. /out/usr/include/mach/ && " +
+				// Store files are read-only; sed -i needs write access.
+				"chmod -R u+w /out && " +
+				`find /out -name '*.tbd' -type f -exec sed -E -i ` +
+				`"s|/nix/store/[a-z0-9]+-apple-sdk-[^/]+/Platforms/MacOSX.platform/Developer/SDKs/MacOSX[0-9.]+\.sdk||g" {} + && ` +
+				`if grep -rq /nix/store /out; then echo "store path leaked into SDK subset" >&2; exit 1; fi`}).
+		Directory("/out")
+}
+
 // kclLSPBinary returns the KCL Language Server binary for the given os/arch
 // combination, downloaded in a dedicated container for independent caching per
 // platform.
@@ -133,9 +197,9 @@ func kclLSPBinary(goos, goarch string) *dagger.File {
 // releaserBase builds the complete release toolset: the shared GoReleaser base
 // (the Go build base plus the goreleaser binary, from the [Goreleaser]
 // toolchain) extended with cosign, syft, Zig, pre-downloaded KCL Language
-// Server binaries, and macOS SDK headers for CGO cross-compilation. Config-only
-// validation goes through the [Goreleaser] toolchain directly -- see
-// [Kclipper.LintReleaser].
+// Server binaries, and macOS SDK headers (fetched from the NixOS binary cache)
+// for CGO cross-compilation. Config-only validation goes through the
+// [Goreleaser] toolchain directly -- see [Kclipper.LintReleaser].
 func (m *Kclipper) releaserBase(_ context.Context) (*dagger.Container, error) {
 	ctr := m.Goreleaser.GoreleaserBase()
 	// Install stable tools before committing source so that source changes
@@ -154,6 +218,9 @@ func (m *Kclipper) releaserBase(_ context.Context) (*dagger.Container, error) {
 		WithFile("/lsp/linux/arm64/kcl-language-server", kclLSPBinary("linux", "arm64")).
 		WithFile("/lsp/darwin/amd64/kcl-language-server", kclLSPBinary("darwin", "amd64")).
 		WithFile("/lsp/darwin/arm64/kcl-language-server", kclLSPBinary("darwin", "arm64")).
+		// Mount macOS SDK headers for Darwin cross-compilation, fetched from
+		// the NixOS binary cache in a dedicated cached container.
+		WithMountedDirectory("/sdk/MacOSX.sdk", macosSDKDirectory()).
 		// Env vars used by GoReleaser ldflags and templates.
 		WithEnvVariable("KCL_LSP_VERSION", kclLSPVersion).
 		WithEnvVariable("BUILD_TAGS", "netgo").
@@ -171,11 +238,7 @@ func (m *Kclipper) releaserBase(_ context.Context) (*dagger.Container, error) {
 		// Mount source after all tools so that source changes only invalidate
 		// layers from here onward, preserving the tool installation layers above.
 		WithMountedDirectory("/src", m.Source)
-	ctr = m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
+	return m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
 		RemoteURL: kclipperCloneURL,
-	})
-	// Mount macOS SDK headers for Darwin cross-compilation.
-	return ctr.WithMountedDirectory("/sdk/MacOSX.sdk",
-		m.Source.Directory(".nixpkgs/vendor/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk")).
-		WithEnvVariable("SDK_PATH", "/sdk/MacOSX.sdk"), nil
+	}), nil
 }

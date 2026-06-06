@@ -54,7 +54,7 @@ toolchains/          # Only kclipper is local here; go, security, goreleaser,
   kclipper/
     dagger.json      # Project CI: depends on remote go + x toolchains
     main.go          # Struct, constructor, version constants
-    build.go         # Build, BuildImages, runtimeImages, runtimeBase, releaserBase
+    build.go         # Build, BinarySnapshot, BuildImages, runtimeImages, runtimeBase, releaserBase, macosSDKDirectory
     check.go         # LintReleaser, ReleaseDryRun, LintPrettier, LintActions, LintKCLModules, LintDeadcode
     generate.go      # Format (merges go FormatGo + prettier Format)
     publish.go       # VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost, PublishKCLModules, PublishImages, Release, publishImages
@@ -75,16 +75,16 @@ Go CI to `go` while owning project-specific tooling.
 The remote toolchains' functions are documented in the x repo. The `kclipper`
 module composes them and owns the project-specific layer:
 
-| Category             | kclipper functions                                                     |
-| -------------------- | ---------------------------------------------------------------------- |
-| Build / release      | Build, BuildImages, releaserBase (private), runtimeImages, runtimeBase |
-| Publish              | PublishImages, PublishKCLModules, publishImages, Release               |
-| Checks (+check)      | LintReleaser, LintPrettier, LintActions, LintKCLModules                |
-| Advisory             | LintDeadcode (callable, not a +check)                                  |
-| Generate (+generate) | Format (merges go FormatGo + prettier Format)                          |
-| Release helpers      | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost   |
-| Benchmark            | benchSuite, BenchmarkSummary                                           |
-| Tool versions        | prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig, KCL LSP     |
+| Category             | kclipper functions                                                                      |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| Build / release      | Build, BinarySnapshot, BuildImages, releaserBase (private), runtimeImages, runtimeBase  |
+| Publish              | PublishImages, PublishKCLModules, publishImages, Release                                |
+| Checks (+check)      | LintReleaser, LintPrettier, LintActions, LintKCLModules                                 |
+| Advisory             | LintDeadcode (callable, not a +check)                                                   |
+| Generate (+generate) | Format (merges go FormatGo + prettier Format)                                           |
+| Release helpers      | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost                    |
+| Benchmark            | benchSuite, BenchmarkSummary                                                            |
+| Tool versions        | prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig, KCL LSP, nix (macOS SDK pin) |
 
 ### Function Categories
 

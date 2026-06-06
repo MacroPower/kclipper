@@ -3,28 +3,7 @@ version: "3"
 vars:
   GO_FILES_CMD: >-
     go list -f {{"{{.Dir}}"}} ./... | xargs -I {} find {} -name "*.go"
-  NIX_VENDOR_DIR: "{{.ROOT_DIR}}/.nixpkgs/vendor"
-  SDK_PATH: "{{.NIX_VENDOR_DIR}}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
-  NIX_SDK_PATH: "{{.DEVBOX_PACKAGES_DIR}}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
-  FRAMEWORK_PATH: "{{.SDK_PATH}}/System/Library/Frameworks"
-  INCLUDE_PATH: "{{.SDK_PATH}}/usr/include"
-  LIB_PATH: "{{.SDK_PATH}}/usr/lib"
-  C_ENV: "{{OS | upper}}_{{ARCH | upper}}"
   PRETTIER_TARGETS: "*.{yaml,md,json} **/*.{yaml,md,json}"
-  ZIG_WRAPPER_DIR: "{{.ROOT_DIR}}/hack"
-
-env:
-  HOSTNAME:
-    sh: hostname
-  KCL_LSP_VERSION: v0.11.2
-  CC_LINUX_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target x86_64-linux-gnu"
-  CC_LINUX_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target aarch64-linux-gnu"
-  CC_DARWIN_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target x86_64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
-  CC_DARWIN_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target aarch64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
-  CXX_LINUX_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target x86_64-linux-gnu"
-  CXX_LINUX_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-gold-wrapper.sh -target aarch64-linux-gnu"
-  CXX_DARWIN_AMD64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target x86_64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
-  CXX_DARWIN_ARM64: "{{.ZIG_WRAPPER_DIR}}/zig-macos-wrapper.sh -target aarch64-macos-none -F{{.FRAMEWORK_PATH}} -I{{.INCLUDE_PATH}} -L{{.LIB_PATH}} -Wno-availability -Wno-nullability-completeness"
   BUILD_TAGS: netgo
 
 tasks:
@@ -145,12 +124,11 @@ tasks:
 
   install:
     desc: Builds and installs binaries
-    env:
-      HELM_VERSION:
-        sh: helm version --template="{{ "{{.Version}}" }}"
+    vars:
+      PLATFORM: "{{OS}}/{{ARCH}}"
     cmds:
-      - goreleaser build --snapshot --clean --single-target
-      - sudo cp ./dist/*/kcl /usr/local/bin
+      - dagger call kclipper binary-snapshot --platform={{.PLATFORM}} --output=./dist/kcl
+      - sudo cp ./dist/kcl /usr/local/bin
 
   go-bench:
     desc: Run Go benchmarks
@@ -290,19 +268,6 @@ tasks:
     desc: Install git hooks
     cmds:
       - lefthook install
-
-  # Since these are impossible to compile properly on linux...
-  update-macos-sdk:
-    cmds:
-      - rm -rf {{.SDK_PATH}}
-      - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
-      - mkdir -p {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
-      - mkdir -p {{.INCLUDE_PATH}}/mach
-      - mkdir -p {{.LIB_PATH}}
-      - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework/* {{.SDK_PATH}}/System/Library/Frameworks/CoreFoundation.framework
-      - cp -r {{.NIX_SDK_PATH}}/System/Library/Frameworks/Security.framework/* {{.SDK_PATH}}/System/Library/Frameworks/Security.framework
-      - cp -r {{.NIX_SDK_PATH}}/usr/lib/libobjc* {{.LIB_PATH}}/
-      - cp -r {{.NIX_SDK_PATH}}/usr/include/mach/* {{.INCLUDE_PATH}}/mach
 
   git:worktree:add:
     desc: Adds a git worktree for the given branch

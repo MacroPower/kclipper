@@ -57,7 +57,6 @@
             "!.prettierignore",
             "!.github/**",
             "!hack/**",
-            "!.nixpkgs/**",
             "!modules/**",
             "!resources/**",
             "!LICENSE"

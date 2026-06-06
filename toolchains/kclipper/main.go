@@ -15,6 +15,14 @@ const (
 	goreleaserVersion = "v2.13.3" // renovate: datasource=github-releases depName=goreleaser/goreleaser
 	zigVersion        = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
 	kclLSPVersion     = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
+	nixImageVersion   = "2.32.8"  // renovate: datasource=docker depName=nixos/nix
+
+	// macosSDKStorePath is the pinned nixpkgs apple-sdk store path, substituted
+	// from cache.nixos.org by [macosSDKDirectory]. Version 15.5 matches the
+	// SDK the project previously vendored; bumping it is a deliberate SDK
+	// upgrade. Update with: nix eval --raw nixpkgs#apple-sdk_15.outPath (on
+	// aarch64-darwin), or look up the current path on search.nixos.org.
+	macosSDKStorePath = "/nix/store/92md59ddfbvm6jbxjylgyyg3b9f8kr8n-apple-sdk-15.5"
 
 	kclipperCacheNamespace = "github.com/macropower/kclipper/toolchains/kclipper"
 
@@ -23,7 +31,8 @@ const (
 	kclipperCloneURL = "https://github.com/macropower/kclipper.git"
 
 	// macosSDKFlags are the common compiler flags for macOS cross-compilation
-	// via Zig, pointing to the vendored macOS SDK headers.
+	// via Zig, pointing to the macOS SDK headers fetched from the NixOS binary
+	// cache (see [macosSDKDirectory]).
 	macosSDKFlags = "-F/sdk/MacOSX.sdk/System/Library/Frameworks " +
 		"-I/sdk/MacOSX.sdk/usr/include " +
 		"-L/sdk/MacOSX.sdk/usr/lib " +

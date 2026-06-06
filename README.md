@@ -435,7 +435,7 @@ KCL and this project are both licensed under the Apache 2.0 License. See [LICENS
 
 KCL is copyright The KCL Authors, all rights reserved.
 
-Note that components in the `.nixpkgs/vendor` directory contain parts of the macOS SDK, which are licensed under different terms. See [Vendored Packages](.nixpkgs/README.md) for details.
+Note that release builds fetch portions of the macOS SDK (Copyright (c) Apple Inc.; licensed under APSL-2.0, Apache-2.0, and MIT terms) from the NixOS binary cache at build time for darwin cross-compilation.
 
 ## Acknowledgements
 
