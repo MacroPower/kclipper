@@ -219,8 +219,8 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecDataToItems0StoreRef:
     name?: str
 
     check:
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1PushSecretSpecDataToItems0StoreRefLabelSelector:
@@ -281,8 +281,8 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecSecretStoreRefsItems0:
     name?: str
 
     check:
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1PushSecretSpecSecretStoreRefsItems0LabelSelector:
@@ -378,8 +378,8 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecSelectorSecret:
     selector?: ExternalSecretsIoV1alpha1PushSecretSpecSelectorSecretSelector
 
     check:
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1PushSecretSpecSelectorSecretSelector:

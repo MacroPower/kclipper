@@ -11,13 +11,13 @@ charts: helm.Charts = {
     podinfo_v5: {
         chart = "podinfo"
         repoURL = "https://stefanprodan.github.io/podinfo"
-        targetRevision = "6.13.0"
+        targetRevision = "5.2.1"
         schemaGenerator = "AUTO"
         schemaValidator = "KCL"
     }
     app_template: {
         chart = "app-template"
-        repoURL = "https://bjw-s.github.io/helm-charts/"
+        repoURL = "https://bjw-s-labs.github.io/helm-charts/"
         targetRevision = "3.7.1"
         schemaGenerator = "CHART-PATH"
         schemaPath = "charts/common/values.schema.json"

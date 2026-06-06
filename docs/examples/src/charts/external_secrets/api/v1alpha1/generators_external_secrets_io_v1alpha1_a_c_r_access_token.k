@@ -150,14 +150,14 @@ schema GeneratorsExternalSecretsIoV1alpha1ACRAccessTokenSpecAuthServicePrincipal
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1ACRAccessTokenSpecAuthServicePrincipalSecretRefClientSecret:
@@ -180,14 +180,14 @@ schema GeneratorsExternalSecretsIoV1alpha1ACRAccessTokenSpecAuthServicePrincipal
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1ACRAccessTokenSpecAuthWorkloadIdentity:
@@ -227,7 +227,7 @@ schema GeneratorsExternalSecretsIoV1alpha1ACRAccessTokenSpecAuthWorkloadIdentity
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 

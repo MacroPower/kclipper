@@ -179,7 +179,7 @@ schema MonitoringCoreosComV1ServiceMonitorSpec:
     check:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
-        len(scrapeClass) >= 1 if scrapeClass
+        len(scrapeClass) >= 1 if scrapeClass not in [None, Undefined]
 
 schema MonitoringCoreosComV1ServiceMonitorSpecAttachMetadata:
     r"""

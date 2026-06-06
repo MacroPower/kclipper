@@ -147,7 +147,7 @@ schema Values:
     endpoints : [any], optional
         for deployments that have node_exporter deployed outside of the cluster, list
         their addresses here
-    env : any | ValuesEnv, optional
+    env : [any] | any | any, optional
         Additional environment variables that will be passed to the daemonset
     envFromConfigMaps : [any], optional
         # The names of configmaps in the same kubernetes namespace which contain values to be added to the environment
@@ -195,7 +195,7 @@ schema Values:
         #
     extraLabels : ValuesExtraLabels, optional
         Apply extra labels to common labels.
-    extraManifests : any | any, optional, default is "null"
+    extraManifests : [any] | any, optional, default is "null"
         # Extra manifests to deploy.  Can be of type dict or list.
         # If dict, keys are ignored and only values are used.
         # Items contained within extraObjects can be defined as dict or string and are passed through tpl.
@@ -538,7 +538,7 @@ schema Values:
     enableKubeBackwardCompatibility?: bool
     enableServiceLinks?: bool
     endpoints?: [any]
-    env?: any | ValuesEnv
+    env?: [any] | any | any
     envFromConfigMaps?: [any]
     envFromSecret?: str
     envFromSecrets?: [any]
@@ -553,7 +553,7 @@ schema Values:
     extraHostVolumeMounts?: [any]
     extraInitContainers?: [any]
     extraLabels?: ValuesExtraLabels
-    extraManifests?: any | any
+    extraManifests?: [any] | any
     extraObjects?: [any]
     extraSecretMounts?: [any]
     extraVolumeMounts?: [any]
@@ -3544,12 +3544,6 @@ schema ValuesDownloadDashboardsSecurityContextSeccompProfile:
     """
     [...str]: any
     $type?: str
-
-schema ValuesEnv:
-    r"""
-    Additional environment variables that will be passed to the daemonset
-    """
-    [...str]: any
 
 schema ValuesEnvRenderSecret:
     r"""
@@ -11304,7 +11298,7 @@ schema ValuesService:
     loadBalancerIP : str, optional, default is ""
     loadBalancerSourceRanges : [any], optional
         Only allow access to the loadBalancerIP from these IPs
-    nodePort : any, optional, default is ""
+    nodePort : int, optional, default is ""
         # Port number for service type NodePort
     port : int, optional, default is 9182
         # Default service port. Sets the port of the exposed container as well (windows-exporter).
@@ -11338,7 +11332,7 @@ schema ValuesService:
     loadBalancerClass?: str
     loadBalancerIP?: str
     loadBalancerSourceRanges?: [any]
-    nodePort?: any
+    nodePort?: int
     port?: int
     portName?: str
     servicePort?: str
@@ -11366,7 +11360,7 @@ schema ValuesServiceAccount:
         ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     labels : ValuesServiceAccountLabels, optional
         # ServiceAccount labels.
-    name : any, optional, default is ""
+    name : str, optional, default is ""
         The name of the ServiceAccount to use.
         If not set and create is true, a name is generated using the fullname template
     nameTest : str, optional, default is ""
@@ -11377,7 +11371,7 @@ schema ValuesServiceAccount:
     create?: bool
     imagePullSecrets?: [any]
     labels?: ValuesServiceAccountLabels
-    name?: any
+    name?: str
     nameTest?: str
 
 schema ValuesServiceAccountAnnotations:
@@ -13379,7 +13373,7 @@ schema ValuesVerticalPodAutoscaler:
 
     Attributes
     ----------
-    controlledResources : [any | ValuesVerticalPodAutoscalerControlledResources], optional
+    controlledResources : [any] | any | any | ValuesVerticalPodAutoscalerControlledResources, optional
         List of resources that the vertical pod autoscaler can control. Defaults to cpu and memory
     enabled : bool, optional, default is False
     maxAllowed : ValuesVerticalPodAutoscalerMaxAllowed, optional
@@ -13391,7 +13385,7 @@ schema ValuesVerticalPodAutoscaler:
     updateMode : str, optional, default is "Off"
     """
     [...str]: any
-    controlledResources?: [any | ValuesVerticalPodAutoscalerControlledResources]
+    controlledResources?: [any] | any | any | ValuesVerticalPodAutoscalerControlledResources
     enabled?: bool
     maxAllowed?: ValuesVerticalPodAutoscalerMaxAllowed
     minAllowed?: ValuesVerticalPodAutoscalerMinAllowed

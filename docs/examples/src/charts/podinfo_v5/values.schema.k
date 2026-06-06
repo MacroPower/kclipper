@@ -13,50 +13,24 @@ schema Values:
     backend : any, optional, default is ""
     backends : [any], optional
     cache : str, optional, default is ""
-        Redis address in the format tcp://<host>:<port>
+        Redis address in the format <host>:<port>
     certificate : ValuesCertificate, optional
         create a certificate manager certificate (cert-manager required)
-    config : ValuesConfig, optional
-        config file settings
-    extraArgs : [any], optional
-        Additional command line arguments to pass to podinfo container
-    extraEnvs : [any], optional
-        Extra environment variables for the podinfo container
     faults : ValuesFaults, optional
         failure conditions
     global : ValuesGlobal, optional
         Global values are values that can be accessed from any chart or subchart by exactly the same name.
-    grpcRoute : ValuesGrpcRoute, optional
-        Expose the gRPC service via Gateway GRPCRoute
-        Requires a Gateway controller with GRPCRoute support
-        Docs https://gateway-api.sigs.k8s.io/guides/grpc-routing/
     h2c : ValuesH2C, optional
         enable h2c protocol (non-TLS version of HTTP/2)
-    hooks : ValuesHooks, optional
-        Helm hooks (for testing purposes)
     host : any, optional, default is ""
     hpa : ValuesHpa, optional
         metrics-server add-on required
-    httpRoute : ValuesHttpRoute, optional
-        Expose the service via Gateway HTTPRoute
-        Requires a Gateway controller
-        Docs https://gateway-api.sigs.k8s.io/guides/
     image : ValuesImage, optional
     ingress : ValuesIngress, optional
-        Expose the service via Kubernetes Ingress
-        Requires an Ingress controller
-        Docs https://kubernetes.io/docs/concepts/services-networking/ingress/
+    linkerd : ValuesLinkerd, optional
     logLevel : str, optional, default is "info"
     nodeSelector : ValuesNodeSelector, optional
     podAnnotations : ValuesPodAnnotations, optional
-    podDisruptionBudget : ValuesPodDisruptionBudget, optional
-        Disruption budget will be configured only when the replicaCount is greater than 1
-    podSecurityContext : ValuesPodSecurityContext, optional
-        set pod security context
-    prefix : str, optional, default is "/"
-    priorityClassName : str, optional, default is ""
-    probes : ValuesProbes, optional
-        https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
     redis : ValuesRedis, optional
         Redis deployment
     replicaCount : int, optional, default is 1
@@ -71,8 +45,6 @@ schema Values:
     tls : ValuesTls, optional
         enable tls on the podinfo service
     tolerations : [any], optional
-    topologySpreadConstraints : [any], optional
-        https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     ui : ValuesUi, optional
     """
     [...str]: any
@@ -81,27 +53,17 @@ schema Values:
     backends?: [any]
     cache?: str
     certificate?: ValuesCertificate
-    config?: ValuesConfig
-    extraArgs?: [any]
-    extraEnvs?: [any]
     faults?: ValuesFaults
     global?: ValuesGlobal
-    grpcRoute?: ValuesGrpcRoute
     h2c?: ValuesH2C
-    hooks?: ValuesHooks
     host?: any
     hpa?: ValuesHpa
-    httpRoute?: ValuesHttpRoute
     image?: ValuesImage
     ingress?: ValuesIngress
+    linkerd?: ValuesLinkerd
     logLevel?: str
     nodeSelector?: ValuesNodeSelector
     podAnnotations?: ValuesPodAnnotations
-    podDisruptionBudget?: ValuesPodDisruptionBudget
-    podSecurityContext?: ValuesPodSecurityContext
-    prefix?: str
-    priorityClassName?: str
-    probes?: ValuesProbes
     redis?: ValuesRedis
     replicaCount?: int
     resources?: ValuesResources
@@ -111,7 +73,6 @@ schema Values:
     serviceMonitor?: ValuesServiceMonitor
     tls?: ValuesTls
     tolerations?: [any]
-    topologySpreadConstraints?: [any]
     ui?: ValuesUi
 
 schema ValuesAffinity:
@@ -150,21 +111,6 @@ schema ValuesCertificateIssuerRef:
     kind?: str
     name?: str
 
-schema ValuesConfig:
-    r"""
-    config file settings
-
-    Attributes
-    ----------
-    name : str, optional, default is ""
-        config file name
-    path : str, optional, default is ""
-        config file path
-    """
-    [...str]: any
-    name?: str
-    path?: str
-
 schema ValuesFaults:
     r"""
     failure conditions
@@ -192,66 +138,6 @@ schema ValuesGlobal:
     """
     [...str]: any
 
-schema ValuesGrpcRoute:
-    r"""
-    Expose the gRPC service via Gateway GRPCRoute
-    Requires a Gateway controller with GRPCRoute support
-    Docs https://gateway-api.sigs.k8s.io/guides/grpc-routing/
-
-    Attributes
-    ----------
-    additionalLabels : ValuesGrpcRouteAdditionalLabels, optional
-        Add additional labels to the GRPCRoute.
-    annotations : ValuesGrpcRouteAnnotations, optional
-        GRPCRoute annotations.
-    enabled : bool, optional, default is False
-        GRPCRoute enabled.
-    hostnames : [str], optional
-        Hostnames matching HTTP header.
-    parentRefs : [ValuesGrpcRouteParentRefsItems0], optional
-        Which Gateways this Route is attached to.
-    rules : [ValuesGrpcRouteRulesItems0], optional
-        List of rules applied.
-    """
-    [...str]: any
-    additionalLabels?: ValuesGrpcRouteAdditionalLabels
-    annotations?: ValuesGrpcRouteAnnotations
-    enabled?: bool
-    hostnames?: [str]
-    parentRefs?: [ValuesGrpcRouteParentRefsItems0]
-    rules?: [ValuesGrpcRouteRulesItems0]
-
-schema ValuesGrpcRouteAdditionalLabels:
-    r"""
-    Add additional labels to the GRPCRoute.
-    """
-    [...str]: any
-
-schema ValuesGrpcRouteAnnotations:
-    r"""
-    GRPCRoute annotations.
-    """
-    [...str]: any
-
-schema ValuesGrpcRouteParentRefsItems0:
-    r"""
-    ValuesGrpcRouteParentRefsItems0
-
-    Attributes
-    ----------
-    name : str, optional, default is "gateway"
-    sectionName : str, optional, default is "http"
-    """
-    [...str]: any
-    name?: str
-    sectionName?: str
-
-schema ValuesGrpcRouteRulesItems0:
-    r"""
-    ValuesGrpcRouteRulesItems0
-    """
-    [...str]: any
-
 schema ValuesH2C:
     r"""
     enable h2c protocol (non-TLS version of HTTP/2)
@@ -263,278 +149,13 @@ schema ValuesH2C:
     [...str]: any
     enabled?: bool
 
-schema ValuesHooks:
-    r"""
-    Helm hooks (for testing purposes)
-
-    Attributes
-    ----------
-    postDelete : ValuesHooksPostDelete, optional
-    postInstall : ValuesHooksPostInstall, optional
-    postRollback : ValuesHooksPostRollback, optional
-    postUpgrade : ValuesHooksPostUpgrade, optional
-    preDelete : ValuesHooksPreDelete, optional
-    preInstall : ValuesHooksPreInstall, optional
-    preRollback : ValuesHooksPreRollback, optional
-    preUpgrade : ValuesHooksPreUpgrade, optional
-    """
-    [...str]: any
-    postDelete?: ValuesHooksPostDelete
-    postInstall?: ValuesHooksPostInstall
-    postRollback?: ValuesHooksPostRollback
-    postUpgrade?: ValuesHooksPostUpgrade
-    preDelete?: ValuesHooksPreDelete
-    preInstall?: ValuesHooksPreInstall
-    preRollback?: ValuesHooksPreRollback
-    preUpgrade?: ValuesHooksPreUpgrade
-
-schema ValuesHooksPostDelete:
-    r"""
-    ValuesHooksPostDelete
-
-    Attributes
-    ----------
-    job : ValuesHooksPostDeleteJob, optional
-    """
-    [...str]: any
-    job?: ValuesHooksPostDeleteJob
-
-schema ValuesHooksPostDeleteJob:
-    r"""
-    ValuesHooksPostDeleteJob
-
-    Attributes
-    ----------
-    enabled : bool, optional, default is False
-    exitCode : int, optional, default is 0
-    hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
-    """
-    [...str]: any
-    enabled?: bool
-    exitCode?: int
-    hookDeletePolicy?: str
-    sleepSeconds?: any
-    ttlSecondsAfterFinished?: any
-
-schema ValuesHooksPostInstall:
-    r"""
-    ValuesHooksPostInstall
-
-    Attributes
-    ----------
-    job : ValuesHooksPostInstallJob, optional
-    """
-    [...str]: any
-    job?: ValuesHooksPostInstallJob
-
-schema ValuesHooksPostInstallJob:
-    r"""
-    ValuesHooksPostInstallJob
-
-    Attributes
-    ----------
-    enabled : bool, optional, default is False
-    exitCode : int, optional, default is 0
-    hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
-    """
-    [...str]: any
-    enabled?: bool
-    exitCode?: int
-    hookDeletePolicy?: str
-    sleepSeconds?: any
-    ttlSecondsAfterFinished?: any
-
-schema ValuesHooksPostRollback:
-    r"""
-    ValuesHooksPostRollback
-
-    Attributes
-    ----------
-    job : ValuesHooksPostRollbackJob, optional
-    """
-    [...str]: any
-    job?: ValuesHooksPostRollbackJob
-
-schema ValuesHooksPostRollbackJob:
-    r"""
-    ValuesHooksPostRollbackJob
-
-    Attributes
-    ----------
-    enabled : bool, optional, default is False
-    exitCode : int, optional, default is 0
-    hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
-    """
-    [...str]: any
-    enabled?: bool
-    exitCode?: int
-    hookDeletePolicy?: str
-    sleepSeconds?: any
-    ttlSecondsAfterFinished?: any
-
-schema ValuesHooksPostUpgrade:
-    r"""
-    ValuesHooksPostUpgrade
-
-    Attributes
-    ----------
-    job : ValuesHooksPostUpgradeJob, optional
-    """
-    [...str]: any
-    job?: ValuesHooksPostUpgradeJob
-
-schema ValuesHooksPostUpgradeJob:
-    r"""
-    ValuesHooksPostUpgradeJob
-
-    Attributes
-    ----------
-    enabled : bool, optional, default is False
-    exitCode : int, optional, default is 0
-    hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
-    """
-    [...str]: any
-    enabled?: bool
-    exitCode?: int
-    hookDeletePolicy?: str
-    sleepSeconds?: any
-    ttlSecondsAfterFinished?: any
-
-schema ValuesHooksPreDelete:
-    r"""
-    ValuesHooksPreDelete
-
-    Attributes
-    ----------
-    job : ValuesHooksPreDeleteJob, optional
-    """
-    [...str]: any
-    job?: ValuesHooksPreDeleteJob
-
-schema ValuesHooksPreDeleteJob:
-    r"""
-    ValuesHooksPreDeleteJob
-
-    Attributes
-    ----------
-    enabled : bool, optional, default is False
-    exitCode : int, optional, default is 0
-    hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
-    """
-    [...str]: any
-    enabled?: bool
-    exitCode?: int
-    hookDeletePolicy?: str
-    sleepSeconds?: any
-    ttlSecondsAfterFinished?: any
-
-schema ValuesHooksPreInstall:
-    r"""
-    ValuesHooksPreInstall
-
-    Attributes
-    ----------
-    job : ValuesHooksPreInstallJob, optional
-    """
-    [...str]: any
-    job?: ValuesHooksPreInstallJob
-
-schema ValuesHooksPreInstallJob:
-    r"""
-    ValuesHooksPreInstallJob
-
-    Attributes
-    ----------
-    enabled : bool, optional, default is False
-    exitCode : int, optional, default is 0
-    hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
-    """
-    [...str]: any
-    enabled?: bool
-    exitCode?: int
-    hookDeletePolicy?: str
-    sleepSeconds?: any
-    ttlSecondsAfterFinished?: any
-
-schema ValuesHooksPreRollback:
-    r"""
-    ValuesHooksPreRollback
-
-    Attributes
-    ----------
-    job : ValuesHooksPreRollbackJob, optional
-    """
-    [...str]: any
-    job?: ValuesHooksPreRollbackJob
-
-schema ValuesHooksPreRollbackJob:
-    r"""
-    ValuesHooksPreRollbackJob
-
-    Attributes
-    ----------
-    enabled : bool, optional, default is False
-    exitCode : int, optional, default is 0
-    hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
-    """
-    [...str]: any
-    enabled?: bool
-    exitCode?: int
-    hookDeletePolicy?: str
-    sleepSeconds?: any
-    ttlSecondsAfterFinished?: any
-
-schema ValuesHooksPreUpgrade:
-    r"""
-    ValuesHooksPreUpgrade
-
-    Attributes
-    ----------
-    job : ValuesHooksPreUpgradeJob, optional
-    """
-    [...str]: any
-    job?: ValuesHooksPreUpgradeJob
-
-schema ValuesHooksPreUpgradeJob:
-    r"""
-    ValuesHooksPreUpgradeJob
-
-    Attributes
-    ----------
-    enabled : bool, optional, default is False
-    exitCode : int, optional, default is 0
-    hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
-    """
-    [...str]: any
-    enabled?: bool
-    exitCode?: int
-    hookDeletePolicy?: str
-    sleepSeconds?: any
-    ttlSecondsAfterFinished?: any
-
 schema ValuesHpa:
     r"""
     metrics-server add-on required
 
     Attributes
     ----------
-    cpu : any, optional, default is ""
+    cpu : int, optional, default is ""
         average total CPU usage per pod (1-100)
     enabled : bool, optional, default is False
     maxReplicas : int, optional, default is 10
@@ -544,100 +165,11 @@ schema ValuesHpa:
         average http requests per second per pod (k8s-prometheus-adapter)
     """
     [...str]: any
-    cpu?: any
+    cpu?: int
     enabled?: bool
     maxReplicas?: int
     memory?: any
     requests?: any
-
-schema ValuesHttpRoute:
-    r"""
-    Expose the service via Gateway HTTPRoute
-    Requires a Gateway controller
-    Docs https://gateway-api.sigs.k8s.io/guides/
-
-    Attributes
-    ----------
-    additionalLabels : ValuesHttpRouteAdditionalLabels, optional
-        Add additional labels to the HTTPRoute.
-    annotations : ValuesHttpRouteAnnotations, optional
-        HTTPRoute annotations.
-    enabled : bool, optional, default is False
-        HTTPRoute enabled.
-    hostnames : [str], optional
-        Hostnames matching HTTP header.
-    parentRefs : [ValuesHttpRouteParentRefsItems0], optional
-        Which Gateways this Route is attached to.
-    rules : [ValuesHttpRouteRulesItems0], optional
-        List of rules and filters applied.
-    """
-    [...str]: any
-    additionalLabels?: ValuesHttpRouteAdditionalLabels
-    annotations?: ValuesHttpRouteAnnotations
-    enabled?: bool
-    hostnames?: [str]
-    parentRefs?: [ValuesHttpRouteParentRefsItems0]
-    rules?: [ValuesHttpRouteRulesItems0]
-
-schema ValuesHttpRouteAdditionalLabels:
-    r"""
-    Add additional labels to the HTTPRoute.
-    """
-    [...str]: any
-
-schema ValuesHttpRouteAnnotations:
-    r"""
-    HTTPRoute annotations.
-    """
-    [...str]: any
-
-schema ValuesHttpRouteParentRefsItems0:
-    r"""
-    ValuesHttpRouteParentRefsItems0
-
-    Attributes
-    ----------
-    name : str, optional, default is "gateway"
-    sectionName : str, optional, default is "http"
-    """
-    [...str]: any
-    name?: str
-    sectionName?: str
-
-schema ValuesHttpRouteRulesItems0:
-    r"""
-    ValuesHttpRouteRulesItems0
-
-    Attributes
-    ----------
-    matches : [ValuesHttpRouteRulesItems0MatchesItems0], optional
-    """
-    [...str]: any
-    matches?: [ValuesHttpRouteRulesItems0MatchesItems0]
-
-schema ValuesHttpRouteRulesItems0MatchesItems0:
-    r"""
-    ValuesHttpRouteRulesItems0MatchesItems0
-
-    Attributes
-    ----------
-    path : ValuesHttpRouteRulesItems0MatchesItems0Path, optional
-    """
-    [...str]: any
-    path?: ValuesHttpRouteRulesItems0MatchesItems0Path
-
-schema ValuesHttpRouteRulesItems0MatchesItems0Path:
-    r"""
-    ValuesHttpRouteRulesItems0MatchesItems0Path
-
-    Attributes
-    ----------
-    $type : str, optional, default is "PathPrefix"
-    value : str, optional, default is "/"
-    """
-    [...str]: any
-    $type?: str
-    value?: str
 
 schema ValuesImage:
     r"""
@@ -646,46 +178,35 @@ schema ValuesImage:
     Attributes
     ----------
     pullPolicy : str, optional, default is "IfNotPresent"
-    pullSecrets : [any], optional
     repository : str, optional, default is "ghcr.io/stefanprodan/podinfo"
-    tag : str, optional, default is "6.13.0"
+    tag : str, optional, default is "5.2.1"
     """
     [...str]: any
     pullPolicy?: str
-    pullSecrets?: [any]
     repository?: str
     tag?: str
 
 schema ValuesIngress:
     r"""
-    Expose the service via Kubernetes Ingress
-    Requires an Ingress controller
-    Docs https://kubernetes.io/docs/concepts/services-networking/ingress/
+    ValuesIngress
 
     Attributes
     ----------
-    additionalLabels : ValuesIngressAdditionalLabels, optional
     annotations : ValuesIngressAnnotations, optional
-    className : str, optional, default is ""
     enabled : bool, optional, default is False
-    hosts : [ValuesIngressHostsItems0], optional
+    hosts : [any], optional
+    path : str, optional, default is "/*"
         kubernetes.io/ingress.class: nginx
         kubernetes.io/tls-acme: "true"
     tls : [any], optional
+         - podinfo.local
     """
     [...str]: any
-    additionalLabels?: ValuesIngressAdditionalLabels
     annotations?: ValuesIngressAnnotations
-    className?: str
     enabled?: bool
-    hosts?: [ValuesIngressHostsItems0]
+    hosts?: [any]
+    path?: str
     tls?: [any]
-
-schema ValuesIngressAdditionalLabels:
-    r"""
-    ValuesIngressAdditionalLabels
-    """
-    [...str]: any
 
 schema ValuesIngressAnnotations:
     r"""
@@ -693,31 +214,27 @@ schema ValuesIngressAnnotations:
     """
     [...str]: any
 
-schema ValuesIngressHostsItems0:
+schema ValuesLinkerd:
     r"""
-    ValuesIngressHostsItems0
+    ValuesLinkerd
 
     Attributes
     ----------
-    host : str, optional, default is "podinfo.local"
-    paths : [ValuesIngressHostsItems0PathsItems0], optional
+    profile : ValuesLinkerdProfile, optional
     """
     [...str]: any
-    host?: str
-    paths?: [ValuesIngressHostsItems0PathsItems0]
+    profile?: ValuesLinkerdProfile
 
-schema ValuesIngressHostsItems0PathsItems0:
+schema ValuesLinkerdProfile:
     r"""
-    ValuesIngressHostsItems0PathsItems0
+    ValuesLinkerdProfile
 
     Attributes
     ----------
-    path : str, optional, default is "/"
-    pathType : str, optional, default is "ImplementationSpecific"
+    enabled : bool, optional, default is False
     """
     [...str]: any
-    path?: str
-    pathType?: str
+    enabled?: bool
 
 schema ValuesNodeSelector:
     r"""
@@ -731,92 +248,6 @@ schema ValuesPodAnnotations:
     """
     [...str]: any
 
-schema ValuesPodDisruptionBudget:
-    r"""
-    Disruption budget will be configured only when the replicaCount is greater than 1
-    """
-    [...str]: any
-
-schema ValuesPodSecurityContext:
-    r"""
-    set pod security context
-    """
-    [...str]: any
-
-schema ValuesProbes:
-    r"""
-    https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-
-    Attributes
-    ----------
-    liveness : ValuesProbesLiveness, optional
-    readiness : ValuesProbesReadiness, optional
-    startup : ValuesProbesStartup, optional
-    """
-    [...str]: any
-    liveness?: ValuesProbesLiveness
-    readiness?: ValuesProbesReadiness
-    startup?: ValuesProbesStartup
-
-schema ValuesProbesLiveness:
-    r"""
-    ValuesProbesLiveness
-
-    Attributes
-    ----------
-    failureThreshold : int, optional, default is 3
-    initialDelaySeconds : int, optional, default is 1
-    periodSeconds : int, optional, default is 10
-    successThreshold : int, optional, default is 1
-    timeoutSeconds : int, optional, default is 5
-    """
-    [...str]: any
-    failureThreshold?: int
-    initialDelaySeconds?: int
-    periodSeconds?: int
-    successThreshold?: int
-    timeoutSeconds?: int
-
-schema ValuesProbesReadiness:
-    r"""
-    ValuesProbesReadiness
-
-    Attributes
-    ----------
-    failureThreshold : int, optional, default is 3
-    initialDelaySeconds : int, optional, default is 1
-    periodSeconds : int, optional, default is 10
-    successThreshold : int, optional, default is 1
-    timeoutSeconds : int, optional, default is 5
-    """
-    [...str]: any
-    failureThreshold?: int
-    initialDelaySeconds?: int
-    periodSeconds?: int
-    successThreshold?: int
-    timeoutSeconds?: int
-
-schema ValuesProbesStartup:
-    r"""
-    ValuesProbesStartup
-
-    Attributes
-    ----------
-    enable : bool, optional, default is False
-    failureThreshold : int, optional, default is 20
-    initialDelaySeconds : int, optional, default is 10
-    periodSeconds : int, optional, default is 10
-    successThreshold : int, optional, default is 1
-    timeoutSeconds : int, optional, default is 5
-    """
-    [...str]: any
-    enable?: bool
-    failureThreshold?: int
-    initialDelaySeconds?: int
-    periodSeconds?: int
-    successThreshold?: int
-    timeoutSeconds?: int
-
 schema ValuesRedis:
     r"""
     Redis deployment
@@ -824,13 +255,11 @@ schema ValuesRedis:
     Attributes
     ----------
     enabled : bool, optional, default is False
-    imagePullSecrets : [any], optional
-    repository : str, optional, default is "docker.io/redis"
-    tag : str, optional, default is "8.6.3"
+    repository : str, optional, default is "redis"
+    tag : str, optional, default is "6.0.8"
     """
     [...str]: any
     enabled?: bool
-    imagePullSecrets?: [any]
     repository?: str
     tag?: str
 
@@ -883,11 +312,9 @@ schema ValuesService:
 
     Attributes
     ----------
-    additionalLabels : ValuesServiceAdditionalLabels, optional
     annotations : ValuesServiceAnnotations, optional
     enabled : bool, optional, default is True
     externalPort : int, optional, default is 9898
-    externalTrafficPolicy : str, optional, default is ""
     grpcPort : int, optional, default is 9999
     grpcService : str, optional, default is "podinfo"
     hostPort : any, optional, default is ""
@@ -897,23 +324,18 @@ schema ValuesService:
     httpPort : int, optional, default is 9898
     metricsPort : int, optional, default is 9797
     nodePort : int, optional, default is 31198
-    trafficDistribution : str, optional, default is ""
-        Stable from Kubernetes v1.33+ with a value of PreferClose. Additional values are PreferSameZone and PreferSameNode from v1.34+. Empty string means it's disabled.
     $type : str, optional, default is "ClusterIP"
     """
     [...str]: any
-    additionalLabels?: ValuesServiceAdditionalLabels
     annotations?: ValuesServiceAnnotations
     enabled?: bool
     externalPort?: int
-    externalTrafficPolicy?: str
     grpcPort?: int
     grpcService?: str
     hostPort?: any
     httpPort?: int
     metricsPort?: int
     nodePort?: int
-    trafficDistribution?: str
     $type?: str
 
 schema ValuesServiceAccount:
@@ -924,22 +346,13 @@ schema ValuesServiceAccount:
     ----------
     enabled : bool, optional, default is False
         Specifies whether a service account should be created
-    imagePullSecrets : [any], optional
-        List of image pull secrets if pulling from private registries
     name : any, optional, default is ""
         The name of the service account to use.
         If not set and create is true, a name is generated using the fullname template
     """
     [...str]: any
     enabled?: bool
-    imagePullSecrets?: [any]
     name?: any
-
-schema ValuesServiceAdditionalLabels:
-    r"""
-    ValuesServiceAdditionalLabels
-    """
-    [...str]: any
 
 schema ValuesServiceAnnotations:
     r"""

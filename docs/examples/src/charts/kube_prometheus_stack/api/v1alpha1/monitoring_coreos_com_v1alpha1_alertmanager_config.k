@@ -177,9 +177,9 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0T
     years?: [str]
 
     check:
-        all months in months {_regex_match(str(months), r"^((?i)january|february|march|april|may|june|july|august|september|october|november|december|1[0-2]|[1-9])(?:((:((?i)january|february|march|april|may|june|july|august|september|october|november|december|1[0-2]|[1-9]))$)|$)") if months} if months
-        all weekdays in weekdays {_regex_match(str(weekdays), r"^((?i)sun|mon|tues|wednes|thurs|fri|satur)day(?:((:(sun|mon|tues|wednes|thurs|fri|satur)day)$)|$)") if weekdays} if weekdays
-        all years in years {_regex_match(str(years), r"^2\d{3}(?::2\d{3}|$)") if years} if years
+        all i in months {_regex_match(str(i), r"^((?i)january|february|march|april|may|june|july|august|september|october|november|december|1[0-2]|[1-9])(?:((:((?i)january|february|march|april|may|june|july|august|september|october|november|december|1[0-2]|[1-9]))$)|$)") if i} if months
+        all i in weekdays {_regex_match(str(i), r"^((?i)sun|mon|tues|wednes|thurs|fri|satur)day(?:((:(sun|mon|tues|wednes|thurs|fri|satur)day)$)|$)") if i} if weekdays
+        all i in years {_regex_match(str(i), r"^2\d{3}(?::2\d{3}|$)") if i} if years
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecMuteTimeIntervalsItems0TimeIntervalsItems0DaysOfMonthItems0:
     r"""
@@ -318,8 +318,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
     check:
         _regex_match(str(avatarURL), r"^https?://.+$") if avatarURL
-        len(content) >= 1 if content
-        len(username) >= 1 if username
+        len(content) >= 1 if content not in [None, Undefined]
+        len(username) >= 1 if username not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0APIURL:
     r"""
@@ -1126,13 +1126,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     to?: str
 
     check:
-        len(authIdentity) >= 1 if authIdentity
-        len(authUsername) >= 1 if authUsername
-        len(from) >= 1 if from
-        len(hello) >= 1 if hello
-        len(smarthost) >= 1 if smarthost
-        len(text) >= 1 if text
-        len(to) >= 1 if to
+        len(authIdentity) >= 1 if authIdentity not in [None, Undefined]
+        len(authUsername) >= 1 if authUsername not in [None, Undefined]
+        len(from) >= 1 if from not in [None, Undefined]
+        len(hello) >= 1 if hello not in [None, Undefined]
+        len(smarthost) >= 1 if smarthost not in [None, Undefined]
+        len(text) >= 1 if text not in [None, Undefined]
+        len(to) >= 1 if to not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConfigsItems0AuthPassword:
     r"""
@@ -2180,8 +2180,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2
     webhookURL?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0WebhookURL
 
     check:
-        len(text) >= 1 if text
-        len(title) >= 1 if title
+        len(text) >= 1 if text not in [None, Undefined]
+        len(title) >= 1 if title not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfig:
     r"""
@@ -2983,15 +2983,15 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     updateAlerts?: bool
 
     check:
-        len(actions) >= 1 if actions
+        len(actions) >= 1 if actions not in [None, Undefined]
         _regex_match(str(apiURL), r"^https?://.+$") if apiURL
-        len(description) >= 1 if description
-        len(entity) >= 1 if entity
-        len(message) >= 1 if message
-        len(note) >= 1 if note
-        len(priority) >= 1 if priority
-        len(source) >= 1 if source
-        len(tags) >= 1 if tags
+        len(description) >= 1 if description not in [None, Undefined]
+        len(entity) >= 1 if entity not in [None, Undefined]
+        len(message) >= 1 if message not in [None, Undefined]
+        len(note) >= 1 if note not in [None, Undefined]
+        len(priority) >= 1 if priority not in [None, Undefined]
+        len(source) >= 1 if source not in [None, Undefined]
+        len(tags) >= 1 if tags not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0APIKey:
     r"""
@@ -3775,10 +3775,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     username?: str
 
     check:
-        len(id) >= 1 if id
-        len(name) >= 1 if name
+        len(id) >= 1 if id not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         len($type) >= 1
-        len(username) >= 1 if username
+        len(username) >= 1 if username not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0:
     r"""
@@ -3842,13 +3842,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     url?: str
 
     check:
-        len(class) >= 1 if class
-        len(client) >= 1 if client
-        len(component) >= 1 if component
-        len(description) >= 1 if description
-        len(group) >= 1 if group
-        len(severity) >= 1 if severity
-        len(source) >= 1 if source
+        len(class) >= 1 if class not in [None, Undefined]
+        len(client) >= 1 if client not in [None, Undefined]
+        len(component) >= 1 if component not in [None, Undefined]
+        len(description) >= 1 if description not in [None, Undefined]
+        len(group) >= 1 if group not in [None, Undefined]
+        len(severity) >= 1 if severity not in [None, Undefined]
+        len(source) >= 1 if source not in [None, Undefined]
         _regex_match(str(timeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if timeout
         _regex_match(str(url), r"^https?://.+$") if url
 
@@ -4600,8 +4600,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     src?: str
 
     check:
-        len(alt) >= 1 if alt
-        len(src) >= 1 if src
+        len(alt) >= 1 if alt not in [None, Undefined]
+        len(src) >= 1 if src not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0PagerDutyLinkConfigsItems0:
     r"""
@@ -4618,7 +4618,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     href?: str
 
     check:
-        len(alt) >= 1 if alt
+        len(alt) >= 1 if alt not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0RoutingKey:
     r"""
@@ -4753,17 +4753,17 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     userKeyFile?: str
 
     check:
-        len(device) >= 1 if device
+        len(device) >= 1 if device not in [None, Undefined]
         _regex_match(str(expire), r"^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$") if expire
-        len(message) >= 1 if message
-        len(priority) >= 1 if priority
+        len(message) >= 1 if message not in [None, Undefined]
+        len(priority) >= 1 if priority not in [None, Undefined]
         _regex_match(str(retry), r"^(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?$") if retry
-        len(sound) >= 1 if sound
-        len(title) >= 1 if title
-        len(tokenFile) >= 1 if tokenFile
+        len(sound) >= 1 if sound not in [None, Undefined]
+        len(title) >= 1 if title not in [None, Undefined]
+        len(tokenFile) >= 1 if tokenFile not in [None, Undefined]
         _regex_match(str(ttl), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if ttl
-        len(urlTitle) >= 1 if urlTitle
-        len(userKeyFile) >= 1 if userKeyFile
+        len(urlTitle) >= 1 if urlTitle not in [None, Undefined]
+        len(userKeyFile) >= 1 if userKeyFile not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfig:
     r"""
@@ -5607,13 +5607,13 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
     check:
         len(actions) >= 1 if actions
         _regex_match(str(apiURL), r"^https?://.+$") if apiURL
-        len(channel) >= 1 if channel
-        len(color) >= 1 if color
-        len(emoji) >= 1 if emoji
+        len(channel) >= 1 if channel not in [None, Undefined]
+        len(color) >= 1 if color not in [None, Undefined]
+        len(emoji) >= 1 if emoji not in [None, Undefined]
         len(fields) >= 1 if fields
-        len(text) >= 1 if text
-        len(title) >= 1 if title
-        len(titleLink) >= 1 if titleLink
+        len(text) >= 1 if text not in [None, Undefined]
+        len(title) >= 1 if title not in [None, Undefined]
+        len(titleLink) >= 1 if titleLink not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0ActionsItems0:
     r"""
@@ -5636,8 +5636,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
     url?: str
 
     check:
-        len(msg) >= 1 if msg
-        len(text) >= 1 if text
+        len(msg) >= 1 if msg not in [None, Undefined]
+        len(text) >= 1 if text not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0FieldsItems0:
     r"""
@@ -5660,8 +5660,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
     value?: str
 
     check:
-        len(title) >= 1 if title
-        len(value) >= 1 if value
+        len(title) >= 1 if title not in [None, Undefined]
+        len(value) >= 1 if value not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfig:
     r"""
@@ -6515,21 +6515,21 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
     check:
         len(actions) >= 1 if actions
-        len(callbackId) >= 1 if callbackId
-        len(channel) >= 1 if channel
-        len(color) >= 1 if color
-        len(fallback) >= 1 if fallback
+        len(callbackId) >= 1 if callbackId not in [None, Undefined]
+        len(channel) >= 1 if channel not in [None, Undefined]
+        len(color) >= 1 if color not in [None, Undefined]
+        len(fallback) >= 1 if fallback not in [None, Undefined]
         len(fields) >= 1 if fields
-        len(footer) >= 1 if footer
-        len(iconEmoji) >= 1 if iconEmoji
-        len(messageText) >= 1 if messageText
+        len(footer) >= 1 if footer not in [None, Undefined]
+        len(iconEmoji) >= 1 if iconEmoji not in [None, Undefined]
+        len(messageText) >= 1 if messageText not in [None, Undefined]
         len(mrkdwnIn) >= 1 if mrkdwnIn
-        all mrkdwnIn in mrkdwnIn {len(mrkdwnIn) >= 1 if mrkdwnIn not in [None, Undefined]} if mrkdwnIn
-        len(pretext) >= 1 if pretext
-        len(text) >= 1 if text
+        all i in mrkdwnIn {len(i) >= 1 if i not in [None, Undefined]} if mrkdwnIn
+        len(pretext) >= 1 if pretext not in [None, Undefined]
+        len(text) >= 1 if text not in [None, Undefined]
         _regex_match(str(timeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if timeout
-        len(title) >= 1 if title
-        len(username) >= 1 if username
+        len(title) >= 1 if title not in [None, Undefined]
+        len(username) >= 1 if username not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0APIURL:
     r"""
@@ -6596,11 +6596,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     value?: str
 
     check:
-        len(name) >= 1 if name
-        len(style) >= 1 if style
+        len(name) >= 1 if name not in [None, Undefined]
+        len(style) >= 1 if style not in [None, Undefined]
         len(text) >= 1
         len($type) >= 1
-        len(value) >= 1 if value
+        len(value) >= 1 if value not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0ActionsItems0Confirm:
     r"""
@@ -6629,10 +6629,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     title?: str
 
     check:
-        len(dismissText) >= 1 if dismissText
-        len(okText) >= 1 if okText
+        len(dismissText) >= 1 if dismissText not in [None, Undefined]
+        len(okText) >= 1 if okText not in [None, Undefined]
         len(text) >= 1
-        len(title) >= 1 if title
+        len(title) >= 1 if title not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0FieldsItems0:
     r"""
@@ -7420,11 +7420,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     topicARN?: str
 
     check:
-        len(message) >= 1 if message
-        len(phoneNumber) >= 1 if phoneNumber
-        len(subject) >= 1 if subject
-        len(targetARN) >= 1 if targetARN
-        len(topicARN) >= 1 if topicARN
+        len(message) >= 1 if message not in [None, Undefined]
+        len(phoneNumber) >= 1 if phoneNumber not in [None, Undefined]
+        len(subject) >= 1 if subject not in [None, Undefined]
+        len(targetARN) >= 1 if targetARN not in [None, Undefined]
+        len(topicARN) >= 1 if topicARN not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfig:
     r"""
@@ -8169,7 +8169,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     useFIPSSTSEndpoint?: bool
 
     check:
-        len(externalId) >= 1 if externalId
+        len(externalId) >= 1 if externalId not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0Sigv4AccessKey:
     r"""
@@ -9055,11 +9055,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
     check:
         _regex_match(str(apiUrl), r"^https?://.+$") if apiUrl
-        len(entityDisplayName) >= 1 if entityDisplayName
-        len(messageType) >= 1 if messageType
-        len(monitoringTool) >= 1 if monitoringTool
+        len(entityDisplayName) >= 1 if entityDisplayName not in [None, Undefined]
+        len(messageType) >= 1 if messageType not in [None, Undefined]
+        len(monitoringTool) >= 1 if monitoringTool not in [None, Undefined]
         len(routingKey) >= 1
-        len(stateMessage) >= 1 if stateMessage
+        len(stateMessage) >= 1 if stateMessage not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0APIKey:
     r"""
@@ -11375,14 +11375,14 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     toUser?: str
 
     check:
-        len(agentID) >= 1 if agentID
+        len(agentID) >= 1 if agentID not in [None, Undefined]
         _regex_match(str(apiURL), r"^https?://.+$") if apiURL
-        len(corpID) >= 1 if corpID
-        len(message) >= 1 if message
-        len(messageType) >= 1 if messageType
-        len(toParty) >= 1 if toParty
-        len(toTag) >= 1 if toTag
-        len(toUser) >= 1 if toUser
+        len(corpID) >= 1 if corpID not in [None, Undefined]
+        len(message) >= 1 if message not in [None, Undefined]
+        len(messageType) >= 1 if messageType not in [None, Undefined]
+        len(toParty) >= 1 if toParty not in [None, Undefined]
+        len(toTag) >= 1 if toTag not in [None, Undefined]
+        len(toUser) >= 1 if toUser not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0APISecret:
     r"""
@@ -12172,11 +12172,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRoute:
     routes?: [any]
 
     check:
-        len(groupInterval) >= 1 if groupInterval
+        len(groupInterval) >= 1 if groupInterval not in [None, Undefined]
         _regex_match(str(groupInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if groupInterval
-        len(groupWait) >= 1 if groupWait
+        len(groupWait) >= 1 if groupWait not in [None, Undefined]
         _regex_match(str(groupWait), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if groupWait
-        len(repeatInterval) >= 1 if repeatInterval
+        len(repeatInterval) >= 1 if repeatInterval not in [None, Undefined]
         _regex_match(str(repeatInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if repeatInterval
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecRouteMatchersItems0:

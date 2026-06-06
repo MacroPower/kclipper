@@ -368,8 +368,8 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
         _regex_match(str(clusterPushpullInterval), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterPushpullInterval
         minReadySeconds >= 0 if minReadySeconds not in [None, Undefined]
         _regex_match(str(retention), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if retention
-        len(schedulerName) >= 1 if schedulerName
-        len(serviceName) >= 1 if serviceName
+        len(schedulerName) >= 1 if schedulerName not in [None, Undefined]
+        len(serviceName) >= 1 if serviceName not in [None, Undefined]
         terminationGracePeriodSeconds >= 0 if terminationGracePeriodSeconds not in [None, Undefined]
 
 schema MonitoringCoreosComV1AlertmanagerSpecAdditionalArgsItems0:
@@ -1338,7 +1338,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfiguration:
     templates?: [MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesItems0]
 
     check:
-        len(name) >= 1 if name
+        len(name) >= 1 if name not in [None, Undefined]
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobal:
     r"""
@@ -2666,7 +2666,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWecha
     apiURL?: str
 
     check:
-        len(apiCorpID) >= 1 if apiCorpID
+        len(apiCorpID) >= 1 if apiCorpID not in [None, Undefined]
         _regex_match(str(apiURL), r"^(http|https)://.+$") if apiURL
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalWechatAPISecret:
@@ -4164,8 +4164,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0Resources:
     requests?: {str:int | str}
 
     check:
-        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
-        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
+        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
+        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ResourcesClaimsItems0:
     r"""
@@ -4664,8 +4664,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecDNSConfig:
     searches?: [str]
 
     check:
-        all nameservers in nameservers {len(nameservers) >= 1 if nameservers not in [None, Undefined]} if nameservers
-        all searches in searches {len(searches) >= 1 if searches not in [None, Undefined]} if searches
+        all i in nameservers {len(i) >= 1 if i not in [None, Undefined]} if nameservers
+        all i in searches {len(i) >= 1 if i not in [None, Undefined]} if searches
 
 schema MonitoringCoreosComV1AlertmanagerSpecDNSConfigOptionsItems0:
     r"""
@@ -5725,8 +5725,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0Resources:
     requests?: {str:int | str}
 
     check:
-        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
-        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
+        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
+        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ResourcesClaimsItems0:
     r"""
@@ -6312,8 +6312,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecResources:
     requests?: {str:int | str}
 
     check:
-        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
-        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
+        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
+        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecResourcesClaimsItems0:
     r"""
@@ -6810,8 +6810,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
     requests?: {str:int | str}
 
     check:
-        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
-        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
+        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
+        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateSpecSelector:
     r"""
@@ -7059,8 +7059,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecResour
     requests?: {str:int | str}
 
     check:
-        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
-        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
+        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
+        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecSelector:
     r"""
@@ -7189,8 +7189,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatus:
     phase?: str
 
     check:
-        all _, allocatedResources in allocatedResources {_regex_match(str(allocatedResources), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if allocatedResources} if allocatedResources
-        all _, capacity in capacity {_regex_match(str(capacity), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if capacity} if capacity
+        all _, k in allocatedResources {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if allocatedResources
+        all _, k in capacity {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if capacity
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusConditionsItems0:
     r"""
@@ -8254,8 +8254,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
     requests?: {str:int | str}
 
     check:
-        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
-        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
+        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
+        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelector:
     r"""

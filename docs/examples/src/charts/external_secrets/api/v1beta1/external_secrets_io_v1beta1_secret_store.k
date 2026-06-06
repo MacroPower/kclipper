@@ -77,9 +77,9 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecConditionsItems0:
     namespaces?: [str]
 
     check:
-        all namespaces in namespaces {len(namespaces) <= 63 if namespaces not in [None, Undefined]} if namespaces
-        all namespaces in namespaces {len(namespaces) >= 1 if namespaces not in [None, Undefined]} if namespaces
-        all namespaces in namespaces {_regex_match(str(namespaces), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespaces} if namespaces
+        all i in namespaces {len(i) <= 63 if i not in [None, Undefined]} if namespaces
+        all i in namespaces {len(i) >= 1 if i not in [None, Undefined]} if namespaces
+        all i in namespaces {_regex_match(str(i), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if i} if namespaces
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecConditionsItems0NamespaceSelector:
     r"""
@@ -318,14 +318,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefKuber
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefKubernetesAuthServiceAccountRef:
@@ -356,8 +356,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefKuber
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefSecretRef:
@@ -398,14 +398,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefSecre
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefSecretRefAccessType:
@@ -429,14 +429,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefSecre
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefSecretRefAccessTypeParam:
@@ -460,14 +460,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessAuthSecretRefSecre
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessCaProvider:
@@ -493,14 +493,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAkeylessCaProvider:
     $type: "Secret" | "ConfigMap"
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAlibaba:
@@ -590,14 +590,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAlibabaAuthSecretRefAccess
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAlibabaAuthSecretRefAccessKeySecretSecretRef:
@@ -620,14 +620,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAlibabaAuthSecretRefAccess
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAws:
@@ -722,8 +722,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAwsAuthJwtServiceAccountRe
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAwsAuthSecretRef:
@@ -764,14 +764,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAwsAuthSecretRefAccessKeyI
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAwsAuthSecretRefSecretAccessKeySecretRef:
@@ -794,14 +794,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAwsAuthSecretRefSecretAcce
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAwsAuthSecretRefSessionTokenSecretRef:
@@ -826,14 +826,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAwsAuthSecretRefSessionTok
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAwsSecretsManager:
@@ -948,14 +948,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvAuthSecretRefClient
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvAuthSecretRefClientID:
@@ -978,14 +978,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvAuthSecretRefClient
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvAuthSecretRefClientSecret:
@@ -1008,14 +1008,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvAuthSecretRefClient
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvAuthSecretRefTenantID:
@@ -1038,14 +1038,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvAuthSecretRefTenant
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvServiceAccountRef:
@@ -1074,8 +1074,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderAzurekvServiceAccountRef:
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrust:
@@ -1150,14 +1150,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthAPIKeySecre
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthCertificate:
@@ -1208,14 +1208,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthCertificate
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthCertificateSecretRef:
@@ -1238,14 +1238,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthCertificate
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthClientID:
@@ -1282,14 +1282,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthClientIDSec
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthClientSecret:
@@ -1326,14 +1326,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustAuthClientSecre
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBeyondtrustServer:
@@ -1444,14 +1444,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBitwardensecretsmanagerAut
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBitwardensecretsmanagerCaProvider:
@@ -1477,14 +1477,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderBitwardensecretsmanagerCaP
     $type: "Secret" | "ConfigMap"
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderChef:
@@ -1548,14 +1548,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderChefAuthSecretRefPrivateKe
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusm:
@@ -1619,14 +1619,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAcce
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAccessKeySecretSecretRef:
@@ -1649,14 +1649,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderCloudrusmAuthSecretRefAcce
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjur:
@@ -1734,14 +1734,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurAuthApikeyAPIKeyRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurAuthApikeyUserRef:
@@ -1765,14 +1765,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurAuthApikeyUserRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurAuthJwt:
@@ -1821,14 +1821,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurAuthJwtSecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurAuthJwtServiceAccountRef:
@@ -1857,8 +1857,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurAuthJwtServiceAccoun
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurCaProvider:
@@ -1886,14 +1886,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderConjurCaProvider:
     $type: "Secret" | "ConfigMap"
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderDelinea:
@@ -1959,14 +1959,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderDelineaClientIDSecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderDelineaClientSecret:
@@ -2003,14 +2003,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderDelineaClientSecretSecretR
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderDevice42:
@@ -2070,14 +2070,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderDevice42AuthSecretRefCrede
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderDoppler:
@@ -2148,14 +2148,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderDopplerAuthSecretRefDopple
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderFake:
@@ -2233,14 +2233,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderFortanixAPIKeySecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGcpsm:
@@ -2305,14 +2305,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGcpsmAuthSecretRefSecretAc
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGcpsmAuthWorkloadIdentity:
@@ -2363,8 +2363,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGcpsmAuthWorkloadIdentityS
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGithub:
@@ -2435,14 +2435,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGithubAuthPrivateKey:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGitlab:
@@ -2521,14 +2521,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGitlabAuthSecretRefAccessT
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGitlabCaProvider:
@@ -2554,14 +2554,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderGitlabCaProvider:
     $type: "Secret" | "ConfigMap"
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderIbm:
@@ -2642,14 +2642,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderIbmAuthSecretRefSecretAPIK
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisical:
@@ -2717,14 +2717,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalAuthUniversalAuth
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalAuthUniversalAuthCredentialsClientSecret:
@@ -2748,14 +2748,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalAuthUniversalAuth
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderInfisicalSecretsScope:
@@ -2819,14 +2819,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKeepersecurityAuthRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetes:
@@ -2850,8 +2850,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetes:
     server?: ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesServer
 
     check:
-        len(remoteNamespace) <= 63 if remoteNamespace
-        len(remoteNamespace) >= 1 if remoteNamespace
+        len(remoteNamespace) <= 63 if remoteNamespace not in [None, Undefined]
+        len(remoteNamespace) >= 1 if remoteNamespace not in [None, Undefined]
         _regex_match(str(remoteNamespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if remoteNamespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuth:
@@ -2906,14 +2906,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthCertClientCe
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthCertClientKey:
@@ -2937,14 +2937,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthCertClientKe
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthRef:
@@ -2967,14 +2967,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthServiceAccount:
@@ -3002,8 +3002,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthServiceAccou
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthToken:
@@ -3038,14 +3038,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesAuthTokenBearerT
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesServer:
@@ -3088,14 +3088,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderKubernetesServerCaProvider
     $type: "Secret" | "ConfigMap"
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOnboardbase:
@@ -3157,14 +3157,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOnboardbaseAuthAPIKeyRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOnboardbaseAuthPasscodeRef:
@@ -3187,14 +3187,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOnboardbaseAuthPasscodeRef
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOnepassword:
@@ -3258,14 +3258,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOnepasswordAuthSecretRefCo
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOracle:
@@ -3357,14 +3357,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOracleAuthSecretRefFingerp
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOracleAuthSecretRefPrivatekey:
@@ -3387,14 +3387,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOracleAuthSecretRefPrivate
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOracleServiceAccountRef:
@@ -3423,8 +3423,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderOracleServiceAccountRef:
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPassbolt:
@@ -3477,14 +3477,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPassboltAuthPasswordSecret
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPassboltAuthPrivateKeySecretRef:
@@ -3507,14 +3507,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPassboltAuthPrivateKeySecr
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPassworddepot:
@@ -3578,14 +3578,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPassworddepotAuthSecretRef
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPrevider:
@@ -3645,14 +3645,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPreviderAuthSecretRefAcces
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPulumi:
@@ -3716,14 +3716,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderPulumiAccessTokenSecretRef
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderScaleway:
@@ -3786,14 +3786,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderScalewayAccessKeySecretRef
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderScalewaySecretKey:
@@ -3830,14 +3830,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderScalewaySecretKeySecretRef
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderSecretserver:
@@ -3895,14 +3895,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderSecretserverPasswordSecret
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderSecretserverUsername:
@@ -3939,14 +3939,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderSecretserverUsernameSecret
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderSenhasegura:
@@ -4007,14 +4007,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderSenhaseguraAuthClientSecre
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVault:
@@ -4160,14 +4160,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthAppRoleRoleRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthAppRoleSecretRef:
@@ -4193,14 +4193,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthAppRoleSecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthCert:
@@ -4239,14 +4239,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthCertClientCert:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthCertSecretRef:
@@ -4270,14 +4270,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthCertSecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthIam:
@@ -4349,8 +4349,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthIamJwtServiceAcco
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthIamSecretRef:
@@ -4390,14 +4390,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthIamSecretRefAcces
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthIamSecretRefSecretAccessKeySecretRef:
@@ -4420,14 +4420,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthIamSecretRefSecre
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthIamSecretRefSessionTokenSecretRef:
@@ -4452,14 +4452,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthIamSecretRefSessi
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthJwt:
@@ -4538,8 +4538,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthJwtKubernetesServ
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthJwtSecretRef:
@@ -4563,14 +4563,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthJwtSecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthKubernetes:
@@ -4621,14 +4621,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthKubernetesSecretR
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthKubernetesServiceAccountRef:
@@ -4659,8 +4659,8 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthKubernetesService
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthLdap:
@@ -4706,14 +4706,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthLdapSecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthTokenSecretRef:
@@ -4736,14 +4736,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthTokenSecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthUserPass:
@@ -4788,14 +4788,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultAuthUserPassSecretRef
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultCaProvider:
@@ -4821,14 +4821,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultCaProvider:
     $type: "Secret" | "ConfigMap"
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultTLS:
@@ -4871,14 +4871,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultTLSCertSecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultTLSKeySecretRef:
@@ -4903,14 +4903,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderVaultTLSKeySecretRef:
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderWebhook:
@@ -5003,14 +5003,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderWebhookAuthNtlmPasswordSec
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderWebhookAuthNtlmUsernameSecret:
@@ -5034,14 +5034,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderWebhookAuthNtlmUsernameSec
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderWebhookCaProvider:
@@ -5066,14 +5066,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderWebhookCaProvider:
     $type: "Secret" | "ConfigMap"
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderWebhookResult:
@@ -5122,14 +5122,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderWebhookSecretsItems0Secret
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexcertificatemanager:
@@ -5181,14 +5181,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexcertificatemanagerAu
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexcertificatemanagerCaProvider:
@@ -5223,14 +5223,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexcertificatemanagerCa
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexlockbox:
@@ -5282,14 +5282,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexlockboxAuthAuthorize
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexlockboxCaProvider:
@@ -5324,14 +5324,14 @@ schema ExternalSecretsIoV1beta1SecretStoreSpecProviderYandexlockboxCaProviderCer
     namespace?: str
 
     check:
-        len(key) <= 253 if key
-        len(key) >= 1 if key
+        len(key) <= 253 if key not in [None, Undefined]
+        len(key) >= 1 if key not in [None, Undefined]
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name
-        len(name) >= 1 if name
+        len(name) <= 253 if name not in [None, Undefined]
+        len(name) >= 1 if name not in [None, Undefined]
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace
-        len(namespace) >= 1 if namespace
+        len(namespace) <= 63 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace not in [None, Undefined]
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema ExternalSecretsIoV1beta1SecretStoreSpecRetrySettings:

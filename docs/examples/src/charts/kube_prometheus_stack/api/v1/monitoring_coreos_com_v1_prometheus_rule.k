@@ -130,7 +130,7 @@ schema MonitoringCoreosComV1PrometheusRuleSpecGroupsItems0RulesItems0:
 
     check:
         _regex_match(str($for), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if $for
-        len(keep_firing_for) >= 1 if keep_firing_for
+        len(keep_firing_for) >= 1 if keep_firing_for not in [None, Undefined]
         _regex_match(str(keep_firing_for), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if keep_firing_for
 
 schema MonitoringCoreosComV1PrometheusRuleStatus:

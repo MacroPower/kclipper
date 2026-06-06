@@ -10,7 +10,6 @@
     },
     "backend": {
       "default": "",
-      "required": [],
       "title": "backend",
       "type": "null"
     },
@@ -18,14 +17,12 @@
       "items": {
         "required": []
       },
-      "required": [],
       "title": "backends",
       "type": "array"
     },
     "cache": {
       "default": "",
       "description": "Redis address in the format tcp://\u003chost\u003e:\u003cport\u003e",
-      "required": [],
       "title": "cache",
       "type": "string"
     },
@@ -35,17 +32,14 @@
       "properties": {
         "create": {
           "default": false,
-          "required": [],
           "title": "create",
           "type": "boolean"
         },
         "dnsNames": {
           "description": "the hostname / subject alternative names for the certificate",
           "items": {
-            "required": [],
             "type": "string"
           },
-          "required": [],
           "title": "dnsNames",
           "type": "array"
         },
@@ -55,13 +49,11 @@
           "properties": {
             "kind": {
               "default": "ClusterIssuer",
-              "required": [],
               "title": "kind",
               "type": "string"
             },
             "name": {
               "default": "self-signed",
-              "required": [],
               "title": "name",
               "type": "string"
             }
@@ -82,14 +74,12 @@
         "name": {
           "default": "",
           "description": "config file name",
-          "required": [],
           "title": "name",
           "type": "string"
         },
         "path": {
           "default": "",
           "description": "config file path",
-          "required": [],
           "title": "path",
           "type": "string"
         }
@@ -103,7 +93,6 @@
       "items": {
         "required": []
       },
-      "required": [],
       "title": "extraArgs",
       "type": "array"
     },
@@ -112,7 +101,6 @@
       "items": {
         "required": []
       },
-      "required": [],
       "title": "extraEnvs",
       "type": "array"
     },
@@ -122,37 +110,31 @@
       "properties": {
         "delay": {
           "default": false,
-          "required": [],
           "title": "delay",
           "type": "boolean"
         },
         "error": {
           "default": false,
-          "required": [],
           "title": "error",
           "type": "boolean"
         },
         "testFail": {
           "default": false,
-          "required": [],
           "title": "testFail",
           "type": "boolean"
         },
         "testTimeout": {
           "default": false,
-          "required": [],
           "title": "testTimeout",
           "type": "boolean"
         },
         "unhealthy": {
           "default": false,
-          "required": [],
           "title": "unhealthy",
           "type": "boolean"
         },
         "unready": {
           "default": false,
-          "required": [],
           "title": "unready",
           "type": "boolean"
         }
@@ -189,17 +171,14 @@
         "enabled": {
           "default": false,
           "description": "GRPCRoute enabled.",
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
         "hostnames": {
           "description": "Hostnames matching HTTP header.",
           "items": {
-            "required": [],
             "type": "string"
           },
-          "required": [],
           "title": "hostnames",
           "type": "array"
         },
@@ -210,13 +189,11 @@
             "properties": {
               "name": {
                 "default": "gateway",
-                "required": [],
                 "title": "name",
                 "type": "string"
               },
               "sectionName": {
                 "default": "http",
-                "required": [],
                 "title": "sectionName",
                 "type": "string"
               }
@@ -224,7 +201,6 @@
             "required": [],
             "type": "object"
           },
-          "required": [],
           "title": "parentRefs",
           "type": "array"
         },
@@ -235,7 +211,6 @@
             "required": [],
             "type": "object"
           },
-          "required": [],
           "title": "rules",
           "type": "array"
         }
@@ -250,7 +225,6 @@
       "properties": {
         "enabled": {
           "default": false,
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         }
@@ -271,31 +245,26 @@
               "properties": {
                 "enabled": {
                   "default": false,
-                  "required": [],
                   "title": "enabled",
                   "type": "boolean"
                 },
                 "exitCode": {
                   "default": 0,
-                  "required": [],
                   "title": "exitCode",
                   "type": "integer"
                 },
                 "hookDeletePolicy": {
                   "default": "hook-succeeded,hook-failed",
-                  "required": [],
                   "title": "hookDeletePolicy",
                   "type": "string"
                 },
                 "sleepSeconds": {
                   "default": "",
-                  "required": [],
                   "title": "sleepSeconds",
                   "type": "null"
                 },
                 "ttlSecondsAfterFinished": {
                   "default": "",
-                  "required": [],
                   "title": "ttlSecondsAfterFinished",
                   "type": "null"
                 }
@@ -317,31 +286,26 @@
               "properties": {
                 "enabled": {
                   "default": false,
-                  "required": [],
                   "title": "enabled",
                   "type": "boolean"
                 },
                 "exitCode": {
                   "default": 0,
-                  "required": [],
                   "title": "exitCode",
                   "type": "integer"
                 },
                 "hookDeletePolicy": {
                   "default": "hook-succeeded,hook-failed",
-                  "required": [],
                   "title": "hookDeletePolicy",
                   "type": "string"
                 },
                 "sleepSeconds": {
                   "default": "",
-                  "required": [],
                   "title": "sleepSeconds",
                   "type": "null"
                 },
                 "ttlSecondsAfterFinished": {
                   "default": "",
-                  "required": [],
                   "title": "ttlSecondsAfterFinished",
                   "type": "null"
                 }
@@ -363,31 +327,26 @@
               "properties": {
                 "enabled": {
                   "default": false,
-                  "required": [],
                   "title": "enabled",
                   "type": "boolean"
                 },
                 "exitCode": {
                   "default": 0,
-                  "required": [],
                   "title": "exitCode",
                   "type": "integer"
                 },
                 "hookDeletePolicy": {
                   "default": "hook-succeeded,hook-failed",
-                  "required": [],
                   "title": "hookDeletePolicy",
                   "type": "string"
                 },
                 "sleepSeconds": {
                   "default": "",
-                  "required": [],
                   "title": "sleepSeconds",
                   "type": "null"
                 },
                 "ttlSecondsAfterFinished": {
                   "default": "",
-                  "required": [],
                   "title": "ttlSecondsAfterFinished",
                   "type": "null"
                 }
@@ -409,31 +368,26 @@
               "properties": {
                 "enabled": {
                   "default": false,
-                  "required": [],
                   "title": "enabled",
                   "type": "boolean"
                 },
                 "exitCode": {
                   "default": 0,
-                  "required": [],
                   "title": "exitCode",
                   "type": "integer"
                 },
                 "hookDeletePolicy": {
                   "default": "hook-succeeded,hook-failed",
-                  "required": [],
                   "title": "hookDeletePolicy",
                   "type": "string"
                 },
                 "sleepSeconds": {
                   "default": "",
-                  "required": [],
                   "title": "sleepSeconds",
                   "type": "null"
                 },
                 "ttlSecondsAfterFinished": {
                   "default": "",
-                  "required": [],
                   "title": "ttlSecondsAfterFinished",
                   "type": "null"
                 }
@@ -455,31 +409,26 @@
               "properties": {
                 "enabled": {
                   "default": false,
-                  "required": [],
                   "title": "enabled",
                   "type": "boolean"
                 },
                 "exitCode": {
                   "default": 0,
-                  "required": [],
                   "title": "exitCode",
                   "type": "integer"
                 },
                 "hookDeletePolicy": {
                   "default": "hook-succeeded,hook-failed",
-                  "required": [],
                   "title": "hookDeletePolicy",
                   "type": "string"
                 },
                 "sleepSeconds": {
                   "default": "",
-                  "required": [],
                   "title": "sleepSeconds",
                   "type": "null"
                 },
                 "ttlSecondsAfterFinished": {
                   "default": "",
-                  "required": [],
                   "title": "ttlSecondsAfterFinished",
                   "type": "null"
                 }
@@ -501,31 +450,26 @@
               "properties": {
                 "enabled": {
                   "default": false,
-                  "required": [],
                   "title": "enabled",
                   "type": "boolean"
                 },
                 "exitCode": {
                   "default": 0,
-                  "required": [],
                   "title": "exitCode",
                   "type": "integer"
                 },
                 "hookDeletePolicy": {
                   "default": "hook-succeeded,hook-failed",
-                  "required": [],
                   "title": "hookDeletePolicy",
                   "type": "string"
                 },
                 "sleepSeconds": {
                   "default": "",
-                  "required": [],
                   "title": "sleepSeconds",
                   "type": "null"
                 },
                 "ttlSecondsAfterFinished": {
                   "default": "",
-                  "required": [],
                   "title": "ttlSecondsAfterFinished",
                   "type": "null"
                 }
@@ -547,31 +491,26 @@
               "properties": {
                 "enabled": {
                   "default": false,
-                  "required": [],
                   "title": "enabled",
                   "type": "boolean"
                 },
                 "exitCode": {
                   "default": 0,
-                  "required": [],
                   "title": "exitCode",
                   "type": "integer"
                 },
                 "hookDeletePolicy": {
                   "default": "hook-succeeded,hook-failed",
-                  "required": [],
                   "title": "hookDeletePolicy",
                   "type": "string"
                 },
                 "sleepSeconds": {
                   "default": "",
-                  "required": [],
                   "title": "sleepSeconds",
                   "type": "null"
                 },
                 "ttlSecondsAfterFinished": {
                   "default": "",
-                  "required": [],
                   "title": "ttlSecondsAfterFinished",
                   "type": "null"
                 }
@@ -593,31 +532,26 @@
               "properties": {
                 "enabled": {
                   "default": false,
-                  "required": [],
                   "title": "enabled",
                   "type": "boolean"
                 },
                 "exitCode": {
                   "default": 0,
-                  "required": [],
                   "title": "exitCode",
                   "type": "integer"
                 },
                 "hookDeletePolicy": {
                   "default": "hook-succeeded,hook-failed",
-                  "required": [],
                   "title": "hookDeletePolicy",
                   "type": "string"
                 },
                 "sleepSeconds": {
                   "default": "",
-                  "required": [],
                   "title": "sleepSeconds",
                   "type": "null"
                 },
                 "ttlSecondsAfterFinished": {
                   "default": "",
-                  "required": [],
                   "title": "ttlSecondsAfterFinished",
                   "type": "null"
                 }
@@ -638,7 +572,6 @@
     },
     "host": {
       "default": "",
-      "required": [],
       "title": "host",
       "type": "null"
     },
@@ -651,31 +584,27 @@
           "description": "average total CPU usage per pod (1-100)",
           "required": [],
           "title": "cpu",
-          "type": "null"
+          "type": ["integer", "null"]
         },
         "enabled": {
           "default": false,
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
         "maxReplicas": {
           "default": 10,
-          "required": [],
           "title": "maxReplicas",
           "type": "integer"
         },
         "memory": {
           "default": "",
           "description": "average memory usage per pod (100Mi-1Gi)",
-          "required": [],
           "title": "memory",
           "type": "null"
         },
         "requests": {
           "default": "",
           "description": "average http requests per second per pod (k8s-prometheus-adapter)",
-          "required": [],
           "title": "requests",
           "type": "null"
         }
@@ -705,17 +634,14 @@
         "enabled": {
           "default": false,
           "description": "HTTPRoute enabled.",
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
         "hostnames": {
           "description": "Hostnames matching HTTP header.",
           "items": {
-            "required": [],
             "type": "string"
           },
-          "required": [],
           "title": "hostnames",
           "type": "array"
         },
@@ -726,13 +652,11 @@
             "properties": {
               "name": {
                 "default": "gateway",
-                "required": [],
                 "title": "name",
                 "type": "string"
               },
               "sectionName": {
                 "default": "http",
-                "required": [],
                 "title": "sectionName",
                 "type": "string"
               }
@@ -740,7 +664,6 @@
             "required": [],
             "type": "object"
           },
-          "required": [],
           "title": "parentRefs",
           "type": "array"
         },
@@ -758,13 +681,11 @@
                       "properties": {
                         "type": {
                           "default": "PathPrefix",
-                          "required": [],
                           "title": "type",
                           "type": "string"
                         },
                         "value": {
                           "default": "/",
-                          "required": [],
                           "title": "value",
                           "type": "string"
                         }
@@ -777,7 +698,6 @@
                   "required": [],
                   "type": "object"
                 },
-                "required": [],
                 "title": "matches",
                 "type": "array"
               }
@@ -785,7 +705,6 @@
             "required": [],
             "type": "object"
           },
-          "required": [],
           "title": "rules",
           "type": "array"
         }
@@ -799,7 +718,6 @@
       "properties": {
         "pullPolicy": {
           "default": "IfNotPresent",
-          "required": [],
           "title": "pullPolicy",
           "type": "string"
         },
@@ -807,19 +725,16 @@
           "items": {
             "required": []
           },
-          "required": [],
           "title": "pullSecrets",
           "type": "array"
         },
         "repository": {
           "default": "ghcr.io/stefanprodan/podinfo",
-          "required": [],
           "title": "repository",
           "type": "string"
         },
         "tag": {
           "default": "6.13.0",
-          "required": [],
           "title": "tag",
           "type": "string"
         }
@@ -846,13 +761,11 @@
         },
         "className": {
           "default": "",
-          "required": [],
           "title": "className",
           "type": "string"
         },
         "enabled": {
           "default": false,
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
@@ -863,7 +776,6 @@
             "properties": {
               "host": {
                 "default": "podinfo.local",
-                "required": [],
                 "title": "host",
                 "type": "string"
               },
@@ -873,13 +785,11 @@
                   "properties": {
                     "path": {
                       "default": "/",
-                      "required": [],
                       "title": "path",
                       "type": "string"
                     },
                     "pathType": {
                       "default": "ImplementationSpecific",
-                      "required": [],
                       "title": "pathType",
                       "type": "string"
                     }
@@ -887,7 +797,6 @@
                   "required": [],
                   "type": "object"
                 },
-                "required": [],
                 "title": "paths",
                 "type": "array"
               }
@@ -895,7 +804,6 @@
             "required": [],
             "type": "object"
           },
-          "required": [],
           "title": "hosts",
           "type": "array"
         },
@@ -903,7 +811,6 @@
           "items": {
             "required": []
           },
-          "required": [],
           "title": "tls",
           "type": "array"
         }
@@ -914,7 +821,6 @@
     },
     "logLevel": {
       "default": "info",
-      "required": [],
       "title": "logLevel",
       "type": "string"
     },
@@ -946,13 +852,11 @@
     },
     "prefix": {
       "default": "/",
-      "required": [],
       "title": "prefix",
       "type": "string"
     },
     "priorityClassName": {
       "default": "",
-      "required": [],
       "title": "priorityClassName",
       "type": "string"
     },
@@ -965,31 +869,26 @@
           "properties": {
             "failureThreshold": {
               "default": 3,
-              "required": [],
               "title": "failureThreshold",
               "type": "integer"
             },
             "initialDelaySeconds": {
               "default": 1,
-              "required": [],
               "title": "initialDelaySeconds",
               "type": "integer"
             },
             "periodSeconds": {
               "default": 10,
-              "required": [],
               "title": "periodSeconds",
               "type": "integer"
             },
             "successThreshold": {
               "default": 1,
-              "required": [],
               "title": "successThreshold",
               "type": "integer"
             },
             "timeoutSeconds": {
               "default": 5,
-              "required": [],
               "title": "timeoutSeconds",
               "type": "integer"
             }
@@ -1003,31 +902,26 @@
           "properties": {
             "failureThreshold": {
               "default": 3,
-              "required": [],
               "title": "failureThreshold",
               "type": "integer"
             },
             "initialDelaySeconds": {
               "default": 1,
-              "required": [],
               "title": "initialDelaySeconds",
               "type": "integer"
             },
             "periodSeconds": {
               "default": 10,
-              "required": [],
               "title": "periodSeconds",
               "type": "integer"
             },
             "successThreshold": {
               "default": 1,
-              "required": [],
               "title": "successThreshold",
               "type": "integer"
             },
             "timeoutSeconds": {
               "default": 5,
-              "required": [],
               "title": "timeoutSeconds",
               "type": "integer"
             }
@@ -1041,37 +935,31 @@
           "properties": {
             "enable": {
               "default": false,
-              "required": [],
               "title": "enable",
               "type": "boolean"
             },
             "failureThreshold": {
               "default": 20,
-              "required": [],
               "title": "failureThreshold",
               "type": "integer"
             },
             "initialDelaySeconds": {
               "default": 10,
-              "required": [],
               "title": "initialDelaySeconds",
               "type": "integer"
             },
             "periodSeconds": {
               "default": 10,
-              "required": [],
               "title": "periodSeconds",
               "type": "integer"
             },
             "successThreshold": {
               "default": 1,
-              "required": [],
               "title": "successThreshold",
               "type": "integer"
             },
             "timeoutSeconds": {
               "default": 5,
-              "required": [],
               "title": "timeoutSeconds",
               "type": "integer"
             }
@@ -1091,7 +979,6 @@
       "properties": {
         "enabled": {
           "default": false,
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
@@ -1099,19 +986,16 @@
           "items": {
             "required": []
           },
-          "required": [],
           "title": "imagePullSecrets",
           "type": "array"
         },
         "repository": {
           "default": "docker.io/redis",
-          "required": [],
           "title": "repository",
           "type": "string"
         },
         "tag": {
           "default": "8.6.3",
-          "required": [],
           "title": "tag",
           "type": "string"
         }
@@ -1122,7 +1006,6 @@
     },
     "replicaCount": {
       "default": 1,
-      "required": [],
       "title": "replicaCount",
       "type": "integer"
     },
@@ -1134,27 +1017,24 @@
           "default": "",
           "properties": {
             "memory": {
-              "required": [],
               "title": "memory",
               "type": "string"
             }
           },
           "required": [],
           "title": "limits",
-          "type": "null"
+          "type": ["null", "object"]
         },
         "requests": {
           "additionalProperties": true,
           "properties": {
             "cpu": {
               "default": "1m",
-              "required": [],
               "title": "cpu",
               "type": "string"
             },
             "memory": {
               "default": "16Mi",
-              "required": [],
               "title": "memory",
               "type": "string"
             }
@@ -1193,69 +1073,58 @@
         },
         "enabled": {
           "default": true,
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
         "externalPort": {
           "default": 9898,
-          "required": [],
           "title": "externalPort",
           "type": "integer"
         },
         "externalTrafficPolicy": {
           "default": "",
-          "required": [],
           "title": "externalTrafficPolicy",
           "type": "string"
         },
         "grpcPort": {
           "default": 9999,
-          "required": [],
           "title": "grpcPort",
           "type": "integer"
         },
         "grpcService": {
           "default": "podinfo",
-          "required": [],
           "title": "grpcService",
           "type": "string"
         },
         "hostPort": {
           "default": "",
           "description": "the port used to bind the http port to the host\nNOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing\nin local clusters such as kind without port forwarding",
-          "required": [],
           "title": "hostPort",
           "type": "null"
         },
         "httpPort": {
           "default": 9898,
-          "required": [],
           "title": "httpPort",
           "type": "integer"
         },
         "metricsPort": {
           "default": 9797,
-          "required": [],
           "title": "metricsPort",
           "type": "integer"
         },
         "nodePort": {
           "default": 31198,
-          "required": [],
           "title": "nodePort",
           "type": "integer"
         },
         "trafficDistribution": {
           "default": "",
           "description": "Stable from Kubernetes v1.33+ with a value of PreferClose. Additional values are PreferSameZone and PreferSameNode from v1.34+. Empty string means it's disabled.",
-          "required": [],
           "title": "trafficDistribution",
           "type": "string"
         },
         "type": {
           "default": "ClusterIP",
-          "required": [],
           "title": "type",
           "type": "string"
         }
@@ -1270,7 +1139,6 @@
         "enabled": {
           "default": false,
           "description": "Specifies whether a service account should be created",
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
@@ -1279,14 +1147,12 @@
           "items": {
             "required": []
           },
-          "required": [],
           "title": "imagePullSecrets",
           "type": "array"
         },
         "name": {
           "default": "",
           "description": "The name of the service account to use.\nIf not set and create is true, a name is generated using the fullname template",
-          "required": [],
           "title": "name",
           "type": "null"
         }
@@ -1307,13 +1173,11 @@
         },
         "enabled": {
           "default": false,
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
         "interval": {
           "default": "15s",
-          "required": [],
           "title": "interval",
           "type": "string"
         }
@@ -1329,34 +1193,29 @@
         "certPath": {
           "default": "/data/cert",
           "description": "the path where the certificate key pair will be mounted",
-          "required": [],
           "title": "certPath",
           "type": "string"
         },
         "enabled": {
           "default": false,
-          "required": [],
           "title": "enabled",
           "type": "boolean"
         },
         "hostPort": {
           "default": "",
           "description": "the port used to bind the tls port to the host\nNOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing\nin local clusters such as kind without port forwarding",
-          "required": [],
           "title": "hostPort",
           "type": "null"
         },
         "port": {
           "default": 9899,
           "description": "the port used to host the tls endpoint on the service",
-          "required": [],
           "title": "port",
           "type": "integer"
         },
         "secretName": {
           "default": "",
           "description": "the name of the secret used to mount the certificate key pair",
-          "required": [],
           "title": "secretName",
           "type": "null"
         }
@@ -1369,7 +1228,6 @@
       "items": {
         "required": []
       },
-      "required": [],
       "title": "tolerations",
       "type": "array"
     },
@@ -1378,7 +1236,6 @@
       "items": {
         "required": []
       },
-      "required": [],
       "title": "topologySpreadConstraints",
       "type": "array"
     },
@@ -1387,19 +1244,16 @@
       "properties": {
         "color": {
           "default": "#34577c",
-          "required": [],
           "title": "color",
           "type": "string"
         },
         "logo": {
           "default": "",
-          "required": [],
           "title": "logo",
           "type": "string"
         },
         "message": {
           "default": "",
-          "required": [],
           "title": "message",
           "type": "string"
         }
