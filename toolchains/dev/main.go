@@ -27,7 +27,7 @@ const (
 	starshipVersion   = "v1.24.2"         // renovate: datasource=github-releases depName=starship/starship
 	yqVersion         = "v4.52.4"         // renovate: datasource=github-releases depName=mikefarah/yq
 	uvVersion         = "0.10.4"          // renovate: datasource=github-releases depName=astral-sh/uv extractVersion=^(?P<version>.*)$
-	ghVersion         = "v2.87.2"         // renovate: datasource=github-releases depName=cli/cli
+	ghVersion         = "v2.93.0"         // renovate: datasource=github-releases depName=cli/cli
 	claudeCodeVersion = "2.1.50"          // renovate: datasource=npm depName=@anthropic-ai/claude-code
 )
 
