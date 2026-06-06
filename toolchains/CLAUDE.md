@@ -75,26 +75,26 @@ Go CI to `go` while owning project-specific tooling.
 The remote toolchains' functions are documented in the x repo. The `kclipper`
 module composes them and owns the project-specific layer:
 
-| Category             | kclipper functions                                                      |
-| -------------------- | ----------------------------------------------------------------------- |
-| Build / release      | Build, BuildImages, releaserBase (private), runtimeImages, runtimeBase  |
-| Publish              | PublishImages, PublishKCLModules, publishImages, Release                |
-| Checks (+check)      | LintReleaser, LintPrettier, LintActions, LintKCLModules                 |
-| Advisory             | LintDeadcode (callable, not a +check)                                   |
-| Generate (+generate) | Format (merges go FormatGo + prettier Format)                           |
-| Release helpers      | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost    |
-| Benchmark            | benchSuite, BenchmarkSummary                                            |
-| Tool versions        | prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig, KCL LSP      |
+| Category             | kclipper functions                                                     |
+| -------------------- | ---------------------------------------------------------------------- |
+| Build / release      | Build, BuildImages, releaserBase (private), runtimeImages, runtimeBase |
+| Publish              | PublishImages, PublishKCLModules, publishImages, Release               |
+| Checks (+check)      | LintReleaser, LintPrettier, LintActions, LintKCLModules                |
+| Advisory             | LintDeadcode (callable, not a +check)                                  |
+| Generate (+generate) | Format (merges go FormatGo + prettier Format)                          |
+| Release helpers      | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost   |
+| Benchmark            | benchSuite, BenchmarkSummary                                           |
+| Tool versions        | prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig, KCL LSP     |
 
 ### Function Categories
 
-| Category    | Annotation     | CLI                                   | Purpose                                        |
-| ----------- | -------------- | ------------------------------------- | ---------------------------------------------- |
-| Checks      | `// +check`    | `dagger check <toolchain>:<name>`     | Validation (tests, lints). Return `error`.     |
-| Generators  | `// +generate` | `dagger generate`                     | Code formatting. Return `*dagger.Changeset`.   |
-| Build       | (none)         | `dagger call kclipper <name>`         | Artifact production.                           |
-| Callable    | (none)         | `dagger call <toolchain> <name>`      | Requires arguments; invoked via `dagger call`. |
-| Testable    | (none)         | `dagger call <toolchain> <name>`      | Non-interactive building blocks for tests.     |
+| Category   | Annotation     | CLI                               | Purpose                                        |
+| ---------- | -------------- | --------------------------------- | ---------------------------------------------- |
+| Checks     | `// +check`    | `dagger check <toolchain>:<name>` | Validation (tests, lints). Return `error`.     |
+| Generators | `// +generate` | `dagger generate`                 | Code formatting. Return `*dagger.Changeset`.   |
+| Build      | (none)         | `dagger call kclipper <name>`     | Artifact production.                           |
+| Callable   | (none)         | `dagger call <toolchain> <name>`  | Requires arguments; invoked via `dagger call`. |
+| Testable   | (none)         | `dagger call <toolchain> <name>`  | Non-interactive building blocks for tests.     |
 
 `commitlint lint` is in the Callable category because it requires mandatory
 `source` and `args` arguments and cannot be a `+check` function.
@@ -227,7 +227,6 @@ The CI module uses a three-tier caching approach to minimize redundant work:
 
 1. **Dagger function caching** — Dagger caches function results by default
    (7-day TTL). Three cache tiers are used:
-
    - **Default** — deterministic functions (lint, format) use the 7-day TTL.
    - **`+cache="session"`** — functions that should re-run each session but
      not be cached across sessions (Test, Benchmark, BenchmarkSummary).
@@ -247,7 +246,6 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    toolchain constructor accepts optional `cacheNamespace`, `moduleCache`,
    and `buildCache` parameters; when omitted, the module's canonical path
    is used as the namespace prefix:
-
    - `<cacheNamespace>:modules` — Go module cache (`GOMODCACHE`)
    - `<cacheNamespace>:build` — Go build cache (`GOCACHE`)
    - `<cacheNamespace>:build-<os>-<arch>` — platform-specific Go build cache
