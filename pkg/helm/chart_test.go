@@ -88,7 +88,7 @@ func TestHelmChart(t *testing.T) {
 			opts: &helm.TemplateOpts{
 				ChartName:      "app-template",
 				TargetRevision: "3.6.0",
-				RepoURL:        "https://bjw-s.github.io/helm-charts/",
+				RepoURL:        "https://bjw-s-labs.github.io/helm-charts/",
 				ValuesObject: map[string]any{
 					"controllers": map[string]any{
 						"main": map[string]any{
@@ -346,7 +346,7 @@ func BenchmarkAppTemplateHelmChart(b *testing.B) {
 	c := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 		ChartName:            "app-template",
 		TargetRevision:       "3.6.0",
-		RepoURL:              "https://bjw-s.github.io/helm-charts/",
+		RepoURL:              "https://bjw-s-labs.github.io/helm-charts/",
 		SkipSchemaValidation: true,
 	})
 

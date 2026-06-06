@@ -54,7 +54,7 @@ func TestHelmChartAdd(t *testing.T) {
 			chart: &kclchart.ChartConfig{
 				ChartBase: kclchart.ChartBase{
 					Chart:          "app-template",
-					RepoURL:        "https://bjw-s.github.io/helm-charts/",
+					RepoURL:        "https://bjw-s-labs.github.io/helm-charts/",
 					TargetRevision: "3.6.0",
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
