@@ -63,6 +63,7 @@ func writeToKCLSchema(obj kube.Object, path string) error {
 	}
 
 	var errs []error
+
 	for version, v := range crdVersions {
 		err := kclgen.GenOpenAPI.FromCRDVersion(v, path, version)
 		if err != nil {

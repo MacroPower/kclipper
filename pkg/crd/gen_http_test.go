@@ -296,6 +296,7 @@ func TestFromURLs(t *testing.T) {
 			mockClient := tc.setupMock(t)
 
 			var urls []*url.URL
+
 			for _, u := range tc.urls {
 				parsedURL, err := url.Parse(u)
 				require.NoError(t, err)

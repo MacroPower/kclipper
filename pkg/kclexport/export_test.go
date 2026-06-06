@@ -69,6 +69,7 @@ func TestExporter_ExportSchemaToJSON(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.NotNil(t, data)
+
 			if tc.validate != nil {
 				tc.validate(t, data)
 			}

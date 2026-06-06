@@ -53,7 +53,7 @@ func FromURL(ctx context.Context, httpClient HTTPDoer, crdURL *url.URL) ([]kube.
 	defer func() {
 		err := schema.Body.Close()
 		if err != nil {
-			slog.Error("close http response body",
+			slog.ErrorContext(ctx, "close http response body",
 				slog.String("url", crdURL.String()),
 				slog.Any("err", err),
 			)

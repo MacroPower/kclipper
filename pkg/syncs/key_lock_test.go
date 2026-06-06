@@ -65,6 +65,7 @@ func TestKeyLock(t *testing.T) {
 				const n = 100
 
 				var wg sync.WaitGroup
+
 				wg.Add(n)
 
 				for range n {

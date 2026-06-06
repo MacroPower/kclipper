@@ -20,6 +20,7 @@ import (
 // do not need to account for lipgloss width-padding.
 func stripTrailingSpaces(s string) string {
 	var lines []string
+
 	for line := range strings.SplitSeq(s, "\n") {
 		lines = append(lines, strings.TrimRight(line, " "))
 	}

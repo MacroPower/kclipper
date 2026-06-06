@@ -136,7 +136,10 @@ func templateData(ctx context.Context, loadedChart *chart.Chart, t *TemplateOpts
 			HelmVersion: chartutil.DefaultCapabilities.HelmVersion,
 		},
 		Log: func(msg string, kv ...any) {
-			slog.Debug(msg, kv...)
+			slog.DebugContext(ctx, "helm",
+				slog.String("helm_msg", msg),
+				slog.Any("kv", kv),
+			)
 		},
 	})
 	ta.DryRun = true

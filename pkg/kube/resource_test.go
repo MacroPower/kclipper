@@ -175,6 +175,7 @@ func TestObject_DeepCopy(t *testing.T) {
 
 			if tc.obj == nil {
 				assert.Nil(t, got)
+
 				return
 			}
 

@@ -200,6 +200,7 @@ func inbound(candidate, baseDir string) bool {
 	}
 
 	var target string
+
 	if filepath.IsAbs(candidate) {
 		target = filepath.Clean(candidate)
 	} else {

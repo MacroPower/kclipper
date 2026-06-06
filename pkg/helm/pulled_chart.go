@@ -169,6 +169,7 @@ func (c *PulledChart) setChartDependencies(
 	close(resultCh)
 
 	var merr error
+
 	for result := range resultCh {
 		if result.err != nil {
 			merr = errors.Join(merr, result.err)

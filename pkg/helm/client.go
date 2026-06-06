@@ -210,7 +210,10 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	ap := action.NewPullWithOpts(action.WithConfig(&action.Configuration{
 		RegistryClient: c.rc,
 		Log: func(msg string, kv ...any) {
-			slog.Debug(msg, kv...)
+			slog.DebugContext(ctx, "helm",
+				slog.String("helm_msg", msg),
+				slog.Any("kv", kv),
+			)
 		},
 	}))
 	ap.Settings = &cli.EnvSettings{

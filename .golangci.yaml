@@ -226,6 +226,10 @@ linters:
           disabled: true
         - name: package-comments
           disabled: true
+        # Plugin packages intentionally mirror the stdlib package they wrap
+        # (e.g. filepath wraps path/filepath) and are always imported aliased.
+        - name: package-naming
+          disabled: true
         - name: unnecessary-stmt
           disabled: true
         # Does not work with inline tags.

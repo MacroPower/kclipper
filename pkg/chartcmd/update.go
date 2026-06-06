@@ -93,6 +93,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 			}
 
 			maps.Copy(matchedCharts, vn)
+
 			if ok {
 				matchedCharts[chart] = vk
 			}
@@ -152,6 +153,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 	close(errChan)
 
 	var merr error
+
 	for err := range errChan {
 		merr = errors.Join(merr, err)
 	}

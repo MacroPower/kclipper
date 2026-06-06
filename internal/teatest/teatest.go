@@ -152,6 +152,7 @@ func NewTestModel(tb testing.TB, m tea.Model, options ...TestOption) *TestModel 
 	}, options...)
 
 	var opts TestModelOptions
+
 	for _, opt := range options {
 		opt(&opts)
 	}
@@ -292,6 +293,7 @@ func (tm *TestModel) Send(m tea.Msg) {
 // Quit quits the program and releases the terminal.
 func (tm *TestModel) Quit() error {
 	tm.program.Quit()
+
 	return nil
 }
 

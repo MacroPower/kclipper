@@ -152,6 +152,7 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 	}
 
 	var err error
+
 	// Optional preprocessing.
 	if g.config.UncommentYAMLBlocks {
 		// Remove comments from valid yaml.
@@ -419,6 +420,7 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 	}
 
 	var items *helmschema.Schema
+
 	for _, s := range append(dest.AllOf, src.AllOf...) {
 		items = mergeHelmSchemas(items, s, setDefaults)
 		dest.AllOf = nil

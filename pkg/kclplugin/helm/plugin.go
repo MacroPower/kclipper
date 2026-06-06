@@ -46,15 +46,15 @@ var Plugin = plugin.Plugin{
 		"template": {
 			Type: &plugin.MethodType{
 				KwArgsType: map[string]string{
-					argChart:                "str",
-					argTargetRevision:       "str",
-					argRepoURL:              "str",
-					argReleaseName:          "str",
-					argNamespace:            "str",
-					argSkipCRDs:             "bool",
-					argSkipSchemaValidation: "bool",
-					argSkipHooks:            "bool",
-					argPassCredentials:      "bool",
+					argChart:                plugins.TypeStr,
+					argTargetRevision:       plugins.TypeStr,
+					argRepoURL:              plugins.TypeStr,
+					argReleaseName:          plugins.TypeStr,
+					argNamespace:            plugins.TypeStr,
+					argSkipCRDs:             plugins.TypeBool,
+					argSkipSchemaValidation: plugins.TypeBool,
+					argSkipHooks:            plugins.TypeBool,
+					argPassCredentials:      plugins.TypeBool,
 					argRepositories:         "[any]",
 					argValues:               "{str:any}",
 				},
@@ -70,6 +70,7 @@ var Plugin = plugin.Plugin{
 				safeArgs := plugins.SafeMethodArgs{Args: args}
 
 				var validationErr error
+
 				if !safeArgs.Exists(argChart) {
 					validationErr = errors.Join(validationErr, fmt.Errorf("missing required argument: %s", argChart))
 				}

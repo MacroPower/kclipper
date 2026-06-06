@@ -395,6 +395,7 @@ func (c *KCLPackage) generateSchemaFromChart(chart *kclchart.ChartConfig, chartF
 	}
 
 	var gen helm.JSONSchemaGenerator
+
 	switch chart.SchemaGenerator {
 	case jsonschema.AutoGeneratorType:
 		gen = jsonschema.DefaultAutoGenerator

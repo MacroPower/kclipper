@@ -22,8 +22,8 @@ var Plugin = plugin.Plugin{
 	MethodMap: map[string]plugin.MethodSpec{
 		"base": {
 			Type: &plugin.MethodType{
-				ArgsType:   []string{"str"},
-				ResultType: "str",
+				ArgsType:   []string{plugins.TypeStr},
+				ResultType: plugins.TypeStr,
 			},
 			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
 				logger := slog.With(
@@ -48,8 +48,8 @@ var Plugin = plugin.Plugin{
 		},
 		"clean": {
 			Type: &plugin.MethodType{
-				ArgsType:   []string{"str"},
-				ResultType: "str",
+				ArgsType:   []string{plugins.TypeStr},
+				ResultType: plugins.TypeStr,
 			},
 			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
 				logger := slog.With(
@@ -74,8 +74,8 @@ var Plugin = plugin.Plugin{
 		},
 		"dir": {
 			Type: &plugin.MethodType{
-				ArgsType:   []string{"str"},
-				ResultType: "str",
+				ArgsType:   []string{plugins.TypeStr},
+				ResultType: plugins.TypeStr,
 			},
 			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
 				logger := slog.With(
@@ -100,8 +100,8 @@ var Plugin = plugin.Plugin{
 		},
 		"ext": {
 			Type: &plugin.MethodType{
-				ArgsType:   []string{"str"},
-				ResultType: "str",
+				ArgsType:   []string{plugins.TypeStr},
+				ResultType: plugins.TypeStr,
 			},
 			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
 				logger := slog.With(
@@ -127,7 +127,7 @@ var Plugin = plugin.Plugin{
 		"join": {
 			Type: &plugin.MethodType{
 				ArgsType:   []string{"[str]"},
-				ResultType: "str",
+				ResultType: plugins.TypeStr,
 			},
 			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
 				logger := slog.With(
@@ -152,7 +152,7 @@ var Plugin = plugin.Plugin{
 		},
 		"split": {
 			Type: &plugin.MethodType{
-				ArgsType:   []string{"str"},
+				ArgsType:   []string{plugins.TypeStr},
 				ResultType: "[str]",
 			},
 			Body: func(args *plugin.MethodArgs) (*plugin.MethodResult, error) {
