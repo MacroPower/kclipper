@@ -29,7 +29,10 @@
       customType: "regex",
       managerFilePatterns: ["/toolchains/.+/main\\.go$/"],
       matchStrings: [
-        '\\w+\\s*=\\s*"(?<currentValue>[^"]+)"\\s*//\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+extractVersion=(?<extractVersion>[^\\s]+))?',
+        // The optional non-captured prefix strips the image name from full
+        // refs (e.g. "ghcr.io/nixos/nix:2.32.8"), leaving only the tag as
+        // currentValue.
+        '\\w+\\s*=\\s*"(?:[^"]*:)?(?<currentValue>[^":]+)"\\s*//\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+extractVersion=(?<extractVersion>[^\\s]+))?',
       ],
     },
   ],

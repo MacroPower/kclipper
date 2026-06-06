@@ -15,7 +15,10 @@ const (
 	goreleaserVersion = "v2.13.3" // renovate: datasource=github-releases depName=goreleaser/goreleaser
 	zigVersion        = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
 	kclLSPVersion     = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
-	nixImageVersion   = "2.32.8"  // renovate: datasource=docker depName=nixos/nix
+	// Base images are pulled from GHCR and ECR Public rather than Docker Hub
+	// to avoid anonymous pull rate limits.
+	nixImage    = "ghcr.io/nixos/nix:2.32.8"                     // renovate: datasource=docker depName=ghcr.io/nixos/nix
+	debianImage = "public.ecr.aws/docker/library/debian:13-slim" // renovate: datasource=docker depName=public.ecr.aws/docker/library/debian
 
 	// macosSDKStorePath is the pinned nixpkgs apple-sdk store path, substituted
 	// from cache.nixos.org by [macosSDKDirectory]. Version 15.5 matches the

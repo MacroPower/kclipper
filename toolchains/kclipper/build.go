@@ -104,7 +104,7 @@ func runtimeImages(_ context.Context, dist *dagger.Directory, version string) ([
 // pre-configured.
 func runtimeBase(platform dagger.Platform) *dagger.Container {
 	return dag.Container(dagger.ContainerOpts{Platform: platform}).
-		From("debian:13-slim").
+		From(debianImage).
 		// Static OCI labels (container config) for metadata.
 		WithLabel("org.opencontainers.image.title", "kclipper").
 		WithLabel("org.opencontainers.image.description", "A superset of KCL that integrates Helm chart management").
@@ -131,7 +131,7 @@ func runtimeBase(platform dagger.Platform) *dagger.Container {
 // independent caching.
 func zigDirectory() *dagger.Directory {
 	return dag.Container().
-		From("debian:13-slim").
+		From(debianImage).
 		WithExec([]string{"sh", "-c",
 			"apt-get update && apt-get install -y xz-utils curl && " +
 				"ZIG_ARCH=$(uname -m | sed 's/arm64/aarch64/') && " +
@@ -149,13 +149,13 @@ func macosSDKDirectory() *dagger.Directory {
 	// Substitute the SDK closure from cache.nixos.org. No build occurs;
 	// darwin store paths are downloadable on linux.
 	store := dag.Container().
-		From("nixos/nix:"+nixImageVersion).
+		From(nixImage).
 		WithExec([]string{"nix-store", "--realise", macosSDKStorePath}).
 		Directory(macosSDKStorePath)
 	sdk := macosSDKStorePath + "/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
 	// The trim runs in debian because the nix image lacks sed.
 	return dag.Container().
-		From("debian:13-slim").
+		From(debianImage).
 		// Mount at the original store path so absolute intra-SDK symlinks resolve.
 		WithMountedDirectory(macosSDKStorePath, store).
 		// Copy the needed subset, dereferencing symlinks (-L) to flatten the
@@ -185,7 +185,7 @@ func macosSDKDirectory() *dagger.Directory {
 // platform.
 func kclLSPBinary(goos, goarch string) *dagger.File {
 	return dag.Container().
-		From("debian:13-slim").
+		From(debianImage).
 		WithExec([]string{"sh", "-c",
 			"apt-get update && apt-get install -y curl && " +
 				"curl -fsSL https://github.com/kcl-lang/kcl/releases/download/" + kclLSPVersion +
