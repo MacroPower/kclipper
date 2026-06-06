@@ -39,11 +39,6 @@
       automerge: false,
     },
     {
-      matchFileNames: ["toolchains/dev/main.go"],
-      matchPackageNames: ["go"],
-      automerge: false,
-    },
-    {
       matchManagers: ["custom.regex"],
       matchFileNames: ["**/charts/charts.k"],
       postUpgradeTasks: {

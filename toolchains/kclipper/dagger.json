@@ -20,10 +20,6 @@
       "pin": "0add6a0111c97d7d3e8eb26d87a1c31d5ee8d160"
     },
     {
-      "name": "dev",
-      "source": "../dev"
-    },
-    {
       "name": "go",
       "source": "github.com/MacroPower/x/toolchains/go@main",
       "pin": "0add6a0111c97d7d3e8eb26d87a1c31d5ee8d160"

@@ -13,10 +13,6 @@ dagger call kclipper lint-deadcode    # Run deadcode analysis (opt-in, advisory)
 dagger call kclipper publish-kclmodules --tag=v1.2.3 ...  # Publish KCL modules
 dagger generate --auto-apply          # Run generators (Format + Generate) and apply changes
 dagger call kclipper build --output=./dist       # Build binaries
-task dev                              # Dev container (branch defaults to current)
-task dev BRANCH=feat/foo              # Dev container with explicit branch
-task claude                           # Claude Code container (branch defaults to current)
-task claude BRANCH=feat/foo           # Claude Code container with explicit branch
 dagger call commitlint lint --source=. --msg-file=.git/COMMIT_EDITMSG  # Validate commit message
 ```
 
@@ -44,13 +40,11 @@ Remote (shared `x`) toolchains:
 
 Local toolchains:
 
-- **`dev`** — development/Claude container module (`DevBase`, `DevEnv`, `Dev`),
-  consumed by `kclipper`.
 - **`commitlint`** — commit-message validation against conventional rules.
-- **`kclipper`** — the project CI layer. Depends on the remote `go` and the
-  local `dev`, and composes the remote `goreleaser`/`cosign`/`syft`/`zizmor`/
+- **`kclipper`** — the project CI layer. Depends on the remote `go` and
+  composes the remote `goreleaser`/`cosign`/`syft`/`zizmor`/
   `prettier`/`bench` toolchains to add project-specific build, release,
-  publishing, runtime images, non-Go linting/formatting, and dev wrappers.
+  publishing, runtime images, and non-Go linting/formatting.
 
 ```
 dagger.json          # Root config: registers toolchains + source-ignore customizations
@@ -61,19 +55,14 @@ toolchains/          # Local modules only. go, security, goreleaser, zizmor,
     dagger.json      # name=commitlint
     main.go          # Struct, constructor, Lint
     tests/
-  dev/
-    dagger.json      # name=dev
-    main.go          # Dev container functions
-    tests/
   kclipper/
-    dagger.json      # Project CI: depends on remote go + local dev + x toolchains
+    dagger.json      # Project CI: depends on remote go + x toolchains
     main.go          # Struct, constructor, version constants
     build.go         # Build, BuildImages, runtimeImages, runtimeBase, releaserBase
     check.go         # LintReleaser, ReleaseDryRun, LintPrettier, LintActions, LintKCLModules, LintDeadcode
     generate.go      # Format (merges go FormatGo + prettier Format)
     publish.go       # VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost, PublishKCLModules, PublishImages, Release, publishImages
     bench.go         # benchSuite, BenchmarkSummary
-    dev.go           # DevEnv, Dev
     tests/
 ```
 
@@ -81,7 +70,7 @@ The root `dagger.json` registers `go` (remote), `security` (remote),
 `commitlint` (local), and `kclipper` (local) as toolchains, with
 `customizations` that declare source-ignore patterns (e.g. `dist`,
 `.worktrees`, `.tmp`, `.git`) at the project level. The `kclipper` module
-depends on the remote `go` and the local `dev` (plus the remote
+depends on the remote `go` (plus the remote
 goreleaser/cosign/syft/zizmor/prettier/bench toolchains), delegating generic
 Go CI to `go` while owning project-specific tooling.
 
@@ -99,7 +88,6 @@ module composes them and owns the project-specific layer:
 | Generate (+generate) | Format (merges go FormatGo + prettier Format)                           |
 | Release helpers      | VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost    |
 | Benchmark            | benchSuite, BenchmarkSummary                                            |
-| Dev wrappers         | DevEnv, Dev (delegate to the dev toolchain with the kclipper clone URL) |
 | Tool versions        | prettier, zizmor, goreleaser, cosign, syft, deadcode, Zig, KCL LSP      |
 
 ### Function Categories
@@ -110,7 +98,6 @@ module composes them and owns the project-specific layer:
 | Generators  | `// +generate` | `dagger generate`                     | Code formatting. Return `*dagger.Changeset`.   |
 | Build       | (none)         | `dagger call kclipper <name>`         | Artifact production.                           |
 | Callable    | (none)         | `dagger call <toolchain> <name>`      | Requires arguments; invoked via `dagger call`. |
-| Development | (none)         | `dagger call kclipper dev --output=.` | Interactive container with persistent export.  |
 | Testable    | (none)         | `dagger call <toolchain> <name>`      | Non-interactive building blocks for tests.     |
 
 `commitlint lint` is in the Callable category because it requires mandatory
@@ -124,13 +111,9 @@ build pipeline (~15 min). Invoke explicitly via
 `LintDeadcode` is in the Callable category as an opt-in advisory lint. It is
 not a `+check` function so it does not run during `dagger check`.
 
-`DevEnv` and `DevBase` are in the Testable category: they expose intermediate
-pipeline stages that the test module exercises without needing `Terminal()`.
-
 ## Adding a New Check
 
 For **Go-specific** checks (useful to any Go project), add to `toolchains/go/check.go`.
-For **dev container** functions, add to `toolchains/dev/main.go`.
 For **kclipper-specific** or **non-Go** checks, add to `toolchains/kclipper/check.go`.
 
 1. Add a public method with `// +check` annotation:
@@ -212,43 +195,6 @@ Dependencies added for multi-module support:
 - `github.com/bmatcuk/doublestar/v4` — glob pattern matching (zero transitive deps)
 - `github.com/sourcegraph/conc` — bounded parallel execution with error collection
 
-## Dev Container
-
-The `Dev()` function creates a git-aware development container with real commit
-history. The kclipper module's `Dev()` wraps `dev.Dev()` with the kclipper
-clone URL. The dev toolchain module handles the generic dev container setup:
-tool installation (`DevBase`), git clone + source overlay (`DevEnv`), and
-interactive terminal + export (`Dev`).
-
-**Always use `task dev` or `task claude`** — raw `dagger call kclipper dev --output=.`
-would overwrite the host's `.git` worktree file.
-
-Container behaviors (see `devInitScript` in `toolchains/dev/main.go` for details):
-
-- Blobless clone (`--filter=blob:none`) for full history with on-demand blobs.
-- Per-branch cache volumes (`dev:src-<branch>`) for branch isolation.
-- `_DEV_TS` env var busts Dagger's function cache so `git fetch` always runs.
-- Non-fatal `git fetch` allows offline use when a local cache exists.
-- Force checkout (`-f`) avoids conflicts from stale cache volume files; safe
-  because `rsync --delete` overlays host source immediately after.
-- Source overlay via `rsync --delete` brings uncommitted changes (including
-  deletions) into the container.
-- Non-fatal `go mod download` prevents malformed `go.mod` from blocking startup.
-- Claude config: host `~/.claude` seeded into a global cache volume via
-  `rsync -a` (without `--delete`), so auth tokens persist across sessions.
-
-Taskfile host orchestration (`_dev-session`, `_dev-sync`):
-
-- Atomic export staging (`.partial` dir, then `mv`) prevents partial exports.
-- `_dev-sync` translates container `.git` → host worktree format via
-  `git fetch` + `git update-ref` (avoids "refusing to fetch into checked-out
-  branch"). Failed exports preserved at `/tmp/dagger-dev-<dir>`.
-- PID lockfile (`$PPID`, not `$$`) prevents concurrent sessions per branch.
-- Branch names sanitized (`/` → `-`) for volume/path names. Branches differing
-  only by `/` vs `-` collide — avoid such conflicting names.
-- Single session per branch: concurrent `dev`/`claude` for the same branch is
-  not supported.
-
 ## Git Initialization Helpers
 
 Containers need a `.git` directory when the host uses a worktree. Three
@@ -290,7 +236,7 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    - **`+cache="session"`** — functions that should re-run each session but
      not be cached across sessions (Test, Benchmark, BenchmarkSummary).
    - **`+cache="never"`** — functions with external side effects (PublishImages,
-     PublishKCLModules, Release, Dev) that must never return stale results.
+     PublishKCLModules, Release) that must never return stale results.
 
 2. **Module pre-download layer** — The constructor accepts a separate `goMod`
    directory parameter synced with `+ignore=["*", "!go.mod", "!go.sum"]`.
@@ -313,19 +259,9 @@ The CI module uses a three-tier caching approach to minimize redundant work:
    - `<cacheNamespace>:golangci-lint-<lintVersion>` — golangci-lint analysis
      cache (version suffix kept because different versions produce incompatible
      caches)
-   - `<devNamespace>:apt-archives`, `<devNamespace>:apt-lists` — apt caches
-   - `<devNamespace>:src-<branch>` — per-branch workspace (`CacheSharingMode: PRIVATE`)
-   - `<devNamespace>:shell-history` — shell history
-   - `<devNamespace>:claude-config` — Claude Code config (`CacheSharingMode: PRIVATE`)
    - `<kclipperNamespace>:npm` — npm download cache for prettier
    - `trivy-cache` — Trivy vulnerability database cache
      (`CacheSharingMode: LOCKED`)
-
-   The dev toolchain accepts a `goCacheNamespace` parameter (defaults to the
-   Go toolchain's canonical path) so dev containers share the same module
-   and build caches as CI pipelines. `CacheSharingMode: PRIVATE` is set on
-   `dev:src-<branch>` (interactive workspace) and `dev:claude-config`
-   (stateful config) to prevent concurrent corruption.
 
 ## Taskfile Boundary
 
@@ -334,9 +270,8 @@ The Taskfile and Dagger module have a clear division of responsibilities:
 - **Thin wrappers** — most tasks (`lint`, `test`, `build`, `format`, `check`,
   etc.) are one-line delegations to `dagger check`/`dagger call`/`dagger generate`
   for developer convenience.
-- **Host orchestration** — `dev`, `claude`, `_dev-session`, `_dev-sync`, and
-  worktree tasks handle operations that cannot run inside Dagger containers:
-  host git state, PID lockfiles, atomic export staging, rsync to worktrees.
+- **Host orchestration** — worktree tasks handle operations that cannot run
+  inside Dagger containers: host git state.
 
 Rule of thumb: if it touches the host filesystem, host git, or host processes,
 it belongs in the Taskfile. Everything else belongs in Dagger.
@@ -356,8 +291,5 @@ with Renovate annotations for automated updates (e.g.
   (`defaultImage` constant with a Renovate Docker datasource annotation).
 - **Trivy image version** is in `toolchains/security/main.go`
   (`defaultTrivyImage` constant with a Renovate Docker datasource annotation).
-- **Dev tool versions** (task, lefthook, dagger, starship, yq, uv, gh,
-  claude-code) are in `toolchains/dev/main.go`.
 
-The Dagger engine version is pinned in `dagger.json` (`engineVersion`) and
-the `daggerVersion` constant in `toolchains/dev/main.go`.
+The Dagger engine version is pinned in `dagger.json` (`engineVersion`).

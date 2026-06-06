@@ -104,11 +104,6 @@ func New(
 	}
 }
 
-// devToolchain returns the configured [Dev] toolchain module instance for delegation.
-func (m *Kclipper) devToolchain() *dagger.Dev {
-	return dag.Dev(dagger.DevOpts{Source: m.Source})
-}
-
 // Binary compiles the kcl binary for the given platform.
 func (m *Kclipper) Binary(
 	// Target build platform.
