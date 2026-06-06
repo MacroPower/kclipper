@@ -231,9 +231,9 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 			return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 		}
 
-		err = relSchema.Validate()
+		err = validateHelmSchema(relSchema)
 		if err != nil {
-			return nil, fmt.Errorf("invalid schema: %w", err)
+			return nil, err
 		}
 
 		return relSchema, nil
@@ -291,9 +291,9 @@ func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error
 		return fmt.Errorf("handle schema refs in additional properties: %w", err)
 	}
 
-	err = subSchema.Validate()
+	err = validateHelmSchema(subSchema)
 	if err != nil {
-		return fmt.Errorf("invalid schema: %w", err)
+		return err
 	}
 
 	// No idea why, but Required isn't marshaled correctly without recreating the struct.
