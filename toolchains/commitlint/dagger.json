@@ -1,7 +1,0 @@
-{
-  "name": "commitlint",
-  "engineVersion": "v0.21.4",
-  "sdk": {
-    "source": "go"
-  }
-}

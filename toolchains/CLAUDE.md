@@ -37,10 +37,10 @@ Remote (shared `x`) toolchains:
 - **`cosign`** — Sigstore image signing (`sign-with-key`, `with-cosign`).
 - **`syft`** — SBOM generation (`sbom`, `with-syft`).
 - **`bench`** — pipeline benchmark harness (`with-stage`/`run`/`summary`).
+- **`commitlint`** — commit-message validation against conventional rules.
 
 Local toolchains:
 
-- **`commitlint`** — commit-message validation against conventional rules.
 - **`kclipper`** — the project CI layer. Depends on the remote `go` and
   composes the remote `goreleaser`/`cosign`/`syft`/`zizmor`/
   `prettier`/`bench` toolchains to add project-specific build, release,
@@ -48,13 +48,9 @@ Local toolchains:
 
 ```
 dagger.json          # Root config: registers toolchains + source-ignore customizations
-toolchains/          # Local modules only. go, security, goreleaser, zizmor,
-                     # prettier, cosign, syft, and bench are remote (x repo;
-                     # see that repo's toolchains/CLAUDE.md).
-  commitlint/
-    dagger.json      # name=commitlint
-    main.go          # Struct, constructor, Lint
-    tests/
+toolchains/          # Only kclipper is local here; go, security, goreleaser,
+                     # zizmor, prettier, cosign, syft, bench, and commitlint
+                     # are remote (x repo; see that repo's toolchains/CLAUDE.md).
   kclipper/
     dagger.json      # Project CI: depends on remote go + x toolchains
     main.go          # Struct, constructor, version constants
@@ -67,7 +63,7 @@ toolchains/          # Local modules only. go, security, goreleaser, zizmor,
 ```
 
 The root `dagger.json` registers `go` (remote), `security` (remote),
-`commitlint` (local), and `kclipper` (local) as toolchains, with
+`commitlint` (remote), and `kclipper` (local) as toolchains, with
 `customizations` that declare source-ignore patterns (e.g. `dist`,
 `.worktrees`, `.tmp`, `.git`) at the project level. The `kclipper` module
 depends on the remote `go` (plus the remote
@@ -282,14 +278,12 @@ Tool versions are declared as constants at the top of each module's `main.go`
 with Renovate annotations for automated updates (e.g.
 `// renovate: datasource=... depName=...`).
 
-- **Go-specific tool versions** (Go, golangci-lint) are in
-  `toolchains/go/main.go`. The Go version is also configurable via the
-  constructor's optional `goVersion` parameter (defaults to `defaultGoVersion`).
 - **Project-level tool versions** (prettier, zizmor, goreleaser, cosign, syft,
   deadcode, Zig, KCL LSP) are in `toolchains/kclipper/main.go`.
-- **Commitlint image version** is in `toolchains/commitlint/main.go`
-  (`defaultImage` constant with a Renovate Docker datasource annotation).
-- **Trivy image version** is in `toolchains/security/main.go`
-  (`defaultTrivyImage` constant with a Renovate Docker datasource annotation).
+- **Remote toolchain tool versions** (Go, golangci-lint, commitlint, Trivy)
+  are managed in the x repo, where each module pins its own constants. The Go
+  version is also configurable via the `go` constructor's optional `goVersion`
+  parameter (kclipper's root `dagger.json` sets it via the `version`
+  customization).
 
 The Dagger engine version is pinned in `dagger.json` (`engineVersion`).

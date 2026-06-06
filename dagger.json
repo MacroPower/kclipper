@@ -5,6 +5,7 @@
     {
       "name": "go",
       "source": "github.com/MacroPower/x/toolchains/go@main",
+      "pin": "1c64479e2bfcaf14befc12f8647edff645eead44",
       "customizations": [
         {
           "argument": "source",
@@ -66,11 +67,13 @@
     },
     {
       "name": "commitlint",
-      "source": "toolchains/commitlint"
+      "source": "github.com/MacroPower/x/toolchains/commitlint@main",
+      "pin": "1c64479e2bfcaf14befc12f8647edff645eead44"
     },
     {
       "name": "security",
       "source": "github.com/MacroPower/x/toolchains/security@main",
+      "pin": "1c64479e2bfcaf14befc12f8647edff645eead44",
       "customizations": [
         {
           "function": [
