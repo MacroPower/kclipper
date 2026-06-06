@@ -55,7 +55,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run kclipper-dev integration tests
+      - name: Run dev toolchain integration tests
         uses: dagger/dagger-for-github@v8.4.1
         with:
           version: "v0.21.4"
