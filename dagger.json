@@ -28,6 +28,10 @@
           "default": "true"
         },
         {
+          "argument": "injectGitHead",
+          "default": "true"
+        },
+        {
           "argument": "version",
           "default": "1.25"
         },
