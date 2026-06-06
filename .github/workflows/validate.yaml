@@ -29,7 +29,7 @@ jobs:
         with:
           version: "v0.21.4"
           verb: check
-          args: test lint lint-prettier lint-actions lint-releaser lint-kclmodules
+          args: go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           enable-github-summary: "true"
 
@@ -37,7 +37,7 @@ jobs:
         uses: dagger/dagger-for-github@v8.4.1
         with:
           version: "v0.21.4"
-          call: test-coverage --output=coverage.txt
+          call: go test-coverage --output=coverage.txt
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           enable-github-summary: "true"
 
@@ -60,6 +60,6 @@ jobs:
         with:
           version: "v0.21.4"
           verb: check
-          module: .dagger/tests
+          module: toolchains/dev/tests
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           enable-github-summary: "true"
