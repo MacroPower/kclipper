@@ -24,7 +24,7 @@ const (
 	taskVersion       = "v3.48.0"         // renovate: datasource=github-releases depName=go-task/task
 	lefthookVersion   = "v2.1.1"          // renovate: datasource=github-releases depName=evilmartians/lefthook
 	daggerVersion     = "v0.19.11"        // renovate: datasource=github-releases depName=dagger/dagger
-	starshipVersion   = "v1.24.2"         // renovate: datasource=github-releases depName=starship/starship
+	starshipVersion   = "v1.25.1"         // renovate: datasource=github-releases depName=starship/starship
 	yqVersion         = "v4.52.4"         // renovate: datasource=github-releases depName=mikefarah/yq
 	uvVersion         = "0.10.4"          // renovate: datasource=github-releases depName=astral-sh/uv extractVersion=^(?P<version>.*)$
 	ghVersion         = "v2.87.2"         // renovate: datasource=github-releases depName=cli/cli
