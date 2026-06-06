@@ -181,8 +181,16 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 		return nil, fmt.Errorf("unmarshal values yaml: %w", err)
 	}
 
-	valuesSchema, err := helmschema.YamlToSchema("", &values, g.config.KeepFullComment, g.config.HelmDocsCompatibilityMode,
-		g.config.KeepHelmDocsPrefix, g.config.RemoveGlobal, g.skipAutoGenerationConfig, nil)
+	valuesSchema, err := helmschema.YamlToSchema(
+		"",
+		&values,
+		g.config.KeepFullComment,
+		g.config.HelmDocsCompatibilityMode,
+		g.config.KeepHelmDocsPrefix,
+		g.config.RemoveGlobal,
+		g.skipAutoGenerationConfig,
+		nil,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("convert values yaml to schema: %w", err)
 	}
@@ -320,6 +328,7 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 		} else if !slices.Equal([]string(dest.Type), []string(src.Type)) {
 			merged := append([]string(dest.Type), []string(src.Type)...)
 			slices.Sort(merged)
+
 			dest.Type = helmschema.StringOrArrayOfString(slices.Compact(merged))
 		}
 	}

@@ -63,10 +63,7 @@
         },
         "hostUsers": {
           "required": [],
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": ["boolean", "null"]
         },
         "image": {
           "properties": {
@@ -114,10 +111,7 @@
             },
             "port": {
               "required": [],
-              "type": [
-                "string",
-                "integer"
-              ]
+              "type": ["string", "integer"]
             },
             "successThreshold": {
               "required": [],
@@ -289,10 +283,7 @@
             },
             "port": {
               "required": [],
-              "type": [
-                "string",
-                "integer"
-              ]
+              "type": ["string", "integer"]
             },
             "successThreshold": {
               "required": [],
@@ -656,10 +647,7 @@
     },
     "hostUsers": {
       "required": [],
-      "type": [
-        "boolean",
-        "null"
-      ]
+      "type": ["boolean", "null"]
     },
     "image": {
       "properties": {
@@ -973,10 +961,7 @@
                 },
                 "port": {
                   "required": [],
-                  "type": [
-                    "string",
-                    "integer"
-                  ]
+                  "type": ["string", "integer"]
                 }
               },
               "required": [],
@@ -1315,10 +1300,7 @@
         },
         "hostUsers": {
           "required": [],
-          "type": [
-            "boolean",
-            "null"
-          ]
+          "type": ["boolean", "null"]
         },
         "image": {
           "properties": {
@@ -1366,10 +1348,7 @@
             },
             "port": {
               "required": [],
-              "type": [
-                "string",
-                "integer"
-              ]
+              "type": ["string", "integer"]
             },
             "successThreshold": {
               "required": [],
@@ -1539,10 +1518,7 @@
             },
             "port": {
               "required": [],
-              "type": [
-                "string",
-                "integer"
-              ]
+              "type": ["string", "integer"]
             },
             "successThreshold": {
               "required": [],
