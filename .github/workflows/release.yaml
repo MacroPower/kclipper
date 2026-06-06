@@ -31,6 +31,9 @@ jobs:
             kclipper
             homebrew-tap
             nur-packages
+          # goreleaser creates the GitHub release and pushes manifests to the
+          # tap/NUR repos; the token needs nothing beyond repo contents.
+          permission-contents: write
 
       - name: Checkout
         uses: actions/checkout@v6

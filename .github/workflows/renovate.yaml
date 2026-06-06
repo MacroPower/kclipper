@@ -56,6 +56,12 @@ jobs:
         with:
           app-id: "${{ secrets.BOT_APP_ID }}"
           private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+          # Renovate pushes branches, opens PRs, maintains the dependency
+          # dashboard issue, and updates pinned action versions in workflows.
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: write
+          permission-workflows: write
 
       - name: Checkout
         uses: actions/checkout@v6
