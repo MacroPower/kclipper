@@ -27,9 +27,9 @@
     },
     {
       customType: "regex",
-      managerFilePatterns: ["/ci/main\\.go$/"],
+      managerFilePatterns: ["/toolchains/.+/main\\.go$/"],
       matchStrings: [
-        '\\w+Version\\s*=\\s*"(?<currentValue>[^"]+)"\\s*//\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)',
+        '\\w+\\s*=\\s*"(?<currentValue>[^"]+)"\\s*//\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+extractVersion=(?<extractVersion>[^\\s]+))?',
       ],
     },
   ],
@@ -39,7 +39,7 @@
       automerge: false,
     },
     {
-      matchFileNames: ["ci/main.go"],
+      matchFileNames: ["toolchains/dev/main.go"],
       matchPackageNames: ["go"],
       automerge: false,
     },
