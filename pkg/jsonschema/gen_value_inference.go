@@ -181,8 +181,11 @@ func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schem
 		return nil, fmt.Errorf("unmarshal values yaml: %w", err)
 	}
 
-	valuesSchema := helmschema.YamlToSchema("", &values, g.config.KeepFullComment, g.config.HelmDocsCompatibilityMode,
+	valuesSchema, err := helmschema.YamlToSchema("", &values, g.config.KeepFullComment, g.config.HelmDocsCompatibilityMode,
 		g.config.KeepHelmDocsPrefix, g.config.RemoveGlobal, g.skipAutoGenerationConfig, nil)
+	if err != nil {
+		return nil, fmt.Errorf("convert values yaml to schema: %w", err)
+	}
 
 	err = walkHelmSchema(valuesSchema, allowAdditionalProperties)
 	if err != nil {
