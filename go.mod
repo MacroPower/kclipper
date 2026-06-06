@@ -27,7 +27,7 @@ require (
 	k8s.io/apimachinery v0.35.1
 	kcl-lang.io/cli v0.12.3
 	kcl-lang.io/kcl-go v0.12.3
-	kcl-lang.io/kcl-openapi v0.10.1
+	kcl-lang.io/kcl-openapi v0.10.2
 	kcl-lang.io/kpm v0.12.3
 )
 
