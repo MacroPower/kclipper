@@ -22,7 +22,7 @@ require (
 	go.jacobcolvin.com/x/log v0.0.0-20260606030626-0add6a0111c9
 	go.jacobcolvin.com/x/profile v0.0.0-20260606030626-0add6a0111c9
 	go.jacobcolvin.com/x/stringtest v0.1.0
-	go.jacobcolvin.com/x/version v0.0.0-20260606030626-0add6a0111c9
+	go.jacobcolvin.com/x/version v0.0.0-20260606134820-eecb281ad7af
 	golang.org/x/sync v0.20.0
 	golang.org/x/text v0.37.0
 	gopkg.in/yaml.v3 v3.0.1
