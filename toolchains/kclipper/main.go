@@ -15,7 +15,7 @@ const (
 	goreleaserVersion = "v2.13.3" // renovate: datasource=github-releases depName=goreleaser/goreleaser
 	zigVersion        = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
 	kclLSPVersion     = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
-	nixImageVersion   = "2.32.8"  // renovate: datasource=docker depName=nixos/nix
+	nixImageVersion   = "2.34.7"  // renovate: datasource=docker depName=nixos/nix
 
 	// macosSDKStorePath is the pinned nixpkgs apple-sdk store path, substituted
 	// from cache.nixos.org by [macosSDKDirectory]. Version 15.5 matches the
