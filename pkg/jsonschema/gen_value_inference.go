@@ -311,11 +311,20 @@ func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschem
 		dest.Default = src.Default
 	}
 
-	// Resolve simple fields by favoring the fields from 'src' if they're provided.
+	// Merge 'type' by unioning all observed types, so that values files which
+	// disagree (e.g. `limits: null` in one file and a populated object in
+	// another) produce a schema that accepts both.
 	if !src.Type.IsEmpty() {
-		dest.Type = src.Type
+		if dest.Type.IsEmpty() {
+			dest.Type = src.Type
+		} else if !slices.Equal([]string(dest.Type), []string(src.Type)) {
+			merged := append([]string(dest.Type), []string(src.Type)...)
+			slices.Sort(merged)
+			dest.Type = helmschema.StringOrArrayOfString(slices.Compact(merged))
+		}
 	}
 
+	// Resolve simple fields by favoring the fields from 'src' if they're provided.
 	if src.Schema != "" {
 		dest.Schema = src.Schema
 	}
@@ -493,9 +502,9 @@ func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults b
 	}
 
 	subSchema := mergeHelmSchemas(destSubSchema, srcSubSchema, setDefaults)
-	err = subSchema.Validate()
+	err = validateHelmSchema(subSchema)
 	if err != nil {
-		return fmt.Errorf("invalid schema: %w", err)
+		return err
 	}
 
 	dest.AdditionalProperties = subSchema

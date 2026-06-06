@@ -177,9 +177,9 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 		}
 	}
 
-	err = schema.Validate()
+	err = validateHelmSchema(schema)
 	if err != nil {
-		return fmt.Errorf("invalid schema: %w", err)
+		return err
 	}
 
 	return nil
@@ -261,9 +261,9 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 		return nil, fmt.Errorf("unmarshal JSON pointer result: %w", err)
 	}
 
-	err = relSchema.Validate()
+	err = validateHelmSchema(relSchema)
 	if err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
+		return nil, err
 	}
 
 	return relSchema, nil

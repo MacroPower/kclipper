@@ -130,9 +130,9 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 	}
 
-	err = hs.Validate()
+	err = validateHelmSchema(hs)
 	if err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
+		return nil, err
 	}
 
 	err = handleSchemaRefs(hs, refBasePath)
@@ -140,9 +140,9 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 		return nil, fmt.Errorf("handle schema refs: %w", err)
 	}
 
-	err = hs.Validate()
+	err = validateHelmSchema(hs)
 	if err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
+		return nil, err
 	}
 
 	if len(hs.Properties) == 0 {

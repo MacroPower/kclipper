@@ -114,6 +114,30 @@ func isJSONFile(f string) bool {
 	return filepath.Ext(f) == ".json"
 }
 
+// validateHelmSchema checks that s is structurally usable as a JSON Schema,
+// validating type names on s and all nested sub-schemas.
+//
+// It deliberately avoids [helmschema.Schema.Validate], which enforces schema
+// authoring opinions (e.g. format is only allowed on strings) that are
+// violated by many real-world schemas, like those derived from the Kubernetes
+// API. Schemas that kclipper reads and converts must be tolerated, even if
+// helm-schema would not generate them.
+func validateHelmSchema(s *helmschema.Schema) error {
+	err := walkHelmSchema(s, func(s *helmschema.Schema) error {
+		err := s.Type.Validate()
+		if err != nil {
+			return fmt.Errorf("invalid type: %w", err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("invalid schema: %w", err)
+	}
+
+	return nil
+}
+
 // unmarshalHelmSchema unmarshals data (JSON or YAML) into a [helmschema.Schema].
 // YAML is a superset of JSON, so this works for both formats.
 func unmarshalHelmSchema(data []byte) (*helmschema.Schema, error) {
