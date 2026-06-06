@@ -9,7 +9,7 @@ import (
 
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
-	"go.jacobcolvin.com/x/log"
+	"go.jacobcolvin.com/x/cobras/log"
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	tea "charm.land/bubbletea/v2"

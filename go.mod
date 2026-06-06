@@ -19,10 +19,9 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	go.jacobcolvin.com/niceyaml v0.0.0-20260606070754-4b3c7a02856f
-	go.jacobcolvin.com/x/log v0.0.0-20260606030626-0add6a0111c9
-	go.jacobcolvin.com/x/profile v0.0.0-20260606030626-0add6a0111c9
+	go.jacobcolvin.com/x/cobras v0.0.0-20260606224903-982edca5fe6b
 	go.jacobcolvin.com/x/stringtest v0.1.0
-	go.jacobcolvin.com/x/version v0.0.0-20260606030626-0add6a0111c9
+	go.jacobcolvin.com/x/version v0.0.0-20260606224903-982edca5fe6b
 	golang.org/x/sync v0.20.0
 	golang.org/x/text v0.37.0
 	gopkg.in/yaml.v3 v3.0.1

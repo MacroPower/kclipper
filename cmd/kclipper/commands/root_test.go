@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.jacobcolvin.com/x/log"
+	"go.jacobcolvin.com/x/cobras/log"
 
 	"github.com/macropower/kclipper/cmd/kclipper/commands"
 )

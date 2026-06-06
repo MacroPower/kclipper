@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"sync/atomic"
 
-	"go.jacobcolvin.com/x/log"
+	"go.jacobcolvin.com/x/cobras/log"
 
 	tea "charm.land/bubbletea/v2"
 

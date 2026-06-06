@@ -6,8 +6,8 @@ import (
 	"log/slog"
 
 	"github.com/spf13/cobra"
-	"go.jacobcolvin.com/x/log"
-	"go.jacobcolvin.com/x/profile"
+	"go.jacobcolvin.com/x/cobras/log"
+	"go.jacobcolvin.com/x/cobras/profile"
 
 	kclcmd "kcl-lang.io/cli/cmd/kcl/commands"
 )
