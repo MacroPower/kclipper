@@ -4,7 +4,6 @@
   "properties": {
     "foo": {
       "default": "bar",
-      "required": [],
       "title": "foo",
       "type": "string"
     }

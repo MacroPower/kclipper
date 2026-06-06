@@ -4,10 +4,8 @@
   "properties": {
     "array": {
       "items": {
-        "required": [],
         "type": "string"
       },
-      "required": [],
       "title": "array",
       "type": "array"
     },
@@ -20,7 +18,6 @@
     },
     "key": {
       "default": "value",
-      "required": [],
       "title": "key",
       "type": "string"
     },
@@ -29,7 +26,6 @@
       "properties": {
         "key": {
           "default": "nestedValue",
-          "required": [],
           "title": "key",
           "type": "string"
         },
@@ -38,7 +34,6 @@
           "properties": {
             "key": {
               "default": "value",
-              "required": [],
               "title": "key",
               "type": "string"
             }

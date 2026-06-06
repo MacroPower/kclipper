@@ -6,24 +6,33 @@
         "additionalProperties": false,
         "oneOf": [
           {
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           {
-            "required": ["binaryData"]
+            "required": [
+              "binaryData"
+            ]
           }
         ],
         "properties": {
           "annotations": {
             "additionalProperties": {
               "required": [],
-              "type": ["string", "null"]
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "required": [],
-            "type": ["object", "null"]
+            "type": [
+              "object",
+              "null"
+            ]
           },
           "binaryData": {
             "additionalProperties": {
-              "required": [],
               "type": "string"
             },
             "required": [],
@@ -31,7 +40,6 @@
           },
           "data": {
             "additionalProperties": {
-              "required": [],
               "type": "string"
             },
             "required": [],
@@ -39,24 +47,27 @@
           },
           "enabled": {
             "default": true,
-            "required": [],
             "type": "boolean"
           },
           "includeInChecksum": {
             "default": true,
-            "required": [],
             "type": "boolean"
           },
           "labels": {
             "additionalProperties": {
               "required": [],
-              "type": ["string", "null"]
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "required": [],
-            "type": ["object", "null"]
+            "type": [
+              "object",
+              "null"
+            ]
           },
           "nameOverride": {
-            "required": [],
             "type": "string"
           }
         },
