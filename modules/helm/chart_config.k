@@ -15,7 +15,7 @@ schema ChartConfig(ChartBase):
     schemaPath : str, optional
         Path to the schema to use, when relevant for the selected schemaGenerator.
     valueInference : ValueInferenceConfig, optional
-        Configuration for value inference via dadav/helm-schema. Requires
+        Configuration for value inference via magicschema. Requires
         schemaGenerator to be set to `VALUE-INFERENCE`.
     crdGenerator : "AUTO" | "TEMPLATE" | "CHART-PATH" | "PATH" | "NONE", optional
         CRD generator to use for CRDs schemas.

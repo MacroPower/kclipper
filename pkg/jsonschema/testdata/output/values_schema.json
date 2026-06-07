@@ -1,53 +1,38 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "additionalProperties": true,
+  "type": "object",
   "properties": {
+    "key": {
+      "type": "string",
+      "default": "value"
+    },
+    "nested": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "default": "nestedValue"
+        },
+        "obj": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string",
+              "default": "value"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
     "array": {
+      "type": "array",
       "items": {
         "type": "string"
       },
-      "title": "array",
-      "type": "array"
-    },
-    "global": {
-      "additionalProperties": true,
-      "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
-      "required": [],
-      "title": "global",
-      "type": "object"
-    },
-    "key": {
-      "default": "value",
-      "title": "key",
-      "type": "string"
-    },
-    "nested": {
-      "additionalProperties": true,
-      "properties": {
-        "key": {
-          "default": "nestedValue",
-          "title": "key",
-          "type": "string"
-        },
-        "obj": {
-          "additionalProperties": true,
-          "properties": {
-            "key": {
-              "default": "value",
-              "title": "key",
-              "type": "string"
-            }
-          },
-          "required": [],
-          "title": "obj",
-          "type": "object"
-        }
-      },
-      "required": [],
-      "title": "nested",
-      "type": "object"
+      "default": ["item1", "item2"]
     }
   },
-  "required": [],
-  "type": "object"
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": true
 }

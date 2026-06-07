@@ -1,0 +1,18 @@
+{
+  "definitions": {
+    "a~b": {
+      "title": "tilde",
+      "type": "string"
+    },
+    "c/d": {
+      "title": "slash",
+      "type": "integer"
+    }
+  },
+  "variants": [
+    {
+      "title": "indexed",
+      "type": "boolean"
+    }
+  ]
+}

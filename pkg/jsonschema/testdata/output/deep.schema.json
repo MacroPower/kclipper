@@ -1,8 +1,45 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
   "properties": {
     "configMaps": {
       "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "annotations": {
+            "type": ["object", "null"],
+            "additionalProperties": {
+              "type": ["string", "null"]
+            }
+          },
+          "binaryData": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "includeInChecksum": {
+            "type": "boolean",
+            "default": true
+          },
+          "labels": {
+            "type": ["object", "null"],
+            "additionalProperties": {
+              "type": ["string", "null"]
+            }
+          },
+          "nameOverride": {
+            "type": "string"
+          }
+        },
         "additionalProperties": false,
         "oneOf": [
           {
@@ -11,55 +48,9 @@
           {
             "required": ["binaryData"]
           }
-        ],
-        "properties": {
-          "annotations": {
-            "additionalProperties": {
-              "required": [],
-              "type": ["string", "null"]
-            },
-            "required": [],
-            "type": ["object", "null"]
-          },
-          "binaryData": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "required": [],
-            "type": "object"
-          },
-          "data": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "required": [],
-            "type": "object"
-          },
-          "enabled": {
-            "default": true,
-            "type": "boolean"
-          },
-          "includeInChecksum": {
-            "default": true,
-            "type": "boolean"
-          },
-          "labels": {
-            "additionalProperties": {
-              "required": [],
-              "type": ["string", "null"]
-            },
-            "required": [],
-            "type": ["object", "null"]
-          },
-          "nameOverride": {
-            "type": "string"
-          }
-        },
-        "required": [],
-        "type": "object"
-      },
-      "required": []
+        ]
+      }
     }
   },
-  "required": []
+  "$schema": "http://json-schema.org/draft-07/schema"
 }

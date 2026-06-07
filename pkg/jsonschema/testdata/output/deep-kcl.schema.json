@@ -7,24 +7,20 @@
         "properties": {
           "annotations": {
             "additionalProperties": {
-              "required": [],
               "type": ["string", "null"]
             },
-            "required": [],
             "type": ["object", "null"]
           },
           "binaryData": {
             "additionalProperties": {
               "type": "string"
             },
-            "required": [],
             "type": "object"
           },
           "data": {
             "additionalProperties": {
               "type": "string"
             },
-            "required": [],
             "type": "object"
           },
           "enabled": {
@@ -37,21 +33,16 @@
           },
           "labels": {
             "additionalProperties": {
-              "required": [],
               "type": ["string", "null"]
             },
-            "required": [],
             "type": ["object", "null"]
           },
           "nameOverride": {
             "type": "string"
           }
         },
-        "required": [],
         "type": "object"
-      },
-      "required": []
+      }
     }
-  },
-  "required": []
+  }
 }

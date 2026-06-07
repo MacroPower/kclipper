@@ -125,31 +125,33 @@ func (g *ReaderGenerator) FromReader(r io.Reader, refBasePath string) ([]byte, e
 }
 
 func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, error) {
-	hs, err := unmarshalHelmSchema(data)
+	schema, err := unmarshalSchema(data)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 	}
 
-	err = validateHelmSchema(hs)
+	err = validateSchema(schema)
 	if err != nil {
 		return nil, err
 	}
 
-	err = handleSchemaRefs(hs, refBasePath)
+	err = handleSchemaRefs(schema, refBasePath)
 	if err != nil {
 		return nil, fmt.Errorf("handle schema refs: %w", err)
 	}
 
-	err = validateHelmSchema(hs)
+	err = validateSchema(schema)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(hs.Properties) == 0 {
+	stripUnknownMembers(schema)
+
+	if len(schema.Properties) == 0 {
 		return nil, errors.New("empty schema")
 	}
 
-	resolvedData, err := hs.ToJson()
+	resolvedData, err := marshalSchema(schema)
 	if err != nil {
 		return nil, fmt.Errorf("convert schema to JSON: %w", err)
 	}

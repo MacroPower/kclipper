@@ -1,0 +1,3 @@
+# Resource limits.
+limits:
+port: "8080"

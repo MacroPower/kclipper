@@ -127,6 +127,16 @@ func WithEnum(enum []any) PropertyOpt {
 	}
 }
 
+// WithItemsEnum is a [PropertyOpt] that sets an enum on an array property's
+// items schema.
+func WithItemsEnum(enum []any) PropertyOpt {
+	return func(s *invopopjsonschema.Schema) {
+		if s.Items != nil {
+			s.Items.Enum = enum
+		}
+	}
+}
+
 func WithDefault(defaultValue any) PropertyOpt {
 	return func(s *invopopjsonschema.Schema) {
 		s.Default = defaultValue

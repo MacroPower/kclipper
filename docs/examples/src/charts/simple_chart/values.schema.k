@@ -11,21 +11,15 @@ schema Values:
     ----------
     affinity : ValuesAffinity, optional
     autoscaling : ValuesAutoscaling, optional
-        This section is for setting up autoscaling.
-
         More information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
     fullnameOverride : str, optional, default is ""
-    global : ValuesGlobal, optional
-        Global values are values that can be accessed from any chart or subchart by exactly the same name.
     image : ValuesImage, optional
         This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
-    imagePullSecrets : [any], optional
+    imagePullSecrets : [any], optional, default is []
         This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     ingress : ValuesIngress, optional
         This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
     livenessProbe : ValuesLivenessProbe, optional
-        This is to setup the liveness and readiness probes.
-
         More information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
     nameOverride : str, optional, default is ""
         This is to override the chart name.
@@ -46,17 +40,16 @@ schema Values:
         This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
     serviceAccount : ValuesServiceAccount, optional
         This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
-    tolerations : [any], optional
-    volumeMounts : [any], optional
+    tolerations : [any], optional, default is []
+    volumeMounts : [any], optional, default is []
         Additional volumeMounts on the output Deployment definition.
-    volumes : [any], optional
+    volumes : [any], optional, default is []
         Additional volumes on the output Deployment definition.
     """
     [...str]: any
     affinity?: ValuesAffinity
     autoscaling?: ValuesAutoscaling
     fullnameOverride?: str
-    global?: ValuesGlobal
     image?: ValuesImage
     imagePullSecrets?: [any]
     ingress?: ValuesIngress
@@ -84,8 +77,6 @@ schema ValuesAffinity:
 
 schema ValuesAutoscaling:
     r"""
-    This section is for setting up autoscaling.
-
     More information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 
     Attributes
@@ -100,12 +91,6 @@ schema ValuesAutoscaling:
     maxReplicas?: int
     minReplicas?: int
     targetCPUUtilizationPercentage?: int
-
-schema ValuesGlobal:
-    r"""
-    Global values are values that can be accessed from any chart or subchart by exactly the same name.
-    """
-    [...str]: any
 
 schema ValuesImage:
     r"""
@@ -133,10 +118,8 @@ schema ValuesIngress:
     annotations : ValuesIngressAnnotations, optional
     className : str, optional, default is ""
     enabled : bool, optional, default is False
-    hosts : [ValuesIngressHostsItems0], optional
-        kubernetes.io/ingress.class: nginx
-        kubernetes.io/tls-acme: "true"
-    tls : [any], optional
+    hosts : [ValuesIngressHostsItems0], optional, default is [{host = "chart-example.local", paths = [{path = "/", pathType = "ImplementationSpecific"}]}]
+    tls : [any], optional, default is []
     """
     [...str]: any
     annotations?: ValuesIngressAnnotations
@@ -157,7 +140,7 @@ schema ValuesIngressHostsItems0:
 
     Attributes
     ----------
-    host : str, optional, default is "chart-example.local"
+    host : str, optional
     paths : [ValuesIngressHostsItems0PathsItems0], optional
     """
     [...str]: any
@@ -170,8 +153,8 @@ schema ValuesIngressHostsItems0PathsItems0:
 
     Attributes
     ----------
-    path : str, optional, default is "/"
-    pathType : str, optional, default is "ImplementationSpecific"
+    path : str, optional
+    pathType : str, optional
     """
     [...str]: any
     path?: str
@@ -179,8 +162,6 @@ schema ValuesIngressHostsItems0PathsItems0:
 
 schema ValuesLivenessProbe:
     r"""
-    This is to setup the liveness and readiness probes.
-
     More information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 
     Attributes

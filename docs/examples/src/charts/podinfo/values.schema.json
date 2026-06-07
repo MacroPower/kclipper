@@ -1,1268 +1,987 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "additionalProperties": true,
+  "type": "object",
   "properties": {
-    "affinity": {
-      "additionalProperties": true,
-      "required": [],
-      "title": "affinity",
-      "type": "object"
+    "replicaCount": {
+      "type": "integer",
+      "default": 1
     },
-    "backend": {
-      "default": "",
-      "title": "backend",
-      "type": "null"
-    },
-    "backends": {
-      "items": {
-        "required": []
-      },
-      "title": "backends",
-      "type": "array"
-    },
-    "cache": {
-      "default": "",
-      "description": "Redis address in the format tcp://\u003chost\u003e:\u003cport\u003e",
-      "title": "cache",
-      "type": "string"
-    },
-    "certificate": {
-      "additionalProperties": true,
-      "description": "create a certificate manager certificate (cert-manager required)",
-      "properties": {
-        "create": {
-          "default": false,
-          "title": "create",
-          "type": "boolean"
-        },
-        "dnsNames": {
-          "description": "the hostname / subject alternative names for the certificate",
-          "items": {
-            "type": "string"
-          },
-          "title": "dnsNames",
-          "type": "array"
-        },
-        "issuerRef": {
-          "additionalProperties": true,
-          "description": "the issuer used to issue the certificate",
-          "properties": {
-            "kind": {
-              "default": "ClusterIssuer",
-              "title": "kind",
-              "type": "string"
-            },
-            "name": {
-              "default": "self-signed",
-              "title": "name",
-              "type": "string"
-            }
-          },
-          "required": [],
-          "title": "issuerRef",
-          "type": "object"
-        }
-      },
-      "required": [],
-      "title": "certificate",
-      "type": "object"
-    },
-    "config": {
-      "additionalProperties": true,
-      "description": "config file settings",
-      "properties": {
-        "name": {
-          "default": "",
-          "description": "config file name",
-          "title": "name",
-          "type": "string"
-        },
-        "path": {
-          "default": "",
-          "description": "config file path",
-          "title": "path",
-          "type": "string"
-        }
-      },
-      "required": [],
-      "title": "config",
-      "type": "object"
-    },
-    "extraArgs": {
-      "description": "Additional command line arguments to pass to podinfo container",
-      "items": {
-        "required": []
-      },
-      "title": "extraArgs",
-      "type": "array"
-    },
-    "extraEnvs": {
-      "description": "Extra environment variables for the podinfo container",
-      "items": {
-        "required": []
-      },
-      "title": "extraEnvs",
-      "type": "array"
-    },
-    "faults": {
-      "additionalProperties": true,
-      "description": "failure conditions",
-      "properties": {
-        "delay": {
-          "default": false,
-          "title": "delay",
-          "type": "boolean"
-        },
-        "error": {
-          "default": false,
-          "title": "error",
-          "type": "boolean"
-        },
-        "testFail": {
-          "default": false,
-          "title": "testFail",
-          "type": "boolean"
-        },
-        "testTimeout": {
-          "default": false,
-          "title": "testTimeout",
-          "type": "boolean"
-        },
-        "unhealthy": {
-          "default": false,
-          "title": "unhealthy",
-          "type": "boolean"
-        },
-        "unready": {
-          "default": false,
-          "title": "unready",
-          "type": "boolean"
-        }
-      },
-      "required": [],
-      "title": "faults",
-      "type": "object"
-    },
-    "global": {
-      "additionalProperties": true,
-      "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
-      "required": [],
-      "title": "global",
-      "type": "object"
-    },
-    "grpcRoute": {
-      "additionalProperties": true,
-      "description": "Expose the gRPC service via Gateway GRPCRoute\nRequires a Gateway controller with GRPCRoute support\nDocs https://gateway-api.sigs.k8s.io/guides/grpc-routing/",
-      "properties": {
-        "additionalLabels": {
-          "additionalProperties": true,
-          "description": "Add additional labels to the GRPCRoute.",
-          "required": [],
-          "title": "additionalLabels",
-          "type": "object"
-        },
-        "annotations": {
-          "additionalProperties": true,
-          "description": "GRPCRoute annotations.",
-          "required": [],
-          "title": "annotations",
-          "type": "object"
-        },
-        "enabled": {
-          "default": false,
-          "description": "GRPCRoute enabled.",
-          "title": "enabled",
-          "type": "boolean"
-        },
-        "hostnames": {
-          "description": "Hostnames matching HTTP header.",
-          "items": {
-            "type": "string"
-          },
-          "title": "hostnames",
-          "type": "array"
-        },
-        "parentRefs": {
-          "description": "Which Gateways this Route is attached to.",
-          "items": {
-            "additionalProperties": true,
-            "properties": {
-              "name": {
-                "default": "gateway",
-                "title": "name",
-                "type": "string"
-              },
-              "sectionName": {
-                "default": "http",
-                "title": "sectionName",
-                "type": "string"
-              }
-            },
-            "required": [],
-            "type": "object"
-          },
-          "title": "parentRefs",
-          "type": "array"
-        },
-        "rules": {
-          "description": "List of rules applied.",
-          "items": {
-            "additionalProperties": true,
-            "required": [],
-            "type": "object"
-          },
-          "title": "rules",
-          "type": "array"
-        }
-      },
-      "required": [],
-      "title": "grpcRoute",
-      "type": "object"
-    },
-    "h2c": {
-      "additionalProperties": true,
-      "description": "enable h2c protocol (non-TLS version of HTTP/2)",
-      "properties": {
-        "enabled": {
-          "default": false,
-          "title": "enabled",
-          "type": "boolean"
-        }
-      },
-      "required": [],
-      "title": "h2c",
-      "type": "object"
-    },
-    "hooks": {
-      "additionalProperties": true,
-      "description": "Helm hooks (for testing purposes)",
-      "properties": {
-        "postDelete": {
-          "additionalProperties": true,
-          "properties": {
-            "job": {
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "default": false,
-                  "title": "enabled",
-                  "type": "boolean"
-                },
-                "exitCode": {
-                  "default": 0,
-                  "title": "exitCode",
-                  "type": "integer"
-                },
-                "hookDeletePolicy": {
-                  "default": "hook-succeeded,hook-failed",
-                  "title": "hookDeletePolicy",
-                  "type": "string"
-                },
-                "sleepSeconds": {
-                  "default": "",
-                  "title": "sleepSeconds",
-                  "type": "null"
-                },
-                "ttlSecondsAfterFinished": {
-                  "default": "",
-                  "title": "ttlSecondsAfterFinished",
-                  "type": "null"
-                }
-              },
-              "required": [],
-              "title": "job",
-              "type": "object"
-            }
-          },
-          "required": [],
-          "title": "postDelete",
-          "type": "object"
-        },
-        "postInstall": {
-          "additionalProperties": true,
-          "properties": {
-            "job": {
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "default": false,
-                  "title": "enabled",
-                  "type": "boolean"
-                },
-                "exitCode": {
-                  "default": 0,
-                  "title": "exitCode",
-                  "type": "integer"
-                },
-                "hookDeletePolicy": {
-                  "default": "hook-succeeded,hook-failed",
-                  "title": "hookDeletePolicy",
-                  "type": "string"
-                },
-                "sleepSeconds": {
-                  "default": "",
-                  "title": "sleepSeconds",
-                  "type": "null"
-                },
-                "ttlSecondsAfterFinished": {
-                  "default": "",
-                  "title": "ttlSecondsAfterFinished",
-                  "type": "null"
-                }
-              },
-              "required": [],
-              "title": "job",
-              "type": "object"
-            }
-          },
-          "required": [],
-          "title": "postInstall",
-          "type": "object"
-        },
-        "postRollback": {
-          "additionalProperties": true,
-          "properties": {
-            "job": {
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "default": false,
-                  "title": "enabled",
-                  "type": "boolean"
-                },
-                "exitCode": {
-                  "default": 0,
-                  "title": "exitCode",
-                  "type": "integer"
-                },
-                "hookDeletePolicy": {
-                  "default": "hook-succeeded,hook-failed",
-                  "title": "hookDeletePolicy",
-                  "type": "string"
-                },
-                "sleepSeconds": {
-                  "default": "",
-                  "title": "sleepSeconds",
-                  "type": "null"
-                },
-                "ttlSecondsAfterFinished": {
-                  "default": "",
-                  "title": "ttlSecondsAfterFinished",
-                  "type": "null"
-                }
-              },
-              "required": [],
-              "title": "job",
-              "type": "object"
-            }
-          },
-          "required": [],
-          "title": "postRollback",
-          "type": "object"
-        },
-        "postUpgrade": {
-          "additionalProperties": true,
-          "properties": {
-            "job": {
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "default": false,
-                  "title": "enabled",
-                  "type": "boolean"
-                },
-                "exitCode": {
-                  "default": 0,
-                  "title": "exitCode",
-                  "type": "integer"
-                },
-                "hookDeletePolicy": {
-                  "default": "hook-succeeded,hook-failed",
-                  "title": "hookDeletePolicy",
-                  "type": "string"
-                },
-                "sleepSeconds": {
-                  "default": "",
-                  "title": "sleepSeconds",
-                  "type": "null"
-                },
-                "ttlSecondsAfterFinished": {
-                  "default": "",
-                  "title": "ttlSecondsAfterFinished",
-                  "type": "null"
-                }
-              },
-              "required": [],
-              "title": "job",
-              "type": "object"
-            }
-          },
-          "required": [],
-          "title": "postUpgrade",
-          "type": "object"
-        },
-        "preDelete": {
-          "additionalProperties": true,
-          "properties": {
-            "job": {
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "default": false,
-                  "title": "enabled",
-                  "type": "boolean"
-                },
-                "exitCode": {
-                  "default": 0,
-                  "title": "exitCode",
-                  "type": "integer"
-                },
-                "hookDeletePolicy": {
-                  "default": "hook-succeeded,hook-failed",
-                  "title": "hookDeletePolicy",
-                  "type": "string"
-                },
-                "sleepSeconds": {
-                  "default": "",
-                  "title": "sleepSeconds",
-                  "type": "null"
-                },
-                "ttlSecondsAfterFinished": {
-                  "default": "",
-                  "title": "ttlSecondsAfterFinished",
-                  "type": "null"
-                }
-              },
-              "required": [],
-              "title": "job",
-              "type": "object"
-            }
-          },
-          "required": [],
-          "title": "preDelete",
-          "type": "object"
-        },
-        "preInstall": {
-          "additionalProperties": true,
-          "properties": {
-            "job": {
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "default": false,
-                  "title": "enabled",
-                  "type": "boolean"
-                },
-                "exitCode": {
-                  "default": 0,
-                  "title": "exitCode",
-                  "type": "integer"
-                },
-                "hookDeletePolicy": {
-                  "default": "hook-succeeded,hook-failed",
-                  "title": "hookDeletePolicy",
-                  "type": "string"
-                },
-                "sleepSeconds": {
-                  "default": "",
-                  "title": "sleepSeconds",
-                  "type": "null"
-                },
-                "ttlSecondsAfterFinished": {
-                  "default": "",
-                  "title": "ttlSecondsAfterFinished",
-                  "type": "null"
-                }
-              },
-              "required": [],
-              "title": "job",
-              "type": "object"
-            }
-          },
-          "required": [],
-          "title": "preInstall",
-          "type": "object"
-        },
-        "preRollback": {
-          "additionalProperties": true,
-          "properties": {
-            "job": {
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "default": false,
-                  "title": "enabled",
-                  "type": "boolean"
-                },
-                "exitCode": {
-                  "default": 0,
-                  "title": "exitCode",
-                  "type": "integer"
-                },
-                "hookDeletePolicy": {
-                  "default": "hook-succeeded,hook-failed",
-                  "title": "hookDeletePolicy",
-                  "type": "string"
-                },
-                "sleepSeconds": {
-                  "default": "",
-                  "title": "sleepSeconds",
-                  "type": "null"
-                },
-                "ttlSecondsAfterFinished": {
-                  "default": "",
-                  "title": "ttlSecondsAfterFinished",
-                  "type": "null"
-                }
-              },
-              "required": [],
-              "title": "job",
-              "type": "object"
-            }
-          },
-          "required": [],
-          "title": "preRollback",
-          "type": "object"
-        },
-        "preUpgrade": {
-          "additionalProperties": true,
-          "properties": {
-            "job": {
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "default": false,
-                  "title": "enabled",
-                  "type": "boolean"
-                },
-                "exitCode": {
-                  "default": 0,
-                  "title": "exitCode",
-                  "type": "integer"
-                },
-                "hookDeletePolicy": {
-                  "default": "hook-succeeded,hook-failed",
-                  "title": "hookDeletePolicy",
-                  "type": "string"
-                },
-                "sleepSeconds": {
-                  "default": "",
-                  "title": "sleepSeconds",
-                  "type": "null"
-                },
-                "ttlSecondsAfterFinished": {
-                  "default": "",
-                  "title": "ttlSecondsAfterFinished",
-                  "type": "null"
-                }
-              },
-              "required": [],
-              "title": "job",
-              "type": "object"
-            }
-          },
-          "required": [],
-          "title": "preUpgrade",
-          "type": "object"
-        }
-      },
-      "required": [],
-      "title": "hooks",
-      "type": "object"
+    "logLevel": {
+      "type": "string",
+      "default": "info"
     },
     "host": {
-      "default": "",
-      "title": "host",
-      "type": "null"
+      "description": "0.0.0.0",
+      "default": null
     },
-    "hpa": {
-      "additionalProperties": true,
-      "description": "metrics-server add-on required",
+    "backend": {
+      "description": "http://backend-podinfo:9898/echo",
+      "default": null
+    },
+    "backends": {
+      "type": "array",
+      "default": []
+    },
+    "image": {
+      "type": "object",
       "properties": {
-        "cpu": {
-          "default": "",
-          "description": "average total CPU usage per pod (1-100)",
-          "required": [],
-          "title": "cpu",
-          "type": ["integer", "null"]
+        "repository": {
+          "type": "string",
+          "default": "ghcr.io/stefanprodan/podinfo"
         },
-        "enabled": {
-          "default": false,
-          "title": "enabled",
-          "type": "boolean"
+        "tag": {
+          "type": "string",
+          "default": "6.13.0"
         },
-        "maxReplicas": {
-          "default": 10,
-          "title": "maxReplicas",
-          "type": "integer"
+        "pullPolicy": {
+          "type": "string",
+          "default": "IfNotPresent"
         },
-        "memory": {
-          "default": "",
-          "description": "average memory usage per pod (100Mi-1Gi)",
-          "title": "memory",
-          "type": "null"
-        },
-        "requests": {
-          "default": "",
-          "description": "average http requests per second per pod (k8s-prometheus-adapter)",
-          "title": "requests",
-          "type": "null"
+        "pullSecrets": {
+          "type": "array",
+          "default": []
         }
       },
-      "required": [],
-      "title": "hpa",
-      "type": "object"
+      "additionalProperties": true
     },
-    "httpRoute": {
-      "additionalProperties": true,
-      "description": "Expose the service via Gateway HTTPRoute\nRequires a Gateway controller\nDocs https://gateway-api.sigs.k8s.io/guides/",
+    "prefix": {
+      "type": "string",
+      "default": "/"
+    },
+    "ui": {
+      "type": "object",
       "properties": {
-        "additionalLabels": {
-          "additionalProperties": true,
-          "description": "Add additional labels to the HTTPRoute.",
-          "required": [],
-          "title": "additionalLabels",
-          "type": "object"
+        "color": {
+          "type": "string",
+          "default": "#34577c"
+        },
+        "message": {
+          "type": "string",
+          "default": ""
+        },
+        "logo": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "additionalProperties": true
+    },
+    "faults": {
+      "type": "object",
+      "properties": {
+        "delay": {
+          "type": "boolean",
+          "default": false
+        },
+        "error": {
+          "type": "boolean",
+          "default": false
+        },
+        "unhealthy": {
+          "type": "boolean",
+          "default": false
+        },
+        "unready": {
+          "type": "boolean",
+          "default": false
+        },
+        "testFail": {
+          "type": "boolean",
+          "default": false
+        },
+        "testTimeout": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "description": "failure conditions",
+      "additionalProperties": true
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
         },
         "annotations": {
-          "additionalProperties": true,
-          "description": "HTTPRoute annotations.",
-          "required": [],
-          "title": "annotations",
-          "type": "object"
+          "type": "object",
+          "additionalProperties": true
         },
+        "additionalLabels": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "type": {
+          "type": "string",
+          "default": "ClusterIP"
+        },
+        "metricsPort": {
+          "type": "integer",
+          "default": 9797
+        },
+        "httpPort": {
+          "type": "integer",
+          "default": 9898
+        },
+        "externalPort": {
+          "type": "integer",
+          "default": 9898
+        },
+        "grpcPort": {
+          "type": "integer",
+          "default": 9999
+        },
+        "grpcService": {
+          "type": "string",
+          "default": "podinfo"
+        },
+        "nodePort": {
+          "type": "integer",
+          "default": 31198
+        },
+        "hostPort": {
+          "description": "the port used to bind the http port to the host\nNOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing\nin local clusters such as kind without port forwarding",
+          "default": null
+        },
+        "trafficDistribution": {
+          "type": "string",
+          "description": "Stable from Kubernetes v1.33+ with a value of PreferClose. Additional values are PreferSameZone and PreferSameNode from v1.34+. Empty string means it's disabled.",
+          "default": ""
+        },
+        "externalTrafficPolicy": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "description": "Kubernetes Service settings",
+      "additionalProperties": true
+    },
+    "h2c": {
+      "type": "object",
+      "properties": {
         "enabled": {
-          "default": false,
-          "description": "HTTPRoute enabled.",
-          "title": "enabled",
-          "type": "boolean"
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "description": "enable h2c protocol (non-TLS version of HTTP/2)",
+      "additionalProperties": true
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "config file path",
+          "default": ""
         },
-        "hostnames": {
-          "description": "Hostnames matching HTTP header.",
+        "name": {
+          "type": "string",
+          "description": "config file name",
+          "default": ""
+        }
+      },
+      "description": "config file settings",
+      "additionalProperties": true
+    },
+    "extraArgs": {
+      "type": "array",
+      "description": "Additional command line arguments to pass to podinfo container",
+      "default": []
+    },
+    "extraEnvs": {
+      "type": "array",
+      "description": "Extra environment variables for the podinfo container",
+      "default": []
+    },
+    "tls": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "secretName": {
+          "description": "the name of the secret used to mount the certificate key pair",
+          "default": null
+        },
+        "certPath": {
+          "type": "string",
+          "description": "the path where the certificate key pair will be mounted",
+          "default": "/data/cert"
+        },
+        "port": {
+          "type": "integer",
+          "description": "the port used to host the tls endpoint on the service",
+          "default": 9899
+        },
+        "hostPort": {
+          "description": "the port used to bind the tls port to the host\nNOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing\nin local clusters such as kind without port forwarding",
+          "default": null
+        }
+      },
+      "description": "enable tls on the podinfo service",
+      "additionalProperties": true
+    },
+    "certificate": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "default": false
+        },
+        "issuerRef": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "default": "ClusterIssuer"
+            },
+            "name": {
+              "type": "string",
+              "default": "self-signed"
+            }
+          },
+          "description": "the issuer used to issue the certificate",
+          "additionalProperties": true
+        },
+        "dnsNames": {
+          "type": "array",
           "items": {
             "type": "string"
           },
-          "title": "hostnames",
-          "type": "array"
-        },
-        "parentRefs": {
-          "description": "Which Gateways this Route is attached to.",
-          "items": {
-            "additionalProperties": true,
-            "properties": {
-              "name": {
-                "default": "gateway",
-                "title": "name",
-                "type": "string"
-              },
-              "sectionName": {
-                "default": "http",
-                "title": "sectionName",
-                "type": "string"
-              }
-            },
-            "required": [],
-            "type": "object"
-          },
-          "title": "parentRefs",
-          "type": "array"
-        },
-        "rules": {
-          "description": "List of rules and filters applied.",
-          "items": {
-            "additionalProperties": true,
-            "properties": {
-              "matches": {
-                "items": {
-                  "additionalProperties": true,
-                  "properties": {
-                    "path": {
-                      "additionalProperties": true,
-                      "properties": {
-                        "type": {
-                          "default": "PathPrefix",
-                          "title": "type",
-                          "type": "string"
-                        },
-                        "value": {
-                          "default": "/",
-                          "title": "value",
-                          "type": "string"
-                        }
-                      },
-                      "required": [],
-                      "title": "path",
-                      "type": "object"
-                    }
-                  },
-                  "required": [],
-                  "type": "object"
-                },
-                "title": "matches",
-                "type": "array"
-              }
-            },
-            "required": [],
-            "type": "object"
-          },
-          "title": "rules",
-          "type": "array"
+          "description": "the hostname / subject alternative names for the certificate",
+          "default": ["podinfo"]
         }
       },
-      "required": [],
-      "title": "httpRoute",
-      "type": "object"
+      "description": "create a certificate manager certificate (cert-manager required)",
+      "additionalProperties": true
     },
-    "image": {
-      "additionalProperties": true,
+    "hooks": {
+      "type": "object",
       "properties": {
-        "pullPolicy": {
-          "default": "IfNotPresent",
-          "title": "pullPolicy",
-          "type": "string"
-        },
-        "pullSecrets": {
-          "items": {
-            "required": []
+        "preInstall": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "hookDeletePolicy": {
+                  "type": "string",
+                  "default": "hook-succeeded,hook-failed"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": null
+                },
+                "sleepSeconds": {
+                  "default": null
+                },
+                "exitCode": {
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "additionalProperties": true
+            }
           },
-          "title": "pullSecrets",
-          "type": "array"
+          "additionalProperties": true
+        },
+        "postInstall": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "hookDeletePolicy": {
+                  "type": "string",
+                  "default": "hook-succeeded,hook-failed"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": null
+                },
+                "sleepSeconds": {
+                  "default": null
+                },
+                "exitCode": {
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "preDelete": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "hookDeletePolicy": {
+                  "type": "string",
+                  "default": "hook-succeeded,hook-failed"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": null
+                },
+                "sleepSeconds": {
+                  "default": null
+                },
+                "exitCode": {
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "postDelete": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "hookDeletePolicy": {
+                  "type": "string",
+                  "default": "hook-succeeded,hook-failed"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": null
+                },
+                "sleepSeconds": {
+                  "default": null
+                },
+                "exitCode": {
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "preUpgrade": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "hookDeletePolicy": {
+                  "type": "string",
+                  "default": "hook-succeeded,hook-failed"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": null
+                },
+                "sleepSeconds": {
+                  "default": null
+                },
+                "exitCode": {
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "postUpgrade": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "hookDeletePolicy": {
+                  "type": "string",
+                  "default": "hook-succeeded,hook-failed"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": null
+                },
+                "sleepSeconds": {
+                  "default": null
+                },
+                "exitCode": {
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "preRollback": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "hookDeletePolicy": {
+                  "type": "string",
+                  "default": "hook-succeeded,hook-failed"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": null
+                },
+                "sleepSeconds": {
+                  "default": null
+                },
+                "exitCode": {
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "postRollback": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "hookDeletePolicy": {
+                  "type": "string",
+                  "default": "hook-succeeded,hook-failed"
+                },
+                "ttlSecondsAfterFinished": {
+                  "default": null
+                },
+                "sleepSeconds": {
+                  "default": null
+                },
+                "exitCode": {
+                  "type": "integer",
+                  "default": 0
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "description": "Helm hooks (for testing purposes)",
+      "additionalProperties": true
+    },
+    "hpa": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "default": 10
+        },
+        "cpu": {
+          "type": ["integer", "null"],
+          "description": "average total CPU usage per pod (1-100)",
+          "default": null
+        },
+        "memory": {
+          "description": "average memory usage per pod (100Mi-1Gi)",
+          "default": null
+        },
+        "requests": {
+          "description": "average http requests per second per pod (k8s-prometheus-adapter)",
+          "default": null
+        }
+      },
+      "description": "metrics-server add-on required",
+      "additionalProperties": true
+    },
+    "cache": {
+      "type": "string",
+      "description": "Redis address in the format tcp://\u003chost\u003e:\u003cport\u003e",
+      "default": ""
+    },
+    "redis": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
         },
         "repository": {
-          "default": "ghcr.io/stefanprodan/podinfo",
-          "title": "repository",
-          "type": "string"
+          "type": "string",
+          "default": "docker.io/redis"
         },
         "tag": {
-          "default": "6.13.0",
-          "title": "tag",
-          "type": "string"
+          "type": "string",
+          "default": "8.6.3"
+        },
+        "imagePullSecrets": {
+          "type": "array",
+          "default": []
         }
       },
-      "required": [],
-      "title": "image",
-      "type": "object"
+      "description": "Redis deployment",
+      "additionalProperties": true
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Specifies whether a service account should be created",
+          "default": false
+        },
+        "name": {
+          "description": "The name of the service account to use.\nIf not set and create is true, a name is generated using the fullname template",
+          "default": null
+        },
+        "imagePullSecrets": {
+          "type": "array",
+          "description": "List of image pull secrets if pulling from private registries",
+          "default": []
+        }
+      },
+      "additionalProperties": true
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "set container security context",
+      "additionalProperties": true
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "set pod security context",
+      "additionalProperties": true
     },
     "ingress": {
-      "additionalProperties": true,
-      "description": "Expose the service via Kubernetes Ingress\nRequires an Ingress controller\nDocs https://kubernetes.io/docs/concepts/services-networking/ingress/",
+      "type": "object",
       "properties": {
-        "additionalLabels": {
-          "additionalProperties": true,
-          "required": [],
-          "title": "additionalLabels",
-          "type": "object"
-        },
-        "annotations": {
-          "additionalProperties": true,
-          "required": [],
-          "title": "annotations",
-          "type": "object"
+        "enabled": {
+          "type": "boolean",
+          "default": false
         },
         "className": {
-          "default": "",
-          "title": "className",
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
-        "enabled": {
-          "default": false,
-          "title": "enabled",
-          "type": "boolean"
+        "additionalLabels": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": true
         },
         "hosts": {
-          "description": "kubernetes.io/ingress.class: nginx\nkubernetes.io/tls-acme: \"true\"",
+          "type": "array",
           "items": {
-            "additionalProperties": true,
+            "type": "object",
             "properties": {
               "host": {
-                "default": "podinfo.local",
-                "title": "host",
                 "type": "string"
               },
               "paths": {
+                "type": "array",
                 "items": {
-                  "additionalProperties": true,
+                  "type": "object",
                   "properties": {
                     "path": {
-                      "default": "/",
-                      "title": "path",
                       "type": "string"
                     },
                     "pathType": {
-                      "default": "ImplementationSpecific",
-                      "title": "pathType",
                       "type": "string"
                     }
                   },
-                  "required": [],
-                  "type": "object"
-                },
-                "title": "paths",
-                "type": "array"
+                  "additionalProperties": true
+                }
               }
             },
-            "required": [],
-            "type": "object"
+            "additionalProperties": true
           },
-          "title": "hosts",
-          "type": "array"
+          "description": "kubernetes.io/tls-acme: \"true\"",
+          "default": [
+            {
+              "host": "podinfo.local",
+              "paths": [
+                {
+                  "path": "/",
+                  "pathType": "ImplementationSpecific"
+                }
+              ]
+            }
+          ]
         },
         "tls": {
-          "items": {
-            "required": []
-          },
-          "title": "tls",
-          "type": "array"
+          "type": "array",
+          "default": []
         }
       },
-      "required": [],
-      "title": "ingress",
-      "type": "object"
+      "description": "Expose the service via Kubernetes Ingress Requires an Ingress controller Docs https://kubernetes.io/docs/concepts/services-networking/ingress/",
+      "additionalProperties": true
     },
-    "logLevel": {
-      "default": "info",
-      "title": "logLevel",
-      "type": "string"
-    },
-    "nodeSelector": {
-      "additionalProperties": true,
-      "required": [],
-      "title": "nodeSelector",
-      "type": "object"
-    },
-    "podAnnotations": {
-      "additionalProperties": true,
-      "required": [],
-      "title": "podAnnotations",
-      "type": "object"
-    },
-    "podDisruptionBudget": {
-      "additionalProperties": true,
-      "description": "Disruption budget will be configured only when the replicaCount is greater than 1",
-      "required": [],
-      "title": "podDisruptionBudget",
-      "type": "object"
-    },
-    "podSecurityContext": {
-      "additionalProperties": true,
-      "description": "set pod security context",
-      "required": [],
-      "title": "podSecurityContext",
-      "type": "object"
-    },
-    "prefix": {
-      "default": "/",
-      "title": "prefix",
-      "type": "string"
-    },
-    "priorityClassName": {
-      "default": "",
-      "title": "priorityClassName",
-      "type": "string"
-    },
-    "probes": {
-      "additionalProperties": true,
-      "description": "https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
-      "properties": {
-        "liveness": {
-          "additionalProperties": true,
-          "properties": {
-            "failureThreshold": {
-              "default": 3,
-              "title": "failureThreshold",
-              "type": "integer"
-            },
-            "initialDelaySeconds": {
-              "default": 1,
-              "title": "initialDelaySeconds",
-              "type": "integer"
-            },
-            "periodSeconds": {
-              "default": 10,
-              "title": "periodSeconds",
-              "type": "integer"
-            },
-            "successThreshold": {
-              "default": 1,
-              "title": "successThreshold",
-              "type": "integer"
-            },
-            "timeoutSeconds": {
-              "default": 5,
-              "title": "timeoutSeconds",
-              "type": "integer"
-            }
-          },
-          "required": [],
-          "title": "liveness",
-          "type": "object"
-        },
-        "readiness": {
-          "additionalProperties": true,
-          "properties": {
-            "failureThreshold": {
-              "default": 3,
-              "title": "failureThreshold",
-              "type": "integer"
-            },
-            "initialDelaySeconds": {
-              "default": 1,
-              "title": "initialDelaySeconds",
-              "type": "integer"
-            },
-            "periodSeconds": {
-              "default": 10,
-              "title": "periodSeconds",
-              "type": "integer"
-            },
-            "successThreshold": {
-              "default": 1,
-              "title": "successThreshold",
-              "type": "integer"
-            },
-            "timeoutSeconds": {
-              "default": 5,
-              "title": "timeoutSeconds",
-              "type": "integer"
-            }
-          },
-          "required": [],
-          "title": "readiness",
-          "type": "object"
-        },
-        "startup": {
-          "additionalProperties": true,
-          "properties": {
-            "enable": {
-              "default": false,
-              "title": "enable",
-              "type": "boolean"
-            },
-            "failureThreshold": {
-              "default": 20,
-              "title": "failureThreshold",
-              "type": "integer"
-            },
-            "initialDelaySeconds": {
-              "default": 10,
-              "title": "initialDelaySeconds",
-              "type": "integer"
-            },
-            "periodSeconds": {
-              "default": 10,
-              "title": "periodSeconds",
-              "type": "integer"
-            },
-            "successThreshold": {
-              "default": 1,
-              "title": "successThreshold",
-              "type": "integer"
-            },
-            "timeoutSeconds": {
-              "default": 5,
-              "title": "timeoutSeconds",
-              "type": "integer"
-            }
-          },
-          "required": [],
-          "title": "startup",
-          "type": "object"
-        }
-      },
-      "required": [],
-      "title": "probes",
-      "type": "object"
-    },
-    "redis": {
-      "additionalProperties": true,
-      "description": "Redis deployment",
+    "httpRoute": {
+      "type": "object",
       "properties": {
         "enabled": {
-          "default": false,
-          "title": "enabled",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "HTTPRoute enabled.",
+          "default": false
         },
-        "imagePullSecrets": {
-          "items": {
-            "required": []
-          },
-          "title": "imagePullSecrets",
-          "type": "array"
-        },
-        "repository": {
-          "default": "docker.io/redis",
-          "title": "repository",
-          "type": "string"
-        },
-        "tag": {
-          "default": "8.6.3",
-          "title": "tag",
-          "type": "string"
-        }
-      },
-      "required": [],
-      "title": "redis",
-      "type": "object"
-    },
-    "replicaCount": {
-      "default": 1,
-      "title": "replicaCount",
-      "type": "integer"
-    },
-    "resources": {
-      "additionalProperties": true,
-      "properties": {
-        "limits": {
-          "additionalProperties": true,
-          "default": "",
-          "properties": {
-            "memory": {
-              "title": "memory",
-              "type": "string"
-            }
-          },
-          "required": [],
-          "title": "limits",
-          "type": ["null", "object"]
-        },
-        "requests": {
-          "additionalProperties": true,
-          "properties": {
-            "cpu": {
-              "default": "1m",
-              "title": "cpu",
-              "type": "string"
-            },
-            "memory": {
-              "default": "16Mi",
-              "title": "memory",
-              "type": "string"
-            }
-          },
-          "required": [],
-          "title": "requests",
-          "type": "object"
-        }
-      },
-      "required": [],
-      "title": "resources",
-      "type": "object"
-    },
-    "securityContext": {
-      "additionalProperties": true,
-      "description": "set container security context",
-      "required": [],
-      "title": "securityContext",
-      "type": "object"
-    },
-    "service": {
-      "additionalProperties": true,
-      "description": "Kubernetes Service settings",
-      "properties": {
         "additionalLabels": {
-          "additionalProperties": true,
-          "required": [],
-          "title": "additionalLabels",
-          "type": "object"
+          "type": "object",
+          "description": "Add additional labels to the HTTPRoute.",
+          "additionalProperties": true
         },
         "annotations": {
-          "additionalProperties": true,
-          "required": [],
-          "title": "annotations",
-          "type": "object"
+          "type": "object",
+          "description": "HTTPRoute annotations.",
+          "additionalProperties": true
         },
-        "enabled": {
-          "default": true,
-          "title": "enabled",
-          "type": "boolean"
+        "parentRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "sectionName": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          },
+          "description": "Which Gateways this Route is attached to.",
+          "default": [
+            {
+              "name": "gateway",
+              "sectionName": "http"
+            }
+          ]
         },
-        "externalPort": {
-          "default": 9898,
-          "title": "externalPort",
-          "type": "integer"
+        "hostnames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Hostnames matching HTTP header.",
+          "default": ["podinfo.local"]
         },
-        "externalTrafficPolicy": {
-          "default": "",
-          "title": "externalTrafficPolicy",
-          "type": "string"
-        },
-        "grpcPort": {
-          "default": 9999,
-          "title": "grpcPort",
-          "type": "integer"
-        },
-        "grpcService": {
-          "default": "podinfo",
-          "title": "grpcService",
-          "type": "string"
-        },
-        "hostPort": {
-          "default": "",
-          "description": "the port used to bind the http port to the host\nNOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing\nin local clusters such as kind without port forwarding",
-          "title": "hostPort",
-          "type": "null"
-        },
-        "httpPort": {
-          "default": 9898,
-          "title": "httpPort",
-          "type": "integer"
-        },
-        "metricsPort": {
-          "default": 9797,
-          "title": "metricsPort",
-          "type": "integer"
-        },
-        "nodePort": {
-          "default": 31198,
-          "title": "nodePort",
-          "type": "integer"
-        },
-        "trafficDistribution": {
-          "default": "",
-          "description": "Stable from Kubernetes v1.33+ with a value of PreferClose. Additional values are PreferSameZone and PreferSameNode from v1.34+. Empty string means it's disabled.",
-          "title": "trafficDistribution",
-          "type": "string"
-        },
-        "type": {
-          "default": "ClusterIP",
-          "title": "type",
-          "type": "string"
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "matches": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            },
+            "additionalProperties": true
+          },
+          "description": "List of rules and filters applied.",
+          "default": [
+            {
+              "matches": [
+                {
+                  "path": {
+                    "type": "PathPrefix",
+                    "value": "/"
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
-      "required": [],
-      "title": "service",
-      "type": "object"
+      "description": "Expose the service via Gateway HTTPRoute Requires a Gateway controller Docs https://gateway-api.sigs.k8s.io/guides/",
+      "additionalProperties": true
     },
-    "serviceAccount": {
-      "additionalProperties": true,
+    "grpcRoute": {
+      "type": "object",
       "properties": {
         "enabled": {
-          "default": false,
-          "description": "Specifies whether a service account should be created",
-          "title": "enabled",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "GRPCRoute enabled.",
+          "default": false
         },
-        "imagePullSecrets": {
-          "description": "List of image pull secrets if pulling from private registries",
+        "additionalLabels": {
+          "type": "object",
+          "description": "Add additional labels to the GRPCRoute.",
+          "additionalProperties": true
+        },
+        "annotations": {
+          "type": "object",
+          "description": "GRPCRoute annotations.",
+          "additionalProperties": true
+        },
+        "parentRefs": {
+          "type": "array",
           "items": {
-            "required": []
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "sectionName": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
           },
-          "title": "imagePullSecrets",
-          "type": "array"
+          "description": "Which Gateways this Route is attached to.",
+          "default": [
+            {
+              "name": "gateway",
+              "sectionName": "http"
+            }
+          ]
         },
-        "name": {
-          "default": "",
-          "description": "The name of the service account to use.\nIf not set and create is true, a name is generated using the fullname template",
-          "title": "name",
-          "type": "null"
+        "hostnames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Hostnames matching HTTP header.",
+          "default": ["podinfo.local"]
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "description": "List of rules applied.",
+          "default": [{}]
         }
       },
-      "required": [],
-      "title": "serviceAccount",
-      "type": "object"
+      "description": "Expose the gRPC service via Gateway GRPCRoute Requires a Gateway controller with GRPCRoute support Docs https://gateway-api.sigs.k8s.io/guides/grpc-routing/",
+      "additionalProperties": true
     },
     "serviceMonitor": {
-      "additionalProperties": true,
-      "description": "create Prometheus Operator monitor",
+      "type": "object",
       "properties": {
-        "additionalLabels": {
-          "additionalProperties": true,
-          "required": [],
-          "title": "additionalLabels",
-          "type": "object"
-        },
         "enabled": {
-          "default": false,
-          "title": "enabled",
-          "type": "boolean"
+          "type": "boolean",
+          "default": false
         },
         "interval": {
-          "default": "15s",
-          "title": "interval",
-          "type": "string"
+          "type": "string",
+          "default": "15s"
+        },
+        "additionalLabels": {
+          "type": "object",
+          "additionalProperties": true
         }
       },
-      "required": [],
-      "title": "serviceMonitor",
-      "type": "object"
+      "description": "create Prometheus Operator monitor",
+      "additionalProperties": true
     },
-    "tls": {
-      "additionalProperties": true,
-      "description": "enable tls on the podinfo service",
+    "resources": {
+      "type": "object",
       "properties": {
-        "certPath": {
-          "default": "/data/cert",
-          "description": "the path where the certificate key pair will be mounted",
-          "title": "certPath",
-          "type": "string"
+        "limits": {
+          "type": ["object", "null"],
+          "properties": {
+            "memory": {
+              "type": "string",
+              "default": "256Mi"
+            }
+          },
+          "default": null,
+          "additionalProperties": true
         },
-        "enabled": {
-          "default": false,
-          "title": "enabled",
-          "type": "boolean"
-        },
-        "hostPort": {
-          "default": "",
-          "description": "the port used to bind the tls port to the host\nNOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing\nin local clusters such as kind without port forwarding",
-          "title": "hostPort",
-          "type": "null"
-        },
-        "port": {
-          "default": 9899,
-          "description": "the port used to host the tls endpoint on the service",
-          "title": "port",
-          "type": "integer"
-        },
-        "secretName": {
-          "default": "",
-          "description": "the name of the secret used to mount the certificate key pair",
-          "title": "secretName",
-          "type": "null"
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "default": "1m"
+            },
+            "memory": {
+              "type": "string",
+              "default": "16Mi"
+            }
+          },
+          "additionalProperties": true
         }
       },
-      "required": [],
-      "title": "tls",
-      "type": "object"
+      "additionalProperties": true
+    },
+    "nodeSelector": {
+      "type": "object",
+      "additionalProperties": true
     },
     "tolerations": {
-      "items": {
-        "required": []
-      },
-      "title": "tolerations",
-      "type": "array"
+      "type": "array",
+      "default": []
+    },
+    "affinity": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "priorityClassName": {
+      "type": "string",
+      "default": ""
+    },
+    "podAnnotations": {
+      "type": "object",
+      "additionalProperties": true
     },
     "topologySpreadConstraints": {
+      "type": "array",
       "description": "https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/",
-      "items": {
-        "required": []
-      },
-      "title": "topologySpreadConstraints",
-      "type": "array"
+      "default": []
     },
-    "ui": {
-      "additionalProperties": true,
+    "podDisruptionBudget": {
+      "type": "object",
+      "description": "Disruption budget will be configured only when the replicaCount is greater than 1",
+      "additionalProperties": true
+    },
+    "probes": {
+      "type": "object",
       "properties": {
-        "color": {
-          "default": "#34577c",
-          "title": "color",
-          "type": "string"
+        "readiness": {
+          "type": "object",
+          "properties": {
+            "initialDelaySeconds": {
+              "type": "integer",
+              "default": 1
+            },
+            "timeoutSeconds": {
+              "type": "integer",
+              "default": 5
+            },
+            "failureThreshold": {
+              "type": "integer",
+              "default": 3
+            },
+            "successThreshold": {
+              "type": "integer",
+              "default": 1
+            },
+            "periodSeconds": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          "additionalProperties": true
         },
-        "logo": {
-          "default": "",
-          "title": "logo",
-          "type": "string"
+        "liveness": {
+          "type": "object",
+          "properties": {
+            "initialDelaySeconds": {
+              "type": "integer",
+              "default": 1
+            },
+            "timeoutSeconds": {
+              "type": "integer",
+              "default": 5
+            },
+            "failureThreshold": {
+              "type": "integer",
+              "default": 3
+            },
+            "successThreshold": {
+              "type": "integer",
+              "default": 1
+            },
+            "periodSeconds": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          "additionalProperties": true
         },
-        "message": {
-          "default": "",
-          "title": "message",
-          "type": "string"
+        "startup": {
+          "type": "object",
+          "properties": {
+            "enable": {
+              "type": "boolean",
+              "default": false
+            },
+            "initialDelaySeconds": {
+              "type": "integer",
+              "default": 10
+            },
+            "timeoutSeconds": {
+              "type": "integer",
+              "default": 5
+            },
+            "failureThreshold": {
+              "type": "integer",
+              "default": 20
+            },
+            "successThreshold": {
+              "type": "integer",
+              "default": 1
+            },
+            "periodSeconds": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          "additionalProperties": true
         }
       },
-      "required": [],
-      "title": "ui",
-      "type": "object"
+      "description": "https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
+      "additionalProperties": true
     }
   },
-  "required": [],
-  "type": "object"
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": true
 }

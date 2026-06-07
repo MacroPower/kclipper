@@ -10,42 +10,36 @@ schema Values:
     Attributes
     ----------
     affinity : ValuesAffinity, optional
-    backend : any, optional, default is ""
-    backends : [any], optional
+    backend : any, optional, default is None
+        http://backend-podinfo:9898/echo
+    backends : [any], optional, default is []
     cache : str, optional, default is ""
         Redis address in the format tcp://<host>:<port>
     certificate : ValuesCertificate, optional
         create a certificate manager certificate (cert-manager required)
     config : ValuesConfig, optional
         config file settings
-    extraArgs : [any], optional
+    extraArgs : [any], optional, default is []
         Additional command line arguments to pass to podinfo container
-    extraEnvs : [any], optional
+    extraEnvs : [any], optional, default is []
         Extra environment variables for the podinfo container
     faults : ValuesFaults, optional
         failure conditions
-    global : ValuesGlobal, optional
-        Global values are values that can be accessed from any chart or subchart by exactly the same name.
     grpcRoute : ValuesGrpcRoute, optional
-        Expose the gRPC service via Gateway GRPCRoute
-        Requires a Gateway controller with GRPCRoute support
-        Docs https://gateway-api.sigs.k8s.io/guides/grpc-routing/
+        Expose the gRPC service via Gateway GRPCRoute Requires a Gateway controller with GRPCRoute support Docs https://gateway-api.sigs.k8s.io/guides/grpc-routing/
     h2c : ValuesH2C, optional
         enable h2c protocol (non-TLS version of HTTP/2)
     hooks : ValuesHooks, optional
         Helm hooks (for testing purposes)
-    host : any, optional, default is ""
+    host : any, optional, default is None
+        0.0.0.0
     hpa : ValuesHpa, optional
         metrics-server add-on required
     httpRoute : ValuesHttpRoute, optional
-        Expose the service via Gateway HTTPRoute
-        Requires a Gateway controller
-        Docs https://gateway-api.sigs.k8s.io/guides/
+        Expose the service via Gateway HTTPRoute Requires a Gateway controller Docs https://gateway-api.sigs.k8s.io/guides/
     image : ValuesImage, optional
     ingress : ValuesIngress, optional
-        Expose the service via Kubernetes Ingress
-        Requires an Ingress controller
-        Docs https://kubernetes.io/docs/concepts/services-networking/ingress/
+        Expose the service via Kubernetes Ingress Requires an Ingress controller Docs https://kubernetes.io/docs/concepts/services-networking/ingress/
     logLevel : str, optional, default is "info"
     nodeSelector : ValuesNodeSelector, optional
     podAnnotations : ValuesPodAnnotations, optional
@@ -70,8 +64,8 @@ schema Values:
         create Prometheus Operator monitor
     tls : ValuesTls, optional
         enable tls on the podinfo service
-    tolerations : [any], optional
-    topologySpreadConstraints : [any], optional
+    tolerations : [any], optional, default is []
+    topologySpreadConstraints : [any], optional, default is []
         https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
     ui : ValuesUi, optional
     """
@@ -85,7 +79,6 @@ schema Values:
     extraArgs?: [any]
     extraEnvs?: [any]
     faults?: ValuesFaults
-    global?: ValuesGlobal
     grpcRoute?: ValuesGrpcRoute
     h2c?: ValuesH2C
     hooks?: ValuesHooks
@@ -127,7 +120,7 @@ schema ValuesCertificate:
     Attributes
     ----------
     create : bool, optional, default is False
-    dnsNames : [str], optional
+    dnsNames : [str], optional, default is ["podinfo"]
         the hostname / subject alternative names for the certificate
     issuerRef : ValuesCertificateIssuerRef, optional
         the issuer used to issue the certificate
@@ -186,17 +179,9 @@ schema ValuesFaults:
     unhealthy?: bool
     unready?: bool
 
-schema ValuesGlobal:
-    r"""
-    Global values are values that can be accessed from any chart or subchart by exactly the same name.
-    """
-    [...str]: any
-
 schema ValuesGrpcRoute:
     r"""
-    Expose the gRPC service via Gateway GRPCRoute
-    Requires a Gateway controller with GRPCRoute support
-    Docs https://gateway-api.sigs.k8s.io/guides/grpc-routing/
+    Expose the gRPC service via Gateway GRPCRoute Requires a Gateway controller with GRPCRoute support Docs https://gateway-api.sigs.k8s.io/guides/grpc-routing/
 
     Attributes
     ----------
@@ -206,11 +191,11 @@ schema ValuesGrpcRoute:
         GRPCRoute annotations.
     enabled : bool, optional, default is False
         GRPCRoute enabled.
-    hostnames : [str], optional
+    hostnames : [str], optional, default is ["podinfo.local"]
         Hostnames matching HTTP header.
-    parentRefs : [ValuesGrpcRouteParentRefsItems0], optional
+    parentRefs : [ValuesGrpcRouteParentRefsItems0], optional, default is [{name = "gateway", sectionName = "http"}]
         Which Gateways this Route is attached to.
-    rules : [ValuesGrpcRouteRulesItems0], optional
+    rules : [ValuesGrpcRouteRulesItems0], optional, default is [{}]
         List of rules applied.
     """
     [...str]: any
@@ -239,8 +224,8 @@ schema ValuesGrpcRouteParentRefsItems0:
 
     Attributes
     ----------
-    name : str, optional, default is "gateway"
-    sectionName : str, optional, default is "http"
+    name : str, optional
+    sectionName : str, optional
     """
     [...str]: any
     name?: str
@@ -308,8 +293,8 @@ schema ValuesHooksPostDeleteJob:
     enabled : bool, optional, default is False
     exitCode : int, optional, default is 0
     hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
+    sleepSeconds : any, optional, default is None
+    ttlSecondsAfterFinished : any, optional, default is None
     """
     [...str]: any
     enabled?: bool
@@ -338,8 +323,8 @@ schema ValuesHooksPostInstallJob:
     enabled : bool, optional, default is False
     exitCode : int, optional, default is 0
     hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
+    sleepSeconds : any, optional, default is None
+    ttlSecondsAfterFinished : any, optional, default is None
     """
     [...str]: any
     enabled?: bool
@@ -368,8 +353,8 @@ schema ValuesHooksPostRollbackJob:
     enabled : bool, optional, default is False
     exitCode : int, optional, default is 0
     hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
+    sleepSeconds : any, optional, default is None
+    ttlSecondsAfterFinished : any, optional, default is None
     """
     [...str]: any
     enabled?: bool
@@ -398,8 +383,8 @@ schema ValuesHooksPostUpgradeJob:
     enabled : bool, optional, default is False
     exitCode : int, optional, default is 0
     hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
+    sleepSeconds : any, optional, default is None
+    ttlSecondsAfterFinished : any, optional, default is None
     """
     [...str]: any
     enabled?: bool
@@ -428,8 +413,8 @@ schema ValuesHooksPreDeleteJob:
     enabled : bool, optional, default is False
     exitCode : int, optional, default is 0
     hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
+    sleepSeconds : any, optional, default is None
+    ttlSecondsAfterFinished : any, optional, default is None
     """
     [...str]: any
     enabled?: bool
@@ -458,8 +443,8 @@ schema ValuesHooksPreInstallJob:
     enabled : bool, optional, default is False
     exitCode : int, optional, default is 0
     hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
+    sleepSeconds : any, optional, default is None
+    ttlSecondsAfterFinished : any, optional, default is None
     """
     [...str]: any
     enabled?: bool
@@ -488,8 +473,8 @@ schema ValuesHooksPreRollbackJob:
     enabled : bool, optional, default is False
     exitCode : int, optional, default is 0
     hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
+    sleepSeconds : any, optional, default is None
+    ttlSecondsAfterFinished : any, optional, default is None
     """
     [...str]: any
     enabled?: bool
@@ -518,8 +503,8 @@ schema ValuesHooksPreUpgradeJob:
     enabled : bool, optional, default is False
     exitCode : int, optional, default is 0
     hookDeletePolicy : str, optional, default is "hook-succeeded,hook-failed"
-    sleepSeconds : any, optional, default is ""
-    ttlSecondsAfterFinished : any, optional, default is ""
+    sleepSeconds : any, optional, default is None
+    ttlSecondsAfterFinished : any, optional, default is None
     """
     [...str]: any
     enabled?: bool
@@ -534,13 +519,13 @@ schema ValuesHpa:
 
     Attributes
     ----------
-    cpu : int, optional, default is ""
+    cpu : int, optional, default is None
         average total CPU usage per pod (1-100)
     enabled : bool, optional, default is False
     maxReplicas : int, optional, default is 10
-    memory : any, optional, default is ""
+    memory : any, optional, default is None
         average memory usage per pod (100Mi-1Gi)
-    requests : any, optional, default is ""
+    requests : any, optional, default is None
         average http requests per second per pod (k8s-prometheus-adapter)
     """
     [...str]: any
@@ -552,9 +537,7 @@ schema ValuesHpa:
 
 schema ValuesHttpRoute:
     r"""
-    Expose the service via Gateway HTTPRoute
-    Requires a Gateway controller
-    Docs https://gateway-api.sigs.k8s.io/guides/
+    Expose the service via Gateway HTTPRoute Requires a Gateway controller Docs https://gateway-api.sigs.k8s.io/guides/
 
     Attributes
     ----------
@@ -564,11 +547,11 @@ schema ValuesHttpRoute:
         HTTPRoute annotations.
     enabled : bool, optional, default is False
         HTTPRoute enabled.
-    hostnames : [str], optional
+    hostnames : [str], optional, default is ["podinfo.local"]
         Hostnames matching HTTP header.
-    parentRefs : [ValuesHttpRouteParentRefsItems0], optional
+    parentRefs : [ValuesHttpRouteParentRefsItems0], optional, default is [{name = "gateway", sectionName = "http"}]
         Which Gateways this Route is attached to.
-    rules : [ValuesHttpRouteRulesItems0], optional
+    rules : [ValuesHttpRouteRulesItems0], optional, default is [{matches = [{path = {$type = "PathPrefix", value = "/"}}]}]
         List of rules and filters applied.
     """
     [...str]: any
@@ -597,8 +580,8 @@ schema ValuesHttpRouteParentRefsItems0:
 
     Attributes
     ----------
-    name : str, optional, default is "gateway"
-    sectionName : str, optional, default is "http"
+    name : str, optional
+    sectionName : str, optional
     """
     [...str]: any
     name?: str
@@ -632,8 +615,8 @@ schema ValuesHttpRouteRulesItems0MatchesItems0Path:
 
     Attributes
     ----------
-    $type : str, optional, default is "PathPrefix"
-    value : str, optional, default is "/"
+    $type : str, optional
+    value : str, optional
     """
     [...str]: any
     $type?: str
@@ -646,7 +629,7 @@ schema ValuesImage:
     Attributes
     ----------
     pullPolicy : str, optional, default is "IfNotPresent"
-    pullSecrets : [any], optional
+    pullSecrets : [any], optional, default is []
     repository : str, optional, default is "ghcr.io/stefanprodan/podinfo"
     tag : str, optional, default is "6.13.0"
     """
@@ -658,9 +641,7 @@ schema ValuesImage:
 
 schema ValuesIngress:
     r"""
-    Expose the service via Kubernetes Ingress
-    Requires an Ingress controller
-    Docs https://kubernetes.io/docs/concepts/services-networking/ingress/
+    Expose the service via Kubernetes Ingress Requires an Ingress controller Docs https://kubernetes.io/docs/concepts/services-networking/ingress/
 
     Attributes
     ----------
@@ -668,10 +649,9 @@ schema ValuesIngress:
     annotations : ValuesIngressAnnotations, optional
     className : str, optional, default is ""
     enabled : bool, optional, default is False
-    hosts : [ValuesIngressHostsItems0], optional
-        kubernetes.io/ingress.class: nginx
+    hosts : [ValuesIngressHostsItems0], optional, default is [{host = "podinfo.local", paths = [{path = "/", pathType = "ImplementationSpecific"}]}]
         kubernetes.io/tls-acme: "true"
-    tls : [any], optional
+    tls : [any], optional, default is []
     """
     [...str]: any
     additionalLabels?: ValuesIngressAdditionalLabels
@@ -699,7 +679,7 @@ schema ValuesIngressHostsItems0:
 
     Attributes
     ----------
-    host : str, optional, default is "podinfo.local"
+    host : str, optional
     paths : [ValuesIngressHostsItems0PathsItems0], optional
     """
     [...str]: any
@@ -712,8 +692,8 @@ schema ValuesIngressHostsItems0PathsItems0:
 
     Attributes
     ----------
-    path : str, optional, default is "/"
-    pathType : str, optional, default is "ImplementationSpecific"
+    path : str, optional
+    pathType : str, optional
     """
     [...str]: any
     path?: str
@@ -824,7 +804,7 @@ schema ValuesRedis:
     Attributes
     ----------
     enabled : bool, optional, default is False
-    imagePullSecrets : [any], optional
+    imagePullSecrets : [any], optional, default is []
     repository : str, optional, default is "docker.io/redis"
     tag : str, optional, default is "8.6.3"
     """
@@ -840,7 +820,7 @@ schema ValuesResources:
 
     Attributes
     ----------
-    limits : any | ValuesResourcesLimits, optional, default is ""
+    limits : any | ValuesResourcesLimits, optional, default is None
     requests : ValuesResourcesRequests, optional
     """
     [...str]: any
@@ -853,7 +833,7 @@ schema ValuesResourcesLimits:
 
     Attributes
     ----------
-    memory : str, optional
+    memory : str, optional, default is "256Mi"
     """
     [...str]: any
     memory?: str
@@ -890,7 +870,7 @@ schema ValuesService:
     externalTrafficPolicy : str, optional, default is ""
     grpcPort : int, optional, default is 9999
     grpcService : str, optional, default is "podinfo"
-    hostPort : any, optional, default is ""
+    hostPort : any, optional, default is None
         the port used to bind the http port to the host
         NOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing
         in local clusters such as kind without port forwarding
@@ -924,9 +904,9 @@ schema ValuesServiceAccount:
     ----------
     enabled : bool, optional, default is False
         Specifies whether a service account should be created
-    imagePullSecrets : [any], optional
+    imagePullSecrets : [any], optional, default is []
         List of image pull secrets if pulling from private registries
-    name : any, optional, default is ""
+    name : any, optional, default is None
         The name of the service account to use.
         If not set and create is true, a name is generated using the fullname template
     """
@@ -977,13 +957,13 @@ schema ValuesTls:
     certPath : str, optional, default is "/data/cert"
         the path where the certificate key pair will be mounted
     enabled : bool, optional, default is False
-    hostPort : any, optional, default is ""
+    hostPort : any, optional, default is None
         the port used to bind the tls port to the host
         NOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing
         in local clusters such as kind without port forwarding
     port : int, optional, default is 9899
         the port used to host the tls endpoint on the service
-    secretName : any, optional, default is ""
+    secretName : any, optional, default is None
         the name of the secret used to mount the certificate key pair
     """
     [...str]: any

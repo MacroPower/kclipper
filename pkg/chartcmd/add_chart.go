@@ -403,7 +403,12 @@ func (c *KCLPackage) generateSchemaFromChart(chart *kclchart.ChartConfig, chartF
 		if chart.ValueInference == nil {
 			gen = jsonschema.DefaultValueInferenceGenerator
 		} else {
-			gen = jsonschema.NewValueInferenceGenerator(chart.ValueInference.GetConfig())
+			vig, err := jsonschema.NewValueInferenceGenerator(chart.ValueInference.GetConfig())
+			if err != nil {
+				return nil, fmt.Errorf("%w: %w", ErrSchemaGeneration, err)
+			}
+
+			gen = vig
 		}
 
 	case jsonschema.ChartPathGeneratorType:

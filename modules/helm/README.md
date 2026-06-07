@@ -42,22 +42,22 @@ Configuration that can be defined in `charts.k`, in addition to those specified 
 
 #### Attributes
 
-| name                   | type                                                                           | description                                                                                                       | default value |
-| ---------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------- |
-| **chart** `required`   | str                                                                            | Helm chart name.                                                                                                  |               |
-| **crdPaths**           | [str]                                                                          | Paths to any CRDs to import as schemas. Can be file and/or URL paths. Glob patterns are supported.                |               |
-| **namespace**          | str                                                                            | Optional namespace to template with.                                                                              |               |
-| **passCredentials**    | bool                                                                           | Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).                                   |               |
-| **releaseName**        | str                                                                            | Helm release name to use. If omitted the chart name will be used.                                                 |               |
-| **repoURL** `required` | str                                                                            | URL of the Helm chart repository.                                                                                 |               |
-| **repositories**       | [[ChartRepo](#chartrepo)]                                                      | Helm chart repositories.                                                                                          |               |
-| **schemaGenerator**    | "AUTO" \| "VALUE-INFERENCE" \| "URL" \| "CHART-PATH" \| "LOCAL-PATH" \| "NONE" | Schema generator to use for the Values schema.                                                                    |               |
-| **schemaPath**         | str                                                                            | Path to the schema to use, when relevant for the selected schemaGenerator.                                        |               |
-| **schemaValidator**    | "KCL" \| "HELM"                                                                | Validator to use for the Values schema.                                                                           |               |
-| **skipCRDs**           | bool                                                                           | Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).                    |               |
-| **skipHooks**          | bool                                                                           | Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).                                     |               |
-| **targetRevision**     | str                                                                            | Semver tag for the chart's version. May be omitted for local charts.                                              |               |
-| **valueInference**     | [ValueInferenceConfig](#valueinferenceconfig)                                  | Configuration for value inference via dadav/helm-schema. Requires schemaGenerator to be set to `VALUE-INFERENCE`. |               |
+| name                   | type                                                                           | description                                                                                                 | default value |
+| ---------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ------------- |
+| **chart** `required`   | str                                                                            | Helm chart name.                                                                                            |               |
+| **crdPaths**           | [str]                                                                          | Paths to any CRDs to import as schemas. Can be file and/or URL paths. Glob patterns are supported.          |               |
+| **namespace**          | str                                                                            | Optional namespace to template with.                                                                        |               |
+| **passCredentials**    | bool                                                                           | Set to `True` to pass credentials to all domains (Helm's `--pass-credentials`).                             |               |
+| **releaseName**        | str                                                                            | Helm release name to use. If omitted the chart name will be used.                                           |               |
+| **repoURL** `required` | str                                                                            | URL of the Helm chart repository.                                                                           |               |
+| **repositories**       | [[ChartRepo](#chartrepo)]                                                      | Helm chart repositories.                                                                                    |               |
+| **schemaGenerator**    | "AUTO" \| "VALUE-INFERENCE" \| "URL" \| "CHART-PATH" \| "LOCAL-PATH" \| "NONE" | Schema generator to use for the Values schema.                                                              |               |
+| **schemaPath**         | str                                                                            | Path to the schema to use, when relevant for the selected schemaGenerator.                                  |               |
+| **schemaValidator**    | "KCL" \| "HELM"                                                                | Validator to use for the Values schema.                                                                     |               |
+| **skipCRDs**           | bool                                                                           | Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).              |               |
+| **skipHooks**          | bool                                                                           | Set to `True` to skip templating Helm hooks (similar to Helm's `--no-hooks`).                               |               |
+| **targetRevision**     | str                                                                            | Semver tag for the chart's version. May be omitted for local charts.                                        |               |
+| **valueInference**     | [ValueInferenceConfig](#valueinferenceconfig)                                  | Configuration for value inference via magicschema. Requires schemaGenerator to be set to `VALUE-INFERENCE`. |               |
 
 ### ChartRepo
 
@@ -91,21 +91,24 @@ Kubernetes resource.
 
 ### ValueInferenceConfig
 
-ValueInferenceConfig defines configuration for value inference via dadav/helm-schema.
+ValueInferenceConfig defines configuration for value inference via magicschema.
 
 #### Attributes
 
-| name                          | type | description                                                  | default value |
-| ----------------------------- | ---- | ------------------------------------------------------------ | ------------- |
-| **helmDocsCompatibilityMode** | bool | Parse and use helm-docs comments.                            |               |
-| **keepFullComment**           | bool | Keep the whole leading comment (default: cut at empty line). |               |
-| **keepHelmDocsPrefix**        | bool | Keep the helm-docs prefix (--) in the schema.                |               |
-| **removeGlobal**              | bool | Remove the global key from the schema.                       |               |
-| **skipAdditionalProperties**  | bool | Skip auto-generation of AdditionalProperties.                |               |
-| **skipDefault**               | bool | Skip auto-generation of Default.                             |               |
-| **skipDescription**           | bool | Skip auto-generation of Description.                         |               |
-| **skipRequired**              | bool | Skip auto-generation of Required.                            | True          |
-| **skipTitle**                 | bool | Skip auto-generation of Title.                               |               |
-| **uncommentYAMLBlocks**       | bool | Consider yaml which is commented out.                        |               |
+| name                          | type                                                                | description                                                                                                                            | default value |
+| ----------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| **annotators**                | ["helm-schema" \| "helm-values-schema" \| "bitnami" \| "helm-docs"] | Annotation parsers to enable, in priority order.                                                                                       |               |
+| **helmDocsCompatibilityMode** | bool                                                                | Deprecated: helm-docs comments are parsed by default via the helm-docs annotator. Use annotators to control which parsers are enabled. |               |
+| **inferDefaults**             | bool                                                                | Record observed YAML values as schema defaults when no annotation provides one.                                                        | True          |
+| **keepFullComment**           | bool                                                                | Deprecated: comment attribution is position-based and no longer configurable. This option is ignored.                                  |               |
+| **keepHelmDocsPrefix**        | bool                                                                | Deprecated: the helm-docs prefix is always stripped. This option is ignored.                                                           |               |
+| **removeGlobal**              | bool                                                                | Deprecated: the global key is no longer special-cased. This option is ignored.                                                         |               |
+| **skipAdditionalProperties**  | bool                                                                | Deprecated: use strict instead. Magicschema keeps additionalProperties open by default.                                                |               |
+| **skipDefault**               | bool                                                                | Deprecated: use inferDefaults instead (skipDefault is its inverse).                                                                    |               |
+| **skipDescription**           | bool                                                                | Deprecated: descriptions are only set from annotations. This option is ignored.                                                        |               |
+| **skipRequired**              | bool                                                                | Deprecated: required is never auto-generated. This option is ignored.                                                                  |               |
+| **skipTitle**                 | bool                                                                | Deprecated: titles are never inferred from structure. This option is ignored.                                                          |               |
+| **strict**                    | bool                                                                | Set additionalProperties to false on objects in the generated schema.                                                                  |               |
+| **uncommentYAMLBlocks**       | bool                                                                | Deprecated: magicschema parses the YAML AST directly, so commented-out blocks are never considered. This option is ignored.            |               |
 
 <!-- Auto generated by kcl-doc tool, please do not edit. -->

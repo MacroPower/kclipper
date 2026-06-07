@@ -17,7 +17,7 @@ type ChartConfig struct {
 	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator,omitempty"`
 	// Path to the schema to use, when relevant for the selected schemaGenerator.
 	SchemaPath string `json:"schemaPath,omitempty"`
-	// Configuration for value inference via dadav/helm-schema. Requires
+	// Configuration for value inference via magicschema. Requires
 	// schemaGenerator to be set to `VALUE-INFERENCE`.
 	ValueInference *ValueInferenceConfig `json:"valueInference,omitempty"`
 	// CRD generator to use for CRDs schemas.

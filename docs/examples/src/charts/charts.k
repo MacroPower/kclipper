@@ -37,7 +37,7 @@ charts: helm.Charts = {
         repositories = [repos.local]
         schemaGenerator = "VALUE-INFERENCE"
         valueInference: {
-            keepFullComment = True
+            annotators = ["helm-schema", "helm-docs"]
         }
     }
     external_secrets: {

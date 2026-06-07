@@ -5621,7 +5621,7 @@ schema ValuesServiceMonitorAdditionalProperties:
     nameOverride : str, optional
     selector : ValuesServiceMonitorAdditionalPropertiesSelector, optional
     serviceName : str, optional
-    targetLabels : any, optional
+    targetLabels : [any], optional
     """
     annotations?: any
     enabled?: bool
@@ -5630,7 +5630,7 @@ schema ValuesServiceMonitorAdditionalProperties:
     nameOverride?: str
     selector?: ValuesServiceMonitorAdditionalPropertiesSelector
     serviceName?: str
-    targetLabels?: any
+    targetLabels?: [any]
 
 schema ValuesServiceMonitorAdditionalPropertiesEndpointsItems0:
     r"""

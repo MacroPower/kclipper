@@ -1,0 +1,3 @@
+limits:
+  cpu: 100m
+port: 8080

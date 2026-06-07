@@ -1,12 +1,7 @@
-// Copyright (c) 2023 dadav, Licensed under the MIT License.
-// Modifications Copyright (c) 2024-2025 Jacob Colvin
-// Licensed under the Apache License, Version 2.0.
-
 package jsonschema
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -14,532 +9,185 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/dadav/helm-schema/pkg/util"
-	"go.jacobcolvin.com/niceyaml"
-	"gopkg.in/yaml.v3"
+	"go.jacobcolvin.com/x/magicschema"
+	"go.jacobcolvin.com/x/magicschema/helm"
+)
 
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
+// Annotator names supported by [ValueInferenceConfig.Annotators], matching the
+// annotation parsers registered by [helm.DefaultRegistry].
+const (
+	HelmSchemaAnnotator       string = "helm-schema"
+	HelmValuesSchemaAnnotator string = "helm-values-schema"
+	BitnamiAnnotator          string = "bitnami"
+	HelmDocsAnnotator         string = "helm-docs"
 )
 
 var (
+	// ErrUnknownAnnotator indicates that an annotator name does not match any
+	// registered annotation parser.
+	ErrUnknownAnnotator = errors.New("unknown annotator")
+
+	// DefaultAnnotators is the default annotator priority order used when
+	// [ValueInferenceConfig.Annotators] is empty.
+	DefaultAnnotators = []string{
+		HelmSchemaAnnotator,
+		HelmValuesSchemaAnnotator,
+		BitnamiAnnotator,
+		HelmDocsAnnotator,
+	}
+
+	// AnnotatorEnum lists all supported annotator names.
+	AnnotatorEnum = []any{
+		HelmSchemaAnnotator,
+		HelmValuesSchemaAnnotator,
+		BitnamiAnnotator,
+		HelmDocsAnnotator,
+	}
+
 	// DefaultValueInferenceGenerator is an opinionated [ValueInferenceGenerator].
-	DefaultValueInferenceGenerator = NewValueInferenceGenerator(&ValueInferenceConfig{
-		SkipRequired: true,
+	DefaultValueInferenceGenerator = mustNewValueInferenceGenerator(&ValueInferenceConfig{
+		InferDefaults: true,
 	})
 
-	// DefaultFileRegex matches files that set the `default` attribute in the JSON Schema.
+	// DefaultValuesFileRegex matches the chart's primary values file, whose
+	// observed values become schema defaults.
 	defaultValuesFileRegex = regexp.MustCompile(`^(.*/)?values\.ya?ml$`)
 
 	_ FileGenerator = DefaultValueInferenceGenerator
 )
 
+// schemaRefComment marks values files that already reference a JSON Schema.
+const schemaRefComment = `# yaml-language-server: $schema=`
+
+// ValueInferenceConfig configures a [ValueInferenceGenerator].
 type ValueInferenceConfig struct {
-	// Consider yaml which is commented out.
-	UncommentYAMLBlocks bool `json:"uncommentYAMLBlocks,omitempty"`
-	// Parse and use helm-docs comments.
-	HelmDocsCompatibilityMode bool `json:"helmDocsCompatibilityMode,omitempty"`
-	// Keep the helm-docs prefix (--) in the schema.
-	KeepHelmDocsPrefix bool `json:"keepHelmDocsPrefix,omitempty"`
-	// Keep the whole leading comment (default: cut at empty line).
-	KeepFullComment bool `json:"keepFullComment,omitempty"`
-	// Remove the global key from the schema.
-	RemoveGlobal bool `json:"removeGlobal,omitempty"`
-	// Skip auto-generation of Title.
-	SkipTitle bool `json:"skipTitle,omitempty"`
-	// Skip auto-generation of Description.
-	SkipDescription bool `json:"skipDescription,omitempty"`
-	// Skip auto-generation of Required.
-	SkipRequired bool `json:"skipRequired,omitempty"`
-	// Skip auto-generation of Default.
-	SkipDefault bool `json:"skipDefault,omitempty"`
-	// Skip auto-generation of AdditionalProperties.
-	SkipAdditionalProperties bool `json:"skipAdditionalProperties,omitempty"`
+	// Annotation parsers to enable, in priority order.
+	// Defaults to [DefaultAnnotators].
+	Annotators []string `json:"annotators,omitempty"`
+	// Set additionalProperties to false on objects in the generated schema.
+	Strict bool `json:"strict,omitempty"`
+	// Record observed YAML values as schema defaults when no annotation
+	// provides one.
+	InferDefaults bool `json:"inferDefaults,omitempty"`
 }
 
 // ValueInferenceGenerator is a generator that infers a JSON Schema from one or
-// more Helm values files.
+// more Helm values files, using [magicschema].
+//
+// Create instances with [NewValueInferenceGenerator].
 type ValueInferenceGenerator struct {
-	skipAutoGenerationConfig *helmschema.SkipAutoGenerationConfig
-	defaultFileRegex         *regexp.Regexp
-	config                   *ValueInferenceConfig
+	gen *magicschema.Generator
 }
 
 // NewValueInferenceGenerator creates a new [ValueInferenceGenerator] using the
-// given [ValueInferenceConfig].
-func NewValueInferenceGenerator(c *ValueInferenceConfig) *ValueInferenceGenerator {
-	helmSkipAutoGenerationConfig := &helmschema.SkipAutoGenerationConfig{
-		Title:                c.SkipTitle,
-		Description:          c.SkipDescription,
-		Required:             c.SkipRequired,
-		Default:              c.SkipDefault,
-		AdditionalProperties: c.SkipAdditionalProperties,
+// given [ValueInferenceConfig]. It returns an error if the configuration names
+// an annotator that is not registered in [helm.DefaultRegistry].
+func NewValueInferenceGenerator(c *ValueInferenceConfig) (*ValueInferenceGenerator, error) {
+	names := c.Annotators
+	if len(names) == 0 {
+		names = DefaultAnnotators
 	}
 
-	return &ValueInferenceGenerator{
-		defaultFileRegex:         defaultValuesFileRegex,
-		skipAutoGenerationConfig: helmSkipAutoGenerationConfig,
-		config:                   c,
+	registry := helm.DefaultRegistry()
+	annotators := make([]magicschema.Annotator, 0, len(names))
+
+	for _, name := range names {
+		annotator, ok := registry[name]
+		if !ok {
+			return nil, fmt.Errorf("%w: %q", ErrUnknownAnnotator, name)
+		}
+
+		annotators = append(annotators, annotator)
 	}
+
+	opts := []magicschema.Option{
+		magicschema.WithAnnotators(annotators...),
+	}
+	if c.Strict {
+		opts = append(opts, magicschema.WithStrict(true))
+	}
+
+	if c.InferDefaults {
+		opts = append(opts, magicschema.WithInferDefaults(true))
+	}
+
+	return &ValueInferenceGenerator{gen: magicschema.NewGenerator(opts...)}, nil
+}
+
+func mustNewValueInferenceGenerator(c *ValueInferenceConfig) *ValueInferenceGenerator {
+	g, err := NewValueInferenceGenerator(c)
+	if err != nil {
+		panic(err)
+	}
+
+	return g
 }
 
 // FromPaths generates a JSON Schema from one or more file paths pointing to
 // Helm values files. If multiple file paths are provided, the schemas are
-// merged into a single schema, using defaults from the file matching
-// DefaultFileRegex (usually `values.yaml`).
+// merged into a single schema with [magicschema] union semantics: properties
+// are unioned, incompatible types drop the type constraint entirely, and a
+// value that is null or empty in one file but typed in another widens to a
+// [type, null] union so that every input stays valid against the merged
+// schema. Inferred defaults follow input order (first input wins), so paths
+// matching the chart's primary values file (values.yaml) are ordered first.
 func (g *ValueInferenceGenerator) FromPaths(paths ...string) ([]byte, error) {
 	if len(paths) == 0 {
 		return nil, errors.New("no file paths provided")
 	}
 
-	slices.Sort(paths)
+	// Order the primary values file first so its observed values win merged
+	// metadata like defaults and descriptions; sort within each group for
+	// deterministic output.
+	slices.SortFunc(paths, func(a, b string) int {
+		if pa, pb := isPrimaryValuesFile(a), isPrimaryValuesFile(b); pa != pb {
+			if pa {
+				return -1
+			}
 
-	schemas := map[string]*helmschema.Schema{}
+			return 1
+		}
+
+		return strings.Compare(a, b)
+	})
+
+	inputs := make([][]byte, 0, len(paths))
 
 	for _, path := range paths {
-		schema, err := g.schemaFromFilePath(path)
+		//nolint:gosec // G304 not relevant for client-side generation.
+		data, err := os.ReadFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("create schema from file path %q: %w", path, err)
+			return nil, fmt.Errorf("read values file %q: %w", path, err)
 		}
 
-		schemas[path] = schema
+		inputs = append(inputs, data)
 	}
 
-	mergedSchema := &helmschema.Schema{}
-	for _, k := range paths {
-		mergedSchema = mergeHelmSchemas(mergedSchema, schemas[k], g.defaultFileRegex.MatchString(k))
-	}
-
-	err := mergedSchema.Validate()
-	if err != nil {
-		return nil, fmt.Errorf("invalid schema: %w", err)
-	}
-
-	return marshalHelmSchema(mergedSchema)
+	return g.generate(inputs...)
 }
 
+// FromData generates a JSON Schema from the given values file content.
 func (g *ValueInferenceGenerator) FromData(data []byte) ([]byte, error) {
-	schema, err := g.schemaFromData(data)
-	if err != nil {
-		return nil, fmt.Errorf("create schema from data: %w", err)
-	}
-
-	mergedSchema := &helmschema.Schema{}
-	mergedSchema = mergeHelmSchemas(mergedSchema, schema, true)
-
-	return marshalHelmSchema(mergedSchema)
+	return g.generate(data)
 }
 
-func (g *ValueInferenceGenerator) schemaFromFilePath(path string) (*helmschema.Schema, error) {
-	//nolint:gosec // G304 not relevant for client-side generation.
-	valuesFile, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("open values file: %w", err)
-	}
-
-	content, err := util.ReadFileAndFixNewline(valuesFile)
-	if err != nil {
-		return nil, fmt.Errorf("read values file: %w", err)
-	}
-
-	return g.schemaFromData(content)
+// isPrimaryValuesFile reports whether path is the chart's primary values file.
+func isPrimaryValuesFile(path string) bool {
+	return defaultValuesFileRegex.MatchString(path)
 }
 
-func (g *ValueInferenceGenerator) schemaFromData(data []byte) (*helmschema.Schema, error) {
-	// Check if a schema reference exists in the yaml file.
-	schemaRef := `# yaml-language-server: $schema=`
-	if strings.Contains(string(data), schemaRef) {
-		return nil, errors.New("schema reference already exists in values file")
-	}
-
-	var err error
-
-	// Optional preprocessing.
-	if g.config.UncommentYAMLBlocks {
-		// Remove comments from valid yaml.
-		data, err = util.RemoveCommentsFromYaml(bytes.NewReader(data))
-		if err != nil {
-			return nil, fmt.Errorf("uncomment yaml: %w", err)
+func (g *ValueInferenceGenerator) generate(inputs ...[]byte) ([]byte, error) {
+	for _, input := range inputs {
+		// Check if a schema reference exists in the values file.
+		if bytes.Contains(input, []byte(schemaRefComment)) {
+			return nil, errors.New("schema reference already exists in values file")
 		}
 	}
 
-	var values yaml.Node
-
-	err = yaml.Unmarshal(data, &values)
+	schema, err := g.gen.Generate(inputs...)
 	if err != nil {
-		// Re-parse with niceyaml to produce an annotated error with
-		// source context. Falls back to the original yaml.v3 error
-		// when niceyaml does not detect the same problem.
-		src := niceyaml.NewSourceFromBytes(data,
-			niceyaml.WithErrorOptions(niceyaml.WithSourceLines(3)),
-		)
-
-		_, nErr := src.Decoder()
-		if nErr != nil {
-			return nil, fmt.Errorf("unmarshal values yaml: %w", nErr)
-		}
-
-		return nil, fmt.Errorf("unmarshal values yaml: %w", err)
+		return nil, fmt.Errorf("infer schema from values: %w", err)
 	}
 
-	valuesSchema, err := helmschema.YamlToSchema(
-		"",
-		&values,
-		g.config.KeepFullComment,
-		g.config.HelmDocsCompatibilityMode,
-		g.config.KeepHelmDocsPrefix,
-		g.config.RemoveGlobal,
-		g.skipAutoGenerationConfig,
-		nil,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("convert values yaml to schema: %w", err)
-	}
-
-	err = walkHelmSchema(valuesSchema, allowAdditionalProperties)
-	if err != nil {
-		return nil, fmt.Errorf("set allowAdditionalProperties on schema: %w", err)
-	}
-
-	return valuesSchema, nil
-}
-
-func allowAdditionalProperties(s *helmschema.Schema) error {
-	if s.Type.Matches("object") {
-		s.AdditionalProperties = true
-	}
-
-	return nil
-}
-
-func marshalHelmSchema(s *helmschema.Schema) ([]byte, error) {
-	err := s.Validate()
-	if err != nil {
-		return nil, fmt.Errorf("validate schema: %w", err)
-	}
-
-	jsonSchema, err := s.ToJson()
-	if err != nil {
-		return nil, fmt.Errorf("convert schema to JSON Schema: %w", err)
-	}
-
-	return jsonSchema, nil
-}
-
-// walkHelmSchema recursively applies fn to s and all nested sub-schemas
-// (Properties, PatternProperties, Items, AllOf, AnyOf, OneOf, If, Then, Else, Not).
-func walkHelmSchema(s *helmschema.Schema, fn func(s *helmschema.Schema) error) error {
-	err := fn(s)
-	if err != nil {
-		return err
-	}
-
-	for _, v := range s.Properties {
-		err = walkHelmSchema(v, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, v := range s.PatternProperties {
-		err = walkHelmSchema(v, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	if s.Items != nil {
-		err = walkHelmSchema(s.Items, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, v := range s.AllOf {
-		err = walkHelmSchema(v, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, v := range s.AnyOf {
-		err = walkHelmSchema(v, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, v := range s.OneOf {
-		err = walkHelmSchema(v, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	if s.If != nil {
-		err = walkHelmSchema(s.If, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	if s.Then != nil {
-		err = walkHelmSchema(s.Then, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	if s.Else != nil {
-		err = walkHelmSchema(s.Else, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	if s.Not != nil {
-		err = walkHelmSchema(s.Not, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func mergeHelmSchemas(dest, src *helmschema.Schema, setDefaults bool) *helmschema.Schema {
-	if dest == nil {
-		return mergeHelmSchemas(&helmschema.Schema{}, src, setDefaults)
-	}
-
-	if src == nil {
-		return mergeHelmSchemas(&helmschema.Schema{}, dest, setDefaults)
-	}
-
-	if setDefaults {
-		dest.Default = src.Default
-	}
-
-	// Merge 'type' by unioning all observed types, so that values files which
-	// disagree (e.g. `limits: null` in one file and a populated object in
-	// another) produce a schema that accepts both.
-	if !src.Type.IsEmpty() {
-		if dest.Type.IsEmpty() {
-			dest.Type = src.Type
-		} else if !slices.Equal([]string(dest.Type), []string(src.Type)) {
-			merged := append([]string(dest.Type), []string(src.Type)...)
-			slices.Sort(merged)
-
-			dest.Type = helmschema.StringOrArrayOfString(slices.Compact(merged))
-		}
-	}
-
-	// Resolve simple fields by favoring the fields from 'src' if they're provided.
-	if src.Schema != "" {
-		dest.Schema = src.Schema
-	}
-
-	if src.MultipleOf != nil {
-		dest.MultipleOf = src.MultipleOf
-	}
-
-	if src.Maximum != nil {
-		dest.Maximum = src.Maximum
-	}
-
-	if src.Minimum != nil {
-		dest.Minimum = src.Minimum
-	}
-
-	if src.MaxLength != nil {
-		dest.MaxLength = src.MaxLength
-	}
-
-	if src.MinLength != nil {
-		dest.MinLength = src.MinLength
-	}
-
-	if src.Pattern != "" {
-		dest.Pattern = src.Pattern
-	}
-
-	if src.MaxItems != nil {
-		dest.MaxItems = src.MaxItems
-	}
-
-	if src.MinItems != nil {
-		dest.MinItems = src.MinItems
-	}
-
-	if src.ExclusiveMaximum != nil {
-		dest.ExclusiveMaximum = src.ExclusiveMaximum
-	}
-
-	if src.ExclusiveMinimum != nil {
-		dest.ExclusiveMinimum = src.ExclusiveMinimum
-	}
-
-	if src.PatternProperties != nil {
-		dest.PatternProperties = src.PatternProperties
-	}
-
-	if src.Title != "" {
-		dest.Title = src.Title
-	}
-
-	if src.Description != "" {
-		dest.Description = src.Description
-	}
-
-	if src.ReadOnly {
-		dest.ReadOnly = src.ReadOnly
-	}
-
-	if src.Id != "" {
-		dest.Id = src.Id
-	}
-
-	// Merge 'enum' field (assuming that maintaining order doesn't matter).
-	dest.Enum = slices.Compact(append(dest.Enum, src.Enum...))
-
-	dest.Required = helmschema.BoolOrArrayOfString{
-		Bool:    dest.Required.Bool || src.Required.Bool,
-		Strings: intersectStringSlices(dest.Required.Strings, src.Required.Strings),
-	}
-
-	// Recursive calls for nested structures.
-	if src.Properties != nil {
-		if dest.Properties == nil {
-			dest.Properties = make(map[string]*helmschema.Schema)
-		}
-
-		propKeys := []string{}
-		for k := range src.Properties {
-			propKeys = append(propKeys, k)
-		}
-
-		slices.Sort(propKeys)
-
-		for _, k := range propKeys {
-			if destPropSchema, exists := dest.Properties[k]; exists {
-				dest.Properties[k] = mergeHelmSchemas(destPropSchema, src.Properties[k], setDefaults)
-			} else {
-				dest.Properties[k] = mergeHelmSchemas(&helmschema.Schema{}, src.Properties[k], setDefaults)
-			}
-		}
-	}
-
-	if src.AdditionalProperties != nil {
-		err := mergeSchemaAdditionalProperties(dest, src, setDefaults)
-		if err != nil {
-			dest.AdditionalProperties = true
-		}
-	}
-
-	// Merge 'items' if they exist (assuming they're not arrays).
-	if src.Items != nil {
-		dest.Items = mergeHelmSchemas(dest.Items, src.Items, setDefaults)
-	}
-
-	var items *helmschema.Schema
-
-	for _, s := range append(dest.AllOf, src.AllOf...) {
-		items = mergeHelmSchemas(items, s, setDefaults)
-		dest.AllOf = nil
-	}
-
-	for _, s := range append(dest.AnyOf, src.AnyOf...) {
-		items = mergeHelmSchemas(items, s, setDefaults)
-		dest.AnyOf = nil
-	}
-
-	for _, s := range append(dest.OneOf, src.OneOf...) {
-		items = mergeHelmSchemas(items, s, setDefaults)
-		dest.OneOf = nil
-	}
-
-	if items != nil {
-		dest = mergeHelmSchemas(dest, items, setDefaults)
-	}
-
-	if src.If != nil {
-		dest = mergeHelmSchemas(dest, src.If, setDefaults)
-	}
-
-	if src.Else != nil {
-		dest = mergeHelmSchemas(dest, src.Else, setDefaults)
-	}
-
-	if src.Then != nil {
-		dest = mergeHelmSchemas(dest, src.Then, setDefaults)
-	}
-
-	if src.Not != nil {
-		dest = mergeHelmSchemas(dest, src.Not, setDefaults)
-	}
-
-	return dest
-}
-
-func intersectStringSlices(a, b []string) []string {
-	intersection := []string{}
-
-	for _, x := range a {
-		if slices.Contains(b, x) {
-			intersection = append(intersection, x)
-		}
-	}
-
-	return intersection
-}
-
-func mergeSchemaAdditionalProperties(dest, src *helmschema.Schema, setDefaults bool) error {
-	//nolint:revive // Boolean literal used due to SchemaOrBool type.
-	if src.AdditionalProperties == true || src.AdditionalProperties == false {
-		dest.AdditionalProperties = src.AdditionalProperties
-
-		return nil
-	}
-
-	srcSubSchema, err := toSchemaPtr(src.AdditionalProperties)
-	if err != nil {
-		return fmt.Errorf("resolve src additional properties: %w", err)
-	}
-
-	destSubSchema, err := toSchemaPtr(dest.AdditionalProperties)
-	if err != nil {
-		return fmt.Errorf("resolve dest additional properties: %w", err)
-	}
-
-	subSchema := mergeHelmSchemas(destSubSchema, srcSubSchema, setDefaults)
-	err = validateHelmSchema(subSchema)
-	if err != nil {
-		return err
-	}
-
-	dest.AdditionalProperties = subSchema
-
-	return nil
-}
-
-// toSchemaPtr converts a [helmschema.SchemaOrBool] value to a *[helmschema.Schema].
-// It first tries direct type assertion, then falls back to marshal/unmarshal.
-func toSchemaPtr(v helmschema.SchemaOrBool) (*helmschema.Schema, error) {
-	if v == nil {
-		return &helmschema.Schema{}, nil
-	}
-
-	if s, ok := v.(*helmschema.Schema); ok {
-		return s, nil
-	}
-
-	if s, ok := v.(helmschema.Schema); ok {
-		return &s, nil
-	}
-
-	data, err := json.Marshal(v)
-	if err != nil {
-		return nil, fmt.Errorf("marshal additional properties: %w", err)
-	}
-
-	return unmarshalHelmSchema(data)
+	return marshalSchema(schema)
 }

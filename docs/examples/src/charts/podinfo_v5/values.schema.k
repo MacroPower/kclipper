@@ -10,19 +10,19 @@ schema Values:
     Attributes
     ----------
     affinity : ValuesAffinity, optional
-    backend : any, optional, default is ""
-    backends : [any], optional
+    backend : any, optional, default is None
+        http://backend-podinfo:9898/echo
+    backends : [any], optional, default is []
     cache : str, optional, default is ""
         Redis address in the format <host>:<port>
     certificate : ValuesCertificate, optional
         create a certificate manager certificate (cert-manager required)
     faults : ValuesFaults, optional
         failure conditions
-    global : ValuesGlobal, optional
-        Global values are values that can be accessed from any chart or subchart by exactly the same name.
     h2c : ValuesH2C, optional
         enable h2c protocol (non-TLS version of HTTP/2)
-    host : any, optional, default is ""
+    host : any, optional, default is None
+        0.0.0.0
     hpa : ValuesHpa, optional
         metrics-server add-on required
     image : ValuesImage, optional
@@ -44,7 +44,7 @@ schema Values:
         create Prometheus Operator monitor
     tls : ValuesTls, optional
         enable tls on the podinfo service
-    tolerations : [any], optional
+    tolerations : [any], optional, default is []
     ui : ValuesUi, optional
     """
     [...str]: any
@@ -54,7 +54,6 @@ schema Values:
     cache?: str
     certificate?: ValuesCertificate
     faults?: ValuesFaults
-    global?: ValuesGlobal
     h2c?: ValuesH2C
     host?: any
     hpa?: ValuesHpa
@@ -88,7 +87,7 @@ schema ValuesCertificate:
     Attributes
     ----------
     create : bool, optional, default is False
-    dnsNames : [str], optional
+    dnsNames : [str], optional, default is ["podinfo"]
         the hostname / subject alternative names for the certificate
     issuerRef : ValuesCertificateIssuerRef, optional
         the issuer used to issue the certificate
@@ -132,12 +131,6 @@ schema ValuesFaults:
     unhealthy?: bool
     unready?: bool
 
-schema ValuesGlobal:
-    r"""
-    Global values are values that can be accessed from any chart or subchart by exactly the same name.
-    """
-    [...str]: any
-
 schema ValuesH2C:
     r"""
     enable h2c protocol (non-TLS version of HTTP/2)
@@ -155,13 +148,13 @@ schema ValuesHpa:
 
     Attributes
     ----------
-    cpu : int, optional, default is ""
+    cpu : int, optional, default is None
         average total CPU usage per pod (1-100)
     enabled : bool, optional, default is False
     maxReplicas : int, optional, default is 10
-    memory : any, optional, default is ""
+    memory : any, optional, default is None
         average memory usage per pod (100Mi-1Gi)
-    requests : any, optional, default is ""
+    requests : any, optional, default is None
         average http requests per second per pod (k8s-prometheus-adapter)
     """
     [...str]: any
@@ -194,11 +187,9 @@ schema ValuesIngress:
     ----------
     annotations : ValuesIngressAnnotations, optional
     enabled : bool, optional, default is False
-    hosts : [any], optional
+    hosts : [any], optional, default is []
     path : str, optional, default is "/*"
-        kubernetes.io/ingress.class: nginx
-        kubernetes.io/tls-acme: "true"
-    tls : [any], optional
+    tls : [any], optional, default is []
          - podinfo.local
     """
     [...str]: any
@@ -269,7 +260,7 @@ schema ValuesResources:
 
     Attributes
     ----------
-    limits : any | ValuesResourcesLimits, optional, default is ""
+    limits : any | ValuesResourcesLimits, optional, default is None
     requests : ValuesResourcesRequests, optional
     """
     [...str]: any
@@ -282,7 +273,7 @@ schema ValuesResourcesLimits:
 
     Attributes
     ----------
-    memory : str, optional
+    memory : str, optional, default is "256Mi"
     """
     [...str]: any
     memory?: str
@@ -317,7 +308,7 @@ schema ValuesService:
     externalPort : int, optional, default is 9898
     grpcPort : int, optional, default is 9999
     grpcService : str, optional, default is "podinfo"
-    hostPort : any, optional, default is ""
+    hostPort : any, optional, default is None
         the port used to bind the http port to the host
         NOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing
         in local clusters such as kind without port forwarding
@@ -346,7 +337,7 @@ schema ValuesServiceAccount:
     ----------
     enabled : bool, optional, default is False
         Specifies whether a service account should be created
-    name : any, optional, default is ""
+    name : any, optional, default is None
         The name of the service account to use.
         If not set and create is true, a name is generated using the fullname template
     """
@@ -390,13 +381,13 @@ schema ValuesTls:
     certPath : str, optional, default is "/data/cert"
         the path where the certificate key pair will be mounted
     enabled : bool, optional, default is False
-    hostPort : any, optional, default is ""
+    hostPort : any, optional, default is None
         the port used to bind the tls port to the host
         NOTE: requires privileged container with NET_BIND_SERVICE capability -- this is useful for testing
         in local clusters such as kind without port forwarding
     port : int, optional, default is 9899
         the port used to host the tls endpoint on the service
-    secretName : any, optional, default is ""
+    secretName : any, optional, default is None
         the name of the secret used to mount the certificate key pair
     """
     [...str]: any

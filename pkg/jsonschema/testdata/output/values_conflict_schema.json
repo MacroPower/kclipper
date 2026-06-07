@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "limits": {
+      "type": ["object", "null"],
+      "properties": {
+        "cpu": {
+          "type": "string",
+          "default": "100m"
+        }
+      },
+      "description": "Resource limits.",
+      "default": null,
+      "additionalProperties": true
+    },
+    "port": {
+      "default": 8080
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": true
+}

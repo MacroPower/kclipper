@@ -1,12 +1,11 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "additionalProperties": true,
   "properties": {
     "foo": {
-      "default": "bar",
+      "type": "string",
       "title": "foo",
-      "type": "string"
+      "default": "bar"
     }
   },
-  "required": []
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": true
 }

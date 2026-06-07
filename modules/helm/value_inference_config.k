@@ -5,32 +5,50 @@ Editing this file might prove futile when you re-run the KCL auto-gen generate c
 
 schema ValueInferenceConfig:
     r"""
-    ValueInferenceConfig defines configuration for value inference via dadav/helm-schema.
+    ValueInferenceConfig defines configuration for value inference via magicschema.
 
     Attributes
     ----------
+    annotators : ["helm-schema" | "helm-values-schema" | "bitnami" | "helm-docs"], optional
+        Annotation parsers to enable, in priority order.
+    strict : bool, optional
+        Set additionalProperties to false on objects in the generated schema.
+    inferDefaults : bool, optional, default is True
+        Record observed YAML values as schema defaults when no annotation
+        provides one.
     uncommentYAMLBlocks : bool, optional
-        Consider yaml which is commented out.
+        Deprecated: magicschema parses the YAML AST directly, so commented-out
+        blocks are never considered. This option is ignored.
     helmDocsCompatibilityMode : bool, optional
-        Parse and use helm-docs comments.
+        Deprecated: helm-docs comments are parsed by default via the helm-docs
+        annotator. Use annotators to control which parsers are enabled.
     keepHelmDocsPrefix : bool, optional
-        Keep the helm-docs prefix (--) in the schema.
+        Deprecated: the helm-docs prefix is always stripped. This option is
+        ignored.
     keepFullComment : bool, optional
-        Keep the whole leading comment (default: cut at empty line).
+        Deprecated: comment attribution is position-based and no longer
+        configurable. This option is ignored.
     removeGlobal : bool, optional
-        Remove the global key from the schema.
+        Deprecated: the global key is no longer special-cased. This option is
+        ignored.
     skipTitle : bool, optional
-        Skip auto-generation of Title.
+        Deprecated: titles are never inferred from structure. This option is
+        ignored.
     skipDescription : bool, optional
-        Skip auto-generation of Description.
-    skipRequired : bool, optional, default is True
-        Skip auto-generation of Required.
+        Deprecated: descriptions are only set from annotations. This option is
+        ignored.
+    skipRequired : bool, optional
+        Deprecated: required is never auto-generated. This option is ignored.
     skipDefault : bool, optional
-        Skip auto-generation of Default.
+        Deprecated: use inferDefaults instead (skipDefault is its inverse).
     skipAdditionalProperties : bool, optional
-        Skip auto-generation of AdditionalProperties.
+        Deprecated: use strict instead. Magicschema keeps additionalProperties
+        open by default.
     """
 
+    annotators?: ["helm-schema" | "helm-values-schema" | "bitnami" | "helm-docs"]
+    strict?: bool
+    inferDefaults?: bool = True
     uncommentYAMLBlocks?: bool
     helmDocsCompatibilityMode?: bool
     keepHelmDocsPrefix?: bool
@@ -38,7 +56,7 @@ schema ValueInferenceConfig:
     removeGlobal?: bool
     skipTitle?: bool
     skipDescription?: bool
-    skipRequired?: bool = True
+    skipRequired?: bool
     skipDefault?: bool
     skipAdditionalProperties?: bool
 

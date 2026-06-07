@@ -9,11 +9,10 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
-	"github.com/dadav/go-jsonpointer"
-
-	helmschema "github.com/dadav/helm-schema/pkg/schema"
+	gojsonschema "github.com/google/jsonschema-go/jsonschema"
 )
 
 // handleSchemaRefs processes and resolves JSON Schema references ($ref) within a schema.
@@ -26,119 +25,63 @@ import (
 // Parameters:
 //   - schema: Pointer to the Schema object containing the references to resolve.
 //   - basePath: Path to the current file, used for resolving relative paths.
-func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
-	// Handle $ref in PatternProperties.
-	if schema.PatternProperties != nil {
-		for pattern, subSchema := range schema.PatternProperties {
-			err := handleSchemaRefs(subSchema, basePath)
-			if err != nil {
-				return err
-			}
+func handleSchemaRefs(schema *gojsonschema.Schema, basePath string) error {
+	return resolveSchemaRefs(schema, basePath, map[string]bool{})
+}
 
-			// Update the original schema in the map.
-			schema.PatternProperties[pattern] = subSchema
-		}
+// resolveSchemaRefs implements [handleSchemaRefs]. The resolving set tracks
+// the stack of file paths currently being resolved, so that mutually
+// referencing files produce an error instead of infinite recursion. Paths are
+// removed once resolved, keeping repeated (diamond) references to the same
+// file valid.
+func resolveSchemaRefs(schema *gojsonschema.Schema, basePath string, resolving map[string]bool) error {
+	if schema == nil {
+		return nil
 	}
 
-	// Handle $ref in Properties.
-	if schema.Properties != nil {
-		for property, subSchema := range schema.Properties {
-			err := handleSchemaRefs(subSchema, basePath)
-			if err != nil {
-				return err
-			}
-
-			// Update the original schema in the map.
-			schema.Properties[property] = subSchema
-		}
-	}
-
-	// Handle $ref in AdditionalProperties.
-	err := derefAdditionalProperties(schema, basePath)
-	if err != nil {
-		schema.AdditionalProperties = true
-	}
-
-	// Handle $ref in Items.
-	if schema.Items != nil {
-		subSchema := schema.Items
-		err := handleSchemaRefs(subSchema, basePath)
+	// AdditionalProperties is special: an unresolvable reference fails open
+	// (becomes the permissive empty schema) instead of aborting the schema.
+	if schema.AdditionalProperties != nil {
+		err := resolveSchemaRefs(schema.AdditionalProperties, basePath, resolving)
 		if err != nil {
-			return err
-		}
-
-		// Update the original schema.
-		schema.Items = subSchema
-	}
-
-	// Handle $ref in AllOf.
-	if schema.AllOf != nil {
-		for i, subSchema := range schema.AllOf {
-			err := handleSchemaRefs(subSchema, basePath)
-			if err != nil {
-				return err
-			}
-
-			// Update the original schema in the slice.
-			schema.AllOf[i] = subSchema
+			schema.AdditionalProperties = &gojsonschema.Schema{}
 		}
 	}
 
-	// Handle $ref in AnyOf.
-	if schema.AnyOf != nil {
-		for i, subSchema := range schema.AnyOf {
-			err := handleSchemaRefs(subSchema, basePath)
-			if err != nil {
-				return err
-			}
-
-			// Update the original schema in the slice.
-			schema.AnyOf[i] = subSchema
-		}
-	}
-
-	// Handle $ref in OneOf.
-	if schema.OneOf != nil {
-		for i, subSchema := range schema.OneOf {
-			err := handleSchemaRefs(subSchema, basePath)
-			if err != nil {
-				return err
-			}
-
-			// Update the original schema in the slice.
-			schema.OneOf[i] = subSchema
-		}
-	}
-
-	// Handle $ref in If.
-	if schema.If != nil {
-		err := handleSchemaRefs(schema.If, basePath)
+	// Recurse into every other sub-schema position. This mirrors [walkSchema]
+	// so that no $ref-bearing field is missed (e.g. $defs, definitions,
+	// prefixItems, contains, propertyNames).
+	for _, subSchema := range [...]*gojsonschema.Schema{
+		schema.Items, schema.AdditionalItems, schema.Contains, schema.UnevaluatedItems,
+		schema.PropertyNames, schema.UnevaluatedProperties,
+		schema.Not, schema.If, schema.Then, schema.Else, schema.ContentSchema,
+	} {
+		err := resolveSchemaRefs(subSchema, basePath, resolving)
 		if err != nil {
 			return err
 		}
 	}
 
-	// Handle $ref in Then.
-	if schema.Then != nil {
-		err := handleSchemaRefs(schema.Then, basePath)
-		if err != nil {
-			return err
+	for _, subSchemas := range [...][]*gojsonschema.Schema{
+		schema.PrefixItems, schema.ItemsArray, schema.AllOf, schema.AnyOf, schema.OneOf,
+	} {
+		for _, subSchema := range subSchemas {
+			err := resolveSchemaRefs(subSchema, basePath, resolving)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	// Handle $ref in Else.
-	if schema.Else != nil {
-		err := handleSchemaRefs(schema.Else, basePath)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Handle $ref in Not.
-	if schema.Not != nil {
-		err := handleSchemaRefs(schema.Not, basePath)
-		if err != nil {
-			return err
+	for _, subSchemas := range [...]map[string]*gojsonschema.Schema{
+		schema.Defs, schema.Definitions, schema.DependencySchemas,
+		schema.Properties, schema.PatternProperties, schema.DependentSchemas,
+	} {
+		for _, subSchema := range subSchemas {
+			err := resolveSchemaRefs(subSchema, basePath, resolving)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -158,7 +101,7 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			return fmt.Errorf("invalid $ref value %q: %w", schema.Ref, err)
 		}
 
-		err = resolveFilePath(schema, relFilePath, jsPointer)
+		err = resolveFilePath(schema, relFilePath, jsPointer, resolving)
 		if err != nil {
 			return fmt.Errorf("invalid $ref value %q: %w", schema.Ref, err)
 		}
@@ -173,19 +116,13 @@ func handleSchemaRefs(schema *helmschema.Schema, basePath string) error {
 			schema.Ref = ""
 		} else {
 			*schema = *relSchema
-			schema.HasData = true
 		}
 	}
 
-	err = validateHelmSchema(schema)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return validateSchema(schema)
 }
 
-func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helmschema.Schema, error) {
+func resolveLocalRef(schema *gojsonschema.Schema, jsonSchemaPointer string) (*gojsonschema.Schema, error) {
 	relData, err := json.Marshal(schema)
 	if err != nil {
 		return nil, fmt.Errorf("marshal schema for json pointer: %w", err)
@@ -199,7 +136,15 @@ func resolveLocalRef(schema *helmschema.Schema, jsonSchemaPointer string) (*helm
 	return relSchema, nil
 }
 
-func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer string) error {
+func resolveFilePath(schema *gojsonschema.Schema, relPath, jsonSchemaPointer string, resolving map[string]bool) error {
+	cleanPath := path.Clean(relPath)
+	if resolving[cleanPath] {
+		return fmt.Errorf("circular reference to %q", cleanPath)
+	}
+
+	resolving[cleanPath] = true
+	defer delete(resolving, cleanPath)
+
 	//nolint:gosec // G304 not relevant for client-side generation.
 	byteValue, err := os.ReadFile(relPath)
 	if err != nil {
@@ -211,27 +156,24 @@ func resolveFilePath(schema *helmschema.Schema, relPath, jsonSchemaPointer strin
 		return fmt.Errorf("unmarshal schema: %w", err)
 	}
 
-	err = handleSchemaRefs(relSchema, path.Dir(relPath))
+	err = resolveSchemaRefs(relSchema, path.Dir(relPath), resolving)
 	if err != nil {
 		return err
 	}
 
 	*schema = *relSchema
-	schema.HasData = true
 
 	return nil
 }
 
-func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Schema, error) {
-	relSchema := &helmschema.Schema{}
-
+func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*gojsonschema.Schema, error) {
 	if jsonSchemaPointer == "" {
-		err := json.Unmarshal(data, &relSchema)
+		relSchema, err := unmarshalSchema(data)
 		if err != nil {
-			return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
+			return nil, err
 		}
 
-		err = validateHelmSchema(relSchema)
+		err = validateSchema(relSchema)
 		if err != nil {
 			return nil, err
 		}
@@ -246,7 +188,7 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 	}
 
-	jsonPointerResultRaw, err := jsonpointer.Get(obj, jsonSchemaPointer)
+	jsonPointerResultRaw, err := evalJSONPointer(obj, jsonSchemaPointer)
 	if err != nil {
 		return nil, fmt.Errorf("resolve JSON pointer: %w", err)
 	}
@@ -256,12 +198,14 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 		return nil, fmt.Errorf("marshal JSON pointer result: %w", err)
 	}
 
+	relSchema := &gojsonschema.Schema{}
+
 	err = json.Unmarshal(jsonPointerResultMarshaled, relSchema)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal JSON pointer result: %w", err)
 	}
 
-	err = validateHelmSchema(relSchema)
+	err = validateSchema(relSchema)
 	if err != nil {
 		return nil, err
 	}
@@ -269,42 +213,50 @@ func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*helmschema.Sche
 	return relSchema, nil
 }
 
-func derefAdditionalProperties(schema *helmschema.Schema, basePath string) error {
-	//nolint:revive // Boolean literal used due to SchemaOrBool type.
-	if schema.AdditionalProperties == nil || schema.AdditionalProperties == true ||
-		schema.AdditionalProperties == false {
-		return nil
+// evalJSONPointer evaluates an RFC 6901 JSON pointer against a decoded JSON
+// document and returns the referenced value.
+func evalJSONPointer(doc any, pointer string) (any, error) {
+	if pointer == "" {
+		return doc, nil
 	}
 
-	apData, err := json.Marshal(schema.AdditionalProperties)
-	if err != nil {
-		return fmt.Errorf("marshal additional properties: %w", err)
+	if !strings.HasPrefix(pointer, "/") {
+		return nil, fmt.Errorf("invalid JSON pointer %q", pointer)
 	}
 
-	subSchema, err := unmarshalHelmSchema(apData)
-	if err != nil {
-		return fmt.Errorf("unmarshal additional properties: %w", err)
+	current := doc
+
+	for segment := range strings.SplitSeq(pointer[1:], "/") {
+		segment = strings.ReplaceAll(segment, "~1", "/")
+		segment = strings.ReplaceAll(segment, "~0", "~")
+
+		switch value := current.(type) {
+		case map[string]any:
+			child, ok := value[segment]
+			if !ok {
+				return nil, fmt.Errorf("JSON pointer segment %q not found", segment)
+			}
+
+			current = child
+
+		case []any:
+			idx, err := strconv.Atoi(segment)
+			if err != nil {
+				return nil, fmt.Errorf("JSON pointer segment %q is not an array index: %w", segment, err)
+			}
+
+			if idx < 0 || idx >= len(value) {
+				return nil, fmt.Errorf("JSON pointer segment %q is out of range", segment)
+			}
+
+			current = value[idx]
+
+		default:
+			return nil, fmt.Errorf("JSON pointer segment %q references a non-container value", segment)
+		}
 	}
 
-	err = handleSchemaRefs(subSchema, basePath)
-	if err != nil {
-		return fmt.Errorf("handle schema refs in additional properties: %w", err)
-	}
-
-	err = validateHelmSchema(subSchema)
-	if err != nil {
-		return err
-	}
-
-	// No idea why, but Required isn't marshaled correctly without recreating the struct.
-	subSchema.Required = helmschema.BoolOrArrayOfString{
-		Bool:    subSchema.Required.Bool,
-		Strings: subSchema.Required.Strings,
-	}
-
-	schema.AdditionalProperties = subSchema
-
-	return nil
+	return current, nil
 }
 
 // isRelativeFile checks if the given string is a relative path to a file.
