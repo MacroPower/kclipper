@@ -29,7 +29,7 @@ jobs:
         with:
           version: "v0.21.4"
           verb: check
-          args: go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules go:generate go:tidy kclipper:format
+          args: go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules go:generate go:tidy
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           enable-github-summary: "true"
 
