@@ -20,8 +20,8 @@ require (
 	go.jacobcolvin.com/x/jsonschema v0.0.0-20260608132324-4aebb4523229
 	go.jacobcolvin.com/x/stringtest v0.1.0
 	go.jacobcolvin.com/x/version v0.1.0
-	golang.org/x/sync v0.20.0
-	golang.org/x/text v0.37.0
+	golang.org/x/sync v0.21.0
+	golang.org/x/text v0.38.0
 	helm.sh/helm/v3 v3.21.0
 	k8s.io/apimachinery v0.36.1
 	kcl-lang.io/cli v0.12.4
