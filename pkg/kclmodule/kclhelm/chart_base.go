@@ -35,12 +35,10 @@ type ChartBase struct {
 }
 
 func (c *ChartBase) GenerateKCL(w io.Writer) error {
-	r, err := newSchemaReflector()
+	js, err := jsonschema.Reflect(reflect.TypeFor[ChartBase](), jsonschema.WithGoComments())
 	if err != nil {
-		return fmt.Errorf("failed to create schema reflector: %w", err)
+		return fmt.Errorf("reflect schema: %w", err)
 	}
-
-	js := r.Reflect(reflect.TypeFor[ChartBase]())
 
 	js.SetProperty("schemaValidator", jsonschema.WithEnum(jsonschema.ValidatorTypeEnum))
 	js.SetProperty("repositories", jsonschema.WithType("null"), jsonschema.WithNoContent())

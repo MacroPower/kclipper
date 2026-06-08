@@ -77,12 +77,10 @@ func (c *ChartConfig) Validate() error {
 }
 
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {
-	r, err := newSchemaReflector()
+	js, err := jsonschema.Reflect(reflect.TypeFor[ChartConfig]())
 	if err != nil {
-		return fmt.Errorf("create schema reflector: %w", err)
+		return fmt.Errorf("reflect schema: %w", err)
 	}
-
-	js := r.Reflect(reflect.TypeFor[ChartConfig]())
 
 	js.SetProperty("chart", jsonschema.WithDefault(c.Chart))
 	js.SetProperty("repoURL", jsonschema.WithDefault(c.RepoURL))

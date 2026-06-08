@@ -52,12 +52,10 @@ type ValueInferenceConfig struct {
 }
 
 func (c *ValueInferenceConfig) GenerateKCL(w io.Writer) error {
-	r, err := newSchemaReflector()
+	js, err := jsonschema.Reflect(reflect.TypeFor[ValueInferenceConfig](), jsonschema.WithGoComments())
 	if err != nil {
-		return fmt.Errorf("failed to create schema reflector: %w", err)
+		return fmt.Errorf("reflect schema: %w", err)
 	}
-
-	js := r.Reflect(reflect.TypeFor[ValueInferenceConfig]())
 
 	js.SetProperty("annotators", jsonschema.WithItemsEnum(jsonschema.AnnotatorEnum))
 	js.SetProperty("inferDefaults", jsonschema.WithDefault(true))

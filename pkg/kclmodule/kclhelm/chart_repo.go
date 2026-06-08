@@ -10,6 +10,7 @@ import (
 	"github.com/iancoleman/strcase"
 
 	"github.com/macropower/kclipper/pkg/helmrepo"
+	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclautomation"
 )
 
@@ -56,12 +57,10 @@ func (c *ChartRepo) GetSnakeCaseName() string {
 }
 
 func (c *ChartRepo) GenerateKCL(w io.Writer) error {
-	r, err := newSchemaReflector()
+	js, err := jsonschema.Reflect(reflect.TypeFor[ChartRepo](), jsonschema.WithGoComments())
 	if err != nil {
-		return fmt.Errorf("failed to create schema reflector: %w", err)
+		return fmt.Errorf("reflect schema: %w", err)
 	}
-
-	js := r.Reflect(reflect.TypeFor[ChartRepo]())
 
 	err = js.GenerateKCL(w)
 	if err != nil {

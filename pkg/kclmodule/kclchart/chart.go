@@ -22,12 +22,11 @@ func (c *Chart) GetSnakeCaseName() string {
 }
 
 func (c *Chart) GenerateKCL(w io.Writer) error {
-	r, err := newSchemaReflector()
+	js, err := jsonschema.Reflect(reflect.TypeFor[Chart]())
 	if err != nil {
-		return fmt.Errorf("create schema reflector: %w", err)
+		return fmt.Errorf("reflect schema: %w", err)
 	}
 
-	js := r.Reflect(reflect.TypeFor[Chart]())
 	js.Schema.Description = "All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`."
 
 	js.SetProperty("chart", jsonschema.WithDefault(c.Chart))

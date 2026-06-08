@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+
+	"github.com/macropower/kclipper/pkg/jsonschema"
 )
 
 // Defines a Helm chart.
@@ -16,12 +18,10 @@ type Chart struct {
 }
 
 func (c *Chart) GenerateKCL(w io.Writer) error {
-	r, err := newSchemaReflector()
+	js, err := jsonschema.Reflect(reflect.TypeFor[Chart](), jsonschema.WithGoComments())
 	if err != nil {
-		return fmt.Errorf("failed to create schema reflector: %w", err)
+		return fmt.Errorf("reflect schema: %w", err)
 	}
-
-	js := r.Reflect(reflect.TypeFor[Chart]())
 
 	b := &bytes.Buffer{}
 	err = js.GenerateKCL(b, genOptInheritChartBase, genOptFixChartRepo, genOptFixPostRenderer)
