@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	cosignVersion = "v3.0.6" // renovate: datasource=github-releases depName=sigstore/cosign
+	cosignVersion = "v3.1.1" // renovate: datasource=github-releases depName=sigstore/cosign
 )
 
 // Tests provides integration tests for the [Kclipper] module. Create instances
