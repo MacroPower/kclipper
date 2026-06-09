@@ -16,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	go.jacobcolvin.com/niceyaml v0.0.0-20260606121633-058e1e37234b
-	go.jacobcolvin.com/x/cobras v0.0.0-20260608132324-4aebb4523229
+	go.jacobcolvin.com/x/cobras v0.0.0-20260609183842-9a3c6cce2cea
 	go.jacobcolvin.com/x/jsonschema v0.0.0-20260608132324-4aebb4523229
 	go.jacobcolvin.com/x/stringtest v0.1.0
 	go.jacobcolvin.com/x/version v0.1.0
