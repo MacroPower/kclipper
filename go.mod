@@ -15,7 +15,7 @@ require (
 	github.com/mattn/go-isatty v0.0.22
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
-	go.jacobcolvin.com/niceyaml v0.0.0-20260606070754-4b3c7a02856f
+	go.jacobcolvin.com/niceyaml v0.0.0-20260606121633-058e1e37234b
 	go.jacobcolvin.com/x/cobras v0.0.0-20260607023654-2c95c01f5fe6
 	go.jacobcolvin.com/x/jsonschema v0.0.0-20260608132324-4aebb4523229
 	go.jacobcolvin.com/x/stringtest v0.1.0
@@ -30,7 +30,10 @@ require (
 	kcl-lang.io/kpm v0.12.4
 )
 
-require gopkg.in/yaml.v3 v3.0.1 // indirect
+require (
+	charm.land/fang/v2 v2.0.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+)
 
 require (
 	cel.dev/expr v0.25.1 // indirect
@@ -85,7 +88,7 @@ require (
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
 	github.com/charmbracelet/harmonica v0.2.0 // indirect
 	github.com/charmbracelet/ultraviolet v0.0.0-20260525132238-948f4557a654 // indirect
-	github.com/charmbracelet/x/exp/charmtone v0.0.0-20251201173703-9f73bfd934ff // indirect
+	github.com/charmbracelet/x/exp/charmtone v0.0.0-20260602025833-85a30b5e440a // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
