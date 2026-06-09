@@ -59,8 +59,8 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpec:
     refreshTime?: str
 
     check:
-        len(pushSecretName) <= 253 if pushSecretName not in [None, Undefined]
-        len(pushSecretName) >= 1 if pushSecretName not in [None, Undefined]
+        len(pushSecretName) <= 253 if pushSecretName
+        len(pushSecretName) >= 1 if pushSecretName
         _regex_match(str(pushSecretName), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if pushSecretName
 
 schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecNamespaceSelectorsItems0:
@@ -305,8 +305,8 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecDataToItems0S
     name?: str
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecDataToItems0StoreRefLabelSelector:
@@ -367,8 +367,8 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSecretStoreRe
     name?: str
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSecretStoreRefsItems0LabelSelector:
@@ -464,8 +464,8 @@ schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSelectorSecre
     selector?: ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSelectorSecretSelector
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1ClusterPushSecretSpecPushSecretSpecSelectorSecretSelector:

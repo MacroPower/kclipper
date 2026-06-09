@@ -97,11 +97,11 @@ schema GeneratorsExternalSecretsIoV1alpha1GrafanaSpecAuthBasicPassword:
     name?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema GeneratorsExternalSecretsIoV1alpha1GrafanaSpecAuthToken:
@@ -122,11 +122,11 @@ schema GeneratorsExternalSecretsIoV1alpha1GrafanaSpecAuthToken:
     name?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema GeneratorsExternalSecretsIoV1alpha1GrafanaSpecServiceAccount:

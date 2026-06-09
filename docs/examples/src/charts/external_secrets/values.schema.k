@@ -23,21 +23,21 @@ schema Values:
     enableHTTP2 : bool, optional
     extendedMetricLabels : bool, optional
     extraArgs : ValuesExtraArgs, optional
-    extraContainers : [any], optional
-    extraEnv : [any], optional
-    extraInitContainers : [any], optional
-    extraObjects : [any], optional
-    extraVolumeMounts : [any], optional
-    extraVolumes : [any], optional
+    extraContainers : any, optional
+    extraEnv : any, optional
+    extraInitContainers : any, optional
+    extraObjects : any, optional
+    extraVolumeMounts : any, optional
+    extraVolumes : any, optional
     fullnameOverride : str, optional
     genericTargets : ValuesGenericTargets, optional
     global : ValuesGlobal, optional
     grafanaDashboard : ValuesGrafanaDashboard, optional
-    hostAliases : [any], optional
+    hostAliases : any, optional
     hostNetwork : bool, optional
     hostUsers : bool, optional
     image : ValuesImage, optional
-    imagePullSecrets : [any], optional
+    imagePullSecrets : any, optional
     installCRDs : bool, optional
     leaderElect : bool, optional
     leaderElectionID : str, optional
@@ -73,8 +73,8 @@ schema Values:
     serviceMonitor : ValuesServiceMonitor, optional
     strategy : ValuesStrategy, optional
     systemAuthDelegator : bool, optional
-    tolerations : [any], optional
-    topologySpreadConstraints : [any], optional
+    tolerations : any, optional
+    topologySpreadConstraints : any, optional
     vault : ValuesVault, optional
     webhook : ValuesWebhook, optional
     """
@@ -92,21 +92,21 @@ schema Values:
     enableHTTP2?: bool
     extendedMetricLabels?: bool
     extraArgs?: ValuesExtraArgs
-    extraContainers?: [any]
-    extraEnv?: [any]
-    extraInitContainers?: [any]
-    extraObjects?: [any]
-    extraVolumeMounts?: [any]
-    extraVolumes?: [any]
+    extraContainers?: any
+    extraEnv?: any
+    extraInitContainers?: any
+    extraObjects?: any
+    extraVolumeMounts?: any
+    extraVolumes?: any
     fullnameOverride?: str
     genericTargets?: ValuesGenericTargets
     global?: ValuesGlobal
     grafanaDashboard?: ValuesGrafanaDashboard
-    hostAliases?: [any]
+    hostAliases?: any
     hostNetwork?: bool
     hostUsers?: bool
     image?: ValuesImage
-    imagePullSecrets?: [any]
+    imagePullSecrets?: any
     installCRDs?: bool
     leaderElect?: bool
     leaderElectionID?: str
@@ -142,8 +142,8 @@ schema Values:
     serviceMonitor?: ValuesServiceMonitor
     strategy?: ValuesStrategy
     systemAuthDelegator?: bool
-    tolerations?: [any]
-    topologySpreadConstraints?: [any]
+    tolerations?: any
+    topologySpreadConstraints?: any
     vault?: ValuesVault
     webhook?: ValuesWebhook
 
@@ -175,15 +175,15 @@ schema ValuesCertController:
     create : bool, optional
     deploymentAnnotations : ValuesCertControllerDeploymentAnnotations, optional
     extraArgs : ValuesCertControllerExtraArgs, optional
-    extraEnv : [any], optional
-    extraInitContainers : [any], optional
-    extraVolumeMounts : [any], optional
-    extraVolumes : [any], optional
-    hostAliases : [any], optional
+    extraEnv : any, optional
+    extraInitContainers : any, optional
+    extraVolumeMounts : any, optional
+    extraVolumes : any, optional
+    hostAliases : any, optional
     hostNetwork : bool, optional
     hostUsers : bool, optional
     image : ValuesCertControllerImage, optional
-    imagePullSecrets : [any], optional
+    imagePullSecrets : any, optional
     livenessProbe : ValuesCertControllerLivenessProbe, optional
     log : ValuesCertControllerLog, optional
     metrics : ValuesCertControllerMetrics, optional
@@ -203,22 +203,22 @@ schema ValuesCertController:
     serviceAccount : ValuesCertControllerServiceAccount, optional
     startupProbe : ValuesCertControllerStartupProbe, optional
     strategy : ValuesCertControllerStrategy, optional
-    tolerations : [any], optional
-    topologySpreadConstraints : [any], optional
+    tolerations : any, optional
+    topologySpreadConstraints : any, optional
     """
     affinity?: ValuesCertControllerAffinity
     create?: bool
     deploymentAnnotations?: ValuesCertControllerDeploymentAnnotations
     extraArgs?: ValuesCertControllerExtraArgs
-    extraEnv?: [any]
-    extraInitContainers?: [any]
-    extraVolumeMounts?: [any]
-    extraVolumes?: [any]
-    hostAliases?: [any]
+    extraEnv?: any
+    extraInitContainers?: any
+    extraVolumeMounts?: any
+    extraVolumes?: any
+    hostAliases?: any
     hostNetwork?: bool
     hostUsers?: bool
     image?: ValuesCertControllerImage
-    imagePullSecrets?: [any]
+    imagePullSecrets?: any
     livenessProbe?: ValuesCertControllerLivenessProbe
     log?: ValuesCertControllerLog
     metrics?: ValuesCertControllerMetrics
@@ -238,8 +238,8 @@ schema ValuesCertController:
     serviceAccount?: ValuesCertControllerServiceAccount
     startupProbe?: ValuesCertControllerStartupProbe
     strategy?: ValuesCertControllerStrategy
-    tolerations?: [any]
-    topologySpreadConstraints?: [any]
+    tolerations?: any
+    topologySpreadConstraints?: any
 
 schema ValuesCertControllerAffinity:
     r"""
@@ -628,10 +628,10 @@ schema ValuesGenericTargets:
     Attributes
     ----------
     enabled : bool, optional
-    resources : [any], optional
+    resources : any, optional
     """
     enabled?: bool
-    resources?: [any]
+    resources?: any
 
 schema ValuesGlobal:
     r"""
@@ -641,25 +641,25 @@ schema ValuesGlobal:
     ----------
     affinity : ValuesGlobalAffinity, optional
     compatibility : ValuesGlobalCompatibility, optional
-    hostAliases : [any], optional
-    imagePullSecrets : [any], optional
+    hostAliases : any, optional
+    imagePullSecrets : any, optional
     nodeSelector : ValuesGlobalNodeSelector, optional
     podAnnotations : ValuesGlobalPodAnnotations, optional
     podLabels : ValuesGlobalPodLabels, optional
     repository : str, optional
-    tolerations : [any], optional
-    topologySpreadConstraints : [any], optional
+    tolerations : any, optional
+    topologySpreadConstraints : any, optional
     """
     affinity?: ValuesGlobalAffinity
     compatibility?: ValuesGlobalCompatibility
-    hostAliases?: [any]
-    imagePullSecrets?: [any]
+    hostAliases?: any
+    imagePullSecrets?: any
     nodeSelector?: ValuesGlobalNodeSelector
     podAnnotations?: ValuesGlobalPodAnnotations
     podLabels?: ValuesGlobalPodLabels
     repository?: str
-    tolerations?: [any]
-    topologySpreadConstraints?: [any]
+    tolerations?: any
+    topologySpreadConstraints?: any
 
 schema ValuesGlobalAffinity:
     r"""
@@ -1057,10 +1057,10 @@ schema ValuesService:
 
     Attributes
     ----------
-    ipFamilies : [any], optional
+    ipFamilies : any, optional
     ipFamilyPolicy : str, optional
     """
-    ipFamilies?: [any]
+    ipFamilies?: any
     ipFamilyPolicy?: str
 
 schema ValuesServiceAccount:
@@ -1103,9 +1103,9 @@ schema ValuesServiceMonitor:
     enabled : bool, optional
     honorLabels : bool, optional
     interval : str, optional
-    metricRelabelings : [any], optional
+    metricRelabelings : any, optional
     namespace : str, optional
-    relabelings : [any], optional
+    relabelings : any, optional
     renderMode : "skipIfMissing" | "failIfMissing" | "alwaysRender", optional
     scrapeTimeout : str, optional
     """
@@ -1113,9 +1113,9 @@ schema ValuesServiceMonitor:
     enabled?: bool
     honorLabels?: bool
     interval?: str
-    metricRelabelings?: [any]
+    metricRelabelings?: any
     namespace?: str
-    relabelings?: [any]
+    relabelings?: any
     renderMode?: "skipIfMissing" | "failIfMissing" | "alwaysRender"
     scrapeTimeout?: str
 
@@ -1157,16 +1157,16 @@ schema ValuesWebhook:
     create : bool, optional
     deploymentAnnotations : ValuesWebhookDeploymentAnnotations, optional
     extraArgs : ValuesWebhookExtraArgs, optional
-    extraEnv : [any], optional
-    extraInitContainers : [any], optional
-    extraVolumeMounts : [any], optional
-    extraVolumes : [any], optional
+    extraEnv : any, optional
+    extraInitContainers : any, optional
+    extraVolumeMounts : any, optional
+    extraVolumes : any, optional
     failurePolicy : str, optional
-    hostAliases : [any], optional
+    hostAliases : any, optional
     hostNetwork : bool, optional
     hostUsers : bool, optional
     image : ValuesWebhookImage, optional
-    imagePullSecrets : [any], optional
+    imagePullSecrets : any, optional
     livenessProbe : ValuesWebhookLivenessProbe, optional
     log : ValuesWebhookLog, optional
     lookaheadInterval : str, optional
@@ -1187,8 +1187,8 @@ schema ValuesWebhook:
     service : ValuesWebhookService, optional
     serviceAccount : ValuesWebhookServiceAccount, optional
     strategy : ValuesWebhookStrategy, optional
-    tolerations : [any], optional
-    topologySpreadConstraints : [any], optional
+    tolerations : any, optional
+    topologySpreadConstraints : any, optional
     """
     affinity?: ValuesWebhookAffinity
     annotations?: ValuesWebhookAnnotations
@@ -1198,16 +1198,16 @@ schema ValuesWebhook:
     create?: bool
     deploymentAnnotations?: ValuesWebhookDeploymentAnnotations
     extraArgs?: ValuesWebhookExtraArgs
-    extraEnv?: [any]
-    extraInitContainers?: [any]
-    extraVolumeMounts?: [any]
-    extraVolumes?: [any]
+    extraEnv?: any
+    extraInitContainers?: any
+    extraVolumeMounts?: any
+    extraVolumes?: any
     failurePolicy?: str
-    hostAliases?: [any]
+    hostAliases?: any
     hostNetwork?: bool
     hostUsers?: bool
     image?: ValuesWebhookImage
-    imagePullSecrets?: [any]
+    imagePullSecrets?: any
     livenessProbe?: ValuesWebhookLivenessProbe
     log?: ValuesWebhookLog
     lookaheadInterval?: str
@@ -1228,8 +1228,8 @@ schema ValuesWebhook:
     service?: ValuesWebhookService
     serviceAccount?: ValuesWebhookServiceAccount
     strategy?: ValuesWebhookStrategy
-    tolerations?: [any]
-    topologySpreadConstraints?: [any]
+    tolerations?: any
+    topologySpreadConstraints?: any
 
 schema ValuesWebhookAffinity:
     r"""
