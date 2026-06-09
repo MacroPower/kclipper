@@ -284,13 +284,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
 
     check:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
-        len(jobName) >= 1 if jobName not in [None, Undefined]
+        len(jobName) >= 1 if jobName
         len(metricRelabelings) >= 1 if metricRelabelings
-        len(metricsPath) >= 1 if metricsPath not in [None, Undefined]
+        len(metricsPath) >= 1 if metricsPath
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(relabelings) >= 1 if relabelings
-        len(scrapeClass) >= 1 if scrapeClass not in [None, Undefined]
+        len(scrapeClass) >= 1 if scrapeClass
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
         len(scrapeProtocols) >= 1 if scrapeProtocols
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
@@ -418,15 +418,15 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfig
 
     check:
-        len(clientID) >= 1 if clientID not in [None, Undefined]
-        len(environment) >= 1 if environment not in [None, Undefined]
+        len(clientID) >= 1 if clientID
+        len(environment) >= 1 if environment
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-        len(resourceGroup) >= 1 if resourceGroup not in [None, Undefined]
+        len(resourceGroup) >= 1 if resourceGroup
         len(subscriptionID) >= 1
-        len(tenantID) >= 1 if tenantID not in [None, Undefined]
+        len(tenantID) >= 1 if tenantID
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Authorization:
     r"""
@@ -1244,16 +1244,16 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0:
     tokenRef?: MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TokenRef
 
     check:
-        len(datacenter) >= 1 if datacenter not in [None, Undefined]
-        len($filter) >= 1 if $filter not in [None, Undefined]
-        len(healthFilter) >= 1 if healthFilter not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
-        len(partition) >= 1 if partition not in [None, Undefined]
-        len(pathPrefix) >= 1 if pathPrefix not in [None, Undefined]
+        len(datacenter) >= 1 if datacenter
+        len($filter) >= 1 if $filter
+        len(healthFilter) >= 1 if healthFilter
+        len(namespace) >= 1 if namespace
+        len(partition) >= 1 if partition
+        len(pathPrefix) >= 1 if pathPrefix
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
-        len(tagSeparator) >= 1 if tagSeparator not in [None, Undefined]
+        len(tagSeparator) >= 1 if tagSeparator
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Authorization:
     r"""
@@ -1935,7 +1935,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDNSSDConfigsItems0:
 
     check:
         len(names) >= 1
-        all i in names {len(i) >= 1 if i not in [None, Undefined]} if names
+        all names in names {len(names) >= 1 if names not in [None, Undefined]} if names
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
@@ -2638,7 +2638,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0:
     check:
         len(host) >= 1
         _regex_match(str(host), r"^[a-zA-Z][a-zA-Z0-9+.-]*://.+$")
-        len(hostNetworkingHost) >= 1 if hostNetworkingHost not in [None, Undefined]
+        len(hostNetworkingHost) >= 1 if hostNetworkingHost
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
@@ -2763,7 +2763,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0FiltersIt
     check:
         len(name) >= 1
         len(values) >= 1
-        all i in values {len(i) >= 1 if i not in [None, Undefined]} if values
+        all values in values {len(values) >= 1 if values not in [None, Undefined]} if values
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2:
     r"""
@@ -3486,7 +3486,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Filt
     check:
         len(name) >= 1
         len(values) >= 1
-        all i in values {len(i) >= 1 if i not in [None, Undefined]} if values
+        all values in values {len(values) >= 1 if values not in [None, Undefined]} if values
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2:
     r"""
@@ -4090,8 +4090,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0:
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-        len(region) >= 1 if region not in [None, Undefined]
-        len(roleARN) >= 1 if roleARN not in [None, Undefined]
+        len(region) >= 1 if region
+        len(roleARN) >= 1 if roleARN
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0AccessKey:
     r"""
@@ -4133,7 +4133,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0FiltersItems
     check:
         len(name) >= 1
         len(values) >= 1
-        all i in values {len(i) >= 1 if i not in [None, Undefined]} if values
+        all values in values {len(values) >= 1 if values not in [None, Undefined]} if values
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -5059,7 +5059,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecFileSDConfigsItems0:
 
     check:
         len(files) >= 1
-        all i in files {_regex_match(str(i), r"^[^*]*(\*[^/]*)?\.(json|yml|yaml|JSON|YML|YAML)$") if i} if files
+        all files in files {_regex_match(str(files), r"^[^*]*(\*[^/]*)?\.(json|yml|yaml|JSON|YML|YAML)$") if files} if files
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecGceSDConfigsItems0:
@@ -5106,12 +5106,12 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecGceSDConfigsItems0:
     zone: str
 
     check:
-        len($filter) >= 1 if $filter not in [None, Undefined]
+        len($filter) >= 1 if $filter
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         len(project) >= 1
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-        len(tagSeparator) >= 1 if tagSeparator not in [None, Undefined]
+        len(tagSeparator) >= 1 if tagSeparator
         len(zone) >= 1
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0:
@@ -5866,7 +5866,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfig
 
     check:
-        len(labelSelector) >= 1 if labelSelector not in [None, Undefined]
+        len(labelSelector) >= 1 if labelSelector
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
@@ -7195,7 +7195,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfig
 
     check:
-        len(apiServer) >= 1 if apiServer not in [None, Undefined]
+        len(apiServer) >= 1 if apiServer
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0AttachMetadata:
@@ -7705,8 +7705,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Selec
     role: "Pod" | "Endpoints" | "Ingress" | "Service" | "Node" | "EndpointSlice"
 
     check:
-        len(field) >= 1 if field not in [None, Undefined]
-        len(label) >= 1 if label not in [None, Undefined]
+        len(field) >= 1 if field
+        len(label) >= 1 if label
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSConfig:
     r"""
@@ -7943,7 +7943,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfig
 
     check:
-        len(clientID) >= 1 if clientID not in [None, Undefined]
+        len(clientID) >= 1 if clientID
         _regex_match(str(fetchTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if fetchTimeout
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
@@ -8644,13 +8644,13 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSConfig
 
     check:
-        len(endpoint) >= 1 if endpoint not in [None, Undefined]
+        len(endpoint) >= 1 if endpoint
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-        len(region) >= 1 if region not in [None, Undefined]
-        len(roleARN) >= 1 if roleARN not in [None, Undefined]
+        len(region) >= 1 if region
+        len(roleARN) >= 1 if roleARN
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0AccessKey:
     r"""
@@ -9385,8 +9385,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0:
         port >= 0 if port not in [None, Undefined]
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-        len(region) >= 1 if region not in [None, Undefined]
-        len(tagSeparator) >= 1 if tagSeparator not in [None, Undefined]
+        len(region) >= 1 if region
+        len(tagSeparator) >= 1 if tagSeparator
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Authorization:
     r"""
@@ -10076,12 +10076,12 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfig
 
     check:
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) >= 1 if namespace
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
-        len(region) >= 1 if region not in [None, Undefined]
+        len(region) >= 1 if region
         _regex_match(str(server), r"^https?://.+$")
-        len(tagSeparator) >= 1 if tagSeparator not in [None, Undefined]
+        len(tagSeparator) >= 1 if tagSeparator
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Authorization:
     r"""
@@ -11119,19 +11119,19 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
     username?: str
 
     check:
-        len(applicationCredentialId) >= 1 if applicationCredentialId not in [None, Undefined]
-        len(applicationCredentialName) >= 1 if applicationCredentialName not in [None, Undefined]
-        len(domainID) >= 1 if domainID not in [None, Undefined]
-        len(domainName) >= 1 if domainName not in [None, Undefined]
+        len(applicationCredentialId) >= 1 if applicationCredentialId
+        len(applicationCredentialName) >= 1 if applicationCredentialName
+        len(domainID) >= 1 if domainID
+        len(domainName) >= 1 if domainName
         _regex_match(str(identityEndpoint), r"^https?://.+$") if identityEndpoint
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
-        len(projectID) >= 1 if projectID not in [None, Undefined]
-        len(projectName) >= 1 if projectName not in [None, Undefined]
+        len(projectID) >= 1 if projectID
+        len(projectName) >= 1 if projectName
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(region) >= 1
-        len(userid) >= 1 if userid not in [None, Undefined]
-        len(username) >= 1 if username not in [None, Undefined]
+        len(userid) >= 1 if userid
+        len(username) >= 1 if username
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0ApplicationCredentialSecret:
     r"""
@@ -11386,7 +11386,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0:
 
     check:
         len(applicationKey) >= 1
-        len(endpoint) >= 1 if endpoint not in [None, Undefined]
+        len(endpoint) >= 1 if endpoint
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOvhcloudSDConfigsItems0ApplicationSecret:
@@ -12288,15 +12288,15 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0:
     check:
         len(accessKey) >= 1
         _regex_match(str(apiURL), r"^https?://.+$") if apiURL
-        len(nameFilter) >= 1 if nameFilter not in [None, Undefined]
+        len(nameFilter) >= 1 if nameFilter
         port <= 65535 if port not in [None, Undefined]
         port >= 0 if port not in [None, Undefined]
         len(projectID) >= 1
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(tagsFilter) >= 1 if tagsFilter
-        all i in tagsFilter {len(i) >= 1 if i not in [None, Undefined]} if tagsFilter
-        len(zone) >= 1 if zone not in [None, Undefined]
+        all tagsFilter in tagsFilter {len(tagsFilter) >= 1 if tagsFilter not in [None, Undefined]} if tagsFilter
+        len(zone) >= 1 if zone
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0ProxyConnectHeaderItems0:
     r"""
@@ -12530,7 +12530,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecStaticConfigsItems0:
 
     check:
         len(targets) >= 1
-        all i in targets {len(i) >= 1 if i not in [None, Undefined]} if targets
+        all targets in targets {len(targets) >= 1 if targets not in [None, Undefined]} if targets
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfig:
     r"""

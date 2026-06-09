@@ -376,7 +376,7 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
     web?: MonitoringCoreosComV1ThanosRulerSpecWeb
 
     check:
-        all i in enableFeatures {len(i) >= 1 if i not in [None, Undefined]} if enableFeatures
+        all enableFeatures in enableFeatures {len(enableFeatures) >= 1 if enableFeatures not in [None, Undefined]} if enableFeatures
         _regex_match(str(evaluationInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if evaluationInterval
         minReadySeconds >= 0 if minReadySeconds not in [None, Undefined]
         _regex_match(str(resendDelay), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if resendDelay
@@ -385,8 +385,8 @@ schema MonitoringCoreosComV1ThanosRulerSpec:
         _regex_match(str(ruleGracePeriod), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if ruleGracePeriod
         _regex_match(str(ruleOutageTolerance), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if ruleOutageTolerance
         _regex_match(str(ruleQueryOffset), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if ruleQueryOffset
-        len(schedulerName) >= 1 if schedulerName not in [None, Undefined]
-        len(serviceName) >= 1 if serviceName not in [None, Undefined]
+        len(schedulerName) >= 1 if schedulerName
+        len(serviceName) >= 1 if serviceName
         terminationGracePeriodSeconds >= 0 if terminationGracePeriodSeconds not in [None, Undefined]
 
 schema MonitoringCoreosComV1ThanosRulerSpecAdditionalArgsItems0:
@@ -2301,8 +2301,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0Resources:
     requests?: {str:int | str}
 
     check:
-        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
-        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0ResourcesClaimsItems0:
     r"""
@@ -2801,8 +2801,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecDNSConfig:
     searches?: [str]
 
     check:
-        all i in nameservers {len(i) >= 1 if i not in [None, Undefined]} if nameservers
-        all i in searches {len(i) >= 1 if i not in [None, Undefined]} if searches
+        all nameservers in nameservers {len(nameservers) >= 1 if nameservers not in [None, Undefined]} if nameservers
+        all searches in searches {len(searches) >= 1 if searches not in [None, Undefined]} if searches
 
 schema MonitoringCoreosComV1ThanosRulerSpecDNSConfigOptionsItems0:
     r"""
@@ -4096,8 +4096,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0Resources:
     requests?: {str:int | str}
 
     check:
-        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
-        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0ResourcesClaimsItems0:
     r"""
@@ -4921,7 +4921,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdManagedIdenti
     clientId?: str
 
     check:
-        len(clientId) >= 1 if clientId not in [None, Undefined]
+        len(clientId) >= 1 if clientId
 
 schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0AzureAdOauth:
     r"""
@@ -5541,7 +5541,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4:
     useFIPSSTSEndpoint?: bool
 
     check:
-        len(externalId) >= 1 if externalId not in [None, Undefined]
+        len(externalId) >= 1 if externalId
 
 schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Sigv4AccessKey:
     r"""
@@ -5847,8 +5847,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecResources:
     requests?: {str:int | str}
 
     check:
-        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
-        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecResourcesClaimsItems0:
     r"""
@@ -6427,8 +6427,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSp
     requests?: {str:int | str}
 
     check:
-        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
-        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageEphemeralVolumeClaimTemplateSpecSelector:
     r"""
@@ -6676,8 +6676,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecResourc
     requests?: {str:int | str}
 
     check:
-        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
-        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateSpecSelector:
     r"""
@@ -6806,8 +6806,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatus:
     phase?: str
 
     check:
-        all _, k in allocatedResources {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if allocatedResources
-        all _, k in capacity {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if capacity
+        all _, allocatedResources in allocatedResources {_regex_match(str(allocatedResources), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if allocatedResources} if allocatedResources
+        all _, capacity in capacity {_regex_match(str(capacity), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if capacity} if capacity
 
 schema MonitoringCoreosComV1ThanosRulerSpecStorageVolumeClaimTemplateStatusConditionsItems0:
     r"""
@@ -7902,8 +7902,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemp
     requests?: {str:int | str}
 
     check:
-        all _, k in limits {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if limits
-        all _, k in requests {_regex_match(str(k), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if k} if requests
+        all _, limits in limits {_regex_match(str(limits), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if limits} if limits
+        all _, requests in requests {_regex_match(str(requests), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if requests} if requests
 
 schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0EphemeralVolumeClaimTemplateSpecSelector:
     r"""
