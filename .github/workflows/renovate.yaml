@@ -48,7 +48,6 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
-      security-events: read
     steps:
       - name: Generate Token
         uses: actions/create-github-app-token@v3
@@ -57,11 +56,13 @@ jobs:
           app-id: "${{ secrets.BOT_APP_ID }}"
           private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
           # Renovate pushes branches, opens PRs, maintains the dependency
-          # dashboard issue, and updates pinned action versions in workflows.
+          # dashboard issue, updates pinned action versions in workflows, and
+          # reads Dependabot alerts to raise vulnerability-driven updates.
           permission-contents: write
           permission-pull-requests: write
           permission-issues: write
           permission-workflows: write
+          permission-vulnerability-alerts: read
 
       - name: Checkout
         uses: actions/checkout@v6
