@@ -169,7 +169,7 @@ schema MonitoringCoreosComV1ProbeSpec:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
         len(params) >= 1 if params
-        len(scrapeClass) >= 1 if scrapeClass not in [None, Undefined]
+        len(scrapeClass) >= 1 if scrapeClass
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
 
 schema MonitoringCoreosComV1ProbeSpecAuthorization:
@@ -708,7 +708,7 @@ schema MonitoringCoreosComV1ProbeSpecParamsItems0:
     check:
         len(name) >= 1
         len(values) >= 1 if values
-        all i in values {len(i) >= 1 if i not in [None, Undefined]} if values
+        all values in values {len(values) >= 1 if values not in [None, Undefined]} if values
 
 schema MonitoringCoreosComV1ProbeSpecProber:
     r"""
