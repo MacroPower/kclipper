@@ -242,7 +242,7 @@ require (
 	github.com/xlab/treeprint v1.2.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yuin/goldmark v1.7.13 // indirect
-	go.jacobcolvin.com/x/magicschema v0.1.1-0.20260607203632-537f97dbdef0
+	go.jacobcolvin.com/x/magicschema v0.1.1-0.20260608132324-4aebb4523229
 	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
