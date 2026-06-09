@@ -131,11 +131,11 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalProperties:
 
     Attributes
     ----------
-    args : [any] | str | str, optional
-    command : [any] | str | str, optional
-    dependsOn : [any] | str | str, optional
+    args : str | str, optional
+    command : str | str, optional
+    dependsOn : str | str, optional
     enabled : bool, optional, default is True
-    env : [any] | any | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0, optional
+    env : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0 | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnv, optional
     envFrom : [ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0], optional
     image : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesImage, optional
     lifecycle : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecycle, optional
@@ -153,11 +153,11 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalProperties:
     tty : bool, optional, default is False
     workingDir : str, optional
     """
-    args?: [any] | str | str
-    command?: [any] | str | str
-    dependsOn?: [any] | str | str
+    args?: str | str
+    command?: str | str
+    dependsOn?: str | str
     enabled?: bool
-    env?: [any] | any | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0
+    env?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0 | ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnv
     envFrom?: [ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvFromItems0]
     image?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesImage
     lifecycle?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesLifecycle
@@ -173,6 +173,12 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalProperties:
     tty?: bool
     workingDir?: str
 
+schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnv:
+    r"""
+    ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnv
+    """
+    [...str]: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalProperties
+
 schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalProperties:
     r"""
     ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalProperties
@@ -180,7 +186,7 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdd
     Attributes
     ----------
     configMapKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef, optional
-    dependsOn : [any] | str | str, optional
+    dependsOn : [str], optional
     fieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef, optional
     resourceFieldRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef, optional
     secretKeyRef : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef, optional
@@ -188,7 +194,7 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdd
     valueFrom : ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom, optional
     """
     configMapKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef
-    dependsOn?: [any] | str | str
+    dependsOn?: [str]
     fieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef
     resourceFieldRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef
     secretKeyRef?: ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef
@@ -226,11 +232,11 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdd
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef:
@@ -292,11 +298,11 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdd
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef:
@@ -410,11 +416,11 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvIte
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0SecretKeyRef:
@@ -476,11 +482,11 @@ schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvIte
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef:
@@ -1231,22 +1237,28 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptions:
 
     Attributes
     ----------
-    args : [any] | str | str, optional
-    command : [any] | str | str, optional
-    env : [any] | any | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0, optional
+    args : str | str, optional
+    command : str | str, optional
+    env : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0 | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnv, optional
     envFrom : [ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0], optional
     image : ValuesControllersAdditionalPropertiesDefaultContainerOptionsImage, optional
     resources : ValuesControllersAdditionalPropertiesDefaultContainerOptionsResources, optional
         ResourceRequirements describes the compute resource requirements.
     securityContext : any, optional
     """
-    args?: [any] | str | str
-    command?: [any] | str | str
-    env?: [any] | any | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0
+    args?: str | str
+    command?: str | str
+    env?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0 | ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnv
     envFrom?: [ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvFromItems0]
     image?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsImage
     resources?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsResources
     securityContext?: any
+
+schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnv:
+    r"""
+    ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnv
+    """
+    [...str]: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalProperties
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalProperties:
     r"""
@@ -1255,7 +1267,7 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditional
     Attributes
     ----------
     configMapKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesConfigMapKeyRef, optional
-    dependsOn : [any] | str | str, optional
+    dependsOn : [str], optional
     fieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesFieldRef, optional
     resourceFieldRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesResourceFieldRef, optional
     secretKeyRef : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesSecretKeyRef, optional
@@ -1263,7 +1275,7 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditional
     valueFrom : ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFrom, optional
     """
     configMapKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesConfigMapKeyRef
-    dependsOn?: [any] | str | str
+    dependsOn?: [str]
     fieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesFieldRef
     resourceFieldRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesResourceFieldRef
     secretKeyRef?: ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesSecretKeyRef
@@ -1301,11 +1313,11 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditional
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesSecretKeyRef:
@@ -1367,11 +1379,11 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditional
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvAdditionalPropertiesValueFromSecretKeyRef:
@@ -1485,11 +1497,11 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0Reso
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0SecretKeyRef:
@@ -1551,11 +1563,11 @@ schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0Valu
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesDefaultContainerOptionsEnvItems0ValueFromSecretKeyRef:
@@ -1628,11 +1640,11 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalProperties:
 
     Attributes
     ----------
-    args : [any] | str | str, optional
-    command : [any] | str | str, optional
-    dependsOn : [any] | str | str, optional
+    args : str | str, optional
+    command : str | str, optional
+    dependsOn : str | str, optional
     enabled : bool, optional, default is True
-    env : [any] | any | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0, optional
+    env : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0 | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnv, optional
     envFrom : [ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0], optional
     image : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesImage, optional
     lifecycle : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecycle, optional
@@ -1650,11 +1662,11 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalProperties:
     tty : bool, optional, default is False
     workingDir : str, optional
     """
-    args?: [any] | str | str
-    command?: [any] | str | str
-    dependsOn?: [any] | str | str
+    args?: str | str
+    command?: str | str
+    dependsOn?: str | str
     enabled?: bool
-    env?: [any] | any | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0
+    env?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0 | ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnv
     envFrom?: [ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvFromItems0]
     image?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesImage
     lifecycle?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesLifecycle
@@ -1670,6 +1682,12 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalProperties:
     tty?: bool
     workingDir?: str
 
+schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnv:
+    r"""
+    ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnv
+    """
+    [...str]: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalProperties
+
 schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalProperties:
     r"""
     ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalProperties
@@ -1677,7 +1695,7 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEn
     Attributes
     ----------
     configMapKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef, optional
-    dependsOn : [any] | str | str, optional
+    dependsOn : [str], optional
     fieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef, optional
     resourceFieldRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef, optional
     secretKeyRef : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef, optional
@@ -1685,7 +1703,7 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEn
     valueFrom : ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFrom, optional
     """
     configMapKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesConfigMapKeyRef
-    dependsOn?: [any] | str | str
+    dependsOn?: [str]
     fieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesFieldRef
     resourceFieldRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesResourceFieldRef
     secretKeyRef?: ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef
@@ -1723,11 +1741,11 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEn
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesSecretKeyRef:
@@ -1789,11 +1807,11 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEn
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvAdditionalPropertiesValueFromSecretKeyRef:
@@ -1907,11 +1925,11 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEn
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0SecretKeyRef:
@@ -1973,11 +1991,11 @@ schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEn
     Attributes
     ----------
     containerName : str, optional
-    divisor : float | str, optional
+    divisor : float, optional
     resource : str, optional
     """
     containerName?: str
-    divisor?: float | str
+    divisor?: float
     resource?: str
 
 schema ValuesControllersAdditionalPropertiesInitContainersAdditionalPropertiesEnvItems0ValueFromSecretKeyRef:
@@ -4834,11 +4852,11 @@ schema ValuesIngressAdditionalPropertiesHostsItems0PathsItems0Service:
     ----------
     identifier : str, optional
     name : str, optional
-    port : int | str, optional
+    port : str | int, optional
     """
     identifier?: str
     name?: str
-    port?: int | str
+    port?: str | int
 
 schema ValuesIngressAdditionalPropertiesTlsItems0:
     r"""
@@ -5621,7 +5639,7 @@ schema ValuesServiceMonitorAdditionalProperties:
     nameOverride : str, optional
     selector : ValuesServiceMonitorAdditionalPropertiesSelector, optional
     serviceName : str, optional
-    targetLabels : [any], optional
+    targetLabels : any, optional
     """
     annotations?: any
     enabled?: bool
@@ -5630,7 +5648,7 @@ schema ValuesServiceMonitorAdditionalProperties:
     nameOverride?: str
     selector?: ValuesServiceMonitorAdditionalPropertiesSelector
     serviceName?: str
-    targetLabels?: [any]
+    targetLabels?: any
 
 schema ValuesServiceMonitorAdditionalPropertiesEndpointsItems0:
     r"""
