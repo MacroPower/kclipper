@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	goreleaserVersion = "v2.13.3" // renovate: datasource=github-releases depName=goreleaser/goreleaser
+	goreleaserVersion = "v2.16.0" // renovate: datasource=github-releases depName=goreleaser/goreleaser
 	zigVersion        = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
 	kclLSPVersion     = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
 	// Base images are pulled from GHCR and ECR Public rather than Docker Hub
