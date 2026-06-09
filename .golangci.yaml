@@ -2,8 +2,10 @@
 # with their default values.
 version: "2"
 run:
-  # Timeout for analysis, e.g. 30s, 5m.
-  timeout: 5m
+  # Timeout for analysis, e.g. 30s, 5m. Set generously: CI runs lint with a
+  # cold build cache after dependency bumps, where a full reanalysis can exceed
+  # several minutes. A 5m limit was tripping intermittently on those runs.
+  timeout: 15m
   allow-parallel-runners: true
 
 output:
