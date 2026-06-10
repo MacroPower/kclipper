@@ -56,23 +56,14 @@ func (c *PulledChart) Extract(maxSize *resource.Quantity) (string, io.Closer, er
 // extracting the files to disk. If [PulledChart] references a directory, the
 // contents of the chart will be loaded from the filesystem. No closer is
 // returned by this method, since no temporary files are created.
-func (c *PulledChart) Load(ctx context.Context, skipSchemaValidation bool) (*chart.Chart, error) {
+func (c *PulledChart) Load(ctx context.Context) (*chart.Chart, error) {
 	loadedChart, err := loader.Load(c.path)
 	if err != nil {
 		return nil, fmt.Errorf("read chart from disk: %w", err)
 	}
 
-	// Keeping the schema in the charts will cause downstream templating to load
-	// remote refs and validate against the schema, for the chart and all its
-	// dependencies. This can be a massive and random-feeling performance hit,
-	// and is largely unnecessary since KCL will be using the same, or a similar
-	// schema to validate the values.
-	if skipSchemaValidation {
-		removeSchemasFromObject(loadedChart)
-	}
-
 	// Recursively load and set all chart dependencies.
-	err = c.loadChartDependencies(ctx, loadedChart, skipSchemaValidation)
+	err = c.loadChartDependencies(ctx, loadedChart)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrChartDependency, err)
 	}
@@ -107,18 +98,17 @@ func (c *PulledChart) extractChart(chartName, srcPath string, maxSize *resource.
 // loadChartDependencies concurrently loads and sets the dependencies of the
 // target chart. It is called recursively until all dependencies are loaded.
 // It uses a weighted semaphore to limit the number of concurrent loads.
-func (c *PulledChart) loadChartDependencies(ctx context.Context, target *chart.Chart, skipSchemaValidation bool) error {
+func (c *PulledChart) loadChartDependencies(ctx context.Context, target *chart.Chart) error {
 	workerCount := int64(runtime.GOMAXPROCS(0))
 	sem := semaphore.NewWeighted(workerCount)
 
-	return c.setChartDependencies(ctx, target, sem, skipSchemaValidation)
+	return c.setChartDependencies(ctx, target, sem)
 }
 
 func (c *PulledChart) setChartDependencies(
 	ctx context.Context,
 	target *chart.Chart,
 	sem *semaphore.Weighted,
-	skipSchemaValidation bool,
 ) error {
 	loadedDeps := []*chart.Chart{}
 
@@ -154,10 +144,6 @@ func (c *PulledChart) setChartDependencies(
 				return
 			}
 
-			if skipSchemaValidation {
-				removeSchemasFromObject(dep)
-			}
-
 			resultCh <- loadResult{chart: dep}
 		}()
 	}
@@ -178,7 +164,7 @@ func (c *PulledChart) setChartDependencies(
 			continue
 		}
 
-		err := c.setChartDependencies(ctx, result.chart, sem, skipSchemaValidation)
+		err := c.setChartDependencies(ctx, result.chart, sem)
 		if err != nil {
 			return fmt.Errorf("set chart dependencies: %w", err)
 		}
@@ -235,11 +221,4 @@ func normalizeChartName(chartName string) string {
 	}
 
 	return nc
-}
-
-func removeSchemasFromObject(c *chart.Chart) {
-	c.Schema = nil
-	for _, d := range c.Dependencies() {
-		removeSchemasFromObject(d)
-	}
 }

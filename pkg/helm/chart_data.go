@@ -88,7 +88,7 @@ func (c *Chart) Template(ctx context.Context) ([]kube.Object, error) {
 		return nil, fmt.Errorf("%w: %w", ErrChartPull, err)
 	}
 
-	loadedChart, err := pulledChart.Load(ctx, c.TemplateOpts.SkipSchemaValidation)
+	loadedChart, err := pulledChart.Load(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrChartLoad, err)
 	}
@@ -131,7 +131,12 @@ func templateData(ctx context.Context, loadedChart *chart.Chart, t *TemplateOpts
 	// APIVersions to the default version set.
 	ta.DryRunStrategy = action.DryRunClient
 	ta.DisableHooks = true
-	ta.DisableOpenAPIValidation = t.SkipSchemaValidation
+	// Validating values against chart schemas can cause remote JSON Schema
+	// refs to be loaded for the chart and all of its dependencies. This can be
+	// a massive and random-feeling performance hit, and is largely unnecessary
+	// since KCL will be using the same, or a similar schema to validate the
+	// values.
+	ta.SkipSchemaValidation = t.SkipSchemaValidation
 	ta.ReleaseName = t.ChartName
 	ta.Namespace = t.Namespace
 	ta.NameTemplate = t.ChartName

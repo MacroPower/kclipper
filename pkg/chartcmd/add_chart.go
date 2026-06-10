@@ -178,6 +178,9 @@ func (c *KCLPackage) setupHelmChart(chart *kclchart.ChartConfig, logger *slog.Lo
 		SkipCRDs:        chart.SkipCRDs,
 		PassCredentials: chart.PassCredentials,
 		ValuesObject:    chartValues,
+		// KCL validates values against the generated schema, so Helm-side
+		// validation (which can load remote JSON Schema refs) is redundant.
+		SkipSchemaValidation: true,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrChartOperation, err)

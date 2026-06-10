@@ -138,7 +138,7 @@ func (c *ChartFiles) GetValuesJSONSchema(gen JSONSchemaGenerator, match func(str
 
 // GetCRDOutput templates the chart and returns only the CRD resources.
 func (c *ChartFiles) GetCRDOutput() ([]kube.Object, error) {
-	loadedChart, err := c.pulledChart.Load(context.Background(), c.TemplateOpts.SkipSchemaValidation)
+	loadedChart, err := c.pulledChart.Load(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrChartLoad, err)
 	}
