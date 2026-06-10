@@ -9,9 +9,9 @@ import (
 
 	"helm.sh/helm/v4/pkg/action"
 	"helm.sh/helm/v4/pkg/chart/common"
+	"helm.sh/helm/v4/pkg/release"
 
 	chart "helm.sh/helm/v4/pkg/chart/v2"
-	release "helm.sh/helm/v4/pkg/release/v1"
 
 	"github.com/macropower/kclipper/pkg/helmrepo"
 	"github.com/macropower/kclipper/pkg/kube"
@@ -157,19 +157,24 @@ func templateData(ctx context.Context, loadedChart *chart.Chart, t *TemplateOpts
 		return nil, fmt.Errorf("execute helm install: %w", err)
 	}
 
-	rel, ok := releaser.(*release.Release)
-	if !ok {
-		return nil, fmt.Errorf("unexpected release type: %T", releaser)
+	rel, err := release.NewAccessor(releaser)
+	if err != nil {
+		return nil, fmt.Errorf("access release: %w", err)
 	}
 
-	manifests := bytes.NewBufferString(rel.Manifest)
+	manifests := bytes.NewBufferString(rel.Manifest())
 	if !t.SkipHooks {
-		for _, hook := range rel.Hooks {
+		for _, hook := range rel.Hooks() {
 			if hook == nil {
 				continue
 			}
 
-			manifests.WriteString("\n---\n" + hook.Manifest)
+			ha, err := release.NewHookAccessor(hook)
+			if err != nil {
+				return nil, fmt.Errorf("access release hook: %w", err)
+			}
+
+			manifests.WriteString("\n---\n" + ha.Manifest())
 		}
 	}
 
