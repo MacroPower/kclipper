@@ -22,7 +22,7 @@ require (
 	go.jacobcolvin.com/x/version v0.1.0
 	golang.org/x/sync v0.21.0
 	golang.org/x/text v0.38.0
-	helm.sh/helm/v3 v3.21.0
+	helm.sh/helm/v4 v4.2.0
 	k8s.io/apimachinery v0.36.1
 	kcl-lang.io/cli v0.12.4
 	kcl-lang.io/kcl-go v0.12.3
