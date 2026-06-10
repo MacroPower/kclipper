@@ -8,9 +8,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/registry"
+	"helm.sh/helm/v4/pkg/action"
+	"helm.sh/helm/v4/pkg/cli"
+	"helm.sh/helm/v4/pkg/registry"
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/macropower/kclipper/pkg/helmrepo"
@@ -207,17 +207,19 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 		slog.String("chart", chart),
 	)
 
-	ap := action.NewPullWithOpts(action.WithConfig(&action.Configuration{
+	cfg := &action.Configuration{
 		RegistryClient: c.rc,
-		Log: func(msg string, kv ...any) {
-			slog.DebugContext(ctx, "helm",
-				slog.String("helm_msg", msg),
-				slog.Any("kv", kv),
-			)
-		},
-	}))
+	}
+	cfg.SetLogger(newDebugHandler())
+
+	ap := action.NewPull(action.WithConfig(cfg))
 	ap.Settings = &cli.EnvSettings{
 		RepositoryCache: filepath.Join(c.helmHome, "cache"),
+		ContentCache:    filepath.Join(c.helmHome, "content"),
+		// An empty PluginsDirectory resolves relative to the working
+		// directory, causing Helm to load plugin.yaml files from unrelated
+		// projects.
+		PluginsDirectory: filepath.Join(c.helmHome, "plugins"),
 	}
 	ap.Untar = false
 	ap.DestDir = tempDest
@@ -241,7 +243,7 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 		ap.CertFile = repo.TLSClientCertDataPath.String()
 		ap.KeyFile = repo.TLSClientCertKeyPath.String()
 		ap.PassCredentialsAll = repo.PassCredentials
-		ap.InsecureSkipTLSverify = repo.InsecureSkipVerify
+		ap.InsecureSkipTLSVerify = repo.InsecureSkipVerify
 	}
 
 	logger.InfoContext(ctx, "pulling chart",
@@ -249,7 +251,7 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 		slog.String("version", ap.Version),
 		slog.String("destination", ap.DestDir),
 		slog.String("repo_url", ap.RepoURL),
-		slog.Bool("insecure_skip_tls_verify", ap.InsecureSkipTLSverify),
+		slog.Bool("insecure_skip_tls_verify", ap.InsecureSkipTLSVerify),
 		slog.Bool("pass_credentials_all", ap.PassCredentialsAll),
 	)
 

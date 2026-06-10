@@ -5,14 +5,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
-	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/chart"
-	"helm.sh/helm/v3/pkg/chartutil"
+	"helm.sh/helm/v4/pkg/action"
+	"helm.sh/helm/v4/pkg/chart/common"
 
-	helmkube "helm.sh/helm/v3/pkg/kube"
+	chart "helm.sh/helm/v4/pkg/chart/v2"
+	release "helm.sh/helm/v4/pkg/release/v1"
 
 	"github.com/macropower/kclipper/pkg/helmrepo"
 	"github.com/macropower/kclipper/pkg/kube"
@@ -111,47 +110,33 @@ func templateData(ctx context.Context, loadedChart *chart.Chart, t *TemplateOpts
 	var err error
 
 	// Fail open instead of blocking the template.
-	kv := &chartutil.KubeVersion{
+	kv := &common.KubeVersion{
 		Major:   "1",
 		Minor:   "999",
 		Version: "v1.999.999",
 	}
 	if t.KubeVersion != "" {
-		kv, err = chartutil.ParseKubeVersion(t.KubeVersion)
+		kv, err = common.ParseKubeVersion(t.KubeVersion)
 		if err != nil {
 			return nil, fmt.Errorf("parse kube version: %w", err)
 		}
 	}
 
-	av := chartutil.DefaultVersionSet
-	if len(t.APIVersions) > 0 {
-		av = t.APIVersions
-	}
+	cfg := &action.Configuration{}
+	cfg.SetLogger(newDebugHandler())
 
-	ta := action.NewInstall(&action.Configuration{
-		KubeClient: helmkube.New(nil),
-		Capabilities: &chartutil.Capabilities{
-			KubeVersion: *kv,
-			APIVersions: av,
-			HelmVersion: chartutil.DefaultCapabilities.HelmVersion,
-		},
-		Log: func(msg string, kv ...any) {
-			slog.DebugContext(ctx, "helm",
-				slog.String("helm_msg", msg),
-				slog.Any("kv", kv),
-			)
-		},
-	})
-	ta.DryRun = true
-	ta.DryRunOption = "client"
-	ta.ClientOnly = true
+	ta := action.NewInstall(cfg)
+	// In client-only dry-run mode, Helm substitutes mock capabilities, kube
+	// client, and release storage, applying KubeVersion and appending
+	// APIVersions to the default version set.
+	ta.DryRunStrategy = action.DryRunClient
 	ta.DisableHooks = true
 	ta.DisableOpenAPIValidation = t.SkipSchemaValidation
 	ta.ReleaseName = t.ChartName
 	ta.Namespace = t.Namespace
 	ta.NameTemplate = t.ChartName
 	ta.KubeVersion = kv
-	ta.APIVersions = av
+	ta.APIVersions = common.VersionSet(t.APIVersions)
 
 	// Set both, otherwise the defaults make things weird.
 	ta.IncludeCRDs = !t.SkipCRDs
@@ -161,14 +146,19 @@ func templateData(ctx context.Context, loadedChart *chart.Chart, t *TemplateOpts
 		t.ValuesObject = make(map[string]any)
 	}
 
-	release, err := ta.RunWithContext(ctx, loadedChart, t.ValuesObject)
+	releaser, err := ta.RunWithContext(ctx, loadedChart, t.ValuesObject)
 	if err != nil {
 		return nil, fmt.Errorf("execute helm install: %w", err)
 	}
 
-	manifests := bytes.NewBufferString(release.Manifest)
+	rel, ok := releaser.(*release.Release)
+	if !ok {
+		return nil, fmt.Errorf("unexpected release type: %T", releaser)
+	}
+
+	manifests := bytes.NewBufferString(rel.Manifest)
 	if !t.SkipHooks {
-		for _, hook := range release.Hooks {
+		for _, hook := range rel.Hooks {
 			if hook == nil {
 				continue
 			}

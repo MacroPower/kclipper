@@ -54,4 +54,4 @@ task test   # Run all tests
 
 - `kcl-lang.io/cli` - Upstream KCL CLI (commands wrapped by kclipper)
 - `kcl-lang.io/kcl-go` - KCL Go SDK and plugin system
-- `helm.sh/helm/v3` - Helm library for chart operations
+- `helm.sh/helm/v4` - Helm library for chart operations

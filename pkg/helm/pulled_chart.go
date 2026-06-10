@@ -11,9 +11,10 @@ import (
 	"runtime"
 
 	"golang.org/x/sync/semaphore"
-	"helm.sh/helm/v3/pkg/chart"
-	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v4/pkg/chart/v2/loader"
 	"k8s.io/apimachinery/pkg/api/resource"
+
+	chart "helm.sh/helm/v4/pkg/chart/v2"
 
 	"github.com/macropower/kclipper/pkg/helmrepo"
 )
