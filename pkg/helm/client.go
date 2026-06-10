@@ -4,14 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 
-	"helm.sh/helm/v4/pkg/action"
-	"helm.sh/helm/v4/pkg/cli"
+	"helm.sh/helm/v4/pkg/downloader"
+	"helm.sh/helm/v4/pkg/getter"
 	"helm.sh/helm/v4/pkg/registry"
 	"k8s.io/apimachinery/pkg/api/resource"
+
+	chartrepo "helm.sh/helm/v4/pkg/repo/v1"
 
 	"github.com/macropower/kclipper/pkg/helmrepo"
 	"github.com/macropower/kclipper/pkg/paths"
@@ -51,36 +55,66 @@ type Client struct {
 	RepoLock       syncs.KeyLocker
 	MaxExtractSize resource.Quantity
 	rc             *registry.Client
+	transport      *http.Transport
 	helmHome       string
 	Project        string
 	Proxy          string
 	NoProxy        string
 }
 
-// NewClient creates a new [Client].
-func NewClient(pc PathCacher, project string) (*Client, error) {
-	rc, err := registry.NewClient(registry.ClientOptEnableCache(true))
-	if err != nil {
-		return nil, fmt.Errorf("create registry client: %w", err)
-	}
+// ClientOption configures a [Client].
+//
+// Available options:
+//   - [WithProxy]
+type ClientOption func(*Client)
 
+// WithProxy returns a [ClientOption] that routes chart downloads through the
+// given HTTP(S) proxy URL. Hosts matching the comma-separated noProxy list
+// bypass the proxy. When unset, proxy environment variables are honored.
+func WithProxy(proxy, noProxy string) ClientOption {
+	return func(c *Client) {
+		c.Proxy = proxy
+		c.NoProxy = noProxy
+	}
+}
+
+// NewClient creates a new [Client].
+func NewClient(pc PathCacher, project string, opts ...ClientOption) (*Client, error) {
 	tmpDir, err := os.MkdirTemp("", "helm")
 	if err != nil {
 		return nil, fmt.Errorf("create temporary directory for helm: %w", err)
 	}
 
-	return &Client{
+	c := &Client{
 		Paths:    pc,
 		RepoLock: globalLock,
-		rc:       rc,
 		helmHome: tmpDir,
 		Project:  project,
-	}, nil
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+
+	c.transport = c.proxyTransport()
+
+	rcOpts := []registry.ClientOption{registry.ClientOptEnableCache(true)}
+	if c.transport != nil {
+		rcOpts = append(rcOpts, registry.ClientOptHTTPClient(&http.Client{Transport: c.transport}))
+	}
+
+	rc, err := registry.NewClient(rcOpts...)
+	if err != nil {
+		return nil, fmt.Errorf("create registry client: %w", err)
+	}
+
+	c.rc = rc
+
+	return c, nil
 }
 
 // MustNewClient runs [NewClient] and panics on any errors.
-func MustNewClient(pc PathCacher, project string) *Client {
-	c, err := NewClient(pc, project)
+func MustNewClient(pc PathCacher, project string, opts ...ClientOption) *Client {
+	c, err := NewClient(pc, project, opts...)
 	if err != nil {
 		panic(err)
 	}
@@ -195,7 +229,7 @@ func (c *Client) getCachedOrRemoteChart(
 }
 
 func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath string, repo *helmrepo.Repo) error {
-	// Create empty temp directory to extract chart from the registry.
+	// Create empty temp directory to download the chart into.
 	tempDest, err := os.MkdirTemp("", "kclipper-*")
 	if err != nil {
 		return fmt.Errorf("create temporary destination directory: %w", err)
@@ -207,58 +241,103 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 		slog.String("chart", chart),
 	)
 
-	cfg := &action.Configuration{
-		RegistryClient: c.rc,
-	}
-	cfg.SetLogger(newDebugHandler())
+	chartRef := chart
 
-	ap := action.NewPull(action.WithConfig(cfg))
-	ap.Settings = &cli.EnvSettings{
-		RepositoryCache: filepath.Join(c.helmHome, "cache"),
-		ContentCache:    filepath.Join(c.helmHome, "content"),
-		// An empty PluginsDirectory resolves relative to the working
-		// directory, causing Helm to load plugin.yaml files from unrelated
-		// projects.
-		PluginsDirectory: filepath.Join(c.helmHome, "plugins"),
-	}
-	ap.Untar = false
-	ap.DestDir = tempDest
-
-	if version != "" {
-		ap.Version = version
-	}
+	var (
+		repoURL            string
+		username           string
+		password           string
+		caFile             string
+		certFile           string
+		keyFile            string
+		insecureSkipVerify bool
+		passCredentials    bool
+	)
 
 	if repo != nil {
 		if u, ok := repo.URL.URL(); ok {
 			if u.Scheme == "oci" {
-				chart = repo.URL.String()
+				chartRef = repo.URL.String()
 			} else {
-				ap.RepoURL = repo.URL.String()
+				repoURL = repo.URL.String()
 			}
 		}
 
-		ap.Username = repo.Username
-		ap.Password = repo.Password
-		ap.CaFile = repo.CAPath.String()
-		ap.CertFile = repo.TLSClientCertDataPath.String()
-		ap.KeyFile = repo.TLSClientCertKeyPath.String()
-		ap.PassCredentialsAll = repo.PassCredentials
-		ap.InsecureSkipTLSVerify = repo.InsecureSkipVerify
+		username = repo.Username
+		password = repo.Password
+		caFile = repo.CAPath.String()
+		certFile = repo.TLSClientCertDataPath.String()
+		keyFile = repo.TLSClientCertKeyPath.String()
+		insecureSkipVerify = repo.InsecureSkipVerify
+		passCredentials = repo.PassCredentials
+	}
+
+	getters, err := c.getters(certFile, keyFile, caFile, insecureSkipVerify)
+	if err != nil {
+		return fmt.Errorf("create getters: %w", err)
+	}
+
+	dl := &downloader.ChartDownloader{
+		Out:     io.Discard,
+		Verify:  downloader.VerifyNever,
+		Getters: getters,
+		Options: []getter.Option{
+			getter.WithBasicAuth(username, password),
+			getter.WithPassCredentialsAll(passCredentials),
+			getter.WithTLSClientConfig(certFile, keyFile, caFile),
+			getter.WithInsecureSkipVerifyTLS(insecureSkipVerify),
+			getter.WithRegistryClient(c.rc),
+		},
+		RegistryClient: c.rc,
+		ContentCache:   filepath.Join(c.helmHome, "content"),
 	}
 
 	logger.InfoContext(ctx, "pulling chart",
-		slog.String("chart_ref", chart),
-		slog.String("version", ap.Version),
-		slog.String("destination", ap.DestDir),
-		slog.String("repo_url", ap.RepoURL),
-		slog.Bool("insecure_skip_tls_verify", ap.InsecureSkipTLSVerify),
-		slog.Bool("pass_credentials_all", ap.PassCredentialsAll),
+		slog.String("chart_ref", chartRef),
+		slog.String("version", version),
+		slog.String("destination", tempDest),
+		slog.String("repo_url", repoURL),
+		slog.Bool("insecure_skip_tls_verify", insecureSkipVerify),
+		slog.Bool("pass_credentials_all", passCredentials),
 	)
+
+	pull := func() error {
+		if repoURL != "" {
+			chartURL, err := chartrepo.FindChartInRepoURL(repoURL, chartRef, getters,
+				chartrepo.WithChartVersion(version),
+				chartrepo.WithUsernamePassword(username, password),
+				chartrepo.WithClientTLS(certFile, keyFile, caFile),
+				chartrepo.WithInsecureSkipTLSVerify(insecureSkipVerify),
+				chartrepo.WithPassCredentialsAll(passCredentials),
+			)
+			if err != nil {
+				return fmt.Errorf("find chart in repo: %w", err)
+			}
+
+			chartRef = chartURL
+		}
+
+		saved, _, err := dl.DownloadTo(chartRef, version, tempDest)
+		if err != nil {
+			return fmt.Errorf("download chart: %w", err)
+		}
+
+		logger.DebugContext(ctx, "moving pulled chart",
+			slog.String("src", saved),
+			slog.String("dst", dstPath),
+		)
+
+		err = os.Rename(saved, dstPath)
+		if err != nil {
+			return fmt.Errorf("rename file from %q to %q: %w", saved, dstPath, err)
+		}
+
+		return nil
+	}
 
 	done := make(chan error, 1)
 	go func() {
-		_, err = ap.Run(chart)
-		done <- err
+		done <- pull()
 	}()
 
 	select {
@@ -271,28 +350,6 @@ func (c *Client) pullRemoteChart(ctx context.Context, chart, version, dstPath st
 	}
 
 	logger.DebugContext(ctx, "chart pull complete")
-
-	// 'helm pull/fetch' file downloads chart into the tgz file and we move that
-	// to where we want it, if the pull was successful.
-	infos, err := os.ReadDir(tempDest)
-	if err != nil {
-		return fmt.Errorf("read directory %q: %w", tempDest, err)
-	}
-
-	if len(infos) != 1 {
-		return fmt.Errorf("expected 1 file, found %v", len(infos))
-	}
-
-	chartFilePath := filepath.Join(tempDest, infos[0].Name())
-	logger.DebugContext(ctx, "moving pulled chart",
-		slog.String("src", chartFilePath),
-		slog.String("dst", dstPath),
-	)
-
-	err = os.Rename(chartFilePath, dstPath)
-	if err != nil {
-		return fmt.Errorf("rename file from %q to %q: %w", chartFilePath, dstPath, err)
-	}
 
 	return nil
 }

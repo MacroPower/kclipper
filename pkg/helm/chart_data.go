@@ -34,14 +34,12 @@ var (
 // TemplateOpts configures Helm chart template rendering.
 type TemplateOpts struct {
 	ValuesObject         map[string]any
-	Proxy                string
 	TargetRevision       string
 	RepoURL              string
 	ReleaseName          string
 	Namespace            string
 	ChartName            string
 	KubeVersion          string
-	NoProxy              string
 	APIVersions          []string
 	Timeout              time.Duration
 	SkipCRDs             bool
