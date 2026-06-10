@@ -137,9 +137,12 @@ func templateData(ctx context.Context, loadedChart *chart.Chart, t *TemplateOpts
 	// since KCL will be using the same, or a similar schema to validate the
 	// values.
 	ta.SkipSchemaValidation = t.SkipSchemaValidation
-	ta.ReleaseName = t.ChartName
+	ta.ReleaseName = t.ReleaseName
+	if ta.ReleaseName == "" {
+		ta.ReleaseName = t.ChartName
+	}
+
 	ta.Namespace = t.Namespace
-	ta.NameTemplate = t.ChartName
 	ta.KubeVersion = kv
 	ta.APIVersions = common.VersionSet(t.APIVersions)
 

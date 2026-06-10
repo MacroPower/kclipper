@@ -323,6 +323,52 @@ func TestHelmChartAPIVersions(t *testing.T) {
 	})
 }
 
+func TestHelmChartReleaseName(t *testing.T) {
+	t.Parallel()
+
+	tcs := map[string]struct {
+		opts *helm.TemplateOpts
+		want string
+	}{
+		"defaults to chart name": {
+			opts: &helm.TemplateOpts{
+				ChartName: "simple-chart",
+				RepoURL:   "./testdata",
+			},
+			want: "simple-chart",
+		},
+		"explicit release name": {
+			opts: &helm.TemplateOpts{
+				ChartName:   "simple-chart",
+				RepoURL:     "./testdata",
+				ReleaseName: "my-release",
+			},
+			want: "my-release-simple-chart",
+		},
+	}
+	for name, tc := range tcs {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			c := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, tc.opts)
+
+			objs, err := c.Template(t.Context())
+			require.NoError(t, err)
+			require.NotEmpty(t, objs)
+
+			for _, obj := range objs {
+				if obj.GetKind() == "Deployment" {
+					assert.Equal(t, tc.want, obj.GetName())
+
+					return
+				}
+			}
+
+			t.Fatalf("no Deployment found in %d objects", len(objs))
+		})
+	}
+}
+
 func BenchmarkHelmChart(b *testing.B) {
 	c := helm.NewChart(helmtest.DefaultTestClient, helmrepo.DefaultManager, &helm.TemplateOpts{
 		ChartName:      "podinfo",
