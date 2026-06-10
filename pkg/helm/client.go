@@ -13,7 +13,6 @@ import (
 	"helm.sh/helm/v4/pkg/downloader"
 	"helm.sh/helm/v4/pkg/getter"
 	"helm.sh/helm/v4/pkg/registry"
-	"k8s.io/apimachinery/pkg/api/resource"
 
 	chartrepo "helm.sh/helm/v4/pkg/repo/v1"
 
@@ -51,15 +50,14 @@ type ChartClient interface {
 // Client pulls and caches Helm charts from local and remote repositories.
 // Create instances with [NewClient] or [MustNewClient].
 type Client struct {
-	Paths          PathCacher
-	RepoLock       syncs.KeyLocker
-	MaxExtractSize resource.Quantity
-	rc             *registry.Client
-	transport      *http.Transport
-	helmHome       string
-	Project        string
-	Proxy          string
-	NoProxy        string
+	Paths     PathCacher
+	RepoLock  syncs.KeyLocker
+	rc        *registry.Client
+	transport *http.Transport
+	helmHome  string
+	Project   string
+	Proxy     string
+	NoProxy   string
 }
 
 // ClientOption configures a [Client].
