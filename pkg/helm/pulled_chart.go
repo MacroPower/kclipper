@@ -36,6 +36,8 @@ type PulledChart struct {
 // clean up the extracted chart. If [PulledChart] references a directory,
 // the path to the directory and a [NewNopCloser] is returned.
 func (c *PulledChart) Extract(maxSize *resource.Quantity) (string, io.Closer, error) {
+	raiseHelmArchiveLimits(maxSize.Value())
+
 	closer := NewNopCloser()
 
 	// If the chart is already extracted, return the path to the extracted chart.

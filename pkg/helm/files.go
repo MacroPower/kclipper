@@ -11,8 +11,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/klauspost/compress/gzip"
+	"helm.sh/helm/v4/pkg/chart/loader/archive"
 )
 
 var (
@@ -27,7 +29,22 @@ var (
 
 	// ErrTarIterate indicates an error occurred while iterating a tar archive.
 	ErrTarIterate = errors.New("iterate tar")
+
+	helmArchiveLimitsMu sync.Mutex
 )
+
+// raiseHelmArchiveLimits raises Helm's chart decompression limits to at
+// least maxSize, so that a configured extraction limit also governs charts
+// loaded into memory by [PulledChart.Load]. The limits are package-level
+// variables in Helm, so raising them affects the whole process; they are
+// never lowered.
+func raiseHelmArchiveLimits(maxSize int64) {
+	helmArchiveLimitsMu.Lock()
+	defer helmArchiveLimitsMu.Unlock()
+
+	archive.MaxDecompressedFileSize = max(archive.MaxDecompressedFileSize, maxSize)
+	archive.MaxDecompressedChartSize = max(archive.MaxDecompressedChartSize, maxSize)
+}
 
 // LimitReaderUnexpectedEOFError indicates that a read was truncated because the
 // content exceeded the configured size limit.
