@@ -30,7 +30,10 @@ var (
 	// ErrTarIterate indicates an error occurred while iterating a tar archive.
 	ErrTarIterate = errors.New("iterate tar")
 
-	helmArchiveLimitsMu sync.Mutex
+	// Helm's package-level decompression limit variables are read by its
+	// loader without synchronization, so chart loads hold the read lock
+	// (see [loadChart]) while raises hold the write lock.
+	helmArchiveLimitsMu sync.RWMutex
 )
 
 // raiseHelmArchiveLimits raises Helm's chart decompression limits to at

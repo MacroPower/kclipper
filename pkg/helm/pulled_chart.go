@@ -59,7 +59,7 @@ func (c *PulledChart) Extract(maxSize *resource.Quantity) (string, io.Closer, er
 // contents of the chart will be loaded from the filesystem. No closer is
 // returned by this method, since no temporary files are created.
 func (c *PulledChart) Load(ctx context.Context) (*chart.Chart, error) {
-	loadedChart, err := loader.Load(c.path)
+	loadedChart, err := loadChart(c.path)
 	if err != nil {
 		return nil, fmt.Errorf("read chart from disk: %w", err)
 	}
@@ -204,12 +204,24 @@ func (c *PulledChart) getChartDependency(
 		return nil, fmt.Errorf("%w: %w", ErrChartPull, err)
 	}
 
-	depChart, err := loader.Load(pulledChart.path)
+	depChart, err := loadChart(pulledChart.path)
 	if err != nil {
 		return nil, fmt.Errorf("load chart dependency: %w", err)
 	}
 
 	return depChart, nil
+}
+
+// loadChart loads the chart at chartPath via Helm's loader. The loader reads
+// Helm's package-level decompression limits, which [raiseHelmArchiveLimits]
+// raises concurrently from other goroutines, so loads hold the read lock.
+//
+//nolint:wrapcheck // Callers add context to the error.
+func loadChart(chartPath string) (*chart.Chart, error) {
+	helmArchiveLimitsMu.RLock()
+	defer helmArchiveLimitsMu.RUnlock()
+
+	return loader.Load(chartPath)
 }
 
 // Normalize a chart name for file system use, that is, if chart name is
