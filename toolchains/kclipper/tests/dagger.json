@@ -8,7 +8,7 @@
     {
       "name": "go",
       "source": "github.com/MacroPower/x/toolchains/go@main",
-      "pin": "18ba28e9cf75902ada8fb19b6935491aa89ec082"
+      "pin": "8660ae3bdb29a92728d6b9f4cc03776af38bad62"
     },
     {
       "name": "kclipper",
