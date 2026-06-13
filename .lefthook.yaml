@@ -2,10 +2,10 @@
 
 pre-commit:
   commands:
-    pre-commit:
-      run: dagger --progress=logs check
+    check:
+      run: devbox run -- dagger check
 
 commit-msg:
   commands:
     commitlint:
-      run: dagger --progress=logs call commitlint lint --source=. --msg-file={1}
+      run: devbox run -- dagger --progress=logs call commitlint lint --source=. --msg-file={1}
