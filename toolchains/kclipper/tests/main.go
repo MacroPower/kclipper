@@ -13,10 +13,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const (
-	cosignVersion = "v3.1.1" // renovate: datasource=github-releases depName=sigstore/cosign
-)
-
 // Tests provides integration tests for the [Kclipper] module. Create instances
 // with [New].
 type Tests struct{}
@@ -135,33 +131,21 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 	return nil
 }
 
-// TestPublishImages verifies that [Kclipper.PublishImages] builds, publishes,
-// signs, and produces verifiable cosign signatures. Uses ttl.sh as an
-// anonymous temporary registry (images expire after the tag duration).
+// TestPublishImages verifies that [Kclipper.PublishImages] builds and publishes
+// multi-arch images to a registry. Uses ttl.sh as an anonymous temporary
+// registry (images expire after the tag duration).
 //
-// The test publishes 2 tags to exercise the digest deduplication path
-// (both tags share one manifest digest, so cosign signs only once). An
-// ephemeral cosign key pair is generated per run; the signature is
-// verified with the public key after publishing.
+// Signing is not tested here because keyless cosign requires an OIDC identity
+// token (e.g. from GitHub Actions). Signing is exercised during real releases.
+//
+// The test publishes 2 tags to exercise the digest deduplication path (both
+// tags share one manifest digest).
 //
 // Not annotated with +check because it depends on external network access
 // to ttl.sh and takes ~5 minutes. Run manually:
 //
 //	dagger call -m toolchains/kclipper/tests test-publish-images
 func (m *Tests) TestPublishImages(ctx context.Context) error {
-	// Generate an ephemeral cosign key pair for signing and verification.
-	cosignCtr := dag.Container().
-		From("gcr.io/projectsigstore/cosign:"+cosignVersion).
-		WithEnvVariable("COSIGN_PASSWORD", "test-password").
-		WithExec([]string{"cosign", "generate-key-pair"})
-	privKeyContent, err := cosignCtr.File("cosign.key").Contents(ctx)
-	if err != nil {
-		return fmt.Errorf("generate cosign key pair: %w", err)
-	}
-	pubKey := cosignCtr.File("cosign.pub")
-	cosignKey := dag.SetSecret("test-cosign-key", privKeyContent)
-	cosignPassword := dag.SetSecret("test-cosign-password", "test-password")
-
 	// Use a unique registry path on ttl.sh to avoid collisions between runs.
 	registry := fmt.Sprintf("ttl.sh/kclipper-ci-%d", time.Now().UnixNano())
 	ci := dag.Kclipper(dagger.KclipperOpts{Registry: registry})
@@ -169,9 +153,7 @@ func (m *Tests) TestPublishImages(ctx context.Context) error {
 	// Publish 2 tags to exercise deduplication (both tags share one manifest digest).
 	dist := ci.Build()
 	result, err := ci.PublishImages(ctx, []string{"1h", "2h"}, dagger.KclipperPublishImagesOpts{
-		Dist:           dist,
-		CosignKey:      cosignKey,
-		CosignPassword: cosignPassword,
+		Dist: dist,
 	})
 	if err != nil {
 		return fmt.Errorf("publish: %w", err)
@@ -192,7 +174,7 @@ func (m *Tests) TestPublishImages(ctx context.Context) error {
 		return fmt.Errorf("expected '1 unique digests' in result, got: %s", result)
 	}
 
-	// Extract a digest reference for signature verification.
+	// Verify a digest reference is present.
 	// Result format: "published 2 tags (1 unique digests)\nregistry:tag@sha256:hex\n..."
 	lines := strings.Split(strings.TrimSpace(result), "\n")
 	if len(lines) < 2 {
@@ -201,23 +183,6 @@ func (m *Tests) TestPublishImages(ctx context.Context) error {
 	digestRef := lines[1]
 	if !strings.Contains(digestRef, "@sha256:") {
 		return fmt.Errorf("expected digest reference in line 1, got: %s", digestRef)
-	}
-
-	// Verify the cosign signature using the ephemeral public key.
-	// --insecure-ignore-tlog=true skips Rekor transparency log verification
-	// to avoid flakiness; core cryptographic signature verification still runs.
-	_, err = dag.Container().
-		From("gcr.io/projectsigstore/cosign:"+cosignVersion).
-		WithMountedFile("/cosign.pub", pubKey).
-		WithExec([]string{
-			"cosign", "verify",
-			"--key", "/cosign.pub",
-			"--insecure-ignore-tlog=true",
-			digestRef,
-		}).
-		Sync(ctx)
-	if err != nil {
-		return fmt.Errorf("verify cosign signature: %w", err)
 	}
 
 	return nil

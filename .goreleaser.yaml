@@ -79,16 +79,16 @@ sboms:
     artifacts: source
 
 # https://goreleaser.com/customization/sign
-# Key-based signing via COSIGN_KEY env var. The Release Dagger function sets
-# this secret on the container and skips signing entirely when no key is
-# provided. Keyless OIDC signing is not used because the Dagger container
-# does not have access to the GitHub Actions OIDC token provider.
+# Keyless Sigstore signing (Fulcio + Rekor). The release workflow forwards the
+# GitHub Actions OIDC token (ACTIONS_ID_TOKEN_REQUEST_URL/TOKEN) into the Dagger
+# container, so cosign's built-in GitHub Actions provider mints a short-lived,
+# workflow-identity-bound certificate on demand. The Release Dagger function
+# skips signing entirely when no OIDC token is provided.
 signs:
   - cmd: cosign
     signature: "${artifact}.sigstore.json"
     args:
       - sign-blob
-      - "--key=env://COSIGN_KEY"
       - "--bundle=${signature}"
       - "${artifact}"
       - "--yes"

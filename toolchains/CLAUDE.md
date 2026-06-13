@@ -34,7 +34,7 @@ Remote (shared `x`) toolchains:
   `verify-binary-platform`, and the pure tag/digest helpers.
 - **`zizmor`** — GitHub Actions workflow linter (`lint`, +check).
 - **`prettier`** — YAML/JSON/Markdown formatter/linter (`lint` +check, `format`).
-- **`cosign`** — Sigstore image signing (`sign-with-key`, `with-cosign`).
+- **`cosign`** — Sigstore image signing (`sign-keyless`, `sign-with-key`, `with-cosign`).
 - **`syft`** — SBOM generation (`sbom`, `with-syft`).
 - **`bench`** — pipeline benchmark harness (`with-stage`/`run`/`summary`).
 - **`commitlint`** — commit-message validation against conventional rules.
@@ -57,7 +57,7 @@ toolchains/          # Only kclipper is local here; go, security, goreleaser,
     build.go         # Build, BinarySnapshot, BuildImages, runtimeImages, runtimeBase, releaserBase, macosSDKDirectory
     check.go         # LintReleaser, ReleaseDryRun, LintPrettier, LintActions, LintKCLModules, LintDeadcode
     generate.go      # Format (merges go FormatGo + prettier Format)
-    publish.go       # VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost, PublishKCLModules, PublishImages, Release, publishImages
+    publish.go       # VersionTags, FormatDigestChecksums, DeduplicateDigests, RegistryHost, PublishKCLModules, PublishImages, Release, publishImages, signImages
     bench.go         # benchSuite, BenchmarkSummary
     tests/
 ```
@@ -78,7 +78,7 @@ module composes them and owns the project-specific layer:
 | Category             | kclipper functions                                                                      |
 | -------------------- | --------------------------------------------------------------------------------------- |
 | Build / release      | Build, BinarySnapshot, BuildImages, releaserBase (private), runtimeImages, runtimeBase  |
-| Publish              | PublishImages, PublishKCLModules, publishImages, Release                                |
+| Publish              | PublishImages, PublishKCLModules, publishImages, signImages (keyless cosign), Release   |
 | Checks (+check)      | LintReleaser, LintPrettier, LintActions, LintKCLModules                                 |
 | Advisory             | LintDeadcode (callable, not a +check)                                                   |
 | Generate (+generate) | Format (merges go FormatGo + prettier Format)                                           |

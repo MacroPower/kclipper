@@ -184,12 +184,16 @@ func (m *Kclipper) PublishImages(
 	// Registry password or token for authentication.
 	// +optional
 	registryPassword *dagger.Secret,
-	// Cosign private key for signing published images.
+	// OIDC token request URL for keyless Sigstore signing. In GitHub Actions
+	// this is the ACTIONS_ID_TOKEN_REQUEST_URL environment variable. When
+	// provided along with oidcRequestToken, published images are signed
+	// using Sigstore keyless verification (Fulcio + Rekor).
 	// +optional
-	cosignKey *dagger.Secret,
-	// Password for the cosign private key. Required when the key is encrypted.
+	oidcRequestURL string,
+	// Bearer token for the OIDC token request. In GitHub Actions this is the
+	// ACTIONS_ID_TOKEN_REQUEST_TOKEN environment variable.
 	// +optional
-	cosignPassword *dagger.Secret,
+	oidcRequestToken *dagger.Secret,
 	// Pre-built GoReleaser dist directory. If not provided, runs a snapshot build.
 	// +optional
 	dist *dagger.Directory,
@@ -207,8 +211,12 @@ func (m *Kclipper) PublishImages(
 	if err != nil {
 		return "", err
 	}
-	digests, err := m.publishImages(ctx, variants, tags, registryUsername, registryPassword, cosignKey, cosignPassword)
+	digests, err := m.publishImages(ctx, variants, tags, registryUsername, registryPassword)
 	if err != nil {
+		return "", err
+	}
+
+	if err := m.signImages(ctx, digests, registryUsername, registryPassword, oidcRequestURL, oidcRequestToken); err != nil {
 		return "", err
 	}
 
@@ -223,6 +231,11 @@ func (m *Kclipper) PublishImages(
 // Release runs GoReleaser for binaries/archives/signing, then builds and
 // publishes container images using Dagger-native Container.Publish().
 // GoReleaser's Docker support is skipped entirely to avoid Docker-in-Docker.
+//
+// Both binary archives and container images are signed using Sigstore keyless
+// verification when OIDC request credentials are provided. Cosign's built-in
+// GitHub Actions provider fetches fresh tokens on demand, avoiding expiry
+// issues with pre-fetched tokens.
 //
 // Returns a [ReleaseReport] containing the dist/ directory (with checksums.txt
 // and digests.txt for attestation), published image digests, and a Markdown
@@ -239,12 +252,14 @@ func (m *Kclipper) Release(
 	registryPassword *dagger.Secret,
 	// Version tag to release (e.g. "v1.2.3").
 	tag string,
-	// Cosign private key for signing published images.
+	// OIDC token request URL for keyless Sigstore signing. In GitHub Actions
+	// this is the ACTIONS_ID_TOKEN_REQUEST_URL environment variable.
 	// +optional
-	cosignKey *dagger.Secret,
-	// Password for the cosign private key. Required when the key is encrypted.
+	oidcRequestURL string,
+	// Bearer token for the OIDC token request. In GitHub Actions this is the
+	// ACTIONS_ID_TOKEN_REQUEST_TOKEN environment variable.
 	// +optional
-	cosignPassword *dagger.Secret,
+	oidcRequestToken *dagger.Secret,
 	// macOS code signing PKCS#12 certificate (base64-encoded).
 	// +optional
 	macosSignP12 *dagger.Secret,
@@ -267,14 +282,17 @@ func (m *Kclipper) Release(
 	}
 	ctr = ctr.WithSecretVariable("GITHUB_TOKEN", githubToken)
 
-	// Conditionally add cosign secrets for GoReleaser binary signing.
+	// Conditionally forward OIDC credentials for GoReleaser blob signing.
+	// Cosign (invoked by GoReleaser's signs section) detects
+	// ACTIONS_ID_TOKEN_REQUEST_URL/TOKEN and fetches fresh OIDC tokens
+	// on demand via its built-in GitHub Actions provider.
 	skipFlags := "docker"
-	if cosignKey == nil {
+	if oidcRequestToken == nil {
 		skipFlags = "docker,sign"
 	}
 	ctr = ctr.
-		With(optSecretVariable("COSIGN_KEY", cosignKey)).
-		With(optSecretVariable("COSIGN_PASSWORD", cosignPassword))
+		WithEnvVariable("ACTIONS_ID_TOKEN_REQUEST_URL", oidcRequestURL).
+		With(optSecretVariable("ACTIONS_ID_TOKEN_REQUEST_TOKEN", oidcRequestToken))
 
 	// Conditionally add macOS signing secrets.
 	ctr = ctr.
@@ -285,8 +303,8 @@ func (m *Kclipper) Release(
 		With(optSecretVariable("MACOS_NOTARY_ISSUER_ID", macosNotaryIssuerId))
 
 	// Run GoReleaser for binaries, archives, Homebrew, Nix (and signing
-	// when cosignKey is provided). Docker is always skipped -- images are
-	// published natively via Dagger below.
+	// when oidcRequestToken is provided). Docker is always skipped -- images
+	// are published natively via Dagger below.
 	dist := ctr.
 		WithExec([]string{"goreleaser", "release", "--clean", "--skip=" + skipFlags}).
 		Directory("/src/dist")
@@ -302,9 +320,13 @@ func (m *Kclipper) Release(
 	if err != nil {
 		return nil, fmt.Errorf("build runtime images: %w", err)
 	}
-	digests, err := m.publishImages(ctx, variants, tags, registryUsername, registryPassword, cosignKey, cosignPassword)
+	digests, err := m.publishImages(ctx, variants, tags, registryUsername, registryPassword)
 	if err != nil {
 		return nil, fmt.Errorf("publish images: %w", err)
+	}
+
+	if err := m.signImages(ctx, digests, registryUsername, registryPassword, oidcRequestURL, oidcRequestToken); err != nil {
+		return nil, err
 	}
 
 	// Write digests in checksums format for attest-build-provenance.
@@ -329,32 +351,23 @@ func (m *Kclipper) Release(
 	}, nil
 }
 
-// publishImages publishes pre-built container image variants to the registry,
-// optionally signing them with cosign. Returns the list of published digest
-// references (one per tag, e.g. "registry/image:tag@sha256:hex").
+// publishImages publishes pre-built container image variants to the registry.
+// Returns the list of published digest references (one per tag,
+// e.g. "registry/image:tag@sha256:hex").
 func (m *Kclipper) publishImages(
 	ctx context.Context,
 	variants []*dagger.Container,
 	tags []string,
 	registryUsername string,
 	registryPassword *dagger.Secret,
-	cosignKey *dagger.Secret,
-	cosignPassword *dagger.Secret,
 ) ([]string, error) {
-	// Resolve the registry host once; it is reused for both the publish and
-	// cosign auth chains below. Only needed when authenticating.
-	var host string
-	if registryPassword != nil {
-		var err error
-		host, err = m.Goreleaser.RegistryHost(ctx, m.Registry)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	// Publish multi-arch manifest for each tag concurrently.
 	publisher := dag.Container()
 	if registryPassword != nil {
+		host, err := m.Goreleaser.RegistryHost(ctx, m.Registry)
+		if err != nil {
+			return nil, fmt.Errorf("resolve registry host: %w", err)
+		}
 		publisher = publisher.WithRegistryAuth(host, registryUsername, registryPassword)
 	}
 
@@ -377,24 +390,44 @@ func (m *Kclipper) publishImages(
 		return nil, err
 	}
 
-	// Sign each published image with cosign (key-based signing) via the
-	// cosign toolchain module. Deduplicate first -- multiple tags often
-	// share one manifest digest.
-	if cosignKey != nil {
-		toSign, err := m.Goreleaser.DeduplicateDigests(ctx, digests)
+	return digests, nil
+}
+
+// signImages signs published image digests using cosign keyless signing
+// (Fulcio + Rekor) via the shared [Cosign] toolchain. Cosign's built-in
+// GitHub Actions provider uses the request URL and token to fetch fresh OIDC
+// tokens on demand, avoiding expiry issues. Digests are deduplicated before
+// signing since multiple tags often share one manifest. Does nothing when
+// oidcRequestToken is nil.
+func (m *Kclipper) signImages(
+	ctx context.Context,
+	digests []string,
+	registryUsername string,
+	registryPassword *dagger.Secret,
+	oidcRequestURL string,
+	oidcRequestToken *dagger.Secret,
+) error {
+	if oidcRequestToken == nil {
+		return nil
+	}
+
+	toSign, err := m.Goreleaser.DeduplicateDigests(ctx, digests)
+	if err != nil {
+		return fmt.Errorf("deduplicate digests: %w", err)
+	}
+
+	host := ""
+	if registryPassword != nil {
+		host, err = m.Goreleaser.RegistryHost(ctx, m.Registry)
 		if err != nil {
-			return nil, fmt.Errorf("deduplicate digests: %w", err)
-		}
-		if err := m.Cosign.SignWithKey(ctx, toSign, cosignKey,
-			dagger.CosignSignWithKeyOpts{
-				Password:         cosignPassword,
-				RegistryHost:     host,
-				RegistryUsername: registryUsername,
-				RegistryPassword: registryPassword,
-			}); err != nil {
-			return nil, err
+			return fmt.Errorf("resolve registry host: %w", err)
 		}
 	}
 
-	return digests, nil
+	return m.Cosign.SignKeyless(ctx, toSign, oidcRequestURL, oidcRequestToken,
+		dagger.CosignSignKeylessOpts{
+			RegistryHost:     host,
+			RegistryUsername: registryUsername,
+			RegistryPassword: registryPassword,
+		})
 }
