@@ -18,9 +18,9 @@ import (
 	"github.com/macropower/kclipper/pkg/charttui"
 	"github.com/macropower/kclipper/pkg/crd"
 	"github.com/macropower/kclipper/pkg/helm"
-	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 const (
@@ -154,8 +154,8 @@ func NewChartAddCmd(args *ChartArgs) *cobra.Command {
 		Use:   "add",
 		Short: "Add a new chart",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			schemaGeneratorType := jsonschema.GetGeneratorType(*schemaGenerator)
-			schemaValidatorType := jsonschema.GetValidatorType(*schemaValidator)
+			schemaGeneratorType := schema.GetGeneratorType(*schemaGenerator)
+			schemaValidatorType := schema.GetValidatorType(*schemaValidator)
 			crdGeneratorType := crd.GetGeneratorType(*crdGenerator)
 
 			cc, closer, err := newChartCommander(cmd.OutOrStdout(), args)

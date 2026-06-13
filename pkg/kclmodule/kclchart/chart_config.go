@@ -9,8 +9,8 @@ import (
 	"github.com/iancoleman/strcase"
 
 	"github.com/macropower/kclipper/pkg/crd"
-	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 // ChartData holds a collection of chart configurations keyed by name.
@@ -76,68 +76,68 @@ func (c *ChartConfig) Validate() error {
 }
 
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect[ChartConfig]()
+	js, err := schema.Reflect[ChartConfig]()
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}
 
-	js.SetProperty("chart", jsonschema.WithDefault(c.Chart))
-	js.SetProperty("repoURL", jsonschema.WithDefault(c.RepoURL))
-	js.SetProperty("targetRevision", jsonschema.WithDefault(c.TargetRevision))
+	js.SetProperty("chart", schema.WithDefault(c.Chart))
+	js.SetProperty("repoURL", schema.WithDefault(c.RepoURL))
+	js.SetProperty("targetRevision", schema.WithDefault(c.TargetRevision))
 
 	js.SetOrRemoveProperty(
 		"namespace", c.Namespace != "",
-		jsonschema.WithDefault(c.Namespace),
+		schema.WithDefault(c.Namespace),
 	)
 	js.SetOrRemoveProperty(
 		"releaseName", c.ReleaseName != "",
-		jsonschema.WithDefault(c.ReleaseName),
+		schema.WithDefault(c.ReleaseName),
 	)
 	js.SetOrRemoveProperty(
 		"skipCRDs", c.SkipCRDs,
-		jsonschema.WithDefault(c.SkipCRDs),
+		schema.WithDefault(c.SkipCRDs),
 	)
 	js.SetOrRemoveProperty(
 		"skipHooks", c.SkipHooks,
-		jsonschema.WithDefault(c.SkipHooks),
+		schema.WithDefault(c.SkipHooks),
 	)
 	js.SetOrRemoveProperty(
 		"passCredentials", c.PassCredentials,
-		jsonschema.WithDefault(c.PassCredentials),
+		schema.WithDefault(c.PassCredentials),
 	)
 	js.SetOrRemoveProperty(
 		"schemaPath", c.SchemaPath != "",
-		jsonschema.WithDefault(c.SchemaPath),
+		schema.WithDefault(c.SchemaPath),
 	)
 	js.SetOrRemoveProperty(
 		"crdPath", len(c.CRDPaths) > 0,
-		jsonschema.WithDefault(c.CRDPaths),
+		schema.WithDefault(c.CRDPaths),
 	)
 	js.SetOrRemoveProperty(
-		"schemaValidator", c.SchemaValidator != jsonschema.DefaultValidatorType,
-		jsonschema.WithDefault(c.SchemaValidator),
-		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),
+		"schemaValidator", c.SchemaValidator != schema.DefaultValidatorType,
+		schema.WithDefault(c.SchemaValidator),
+		schema.WithEnum(schema.ValidatorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
-		"schemaGenerator", c.SchemaGenerator != jsonschema.DefaultGeneratorType,
-		jsonschema.WithDefault(c.SchemaGenerator),
-		jsonschema.WithEnum(jsonschema.GeneratorTypeEnum),
+		"schemaGenerator", c.SchemaGenerator != schema.DefaultGeneratorType,
+		schema.WithDefault(c.SchemaGenerator),
+		schema.WithEnum(schema.GeneratorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
 		"crdGenerator", c.CRDGenerator != crd.GeneratorTypeDefault,
-		jsonschema.WithDefault(c.CRDGenerator),
-		jsonschema.WithEnum(crd.GeneratorTypeEnum),
+		schema.WithDefault(c.CRDGenerator),
+		schema.WithEnum(crd.GeneratorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
 		"repositories", len(c.Repositories) > 0,
-		jsonschema.WithDefault(c.Repositories),
-		jsonschema.WithType("null"),
-		jsonschema.WithNoContent(),
+		schema.WithDefault(c.Repositories),
+		schema.WithType("null"),
+		schema.WithNoContent(),
 	)
 	js.SetOrRemoveProperty(
 		"values", c.Values != nil,
-		jsonschema.WithDefault(c.Values),
-		jsonschema.WithType("null"),
+		schema.WithDefault(c.Values),
+		schema.WithType("null"),
 	)
 
 	err = js.GenerateKCL(w, genOptFixChartRepo)

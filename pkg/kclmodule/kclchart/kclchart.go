@@ -3,8 +3,8 @@ package kclchart
 import (
 	"regexp"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 type (
@@ -27,7 +27,7 @@ var (
 	valuesRegexp       = regexp.MustCompile(`(\s+` + valuesKCLName + `\??\s*:\s+)any(.*)`)
 	repositoriesRegexp = regexp.MustCompile(`(\s+` + repositoriesKCLName + `\??\s*:\s+)any(.*)`)
 
-	genOptInheritHelmChart = jsonschema.Replace(schemaRegexp, helmKCLImport+"schema ${1}("+helmChartKCLType+"):${2}")
-	genOptFixValues        = jsonschema.Replace(valuesRegexp, "${1}"+valuesKCLType+"${2}")
-	genOptFixChartRepo     = jsonschema.Replace(repositoriesRegexp, "${1}"+repositoriesKCLType+"${2}")
+	genOptInheritHelmChart = schema.Replace(schemaRegexp, helmKCLImport+"schema ${1}("+helmChartKCLType+"):${2}")
+	genOptFixValues        = schema.Replace(valuesRegexp, "${1}"+valuesKCLType+"${2}")
+	genOptFixChartRepo     = schema.Replace(repositoriesRegexp, "${1}"+repositoriesKCLType+"${2}")
 )

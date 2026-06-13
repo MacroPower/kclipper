@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 // Represents attributes common in `helm.Chart` and `helm.ChartConfig`.
@@ -22,7 +22,7 @@ type ChartBase struct {
 	// Optional namespace to template with.
 	Namespace string `json:"namespace,omitempty"`
 	// Validator to use for the Values schema.
-	SchemaValidator jsonschema.ValidatorType `json:"schemaValidator,omitempty"`
+	SchemaValidator schema.ValidatorType `json:"schemaValidator,omitempty"`
 	// Helm chart repositories.
 	Repositories []ChartRepo `json:"repositories,omitempty"`
 	// Set to `True` to skip the custom resource definition installation step (Helm's `--skip-crds`).
@@ -34,13 +34,13 @@ type ChartBase struct {
 }
 
 func (c *ChartBase) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect[ChartBase](jsonschema.WithGoComments())
+	js, err := schema.Reflect[ChartBase](schema.WithGoComments())
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}
 
-	js.SetProperty("schemaValidator", jsonschema.WithEnum(jsonschema.ValidatorTypeEnum))
-	js.SetProperty("repositories", jsonschema.WithType("null"), jsonschema.WithNoContent())
+	js.SetProperty("schemaValidator", schema.WithEnum(schema.ValidatorTypeEnum))
+	js.SetProperty("repositories", schema.WithType("null"), schema.WithNoContent())
 
 	err = js.GenerateKCL(w, genOptFixChartRepo)
 	if err != nil {

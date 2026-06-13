@@ -24,7 +24,7 @@ var (
 )
 
 // JSONSchemaGenerator generates JSON Schema from one or more file paths.
-// See [jsonschema.AutoGenerator] for an implementation.
+// See [schema.AutoGenerator] for an implementation.
 type JSONSchemaGenerator interface {
 	FromPaths(paths ...string) ([]byte, error)
 }

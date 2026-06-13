@@ -1,4 +1,4 @@
-package jsonschema
+package schema
 
 import (
 	"encoding/json"

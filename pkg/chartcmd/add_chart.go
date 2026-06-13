@@ -17,11 +17,11 @@ import (
 	"github.com/macropower/kclipper/pkg/crd"
 	"github.com/macropower/kclipper/pkg/helm"
 	"github.com/macropower/kclipper/pkg/helmrepo"
-	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclautomation"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 	"github.com/macropower/kclipper/pkg/kube"
 	"github.com/macropower/kclipper/pkg/paths"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 const initialChartContents = `import helm
@@ -355,13 +355,13 @@ func (c *KCLPackage) getValuesJSONSchema(
 	chart *kclchart.ChartConfig, chartFiles *helm.ChartFiles, logger *slog.Logger,
 ) ([]byte, error) {
 	switch chart.SchemaGenerator {
-	case jsonschema.URLGeneratorType, jsonschema.LocalPathGeneratorType:
+	case schema.URLGeneratorType, schema.LocalPathGeneratorType:
 		return c.generateSchemaFromPath(chart)
 
-	case jsonschema.AutoGeneratorType, jsonschema.ValueInferenceGeneratorType, jsonschema.ChartPathGeneratorType:
+	case schema.AutoGeneratorType, schema.ValueInferenceGeneratorType, schema.ChartPathGeneratorType:
 		return c.generateSchemaFromChart(chart, chartFiles)
 
-	default: // Matches: jsonschema.DefaultGeneratorType, jsonschema.NoneGeneratorType.
+	default: // Matches: schema.DefaultGeneratorType, schema.NoneGeneratorType.
 		logger.Info("no schema generator specified, values validation will be skipped")
 
 		return c.generateEmptySchema()
@@ -370,7 +370,7 @@ func (c *KCLPackage) getValuesJSONSchema(
 
 // generateEmptySchema returns an empty schema for cases where no schema generation is needed.
 func (c *KCLPackage) generateEmptySchema() ([]byte, error) {
-	return []byte(jsonschema.EmptySchema), nil
+	return []byte(schema.EmptySchema), nil
 }
 
 // generateSchemaFromPath generates schema from a file path or URL.
@@ -380,7 +380,7 @@ func (c *KCLPackage) generateSchemaFromPath(chart *kclchart.ChartConfig) ([]byte
 		return nil, fmt.Errorf("%w: resolve %q: %w", ErrPathResolution, chart.SchemaPath, err)
 	}
 
-	jsonSchemaBytes, err := jsonschema.DefaultReaderGenerator.FromPaths(schemaPath.String())
+	jsonSchemaBytes, err := schema.DefaultReaderGenerator.FromPaths(schemaPath.String())
 	if err != nil {
 		return nil, fmt.Errorf("%w: get %q: %w", ErrSchemaGeneration, schemaPath.String(), err)
 	}
@@ -390,7 +390,7 @@ func (c *KCLPackage) generateSchemaFromPath(chart *kclchart.ChartConfig) ([]byte
 
 // generateSchemaFromChart generates schema from chart files.
 func (c *KCLPackage) generateSchemaFromChart(chart *kclchart.ChartConfig, chartFiles *helm.ChartFiles) ([]byte, error) {
-	fileMatcher := jsonschema.GetFileFilter(chart.SchemaGenerator)
+	fileMatcher := schema.GetFileFilter(chart.SchemaGenerator)
 	if chart.SchemaPath != "" {
 		fileMatcher = func(f string) bool {
 			return filePathsEqual(f, chart.SchemaPath)
@@ -400,13 +400,13 @@ func (c *KCLPackage) generateSchemaFromChart(chart *kclchart.ChartConfig, chartF
 	var gen helm.JSONSchemaGenerator
 
 	switch chart.SchemaGenerator {
-	case jsonschema.AutoGeneratorType:
-		gen = jsonschema.DefaultAutoGenerator
-	case jsonschema.ValueInferenceGeneratorType:
+	case schema.AutoGeneratorType:
+		gen = schema.DefaultAutoGenerator
+	case schema.ValueInferenceGeneratorType:
 		if chart.ValueInference == nil {
-			gen = jsonschema.DefaultValueInferenceGenerator
+			gen = schema.DefaultValueInferenceGenerator
 		} else {
-			vig, err := jsonschema.NewValueInferenceGenerator(chart.ValueInference.GetConfig())
+			vig, err := schema.NewValueInferenceGenerator(chart.ValueInference.GetConfig())
 			if err != nil {
 				return nil, fmt.Errorf("%w: %w", ErrSchemaGeneration, err)
 			}
@@ -414,10 +414,10 @@ func (c *KCLPackage) generateSchemaFromChart(chart *kclchart.ChartConfig, chartF
 			gen = vig
 		}
 
-	case jsonschema.ChartPathGeneratorType:
-		gen = jsonschema.DefaultReaderGenerator
+	case schema.ChartPathGeneratorType:
+		gen = schema.DefaultReaderGenerator
 	default:
-		gen = jsonschema.DefaultNoGenerator
+		gen = schema.DefaultNoGenerator
 	}
 
 	jsonSchemaBytes, err := chartFiles.GetValuesJSONSchema(gen, fileMatcher)
@@ -435,7 +435,7 @@ func writeValuesSchemaFiles(jsonSchema []byte, chartDir string) error {
 		return fmt.Errorf("%w: values.schema.json: %w", ErrFileWrite, err)
 	}
 
-	kclSchema, err := jsonschema.ConvertToKCLSchema(jsonSchema, true)
+	kclSchema, err := schema.ConvertToKCLSchema(jsonSchema, true)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrSchemaGeneration, err)
 	}

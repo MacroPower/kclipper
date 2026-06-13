@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"slices"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 // ValueInferenceConfig defines configuration for value inference via magicschema.
@@ -51,13 +51,13 @@ type ValueInferenceConfig struct {
 }
 
 func (c *ValueInferenceConfig) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect[ValueInferenceConfig](jsonschema.WithGoComments())
+	js, err := schema.Reflect[ValueInferenceConfig](schema.WithGoComments())
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}
 
-	js.SetProperty("annotators", jsonschema.WithItemsEnum(jsonschema.AnnotatorEnum))
-	js.SetProperty("inferDefaults", jsonschema.WithDefault(true))
+	js.SetProperty("annotators", schema.WithItemsEnum(schema.AnnotatorEnum))
+	js.SetProperty("inferDefaults", schema.WithDefault(true))
 
 	b := &bytes.Buffer{}
 	err = js.GenerateKCL(b)
@@ -74,11 +74,11 @@ func (c *ValueInferenceConfig) GenerateKCL(w io.Writer) error {
 }
 
 // GetConfig adapts the KCL-facing config to the magicschema-facing
-// [jsonschema.ValueInferenceConfig]. Legacy fields are mapped to their new
+// [schema.ValueInferenceConfig]. Legacy fields are mapped to their new
 // equivalents where one exists; fields with no equivalent are accepted but
 // ignored. Any legacy field that is set emits a deprecation warning.
-func (c *ValueInferenceConfig) GetConfig() *jsonschema.ValueInferenceConfig {
-	cfg := &jsonschema.ValueInferenceConfig{
+func (c *ValueInferenceConfig) GetConfig() *schema.ValueInferenceConfig {
+	cfg := &schema.ValueInferenceConfig{
 		Annotators:    c.Annotators,
 		Strict:        c.Strict,
 		InferDefaults: c.InferDefaults,
@@ -98,8 +98,8 @@ func (c *ValueInferenceConfig) GetConfig() *jsonschema.ValueInferenceConfig {
 
 		// Only meaningful when a custom annotator list omits helm-docs. An
 		// empty list falls back to the defaults, which already include it.
-		if len(cfg.Annotators) > 0 && !slices.Contains(cfg.Annotators, jsonschema.HelmDocsAnnotator) {
-			cfg.Annotators = append(cfg.Annotators, jsonschema.HelmDocsAnnotator)
+		if len(cfg.Annotators) > 0 && !slices.Contains(cfg.Annotators, schema.HelmDocsAnnotator) {
+			cfg.Annotators = append(cfg.Annotators, schema.HelmDocsAnnotator)
 		}
 	}
 

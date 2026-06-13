@@ -1,4 +1,4 @@
-package jsonschema_test
+package schema_test
 
 import (
 	"os"
@@ -8,13 +8,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 func TestReaderGenerator(t *testing.T) {
 	t.Parallel()
 
-	generator := jsonschema.DefaultReaderGenerator
+	generator := schema.DefaultReaderGenerator
 
 	testCases := map[string]struct {
 		expectedPath string
@@ -83,7 +83,7 @@ func TestReaderGenerator(t *testing.T) {
 func TestReaderGeneratorCircularRefs(t *testing.T) {
 	t.Parallel()
 
-	generator := jsonschema.DefaultReaderGenerator
+	generator := schema.DefaultReaderGenerator
 
 	_, err := generator.FromPaths(filepath.Join(testDataDir, "input/cycle-a.schema.json"))
 	require.ErrorContains(t, err, "circular reference")
@@ -92,7 +92,7 @@ func TestReaderGeneratorCircularRefs(t *testing.T) {
 func TestReaderGeneratorYAMLRefTarget(t *testing.T) {
 	t.Parallel()
 
-	generator := jsonschema.DefaultReaderGenerator
+	generator := schema.DefaultReaderGenerator
 
 	// A $ref target written as YAML resolves the same as one written as JSON.
 	got, err := generator.FromPaths(filepath.Join(testDataDir, "input/refs-to-yaml.schema.json"))
@@ -143,7 +143,7 @@ func TestReaderGeneratorRefFailurePolicy(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := jsonschema.DefaultReaderGenerator.FromData([]byte(tc.input), "")
+			got, err := schema.DefaultReaderGenerator.FromData([]byte(tc.input), "")
 			if tc.wantErr {
 				require.Error(t, err)
 
@@ -159,7 +159,7 @@ func TestReaderGeneratorRefFailurePolicy(t *testing.T) {
 func TestReaderGeneratorStripsUnknownMembers(t *testing.T) {
 	t.Parallel()
 
-	generator := jsonschema.DefaultReaderGenerator
+	generator := schema.DefaultReaderGenerator
 
 	// Unknown members (like wrapper keys in malformed vendored schemas) are
 	// not JSON Schema keywords; they validate nothing and must not survive
@@ -189,7 +189,7 @@ func TestReaderGeneratorStripsUnknownMembers(t *testing.T) {
 func TestReaderGeneratorFromDataYAML(t *testing.T) {
 	t.Parallel()
 
-	generator := jsonschema.DefaultReaderGenerator
+	generator := schema.DefaultReaderGenerator
 
 	jsonSchema := `{
 		"$schema": "http://json-schema.org/draft-07/schema#",

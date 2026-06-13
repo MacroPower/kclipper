@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 func TestValueInferenceConfigGetConfig(t *testing.T) {
@@ -18,16 +18,16 @@ func TestValueInferenceConfigGetConfig(t *testing.T) {
 
 	tcs := map[string]struct {
 		in   kclhelm.ValueInferenceConfig
-		want jsonschema.ValueInferenceConfig
+		want schema.ValueInferenceConfig
 	}{
 		"new fields pass through": {
 			in: kclhelm.ValueInferenceConfig{
-				Annotators:    []string{jsonschema.HelmSchemaAnnotator},
+				Annotators:    []string{schema.HelmSchemaAnnotator},
 				Strict:        true,
 				InferDefaults: true,
 			},
-			want: jsonschema.ValueInferenceConfig{
-				Annotators:    []string{jsonschema.HelmSchemaAnnotator},
+			want: schema.ValueInferenceConfig{
+				Annotators:    []string{schema.HelmSchemaAnnotator},
 				Strict:        true,
 				InferDefaults: true,
 			},
@@ -37,41 +37,41 @@ func TestValueInferenceConfigGetConfig(t *testing.T) {
 				InferDefaults: true,
 				SkipDefault:   true,
 			},
-			want: jsonschema.ValueInferenceConfig{
+			want: schema.ValueInferenceConfig{
 				InferDefaults: false,
 			},
 		},
 		"helmDocsCompatibilityMode appends to custom annotators": {
 			in: kclhelm.ValueInferenceConfig{
-				Annotators:                []string{jsonschema.HelmSchemaAnnotator},
+				Annotators:                []string{schema.HelmSchemaAnnotator},
 				HelmDocsCompatibilityMode: true,
 			},
-			want: jsonschema.ValueInferenceConfig{
-				Annotators: []string{jsonschema.HelmSchemaAnnotator, jsonschema.HelmDocsAnnotator},
+			want: schema.ValueInferenceConfig{
+				Annotators: []string{schema.HelmSchemaAnnotator, schema.HelmDocsAnnotator},
 			},
 		},
 		"helmDocsCompatibilityMode leaves empty annotators untouched": {
 			in: kclhelm.ValueInferenceConfig{
 				HelmDocsCompatibilityMode: true,
 			},
-			want: jsonschema.ValueInferenceConfig{
+			want: schema.ValueInferenceConfig{
 				Annotators: nil,
 			},
 		},
 		"helmDocsCompatibilityMode noop when already present": {
 			in: kclhelm.ValueInferenceConfig{
-				Annotators:                []string{jsonschema.HelmDocsAnnotator},
+				Annotators:                []string{schema.HelmDocsAnnotator},
 				HelmDocsCompatibilityMode: true,
 			},
-			want: jsonschema.ValueInferenceConfig{
-				Annotators: []string{jsonschema.HelmDocsAnnotator},
+			want: schema.ValueInferenceConfig{
+				Annotators: []string{schema.HelmDocsAnnotator},
 			},
 		},
 		"skipAdditionalProperties is a noop": {
 			in: kclhelm.ValueInferenceConfig{
 				SkipAdditionalProperties: true,
 			},
-			want: jsonschema.ValueInferenceConfig{
+			want: schema.ValueInferenceConfig{
 				Strict:     false,
 				Annotators: nil,
 			},
@@ -80,7 +80,7 @@ func TestValueInferenceConfigGetConfig(t *testing.T) {
 			in: kclhelm.ValueInferenceConfig{
 				KeepFullComment: true,
 			},
-			want: jsonschema.ValueInferenceConfig{
+			want: schema.ValueInferenceConfig{
 				Strict:     false,
 				Annotators: nil,
 			},

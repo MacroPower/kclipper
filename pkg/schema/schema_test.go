@@ -1,4 +1,4 @@
-package jsonschema_test
+package schema_test
 
 import (
 	"os"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 var testDataDir string
@@ -68,7 +68,7 @@ func TestConvertToKCLCompatibleJSONSchemaBoolSchemas(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := jsonschema.ConvertToKCLCompatibleJSONSchema([]byte(tc.input))
+			got, err := schema.ConvertToKCLCompatibleJSONSchema([]byte(tc.input))
 			require.NoError(t, err)
 			require.JSONEq(t, tc.want, string(got))
 		})
@@ -88,7 +88,7 @@ func TestConvertToKCLSchemaBoolSchemas(t *testing.T) {
 		}
 	}`
 
-	got, err := jsonschema.ConvertToKCLSchema([]byte(input), true)
+	got, err := schema.ConvertToKCLSchema([]byte(input), true)
 	require.NoError(t, err)
 	require.Contains(t, string(got), "foo?: any")
 	require.Contains(t, string(got), "bar?: [any]")
@@ -97,7 +97,7 @@ func TestConvertToKCLSchemaBoolSchemas(t *testing.T) {
 func TestKCLConversion(t *testing.T) {
 	t.Parallel()
 
-	generator := jsonschema.DefaultReaderGenerator
+	generator := schema.DefaultReaderGenerator
 
 	testCases := map[string]struct {
 		expectedPath string
@@ -143,7 +143,7 @@ func TestKCLConversion(t *testing.T) {
 			require.NoError(t, err)
 			require.NotEmpty(t, schemaBytes)
 
-			fixedSchemaBytes, err := jsonschema.ConvertToKCLCompatibleJSONSchema(schemaBytes)
+			fixedSchemaBytes, err := schema.ConvertToKCLCompatibleJSONSchema(schemaBytes)
 			require.NoError(t, err)
 
 			// Verify the output schema.

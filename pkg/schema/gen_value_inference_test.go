@@ -1,4 +1,4 @@
-package jsonschema_test
+package schema_test
 
 import (
 	"os"
@@ -8,35 +8,35 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 func TestNewValueInferenceGenerator(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		config *jsonschema.ValueInferenceConfig
+		config *schema.ValueInferenceConfig
 		err    error
 	}{
 		"default config": {
-			config: &jsonschema.ValueInferenceConfig{},
+			config: &schema.ValueInferenceConfig{},
 		},
 		"explicit annotators": {
-			config: &jsonschema.ValueInferenceConfig{
+			config: &schema.ValueInferenceConfig{
 				Annotators: []string{
-					jsonschema.HelmSchemaAnnotator,
-					jsonschema.HelmValuesSchemaAnnotator,
-					jsonschema.BitnamiAnnotator,
-					jsonschema.HelmDocsAnnotator,
+					schema.HelmSchemaAnnotator,
+					schema.HelmValuesSchemaAnnotator,
+					schema.BitnamiAnnotator,
+					schema.HelmDocsAnnotator,
 				},
 				Strict: true,
 			},
 		},
 		"unknown annotator": {
-			config: &jsonschema.ValueInferenceConfig{
+			config: &schema.ValueInferenceConfig{
 				Annotators: []string{"helm-schema", "nonexistent"},
 			},
-			err: jsonschema.ErrUnknownAnnotator,
+			err: schema.ErrUnknownAnnotator,
 		},
 	}
 
@@ -44,7 +44,7 @@ func TestNewValueInferenceGenerator(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			g, err := jsonschema.NewValueInferenceGenerator(tc.config)
+			g, err := schema.NewValueInferenceGenerator(tc.config)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 
@@ -61,13 +61,13 @@ func TestValueInferenceGeneratorFromData(t *testing.T) {
 	t.Parallel()
 
 	tcs := map[string]struct {
-		config *jsonschema.ValueInferenceConfig
+		config *schema.ValueInferenceConfig
 		data   string
 		want   string
 		err    string
 	}{
 		"basic": {
-			config: &jsonschema.ValueInferenceConfig{},
+			config: &schema.ValueInferenceConfig{},
 			data:   "key: value\n",
 			want: `{
 				"$schema": "http://json-schema.org/draft-07/schema#",
@@ -77,7 +77,7 @@ func TestValueInferenceGeneratorFromData(t *testing.T) {
 			}`,
 		},
 		"multiple documents": {
-			config: &jsonschema.ValueInferenceConfig{},
+			config: &schema.ValueInferenceConfig{},
 			data:   "a: 1\n---\nb: x\n",
 			want: `{
 				"$schema": "http://json-schema.org/draft-07/schema#",
@@ -87,7 +87,7 @@ func TestValueInferenceGeneratorFromData(t *testing.T) {
 			}`,
 		},
 		"strict": {
-			config: &jsonschema.ValueInferenceConfig{Strict: true},
+			config: &schema.ValueInferenceConfig{Strict: true},
 			data:   "a: 1\nnested:\n  b: x\n",
 			want: `{
 				"$schema": "http://json-schema.org/draft-07/schema#",
@@ -104,8 +104,8 @@ func TestValueInferenceGeneratorFromData(t *testing.T) {
 			}`,
 		},
 		"annotator priority first wins": {
-			config: &jsonschema.ValueInferenceConfig{
-				Annotators: []string{jsonschema.BitnamiAnnotator, jsonschema.HelmDocsAnnotator},
+			config: &schema.ValueInferenceConfig{
+				Annotators: []string{schema.BitnamiAnnotator, schema.HelmDocsAnnotator},
 			},
 			data: "## @param foo bitnami description\n# -- helm-docs description\nfoo: 1\n",
 			want: `{
@@ -116,8 +116,8 @@ func TestValueInferenceGeneratorFromData(t *testing.T) {
 			}`,
 		},
 		"annotator priority reversed": {
-			config: &jsonschema.ValueInferenceConfig{
-				Annotators: []string{jsonschema.HelmDocsAnnotator, jsonschema.BitnamiAnnotator},
+			config: &schema.ValueInferenceConfig{
+				Annotators: []string{schema.HelmDocsAnnotator, schema.BitnamiAnnotator},
 			},
 			data: "## @param foo bitnami description\n# -- helm-docs description\nfoo: 1\n",
 			want: `{
@@ -128,12 +128,12 @@ func TestValueInferenceGeneratorFromData(t *testing.T) {
 			}`,
 		},
 		"existing schema reference": {
-			config: &jsonschema.ValueInferenceConfig{},
+			config: &schema.ValueInferenceConfig{},
 			data:   "# yaml-language-server: $schema=values.schema.json\nkey: value\n",
 			err:    "schema reference already exists",
 		},
 		"infer defaults": {
-			config: &jsonschema.ValueInferenceConfig{InferDefaults: true},
+			config: &schema.ValueInferenceConfig{InferDefaults: true},
 			data:   "replicas: 3\nimage:\n  tag: latest\n",
 			want: `{
 				"$schema": "http://json-schema.org/draft-07/schema#",
@@ -155,7 +155,7 @@ func TestValueInferenceGeneratorFromData(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			g, err := jsonschema.NewValueInferenceGenerator(tc.config)
+			g, err := schema.NewValueInferenceGenerator(tc.config)
 			require.NoError(t, err)
 
 			got, err := g.FromData([]byte(tc.data))
@@ -174,7 +174,7 @@ func TestValueInferenceGeneratorFromData(t *testing.T) {
 func TestValueInferenceGenerator(t *testing.T) {
 	t.Parallel()
 
-	generator := jsonschema.DefaultValueInferenceGenerator
+	generator := schema.DefaultValueInferenceGenerator
 
 	testCases := map[string]struct {
 		expectedPath string

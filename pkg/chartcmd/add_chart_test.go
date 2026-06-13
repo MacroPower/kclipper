@@ -12,9 +12,9 @@ import (
 	"github.com/macropower/kclipper/pkg/chartcmd"
 	"github.com/macropower/kclipper/pkg/crd"
 	"github.com/macropower/kclipper/pkg/helmtest"
-	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclchart"
 	"github.com/macropower/kclipper/pkg/kclmodule/kclhelm"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 const (
@@ -42,11 +42,11 @@ func TestHelmChartAdd(t *testing.T) {
 					Chart:           "podinfo",
 					RepoURL:         "https://stefanprodan.github.io/podinfo",
 					TargetRevision:  "6.7.1",
-					SchemaValidator: jsonschema.HelmValidatorType,
+					SchemaValidator: schema.HelmValidatorType,
 					SkipHooks:       true,
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
-					SchemaGenerator: jsonschema.AutoGeneratorType,
+					SchemaGenerator: schema.AutoGeneratorType,
 				},
 			},
 		},
@@ -58,7 +58,7 @@ func TestHelmChartAdd(t *testing.T) {
 					TargetRevision: "3.6.0",
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
-					SchemaGenerator: jsonschema.ChartPathGeneratorType,
+					SchemaGenerator: schema.ChartPathGeneratorType,
 					SchemaPath:      "charts/common/values.schema.json",
 				},
 			},
@@ -77,7 +77,7 @@ func TestHelmChartAdd(t *testing.T) {
 					},
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
-					SchemaGenerator: jsonschema.AutoGeneratorType,
+					SchemaGenerator: schema.AutoGeneratorType,
 					CRDGenerator:    crd.GeneratorTypeChartPath,
 					CRDPaths:        []string{"**/crds/crds/*.yaml"},
 				},
@@ -91,7 +91,7 @@ func TestHelmChartAdd(t *testing.T) {
 					TargetRevision: "67.9.0",
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
-					SchemaGenerator: jsonschema.AutoGeneratorType,
+					SchemaGenerator: schema.AutoGeneratorType,
 					CRDGenerator:    crd.GeneratorTypeTemplate,
 				},
 			},
@@ -103,7 +103,7 @@ func TestHelmChartAdd(t *testing.T) {
 					RepoURL: "./charts",
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
-					SchemaGenerator: jsonschema.LocalPathGeneratorType,
+					SchemaGenerator: schema.LocalPathGeneratorType,
 					SchemaPath:      "./schemas/simple-chart/values.schema.json",
 				},
 			},
@@ -115,7 +115,7 @@ func TestHelmChartAdd(t *testing.T) {
 					RepoURL: "/pkg/chartcmd/testdata/charts",
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
-					SchemaGenerator: jsonschema.LocalPathGeneratorType,
+					SchemaGenerator: schema.LocalPathGeneratorType,
 					SchemaPath:      "/pkg/chartcmd/testdata/schemas/simple-chart/values.schema.json",
 				},
 			},
@@ -141,7 +141,7 @@ func TestHelmChartAdd(t *testing.T) {
 					},
 				},
 				HelmChartConfig: kclchart.HelmChartConfig{
-					SchemaGenerator: jsonschema.AutoGeneratorType,
+					SchemaGenerator: schema.AutoGeneratorType,
 					CRDGenerator:    crd.GeneratorTypeTemplate,
 				},
 			},

@@ -7,7 +7,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 // All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`.
@@ -21,48 +21,48 @@ func (c *Chart) GetSnakeCaseName() string {
 }
 
 func (c *Chart) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect[Chart]()
+	js, err := schema.Reflect[Chart]()
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}
 
 	js.Schema.Description = "All possible chart configuration, inheriting from `helm.Chart(helm.ChartBase)`."
 
-	js.SetProperty("chart", jsonschema.WithDefault(c.Chart))
-	js.SetProperty("repoURL", jsonschema.WithDefault(c.RepoURL))
-	js.SetProperty("targetRevision", jsonschema.WithDefault(c.TargetRevision))
-	js.SetProperty("values", jsonschema.WithDefault(c.Values), jsonschema.WithType("null"))
+	js.SetProperty("chart", schema.WithDefault(c.Chart))
+	js.SetProperty("repoURL", schema.WithDefault(c.RepoURL))
+	js.SetProperty("targetRevision", schema.WithDefault(c.TargetRevision))
+	js.SetProperty("values", schema.WithDefault(c.Values), schema.WithType("null"))
 
 	js.SetOrRemoveProperty(
 		"namespace", c.Namespace != "",
-		jsonschema.WithDefault(c.Namespace),
+		schema.WithDefault(c.Namespace),
 	)
 	js.SetOrRemoveProperty(
 		"releaseName", c.ReleaseName != "",
-		jsonschema.WithDefault(c.ReleaseName),
+		schema.WithDefault(c.ReleaseName),
 	)
 	js.SetOrRemoveProperty(
 		"skipCRDs", c.SkipCRDs,
-		jsonschema.WithDefault(c.SkipCRDs),
+		schema.WithDefault(c.SkipCRDs),
 	)
 	js.SetOrRemoveProperty(
 		"skipHooks", c.SkipHooks,
-		jsonschema.WithDefault(c.SkipHooks),
+		schema.WithDefault(c.SkipHooks),
 	)
 	js.SetOrRemoveProperty(
 		"passCredentials", c.PassCredentials,
-		jsonschema.WithDefault(c.PassCredentials),
+		schema.WithDefault(c.PassCredentials),
 	)
 	js.SetOrRemoveProperty(
-		"schemaValidator", c.SchemaValidator != jsonschema.DefaultValidatorType,
-		jsonschema.WithDefault(c.SchemaValidator),
-		jsonschema.WithEnum(jsonschema.ValidatorTypeEnum),
+		"schemaValidator", c.SchemaValidator != schema.DefaultValidatorType,
+		schema.WithDefault(c.SchemaValidator),
+		schema.WithEnum(schema.ValidatorTypeEnum),
 	)
 	js.SetOrRemoveProperty(
 		"repositories", len(c.Repositories) > 0,
-		jsonschema.WithDefault(c.Repositories),
-		jsonschema.WithType("null"),
-		jsonschema.WithNoContent(),
+		schema.WithDefault(c.Repositories),
+		schema.WithType("null"),
+		schema.WithNoContent(),
 	)
 
 	js.RemoveProperty("valueFiles")

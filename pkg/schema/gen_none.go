@@ -1,4 +1,4 @@
-package jsonschema
+package schema
 
 var (
 	DefaultNoGenerator = NewNoGenerator()

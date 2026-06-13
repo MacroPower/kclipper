@@ -9,8 +9,8 @@ import (
 	"github.com/iancoleman/strcase"
 
 	"github.com/macropower/kclipper/pkg/helmrepo"
-	"github.com/macropower/kclipper/pkg/jsonschema"
 	"github.com/macropower/kclipper/pkg/kclautomation"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 // Defines a Helm chart repository.
@@ -56,7 +56,7 @@ func (c *ChartRepo) GetSnakeCaseName() string {
 }
 
 func (c *ChartRepo) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect[ChartRepo](jsonschema.WithGoComments())
+	js, err := schema.Reflect[ChartRepo](schema.WithGoComments())
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}

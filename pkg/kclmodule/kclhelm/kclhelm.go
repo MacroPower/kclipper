@@ -3,7 +3,7 @@ package kclhelm
 import (
 	"regexp"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 const (
@@ -22,8 +22,8 @@ var (
 	valueInferenceRegexp   = regexp.MustCompile(`(\s+` + valueInferenceKCLName + `\??\s*:\s+)any(.*)`)
 	postRendererRegexp     = regexp.MustCompile(`(\s+` + postRendererKCLName + `\??\s*:\s+)any(.*)`)
 
-	genOptInheritChartBase  = jsonschema.Replace(schemaDefinitionRegexp, "schema ${1}("+chartBaseKCLType+"):${2}")
-	genOptFixChartRepo      = jsonschema.Replace(repositoriesRegexp, "${1}"+repositoriesKCLType+"${2}")
-	genOptFixValueInference = jsonschema.Replace(valueInferenceRegexp, "${1}"+valueInferenceKCLType+"${2}")
-	genOptFixPostRenderer   = jsonschema.Replace(postRendererRegexp, "${1}"+postRendererKCLType+"${2}")
+	genOptInheritChartBase  = schema.Replace(schemaDefinitionRegexp, "schema ${1}("+chartBaseKCLType+"):${2}")
+	genOptFixChartRepo      = schema.Replace(repositoriesRegexp, "${1}"+repositoriesKCLType+"${2}")
+	genOptFixValueInference = schema.Replace(valueInferenceRegexp, "${1}"+valueInferenceKCLType+"${2}")
+	genOptFixPostRenderer   = schema.Replace(postRendererRegexp, "${1}"+postRendererKCLType+"${2}")
 )

@@ -6,14 +6,14 @@ import (
 	"io"
 
 	"github.com/macropower/kclipper/pkg/crd"
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 // Configuration that can be defined in `charts.k`, in addition to those
 // specified in `helm.ChartBase`.
 type ChartConfig struct {
 	// Schema generator to use for the Values schema.
-	SchemaGenerator jsonschema.GeneratorType `json:"schemaGenerator,omitempty"`
+	SchemaGenerator schema.GeneratorType `json:"schemaGenerator,omitempty"`
 	// Path to the schema to use, when relevant for the selected schemaGenerator.
 	SchemaPath string `json:"schemaPath,omitempty"`
 	// Configuration for value inference via magicschema. Requires
@@ -27,14 +27,14 @@ type ChartConfig struct {
 }
 
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect[ChartConfig](jsonschema.WithGoComments())
+	js, err := schema.Reflect[ChartConfig](schema.WithGoComments())
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}
 
-	js.SetProperty("schemaGenerator", jsonschema.WithEnum(jsonschema.GeneratorTypeEnum))
-	js.SetProperty("crdGenerator", jsonschema.WithEnum(crd.GeneratorTypeEnum))
-	js.SetProperty("valueInference", jsonschema.WithType("null"), jsonschema.WithNoContent())
+	js.SetProperty("schemaGenerator", schema.WithEnum(schema.GeneratorTypeEnum))
+	js.SetProperty("crdGenerator", schema.WithEnum(crd.GeneratorTypeEnum))
+	js.SetProperty("valueInference", schema.WithType("null"), schema.WithNoContent())
 
 	b := &bytes.Buffer{}
 	err = js.GenerateKCL(b, genOptInheritChartBase, genOptFixValueInference)

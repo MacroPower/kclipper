@@ -1,4 +1,4 @@
-package jsonschema_test
+package schema_test
 
 import (
 	"os"
@@ -8,13 +8,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/macropower/kclipper/pkg/jsonschema"
+	"github.com/macropower/kclipper/pkg/schema"
 )
 
 func TestAutoGenerator(t *testing.T) {
 	t.Parallel()
 
-	generator := jsonschema.DefaultAutoGenerator
+	generator := schema.DefaultAutoGenerator
 
 	testCases := map[string]struct {
 		expectedPath string
