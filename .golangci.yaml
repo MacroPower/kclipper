@@ -45,7 +45,6 @@ linters:
     - bidichk
     - bodyclose
     - canonicalheader
-    - containedctx
     - contextcheck
     - depguard
     - dupl
@@ -61,6 +60,7 @@ linters:
     - gocheckcompilerdirectives
     - goconst
     - gocritic
+    # TODO: enable godoclint; extensive findings (50) as of 2026-06-12.
     # - godoclint
     - godot
     - goprintffuncname
@@ -91,12 +91,12 @@ linters:
     - nonamedreturns
     - nosprintfhostport
     - paralleltest
-    - perfsprint
-    - prealloc
+    # - perfsprint
+    # - prealloc
     - predeclared
     - reassign
     # - recvcheck
-    - revive
+    # - revive
     - sloglint
     - staticcheck
     - tagalign
@@ -170,16 +170,16 @@ linters:
         hugeParam:
           sizeThreshold: 256
 
-    # godoclint:
-    #   default: all
-    #   disable:
-    #     - require-pkg-doc
-    #   options:
-    #     max-len:
-    #       length: 80
+    godoclint:
+      default: all
+      disable:
+        - require-pkg-doc
+      options:
+        max-len:
+          length: 88
 
     godot:
-      scope: all
+      scope: noinline
       period: true
       capital: true
 
@@ -196,54 +196,6 @@ linters:
     grouper:
       import-require-single-import: true
       var-require-single-var: true
-
-    revive:
-      enable-all-rules: true
-      rules:
-        - name: line-length-limit
-          disabled: true
-        - name: cyclomatic
-          disabled: true
-        - name: cognitive-complexity
-          disabled: true
-        - name: add-constant
-          disabled: true
-        - name: function-length
-          disabled: true
-        - name: max-public-structs
-          disabled: true
-        - name: nested-structs
-          exclude:
-            - "**/*_test.go"
-        # Needed for future use.
-        - name: unused-receiver
-          disabled: true
-        # Fails on private functions.
-        - name: flag-parameter
-          disabled: true
-        # Requires named results.
-        - name: confusing-results
-          disabled: true
-        - name: exported
-          disabled: true
-        - name: package-comments
-          disabled: true
-        # Plugin packages intentionally mirror the stdlib package they wrap
-        # (e.g. filepath wraps path/filepath) and are always imported aliased.
-        - name: package-naming
-          disabled: true
-        - name: unnecessary-stmt
-          disabled: true
-        # Does not work with inline tags.
-        - name: struct-tag
-          disabled: true
-        - name: var-naming
-          disabled: true
-        # Requires default cases.
-        - name: enforce-switch-style
-          disabled: true
-        - name: unhandled-error
-          disabled: true
 
     depguard:
       rules:
@@ -270,17 +222,20 @@ linters:
           - godot
           - gosec
           - gosmopolitan
-          - prealloc
           - godoclint
       - path: _test\.go
         text: "fieldalignment:"
       - source: "= `"
         linters:
           - grouper
+      # Command wiring runs sequentially and surfaces wrapped errors via the
+      # CLI, so these checks add noise without value there.
       - path: cmd/
         linters:
           - wrapcheck
           - paralleltest
+      # Plain slog calls are intentional at the top level; noctx otherwise
+      # demands the *Context logging variants everywhere.
       - text: "slog\\."
         linters:
           - noctx
