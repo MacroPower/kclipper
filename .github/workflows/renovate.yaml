@@ -48,6 +48,7 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      security-events: read
     steps:
       - name: Generate Token
         uses: actions/create-github-app-token@v3
