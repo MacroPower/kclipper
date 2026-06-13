@@ -1,0 +1,201 @@
+version: "3"
+
+set: [errexit, nounset, pipefail]
+shopt: [globstar]
+
+vars:
+  # Benchmarks build with the same tags as release binaries so timings
+  # reflect the pure-Go network stack that ships.
+  BUILD_TAGS: netgo
+
+tasks:
+  build:
+    desc: Builds all binaries via Dagger
+    cmds:
+      - dagger call kclipper build --output=./dist
+
+  install:
+    desc: Builds and installs the kcl binary
+    vars:
+      PLATFORM: "{{OS}}/{{ARCH}}"
+    cmds:
+      - dagger call kclipper binary-snapshot --platform={{.PLATFORM}} --output=./dist/kcl
+      - sudo cp ./dist/kcl /usr/local/bin
+
+  release:
+    desc: Runs full release via Dagger
+    requires:
+      vars: [GITHUB_TOKEN, TAG, REGISTRY_USERNAME, REGISTRY_PASSWORD]
+    cmds:
+      - >-
+        dagger call kclipper release
+        --github-token=env://GITHUB_TOKEN
+        --registry-username={{.REGISTRY_USERNAME}}
+        --registry-password=env://REGISTRY_PASSWORD
+        --tag={{.TAG}}
+        --output=./dist
+
+  lint:releaser:
+    desc: Validates GoReleaser configuration via Dagger
+    cmds:
+      - dagger check kclipper:lint-releaser
+
+  lint:kcl-modules:
+    desc: Validates KCL module packaging via Dagger
+    cmds:
+      - dagger check kclipper:lint-kclmodules
+
+  scan:image:
+    desc: Scans a container image for vulnerabilities via Dagger
+    summary: |
+      Scans a container image for vulnerabilities via Dagger.
+
+      Args:
+        TARGET: Image reference to scan (required)
+    requires:
+      vars: [TARGET]
+    cmds:
+      - dagger call security scan-image --target={{.TARGET}}
+
+  benchmark:
+    desc: Measures pipeline stage timings via Dagger
+    cmds:
+      - dagger call kclipper benchmark-summary
+
+  benchmark:parallel:
+    desc: Measures full-pipeline wall-clock time via Dagger (parallel)
+    cmds:
+      - dagger call kclipper benchmark-summary --parallel
+
+  bench:
+    desc: Runs Go benchmarks on the host
+    label: "kcl:bench {{.PKG}}"
+    summary: |
+      Runs Go benchmarks on the host. Benchmarks measure host performance,
+      so they stay outside Dagger where containerization would distort
+      results.
+
+      Args:
+        PKG: Go package to benchmark (default: ./...)
+        FLAGS: Additional flags to pass to `go test` (default: "")
+
+      Examples:
+        task kcl:bench PKG=./pkg/helm FLAGS="-cpuprofile profile.out -run=^\$"
+    vars:
+      PKG: '{{.PKG | default "./..."}}'
+      FLAGS: '{{.FLAGS | default ""}}'
+    cmds:
+      - go test -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
+
+  bench-init:
+    desc: Runs Go benchmarks with init tracing
+    cmds:
+      - |
+        echo "a=1" | GODEBUG=inittrace=1 kcl run - 2>&1 | awk '
+        BEGIN {
+            printf "%-100s %-15s %-15s %-10s %-10s\n", "Module", "Init Time (ms)", "Clock Time (ms)", "Bytes", "Allocs";
+            printf "%-100s %-15s %-15s %-10s %-10s\n", "------", "--------------", "---------------", "-----", "------";
+        }
+        $1 == "init" {
+            # Extract the relevant fields and format them into a table
+            module = $2;
+            init_time = substr($3, 2);  # Remove the "@" prefix
+            clock_time = $5;
+            bytes = $8;
+            allocs = $10;
+            printf "%-100s %-15s %-15s %-10s %-10s\n", module, init_time, clock_time, bytes, allocs;
+        }' | tail -n +3 | sort -k3,3n
+
+  pull-upstream:
+    desc: Pulls upstream KCL CLI
+    sources:
+      - .tmp/kcl
+    cmds:
+      - |
+        mkdir -p ./.tmp/bin
+        curl -Lq https://github.com/kcl-lang/cli/releases/download/v0.11.0/kcl-v0.11.0-{{OS}}-{{ARCH}}.tar.gz | \
+          tar -xzO kcl > ./.tmp/bin/kcl
+        chmod +x ./.tmp/bin/kcl
+
+  bench-diff:
+    desc: Compares benchmark results against upstream KCL
+    deps:
+      - task: build
+      - task: pull-upstream
+    vars:
+      KCLX_BIN: ../../dist/kclipper_{{OS}}_{{ARCH}}*/kcl
+      KCL_CODE: no-charts.k
+      KCL_HELM: 10-charts.k
+      KCL_HELM_VALUES: 10-charts-with-values.k
+    cmds:
+      - cp ./.tmp/bin/kcl ./docs/benchmarks/kcl
+      - defer: rm ./docs/benchmarks/kcl
+      - |-
+        cd docs/benchmarks
+        hyperfine --warmup=50 --min-runs=1000 \
+          --export-markdown ../README.md \
+          --command-name "kcl(ipper) -V {{.KCL_CODE}}" \
+          --command-name "kcl(ipper) -V {{.KCL_HELM}}" \
+          --command-name "kcl(ipper) -V {{.KCL_HELM_VALUES}}" \
+          --reference "kcl -V {{.KCL_CODE}}" \
+          "{{.KCLX_BIN}} -V {{.KCL_CODE}}" \
+          "{{.KCLX_BIN}} -V {{.KCL_HELM}}" \
+          "{{.KCLX_BIN}} -V {{.KCL_HELM_VALUES}}"
+
+  bench-diff-docker:
+    desc: Compares benchmark results against upstream KCL in Docker
+    vars:
+      DOCKER_MOUNTS: "-v ./.tmp:/tmp -v ./docs/benchmarks:/opt/benchmarks"
+      KCL_CODE: benchmarks/no-charts.k
+      KCL_HELM: benchmarks/10-charts.k
+    cmds:
+      - >-
+        docker run --name=kcl -d --entrypoint=/usr/bin/bash {{.DOCKER_MOUNTS}}
+        kcllang/kcl-arm64:latest -c "sleep 300"
+      - defer: "docker rm kcl -f"
+      - docker exec kcl kcl version
+      - >-
+        docker run --name=kclipper -d --entrypoint=/usr/bin/bash {{.DOCKER_MOUNTS}}
+        ghcr.io/macropower/kclipper:v0.2.0-arm64 -c "sleep 300"
+      - defer: "docker rm kclipper -f"
+      - docker exec kclipper kcl version
+      - >-
+        hyperfine --warmup=1
+        --command-name "docker ../{{.KCL_CODE}}"
+        --command-name "docker ../{{.KCL_HELM}}"
+        --reference "docker exec kcl kcl run /opt/{{.KCL_CODE}}"
+        "docker exec kclipper kcl run /opt/{{.KCL_CODE}}"
+        "docker exec kclipper kcl run /opt/{{.KCL_HELM}}"
+
+  doc:
+    desc: Generates KCL documentation
+    summary: |
+      Generates KCL documentation from a KCL module.
+
+      Args:
+        MODULE: KCL module to document
+
+      Examples:
+        task kcl:doc MODULE=helm
+    requires:
+      vars: [MODULE]
+    cmds:
+      - kcl doc generate --file-path=./modules/{{.MODULE}} --target=./modules/{{.MODULE}}
+      - cat ./modules/{{.MODULE}}/docs/README.md >> ./modules/{{.MODULE}}/README.md
+      - rm -rf ./modules/{{.MODULE}}/docs
+      - task: :format
+
+  run-chartmuseum:
+    desc: Runs a local chartmuseum registry for manual testing
+    cmd: |-
+      docker run --rm -it \
+        -p 8080:8080 \
+        -e DEBUG=1 \
+        -e STORAGE=local \
+        -e STORAGE_LOCAL_ROOTDIR=/charts \
+        -e BASIC_AUTH_USER=user \
+        -e BASIC_AUTH_PASS=hunter2 \
+        -v $(pwd)/charts:/charts \
+        ghcr.io/helm/chartmuseum:v0.16.2
+    # helm package .
+    # curl -u user:hunter2 --data-binary "@simple-chart-0.1.0.tgz" http://localhost:8080/api/charts

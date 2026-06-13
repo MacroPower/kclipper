@@ -1,0 +1,66 @@
+version: "3"
+
+set: [errexit, nounset, pipefail]
+shopt: [globstar]
+
+tasks:
+  format:
+    desc: Formats Go code via Dagger
+    cmds:
+      - dagger call -y go format-go
+
+  lint:
+    desc: Lints Go code via Dagger
+    cmds:
+      - dagger check go:lint
+
+  test:
+    desc: Runs Go tests via Dagger
+    summary: |
+      Runs Go tests via Dagger.
+
+      For a single package or extra flags, call the toolchain directly:
+        dagger call go test --pkgs=./pkg/helm/... --run=TestName
+    cmds:
+      - dagger check kclipper:test-unit
+
+  cover:
+    desc: Runs Go tests with coverage via Dagger
+    cmds:
+      - dagger call go test-coverage --output=.test/coverage.txt
+
+  tidy:
+    desc: Tidies go.mod and go.sum across all modules via Dagger
+    cmds:
+      - dagger call -y go tidy
+
+  gen:
+    desc: Generates Go code via Dagger
+    cmds:
+      - dagger call -y go generate
+
+  # Deadcode analysis goes through the kclipper toolchain rather than the
+  # shared go toolchain so the build uses kclipper's build tags.
+  deadcode:
+    desc: Finds dead code in Go via Dagger
+    cmds:
+      - dagger call kclipper lint-deadcode
+
+  docs:
+    desc: Prints Go documentation for all packages
+    label: "go:docs {{.PKG}}"
+    summary: |
+      Prints Go documentation for all packages. Runs on the host for fast,
+      interactive reading.
+
+      Args:
+        PKG: Go package(s) to document (default: github.com/macropower/kclipper/...)
+        FLAGS: Additional flags to pass to `go doc` (default: "")
+    vars:
+      PKG: '{{.PKG | default "github.com/macropower/kclipper/..."}}'
+      FLAGS: '{{.FLAGS | default ""}}'
+      PACKAGES:
+        sh: go list {{.PKG}} | grep -v -E '/(examples|cmd)(/|$)'
+    cmds:
+      - for: { var: PACKAGES, split: "\n" }
+        cmd: echo "--------------------------------------------------------------------------------" && go doc {{.FLAGS}} {{.ITEM}}

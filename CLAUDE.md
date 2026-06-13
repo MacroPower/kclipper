@@ -9,10 +9,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Test Commands
 
 ```bash
-task format # Format and lint
-task lint   # Lint only
-task test   # Run all tests
+task format # Format, tidy, and generate (dagger generate --auto-apply)
+task lint   # Lint only (dagger check, lint checks)
+task test   # Run all tests (dagger check kclipper:test-unit)
+task check  # Everything CI runs (dagger check)
 ```
+
+kclipper-specific tasks (build, release, benchmarks, KCL docs) live in
+the `kcl:` namespace, e.g. `task kcl:build`. Run `task -l` for the full
+list.
 
 ## Code Style
 

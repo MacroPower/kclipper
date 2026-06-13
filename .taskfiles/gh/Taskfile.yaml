@@ -1,0 +1,10 @@
+version: "3"
+
+set: [errexit, nounset, pipefail]
+shopt: [globstar]
+
+tasks:
+  lint:
+    desc: Lints GitHub Actions workflows via Dagger
+    cmds:
+      - dagger check kclipper:lint-actions

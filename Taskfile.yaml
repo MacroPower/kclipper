@@ -1,312 +1,72 @@
 version: "3"
 
-vars:
-  GO_FILES_CMD: >-
-    go list -f {{"{{.Dir}}"}} ./... | xargs -I {} find {} -name "*.go"
-  PRETTIER_TARGETS: "*.{yaml,md,json} **/*.{yaml,md,json}"
-  BUILD_TAGS: netgo
+set: [errexit, nounset, pipefail]
+shopt: [globstar]
+
+# The .taskfiles/ segmentation is intentional, even where a namespace holds
+# only thin Dagger wrappers — do not flatten it into this file.
+includes:
+  dagger: ./.taskfiles/dagger/Taskfile.yaml
+  dev: ./.taskfiles/dev/Taskfile.yaml
+  fmt: ./.taskfiles/fmt/Taskfile.yaml
+  gh: ./.taskfiles/gh/Taskfile.yaml
+  git: ./.taskfiles/git/Taskfile.yaml
+  go: ./.taskfiles/go/Taskfile.yaml
+  kcl: ./.taskfiles/kcl/Taskfile.yaml
 
 tasks:
   default:
-    cmds:
-      - task: format
-      - task: lint
-      - task: test
-      - task: build
-
-  # ---------------------------------------------------------------------------
-  # Dagger-based CI tasks
-  # ---------------------------------------------------------------------------
+    cmd: task -l
 
   format:
-    desc: Formats and generates code via Dagger
+    desc: Formats, tidies, and generates code via Dagger
+    summary: |
+      Runs every registered Dagger generator and applies the changes.
+      Supersedes go:format and fmt:format, which remain for selective
+      runs.
     cmds:
       - dagger generate --auto-apply
 
   lint:
-    desc: Runs all lint checks via Dagger
+    desc: Runs all lint targets via Dagger
     cmds:
       - dagger check go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules
 
-  lint:go:
-    desc: Lints Go code via Dagger
-    cmds:
-      - dagger check go:lint
-
-  lint:prettier:
-    desc: Checks formatting of YAML, JSON, and Markdown via Dagger
-    cmds:
-      - dagger check kclipper:lint-prettier
-
-  lint:actions:
-    desc: Lints GitHub Actions workflows via Dagger
-    cmds:
-      - dagger check kclipper:lint-actions
-
-  lint:releaser:
-    desc: Validates GoReleaser configuration via Dagger
-    cmds:
-      - dagger check kclipper:lint-releaser
-
-  lint:kcl-modules:
-    desc: Validates KCL module packaging via Dagger
-    cmds:
-      - dagger check kclipper:lint-kclmodules
-
-  scan:image:
-    desc: Scans a container image for vulnerabilities via Dagger
-    cmds:
-      - dagger call security scan-image --target=...
-
-  lint:commit-msg:
-    desc: Validates commit message format via Dagger
-    requires:
-      vars: [MSG_FILE]
-    cmds:
-      - dagger call go lint-commit-msg --msg-file={{.MSG_FILE}}
+  docs:
+    desc: Runs all docs targets
+    deps: [go:docs]
 
   test:
-    desc: Runs Go tests via Dagger
-    cmds:
-      - dagger check kclipper:test-unit
+    desc: Runs all test targets
+    deps: [go:test]
 
-  test:integration:
-    desc: Runs CI module integration tests via Dagger
+  test:toolchains:
+    desc: Runs the kclipper toolchain's tests via Dagger
     cmds:
       - dagger check -m toolchains/kclipper/tests
-
-  build:
-    desc: Builds all binaries via Dagger
-    cmds:
-      - dagger call kclipper build --output=./dist
-
-  cover:
-    desc: Runs Go tests with coverage via Dagger
-    cmds:
-      - dagger call go test-coverage --output=coverage.txt
 
   check:
     desc: Runs all checks via Dagger
     cmds:
       - dagger check
 
-  benchmark:
-    desc: Measures pipeline stage timings via Dagger
+  scan:
+    desc: Scans source dependencies for vulnerabilities via Dagger
     cmds:
-      - dagger call kclipper benchmark-summary
-
-  benchmark:parallel:
-    desc: Measures full-pipeline wall-clock time via Dagger (parallel)
-    cmds:
-      - dagger call kclipper benchmark-summary --parallel
-
-  release:
-    desc: Runs full release via Dagger
-    requires:
-      vars: [GITHUB_TOKEN, TAG, REGISTRY_USERNAME, REGISTRY_PASSWORD]
-    cmds:
-      - >-
-        dagger call kclipper release
-        --github-token=env://GITHUB_TOKEN
-        --registry-username={{.REGISTRY_USERNAME}}
-        --registry-password=env://REGISTRY_PASSWORD
-        --tag={{.TAG}}
-        --output=./dist
-
-  # ---------------------------------------------------------------------------
-  # Local-only tasks (no Dagger)
-  # ---------------------------------------------------------------------------
+      - dagger call security scan-source
 
   pre-commit:
-    desc: Runs all pre-commit checks via Dagger
+    desc: Runs all pre-commit targets
     cmds:
-      - dagger check
+      - task: format
+      - task: lint
+      - task: test
 
   install:
-    desc: Builds and installs binaries
-    vars:
-      PLATFORM: "{{OS}}/{{ARCH}}"
+    desc: Runs all install targets
+    deps: [dev:install, git:hooks:install]
+
+  clean:
+    desc: Removes build artifacts and caches
     cmds:
-      - dagger call kclipper binary-snapshot --platform={{.PLATFORM}} --output=./dist/kcl
-      - sudo cp ./dist/kcl /usr/local/bin
-
-  go-bench:
-    desc: Run Go benchmarks
-    summary: |
-      Run Go benchmarks
-
-      Args:
-        PKG: Go package to test (default: ./...)
-        FLAGS: Additional flags to pass to `go test` (default: "")
-
-      Examples:
-        task go-bench PKG=./pkg/helm FLAGS="-cpuprofile profile.out -run=^\$"
-    vars:
-      PKG: '{{.PKG | default "./..."}}'
-      FLAGS: '{{.FLAGS | default ""}}'
-    cmds:
-      - go test -bench=. -benchmem -tags={{.BUILD_TAGS}} {{.FLAGS}} {{.PKG}}
-
-  lint:deadcode:
-    desc: Checks for unreachable Go functions via Dagger
-    cmds:
-      - dagger call kclipper lint-deadcode
-
-  go-bench-init:
-    desc: Run Go benchmarks with init tracing
-    cmds:
-      - |
-        echo "a=1" | GODEBUG=inittrace=1 kcl run - 2>&1 | awk '
-        BEGIN {
-            printf "%-100s %-15s %-15s %-10s %-10s\n", "Module", "Init Time (ms)", "Clock Time (ms)", "Bytes", "Allocs";
-            printf "%-100s %-15s %-15s %-10s %-10s\n", "------", "--------------", "---------------", "-----", "------";
-        }
-        $1 == "init" {
-            # Extract the relevant fields and format them into a table
-            module = $2;
-            init_time = substr($3, 2);  # Remove the "@" prefix
-            clock_time = $5;
-            bytes = $8;
-            allocs = $10;
-            printf "%-100s %-15s %-15s %-10s %-10s\n", module, init_time, clock_time, bytes, allocs;
-        }' | tail -n +3 | sort -k3,3n
-
-  pull-upstream:
-    desc: Pulls upstream KCL CLI
-    sources:
-      - .tmp/kcl
-    cmds:
-      - |
-        mkdir -p ./.tmp/bin
-        curl -Lq https://github.com/kcl-lang/cli/releases/download/v0.11.0/kcl-v0.11.0-{{OS}}-{{ARCH}}.tar.gz | \
-          tar -xzO kcl > ./.tmp/bin/kcl
-        chmod +x ./.tmp/bin/kcl
-
-  bench-diff:
-    desc: Compares benchmark results
-    deps:
-      - task: build
-      - task: pull-upstream
-    vars:
-      KCLX_BIN: ../../dist/kclipper_{{OS}}_{{ARCH}}*/kcl
-      KCL_CODE: no-charts.k
-      KCL_HELM: 10-charts.k
-      KCL_HELM_VALUES: 10-charts-with-values.k
-    cmds:
-      - cp ./.tmp/bin/kcl ./docs/benchmarks/kcl
-      - defer: rm ./docs/benchmarks/kcl
-      - |-
-        cd docs/benchmarks
-        hyperfine --warmup=50 --min-runs=1000 \
-          --export-markdown ../README.md \
-          --command-name "kcl(ipper) -V {{.KCL_CODE}}" \
-          --command-name "kcl(ipper) -V {{.KCL_HELM}}" \
-          --command-name "kcl(ipper) -V {{.KCL_HELM_VALUES}}" \
-          --reference "kcl -V {{.KCL_CODE}}" \
-          "{{.KCLX_BIN}} -V {{.KCL_CODE}}" \
-          "{{.KCLX_BIN}} -V {{.KCL_HELM}}" \
-          "{{.KCLX_BIN}} -V {{.KCL_HELM_VALUES}}"
-
-  bench-diff-docker:
-    desc: Compares benchmark results
-    vars:
-      DOCKER_MOUNTS: "-v ./.tmp:/tmp -v ./docs/benchmarks:/opt/benchmarks"
-      KCL_CODE: benchmarks/no-charts.k
-      KCL_HELM: benchmarks/10-charts.k
-    cmds:
-      - >-
-        docker run --name=kcl -d --entrypoint=/usr/bin/bash {{.DOCKER_MOUNTS}}
-        kcllang/kcl-arm64:latest -c "sleep 300"
-      - defer: "docker rm kcl -f"
-      - docker exec kcl kcl version
-      - >-
-        docker run --name=kclipper -d --entrypoint=/usr/bin/bash {{.DOCKER_MOUNTS}}
-        ghcr.io/macropower/kclipper:v0.2.0-arm64 -c "sleep 300"
-      - defer: "docker rm kclipper -f"
-      - docker exec kclipper kcl version
-      - >-
-        hyperfine --warmup=1
-        --command-name "docker ../{{.KCL_CODE}}"
-        --command-name "docker ../{{.KCL_HELM}}"
-        --reference "docker exec kcl kcl run /opt/{{.KCL_CODE}}"
-        "docker exec kclipper kcl run /opt/{{.KCL_CODE}}"
-        "docker exec kclipper kcl run /opt/{{.KCL_HELM}}"
-
-  kcl-doc:
-    desc: Generates KCL documentation
-    summary: |
-      Generates KCL documentation from a KCL module.
-
-      Args:
-        MODULE: KCL module to document
-
-      Examples:
-        task kcl-doc MODULE=helm
-    requires:
-      vars: [MODULE]
-    cmds:
-      - kcl doc generate --file-path=./modules/{{.MODULE}} --target=./modules/{{.MODULE}}
-      - cat ./modules/{{.MODULE}}/docs/README.md >> ./modules/{{.MODULE}}/README.md
-      - rm -rf ./modules/{{.MODULE}}/docs
-      - task: format
-
-  run-chartmuseum:
-    cmd: |-
-      docker run --rm -it \
-        -p 8080:8080 \
-        -e DEBUG=1 \
-        -e STORAGE=local \
-        -e STORAGE_LOCAL_ROOTDIR=/charts \
-        -e BASIC_AUTH_USER=user \
-        -e BASIC_AUTH_PASS=hunter2 \
-        -v $(pwd)/charts:/charts \
-        ghcr.io/helm/chartmuseum:v0.16.2
-    # helm package .
-    # curl -u user:hunter2 --data-binary "@simple-chart-0.1.0.tgz" http://localhost:8080/api/charts
-
-  install-hooks:
-    desc: Install git hooks
-    cmds:
-      - lefthook install
-
-  git:worktree:add:
-    desc: Adds a git worktree for the given branch
-    summary: |
-      Adds a git worktree under .worktrees/ for the given branch.
-      Creates the branch if it doesn't already exist.
-
-      Args:
-        BRANCH: Branch name (required, e.g. feat/foo)
-    requires:
-      vars: [BRANCH]
-    vars:
-      DIR: '{{.BRANCH | replace "/" "-"}}'
-    cmds:
-      - mkdir -p .worktrees
-      - cmd: git worktree add ".worktrees/{{.DIR}}" "{{.BRANCH}}"
-        if: 'git show-ref --verify --quiet "refs/heads/{{.BRANCH}}" || git show-ref --verify --quiet "refs/remotes/origin/{{.BRANCH}}"'
-      - cmd: git worktree add -b "{{.BRANCH}}" ".worktrees/{{.DIR}}"
-        if: '! git show-ref --verify --quiet "refs/heads/{{.BRANCH}}" && ! git show-ref --verify --quiet "refs/remotes/origin/{{.BRANCH}}"'
-
-  git:worktree:ls:
-    desc: Lists all git worktrees
-    cmds:
-      - git worktree list
-
-  git:worktree:rm:
-    desc: Removes a git worktree and deletes the branch
-    summary: |
-      Removes the worktree under .worktrees/ for the given branch
-      and deletes the branch.
-
-      Args:
-        BRANCH: Branch name (required, e.g. feat/foo)
-    requires:
-      vars: [BRANCH]
-    vars:
-      DIR: '{{.BRANCH | replace "/" "-"}}'
-    cmds:
-      - cmd: git worktree remove ".worktrees/{{.DIR}}"
-        if: '[ -d ".worktrees/{{.DIR}}" ]'
-      - cmd: git branch -D "{{.BRANCH}}"
-        if: 'git show-ref --verify --quiet "refs/heads/{{.BRANCH}}"'
+      - rm -rf dist/ .test/ .task/ .tmp/
