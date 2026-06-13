@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
+  "packages": {
+    "go": "1.26.3",
+    "go-task": "3.48.0",
+    "lefthook": "2.1.5",
+    "github:dagger/nix/89dee52f7839a290326eb1f929a4ac99d4a1aae1#packages.aarch64-darwin.dagger": {
+      "version": "",
+      "platforms": ["aarch64-darwin"]
+    },
+    "github:dagger/nix/89dee52f7839a290326eb1f929a4ac99d4a1aae1#packages.aarch64-linux.dagger": {
+      "version": "",
+      "platforms": ["aarch64-linux"]
+    },
+    "github:dagger/nix/89dee52f7839a290326eb1f929a4ac99d4a1aae1#packages.x86_64-darwin.dagger": {
+      "version": "",
+      "platforms": ["x86_64-darwin"]
+    },
+    "github:dagger/nix/89dee52f7839a290326eb1f929a4ac99d4a1aae1#packages.x86_64-linux.dagger": {
+      "version": "",
+      "platforms": ["x86_64-linux"]
+    }
+  }
+}

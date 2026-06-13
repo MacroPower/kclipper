@@ -23,3 +23,6 @@ dist/
 # Temp files
 .tmp/
 .task/
+
+# Devbox environment
+.devbox/
