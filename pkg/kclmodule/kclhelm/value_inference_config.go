@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"reflect"
 	"slices"
 
 	"github.com/macropower/kclipper/pkg/jsonschema"
@@ -52,7 +51,7 @@ type ValueInferenceConfig struct {
 }
 
 func (c *ValueInferenceConfig) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect(reflect.TypeFor[ValueInferenceConfig](), jsonschema.WithGoComments())
+	js, err := jsonschema.Reflect[ValueInferenceConfig](jsonschema.WithGoComments())
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}

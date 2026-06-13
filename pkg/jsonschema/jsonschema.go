@@ -7,9 +7,8 @@ import (
 	"regexp"
 	"strings"
 
+	"go.jacobcolvin.com/x/jsonschema"
 	"sigs.k8s.io/yaml"
-
-	gojsonschema "github.com/google/jsonschema-go/jsonschema"
 )
 
 type (
@@ -61,17 +60,6 @@ var (
 	validatorTypes = map[string]ValidatorType{
 		string(KCLValidatorType):  KCLValidatorType,
 		string(HelmValidatorType): HelmValidatorType,
-	}
-
-	// Type names permitted by JSON Schema.
-	validTypeNames = map[string]bool{
-		"array":   true,
-		"boolean": true,
-		"integer": true,
-		"null":    true,
-		"number":  true,
-		"object":  true,
-		"string":  true,
 	}
 )
 
@@ -126,44 +114,15 @@ func isJSONFile(f string) bool {
 	return filepath.Ext(f) == ".json"
 }
 
-// validateSchema checks that s is structurally usable as a JSON Schema,
-// validating type names on s and all nested sub-schemas.
-//
-// It deliberately validates only type names, tolerating schema authoring
-// opinions (e.g. format on non-string types) that are violated by many
-// real-world schemas, like those derived from the Kubernetes API. Schemas
-// that kclipper reads and converts must be tolerated, even if stricter
-// generators would not produce them.
-func validateSchema(s *gojsonschema.Schema) error {
-	err := walkSchema(s, func(s *gojsonschema.Schema) error {
-		if s.Type != "" && !validTypeNames[s.Type] {
-			return fmt.Errorf("invalid type: %q", s.Type)
-		}
-
-		for _, t := range s.Types {
-			if !validTypeNames[t] {
-				return fmt.Errorf("invalid type: %q", t)
-			}
-		}
-
-		return nil
-	})
-	if err != nil {
-		return fmt.Errorf("invalid schema: %w", err)
-	}
-
-	return nil
-}
-
-// unmarshalSchema unmarshals data (JSON or YAML) into a [gojsonschema.Schema].
+// unmarshalSchema unmarshals data (JSON or YAML) into a [jsonschema.Schema].
 // YAML is a superset of JSON, so this works for both formats.
-func unmarshalSchema(data []byte) (*gojsonschema.Schema, error) {
+func unmarshalSchema(data []byte) (*jsonschema.Schema, error) {
 	jsonData, err := yaml.YAMLToJSON(data)
 	if err != nil {
 		return nil, fmt.Errorf("convert YAML to JSON: %w", err)
 	}
 
-	s := &gojsonschema.Schema{}
+	s := &jsonschema.Schema{}
 
 	err = json.Unmarshal(jsonData, s)
 	if err != nil {
@@ -173,8 +132,8 @@ func unmarshalSchema(data []byte) (*gojsonschema.Schema, error) {
 	return s, nil
 }
 
-// marshalSchema marshals a [gojsonschema.Schema] to indented JSON.
-func marshalSchema(s *gojsonschema.Schema) ([]byte, error) {
+// marshalSchema marshals a [jsonschema.Schema] to indented JSON.
+func marshalSchema(s *jsonschema.Schema) ([]byte, error) {
 	data, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("marshal schema: %w", err)
@@ -188,59 +147,11 @@ func marshalSchema(s *gojsonschema.Schema) ([]byte, error) {
 // sources can carry arbitrary unknown members (e.g. wrapper keys in malformed
 // vendored schemas); they validate nothing under draft-07 and mislead anyone
 // reading the schema as if they were constraints.
-func stripUnknownMembers(s *gojsonschema.Schema) {
+func stripUnknownMembers(s *jsonschema.Schema) {
 	//nolint:errcheck // The visitor never returns an error.
-	_ = walkSchema(s, func(s *gojsonschema.Schema) error {
+	_ = jsonschema.Walk(s, func(_ jsonschema.Location, s *jsonschema.Schema) error {
 		s.Extra = nil
 
 		return nil
 	})
-}
-
-// walkSchema recursively applies fn to s and all nested sub-schemas.
-func walkSchema(s *gojsonschema.Schema, fn func(s *gojsonschema.Schema) error) error {
-	if s == nil {
-		return nil
-	}
-
-	err := fn(s)
-	if err != nil {
-		return err
-	}
-
-	for _, sub := range [...]*gojsonschema.Schema{
-		s.Items, s.AdditionalItems, s.Contains, s.UnevaluatedItems,
-		s.AdditionalProperties, s.PropertyNames, s.UnevaluatedProperties,
-		s.Not, s.If, s.Then, s.Else, s.ContentSchema,
-	} {
-		err = walkSchema(sub, fn)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, subs := range [...][]*gojsonschema.Schema{
-		s.PrefixItems, s.ItemsArray, s.AllOf, s.AnyOf, s.OneOf,
-	} {
-		for _, sub := range subs {
-			err = walkSchema(sub, fn)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	for _, subs := range [...]map[string]*gojsonschema.Schema{
-		s.Defs, s.Definitions, s.DependencySchemas, s.Properties,
-		s.PatternProperties, s.DependentSchemas,
-	} {
-		for _, sub := range subs {
-			err = walkSchema(sub, fn)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }

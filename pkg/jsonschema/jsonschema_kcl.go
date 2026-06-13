@@ -7,7 +7,7 @@ import (
 	"maps"
 	"slices"
 
-	gojsonschema "github.com/google/jsonschema-go/jsonschema"
+	"go.jacobcolvin.com/x/jsonschema"
 
 	"github.com/macropower/kclipper/pkg/kclgen"
 )
@@ -46,7 +46,7 @@ func ConvertToKCLCompatibleJSONSchema(jsonSchemaData []byte) ([]byte, error) {
 
 	// Merge into an empty schema, which results in a flattened schema that is
 	// compatible with KCL schema generation.
-	ms := mergeSchemas(&gojsonschema.Schema{}, s, true)
+	ms := mergeSchemas(&jsonschema.Schema{}, s, true)
 
 	fixedJSONSchema, err := marshalSchema(ms)
 	if err != nil {
@@ -160,13 +160,13 @@ func fixGenSubSchemas(schema map[string]any) {
 // form. Required keys survive only when present on both sides, so flattening
 // drops them; partial values overlays must stay valid against the generated
 // KCL schema.
-func mergeSchemas(dest, src *gojsonschema.Schema, setDefaults bool) *gojsonschema.Schema {
+func mergeSchemas(dest, src *jsonschema.Schema, setDefaults bool) *jsonschema.Schema {
 	if dest == nil {
-		return mergeSchemas(&gojsonschema.Schema{}, src, setDefaults)
+		return mergeSchemas(&jsonschema.Schema{}, src, setDefaults)
 	}
 
 	if src == nil {
-		return mergeSchemas(&gojsonschema.Schema{}, dest, setDefaults)
+		return mergeSchemas(&jsonschema.Schema{}, dest, setDefaults)
 	}
 
 	if setDefaults {
@@ -251,7 +251,7 @@ func mergeSchemas(dest, src *gojsonschema.Schema, setDefaults bool) *gojsonschem
 	// Recursive calls for nested structures.
 	if src.Properties != nil {
 		if dest.Properties == nil {
-			dest.Properties = make(map[string]*gojsonschema.Schema)
+			dest.Properties = make(map[string]*jsonschema.Schema)
 		}
 
 		for _, k := range slices.Sorted(maps.Keys(src.Properties)) {
@@ -262,7 +262,7 @@ func mergeSchemas(dest, src *gojsonschema.Schema, setDefaults bool) *gojsonschem
 	if src.AdditionalProperties != nil {
 		err := mergeSchemaAdditionalProperties(dest, src, setDefaults)
 		if err != nil {
-			dest.AdditionalProperties = &gojsonschema.Schema{}
+			dest.AdditionalProperties = &jsonschema.Schema{}
 		}
 	}
 
@@ -273,7 +273,7 @@ func mergeSchemas(dest, src *gojsonschema.Schema, setDefaults bool) *gojsonschem
 
 	// Flatten the compositors into a single schema, dropping the keywords once
 	// their branches have been merged in.
-	var combined *gojsonschema.Schema
+	var combined *jsonschema.Schema
 
 	for _, s := range append(dest.AllOf, src.AllOf...) {
 		combined = mergeSchemas(combined, s, setDefaults)
@@ -313,9 +313,9 @@ func mergeSchemas(dest, src *gojsonschema.Schema, setDefaults bool) *gojsonschem
 }
 
 // mergeSchemaTypes unions the type constraints of src into dest. The union is
-// sorted and deduplicated, and stored on [gojsonschema.Schema.Type] when it
-// contains a single type, or [gojsonschema.Schema.Types] otherwise.
-func mergeSchemaTypes(dest, src *gojsonschema.Schema) {
+// sorted and deduplicated, and stored on [jsonschema.Schema.Type] when it
+// contains a single type, or [jsonschema.Schema.Types] otherwise.
+func mergeSchemaTypes(dest, src *jsonschema.Schema) {
 	srcTypes := schemaTypeList(src)
 	if len(srcTypes) == 0 {
 		return
@@ -336,7 +336,7 @@ func mergeSchemaTypes(dest, src *gojsonschema.Schema) {
 
 // schemaTypeList returns the schema's type constraint as a list, regardless of
 // whether it is stored on Type or Types.
-func schemaTypeList(s *gojsonschema.Schema) []string {
+func schemaTypeList(s *jsonschema.Schema) []string {
 	if s.Type != "" {
 		return []string{s.Type}
 	}
@@ -346,7 +346,7 @@ func schemaTypeList(s *gojsonschema.Schema) []string {
 
 // setSchemaTypes stores a type list on the schema, using Type for a single
 // type and Types otherwise.
-func setSchemaTypes(s *gojsonschema.Schema, types []string) {
+func setSchemaTypes(s *jsonschema.Schema, types []string) {
 	if len(types) == 1 {
 		s.Type = types[0]
 		s.Types = nil
@@ -403,8 +403,10 @@ func intersectStrings(a, b []string) []string {
 	return intersection
 }
 
-func mergeSchemaAdditionalProperties(dest, src *gojsonschema.Schema, setDefaults bool) error {
-	if isBoolSchema(src.AdditionalProperties) {
+func mergeSchemaAdditionalProperties(dest, src *jsonschema.Schema, setDefaults bool) error {
+	// A boolean additionalProperties schema (the true or false form) carries no
+	// keywords to merge, so it passes through unchanged.
+	if jsonschema.IsTrueSchema(src.AdditionalProperties) || jsonschema.IsFalseSchema(src.AdditionalProperties) {
 		dest.AdditionalProperties = src.AdditionalProperties
 
 		return nil
@@ -412,27 +414,12 @@ func mergeSchemaAdditionalProperties(dest, src *gojsonschema.Schema, setDefaults
 
 	subSchema := mergeSchemas(dest.AdditionalProperties, src.AdditionalProperties, setDefaults)
 
-	err := validateSchema(subSchema)
+	err := jsonschema.CheckTypeNames(subSchema)
 	if err != nil {
-		return err
+		return fmt.Errorf("validate schema: %w", err)
 	}
 
 	dest.AdditionalProperties = subSchema
 
 	return nil
-}
-
-// isBoolSchema reports whether s marshals to one of the boolean JSON Schema
-// forms: true (the empty schema) or false (its negation).
-func isBoolSchema(s *gojsonschema.Schema) bool {
-	if s == nil {
-		return false
-	}
-
-	data, err := json.Marshal(s)
-	if err != nil {
-		return false
-	}
-
-	return bytes.Equal(data, []byte("true")) || bytes.Equal(data, []byte("false"))
 }

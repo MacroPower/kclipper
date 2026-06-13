@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"reflect"
 	"slices"
 
 	"github.com/iancoleman/strcase"
@@ -77,7 +76,7 @@ func (c *ChartConfig) Validate() error {
 }
 
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect(reflect.TypeFor[ChartConfig]())
+	js, err := jsonschema.Reflect[ChartConfig]()
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}

@@ -2,14 +2,13 @@ package jsonschema
 
 import (
 	"bytes"
-	"encoding/json"
+	"context"
 	"fmt"
 	"io"
 	"reflect"
 	"regexp"
 
-	gojsonschema "github.com/google/jsonschema-go/jsonschema"
-	xjsonschema "go.jacobcolvin.com/x/jsonschema"
+	"go.jacobcolvin.com/x/jsonschema"
 
 	"github.com/macropower/kclipper/pkg/kclgen"
 )
@@ -34,32 +33,37 @@ func WithGoComments() ReflectOpt {
 	}
 }
 
-// Reflect generates a schema for t and returns it wrapped in a [Reflected].
+// Reflect generates a schema for the type T and returns it wrapped in a
+// [Reflected].
 //
 // Definitions are inlined rather than referenced via $ref, and nil-able Go
 // types are not made nullable, so the result is a single self-contained,
 // non-nullable schema suitable for KCL schema generation (a multi-type union
 // with null would otherwise collapse to any).
-func Reflect(t reflect.Type, opts ...ReflectOpt) (*Reflected, error) {
+func Reflect[T any](opts ...ReflectOpt) (*Reflected, error) {
+	t := reflect.TypeFor[T]()
+
 	var cfg reflectConfig
 
 	for _, opt := range opts {
 		opt(&cfg)
 	}
 
-	genOpts := []xjsonschema.Option{
+	genOpts := []jsonschema.GenerateOption{
 		// Inline every type instead of emitting a $defs/$ref graph; KCL schema
 		// generation consumes a single flattened schema.
-		xjsonschema.WithDefinitions(false),
+		jsonschema.WithDefinitions(false),
 		// Keep slices, maps, and pointers non-nullable; KCL schema generation
 		// renders a type union with null as any, losing the element type.
-		xjsonschema.WithNullable(false),
+		jsonschema.WithNullable(false),
 	}
 	if cfg.comments {
-		genOpts = append(genOpts, xjsonschema.WithComments(true))
+		// Extract Go doc comments as descriptions from source resolvable at
+		// generation time.
+		genOpts = append(genOpts, jsonschema.WithDescriptionProvider(jsonschema.NewGoCommentProvider()))
 	}
 
-	s, err := xjsonschema.Generate(t, genOpts...)
+	s, err := jsonschema.Generate(context.Background(), t, genOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("reflect %s: %w", t, err)
 	}
@@ -88,7 +92,7 @@ type replacement struct {
 type Reflected struct {
 	// Schema is the underlying JSON Schema. It can be adjusted directly or via
 	// [Reflected.SetProperty] and related methods before KCL generation.
-	Schema *gojsonschema.Schema
+	Schema *jsonschema.Schema
 
 	name         string
 	replacements []replacement
@@ -182,7 +186,7 @@ func Replace(re *regexp.Regexp, repl string) GenOpt {
 	}
 }
 
-// PropertyOpt modifies a property [gojsonschema.Schema].
+// PropertyOpt modifies a property [jsonschema.Schema].
 //
 // Available options:
 //   - [WithEnum]
@@ -191,11 +195,11 @@ func Replace(re *regexp.Regexp, repl string) GenOpt {
 //   - [WithType]
 //   - [WithNoContent]
 //   - [WithAllowAdditionalProperties]
-type PropertyOpt func(*gojsonschema.Schema)
+type PropertyOpt func(*jsonschema.Schema)
 
 // WithEnum is a [PropertyOpt] that sets an enum on a property schema.
 func WithEnum(enum []any) PropertyOpt {
-	return func(s *gojsonschema.Schema) {
+	return func(s *jsonschema.Schema) {
 		s.Enum = enum
 	}
 }
@@ -203,7 +207,7 @@ func WithEnum(enum []any) PropertyOpt {
 // WithItemsEnum is a [PropertyOpt] that sets an enum on an array property's
 // items schema.
 func WithItemsEnum(enum []any) PropertyOpt {
-	return func(s *gojsonschema.Schema) {
+	return func(s *jsonschema.Schema) {
 		if s.Items != nil {
 			s.Items.Enum = enum
 		}
@@ -213,12 +217,12 @@ func WithItemsEnum(enum []any) PropertyOpt {
 // WithDefault is a [PropertyOpt] that sets the default on a property schema. A
 // nil value leaves the default unset, matching JSON omitempty semantics.
 func WithDefault(defaultValue any) PropertyOpt {
-	return func(s *gojsonschema.Schema) {
+	return func(s *jsonschema.Schema) {
 		if defaultValue == nil {
 			return
 		}
 
-		data, err := json.Marshal(defaultValue)
+		data, err := jsonschema.Raw(defaultValue)
 		if err != nil {
 			return
 		}
@@ -230,7 +234,7 @@ func WithDefault(defaultValue any) PropertyOpt {
 // WithType is a [PropertyOpt] that sets a single type on a property schema,
 // clearing any multi-type union.
 func WithType(t string) PropertyOpt {
-	return func(s *gojsonschema.Schema) {
+	return func(s *jsonschema.Schema) {
 		s.Type = t
 		s.Types = nil
 	}
@@ -239,7 +243,7 @@ func WithType(t string) PropertyOpt {
 // WithNoContent is a [PropertyOpt] that removes the items and properties from a
 // property schema.
 func WithNoContent() PropertyOpt {
-	return func(s *gojsonschema.Schema) {
+	return func(s *jsonschema.Schema) {
 		s.Items = nil
 		s.Properties = nil
 	}
@@ -248,7 +252,7 @@ func WithNoContent() PropertyOpt {
 // WithAllowAdditionalProperties is a [PropertyOpt] that allows additional
 // properties on a property schema.
 func WithAllowAdditionalProperties() PropertyOpt {
-	return func(s *gojsonschema.Schema) {
-		s.AdditionalProperties = &gojsonschema.Schema{}
+	return func(s *jsonschema.Schema) {
+		s.AdditionalProperties = &jsonschema.Schema{}
 	}
 }

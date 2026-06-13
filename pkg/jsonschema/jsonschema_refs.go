@@ -1,275 +1,137 @@
-// Copyright (c) 2023 dadav, Licensed under the MIT License.
-// Modifications Copyright (c) 2024-2025 Jacob Colvin
-// Licensed under the Apache License, Version 2.0.
-
 package jsonschema
 
 import (
-	"encoding/json"
+	"context"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
-	"path"
-	"strconv"
 	"strings"
 
-	gojsonschema "github.com/google/jsonschema-go/jsonschema"
+	"go.jacobcolvin.com/x/jsonschema"
 )
 
-// handleSchemaRefs processes and resolves JSON Schema references ($ref) within a schema.
-// It handles both direct schema references and references within patternProperties.
-// For each reference:
-// - If it's a relative file path, it attempts to load and parse the referenced schema.
-// - If it includes a JSON pointer (#/path/to/schema), it extracts the specific schema section.
-// - The resolved schema replaces the original reference.
+// refRootName is the placeholder base name [inlineSchemaRefs] gives the root
+// document. A single path segment with no separators lets relative file refs
+// absolutize to bare file names that [yamlFileResolver] reads from the
+// reference base directory; the name itself never appears in the output.
+const refRootName = "root.json"
+
+// inlineSchemaRefs expands every $ref in schema into a copy of its target,
+// returning a self-contained schema. Relative file refs resolve against
+// refBasePath (the current directory when empty), and fragment refs
+// (#/pointer, #anchor) resolve within their document.
 //
-// Parameters:
-//   - schema: Pointer to the Schema object containing the references to resolve.
-//   - basePath: Path to the current file, used for resolving relative paths.
-func handleSchemaRefs(schema *gojsonschema.Schema, basePath string) error {
-	return resolveSchemaRefs(schema, basePath, map[string]bool{})
+// It targets Draft-07 semantics so a $ref replaces its node outright, dropping
+// sibling keywords, matching how kclipper flattens schemas for KCL generation.
+// Failures follow [refResolveFallback]; a reference cycle surfaces as an error
+// wrapping [jsonschema.ErrRefCycle].
+func inlineSchemaRefs(ctx context.Context, schema *jsonschema.Schema, refBasePath string) (*jsonschema.Schema, error) {
+	baseDir := refBasePath
+	if baseDir == "" {
+		baseDir = "."
+	}
+
+	inlined, err := jsonschema.Inline(ctx, schema,
+		jsonschema.WithDraft(jsonschema.Draft7),
+		jsonschema.WithRefResolver(yamlFileResolver{fsys: os.DirFS(baseDir)}),
+		jsonschema.WithBaseURI(refRootName),
+		// Resolve refs by on-disk location, treating any published remote $id
+		// as inert. Vendored schemas (e.g. Helm library charts) routinely
+		// declare a remote $id while shipping the files their relative refs
+		// name alongside them on disk.
+		jsonschema.WithRetrievalBase(true),
+		jsonschema.WithRefFallback(jsonschema.RefFallbackFunc(refResolveFallback)),
+	)
+	if err != nil {
+		if errors.Is(err, jsonschema.ErrRefCycle) {
+			return nil, fmt.Errorf("circular reference: %w", err)
+		}
+
+		return nil, fmt.Errorf("inline schema refs: %w", err)
+	}
+
+	return inlined, nil
 }
 
-// resolveSchemaRefs implements [handleSchemaRefs]. The resolving set tracks
-// the stack of file paths currently being resolved, so that mutually
-// referencing files produce an error instead of infinite recursion. Paths are
-// removed once resolved, keeping repeated (diamond) references to the same
-// file valid.
-func resolveSchemaRefs(schema *gojsonschema.Schema, basePath string, resolving map[string]bool) error {
-	if schema == nil {
-		return nil
-	}
-
-	// AdditionalProperties is special: an unresolvable reference fails open
-	// (becomes the permissive empty schema) instead of aborting the schema.
-	if schema.AdditionalProperties != nil {
-		err := resolveSchemaRefs(schema.AdditionalProperties, basePath, resolving)
-		if err != nil {
-			schema.AdditionalProperties = &gojsonschema.Schema{}
-		}
-	}
-
-	// Recurse into every other sub-schema position. This mirrors [walkSchema]
-	// so that no $ref-bearing field is missed (e.g. $defs, definitions,
-	// prefixItems, contains, propertyNames).
-	for _, subSchema := range [...]*gojsonschema.Schema{
-		schema.Items, schema.AdditionalItems, schema.Contains, schema.UnevaluatedItems,
-		schema.PropertyNames, schema.UnevaluatedProperties,
-		schema.Not, schema.If, schema.Then, schema.Else, schema.ContentSchema,
-	} {
-		err := resolveSchemaRefs(subSchema, basePath, resolving)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, subSchemas := range [...][]*gojsonschema.Schema{
-		schema.PrefixItems, schema.ItemsArray, schema.AllOf, schema.AnyOf, schema.OneOf,
-	} {
-		for _, subSchema := range subSchemas {
-			err := resolveSchemaRefs(subSchema, basePath, resolving)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	for _, subSchemas := range [...]map[string]*gojsonschema.Schema{
-		schema.Defs, schema.Definitions, schema.DependencySchemas,
-		schema.Properties, schema.PatternProperties, schema.DependentSchemas,
-	} {
-		for _, subSchema := range subSchemas {
-			err := resolveSchemaRefs(subSchema, basePath, resolving)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	// Handle main schema $ref.
-	if schema.Ref == "" {
-		return nil
-	}
-
-	jsFilePath, jsPointer, found := strings.Cut(schema.Ref, "#")
-	if !found {
-		return fmt.Errorf("invalid $ref value %q", schema.Ref)
-	}
-
-	if jsFilePath != "" {
-		relFilePath, err := isRelativeFile(basePath, jsFilePath)
-		if err != nil {
-			return fmt.Errorf("invalid $ref value %q: %w", schema.Ref, err)
-		}
-
-		err = resolveFilePath(schema, relFilePath, jsPointer, resolving)
-		if err != nil {
-			return fmt.Errorf("invalid $ref value %q: %w", schema.Ref, err)
-		}
-	}
-
-	if jsFilePath == "" && jsPointer != "" {
-		relSchema, err := resolveLocalRef(schema, jsPointer)
-
-		// Sometimes this will error due to a partial import, where references
-		// don't exist in the current document.
-		if err != nil {
-			schema.Ref = ""
-		} else {
-			*schema = *relSchema
-		}
-	}
-
-	return validateSchema(schema)
+// yamlFileResolver resolves file refs from an [io/fs.FS], accepting YAML or
+// JSON schema documents. It mirrors [jsonschema.FileResolver] but reads
+// through [unmarshalSchema], so a ref target written as YAML resolves the same
+// as one written as JSON. See [jsonschema.RefResolver] for the interface.
+type yamlFileResolver struct {
+	fsys fs.FS
 }
 
-func resolveLocalRef(schema *gojsonschema.Schema, jsonSchemaPointer string) (*gojsonschema.Schema, error) {
-	relData, err := json.Marshal(schema)
+// ResolveRef reads and decodes the schema document named by uri, confining
+// resolution to the fs root the way [jsonschema.FileResolver] does: the
+// "file://" scheme and a leading "/" are stripped, and the remainder is the
+// [io/fs] path. Reads are local and not cancellable, so the context is unused.
+func (r yamlFileResolver) ResolveRef(_ context.Context, uri string) (*jsonschema.Schema, error) {
+	name := strings.TrimPrefix(uri, "file://")
+	name = strings.TrimPrefix(name, "/")
+
+	data, err := fs.ReadFile(r.fsys, name)
 	if err != nil {
-		return nil, fmt.Errorf("marshal schema for json pointer: %w", err)
+		return nil, fmt.Errorf("read schema document %q: %w", name, err)
 	}
 
-	relSchema, err := unmarshalSchemaRef(relData, jsonSchemaPointer)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshal schema for json pointer: %w", err)
-	}
-
-	return relSchema, nil
+	return unmarshalSchema(data)
 }
 
-func resolveFilePath(schema *gojsonschema.Schema, relPath, jsonSchemaPointer string, resolving map[string]bool) error {
-	cleanPath := path.Clean(relPath)
-	if resolving[cleanPath] {
-		return fmt.Errorf("circular reference to %q", cleanPath)
+// refResolveFallback is the per-reference failure policy for [inlineSchemaRefs],
+// tolerating the partial, hand-vendored schemas kclipper consumes (e.g.
+// Kubernetes API subsets and Helm library-chart values schemas):
+//
+//   - A reference cycle is always fatal, surfacing the mutually-referencing
+//     documents instead of silently truncating the schema.
+//   - An unresolved fragment ref (#/pointer, #anchor) is dropped, leaving the
+//     rest of the node intact. Partial imports routinely reference definitions
+//     that were not carried along, and such a ref constrains nothing once
+//     dropped.
+//   - An unresolved ref anywhere inside an additionalProperties subtree is
+//     dropped, widening that position to the permissive empty schema. Values
+//     schemas commonly point additionalProperties at a remote document
+//     (e.g. a library chart's per-key schema served over HTTP) that is not
+//     fetched during generation.
+//   - Every other failure — an unresolvable external document at a fixed
+//     position, a construct with no static expansion — is fatal.
+func refResolveFallback(_ context.Context, f jsonschema.RefFailure) jsonschema.RefAction {
+	if errors.Is(f.Err, jsonschema.ErrRefCycle) {
+		return jsonschema.PropagateRef()
 	}
 
-	resolving[cleanPath] = true
-	defer delete(resolving, cleanPath)
-
-	//nolint:gosec // G304 not relevant for client-side generation.
-	byteValue, err := os.ReadFile(relPath)
-	if err != nil {
-		return fmt.Errorf("read file %q: %w", relPath, err)
+	if strings.HasPrefix(strings.TrimSpace(f.Ref), "#") || underAdditionalProperties(f.Path) {
+		return jsonschema.DropRef()
 	}
 
-	relSchema, err := unmarshalSchemaRef(byteValue, jsonSchemaPointer)
-	if err != nil {
-		return fmt.Errorf("unmarshal schema: %w", err)
-	}
-
-	err = resolveSchemaRefs(relSchema, path.Dir(relPath), resolving)
-	if err != nil {
-		return err
-	}
-
-	*schema = *relSchema
-
-	return nil
+	return jsonschema.PropagateRef()
 }
 
-func unmarshalSchemaRef(data []byte, jsonSchemaPointer string) (*gojsonschema.Schema, error) {
-	if jsonSchemaPointer == "" {
-		relSchema, err := unmarshalSchema(data)
-		if err != nil {
-			return nil, err
-		}
-
-		err = validateSchema(relSchema)
-		if err != nil {
-			return nil, err
-		}
-
-		return relSchema, nil
-	}
-
-	var obj any
-
-	err := json.Unmarshal(data, &obj)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
-	}
-
-	jsonPointerResultRaw, err := evalJSONPointer(obj, jsonSchemaPointer)
-	if err != nil {
-		return nil, fmt.Errorf("resolve JSON pointer: %w", err)
-	}
-
-	jsonPointerResultMarshaled, err := json.Marshal(jsonPointerResultRaw)
-	if err != nil {
-		return nil, fmt.Errorf("marshal JSON pointer result: %w", err)
-	}
-
-	relSchema := &gojsonschema.Schema{}
-
-	err = json.Unmarshal(jsonPointerResultMarshaled, relSchema)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshal JSON pointer result: %w", err)
-	}
-
-	err = validateSchema(relSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	return relSchema, nil
+// refMapKeywords are the schema keywords whose values are maps keyed by member
+// name. A path segment immediately following one of them is a member key (a
+// property or definition name), not a nested keyword.
+var refMapKeywords = map[string]bool{
+	jsonschema.KeywordProperties:        true,
+	jsonschema.KeywordPatternProperties: true,
+	jsonschema.KeywordDefs:              true,
+	jsonschema.KeywordDefinitions:       true,
+	jsonschema.KeywordDependentSchemas:  true,
+	jsonschema.KeywordDependencies:      true,
 }
 
-// evalJSONPointer evaluates an RFC 6901 JSON pointer against a decoded JSON
-// document and returns the referenced value.
-func evalJSONPointer(doc any, pointer string) (any, error) {
-	if pointer == "" {
-		return doc, nil
-	}
-
-	if !strings.HasPrefix(pointer, "/") {
-		return nil, fmt.Errorf("invalid JSON pointer %q", pointer)
-	}
-
-	current := doc
-
-	for segment := range strings.SplitSeq(pointer[1:], "/") {
-		segment = strings.ReplaceAll(segment, "~1", "/")
-		segment = strings.ReplaceAll(segment, "~0", "~")
-
-		switch value := current.(type) {
-		case map[string]any:
-			child, ok := value[segment]
-			if !ok {
-				return nil, fmt.Errorf("JSON pointer segment %q not found", segment)
-			}
-
-			current = child
-
-		case []any:
-			idx, err := strconv.Atoi(segment)
-			if err != nil {
-				return nil, fmt.Errorf("JSON pointer segment %q is not an array index: %w", segment, err)
-			}
-
-			if idx < 0 || idx >= len(value) {
-				return nil, fmt.Errorf("JSON pointer segment %q is out of range", segment)
-			}
-
-			current = value[idx]
-
-		default:
-			return nil, fmt.Errorf("JSON pointer segment %q references a non-container value", segment)
+// underAdditionalProperties reports whether the RFC 6901 pointer path addresses
+// a schema within an additionalProperties keyword subtree. A segment equal to
+// the keyword that directly follows a map keyword (e.g.
+// /properties/additionalProperties) is a member name rather than the keyword,
+// so it does not count; a deeper or root occurrence (e.g.
+// /properties/foo/additionalProperties) does.
+func underAdditionalProperties(path string) bool {
+	segs := strings.Split(path, "/")
+	for i := 1; i < len(segs); i++ {
+		if segs[i] == jsonschema.KeywordAdditionalProperties && !refMapKeywords[segs[i-1]] {
+			return true
 		}
 	}
 
-	return current, nil
-}
-
-// isRelativeFile checks if the given string is a relative path to a file.
-func isRelativeFile(root, relPath string) (string, error) {
-	if !path.IsAbs(relPath) {
-		rp := path.Join(root, relPath)
-		_, err := os.Stat(rp)
-		if err != nil {
-			return "", fmt.Errorf("stat file %q: %w", rp, err)
-		}
-
-		return rp, nil
-	}
-
-	return "", fmt.Errorf("%q is not a relative path", relPath)
+	return false
 }

@@ -1,6 +1,7 @@
 package jsonschema
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -9,6 +10,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"go.jacobcolvin.com/x/jsonschema"
 )
 
 var (
@@ -130,19 +133,19 @@ func (g *ReaderGenerator) FromData(data []byte, refBasePath string) ([]byte, err
 		return nil, fmt.Errorf("unmarshal JSON Schema: %w", err)
 	}
 
-	err = validateSchema(schema)
+	err = jsonschema.CheckTypeNames(schema)
+	if err != nil {
+		return nil, fmt.Errorf("validate schema: %w", err)
+	}
+
+	schema, err = inlineSchemaRefs(context.Background(), schema, refBasePath)
 	if err != nil {
 		return nil, err
 	}
 
-	err = handleSchemaRefs(schema, refBasePath)
+	err = jsonschema.CheckTypeNames(schema)
 	if err != nil {
-		return nil, fmt.Errorf("handle schema refs: %w", err)
-	}
-
-	err = validateSchema(schema)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("validate schema: %w", err)
 	}
 
 	stripUnknownMembers(schema)

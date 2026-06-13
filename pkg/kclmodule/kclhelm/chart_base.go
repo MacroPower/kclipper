@@ -3,7 +3,6 @@ package kclhelm
 import (
 	"fmt"
 	"io"
-	"reflect"
 
 	"github.com/macropower/kclipper/pkg/jsonschema"
 )
@@ -35,7 +34,7 @@ type ChartBase struct {
 }
 
 func (c *ChartBase) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect(reflect.TypeFor[ChartBase](), jsonschema.WithGoComments())
+	js, err := jsonschema.Reflect[ChartBase](jsonschema.WithGoComments())
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}

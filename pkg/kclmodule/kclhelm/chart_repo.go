@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"reflect"
 
 	"github.com/iancoleman/strcase"
 
@@ -57,7 +56,7 @@ func (c *ChartRepo) GetSnakeCaseName() string {
 }
 
 func (c *ChartRepo) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect(reflect.TypeFor[ChartRepo](), jsonschema.WithGoComments())
+	js, err := jsonschema.Reflect[ChartRepo](jsonschema.WithGoComments())
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}

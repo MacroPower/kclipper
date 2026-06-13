@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"reflect"
 
 	"github.com/macropower/kclipper/pkg/crd"
 	"github.com/macropower/kclipper/pkg/jsonschema"
@@ -28,7 +27,7 @@ type ChartConfig struct {
 }
 
 func (c *ChartConfig) GenerateKCL(w io.Writer) error {
-	js, err := jsonschema.Reflect(reflect.TypeFor[ChartConfig](), jsonschema.WithGoComments())
+	js, err := jsonschema.Reflect[ChartConfig](jsonschema.WithGoComments())
 	if err != nil {
 		return fmt.Errorf("reflect schema: %w", err)
 	}

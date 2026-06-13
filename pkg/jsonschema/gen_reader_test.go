@@ -89,6 +89,73 @@ func TestReaderGeneratorCircularRefs(t *testing.T) {
 	require.ErrorContains(t, err, "circular reference")
 }
 
+func TestReaderGeneratorYAMLRefTarget(t *testing.T) {
+	t.Parallel()
+
+	generator := jsonschema.DefaultReaderGenerator
+
+	// A $ref target written as YAML resolves the same as one written as JSON.
+	got, err := generator.FromPaths(filepath.Join(testDataDir, "input/refs-to-yaml.schema.json"))
+	require.NoError(t, err)
+	require.JSONEq(t, `{
+		"$schema": "http://json-schema.org/draft-07/schema#",
+		"properties": {
+			"foo": {"type": "string", "title": "from-yaml"}
+		}
+	}`, string(got))
+}
+
+func TestReaderGeneratorRefFailurePolicy(t *testing.T) {
+	t.Parallel()
+
+	tcs := map[string]struct {
+		input   string
+		want    string
+		wantErr bool
+	}{
+		// A fragment ref whose target is absent (a partial import) is dropped,
+		// leaving the rest of the node intact.
+		"fragment ref dropped": {
+			input: `{"properties": {"foo": {"$ref": "#/definitions/missing", "title": "kept"}}}`,
+			want:  `{"properties": {"foo": {"title": "kept"}}}`,
+		},
+		// An unresolved ref under an additionalProperties keyword fails open to
+		// the permissive empty schema (which marshals to true) rather than
+		// aborting the schema.
+		"additionalProperties ref dropped": {
+			input: `{"properties": {"x": {"additionalProperties": {"$ref": "missing.json#/a"}}}}`,
+			want:  `{"properties": {"x": {"additionalProperties": true}}}`,
+		},
+		// A property literally named additionalProperties is a member, not the
+		// keyword, so an unresolvable external ref there is fatal.
+		"property named additionalProperties errors": {
+			input:   `{"properties": {"additionalProperties": {"$ref": "missing.json#/a"}}}`,
+			wantErr: true,
+		},
+		// An unresolvable external ref at a fixed position is fatal.
+		"external ref errors": {
+			input:   `{"properties": {"foo": {"$ref": "missing.json#/a"}}}`,
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range tcs {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := jsonschema.DefaultReaderGenerator.FromData([]byte(tc.input), "")
+			if tc.wantErr {
+				require.Error(t, err)
+
+				return
+			}
+
+			require.NoError(t, err)
+			require.JSONEq(t, tc.want, string(got))
+		})
+	}
+}
+
 func TestReaderGeneratorStripsUnknownMembers(t *testing.T) {
 	t.Parallel()
 
