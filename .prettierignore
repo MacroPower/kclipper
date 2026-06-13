@@ -1,14 +1,8 @@
-# Helm chart templates contain Go template syntax that is not valid YAML.
-**/templates/**
-
-# Intentionally invalid test fixtures.
-**/testdata/**/invalid*
-
-# Test output directories (also gitignored).
-**/testdata/got/
-
-# Generated Helm chart schemas.
-**/testdata/**/values.schema.json
-
 # Dagger module configs are managed by `dagger develop`.
 **/dagger.json
+
+# Test fixtures, some intentionally malformed for negative tests.
+**/testdata/**
+
+# Helm chart templates contain Go template syntax that is not valid YAML.
+**/templates/**
