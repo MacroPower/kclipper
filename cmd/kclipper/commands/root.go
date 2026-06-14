@@ -23,6 +23,10 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 		Format: "log_format",
 	}
 
+	// Default the log level to "warn" instead of "info". Set before
+	// RegisterFlags so it becomes the registered flag default.
+	logCfg.Level = "warn"
+
 	cmd := &cobra.Command{
 		Use:          name,
 		Short:        shortDesc,
@@ -32,15 +36,7 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	}
 
 	logCfg.RegisterFlags(cmd.PersistentFlags())
-
-	// Override default log level from "info" to "warn".
-	logCfg.Level = "warn"
-	cmd.PersistentFlags().Lookup("log_level").DefValue = "warn"
-
-	err := logCfg.RegisterCompletions(cmd)
-	if err != nil {
-		panic(err)
-	}
+	logCfg.MustRegisterCompletions(cmd)
 
 	profileCfg := profile.NewConfig()
 	profileCfg.Flags = profile.Flags{
@@ -57,11 +53,7 @@ func NewRootCmd(name, shortDesc, longDesc string) *cobra.Command {
 	}
 
 	profileCfg.RegisterFlags(cmd.PersistentFlags())
-
-	err = profileCfg.RegisterCompletions(cmd)
-	if err != nil {
-		panic(err)
-	}
+	profileCfg.MustRegisterCompletions(cmd)
 
 	profiler := profileCfg.NewProfiler()
 

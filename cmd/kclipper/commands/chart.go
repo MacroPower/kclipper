@@ -348,7 +348,7 @@ func newChartCommander(w io.Writer, args *ChartArgs) (charttui.ChartCommander, i
 		return cc, helm.NewNopCloser(), nil
 	}
 
-	lvl, err := log.ParseLevel(args.logCfg.Level)
+	lvl, err := args.logCfg.ParsedLevel()
 	if err != nil {
 		// Should not be possible due to root's PersistentPreRunE.
 		return nil, nil, fmt.Errorf("%w: %w", ErrArgument, err)
