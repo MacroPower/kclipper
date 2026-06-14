@@ -12,7 +12,9 @@ import (
 	kclpkg "kcl-lang.io/kpm/pkg/package"
 )
 
-func (c *KCLPackage) Init() (bool, error) {
+// Init ensures the charts package directory and its kcl.mod exist, creating a
+// new module file wired to the helm dependency when one is absent.
+func (c *KCLPackage) Init() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -27,7 +29,7 @@ func (c *KCLPackage) Init() (bool, error) {
 
 	err := os.MkdirAll(path, 0o750)
 	if err != nil {
-		return false, fmt.Errorf("create charts directory: %w", err)
+		return fmt.Errorf("create charts directory: %w", err)
 	}
 
 	logger.Debug("ensured package directory")
@@ -51,13 +53,13 @@ func (c *KCLPackage) Init() (bool, error) {
 
 	exists, err := kclpkg.ModFileExists(path)
 	if err != nil {
-		return false, fmt.Errorf("check kcl.mod existence: %w", err)
+		return fmt.Errorf("check kcl.mod existence: %w", err)
 	}
 
 	if exists {
 		logger.Debug("kcl.mod already exists, nothing to do")
 
-		return false, nil
+		return nil
 	}
 
 	logger.Info("creating new kcl.mod file")
@@ -75,15 +77,15 @@ func (c *KCLPackage) Init() (bool, error) {
 
 	err = pkg.ModFile.StoreModFile()
 	if err != nil {
-		return false, fmt.Errorf("store mod file: %w", err)
+		return fmt.Errorf("store mod file: %w", err)
 	}
 
 	logger.Info("updating kcl.mod and kcl.mod.lock")
 
 	err = pkg.UpdateModAndLockFile()
 	if err != nil {
-		return false, fmt.Errorf("update kcl.mod: %w", err)
+		return fmt.Errorf("update kcl.mod: %w", err)
 	}
 
-	return true, nil
+	return nil
 }

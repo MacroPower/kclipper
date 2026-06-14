@@ -29,7 +29,7 @@ func (c *KCLPackage) AddRepo(repo *kclhelm.ChartRepo) error {
 
 	logger.Info("check init before add")
 
-	_, err = c.Init()
+	err = c.Init()
 	if err != nil {
 		return fmt.Errorf("init before add: %w", err)
 	}

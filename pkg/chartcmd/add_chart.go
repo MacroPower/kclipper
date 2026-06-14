@@ -58,7 +58,7 @@ func (c *KCLPackage) AddChart(key string, chart *kclchart.ChartConfig) error {
 
 	logger.Info("check init before add")
 
-	_, err = c.Init()
+	err = c.Init()
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrInitFailed, err)
 	}

@@ -30,7 +30,7 @@ func TestHelmChartAdd(t *testing.T) {
 	ca, err := chartcmd.NewKCLPackage(chartPath, helmtest.DefaultTestClient)
 	require.NoError(t, err)
 
-	_, err = ca.Init()
+	err = ca.Init()
 	require.NoError(t, err)
 
 	tcs := map[string]struct {

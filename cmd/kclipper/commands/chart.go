@@ -130,7 +130,7 @@ func NewChartInitCmd(args *ChartArgs) *cobra.Command {
 			}
 			defer closer.Close() //nolint:errcheck // Best-effort close.
 
-			_, err = cc.Init()
+			err = cc.Init()
 			if err != nil {
 				return fmt.Errorf("%w: %w", ErrChartInit, err)
 			}

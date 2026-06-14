@@ -67,7 +67,7 @@ func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageO
 	if errors.Is(err, kclerrors.ErrFileNotFound) {
 		slog.Warn("kcl.mod file not found, creating a new one")
 
-		_, err = c.Init()
+		err = c.Init()
 		if err != nil {
 			return nil, fmt.Errorf("call chart init: %w", err)
 		}

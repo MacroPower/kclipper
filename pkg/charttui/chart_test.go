@@ -27,19 +27,18 @@ type mockChartCommander struct {
 	addCalled  bool
 	setCalled  bool
 
-	initResult bool
-	initErr    error
-	addErr     error
-	setErr     error
+	initErr error
+	addErr  error
+	setErr  error
 }
 
-func (m *mockChartCommander) Init() (bool, error) {
+func (m *mockChartCommander) Init() error {
 	m.mu.Lock()
 
 	m.initCalled = true
 	m.mu.Unlock()
 
-	return m.initResult, m.initErr
+	return m.initErr
 }
 
 func (m *mockChartCommander) AddChart(_ string, _ *kclchart.ChartConfig) error {
@@ -92,14 +91,13 @@ func TestChartTUI_AddChart_EmptyKey(t *testing.T) {
 func TestChartTUI_Init(t *testing.T) {
 	t.Parallel()
 
-	mock := &mockChartCommander{initResult: true}
+	mock := &mockChartCommander{}
 	tui := charttui.NewChartTUI(io.Discard, log.LevelInfo, mock,
 		charttui.WithProgramOptions(tea.WithInput(nil)),
 	)
 
-	ok, err := tui.Init()
+	err := tui.Init()
 	require.NoError(t, err)
-	assert.True(t, ok)
 	assert.True(t, mock.initCalled, "Init should be called on the underlying commander")
 }
 
@@ -107,15 +105,14 @@ func TestChartTUI_Init_Error(t *testing.T) {
 	t.Parallel()
 
 	mock := &mockChartCommander{
-		initResult: false,
-		initErr:    errors.New("init broken"),
+		initErr: errors.New("init broken"),
 	}
 	tui := charttui.NewChartTUI(io.Discard, log.LevelInfo, mock,
 		charttui.WithProgramOptions(tea.WithInput(nil)),
 	)
 
 	// TUI itself should not return error; the inner error is displayed in the TUI.
-	_, err := tui.Init()
+	err := tui.Init()
 	require.NoError(t, err)
 	assert.True(t, mock.initCalled)
 }

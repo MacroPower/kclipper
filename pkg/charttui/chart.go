@@ -29,7 +29,7 @@ type ChartTUI struct {
 // initialization, chart and repository addition, configuration, and updates.
 // See [*chartcmd.KCLPackage] for an implementation.
 type ChartCommander interface {
-	Init() (bool, error)
+	Init() error
 	AddChart(key string, chart *kclchart.ChartConfig) error
 	AddRepo(repo *kclhelm.ChartRepo) error
 	Set(chart, keyValueOverrides string) error
@@ -113,16 +113,11 @@ func (c *ChartTUI) Subscribe(f func(any)) {
 	c.pkg.Subscribe(f)
 }
 
-func (c *ChartTUI) Init() (bool, error) {
-	err := c.run(NewActionModel("initialization", "initializing"), func() {
-		_, err := c.pkg.Init()
+func (c *ChartTUI) Init() error {
+	return c.run(NewActionModel("initialization", "initializing"), func() {
+		err := c.pkg.Init()
 		c.broadcastEvent(chartcmd.EventDone{Err: err})
 	})
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
 }
 
 func (c *ChartTUI) AddChart(key string, chart *kclchart.ChartConfig) error {
