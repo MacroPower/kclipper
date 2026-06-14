@@ -20,11 +20,11 @@ import (
 type KCLPackage struct {
 	Client         helm.ChartClient
 	MaxExtractSize *resource.Quantity
+	onEvent        func(any)
 	BasePath       string
 	absBasePath    string
 	pkgPath        string
 	repoRoot       string
-	subs           []func(any)
 	Timeout        time.Duration
 	mu             sync.RWMutex
 	Vendor         bool
@@ -55,7 +55,6 @@ func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageO
 		Client:         client,
 		MaxExtractSize: resource.NewQuantity(10485760, resource.BinarySI), // 10Mi.
 		Timeout:        5 * time.Minute,
-		subs:           []func(any){},
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -130,13 +129,15 @@ func fileExists(path string) bool {
 }
 
 func (c *KCLPackage) broadcastEvent(evt any) {
-	for _, sub := range c.subs {
-		sub(evt)
+	if c.onEvent != nil {
+		c.onEvent(evt)
 	}
 }
 
+// Subscribe registers f as the sink for events emitted during chart operations.
+// Only one sink is supported; a later call replaces the previous one.
 func (c *KCLPackage) Subscribe(f func(any)) {
-	c.subs = append(c.subs, f)
+	c.onEvent = f
 }
 
 func (c *KCLPackage) updateFile(automation kclautomation.Automation, kclFile, initialContents, specPath string) error {
