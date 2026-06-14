@@ -36,7 +36,6 @@ type CRDGenerator func(paths ...string) ([]kube.Object, error)
 // ChartFiles provides access to files within a pulled and extracted Helm chart.
 // Create instances with [NewChartFiles].
 type ChartFiles struct {
-	Client       ChartClient
 	closer       io.Closer
 	TemplateOpts *TemplateOpts
 	pulledChart  *PulledChart
@@ -69,7 +68,6 @@ func NewChartFiles(
 	}
 
 	return &ChartFiles{
-		Client:       client,
 		TemplateOpts: opts,
 		path:         chartPath,
 		pulledChart:  pulledChart,
