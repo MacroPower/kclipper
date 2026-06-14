@@ -125,7 +125,9 @@ func (m *UpdateModel) View() tea.View {
 		gap := strings.Repeat(" ", progCellsRemaining)
 		progOut := progRendered + gap + "\n"
 
-		inProgressCharts := differenceStringSlices(m.startedCharts, m.completedCharts)
+		inProgressCharts := slices.DeleteFunc(slices.Clone(m.startedCharts), func(c string) bool {
+			return slices.Contains(m.completedCharts, c)
+		})
 
 		for _, chart := range inProgressCharts {
 			spin := m.spinner.View() + " "
@@ -162,16 +164,4 @@ func (m *UpdateModel) writeChartStatuses(out *strings.Builder) {
 
 		fmt.Fprintf(out, "%s %s\n", icon, chart)
 	}
-}
-
-func differenceStringSlices(a, b []string) []string {
-	difference := []string{}
-
-	for _, x := range a {
-		if !slices.Contains(b, x) {
-			difference = append(difference, x)
-		}
-	}
-
-	return difference
 }
