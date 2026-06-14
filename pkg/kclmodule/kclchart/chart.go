@@ -1,7 +1,6 @@
 package kclchart
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 
@@ -68,15 +67,9 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 	js.RemoveProperty("valueFiles")
 	js.RemoveProperty("postRenderer")
 
-	b := &bytes.Buffer{}
-	err = js.GenerateKCL(b, genOptInheritHelmChart, genOptFixValues, genOptFixChartRepo)
+	err = js.GenerateKCL(w, genOptInheritHelmChart, genOptFixValues, genOptFixChartRepo)
 	if err != nil {
-		return fmt.Errorf("convert JSON Schema to KCL Schema: %w", err)
-	}
-
-	_, err = b.WriteTo(w)
-	if err != nil {
-		return fmt.Errorf("write KCL schema: %w", err)
+		return fmt.Errorf("convert JSON Schema to KCL schema: %w", err)
 	}
 
 	return nil

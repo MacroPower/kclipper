@@ -1,7 +1,6 @@
 package kclhelm
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"log/slog"
@@ -59,15 +58,9 @@ func (c *ValueInferenceConfig) GenerateKCL(w io.Writer) error {
 	js.SetProperty("annotators", schema.WithItemsEnum(schema.AnnotatorEnum))
 	js.SetProperty("inferDefaults", schema.WithDefault(true))
 
-	b := &bytes.Buffer{}
-	err = js.GenerateKCL(b)
+	err = js.GenerateKCL(w)
 	if err != nil {
-		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
-	}
-
-	_, err = b.WriteTo(w)
-	if err != nil {
-		return fmt.Errorf("failed to write to KCL schema: %w", err)
+		return fmt.Errorf("convert JSON Schema to KCL schema: %w", err)
 	}
 
 	return nil

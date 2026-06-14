@@ -1,7 +1,6 @@
 package kclhelm
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 
@@ -22,15 +21,9 @@ func (c *Chart) GenerateKCL(w io.Writer) error {
 		return fmt.Errorf("reflect schema: %w", err)
 	}
 
-	b := &bytes.Buffer{}
-	err = js.GenerateKCL(b, genOptInheritChartBase, genOptFixChartRepo, genOptFixPostRenderer)
+	err = js.GenerateKCL(w, genOptInheritChartBase, genOptFixChartRepo, genOptFixPostRenderer)
 	if err != nil {
-		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
-	}
-
-	_, err = b.WriteTo(w)
-	if err != nil {
-		return fmt.Errorf("failed to write to KCL schema: %w", err)
+		return fmt.Errorf("convert JSON Schema to KCL schema: %w", err)
 	}
 
 	return nil

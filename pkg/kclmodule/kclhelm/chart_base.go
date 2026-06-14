@@ -44,7 +44,7 @@ func (c *ChartBase) GenerateKCL(w io.Writer) error {
 
 	err = js.GenerateKCL(w, genOptFixChartRepo)
 	if err != nil {
-		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
+		return fmt.Errorf("convert JSON Schema to KCL schema: %w", err)
 	}
 
 	return nil
