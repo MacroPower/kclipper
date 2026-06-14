@@ -28,7 +28,6 @@ type KCLPackage struct {
 	Timeout        time.Duration
 	mu             sync.RWMutex
 	Vendor         bool
-	FastEval       bool
 }
 
 func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageOpts) (*KCLPackage, error) {
@@ -48,7 +47,6 @@ func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageO
 
 	c := &KCLPackage{
 		Vendor:         false,
-		FastEval:       true,
 		BasePath:       basePath,
 		absBasePath:    absBasePath,
 		repoRoot:       repoRoot,
@@ -98,12 +96,6 @@ type KCLPackageOpts func(*KCLPackage)
 func WithVendor(vendor bool) KCLPackageOpts {
 	return func(c *KCLPackage) {
 		c.Vendor = vendor
-	}
-}
-
-func WithFastEval(fastEval bool) KCLPackageOpts {
-	return func(c *KCLPackage) {
-		c.FastEval = fastEval
 	}
 }
 

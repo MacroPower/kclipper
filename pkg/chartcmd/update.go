@@ -63,7 +63,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 	mainOutput, err := svc.ExecProgram(&gpyrpc.ExecProgramArgs{
 		WorkDir:       absBasePath,
 		KFilenameList: []string{"."},
-		FastEval:      c.FastEval,
+		FastEval:      true,
 		ExternalPkgs:  externalPkgs,
 	})
 	if err != nil {
