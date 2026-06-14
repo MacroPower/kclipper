@@ -7,6 +7,7 @@ import (
 
 	"kcl-lang.io/kcl-go"
 
+	"github.com/macropower/kclipper/internal/osutil"
 	"github.com/macropower/kclipper/pkg/kclerrors"
 )
 
@@ -21,7 +22,7 @@ func (f *file) OverrideFile(file string, specs, importPaths []string) (bool, err
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	if !fileExists(file) {
+	if !osutil.FileExists(file) {
 		err := os.WriteFile(file, []byte(""), 0o600)
 		if err != nil {
 			return false, fmt.Errorf("%w %q: %w", kclerrors.ErrWriteFile, file, err)
@@ -34,13 +35,4 @@ func (f *file) OverrideFile(file string, specs, importPaths []string) (bool, err
 	}
 
 	return ok, nil
-}
-
-func fileExists(path string) bool {
-	fi, err := os.Lstat(path)
-	if err != nil || fi.IsDir() {
-		return false
-	}
-
-	return true
 }

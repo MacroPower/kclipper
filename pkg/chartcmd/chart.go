@@ -11,6 +11,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
+	"github.com/macropower/kclipper/internal/osutil"
 	"github.com/macropower/kclipper/pkg/helm"
 	"github.com/macropower/kclipper/pkg/kclautomation"
 	"github.com/macropower/kclipper/pkg/kclerrors"
@@ -107,15 +108,6 @@ func WithMaxExtractSize(size *resource.Quantity) KCLPackageOpts {
 	}
 }
 
-func fileExists(path string) bool {
-	fi, err := os.Lstat(path)
-	if err != nil || fi.IsDir() {
-		return false
-	}
-
-	return true
-}
-
 func (c *KCLPackage) broadcastEvent(evt any) {
 	if c.onEvent != nil {
 		c.onEvent(evt)
@@ -132,7 +124,7 @@ func (c *KCLPackage) updateFile(automation kclautomation.Automation, kclFile, in
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if !fileExists(kclFile) {
+	if !osutil.FileExists(kclFile) {
 		err := os.WriteFile(kclFile, []byte(initialContents), 0o600)
 		if err != nil {
 			return fmt.Errorf("write %q: %w", kclFile, err)
