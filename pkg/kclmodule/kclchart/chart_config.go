@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"slices"
 
 	"github.com/iancoleman/strcase"
@@ -20,14 +21,7 @@ type ChartData struct {
 
 // GetSortedKeys returns the chart keys in alphabetical order.
 func (cd *ChartData) GetSortedKeys() []string {
-	names := make([]string, 0, len(cd.Charts))
-	for name := range cd.Charts {
-		names = append(names, name)
-	}
-
-	slices.Sort(names)
-
-	return names
+	return slices.Sorted(maps.Keys(cd.Charts))
 }
 
 // GetByKey returns the [ChartConfig] for the given key and whether it exists.
