@@ -1,6 +1,8 @@
 package kclhelm
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -63,69 +65,27 @@ func (c *ChartRepo) GenerateKCL(w io.Writer) error {
 
 	err = js.GenerateKCL(w)
 	if err != nil {
-		return fmt.Errorf("failed to convert JSON Schema to KCL Schema: %w", err)
+		return fmt.Errorf("convert JSON Schema to KCL schema: %w", err)
 	}
 
 	return nil
 }
 
+// FromMap populates the [ChartRepo] from a decoded KCL map, rejecting any keys
+// that do not correspond to a field. The map's values keep their native Go
+// types (string/bool), so a JSON round-trip reproduces the struct exactly.
 func (c *ChartRepo) FromMap(m map[string]any) error {
-	if name, ok := m["name"].(string); ok {
-		c.Name = name
-
-		delete(m, "name")
+	data, err := json.Marshal(m)
+	if err != nil {
+		return fmt.Errorf("marshal repository: %w", err)
 	}
 
-	if url, ok := m["url"].(string); ok {
-		c.URL = url
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
 
-		delete(m, "url")
-	}
-
-	if usernameEnv, ok := m["usernameEnv"].(string); ok {
-		c.UsernameEnv = usernameEnv
-
-		delete(m, "usernameEnv")
-	}
-
-	if passwordEnv, ok := m["passwordEnv"].(string); ok {
-		c.PasswordEnv = passwordEnv
-
-		delete(m, "passwordEnv")
-	}
-
-	if caPath, ok := m["caPath"].(string); ok {
-		c.CAPath = caPath
-
-		delete(m, "caPath")
-	}
-
-	if tlsClientCertDataPath, ok := m["tlsClientCertDataPath"].(string); ok {
-		c.TLSClientCertDataPath = tlsClientCertDataPath
-
-		delete(m, "tlsClientCertDataPath")
-	}
-
-	if tlsClientCertKeyPath, ok := m["tlsClientCertKeyPath"].(string); ok {
-		c.TLSClientCertKeyPath = tlsClientCertKeyPath
-
-		delete(m, "tlsClientCertKeyPath")
-	}
-
-	if insecureSkipVerify, ok := m["insecureSkipVerify"].(bool); ok {
-		c.InsecureSkipVerify = insecureSkipVerify
-
-		delete(m, "insecureSkipVerify")
-	}
-
-	if passCredentials, ok := m["passCredentials"].(bool); ok {
-		c.PassCredentials = passCredentials
-
-		delete(m, "passCredentials")
-	}
-
-	if len(m) > 0 {
-		return fmt.Errorf("unexpected keys in input data: %#v", m)
+	err = dec.Decode(c)
+	if err != nil {
+		return fmt.Errorf("decode repository: %w", err)
 	}
 
 	return nil
