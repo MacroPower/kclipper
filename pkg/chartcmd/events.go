@@ -1,11 +1,6 @@
 package chartcmd
 
 type (
-	// Sent when initialization has completed.
-	EventInit struct {
-		Err error
-	}
-
 	// Sent when an item has been added.
 	EventAdded struct {
 		Err error
