@@ -18,9 +18,8 @@ import (
 )
 
 var (
-	ErrUpdateWorkerFailed = errors.New("update worker failed")
-	ErrChartUpdateFailed  = errors.New("chart update failed")
-	ErrKCLExecutionFailed = errors.New("kcl execution failed")
+	ErrUpdateWorker = errors.New("update worker")
+	ErrKCLExecution = errors.New("kcl execution")
 )
 
 // Update loads the chart configurations defined in charts.k and calls Add to
@@ -67,12 +66,12 @@ func (c *KCLPackage) Update(charts ...string) error {
 		ExternalPkgs:  externalPkgs,
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrKCLExecutionFailed, err)
+		return fmt.Errorf("%w: %w", ErrKCLExecution, err)
 	}
 
 	errMsg := mainOutput.GetErrMessage()
 	if errMsg != "" {
-		return fmt.Errorf("%w: %s", ErrKCLExecutionFailed, errMsg)
+		return fmt.Errorf("%w: %s", ErrKCLExecution, errMsg)
 	}
 
 	mainData := mainOutput.GetJsonResult()
@@ -120,7 +119,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 
 		err := sem.Acquire(ctx, 1)
 		if err != nil {
-			return fmt.Errorf("%w: %w", ErrUpdateWorkerFailed, err)
+			return fmt.Errorf("%w: %w", ErrUpdateWorker, err)
 		}
 
 		c.broadcastEvent(EventUpdatingChart(k))
@@ -147,7 +146,7 @@ func (c *KCLPackage) Update(charts ...string) error {
 
 	err = sem.Acquire(ctx, workerCount)
 	if err != nil {
-		return fmt.Errorf("%w: %w", ErrUpdateWorkerFailed, err)
+		return fmt.Errorf("%w: %w", ErrUpdateWorker, err)
 	}
 
 	close(errChan)

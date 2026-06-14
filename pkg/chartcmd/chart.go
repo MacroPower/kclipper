@@ -33,14 +33,14 @@ type KCLPackage struct {
 func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageOpts) (*KCLPackage, error) {
 	absBasePath, err := filepath.Abs(basePath)
 	if err != nil {
-		return nil, fmt.Errorf("%w: get absolute path: %w", ErrPathResolution, err)
+		return nil, fmt.Errorf("get absolute path: %w", err)
 	}
 
 	slog.Debug("looking for repository root", slog.String("path", basePath))
 
 	repoRoot, err := paths.FindRepoRoot(basePath)
 	if err != nil {
-		return nil, fmt.Errorf("%w: find repository root: %w", ErrPathResolution, err)
+		return nil, fmt.Errorf("find repository root: %w", err)
 	}
 
 	slog.Debug("found repository root", slog.String("path", repoRoot))
@@ -74,14 +74,10 @@ func NewKCLPackage(basePath string, client helm.ChartClient, opts ...KCLPackageO
 
 		pkgPath, err = paths.FindTopPkgRoot(repoRoot, basePath)
 		if err != nil {
-			return nil, fmt.Errorf(
-				"%w: find package root; could not recover after init: %w",
-				ErrPathResolution,
-				err,
-			)
+			return nil, fmt.Errorf("find package root; could not recover after init: %w", err)
 		}
 	} else if err != nil {
-		return nil, fmt.Errorf("%w: find package root: %w", ErrPathResolution, err)
+		return nil, fmt.Errorf("find package root: %w", err)
 	}
 
 	slog.Debug("found topmost kcl.mod file", slog.String("path", pkgPath))
