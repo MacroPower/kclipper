@@ -671,8 +671,8 @@ go.jacobcolvin.com/x/jsonschema v0.0.0-20260613001826-8660ae3bdb29 h1:JnWjBqngbF
 go.jacobcolvin.com/x/jsonschema v0.0.0-20260613001826-8660ae3bdb29/go.mod h1:5Dvbp9UJFj6hKRPNGjQqpqFZX/RSSgt2kp6dRJtyJnE=
 go.jacobcolvin.com/x/magicschema v0.1.1-0.20260609183842-9a3c6cce2cea h1:50zlxbfcmEIYXNOsTIe2n8comSRrHSGnZP0oSY9XUB4=
 go.jacobcolvin.com/x/magicschema v0.1.1-0.20260609183842-9a3c6cce2cea/go.mod h1:T+Iu5PFn7QXm78s80VLG3lGdX0pZqHlO2twgyVeaqe8=
-go.jacobcolvin.com/x/stringtest v0.1.0 h1:CokQSICcFmywBapU5p1SsA2YBD+aSL3R/EPM1FRv5IM=
-go.jacobcolvin.com/x/stringtest v0.1.0/go.mod h1:hXDTRkMBRvOXc4e02XRL2b9F1Te1OWJ/NgjIOn+jmMY=
+go.jacobcolvin.com/x/stringtest v0.2.0 h1:GoZXZrDlKqDIqpxbQm3EQXlhxmZCqb+I38p99fBng/c=
+go.jacobcolvin.com/x/stringtest v0.2.0/go.mod h1:UrXpCrus1kkRqd+qk1RGMWZ14lukttnvtsGVhmk5a0U=
 go.jacobcolvin.com/x/version v0.1.0 h1:GkiUGl1oRZAXM/AEYwNh0Z+enSJTtuGgGtaCkhAuy0Q=
 go.jacobcolvin.com/x/version v0.1.0/go.mod h1:tcZnfGDaW/il7M0K+KADxbxG3xdKXAXW2cF1s4BGtnE=
 go.mongodb.org/mongo-driver v1.14.0 h1:P98w8egYRjYe3XDjxhYJagTokP/H6HzlsnojRgZRd80=
