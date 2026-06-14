@@ -8,7 +8,7 @@ require (
 	charm.land/fang/v2 v2.0.1
 	charm.land/lipgloss/v2 v2.0.4
 	github.com/charmbracelet/x/ansi v0.11.7
-	github.com/charmbracelet/x/exp/golden v0.0.0-20260608090822-c3ad58c6c9e5
+	github.com/charmbracelet/x/exp/golden v0.0.0-20260614010340-86573f9427fd
 	github.com/getkin/kin-openapi v0.140.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/klauspost/compress v1.18.6
