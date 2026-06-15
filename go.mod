@@ -19,7 +19,7 @@ require (
 	go.jacobcolvin.com/x/cobras v0.1.0
 	go.jacobcolvin.com/x/jsonschema v0.0.0-20260613001826-8660ae3bdb29
 	go.jacobcolvin.com/x/stringtest v0.2.0
-	go.jacobcolvin.com/x/version v0.1.0
+	go.jacobcolvin.com/x/version v0.2.0
 	golang.org/x/net v0.55.0
 	golang.org/x/sync v0.21.0
 	golang.org/x/text v0.38.0
