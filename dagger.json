@@ -3,91 +3,52 @@
   "engineVersion": "v0.21.4",
   "toolchains": [
     {
-      "name": "go",
-      "source": "github.com/MacroPower/x/toolchains/go@main",
-      "pin": "8660ae3bdb29a92728d6b9f4cc03776af38bad62",
+      "name": "ci",
+      "source": "ci",
       "customizations": [
         {
           "argument": "source",
           "ignore": [
-            "**",
-            "!**/*.go",
-            "!**/go.mod",
-            "!**/go.sum",
-            "!**/dagger.json",
-            "!**/testdata/**",
-            "!.golangci.yaml",
-            "!modules/**",
-            "!resources/**"
+            ".git",
+            ".claude",
+            ".worktrees",
+            ".devbox",
+            ".task",
+            ".test",
+            ".tmp",
+            "dist"
           ]
-        },
-        {
-          "argument": "cgo",
-          "default": "true"
-        },
-        {
-          "argument": "injectGitHead",
-          "default": "true"
-        },
-        {
-          "argument": "version",
-          "default": "1.26"
-        },
-        {
-          "argument": "cacheNamespace",
-          "default": "github.com/macropower/kclipper/toolchains/go"
         }
       ]
     },
     {
-      "name": "kclipper",
-      "source": "toolchains/kclipper",
+      "name": "devbox",
+      "source": "github.com/MacroPower/x/toolchains/devbox@main",
+      "pin": "8990610a338bb60f9aa8708d5fa89e1c3c6725dc",
       "customizations": [
         {
           "argument": "source",
           "ignore": [
-            "**",
-            "!**/*.go",
-            "!**/go.mod",
-            "!**/go.sum",
-            "!**/testdata/**",
-            "!**/*.yaml",
-            "!**/*.json",
-            "!**/*.md",
-            "!.prettierignore",
-            "!.github/**",
-            "!hack/**",
-            "!modules/**",
-            "!resources/**",
-            "!LICENSE"
+            ".git",
+            ".claude",
+            ".worktrees",
+            ".devbox",
+            ".task",
+            ".test",
+            ".tmp",
+            "dist"
           ]
+        },
+        {
+          "argument": "cacheNamespace",
+          "default": "github.com/macropower/kclipper/ci"
         }
       ]
     },
     {
       "name": "commitlint",
       "source": "github.com/MacroPower/x/toolchains/commitlint@main",
-      "pin": "8660ae3bdb29a92728d6b9f4cc03776af38bad62"
-    },
-    {
-      "name": "security",
-      "source": "github.com/MacroPower/x/toolchains/security@main",
-      "pin": "8660ae3bdb29a92728d6b9f4cc03776af38bad62",
-      "customizations": [
-        {
-          "function": [
-            "scanSource"
-          ],
-          "argument": "source",
-          "ignore": [
-            "**",
-            "!**/*.go",
-            "!**/go.mod",
-            "!**/go.sum",
-            "!.trivyignore"
-          ]
-        }
-      ]
+      "pin": "8990610a338bb60f9aa8708d5fa89e1c3c6725dc"
     }
   ]
 }

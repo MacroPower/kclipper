@@ -3,7 +3,7 @@
 pre-commit:
   commands:
     check:
-      run: devbox run -- dagger check
+      run: devbox run -- task check
 
 commit-msg:
   commands:

@@ -1,5 +1,5 @@
-// Integration tests for the [Kclipper] module. Individual tests are annotated
-// with +check so `dagger check -m toolchains/kclipper/tests` runs them all concurrently.
+// Integration tests for the [Ci] module. Individual tests are annotated with
+// +check so `dagger check -m ci/tests` runs them all concurrently.
 package main
 
 import (
@@ -13,8 +13,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// Tests provides integration tests for the [Kclipper] module. Create instances
-// with [New].
+// Tests provides integration tests for the [Ci] module. Create instances with
+// [New].
 type Tests struct{}
 
 // All runs all tests in parallel.
@@ -24,21 +24,19 @@ func (m *Tests) All(ctx context.Context) error {
 	g.Go(func() error { return m.TestBuildDist(ctx) })
 	g.Go(func() error { return m.TestBuildImageMetadata(ctx) })
 	g.Go(func() error { return m.TestLintReleaserClean(ctx) })
-	g.Go(func() error { return m.TestLintDeadcodeClean(ctx) })
 	g.Go(func() error { return m.TestBinary(ctx) })
-	g.Go(func() error { return m.TestFormatIdempotent(ctx) })
 	g.Go(func() error { return m.TestLintActionsClean(ctx) })
 	g.Go(func() error { return m.TestLintKCLModulesClean(ctx) })
 
 	return g.Wait()
 }
 
-// TestBuildDist verifies that [Kclipper.Build] returns a dist directory containing
+// TestBuildDist verifies that [Ci.Build] returns a dist directory containing
 // expected entries (checksums and at least one platform archive).
 //
 // +check
 func (m *Tests) TestBuildDist(ctx context.Context) error {
-	entries, err := dag.Kclipper().Build().Entries(ctx)
+	entries, err := dag.Ci().Build().Entries(ctx)
 	if err != nil {
 		return fmt.Errorf("list dist entries: %w", err)
 	}
@@ -64,13 +62,13 @@ func (m *Tests) TestBuildDist(ctx context.Context) error {
 	return nil
 }
 
-// TestBuildImageMetadata verifies that [Kclipper.BuildImages] produces containers
+// TestBuildImageMetadata verifies that [Ci.BuildImages] produces containers
 // with expected OCI labels, environment variables, and entrypoint.
 //
 // +check
 func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
-	dist := dag.Kclipper().Build()
-	variants, err := dag.Kclipper().BuildImages(ctx, dagger.KclipperBuildImagesOpts{
+	dist := dag.Ci().Build()
+	variants, err := dag.Ci().BuildImages(ctx, dagger.CiBuildImagesOpts{
 		Version: "v0.0.0-test",
 		Dist:    dist,
 	})
@@ -131,7 +129,7 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 	return nil
 }
 
-// TestPublishImages verifies that [Kclipper.PublishImages] builds and publishes
+// TestPublishImages verifies that [Ci.PublishImages] builds and publishes
 // multi-arch images to a registry. Uses ttl.sh as an anonymous temporary
 // registry (images expire after the tag duration).
 //
@@ -144,15 +142,15 @@ func (m *Tests) TestBuildImageMetadata(ctx context.Context) error {
 // Not annotated with +check because it depends on external network access
 // to ttl.sh and takes ~5 minutes. Run manually:
 //
-//	dagger call -m toolchains/kclipper/tests test-publish-images
+//	dagger call -m ci/tests test-publish-images
 func (m *Tests) TestPublishImages(ctx context.Context) error {
 	// Use a unique registry path on ttl.sh to avoid collisions between runs.
 	registry := fmt.Sprintf("ttl.sh/kclipper-ci-%d", time.Now().UnixNano())
-	ci := dag.Kclipper(dagger.KclipperOpts{Registry: registry})
+	ci := dag.Ci(dagger.CiOpts{Registry: registry})
 
 	// Publish 2 tags to exercise deduplication (both tags share one manifest digest).
 	dist := ci.Build()
-	result, err := ci.PublishImages(ctx, []string{"1h", "2h"}, dagger.KclipperPublishImagesOpts{
+	result, err := ci.PublishImages(ctx, []string{"1h", "2h"}, dagger.CiPublishImagesOpts{
 		Dist: dist,
 	})
 	if err != nil {
@@ -189,26 +187,19 @@ func (m *Tests) TestPublishImages(ctx context.Context) error {
 }
 
 // TestLintReleaserClean verifies that the GoReleaser configuration passes
-// validation. This exercises the [Kclipper.LintReleaser] check, which requires
+// validation. This exercises the [Ci.LintReleaser] check, which requires
 // the kclipper git remote for homebrew/nix repository resolution.
 //
 // +check
 func (m *Tests) TestLintReleaserClean(ctx context.Context) error {
-	return dag.Kclipper().LintReleaser(ctx)
+	return dag.Ci().LintReleaser(ctx)
 }
 
-// TestLintDeadcodeClean verifies that the codebase has no unreachable
-// functions. This exercises [Kclipper.LintDeadcode].
-func (m *Tests) TestLintDeadcodeClean(ctx context.Context) error {
-	return dag.Kclipper().LintDeadcode(ctx)
-}
-
-// TestBinary verifies that [Kclipper.Binary] compiles the kcl binary.
+// TestBinary verifies that [Ci.Binary] compiles the kcl binary.
 //
 // +check
 func (m *Tests) TestBinary(ctx context.Context) error {
-	binary := dag.Kclipper().Binary(dagger.KclipperBinaryOpts{})
-	size, err := binary.Size(ctx)
+	size, err := dag.Ci().Binary().Size(ctx)
 	if err != nil {
 		return fmt.Errorf("binary: %w", err)
 	}
@@ -218,79 +209,19 @@ func (m *Tests) TestBinary(ctx context.Context) error {
 	return nil
 }
 
-// TestFormatIdempotent verifies that running the formatter on already-formatted
-// source produces an empty changeset. This exercises the full
-// [Kclipper.Format] pipeline (golangci-lint --fix + prettier --write) and
-// confirms the source is clean.
-//
-// +check
-func (m *Tests) TestFormatIdempotent(ctx context.Context) error {
-	changeset := dag.Kclipper().Format()
-
-	empty, err := changeset.IsEmpty(ctx)
-	if err != nil {
-		return fmt.Errorf("check changeset: %w", err)
-	}
-	if !empty {
-		modified, _ := changeset.ModifiedPaths(ctx)
-		added, _ := changeset.AddedPaths(ctx)
-		removed, _ := changeset.RemovedPaths(ctx)
-		return fmt.Errorf("expected empty changeset on clean source, modified=%v added=%v removed=%v",
-			modified, added, removed)
-	}
-	return nil
-}
-
 // TestLintActionsClean verifies that the GitHub Actions workflows pass
-// zizmor linting. This exercises the [Kclipper.LintActions] check and catches
+// zizmor linting. This exercises the [Ci.LintActions] check and catches
 // workflow security or syntax issues.
 //
 // +check
 func (m *Tests) TestLintActionsClean(ctx context.Context) error {
-	return dag.Kclipper().LintActions(ctx)
+	return dag.Ci().LintActions(ctx)
 }
 
 // TestLintKCLModulesClean verifies that all KCL modules under modules/ can be
-// packaged correctly. This exercises the [Kclipper.LintKCLModules] check.
+// packaged correctly. This exercises the [Ci.LintKCLModules] check.
 //
 // +check
 func (m *Tests) TestLintKCLModulesClean(ctx context.Context) error {
-	return dag.Kclipper().LintKclmodules(ctx)
-}
-
-// TestBenchmarkSummaryFormat verifies that [Kclipper.BenchmarkSummary] returns
-// a non-empty string containing the expected table header and stage names.
-//
-// Not annotated with +check because benchmarks run the full pipeline
-// with cache-busting, which would duplicate all CI work in the integration
-// test suite. Run manually:
-//
-//	dagger call -m toolchains/kclipper/tests test-benchmark-summary-format
-func (m *Tests) TestBenchmarkSummaryFormat(ctx context.Context) error {
-	summary, err := dag.Kclipper().BenchmarkSummary(ctx)
-	if err != nil {
-		return fmt.Errorf("run benchmark summary: %w", err)
-	}
-	if len(summary) == 0 {
-		return fmt.Errorf("benchmark summary is empty")
-	}
-
-	// Verify the table header is present.
-	if !strings.Contains(summary, "STAGE") || !strings.Contains(summary, "DURATION") {
-		return fmt.Errorf("benchmark summary missing table header: %s", summary)
-	}
-
-	// Verify key stages appear in the output.
-	for _, stage := range []string{"env", "lint", "test", "build"} {
-		if !strings.Contains(summary, stage) {
-			return fmt.Errorf("benchmark summary missing stage %q: %s", stage, summary)
-		}
-	}
-
-	// Verify the total row is present.
-	if !strings.Contains(summary, "TOTAL") {
-		return fmt.Errorf("benchmark summary missing TOTAL row: %s", summary)
-	}
-
-	return nil
+	return dag.Ci().LintKclmodules(ctx)
 }

@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
-	"dagger/kclipper/internal/dagger"
+	"dagger/ci/internal/dagger"
 )
 
 // Build runs GoReleaser in snapshot mode, producing binaries for all
 // platforms. Returns the dist/ directory. Source archives are skipped in
 // snapshot mode since they are only needed for releases.
-func (m *Kclipper) Build(ctx context.Context) (*dagger.Directory, error) {
+func (m *Ci) Build(ctx context.Context) (*dagger.Directory, error) {
 	ctr, err := m.releaserBase(ctx)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (m *Kclipper) Build(ctx context.Context) (*dagger.Directory, error) {
 
 // BinarySnapshot builds the kcl binary for a single platform via GoReleaser
 // in snapshot mode.
-func (m *Kclipper) BinarySnapshot(
+func (m *Ci) BinarySnapshot(
 	ctx context.Context,
 	// Target build platform (e.g. "darwin/arm64").
 	platform dagger.Platform,
@@ -51,7 +51,7 @@ func (m *Kclipper) BinarySnapshot(
 
 // BuildImages builds multi-arch runtime container images from a GoReleaser
 // dist directory. If no dist is provided, a snapshot build is run.
-func (m *Kclipper) BuildImages(
+func (m *Ci) BuildImages(
 	ctx context.Context,
 	// Version label for OCI metadata.
 	// +default="snapshot"
@@ -199,14 +199,16 @@ func kclLSPBinary(goos, goarch string) *dagger.File {
 // toolchain) extended with cosign, syft, Zig, pre-downloaded KCL Language
 // Server binaries, and macOS SDK headers (fetched from the NixOS binary cache)
 // for CGO cross-compilation. Config-only validation goes through the
-// [Goreleaser] toolchain directly -- see [Kclipper.LintReleaser].
-func (m *Kclipper) releaserBase(_ context.Context) (*dagger.Container, error) {
+// [Goreleaser] toolchain directly -- see [Ci.LintReleaser].
+func (m *Ci) releaserBase(_ context.Context) (*dagger.Container, error) {
 	ctr := m.Goreleaser.GoreleaserBase()
 	// Install stable tools before committing source so that source changes
 	// only invalidate layers from EnsureGitRepo onward, not the tool layers.
-	// cosign and syft binaries are installed via their toolchain modules.
-	ctr = m.Cosign.WithCosign(ctr)
-	ctr = m.Syft.WithSyft(ctr)
+	// cosign and syft are folded into the goreleaser toolchain, so its
+	// WithCosign/WithSyft install those binaries for GoReleaser's sign and
+	// sbom steps.
+	ctr = m.Goreleaser.WithCosign(ctr)
+	ctr = m.Goreleaser.WithSyft(ctr)
 	ctr = ctr.
 		// Install Zig for CGO cross-compilation from a dedicated cached container.
 		WithDirectory("/usr/local", zigDirectory()).
@@ -238,7 +240,7 @@ func (m *Kclipper) releaserBase(_ context.Context) (*dagger.Container, error) {
 		// Mount source after all tools so that source changes only invalidate
 		// layers from here onward, preserving the tool installation layers above.
 		WithMountedDirectory("/src", m.Source)
-	return m.Go.EnsureGitRepo(ctr, dagger.GoEnsureGitRepoOpts{
+	return m.Goreleaser.EnsureGitRepo(ctr, dagger.GoreleaserEnsureGitRepoOpts{
 		RemoteURL: kclipperCloneURL,
 	}), nil
 }

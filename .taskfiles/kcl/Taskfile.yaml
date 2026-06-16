@@ -12,14 +12,14 @@ tasks:
   build:
     desc: Builds all binaries via Dagger
     cmds:
-      - dagger call kclipper build --output=./dist
+      - dagger call ci build --output=./dist
 
   install:
     desc: Builds and installs the kcl binary
     vars:
       PLATFORM: "{{OS}}/{{ARCH}}"
     cmds:
-      - dagger call kclipper binary-snapshot --platform={{.PLATFORM}} --output=./dist/kcl
+      - dagger call ci binary-snapshot --platform={{.PLATFORM}} --output=./dist/kcl
       - sudo cp ./dist/kcl /usr/local/bin
 
   release:
@@ -28,44 +28,42 @@ tasks:
       vars: [GITHUB_TOKEN, TAG, REGISTRY_USERNAME, REGISTRY_PASSWORD]
     cmds:
       - >-
-        dagger call kclipper release
+        dagger call ci release
         --github-token=env://GITHUB_TOKEN
         --registry-username={{.REGISTRY_USERNAME}}
         --registry-password=env://REGISTRY_PASSWORD
         --tag={{.TAG}}
         --output=./dist
 
+  publish-kclmodules:
+    desc: Publishes KCL modules to the OCI registry via Dagger
+    requires:
+      vars: [TAG, REGISTRY_USERNAME, REGISTRY_PASSWORD]
+    cmds:
+      - >-
+        dagger call ci publish-kclmodules
+        --tag={{.TAG}}
+        --registry-username={{.REGISTRY_USERNAME}}
+        --registry-password=env://REGISTRY_PASSWORD
+
   lint:releaser:
     desc: Validates GoReleaser configuration via Dagger
     cmds:
-      - dagger check kclipper:lint-releaser
+      - dagger call ci lint-releaser
 
   lint:kcl-modules:
     desc: Validates KCL module packaging via Dagger
     cmds:
-      - dagger check kclipper:lint-kclmodules
+      - dagger call ci lint-kclmodules
 
   scan:image:
-    desc: Scans a container image for vulnerabilities via Dagger
+    desc: Builds the runtime image and scans it for vulnerabilities via Dagger
     summary: |
-      Scans a container image for vulnerabilities via Dagger.
-
-      Args:
-        TARGET: Image reference to scan (required)
-    requires:
-      vars: [TARGET]
+      Builds the runtime image the way a release publishes it and emits a SARIF
+      report. To scan an arbitrary external image instead, call the security
+      toolchain directly.
     cmds:
-      - dagger call security scan-image --target={{.TARGET}}
-
-  benchmark:
-    desc: Measures pipeline stage timings via Dagger
-    cmds:
-      - dagger call kclipper benchmark-summary
-
-  benchmark:parallel:
-    desc: Measures full-pipeline wall-clock time via Dagger (parallel)
-    cmds:
-      - dagger call kclipper benchmark-summary --parallel
+      - dagger call ci security-image-sarif export --path trivy-image.sarif
 
   bench:
     desc: Runs Go benchmarks on the host

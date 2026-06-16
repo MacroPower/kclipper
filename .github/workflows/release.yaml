@@ -63,7 +63,7 @@ jobs:
         with:
           version: "v0.21.4"
           call: >-
-            kclipper release
+            ci release
             --github-token=env://GITHUB_TOKEN
             --registry-username="${{ github.actor }}"
             --registry-password=env://REGISTRY_PASSWORD
@@ -127,7 +127,7 @@ jobs:
         with:
           version: "v0.21.4"
           call: >-
-            kclipper publish-kclmodules
+            ci publish-kclmodules
             --tag="${{ steps.tag.outputs.value }}"
             --registry-username="${{ github.actor }}"
             --registry-password=env://REGISTRY_PASSWORD

@@ -26,3 +26,9 @@ dist/
 
 # Devbox environment
 .devbox/
+
+# Worktrees
+.worktrees/
+
+# SARIF scan output (from `task security:sarif-source` / `sarif-image`)
+*.sarif

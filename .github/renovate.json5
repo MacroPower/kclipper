@@ -25,15 +25,29 @@
       matchStringsStrategy: "recursive",
       datasourceTemplate: "helm",
     },
+    // Tool and image versions pinned as Go constants in the ci module,
+    // annotated with `// renovate:` comments, e.g.:
+    //   renovateVersion = "43.224.0" // renovate: datasource=npm depName=renovate
+    //   nixImage = "ghcr.io/nixos/nix:2.34.7" // renovate: datasource=docker depName=ghcr.io/nixos/nix
+    // For image references, the version is the tag after the last colon.
     {
       customType: "regex",
-      managerFilePatterns: ["/toolchains/.+/main\\.go$/"],
+      managerFilePatterns: ["/^ci/.+\\.go$/"],
       matchStrings: [
-        // The optional non-captured prefix strips the image name from full
-        // refs (e.g. "ghcr.io/nixos/nix:2.32.8"), leaving only the tag as
-        // currentValue.
-        '\\w+\\s*=\\s*"(?:[^"]*:)?(?<currentValue>[^":]+)"\\s*//\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)(?:\\s+extractVersion=(?<extractVersion>[^\\s]+))?',
+        '"(?:[^"]*:)?(?<currentValue>[^":]+)"\\s*// renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)',
       ],
+      versioningTemplate: "{{#if (equals datasource 'docker')}}docker{{else}}semver-coerced{{/if}}",
+    },
+    // Tool versions pinned in Taskfiles as `<value> # renovate:` annotations.
+    // (devbox.json tool versions are handled by Renovate's built-in devbox
+    // manager, so they need no customManager here.)
+    {
+      customType: "regex",
+      managerFilePatterns: ["/(^|/)Taskfile\\.yaml$/", "/(^|/)\\.taskfiles/.+\\.yaml$/"],
+      matchStrings: [
+        '(?<currentValue>v?[0-9][^\\s#"]*)\\s*#\\s*renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)',
+      ],
+      versioningTemplate: "{{#if (equals datasource 'docker')}}docker{{else}}semver-coerced{{/if}}",
     },
   ],
   packageRules: [

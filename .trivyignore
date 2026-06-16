@@ -4,3 +4,17 @@
 # Pre-existing transitive dependency via Dagger SDK; fix requires upstream
 # otel SDK bump to v1.40.0+.
 CVE-2026-24051
+
+# Pre-existing transitive dependencies via kcl-lang.io/kpm (the KCL package
+# manager kclipper uses to download charts): oras.land/oras-go's docker auth
+# pulls in containerd/docker, and kpm's git downloader pulls in
+# go-git/go-getter. Fixes require an upstream kpm release bumping these; they
+# are not reachable from kclipper's own code paths.
+CVE-2026-46680 # github.com/containerd/containerd
+CVE-2025-15558 # github.com/docker/cli (Windows-only privilege escalation)
+CVE-2026-34040 # github.com/docker/docker (moby)
+CVE-2026-41567 # github.com/docker/docker (moby)
+CVE-2026-42306 # github.com/docker/docker (moby)
+CVE-2026-44973 # github.com/go-git/go-billy
+CVE-2026-45022 # github.com/go-git/go-git
+CVE-2026-4660  # github.com/hashicorp/go-getter

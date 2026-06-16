@@ -15,30 +15,74 @@ permissions:
 
 jobs:
   check:
-    name: check
+    name: check (${{ matrix.task }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Each entry is a function on the `ci` toolchain. lint and test run the
+        # matching Taskfile target inside the devbox environment
+        # (dagger -> devbox -> task); the rest compose a toolchain or Node
+        # container directly: security (Trivy via the security toolchain),
+        # lint-actions (zizmor via the zizmor toolchain), lint-renovate
+        # (renovate-config-validator in a Node container), and lint-releaser /
+        # lint-kclmodules (goreleaser/kcl). Mirrors the gates developers run via
+        # `task check:all`.
+        task:
+          - lint
+          - test
+          - security
+          - lint-actions
+          - lint-renovate
+          - lint-releaser
+          - lint-kclmodules
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Run ci ${{ matrix.task }}
+        uses: dagger/dagger-for-github@v8.4.1
+        with:
+          version: "v0.21.4"
+          call: ci ${{ matrix.task }}
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+          enable-github-summary: "true"
+
+  toolchains:
+    name: toolchains
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-          fetch-depth: 2
 
-      - name: Run all checks (lint + generator freshness in parallel)
+      - name: Run ci toolchain tests
         uses: dagger/dagger-for-github@v8.4.1
         with:
           version: "v0.21.4"
           verb: check
-          args: go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules go:generate go:tidy
+          args: -m ci/tests
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           enable-github-summary: "true"
+
+  coverage:
+    name: coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Export coverage profile
         if: ${{ !cancelled() }}
         uses: dagger/dagger-for-github@v8.4.1
         with:
           version: "v0.21.4"
-          call: go test-coverage --output=coverage.txt
+          call: ci test-coverage --output=coverage.txt
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           enable-github-summary: "true"
 
