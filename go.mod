@@ -17,7 +17,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	go.jacobcolvin.com/niceyaml v0.0.0-20260606121633-058e1e37234b
 	go.jacobcolvin.com/x/cobras v0.1.0
-	go.jacobcolvin.com/x/jsonschema v0.0.0-20260613001826-8660ae3bdb29
+	go.jacobcolvin.com/x/jsonschema v0.0.0-20260616075008-d6666dfa4eb2
 	go.jacobcolvin.com/x/stringtest v0.2.0
 	go.jacobcolvin.com/x/version v0.2.0
 	golang.org/x/net v0.56.0
@@ -265,12 +265,12 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
-	golang.org/x/mod v0.36.0 // indirect
+	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/term v0.44.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.45.0 // indirect
+	golang.org/x/tools v0.46.0 // indirect
 	google.golang.org/api v0.171.0 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9 // indirect
