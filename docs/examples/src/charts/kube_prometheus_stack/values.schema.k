@@ -1147,7 +1147,7 @@ schema ValuesAlertmanagerAlertmanagerSpecImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "prometheus/alertmanager"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v0.32.2"
+    tag : str, optional, default is "v0.33.0"
     """
     [...str]: any
     pullPolicy?: str
