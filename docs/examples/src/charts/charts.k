@@ -18,7 +18,7 @@ charts: helm.Charts = {
     app_template: {
         chart = "app-template"
         repoURL = "https://bjw-s-labs.github.io/helm-charts/"
-        targetRevision = "3.7.3"
+        targetRevision = "5.0.1"
         schemaGenerator = "CHART-PATH"
         schemaPath = "charts/common/values.schema.json"
         schemaValidator = "KCL"
