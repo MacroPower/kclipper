@@ -13,47 +13,58 @@ includes:
   git: ./.taskfiles/git/Taskfile.yaml
   go: ./.taskfiles/go/Taskfile.yaml
   kcl: ./.taskfiles/kcl/Taskfile.yaml
+  security: ./.taskfiles/security/Taskfile.yaml
 
 tasks:
   default:
     cmd: task -l
 
   format:
-    desc: Formats, tidies, and generates code via Dagger
-    summary: |
-      Runs every registered Dagger generator and applies the changes.
-      Supersedes go:format and fmt:format, which remain for selective
-      runs.
+    desc: Runs all format and generate targets
     cmds:
-      - dagger generate --auto-apply
+      - task: go:tidy
+      - task: go:generate
+      - task: go:format
+      - task: fmt:format
 
   lint:
-    desc: Runs all lint targets via Dagger
-    cmds:
-      - dagger check go:lint kclipper:lint-prettier kclipper:lint-actions kclipper:lint-releaser kclipper:lint-kclmodules
-
-  docs:
-    desc: Runs all docs targets
-    deps: [go:docs]
+    desc: Runs all lint targets
+    deps: [go:lint, go:tidy:check, fmt:lint]
 
   test:
     desc: Runs all test targets
     deps: [go:test]
 
-  test:toolchains:
-    desc: Runs the kclipper toolchain's tests via Dagger
-    cmds:
-      - dagger check -m toolchains/kclipper/tests
+  docs:
+    desc: Runs all docs targets
+    deps: [go:docs]
 
+  # check is the fast local gate: lint and test invoke their tools straight off
+  # the devbox PATH, so it needs no Dagger engine. check:ci adds the gates whose
+  # tools (Trivy, zizmor, goreleaser, kcl) are not on the devbox PATH and so run
+  # through Dagger. check:all is the union -- the full set CI runs, mirrored by
+  # the validate.yaml matrix.
   check:
-    desc: Runs all checks via Dagger
+    desc: Runs the local checks using devbox
+    deps: [lint, test]
+
+  check:ci:
+    desc: Runs the Dagger-backed checks
+    deps: [security:scan, gh:lint, kcl:lint:releaser, kcl:lint:kcl-modules]
+
+  check:all:
+    desc: Runs every check, local and Dagger-backed
+    deps: [check, check:ci]
+
+  check:toolchains:
+    desc: Runs the ci toolchain's integration tests via Dagger
     cmds:
-      - dagger check
+      - dagger check -m ci/tests
 
   scan:
-    desc: Scans source dependencies for vulnerabilities via Dagger
+    desc: Scans source dependencies for vulnerabilities
     cmds:
-      - dagger call security scan-source
+      - task: security:scan
 
   pre-commit:
     desc: Runs all pre-commit targets

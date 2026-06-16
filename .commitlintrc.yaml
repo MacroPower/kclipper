@@ -20,7 +20,8 @@ rules:
   scope-enum:
     - 2
     - always
-    - - cli
+    - - ci
+      - cli
       - deps
       - modules
       - plugin

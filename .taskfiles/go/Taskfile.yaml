@@ -3,48 +3,113 @@ version: "3"
 set: [errexit, nounset, pipefail]
 shopt: [globstar]
 
+# Go tasks call the local toolchain (go, golangci-lint) directly; devbox
+# provides both on PATH, plus gcc for the native cgo build. kclipper is a single
+# Go module, so the package set is the module-relative ./... pattern.
+#
+# kclipper imports the KCL Go SDK, which needs cgo, and ships with the `netgo`
+# build tag so the released binary uses the pure-Go network stack. Tests and
+# lint must build with that same configuration (CGO_ENABLED=1 and -tags netgo),
+# or they exercise a different build than what releases.
+vars:
+  GO_PKGS: ./...
+  TEST_TIMEOUT: 30m
+  BUILD_TAGS: netgo
+  DEADCODE_VERSION: v0.46.0 # renovate: datasource=go depName=golang.org/x/tools
+
+env:
+  CGO_ENABLED: "1"
+
 tasks:
-  format:
-    desc: Formats Go code via Dagger
-    cmds:
-      - dagger call -y go format-go
-
+  # lint, format, tidy, and tidy:check are fingerprinted with `sources` so a
+  # no-op `task check` skips them. lint and format additionally read
+  # .golangci.yaml and depend on the golangci-lint binary, so devbox.lock is a
+  # source (a Go or golangci-lint version bump invalidates their cache). tidy
+  # reads neither, so its sources stop at the module files.
   lint:
-    desc: Lints Go code via Dagger
-    cmds:
-      - dagger check go:lint
+    desc: Lints Go code with golangci-lint
+    sources: &go-lint-sources
+      - "**/*.go"
+      - go.mod
+      - go.sum
+      - .golangci.yaml
+      - devbox.lock
+    cmd: golangci-lint run --build-tags={{.BUILD_TAGS}}
 
-  test:
-    desc: Runs Go tests via Dagger
-    summary: |
-      Runs Go tests via Dagger.
-
-      For a single package or extra flags, call the toolchain directly:
-        dagger call go test --pkgs=./pkg/helm/... --run=TestName
-    cmds:
-      - dagger check kclipper:test-unit
-
-  cover:
-    desc: Runs Go tests with coverage via Dagger
-    cmds:
-      - dagger call go test-coverage --output=.test/coverage.txt
+  format:
+    desc: Formats Go code with golangci-lint --fix
+    sources: *go-lint-sources
+    cmd: golangci-lint run --fix --build-tags={{.BUILD_TAGS}}
 
   tidy:
-    desc: Tidies go.mod and go.sum across all modules via Dagger
-    cmds:
-      - dagger call -y go tidy
+    desc: Tidies go.mod and go.sum
+    sources: &go-tidy-sources
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    cmd: go mod tidy
 
-  gen:
-    desc: Generates Go code via Dagger
-    cmds:
-      - dagger call -y go generate
+  tidy:check:
+    desc: Verifies go.mod and go.sum are tidy
+    summary: |
+      Runs `go mod tidy -diff`, which reports the changes tidy would make and
+      exits non-zero if any are needed, without modifying the files. Being
+      read-only, it is safe to run alongside go:lint and go:test and needs no
+      .git (the check runs inside the devbox container in CI).
+    sources: *go-tidy-sources
+    cmd: go mod tidy -diff
 
-  # Deadcode analysis goes through the kclipper toolchain rather than the
-  # shared go toolchain so the build uses kclipper's build tags.
+  # test and test:cover are deliberately not fingerprinted with `sources`. Go's
+  # build/test cache is content-addressed and re-runs exactly the packages that
+  # changed; a file-glob fingerprint here would be coarser and could skip a
+  # stale test.
+  test:
+    desc: Runs Go tests (cgo + netgo) with the race detector
+    summary: |
+      Runs the tests with the race detector, built with cgo and the netgo tag
+      to match the released binary.
+
+      For a single package or extra flags, call go directly:
+        CGO_ENABLED=1 go test -tags netgo -run TestName ./pkg/helm/...
+    cmds:
+      - go test -timeout={{.TEST_TIMEOUT}} -tags={{.BUILD_TAGS}} -race {{.GO_PKGS}}
+
+  test:cover:
+    desc: Runs all Go tests with coverage profiling
+    summary: |
+      Runs every test with -coverprofile, which disables Go's test result
+      cache. Writes the profile to OUTPUT.
+
+      Args:
+        OUTPUT: Coverage profile path (default: .test/coverage.txt)
+    vars:
+      OUTPUT: '{{.OUTPUT | default ".test/coverage.txt"}}'
+    cmds:
+      - mkdir -p .test
+      - go test -timeout={{.TEST_TIMEOUT}} -tags={{.BUILD_TAGS}} -race -coverprofile={{.OUTPUT}} {{.GO_PKGS}}
+
+  generate:
+    desc: Runs go generate
+    cmds:
+      - go generate {{.GO_PKGS}}
+
+  # deadcode and docs are advisory tasks whose whole purpose is the report they
+  # print to stdout. They are deliberately not fingerprinted: a `sources` cache
+  # hit would skip the command and suppress that output. Run them on demand.
   deadcode:
-    desc: Finds dead code in Go via Dagger
+    desc: Reports unreachable Go functions (advisory)
+    label: "go:deadcode {{.PKG}}"
+    summary: |
+      Reports unreachable functions via the golang.org/x/tools deadcode
+      analyzer, built with the netgo tag to match the released binary.
+      Advisory only; not part of the standard gate.
+
+      Args:
+        PKG: Go package(s) to analyze (default: ./...)
+    vars:
+      PKG: "{{.PKG | default .GO_PKGS}}"
     cmds:
-      - dagger call kclipper lint-deadcode
+      - go run golang.org/x/tools/cmd/deadcode@{{.DEADCODE_VERSION}} -tags={{.BUILD_TAGS}} {{.PKG}}
 
   docs:
     desc: Prints Go documentation for all packages

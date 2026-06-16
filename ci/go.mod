@@ -1,4 +1,4 @@
-module dagger/kclipper
+module dagger/ci
 
 go 1.26.1
 

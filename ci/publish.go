@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"dagger/kclipper/internal/dagger"
+	"dagger/ci/internal/dagger"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -75,7 +75,7 @@ var reKCLModVersion = regexp.MustCompile(`(?m)^version\s*=\s*"[^"]*"`)
 // patchedModulesDir discovers KCL modules under modules/ and rewrites each
 // kcl.mod file's version line to the given version. Returns the patched
 // directory and the list of module names.
-func (m *Kclipper) patchedModulesDir(ctx context.Context, version string) (*dagger.Directory, []string, error) {
+func (m *Ci) patchedModulesDir(ctx context.Context, version string) (*dagger.Directory, []string, error) {
 	modulesDir := m.Source.Directory("modules")
 	entries, err := modulesDir.Entries(ctx)
 	if err != nil {
@@ -107,7 +107,7 @@ func (m *Kclipper) patchedModulesDir(ctx context.Context, version string) (*dagg
 // are published to the module registry.
 //
 // +cache="never"
-func (m *Kclipper) PublishKCLModules(
+func (m *Ci) PublishKCLModules(
 	ctx context.Context,
 	// Version tag (e.g. "v1.2.3"). The "v" prefix is stripped for the
 	// module version.
@@ -134,8 +134,16 @@ func (m *Kclipper) PublishKCLModules(
 		return err
 	}
 
-	ctr := runtimeBase("").
-		WithFile("/usr/local/bin/kcl", m.Binary("")).
+	// Pin the binary and the runtime container to the same platform so the
+	// built kcl matches the container's architecture regardless of the engine's
+	// native arch.
+	bin, err := m.Binary(ctx, kclModuleToolPlatform)
+	if err != nil {
+		return err
+	}
+
+	ctr := runtimeBase(kclModuleToolPlatform).
+		WithFile("/usr/local/bin/kcl", bin).
 		WithMountedDirectory("/modules", patched).
 		WithWorkdir("/modules")
 
@@ -174,7 +182,7 @@ func (m *Kclipper) PublishKCLModules(
 // :vX.Y. Pre-release versions are published with only their exact tag.
 //
 // +cache="never"
-func (m *Kclipper) PublishImages(
+func (m *Ci) PublishImages(
 	ctx context.Context,
 	// Image tags to publish (e.g. ["latest", "v1.2.3", "v1", "v1.2"]).
 	tags []string,
@@ -242,7 +250,7 @@ func (m *Kclipper) PublishImages(
 // summary suitable for $GITHUB_STEP_SUMMARY.
 //
 // +cache="never"
-func (m *Kclipper) Release(
+func (m *Ci) Release(
 	ctx context.Context,
 	// GitHub token for creating the release.
 	githubToken *dagger.Secret,
@@ -354,7 +362,7 @@ func (m *Kclipper) Release(
 // publishImages publishes pre-built container image variants to the registry.
 // Returns the list of published digest references (one per tag,
 // e.g. "registry/image:tag@sha256:hex").
-func (m *Kclipper) publishImages(
+func (m *Ci) publishImages(
 	ctx context.Context,
 	variants []*dagger.Container,
 	tags []string,
@@ -394,12 +402,12 @@ func (m *Kclipper) publishImages(
 }
 
 // signImages signs published image digests using cosign keyless signing
-// (Fulcio + Rekor) via the shared [Cosign] toolchain. Cosign's built-in
-// GitHub Actions provider uses the request URL and token to fetch fresh OIDC
-// tokens on demand, avoiding expiry issues. Digests are deduplicated before
-// signing since multiple tags often share one manifest. Does nothing when
-// oidcRequestToken is nil.
-func (m *Kclipper) signImages(
+// (Fulcio + Rekor) via the goreleaser toolchain's folded-in cosign tooling.
+// Cosign's built-in GitHub Actions provider uses the request URL and token to
+// fetch fresh OIDC tokens on demand, avoiding expiry issues. Digests are
+// deduplicated before signing since multiple tags often share one manifest.
+// Does nothing when oidcRequestToken is nil.
+func (m *Ci) signImages(
 	ctx context.Context,
 	digests []string,
 	registryUsername string,
@@ -424,8 +432,8 @@ func (m *Kclipper) signImages(
 		}
 	}
 
-	return m.Cosign.SignKeyless(ctx, toSign, oidcRequestURL, oidcRequestToken,
-		dagger.CosignSignKeylessOpts{
+	return m.Goreleaser.SignKeyless(ctx, toSign, oidcRequestURL, oidcRequestToken,
+		dagger.GoreleaserSignKeylessOpts{
 			RegistryHost:     host,
 			RegistryUsername: registryUsername,
 			RegistryPassword: registryPassword,

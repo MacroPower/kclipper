@@ -9,15 +9,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Test Commands
 
 ```bash
-task format # Format, tidy, and generate (dagger generate --auto-apply)
-task lint   # Lint only (dagger check, lint checks)
-task test   # Run all tests (dagger check kclipper:test-unit)
-task check  # Everything CI runs (dagger check)
+task format    # Format and tidy code, run generators
+task lint      # golangci-lint, go mod tidy check, prettier
+task test      # Run tests (cgo + netgo, on the devbox PATH)
+task check     # Local gate: lint + test (tools on the devbox PATH, no Dagger)
+task check:all # Everything CI runs (adds security, GitHub config, releaser, via Dagger)
 ```
 
-kclipper-specific tasks (build, release, benchmarks, KCL docs) live in
-the `kcl:` namespace, e.g. `task kcl:build`. Run `task -l` for the full
-list.
+Devbox provides all required tools on PATH automatically (including gcc for the
+cgo build). Go build/test/lint run locally; CI reproduces them inside the devbox
+environment via the `ci` Dagger toolchain (`dagger call ci <task>`), so local and
+CI execute identical commands. The `ci` module composes the shared toolchains
+from github.com/MacroPower/x (devbox, goreleaser, security, zizmor), pinned in
+`ci/dagger.json` and the root `dagger.json`.
+
+kclipper-specific tasks (build, release, KCL docs, host benchmarks) live in the
+`kcl:` namespace, e.g. `task kcl:build`. Run `task -l` for the full list. The
+release pipeline (cgo + Zig cross-compile, KCL language-server bundling, macOS
+notarization, KCL module publishing) lives in the `ci` module; see
+`ci/CLAUDE.md`.
 
 ## Code Style
 

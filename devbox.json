@@ -4,6 +4,9 @@
     "go": "1.26.3",
     "go-task": "3.48.0",
     "lefthook": "2.1.5",
+    "golangci-lint": "2.12.2",
+    "prettier": "3.8.3",
+    "gcc": "16.1.0",
     "github:dagger/nix/89dee52f7839a290326eb1f929a4ac99d4a1aae1#packages.aarch64-darwin.dagger": {
       "version": "",
       "platforms": ["aarch64-darwin"]
