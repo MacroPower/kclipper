@@ -23,7 +23,7 @@ require (
 	golang.org/x/net v0.56.0
 	golang.org/x/sync v0.21.0
 	golang.org/x/text v0.38.0
-	helm.sh/helm/v4 v4.2.1
+	helm.sh/helm/v4 v4.2.2
 	k8s.io/apimachinery v0.36.2
 	kcl-lang.io/cli v0.12.4
 	kcl-lang.io/kcl-go v0.12.3
