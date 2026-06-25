@@ -15,7 +15,7 @@ vars:
   GO_PKGS: ./...
   TEST_TIMEOUT: 30m
   BUILD_TAGS: netgo
-  DEADCODE_VERSION: v0.46.0 # renovate: datasource=go depName=golang.org/x/tools
+  DEADCODE_VERSION: v0.47.0 # renovate: datasource=go depName=golang.org/x/tools
 
 env:
   CGO_ENABLED: "1"
