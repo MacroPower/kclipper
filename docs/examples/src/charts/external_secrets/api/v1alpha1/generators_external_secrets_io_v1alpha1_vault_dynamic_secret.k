@@ -224,14 +224,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthAppR
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthAppRoleSecretRef:
@@ -257,14 +257,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthAppR
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthCert:
@@ -310,14 +310,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthCert
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthCertSecretRef:
@@ -341,14 +341,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthCert
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcp:
@@ -413,14 +413,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpS
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpServiceAccountRef:
@@ -448,8 +448,8 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpS
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpWorkloadIdentity:
@@ -500,8 +500,8 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthGcpW
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIam:
@@ -573,8 +573,8 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamJ
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamSecretRef:
@@ -614,14 +614,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamS
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamSecretRefSecretAccessKeySecretRef:
@@ -644,14 +644,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamS
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamSecretRefSessionTokenSecretRef:
@@ -676,14 +676,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthIamS
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthJwt:
@@ -762,8 +762,8 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthJwtK
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthJwtSecretRef:
@@ -787,14 +787,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthJwtS
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthKubernetes:
@@ -845,14 +845,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthKube
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthKubernetesServiceAccountRef:
@@ -883,8 +883,8 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthKube
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthLdap:
@@ -930,14 +930,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthLdap
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthTokenSecretRef:
@@ -960,14 +960,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthToke
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthUserPass:
@@ -1012,14 +1012,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderAuthUser
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderCaProvider:
@@ -1045,14 +1045,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderCaProvid
     $type: "Secret" | "ConfigMap"
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderCheckAndSet:
@@ -1109,14 +1109,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderTLSCertS
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderTLSKeySecretRef:
@@ -1141,14 +1141,14 @@ schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecProviderTLSKeySe
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1VaultDynamicSecretSpecRetrySettings:
