@@ -44,7 +44,7 @@ charts: helm.Charts = {
         chart = "external-secrets"
         repoURL = "https://charts.external-secrets.io/"
         schemaGenerator = "AUTO"
-        targetRevision = "2.6.0"
+        targetRevision = "2.7.0"
         crdGenerator = "TEMPLATE"
         values: {
             installCRDs = True
