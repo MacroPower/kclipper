@@ -669,8 +669,8 @@ go.jacobcolvin.com/x/cobras v0.1.0 h1:oSyOR1Hpx7gGaCPCma7Y2bqngfhvbuYAbEocGVwkuq
 go.jacobcolvin.com/x/cobras v0.1.0/go.mod h1:6y8CxzhC4ces5/tLVRRy02sb//SXfevkrc7Ijxl0Xcg=
 go.jacobcolvin.com/x/jsonschema v0.0.0-20260613001826-8660ae3bdb29 h1:JnWjBqngbFnbYpDlZ88oR7R4TrAguOWiKxyOMJuxfN0=
 go.jacobcolvin.com/x/jsonschema v0.0.0-20260613001826-8660ae3bdb29/go.mod h1:5Dvbp9UJFj6hKRPNGjQqpqFZX/RSSgt2kp6dRJtyJnE=
-go.jacobcolvin.com/x/magicschema v0.1.1-0.20260609183842-9a3c6cce2cea h1:50zlxbfcmEIYXNOsTIe2n8comSRrHSGnZP0oSY9XUB4=
-go.jacobcolvin.com/x/magicschema v0.1.1-0.20260609183842-9a3c6cce2cea/go.mod h1:T+Iu5PFn7QXm78s80VLG3lGdX0pZqHlO2twgyVeaqe8=
+go.jacobcolvin.com/x/magicschema v0.1.1-0.20260701183448-a51edd65456e h1:8bXZupDQYdEUI+Q23gqzrZKALbWGeQtH28SpX3+tpvA=
+go.jacobcolvin.com/x/magicschema v0.1.1-0.20260701183448-a51edd65456e/go.mod h1:mqTOauX00qwWiyhH5plxzxBnUsjvWJx8o7qEI4/P8tA=
 go.jacobcolvin.com/x/stringtest v0.2.0 h1:GoZXZrDlKqDIqpxbQm3EQXlhxmZCqb+I38p99fBng/c=
 go.jacobcolvin.com/x/stringtest v0.2.0/go.mod h1:UrXpCrus1kkRqd+qk1RGMWZ14lukttnvtsGVhmk5a0U=
 go.jacobcolvin.com/x/version v0.2.0 h1:9C4+4OQwJTY4DCuYihivoMAovNUnxVJ5vAUsVK0op38=
