@@ -11,7 +11,7 @@ require (
 	github.com/charmbracelet/x/exp/golden v0.0.0-20260608090822-c3ad58c6c9e5
 	github.com/getkin/kin-openapi v0.140.0
 	github.com/iancoleman/strcase v0.3.0
-	github.com/klauspost/compress v1.18.6
+	github.com/klauspost/compress v1.19.0
 	github.com/mattn/go-isatty v0.0.22
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
