@@ -605,7 +605,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientID:
     r"""
@@ -1411,7 +1411,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientID:
     r"""
@@ -2092,7 +2092,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientID:
     r"""
@@ -2817,7 +2817,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientID:
     r"""
@@ -3541,7 +3541,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientID:
     r"""
@@ -4566,7 +4566,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientID:
     r"""
@@ -5330,7 +5330,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientID:
     r"""
@@ -6025,7 +6025,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientID:
     r"""
@@ -6653,7 +6653,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientID:
     r"""
@@ -7384,7 +7384,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientID:
     r"""
@@ -8102,7 +8102,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientID:
     r"""
@@ -8829,7 +8829,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientID:
     r"""
@@ -9482,7 +9482,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientID:
     r"""
@@ -10236,7 +10236,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientID:
     r"""
@@ -10759,7 +10759,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientID:
     r"""
@@ -11688,7 +11688,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientID:
     r"""
