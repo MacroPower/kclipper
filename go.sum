@@ -202,8 +202,8 @@ github.com/distribution/distribution/v3 v3.1.1 h1:KUbk7C8CfaLXy8kbf/hGq9cad/wCoL
 github.com/distribution/distribution/v3 v3.1.1/go.mod h1:d7lXwZpph0bVcOj4Aqn0nMrWHIwRQGdiV5TLeI+/w6Y=
 github.com/distribution/reference v0.6.0 h1:0IXCQ5g4/QMHHkarYzh5l+u8T3t73zM5QvfrDyIgxBk=
 github.com/distribution/reference v0.6.0/go.mod h1:BbU0aIcezP1/5jX/8MP0YiH4SdvB5Y4f/wlDRiLyi3E=
-github.com/dlclark/regexp2 v1.11.5 h1:Q/sSnsKerHeCkc/jSTNq1oCm7KiVgUMZRDUoRu0JQZQ=
-github.com/dlclark/regexp2 v1.11.5/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
+github.com/dlclark/regexp2 v1.11.0 h1:G/nrcoOa7ZXlpoa/91N3X7mM3r8eIlMBBJZvsz/mxKI=
+github.com/dlclark/regexp2 v1.11.0/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
 github.com/docker/cli v28.3.2+incompatible h1:mOt9fcLE7zaACbxW1GeS65RI67wIJrTnqS3hP2huFsY=
 github.com/docker/cli v28.3.2+incompatible/go.mod h1:JLrzqnKDaYBop7H2jaqPtU4hHvMKP+vjCwu2uszcLI8=
 github.com/docker/distribution v2.8.3+incompatible h1:AtKxIZ36LoNK51+Z6RpzLpddBirtxJnzDrHLEKxTAYk=
@@ -663,8 +663,8 @@ go.etcd.io/etcd/client/pkg/v3 v3.6.8 h1:Qs/5C0LNFiqXxYf2GU8MVjYUEXJ6sZaYOz0zEqQg
 go.etcd.io/etcd/client/pkg/v3 v3.6.8/go.mod h1:GsiTRUZE2318PggZkAo6sWb6l8JLVrnckTNfbG8PWtw=
 go.etcd.io/etcd/client/v3 v3.6.8 h1:B3G76t1UykqAOrbio7s/EPatixQDkQBevN8/mwiplrY=
 go.etcd.io/etcd/client/v3 v3.6.8/go.mod h1:MVG4BpSIuumPi+ELF7wYtySETmoTWBHVcDoHdVupwt8=
-go.jacobcolvin.com/niceyaml v0.0.0-20260606121633-058e1e37234b h1:ogie3uUuSLCRBCayyl3vTFINHgnfUF/mxQXyNnXp1uE=
-go.jacobcolvin.com/niceyaml v0.0.0-20260606121633-058e1e37234b/go.mod h1:+octX9wkcgOCQcRjDyRKB77IJAac8hdmuX7opP63E0Q=
+go.jacobcolvin.com/niceyaml v0.0.0-20260621005747-e8ef30e73d1b h1:4AJHSY8h6SXbDGKv8e22XPnH/vNov1CKxvHIRRnSsRg=
+go.jacobcolvin.com/niceyaml v0.0.0-20260621005747-e8ef30e73d1b/go.mod h1:Ht0mnyWR3lSCtBau9HikhguXqKXMIG/F+K+TropMzzI=
 go.jacobcolvin.com/x/cobras v0.1.0 h1:oSyOR1Hpx7gGaCPCma7Y2bqngfhvbuYAbEocGVwkuqU=
 go.jacobcolvin.com/x/cobras v0.1.0/go.mod h1:6y8CxzhC4ces5/tLVRRy02sb//SXfevkrc7Ijxl0Xcg=
 go.jacobcolvin.com/x/jsonschema v0.0.0-20260613001826-8660ae3bdb29 h1:JnWjBqngbFnbYpDlZ88oR7R4TrAguOWiKxyOMJuxfN0=
