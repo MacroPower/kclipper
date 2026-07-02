@@ -181,6 +181,10 @@ schema MonitoringCoreosComV1PodMonitorSpecAttachMetadata:
 
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
+
+        Node metadata labels are not automatically added to scraped metrics. They are
+        exposed as `__meta_kubernetes_node_*` labels and can be copied to timeseries
+        with relabeling configuration.
     """
     node?: bool
 
@@ -591,7 +595,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientID:
     r"""

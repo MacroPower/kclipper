@@ -412,7 +412,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientID:
     r"""

@@ -271,7 +271,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v0.32.2",
+                  "default": "v0.33.0",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -2520,7 +2520,7 @@
         },
         "additionalRuleAnnotations": {
           "additionalProperties": true,
-          "description": "# Additional annotations for PrometheusRule alerts",
+          "description": "# Additional annotations for specific PrometheusRule alerts by alert name",
           "required": [],
           "title": "additionalRuleAnnotations",
           "type": "object"
@@ -3397,7 +3397,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "8.20.0",
+          "default": "8.21.0",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -7351,6 +7351,65 @@
       "title": "lifecycleHooks",
       "type": "object"
     },
+    "listenerSet": {
+      "additionalProperties": true,
+      "description": "BETA: Configure Gateway API ListenerSet resources for the chart here.\nListenerSet allows attaching additional listeners to an existing Gateway.\nMore listener sets can be added by adding a dictionary key like the 'main' entry.\nBeing BETA this can/will change in the future without notice, do not use unless you want to take that risk\n[[ref]](https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#listenerset)",
+      "properties": {
+        "main": {
+          "additionalProperties": true,
+          "properties": {
+            "annotations": {
+              "additionalProperties": true,
+              "required": [],
+              "title": "annotations",
+              "type": "object"
+            },
+            "apiVersion": {
+              "default": "gateway.networking.k8s.io/v1",
+              "description": "Set the ListenerSet apiVersion, e.g. gateway.networking.k8s.io/v1",
+              "required": [],
+              "title": "apiVersion",
+              "type": "string"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Enables or disables the listener set",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "labels": {
+              "additionalProperties": true,
+              "required": [],
+              "title": "labels",
+              "type": "object"
+            },
+            "listeners": {
+              "description": "List of listeners to attach to the parent Gateway",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "listeners",
+              "type": "array"
+            },
+            "parentRef": {
+              "additionalProperties": true,
+              "description": "Reference to the parent Gateway this ListenerSet attaches to",
+              "required": [],
+              "title": "parentRef",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "main",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "listenerSet",
+      "type": "object"
+    },
     "livenessProbe": {
       "additionalProperties": true,
       "description": "# Liveness probe\n#",
@@ -7841,6 +7900,13 @@
           "required": [],
           "title": "lookupVolumeName",
           "type": "boolean"
+        },
+        "persistentVolumeClaimRetentionPolicy": {
+          "additionalProperties": true,
+          "description": "# Configure StatefulSet persistent volume claim retention policy.\n# This is ignored when Grafana is configured to use a Deployment with a PVC.\n# By default, Kubernetes uses Retain for both whenDeleted and whenScaled.",
+          "required": [],
+          "title": "persistentVolumeClaimRetentionPolicy",
+          "type": "object"
         },
         "size": {
           "default": "10Gi",
@@ -9161,7 +9227,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v3.12.0-distroless",
+                  "default": "v3.13.0-distroless",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -11981,7 +12047,7 @@
                       "type": "string"
                     },
                     "tag": {
-                      "default": "1.8.3",
+                      "default": "1.8.4",
                       "required": [],
                       "title": "tag",
                       "type": "string"
@@ -14390,7 +14456,7 @@
               "type": "string"
             },
             "tag": {
-              "default": "2.7.3",
+              "default": "2.8.1",
               "required": [],
               "title": "tag",
               "type": "string"

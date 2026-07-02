@@ -3860,7 +3860,6 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0SecurityContext:
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -5464,7 +5463,6 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0SecurityContext:
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -5872,6 +5870,22 @@ schema MonitoringCoreosComV1PrometheusSpecOtlp:
         resource attributes to the `target_info` metric, on top of converting them into the `instance` and `job` labels.
 
         It requires Prometheus >= v3.1.0.
+    labelNamePreserveMultipleUnderscores : bool, default is Undefined, optional
+        labelNamePreserveMultipleUnderscores enables preserving of multiple consecutive underscores in label names when translation_strategy uses
+        underscore escaping.
+        When true (default), multiple consecutive underscores are preserved during label name sanitization.
+
+        Notice: This one has no impact if `nameEscapingScheme` is `AllowUTF8`.
+
+        It requires Prometheus >= v3.8.0.
+    labelNameUnderscoreSanitization : bool, default is Undefined, optional
+        labelNameUnderscoreSanitization controls whether to enable prepending of 'key_' to labels starting with '_'.
+        Reserved labels starting with '__' are not modified.
+        This is only relevant when translation_strategy uses underscore escaping (e.g., "UnderscoreEscapingWithSuffixes" or "UnderscoreEscapingWithoutSuffixes").
+
+        Notice: This one has no impact if `nameEscapingScheme` is `AllowUTF8`.
+
+        It requires Prometheus >= v3.8.0.
     promoteAllResourceAttributes : bool, default is Undefined, optional
         promoteAllResourceAttributes promotes all resource attributes to metric labels except the ones defined in `ignoreResourceAttributes`.
 
@@ -5892,6 +5906,8 @@ schema MonitoringCoreosComV1PrometheusSpecOtlp:
     convertHistogramsToNHCB?: bool
     ignoreResourceAttributes?: [str]
     keepIdentifyingResourceAttributes?: bool
+    labelNamePreserveMultipleUnderscores?: bool
+    labelNameUnderscoreSanitization?: bool
     promoteAllResourceAttributes?: bool
     promoteResourceAttributes?: [str]
     promoteScopeMetadata?: bool
@@ -6260,6 +6276,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0:
         tls config
     url : str, default is Undefined, required
         url defines the URL of the endpoint to query from.
+
+        It must use the HTTP or HTTPS scheme.
     """
     authorization?: MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Authorization
     basicAuth?: MonitoringCoreosComV1PrometheusSpecRemoteReadItems0BasicAuth
@@ -6283,6 +6301,7 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0:
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(remoteTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if remoteTimeout
+        _regex_match(str(url), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Authorization:
     r"""
@@ -6449,7 +6468,7 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Oauth2ClientID:
     r"""
@@ -7404,7 +7423,7 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Oauth2ClientID:
     r"""
@@ -8319,6 +8338,10 @@ schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0AttachMetadata:
 
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
+
+        Node metadata labels are not automatically added to scraped metrics. They are
+        exposed as `__meta_kubernetes_node_*` labels and can be copied to timeseries
+        with relabeling configuration.
     """
     node?: bool
 
@@ -9071,11 +9094,8 @@ schema MonitoringCoreosComV1PrometheusSpecServiceMonitorSelectorMatchExpressions
 schema MonitoringCoreosComV1PrometheusSpecShardRetentionPolicy:
     r"""
     shardRetentionPolicy defines the retention policy for the Prometheus shards.
-    (Alpha) Using this field requires the 'PrometheusShardRetentionPolicy' feature gate to be enabled.
 
-    The final goals for this feature can be seen at https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/proposals/202310-shard-autoscaling.md#graceful-scale-down-of-prometheus-servers,
-    however, the feature is not yet fully implemented in this PR. The limitation being:
-    * Retention duration is not settable, for now, shards are retained forever.
+    (Beta) Using this mode requires the `PrometheusShardRetentionPolicy` feature gate (enabled by default).
 
     Attributes
     ----------
@@ -10792,11 +10812,27 @@ schema MonitoringCoreosComV1PrometheusSpecTsdb:
         in a breaking way.
 
         It requires Prometheus >= v2.39.0 or PrometheusAgent >= v2.54.0.
+    staleSeriesCompactionThreshold : int | str, default is Undefined, optional
+        staleSeriesCompactionThreshold configures the trigger point for compacting
+        stale series from memory into persistent blocks and removing those stale
+        series from memory.
+
+        The threshold is a number between 0.0 and 1.0. It represents the ratio of
+        stale series in memory to the total series in memory. The stale series
+        compaction is triggered when this ratio crosses the configured threshold.
+        It may not trigger the stale series compaction if the usual head compaction
+        is about to happen soon.
+
+        If set to 0, stale series compaction is disabled.
+
+        It requires Prometheus >= v3.10.0.
     """
     outOfOrderTimeWindow?: str
+    staleSeriesCompactionThreshold?: int | str
 
     check:
         _regex_match(str(outOfOrderTimeWindow), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if outOfOrderTimeWindow
+        _regex_match(str(staleSeriesCompactionThreshold), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if staleSeriesCompactionThreshold
 
 schema MonitoringCoreosComV1PrometheusSpecUpdateStrategy:
     r"""
@@ -11865,7 +11901,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0Image:
     A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
     The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
     The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-    The volume will be mounted read-only (ro) and non-executable files (noexec).
+    The volume will be mounted read-only (ro).
     Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
     The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 
@@ -12020,8 +12056,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0PortworxVolume:
     r"""
     portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
     Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-    are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-    is on.
+    are redirected to the pxd.portworx.com CSI driver.
 
     Attributes
     ----------
