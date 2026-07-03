@@ -304,6 +304,12 @@ schema Values:
         # ref: http://docs.grafana.org/installation/ldap/#configuration
     lifecycleHooks : ValuesLifecycleHooks, optional
         # Container Lifecycle Hooks. Execute a specific bash command or make an HTTP request
+    listenerSet : ValuesListenerSet, optional
+        BETA: Configure Gateway API ListenerSet resources for the chart here.
+        ListenerSet allows attaching additional listeners to an existing Gateway.
+        More listener sets can be added by adding a dictionary key like the 'main' entry.
+        Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
+        [[ref]](https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#listenerset)
     livenessProbe : ValuesLivenessProbe, optional
         # Liveness probe
         #
@@ -595,6 +601,7 @@ schema Values:
     labels?: ValuesLabels
     ldap?: ValuesLdap
     lifecycleHooks?: ValuesLifecycleHooks
+    listenerSet?: ValuesListenerSet
     livenessProbe?: ValuesLivenessProbe
     metricAllowlist?: [any]
     metricAnnotationsAllowList?: [any]
@@ -1147,7 +1154,7 @@ schema ValuesAlertmanagerAlertmanagerSpecImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "prometheus/alertmanager"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v0.32.2"
+    tag : str, optional, default is "v0.33.0"
     """
     [...str]: any
     pullPolicy?: str
@@ -2709,7 +2716,7 @@ schema ValuesDefaultRules:
     ----------
     additionalAggregationLabels : [any], optional
     additionalRuleAnnotations : ValuesDefaultRulesAdditionalRuleAnnotations, optional
-        # Additional annotations for PrometheusRule alerts
+        # Additional annotations for specific PrometheusRule alerts by alert name
     additionalRuleGroupAnnotations : ValuesDefaultRulesAdditionalRuleGroupAnnotations, optional
         # Additional annotations for specific PrometheusRule alert groups
     additionalRuleGroupLabels : ValuesDefaultRulesAdditionalRuleGroupLabels, optional
@@ -2760,7 +2767,7 @@ schema ValuesDefaultRules:
 
 schema ValuesDefaultRulesAdditionalRuleAnnotations:
     r"""
-    # Additional annotations for PrometheusRule alerts
+    # Additional annotations for specific PrometheusRule alerts by alert name
     """
     [...str]: any
 
@@ -6288,6 +6295,64 @@ schema ValuesLifecycleHooks:
     """
     [...str]: any
 
+schema ValuesListenerSet:
+    r"""
+    BETA: Configure Gateway API ListenerSet resources for the chart here.
+    ListenerSet allows attaching additional listeners to an existing Gateway.
+    More listener sets can be added by adding a dictionary key like the 'main' entry.
+    Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
+    [[ref]](https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#listenerset)
+
+    Attributes
+    ----------
+    main : ValuesListenerSetMain, optional
+    """
+    [...str]: any
+    main?: ValuesListenerSetMain
+
+schema ValuesListenerSetMain:
+    r"""
+    ValuesListenerSetMain
+
+    Attributes
+    ----------
+    annotations : ValuesListenerSetMainAnnotations, optional
+    apiVersion : str, optional, default is "gateway.networking.k8s.io/v1"
+        Set the ListenerSet apiVersion, e.g. gateway.networking.k8s.io/v1
+    enabled : bool, optional, default is False
+        Enables or disables the listener set
+    labels : ValuesListenerSetMainLabels, optional
+    listeners : [any], optional
+        List of listeners to attach to the parent Gateway
+    parentRef : ValuesListenerSetMainParentRef, optional
+        Reference to the parent Gateway this ListenerSet attaches to
+    """
+    [...str]: any
+    annotations?: ValuesListenerSetMainAnnotations
+    apiVersion?: str
+    enabled?: bool
+    labels?: ValuesListenerSetMainLabels
+    listeners?: [any]
+    parentRef?: ValuesListenerSetMainParentRef
+
+schema ValuesListenerSetMainAnnotations:
+    r"""
+    ValuesListenerSetMainAnnotations
+    """
+    [...str]: any
+
+schema ValuesListenerSetMainLabels:
+    r"""
+    ValuesListenerSetMainLabels
+    """
+    [...str]: any
+
+schema ValuesListenerSetMainParentRef:
+    r"""
+    Reference to the parent Gateway this ListenerSet attaches to
+    """
+    [...str]: any
+
 schema ValuesLivenessProbe:
     r"""
     # Liveness probe
@@ -8347,7 +8412,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksPatchImage:
     registry : str, optional, default is "ghcr.io"
     repository : str, optional, default is "jkroepke/kube-webhook-certgen"
     sha : str, optional, default is ""
-    tag : str, optional, default is "1.8.3"
+    tag : str, optional, default is "1.8.4"
     """
     [...str]: any
     pullPolicy?: str
