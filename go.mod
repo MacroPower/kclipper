@@ -21,7 +21,7 @@ require (
 	go.jacobcolvin.com/x/stringtest v0.2.0
 	go.jacobcolvin.com/x/version v0.2.0
 	golang.org/x/net v0.56.0
-	golang.org/x/sync v0.21.0
+	golang.org/x/sync v0.22.0
 	golang.org/x/text v0.38.0
 	helm.sh/helm/v4 v4.2.1
 	k8s.io/apimachinery v0.36.2
