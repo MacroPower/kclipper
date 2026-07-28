@@ -182,6 +182,13 @@
               "title": "clusterPushpullInterval",
               "type": "string"
             },
+            "clusterTLS": {
+              "additionalProperties": true,
+              "description": "# ClusterTLS defines the mutual TLS configuration for the Alertmanager cluster's gossip protocol.\n# Requires Alertmanager \u003e= v0.24.0.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ClusterTLSConfig",
+              "required": [],
+              "title": "clusterTLS",
+              "type": "object"
+            },
             "configMaps": {
               "description": "# ConfigMaps is a list of ConfigMaps in the same namespace as the Alertmanager object, which shall be mounted into the Alertmanager Pods.\n# The ConfigMaps are mounted into /etc/alertmanager/configmaps/.\n#",
               "items": {
@@ -214,6 +221,13 @@
               "title": "dnsPolicy",
               "type": "string"
             },
+            "enableServiceLinks": {
+              "default": "~",
+              "description": "# EnableServiceLinks indicates whether information about services should be injected into the\n# pod's environment variables. Uses the operator/Kubernetes default when left unset (~).",
+              "required": [],
+              "title": "enableServiceLinks",
+              "type": "null"
+            },
             "externalUrl": {
               "default": "",
               "description": "# The external URL the Alertmanager instances will be available under. This is necessary to generate correct URLs. This is necessary if Alertmanager is not served from root of a DNS name. string  false\n#",
@@ -227,6 +241,15 @@
               "required": [],
               "title": "forceEnableClusterMode",
               "type": "boolean"
+            },
+            "hostAliases": {
+              "description": "# Pods' hostAliases configuration\n# ref: https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "hostAliases",
+              "type": "array"
             },
             "hostNetwork": {
               "default": false,
@@ -271,7 +294,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v0.32.2",
+                  "default": "v0.33.1",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -289,6 +312,13 @@
               "required": [],
               "title": "initContainers",
               "type": "array"
+            },
+            "limits": {
+              "additionalProperties": true,
+              "description": "# Limits defines the Alertmanager limits command line flags. Requires Alertmanager \u003e= v0.28.0.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.AlertmanagerLimitsSpec",
+              "required": [],
+              "title": "limits",
+              "type": "object"
             },
             "listenLocal": {
               "default": false,
@@ -407,6 +437,13 @@
               "description": "# The route prefix Alertmanager registers HTTP handlers for. This is useful, if using ExternalURL and a proxy is rewriting HTTP routes of a request, and the actual ExternalURL is still true,\n# but the server serves requests under a different route prefix. For example for use with kubectl proxy.\n#",
               "required": [],
               "title": "routePrefix",
+              "type": "string"
+            },
+            "schedulerName": {
+              "default": "",
+              "description": "# Set the scheduler name to use for the Alertmanager pods.",
+              "required": [],
+              "title": "schedulerName",
               "type": "string"
             },
             "scheme": {
@@ -1201,6 +1238,142 @@
           "title": "route",
           "type": "object"
         },
+        "routePerReplica": {
+          "additionalProperties": true,
+          "description": "# Configuration for creating a Gateway API route that will map to each Alertmanager replica service\n# alertmanager.servicePerReplica must be enabled\n#",
+          "properties": {
+            "main": {
+              "additionalProperties": true,
+              "properties": {
+                "additionalRules": {
+                  "description": "# Additional custom rules that can be added to the route",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "additionalRules",
+                  "type": "array"
+                },
+                "annotations": {
+                  "additionalProperties": true,
+                  "required": [],
+                  "title": "annotations",
+                  "type": "object"
+                },
+                "apiVersion": {
+                  "default": "gateway.networking.k8s.io/v1",
+                  "description": "Set the route apiVersion, e.g. gateway.networking.k8s.io/v1 or gateway.networking.k8s.io/v1alpha2",
+                  "required": [],
+                  "title": "apiVersion",
+                  "type": "string"
+                },
+                "enabled": {
+                  "default": false,
+                  "description": "Enables or disables the routePerReplica",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "filters": {
+                  "description": "# Filters define the filters that are applied to requests that match this rule.",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "filters",
+                  "type": "array"
+                },
+                "hostDomain": {
+                  "default": "",
+                  "description": "# Domain that will be used for the per replica route",
+                  "required": [],
+                  "title": "hostDomain",
+                  "type": "string"
+                },
+                "hostPrefix": {
+                  "default": "",
+                  "description": "# Final form of the hostname for each per replica route is\n# {{ routePerReplica.hostPrefix }}-{{ $replicaNumber }}.{{ routePerReplica.hostDomain }}\n#\n# Prefix for the per replica route that will have `-$replicaNumber` appended to the end",
+                  "required": [],
+                  "title": "hostPrefix",
+                  "type": "string"
+                },
+                "httpsRedirect": {
+                  "default": false,
+                  "description": "create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)\n# Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.\n# matches, filters and additionalRules will be ignored if this is set to true.",
+                  "required": [],
+                  "title": "httpsRedirect",
+                  "type": "boolean"
+                },
+                "kind": {
+                  "default": "HTTPRoute",
+                  "description": "Set the route kind\nValid options are GRPCRoute, HTTPRoute, TCPRoute, TLSRoute, UDPRoute",
+                  "required": [],
+                  "title": "kind",
+                  "type": "string"
+                },
+                "labels": {
+                  "additionalProperties": true,
+                  "required": [],
+                  "title": "labels",
+                  "type": "object"
+                },
+                "matches": {
+                  "items": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "path": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "type": {
+                            "default": "PathPrefix",
+                            "required": [],
+                            "title": "type",
+                            "type": "string"
+                          },
+                          "value": {
+                            "default": "/",
+                            "required": [],
+                            "title": "value",
+                            "type": "string"
+                          }
+                        },
+                        "required": [],
+                        "title": "path",
+                        "type": "object"
+                      }
+                    },
+                    "required": [],
+                    "type": "object"
+                  },
+                  "required": [],
+                  "title": "matches",
+                  "type": "array"
+                },
+                "parentRefs": {
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "parentRefs",
+                  "type": "array"
+                },
+                "sessionPersistence": {
+                  "additionalProperties": true,
+                  "description": "# Session persistence configuration for the route rule.",
+                  "required": [],
+                  "title": "sessionPersistence",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "main",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "routePerReplica",
+          "type": "object"
+        },
         "secret": {
           "additionalProperties": true,
           "description": "# Configuration for Alertmanager secret\n#",
@@ -1690,6 +1863,21 @@
       "required": [],
       "title": "assertNoLeakedSecrets",
       "type": "boolean"
+    },
+    "authFilter": {
+      "additionalProperties": true,
+      "description": "Enable kube-state-metrics native request authn/authz on the metrics endpoints\nvia the `--auth-filter` flag, as an alternative to running kube-rbac-proxy.\nWhen enabled, the `create` permissions on `tokenreviews` and\n`subjectaccessreviews` required by the filter are added to the (Cluster)Role\nautomatically. Scrapers must authenticate; see the chart README and the\nkube-state-metrics docs on protecting metrics endpoints.",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "title": "authFilter",
+      "type": "object"
     },
     "automountServiceAccountToken": {
       "default": true,
@@ -2520,7 +2708,7 @@
         },
         "additionalRuleAnnotations": {
           "additionalProperties": true,
-          "description": "# Additional annotations for PrometheusRule alerts",
+          "description": "# Additional annotations for specific PrometheusRule alerts by alert name",
           "required": [],
           "title": "additionalRuleAnnotations",
           "type": "object"
@@ -3397,7 +3585,7 @@
           "type": "string"
         },
         "tag": {
-          "default": "8.20.0",
+          "default": "8.21.0",
           "required": [],
           "title": "tag",
           "type": "string"
@@ -6526,7 +6714,7 @@
               "type": "string"
             },
             "tag": {
-              "default": "v0.22.0",
+              "default": "v0.22.1",
               "required": [],
               "title": "tag",
               "type": "string"
@@ -6776,6 +6964,46 @@
               "required": [],
               "title": "relabelings",
               "type": "array"
+            },
+            "resource": {
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "# Enable scraping /metrics/resource from kube-scheduler\n# https://kubernetes.io/docs/concepts/cluster-administration/system-metrics/#kube-scheduler-metrics",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "interval": {
+                  "default": "",
+                  "description": "# Scrape interval. If not set, the Prometheus default scrape interval is used.\n#",
+                  "required": [],
+                  "title": "interval",
+                  "type": "string"
+                },
+                "metricRelabelings": {
+                  "description": "# MetricRelabelConfigs to apply to samples after scraping, but before ingestion.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "metricRelabelings",
+                  "type": "array"
+                },
+                "relabelings": {
+                  "description": "# RelabelConfigs to apply to samples before scraping\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig\n#",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "relabelings",
+                  "type": "array"
+                }
+              },
+              "required": [],
+              "title": "resource",
+              "type": "object"
             },
             "sampleLimit": {
               "default": 0,
@@ -7351,6 +7579,65 @@
       "title": "lifecycleHooks",
       "type": "object"
     },
+    "listenerSet": {
+      "additionalProperties": true,
+      "description": "BETA: Configure Gateway API ListenerSet resources for the chart here.\nListenerSet allows attaching additional listeners to an existing Gateway.\nMore listener sets can be added by adding a dictionary key like the 'main' entry.\nBeing BETA this can/will change in the future without notice, do not use unless you want to take that risk\n[[ref]](https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#listenerset)",
+      "properties": {
+        "main": {
+          "additionalProperties": true,
+          "properties": {
+            "annotations": {
+              "additionalProperties": true,
+              "required": [],
+              "title": "annotations",
+              "type": "object"
+            },
+            "apiVersion": {
+              "default": "gateway.networking.k8s.io/v1",
+              "description": "Set the ListenerSet apiVersion, e.g. gateway.networking.k8s.io/v1",
+              "required": [],
+              "title": "apiVersion",
+              "type": "string"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Enables or disables the listener set",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "labels": {
+              "additionalProperties": true,
+              "required": [],
+              "title": "labels",
+              "type": "object"
+            },
+            "listeners": {
+              "description": "List of listeners to attach to the parent Gateway",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "listeners",
+              "type": "array"
+            },
+            "parentRef": {
+              "additionalProperties": true,
+              "description": "Reference to the parent Gateway this ListenerSet attaches to",
+              "required": [],
+              "title": "parentRef",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "main",
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "listenerSet",
+      "type": "object"
+    },
     "livenessProbe": {
       "additionalProperties": true,
       "description": "# Liveness probe\n#",
@@ -7561,13 +7848,6 @@
           "required": [],
           "title": "explicitNamespacesSelector",
           "type": "object"
-        },
-        "flavor": {
-          "default": "kubernetes",
-          "description": "networkPolicy.flavor -- Flavor of the network policy to use.\nCan be:\n* kubernetes for networking.k8s.io/v1/NetworkPolicy\n* cilium     for cilium.io/v2/CiliumNetworkPolicy",
-          "required": [],
-          "title": "flavor",
-          "type": "string"
         },
         "ingress": {
           "default": true,
@@ -7841,6 +8121,13 @@
           "required": [],
           "title": "lookupVolumeName",
           "type": "boolean"
+        },
+        "persistentVolumeClaimRetentionPolicy": {
+          "additionalProperties": true,
+          "description": "# Configure StatefulSet persistent volume claim retention policy.\n# This is ignored when Grafana is configured to use a Deployment with a PVC.\n# By default, Kubernetes uses Retain for both whenDeleted and whenScaled.",
+          "required": [],
+          "title": "persistentVolumeClaimRetentionPolicy",
+          "type": "object"
         },
         "size": {
           "default": "10Gi",
@@ -8933,6 +9220,13 @@
               "title": "automountServiceAccountToken",
               "type": "boolean"
             },
+            "bodySizeLimit": {
+              "default": "",
+              "description": "# BodySizeLimit defines a global limit on the size of uncompressed response body that will be accepted. Example: 100MB.",
+              "required": [],
+              "title": "bodySizeLimit",
+              "type": "string"
+            },
             "configMaps": {
               "description": "# ConfigMaps is a list of ConfigMaps in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.\n# The ConfigMaps are mounted into /etc/prometheus/configmaps/.\n#",
               "items": {
@@ -9015,6 +9309,20 @@
               "required": [],
               "title": "enableRemoteWriteReceiver",
               "type": "boolean"
+            },
+            "enableServiceLinks": {
+              "default": "~",
+              "description": "# EnableServiceLinks indicates whether information about services should be injected into the pod's environment\n# variables. Uses the operator/Kubernetes default when left unset (~).",
+              "required": [],
+              "title": "enableServiceLinks",
+              "type": "null"
+            },
+            "enforcedBodySizeLimit": {
+              "default": "",
+              "description": "# EnforcedBodySizeLimit defines the maximum size of uncompressed response body that will be accepted, overriding any\n# value set per ServiceMonitor/PodMonitor. Example: 100MB. Empty means no limit.",
+              "required": [],
+              "title": "enforcedBodySizeLimit",
+              "type": "string"
             },
             "enforcedKeepDroppedTargets": {
               "default": 0,
@@ -9161,7 +9469,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v3.12.0-distroless",
+                  "default": "v3.13.1-distroless",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -9179,6 +9487,34 @@
               "required": [],
               "title": "initContainers",
               "type": "array"
+            },
+            "keepDroppedTargets": {
+              "default": 0,
+              "description": "# Per-scrape limit on the number of targets dropped by relabeling that will be kept in memory. 0 means no limit.",
+              "required": [],
+              "title": "keepDroppedTargets",
+              "type": "integer"
+            },
+            "labelLimit": {
+              "default": 0,
+              "description": "# Per-scrape limit on number of labels that will be accepted for a sample. 0 means no limit.",
+              "required": [],
+              "title": "labelLimit",
+              "type": "integer"
+            },
+            "labelNameLengthLimit": {
+              "default": 0,
+              "description": "# Per-scrape limit on length of labels name that will be accepted for a sample. 0 means no limit.",
+              "required": [],
+              "title": "labelNameLengthLimit",
+              "type": "integer"
+            },
+            "labelValueLengthLimit": {
+              "default": 0,
+              "description": "# Per-scrape limit on length of labels value that will be accepted for a sample. 0 means no limit.",
+              "required": [],
+              "title": "labelValueLengthLimit",
+              "type": "integer"
             },
             "listenLocal": {
               "default": false,
@@ -9214,6 +9550,13 @@
               "required": [],
               "title": "minReadySeconds",
               "type": "integer"
+            },
+            "nameEscapingScheme": {
+              "default": "",
+              "description": "# Specifies the character escaping scheme applied to metric and label names.\n# Supported values are: AllowUTF8, Underscores, Dots, Values",
+              "required": [],
+              "title": "nameEscapingScheme",
+              "type": "string"
             },
             "nameValidationScheme": {
               "default": "",
@@ -9394,6 +9737,13 @@
               "title": "queryLogFile",
               "type": "boolean"
             },
+            "reloadStrategy": {
+              "default": "",
+              "description": "# Defines the strategy used to reload the Prometheus configuration.\n# Supported values are: HTTP, ProcessSignal",
+              "required": [],
+              "title": "reloadStrategy",
+              "type": "string"
+            },
             "remoteRead": {
               "description": "# The remote_read spec configuration for Prometheus.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#remotereadspec",
               "items": {
@@ -9418,6 +9768,15 @@
               "required": [],
               "title": "remoteWriteDashboards",
               "type": "boolean"
+            },
+            "remoteWriteReceiverMessageVersions": {
+              "description": "# List of the protobuf message versions to accept when receiving the remote writes. Example: [V1.0, V2.0].",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "remoteWriteReceiverMessageVersions",
+              "type": "array"
             },
             "replicaExternalLabelName": {
               "default": "",
@@ -9475,6 +9834,13 @@
               "title": "ruleNamespaceSelector",
               "type": "object"
             },
+            "ruleQueryOffset": {
+              "default": "",
+              "description": "# Defines the offset the rule evaluation timestamp of the rule evaluation queries is shifted backwards.\n# ref: https://github.com/prometheus-community/helm-charts/issues/5843",
+              "required": [],
+              "title": "ruleQueryOffset",
+              "type": "string"
+            },
             "ruleSelector": {
               "additionalProperties": true,
               "description": "# PrometheusRules to be selected for target discovery.\n# If {}, select all PrometheusRules\n#",
@@ -9489,12 +9855,26 @@
               "title": "ruleSelectorNilUsesHelmValues",
               "type": "boolean"
             },
+            "runtime": {
+              "additionalProperties": true,
+              "description": "# RuntimeConfig configures the values for the Prometheus process behavior.",
+              "required": [],
+              "title": "runtime",
+              "type": "object"
+            },
             "sampleLimit": {
               "default": false,
               "description": "Use to set global sample_limit for Prometheus. This act as default SampleLimit for ServiceMonitor or/and PodMonitor.\nSet to 'false' to disable global sample_limit. or set to a number to override the default value.",
               "required": [],
               "title": "sampleLimit",
               "type": "boolean"
+            },
+            "schedulerName": {
+              "default": "",
+              "description": "# Set the scheduler name to use for the Prometheus pods.",
+              "required": [],
+              "title": "schedulerName",
+              "type": "string"
             },
             "scrapeClasses": {
               "description": "# List of scrape classes to expose to scraping objects such as\n# PodMonitors, ServiceMonitors, Probes and ScrapeConfigs.\n#",
@@ -9661,9 +10041,23 @@
               "title": "serviceName",
               "type": "null"
             },
+            "shardRetentionPolicy": {
+              "additionalProperties": true,
+              "description": "# Defines the retention policy for the resources of stale shards after a scale-down.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ShardRetentionPolicy",
+              "required": [],
+              "title": "shardRetentionPolicy",
+              "type": "object"
+            },
+            "shardingStrategy": {
+              "additionalProperties": true,
+              "description": "# Defines the sharding strategy applied by the operator.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ShardingStrategy",
+              "required": [],
+              "title": "shardingStrategy",
+              "type": "object"
+            },
             "shards": {
               "default": 1,
-              "description": "# EXPERIMENTAL: Number of shards to distribute targets onto.\n# Number of replicas multiplied by shards is the total number of Pods created.\n# Note that scaling down shards will not reshard data onto remaining instances, it must be manually moved.\n# Increasing shards will not reshard data either but it will continue to be available from the same instances.\n# To query globally use Thanos sidecar and Thanos querier or remote write data to a central location.\n# Sharding is done on the content of the `__address__` target meta-label.\n#",
+              "description": "# EXPERIMENTAL: Number of shards to distribute targets onto.\n# Number of replicas multiplied by shards is the total number of Pods created.\n# Note that scaling down shards will not reshard data onto remaining instances, it must be manually moved.\n# Increasing shards will not reshard data either but it will continue to be available from the same instances.\n# To query globally use Thanos sidecar and Thanos querier or remote write data to a central location.\n# Sharding is done on the content of the `__address__` target meta-label.\n# Set shards to null to omit spec.shards from the Prometheus custom resource (the operator then\n# defaults to 1 shard). Omitting the field lets an external autoscaler such as an HPA or a KEDA\n# ScaledObject own spec.shards through the /scale subresource without Helm reverting it.\n#",
               "required": [],
               "title": "shards",
               "type": "integer"
@@ -9674,6 +10068,13 @@
               "required": [],
               "title": "storageSpec",
               "type": "object"
+            },
+            "targetLimit": {
+              "default": 0,
+              "description": "# TargetLimit defines a global limit on the number of scraped targets. 0 means no limit.",
+              "required": [],
+              "title": "targetLimit",
+              "type": "integer"
             },
             "terminationGracePeriodSeconds": {
               "default": "~",
@@ -9909,6 +10310,142 @@
           },
           "required": [],
           "title": "route",
+          "type": "object"
+        },
+        "routePerReplica": {
+          "additionalProperties": true,
+          "description": "# Configuration for creating a Gateway API route that will map to each Prometheus replica service\n# prometheus.servicePerReplica must be enabled\n#",
+          "properties": {
+            "main": {
+              "additionalProperties": true,
+              "properties": {
+                "additionalRules": {
+                  "description": "# Additional custom rules that can be added to the route",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "additionalRules",
+                  "type": "array"
+                },
+                "annotations": {
+                  "additionalProperties": true,
+                  "required": [],
+                  "title": "annotations",
+                  "type": "object"
+                },
+                "apiVersion": {
+                  "default": "gateway.networking.k8s.io/v1",
+                  "description": "Set the route apiVersion, e.g. gateway.networking.k8s.io/v1 or gateway.networking.k8s.io/v1alpha2",
+                  "required": [],
+                  "title": "apiVersion",
+                  "type": "string"
+                },
+                "enabled": {
+                  "default": false,
+                  "description": "Enables or disables the routePerReplica",
+                  "required": [],
+                  "title": "enabled",
+                  "type": "boolean"
+                },
+                "filters": {
+                  "description": "# Filters define the filters that are applied to requests that match this rule.",
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "filters",
+                  "type": "array"
+                },
+                "hostDomain": {
+                  "default": "",
+                  "description": "# Domain that will be used for the per replica route",
+                  "required": [],
+                  "title": "hostDomain",
+                  "type": "string"
+                },
+                "hostPrefix": {
+                  "default": "",
+                  "description": "# Final form of the hostname for each per replica route is\n# {{ routePerReplica.hostPrefix }}-{{ $replicaNumber }}.{{ routePerReplica.hostDomain }}\n#\n# Prefix for the per replica route that will have `-$replicaNumber` appended to the end",
+                  "required": [],
+                  "title": "hostPrefix",
+                  "type": "string"
+                },
+                "httpsRedirect": {
+                  "default": false,
+                  "description": "create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)\n# Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.\n# matches, filters and additionalRules will be ignored if this is set to true.",
+                  "required": [],
+                  "title": "httpsRedirect",
+                  "type": "boolean"
+                },
+                "kind": {
+                  "default": "HTTPRoute",
+                  "description": "Set the route kind\nValid options are GRPCRoute, HTTPRoute, TCPRoute, TLSRoute, UDPRoute",
+                  "required": [],
+                  "title": "kind",
+                  "type": "string"
+                },
+                "labels": {
+                  "additionalProperties": true,
+                  "required": [],
+                  "title": "labels",
+                  "type": "object"
+                },
+                "matches": {
+                  "items": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "path": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "type": {
+                            "default": "PathPrefix",
+                            "required": [],
+                            "title": "type",
+                            "type": "string"
+                          },
+                          "value": {
+                            "default": "/",
+                            "required": [],
+                            "title": "value",
+                            "type": "string"
+                          }
+                        },
+                        "required": [],
+                        "title": "path",
+                        "type": "object"
+                      }
+                    },
+                    "required": [],
+                    "type": "object"
+                  },
+                  "required": [],
+                  "title": "matches",
+                  "type": "array"
+                },
+                "parentRefs": {
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "parentRefs",
+                  "type": "array"
+                },
+                "sessionPersistence": {
+                  "additionalProperties": true,
+                  "description": "# Session persistence configuration for the route rule.",
+                  "required": [],
+                  "title": "sessionPersistence",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "main",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "routePerReplica",
           "type": "object"
         },
         "scrapeconfig": {
@@ -11981,7 +12518,7 @@
                       "type": "string"
                     },
                     "tag": {
-                      "default": "1.8.3",
+                      "default": "1.8.5",
                       "required": [],
                       "title": "tag",
                       "type": "string"
@@ -12321,6 +12858,13 @@
           "required": [],
           "title": "extraVolumes",
           "type": "array"
+        },
+        "featureGates": {
+          "additionalProperties": true,
+          "description": "# Feature gates to enable/disable operator features, rendered as --feature-gates=\u003ckey\u003e=\u003cvalue\u003e.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/feature-gates.md\n# Example:\n#   featureGates:\n#     PrometheusAgentDaemonSet: true\n#     StatusForConfigurationResources: true",
+          "required": [],
+          "title": "featureGates",
+          "type": "object"
         },
         "fullnameOverride": {
           "default": "",
@@ -13029,7 +13573,7 @@
               "type": "string"
             },
             "tag": {
-              "default": "v0.41.0",
+              "default": "v0.42.2",
               "required": [],
               "title": "tag",
               "type": "string"
@@ -14390,7 +14934,7 @@
               "type": "string"
             },
             "tag": {
-              "default": "2.7.3",
+              "default": "2.10.0",
               "required": [],
               "title": "tag",
               "type": "string"
@@ -14878,7 +15422,7 @@
               "type": "string"
             },
             "tag": {
-              "default": "1.13.0",
+              "default": "1.14.0",
               "required": [],
               "title": "tag",
               "type": "string"
@@ -15486,6 +16030,36 @@
               "title": "alertDropLabels",
               "type": "array"
             },
+            "alertRelabelConfigFile": {
+              "default": "",
+              "description": "# Path to an alert relabel configuration file on disk. Takes precedence over alertRelabelConfigs.",
+              "required": [],
+              "title": "alertRelabelConfigFile",
+              "type": "string"
+            },
+            "alertRelabelConfigs": {
+              "additionalProperties": true,
+              "description": "# Configures alert relabeling for Thanos Ruler. Maps to the alert.relabel-config CLI argument.",
+              "properties": {
+                "existingSecret": {
+                  "additionalProperties": true,
+                  "description": "use existing secret, if configured, alertRelabelConfigs.secret will not be used",
+                  "required": [],
+                  "title": "existingSecret",
+                  "type": "object"
+                },
+                "secret": {
+                  "additionalProperties": true,
+                  "description": "name: \"\"\nkey: \"\"\nrender alertRelabelConfigs secret data and configure it to be used by Thanos Ruler custom resource, ignored when alertRelabelConfigs.existingSecret is set",
+                  "required": [],
+                  "title": "secret",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "alertRelabelConfigs",
+              "type": "object"
+            },
             "alertmanagersConfig": {
               "additionalProperties": true,
               "description": "# AlertmanagerConfig define configuration for connecting to alertmanager.\n# Only available with Thanos v0.10.0 and higher. Maps to the alertmanagers.config Thanos Ruler arg.",
@@ -15518,12 +16092,58 @@
               "title": "containers",
               "type": "array"
             },
+            "dnsConfig": {
+              "additionalProperties": true,
+              "description": "# Defines the DNS configuration for the pods.",
+              "required": [],
+              "title": "dnsConfig",
+              "type": "object"
+            },
+            "dnsPolicy": {
+              "default": "",
+              "description": "# Defines the DNS policy for the pods.",
+              "required": [],
+              "title": "dnsPolicy",
+              "type": "string"
+            },
+            "enableFeatures": {
+              "description": "# EnableFeatures API enables access to Thanos Ruler disabled features.",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "enableFeatures",
+              "type": "array"
+            },
+            "enableServiceLinks": {
+              "default": "~",
+              "description": "# EnableServiceLinks indicates whether information about services should be injected into the\n# pod's environment variables. Uses the operator/Kubernetes default when left unset (~).",
+              "required": [],
+              "title": "enableServiceLinks",
+              "type": "null"
+            },
+            "enforcedNamespaceLabel": {
+              "default": "",
+              "description": "# EnforcedNamespaceLabel enforces adding a namespace label of origin for each alert and metric.",
+              "required": [],
+              "title": "enforcedNamespaceLabel",
+              "type": "string"
+            },
             "evaluationInterval": {
               "default": "",
               "description": "# Interval between consecutive evaluations.\n#",
               "required": [],
               "title": "evaluationInterval",
               "type": "string"
+            },
+            "excludedFromEnforcement": {
+              "description": "# List of references to PrometheusRule objects to be excluded from enforcement (requires enforcedNamespaceLabel).\n# Can be a list of objects, or a string that is passed through tpl.",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "excludedFromEnforcement",
+              "type": "array"
             },
             "externalPrefix": {
               "default": "",
@@ -15546,6 +16166,22 @@
               },
               "required": [],
               "title": "extraEnv",
+              "type": "array"
+            },
+            "grpcServerTlsConfig": {
+              "additionalProperties": true,
+              "description": "# Configures the gRPC server TLS for Thanos Ruler.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.TLSConfig",
+              "required": [],
+              "title": "grpcServerTlsConfig",
+              "type": "object"
+            },
+            "hostAliases": {
+              "description": "# Pods' hostAliases configuration\n# ref: https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "hostAliases",
               "type": "array"
             },
             "hostUsers": {
@@ -15578,7 +16214,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "v0.41.0",
+                  "default": "v0.42.2",
                   "required": [],
                   "title": "tag",
                   "type": "string"
@@ -15587,6 +16223,13 @@
               "required": [],
               "title": "image",
               "type": "object"
+            },
+            "imagePullPolicy": {
+              "default": "",
+              "description": "# Image pull policy for the Thanos Ruler container.",
+              "required": [],
+              "title": "imagePullPolicy",
+              "type": "string"
             },
             "initContainers": {
               "description": "# InitContainers allows injecting additional initContainers. This is meant to allow doing some changes\n# (permissions, dir tree) on mounted volumes before starting prometheus",
@@ -15625,6 +16268,13 @@
               "title": "logLevel",
               "type": "string"
             },
+            "minReadySeconds": {
+              "default": "~",
+              "description": "# Minimum number of seconds for which a newly created pod should be ready without any of its\n# containers crashing/restarting for it to be considered available.",
+              "required": [],
+              "title": "minReadySeconds",
+              "type": "null"
+            },
             "nodeSelector": {
               "additionalProperties": true,
               "description": "# Define which Nodes the Pods are scheduled on.\n# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector\n#",
@@ -15654,6 +16304,13 @@
               "required": [],
               "title": "objectStorageConfig",
               "type": "object"
+            },
+            "objectStorageConfigFile": {
+              "default": "",
+              "description": "# Path to an object storage configuration file on disk. Takes precedence over objectStorageConfig.",
+              "required": [],
+              "title": "objectStorageConfigFile",
+              "type": "string"
             },
             "paused": {
               "default": false,
@@ -15736,12 +16393,28 @@
               "title": "queryEndpoints",
               "type": "array"
             },
+            "remoteWrite": {
+              "description": "# Defines the list of remote write configurations. When not empty, the Thanos Ruler operates in stateless mode.\n# ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.RemoteWriteSpec",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "remoteWrite",
+              "type": "array"
+            },
             "replicas": {
               "default": 1,
               "description": "# Size is the expected size of the thanosRuler cluster. The controller will eventually make the size of the\n# running cluster equal to the expected size.",
               "required": [],
               "title": "replicas",
               "type": "integer"
+            },
+            "resendDelay": {
+              "default": "",
+              "description": "# Minimum amount of time to wait before resending an alert to Alertmanager.",
+              "required": [],
+              "title": "resendDelay",
+              "type": "string"
             },
             "resources": {
               "additionalProperties": true,
@@ -15764,12 +16437,40 @@
               "title": "routePrefix",
               "type": "string"
             },
+            "ruleConcurrentEval": {
+              "default": "~",
+              "description": "# Number of concurrent rule evaluations.",
+              "required": [],
+              "title": "ruleConcurrentEval",
+              "type": "null"
+            },
+            "ruleGracePeriod": {
+              "default": "",
+              "description": "# Minimum duration between alert and restored \"for\" state. Maintained only for alerts with a configured \"for\"\n# time greater than the grace period.",
+              "required": [],
+              "title": "ruleGracePeriod",
+              "type": "string"
+            },
             "ruleNamespaceSelector": {
               "additionalProperties": true,
               "description": "# Namespaces to be selected for PrometheusRules discovery.\n# If nil, select own namespace. Namespaces to be selected for ServiceMonitor discovery.\n# See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#namespaceselector for usage\n#",
               "required": [],
               "title": "ruleNamespaceSelector",
               "type": "object"
+            },
+            "ruleOutageTolerance": {
+              "default": "",
+              "description": "# Maximum time to tolerate outage for restoring \"for\" state of alert.",
+              "required": [],
+              "title": "ruleOutageTolerance",
+              "type": "string"
+            },
+            "ruleQueryOffset": {
+              "default": "",
+              "description": "# The default rule group's query offset duration to shift the evaluation time of rules backwards.\n# ref: https://github.com/prometheus-community/helm-charts/issues/5843",
+              "required": [],
+              "title": "ruleQueryOffset",
+              "type": "string"
             },
             "ruleSelector": {
               "additionalProperties": true,
@@ -15871,12 +16572,49 @@
               "title": "topologySpreadConstraints",
               "type": "array"
             },
+            "tracingConfig": {
+              "additionalProperties": true,
+              "description": "# Configures tracing for Thanos Ruler. Maps to the tracing.config CLI argument.",
+              "properties": {
+                "existingSecret": {
+                  "additionalProperties": true,
+                  "description": "use existing secret, if configured, tracingConfig.secret will not be used",
+                  "required": [],
+                  "title": "existingSecret",
+                  "type": "object"
+                },
+                "secret": {
+                  "additionalProperties": true,
+                  "description": "name: \"\"\nkey: \"\"\nrender tracingConfig secret data and configure it to be used by Thanos Ruler custom resource, ignored when tracingConfig.existingSecret is set",
+                  "required": [],
+                  "title": "secret",
+                  "type": "object"
+                }
+              },
+              "required": [],
+              "title": "tracingConfig",
+              "type": "object"
+            },
+            "tracingConfigFile": {
+              "default": "",
+              "description": "# Path to a tracing configuration file on disk (e.g. mounted through a volume). Takes precedence over tracingConfig.",
+              "required": [],
+              "title": "tracingConfigFile",
+              "type": "string"
+            },
             "updateStrategy": {
               "additionalProperties": true,
               "description": "# Update strategy for the StatefulSet.\n# ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies",
               "required": [],
               "title": "updateStrategy",
               "type": "object"
+            },
+            "version": {
+              "default": "",
+              "description": "# Version of Thanos Ruler to deploy. Overrides the version derived from the image tag when set.",
+              "required": [],
+              "title": "version",
+              "type": "string"
             },
             "volumeMounts": {
               "description": "Additional VolumeMounts on the output StatefulSet definition.",

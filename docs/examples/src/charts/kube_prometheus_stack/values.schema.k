@@ -38,6 +38,13 @@ schema Values:
 
         Alternatively, if you wish to allow secret values to be exposed in the rendered grafana.ini configmap,
         you can disable this check by setting assertNoLeakedSecrets to false.
+    authFilter : ValuesAuthFilter, optional
+        Enable kube-state-metrics native request authn/authz on the metrics endpoints
+        via the `--auth-filter` flag, as an alternative to running kube-rbac-proxy.
+        When enabled, the `create` permissions on `tokenreviews` and
+        `subjectaccessreviews` required by the filter are added to the (Cluster)Role
+        automatically. Scrapers must authenticate; see the chart README and the
+        kube-state-metrics docs on protecting metrics endpoints.
     automountServiceAccountToken : bool, optional, default is True
         If false then the user will opt out of automounting API credentials.
     autoscaling : ValuesAutoscaling, optional
@@ -304,6 +311,12 @@ schema Values:
         # ref: http://docs.grafana.org/installation/ldap/#configuration
     lifecycleHooks : ValuesLifecycleHooks, optional
         # Container Lifecycle Hooks. Execute a specific bash command or make an HTTP request
+    listenerSet : ValuesListenerSet, optional
+        BETA: Configure Gateway API ListenerSet resources for the chart here.
+        ListenerSet allows attaching additional listeners to an existing Gateway.
+        More listener sets can be added by adding a dictionary key like the 'main' entry.
+        Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
+        [[ref]](https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#listenerset)
     livenessProbe : ValuesLivenessProbe, optional
         # Liveness probe
         #
@@ -507,6 +520,7 @@ schema Values:
     alertmanager?: ValuesAlertmanager
     annotations?: ValuesAnnotations
     assertNoLeakedSecrets?: bool
+    authFilter?: ValuesAuthFilter
     automountServiceAccountToken?: bool
     autoscaling?: ValuesAutoscaling
     autosharding?: ValuesAutosharding
@@ -595,6 +609,7 @@ schema Values:
     labels?: ValuesLabels
     ldap?: ValuesLdap
     lifecycleHooks?: ValuesLifecycleHooks
+    listenerSet?: ValuesListenerSet
     livenessProbe?: ValuesLivenessProbe
     metricAllowlist?: [any]
     metricAnnotationsAllowList?: [any]
@@ -758,6 +773,10 @@ schema ValuesAlertmanager:
         kube-prometheus-stack does not guarantee this works and is subject to change.
         Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
         [[ref]](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1alpha2)
+    routePerReplica : ValuesAlertmanagerRoutePerReplica, optional
+        # Configuration for creating a Gateway API route that will map to each Alertmanager replica service
+        # alertmanager.servicePerReplica must be enabled
+        #
     secret : ValuesAlertmanagerSecret, optional
         # Configuration for Alertmanager secret
         #
@@ -819,6 +838,7 @@ schema ValuesAlertmanager:
     networkPolicy?: ValuesAlertmanagerNetworkPolicy
     podDisruptionBudget?: ValuesAlertmanagerPodDisruptionBudget
     route?: ValuesAlertmanagerRoute
+    routePerReplica?: ValuesAlertmanagerRoutePerReplica
     secret?: ValuesAlertmanagerSecret
     service?: ValuesAlertmanagerService
     serviceAccount?: ValuesAlertmanagerServiceAccount
@@ -888,6 +908,10 @@ schema ValuesAlertmanagerAlertmanagerSpec:
     clusterPushpullInterval : str, optional, default is ""
         # clusterPushpullInterval determines interval between pushpull attempts.
         # Needs to be specified as GoDuration, a time duration that can be parsed by Go's time.ParseDuration() (e.g. 45ms, 30s, 1m, 1h20m15s)
+    clusterTLS : ValuesAlertmanagerAlertmanagerSpecClusterTls, optional
+        # ClusterTLS defines the mutual TLS configuration for the Alertmanager cluster's gossip protocol.
+        # Requires Alertmanager >= v0.24.0.
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ClusterTLSConfig
     configMaps : [any], optional
         # ConfigMaps is a list of ConfigMaps in the same namespace as the Alertmanager object, which shall be mounted into the Alertmanager Pods.
         # The ConfigMaps are mounted into /etc/alertmanager/configmaps/.
@@ -901,12 +925,18 @@ schema ValuesAlertmanagerAlertmanagerSpec:
     dnsPolicy : str, optional, default is ""
         # DNS policy for Alertmanager.
         # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#dnspolicystring-alias
+    enableServiceLinks : any, optional, default is "~"
+        # EnableServiceLinks indicates whether information about services should be injected into the
+        # pod's environment variables. Uses the operator/Kubernetes default when left unset (~).
     externalUrl : any, optional, default is ""
         # The external URL the Alertmanager instances will be available under. This is necessary to generate correct URLs. This is necessary if Alertmanager is not served from root of a DNS name. string  false
         #
     forceEnableClusterMode : bool, optional, default is False
         # ForceEnableClusterMode ensures Alertmanager does not deactivate the cluster mode when running with a single replica.
         # Use case is e.g. spanning an Alertmanager cluster across Kubernetes clusters with a single replica in each.
+    hostAliases : [any], optional
+        # Pods' hostAliases configuration
+        # ref: https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
     hostNetwork : bool, optional, default is False
         # Enable hostNetwork for Alertmanager.
     hostUsers : any, optional, default is "~"
@@ -918,6 +948,9 @@ schema ValuesAlertmanagerAlertmanagerSpec:
     initContainers : [any], optional
         # InitContainers allows injecting additional initContainers. This is meant to allow doing some changes
         # (permissions, dir tree) on mounted volumes before starting prometheus
+    limits : ValuesAlertmanagerAlertmanagerSpecLimits, optional
+        # Limits defines the Alertmanager limits command line flags. Requires Alertmanager >= v0.28.0.
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.AlertmanagerLimitsSpec
     listenLocal : bool, optional, default is False
         # ListenLocal makes the Alertmanager server listen on loopback, so that it does not bind against the Pod IP.
         # Note this is only for the Alertmanager UI, not the gossip communication.
@@ -983,6 +1016,8 @@ schema ValuesAlertmanagerAlertmanagerSpec:
         # The route prefix Alertmanager registers HTTP handlers for. This is useful, if using ExternalURL and a proxy is rewriting HTTP routes of a request, and the actual ExternalURL is still true,
         # but the server serves requests under a different route prefix. For example for use with kubectl proxy.
         #
+    schedulerName : str, optional, default is ""
+        # Set the scheduler name to use for the Alertmanager pods.
     scheme : str, optional, default is ""
         # scheme: HTTP scheme to use. Can be used with `tlsConfig` for example if using istio mTLS.
     secrets : [any], optional
@@ -1045,16 +1080,20 @@ schema ValuesAlertmanagerAlertmanagerSpec:
     clusterLabel?: str
     clusterPeerTimeout?: str
     clusterPushpullInterval?: str
+    clusterTLS?: ValuesAlertmanagerAlertmanagerSpecClusterTls
     configMaps?: [any]
     containers?: [any]
     dnsConfig?: ValuesAlertmanagerAlertmanagerSpecDnsConfig
     dnsPolicy?: str
+    enableServiceLinks?: any
     externalUrl?: any
     forceEnableClusterMode?: bool
+    hostAliases?: [any]
     hostNetwork?: bool
     hostUsers?: any
     image?: ValuesAlertmanagerAlertmanagerSpecImage
     initContainers?: [any]
+    limits?: ValuesAlertmanagerAlertmanagerSpecLimits
     listenLocal?: bool
     logFormat?: str
     logLevel?: str
@@ -1072,6 +1111,7 @@ schema ValuesAlertmanagerAlertmanagerSpec:
     resources?: ValuesAlertmanagerAlertmanagerSpecResources
     retention?: str
     routePrefix?: str
+    schedulerName?: str
     scheme?: str
     secrets?: [any]
     securityContext?: ValuesAlertmanagerAlertmanagerSpecSecurityContext
@@ -1129,6 +1169,14 @@ schema ValuesAlertmanagerAlertmanagerSpecAlertmanagerConfiguration:
     """
     [...str]: any
 
+schema ValuesAlertmanagerAlertmanagerSpecClusterTls:
+    r"""
+    # ClusterTLS defines the mutual TLS configuration for the Alertmanager cluster's gossip protocol.
+    # Requires Alertmanager >= v0.24.0.
+    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ClusterTLSConfig
+    """
+    [...str]: any
+
 schema ValuesAlertmanagerAlertmanagerSpecDnsConfig:
     r"""
     # DNS configuration for Alertmanager.
@@ -1147,7 +1195,7 @@ schema ValuesAlertmanagerAlertmanagerSpecImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "prometheus/alertmanager"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v0.32.2"
+    tag : str, optional, default is "v0.33.1"
     """
     [...str]: any
     pullPolicy?: str
@@ -1155,6 +1203,13 @@ schema ValuesAlertmanagerAlertmanagerSpecImage:
     repository?: str
     sha?: str
     tag?: str
+
+schema ValuesAlertmanagerAlertmanagerSpecLimits:
+    r"""
+    # Limits defines the Alertmanager limits command line flags. Requires Alertmanager >= v0.28.0.
+    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.AlertmanagerLimitsSpec
+    """
+    [...str]: any
 
 schema ValuesAlertmanagerAlertmanagerSpecNodeSelector:
     r"""
@@ -1713,6 +1768,111 @@ schema ValuesAlertmanagerRouteMainSessionPersistence:
     """
     [...str]: any
 
+schema ValuesAlertmanagerRoutePerReplica:
+    r"""
+    # Configuration for creating a Gateway API route that will map to each Alertmanager replica service
+    # alertmanager.servicePerReplica must be enabled
+    #
+
+    Attributes
+    ----------
+    main : ValuesAlertmanagerRoutePerReplicaMain, optional
+    """
+    [...str]: any
+    main?: ValuesAlertmanagerRoutePerReplicaMain
+
+schema ValuesAlertmanagerRoutePerReplicaMain:
+    r"""
+    ValuesAlertmanagerRoutePerReplicaMain
+
+    Attributes
+    ----------
+    additionalRules : [any], optional
+        # Additional custom rules that can be added to the route
+    annotations : ValuesAlertmanagerRoutePerReplicaMainAnnotations, optional
+    apiVersion : str, optional, default is "gateway.networking.k8s.io/v1"
+        Set the route apiVersion, e.g. gateway.networking.k8s.io/v1 or gateway.networking.k8s.io/v1alpha2
+    enabled : bool, optional, default is False
+        Enables or disables the routePerReplica
+    filters : [any], optional
+        # Filters define the filters that are applied to requests that match this rule.
+    hostDomain : str, optional, default is ""
+        # Domain that will be used for the per replica route
+    hostPrefix : str, optional, default is ""
+        # Final form of the hostname for each per replica route is
+        # {{ routePerReplica.hostPrefix }}-{{ $replicaNumber }}.{{ routePerReplica.hostDomain }}
+        #
+        # Prefix for the per replica route that will have `-$replicaNumber` appended to the end
+    httpsRedirect : bool, optional, default is False
+        create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)
+        # Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.
+        # matches, filters and additionalRules will be ignored if this is set to true.
+    kind : str, optional, default is "HTTPRoute"
+        Set the route kind
+        Valid options are GRPCRoute, HTTPRoute, TCPRoute, TLSRoute, UDPRoute
+    labels : ValuesAlertmanagerRoutePerReplicaMainLabels, optional
+    matches : [ValuesAlertmanagerRoutePerReplicaMainMatchesItems0], optional
+    parentRefs : [any], optional
+    sessionPersistence : ValuesAlertmanagerRoutePerReplicaMainSessionPersistence, optional
+        # Session persistence configuration for the route rule.
+    """
+    [...str]: any
+    additionalRules?: [any]
+    annotations?: ValuesAlertmanagerRoutePerReplicaMainAnnotations
+    apiVersion?: str
+    enabled?: bool
+    filters?: [any]
+    hostDomain?: str
+    hostPrefix?: str
+    httpsRedirect?: bool
+    kind?: str
+    labels?: ValuesAlertmanagerRoutePerReplicaMainLabels
+    matches?: [ValuesAlertmanagerRoutePerReplicaMainMatchesItems0]
+    parentRefs?: [any]
+    sessionPersistence?: ValuesAlertmanagerRoutePerReplicaMainSessionPersistence
+
+schema ValuesAlertmanagerRoutePerReplicaMainAnnotations:
+    r"""
+    ValuesAlertmanagerRoutePerReplicaMainAnnotations
+    """
+    [...str]: any
+
+schema ValuesAlertmanagerRoutePerReplicaMainLabels:
+    r"""
+    ValuesAlertmanagerRoutePerReplicaMainLabels
+    """
+    [...str]: any
+
+schema ValuesAlertmanagerRoutePerReplicaMainMatchesItems0:
+    r"""
+    ValuesAlertmanagerRoutePerReplicaMainMatchesItems0
+
+    Attributes
+    ----------
+    path : ValuesAlertmanagerRoutePerReplicaMainMatchesItems0Path, optional
+    """
+    [...str]: any
+    path?: ValuesAlertmanagerRoutePerReplicaMainMatchesItems0Path
+
+schema ValuesAlertmanagerRoutePerReplicaMainMatchesItems0Path:
+    r"""
+    ValuesAlertmanagerRoutePerReplicaMainMatchesItems0Path
+
+    Attributes
+    ----------
+    $type : str, optional, default is "PathPrefix"
+    value : str, optional, default is "/"
+    """
+    [...str]: any
+    $type?: str
+    value?: str
+
+schema ValuesAlertmanagerRoutePerReplicaMainSessionPersistence:
+    r"""
+    # Session persistence configuration for the route rule.
+    """
+    [...str]: any
+
 schema ValuesAlertmanagerSecret:
     r"""
     # Configuration for Alertmanager secret
@@ -2073,6 +2233,22 @@ schema ValuesAnnotations:
     Annotations to be added to the deployment/statefulset
     """
     [...str]: any
+
+schema ValuesAuthFilter:
+    r"""
+    Enable kube-state-metrics native request authn/authz on the metrics endpoints
+    via the `--auth-filter` flag, as an alternative to running kube-rbac-proxy.
+    When enabled, the `create` permissions on `tokenreviews` and
+    `subjectaccessreviews` required by the filter are added to the (Cluster)Role
+    automatically. Scrapers must authenticate; see the chart README and the
+    kube-state-metrics docs on protecting metrics endpoints.
+
+    Attributes
+    ----------
+    enabled : bool, optional, default is False
+    """
+    [...str]: any
+    enabled?: bool
 
 schema ValuesAutoscaling:
     r"""
@@ -2709,7 +2885,7 @@ schema ValuesDefaultRules:
     ----------
     additionalAggregationLabels : [any], optional
     additionalRuleAnnotations : ValuesDefaultRulesAdditionalRuleAnnotations, optional
-        # Additional annotations for PrometheusRule alerts
+        # Additional annotations for specific PrometheusRule alerts by alert name
     additionalRuleGroupAnnotations : ValuesDefaultRulesAdditionalRuleGroupAnnotations, optional
         # Additional annotations for specific PrometheusRule alert groups
     additionalRuleGroupLabels : ValuesDefaultRulesAdditionalRuleGroupLabels, optional
@@ -2760,7 +2936,7 @@ schema ValuesDefaultRules:
 
 schema ValuesDefaultRulesAdditionalRuleAnnotations:
     r"""
-    # Additional annotations for PrometheusRule alerts
+    # Additional annotations for specific PrometheusRule alerts by alert name
     """
     [...str]: any
 
@@ -3493,7 +3669,7 @@ schema ValuesDownloadDashboardsImage:
         The Docker registry
     repository : str, optional, default is "curlimages/curl"
     sha : str, optional, default is ""
-    tag : str, optional, default is "8.20.0"
+    tag : str, optional, default is "8.21.0"
     """
     [...str]: any
     pullPolicy?: str
@@ -5710,7 +5886,7 @@ schema ValuesKubeRbacproxyImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "brancz/kube-rbac-proxy"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v0.22.0"
+    tag : str, optional, default is "v0.22.1"
     """
     [...str]: any
     pullPolicy?: str
@@ -5846,6 +6022,7 @@ schema ValuesKubeSchedulerServiceMonitor:
         # RelabelConfigs to apply to samples before scraping
         # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig
         #
+    resource : ValuesKubeSchedulerServiceMonitorResource, optional
     sampleLimit : int, optional, default is 0
         # SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
         #
@@ -5873,6 +6050,7 @@ schema ValuesKubeSchedulerServiceMonitor:
     port?: str
     proxyUrl?: str
     relabelings?: [any]
+    resource?: ValuesKubeSchedulerServiceMonitorResource
     sampleLimit?: int
     selector?: ValuesKubeSchedulerServiceMonitorSelector
     serverName?: any
@@ -5885,6 +6063,33 @@ schema ValuesKubeSchedulerServiceMonitorAdditionalLabels:
     #
     """
     [...str]: any
+
+schema ValuesKubeSchedulerServiceMonitorResource:
+    r"""
+    ValuesKubeSchedulerServiceMonitorResource
+
+    Attributes
+    ----------
+    enabled : bool, optional, default is False
+        # Enable scraping /metrics/resource from kube-scheduler
+        # https://kubernetes.io/docs/concepts/cluster-administration/system-metrics/#kube-scheduler-metrics
+    interval : str, optional, default is ""
+        # Scrape interval. If not set, the Prometheus default scrape interval is used.
+        #
+    metricRelabelings : [any], optional
+        # MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig
+        #
+    relabelings : [any], optional
+        # RelabelConfigs to apply to samples before scraping
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#relabelconfig
+        #
+    """
+    [...str]: any
+    enabled?: bool
+    interval?: str
+    metricRelabelings?: [any]
+    relabelings?: [any]
 
 schema ValuesKubeSchedulerServiceMonitorSelector:
     r"""
@@ -6288,6 +6493,64 @@ schema ValuesLifecycleHooks:
     """
     [...str]: any
 
+schema ValuesListenerSet:
+    r"""
+    BETA: Configure Gateway API ListenerSet resources for the chart here.
+    ListenerSet allows attaching additional listeners to an existing Gateway.
+    More listener sets can be added by adding a dictionary key like the 'main' entry.
+    Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
+    [[ref]](https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#listenerset)
+
+    Attributes
+    ----------
+    main : ValuesListenerSetMain, optional
+    """
+    [...str]: any
+    main?: ValuesListenerSetMain
+
+schema ValuesListenerSetMain:
+    r"""
+    ValuesListenerSetMain
+
+    Attributes
+    ----------
+    annotations : ValuesListenerSetMainAnnotations, optional
+    apiVersion : str, optional, default is "gateway.networking.k8s.io/v1"
+        Set the ListenerSet apiVersion, e.g. gateway.networking.k8s.io/v1
+    enabled : bool, optional, default is False
+        Enables or disables the listener set
+    labels : ValuesListenerSetMainLabels, optional
+    listeners : [any], optional
+        List of listeners to attach to the parent Gateway
+    parentRef : ValuesListenerSetMainParentRef, optional
+        Reference to the parent Gateway this ListenerSet attaches to
+    """
+    [...str]: any
+    annotations?: ValuesListenerSetMainAnnotations
+    apiVersion?: str
+    enabled?: bool
+    labels?: ValuesListenerSetMainLabels
+    listeners?: [any]
+    parentRef?: ValuesListenerSetMainParentRef
+
+schema ValuesListenerSetMainAnnotations:
+    r"""
+    ValuesListenerSetMainAnnotations
+    """
+    [...str]: any
+
+schema ValuesListenerSetMainLabels:
+    r"""
+    ValuesListenerSetMainLabels
+    """
+    [...str]: any
+
+schema ValuesListenerSetMainParentRef:
+    r"""
+    Reference to the parent Gateway this ListenerSet attaches to
+    """
+    [...str]: any
+
 schema ValuesLivenessProbe:
     r"""
     # Liveness probe
@@ -6373,11 +6636,6 @@ schema ValuesNetworkPolicy:
           matchExpressions:
            - {key: role, operator: In, values: [frontend]}
         ```
-    flavor : str, optional, default is "kubernetes"
-        networkPolicy.flavor -- Flavor of the network policy to use.
-        Can be:
-        * kubernetes for networking.k8s.io/v1/NetworkPolicy
-        * cilium     for cilium.io/v2/CiliumNetworkPolicy
     ingress : bool, optional, default is True
         networkPolicy.allowExternal Don't require client label for connections
         The Policy model to apply. When set to false, only pods with the correct
@@ -6392,7 +6650,6 @@ schema ValuesNetworkPolicy:
     enabled?: bool
     explicitIpBlocks?: [any]
     explicitNamespacesSelector?: ValuesNetworkPolicyExplicitNamespacesSelector
-    flavor?: str
     ingress?: bool
 
 schema ValuesNetworkPolicyEgress:
@@ -6626,6 +6883,10 @@ schema ValuesPersistence:
     lookupVolumeName : bool, optional, default is True
         # If 'lookupVolumeName' is set to true, Helm will attempt to retrieve
         # the current value of 'spec.volumeName' and incorporate it into the template.
+    persistentVolumeClaimRetentionPolicy : ValuesPersistencePersistentVolumeClaimRetentionPolicy, optional
+        # Configure StatefulSet persistent volume claim retention policy.
+        # This is ignored when Grafana is configured to use a Deployment with a PVC.
+        # By default, Kubernetes uses Retain for both whenDeleted and whenScaled.
     size : str, optional, default is "10Gi"
     $type : str, optional, default is "pvc"
     volumeName : str, optional, default is ""
@@ -6640,6 +6901,7 @@ schema ValuesPersistence:
     finalizers?: [str]
     inMemory?: ValuesPersistenceInMemory
     lookupVolumeName?: bool
+    persistentVolumeClaimRetentionPolicy?: ValuesPersistencePersistentVolumeClaimRetentionPolicy
     size?: str
     $type?: str
     volumeName?: str
@@ -6667,6 +6929,14 @@ schema ValuesPersistenceInMemory:
     """
     [...str]: any
     enabled?: bool
+
+schema ValuesPersistencePersistentVolumeClaimRetentionPolicy:
+    r"""
+    # Configure StatefulSet persistent volume claim retention policy.
+    # This is ignored when Grafana is configured to use a Deployment with a PVC.
+    # By default, Kubernetes uses Retain for both whenDeleted and whenScaled.
+    """
+    [...str]: any
 
 schema ValuesPodAnnotations:
     r"""
@@ -6754,6 +7024,10 @@ schema ValuesPrometheus:
         kube-prometheus-stack does not guarantee this works and is subject to change.
         Being BETA this can/will change in the future without notice, do not use unless you want to take that risk
         [[ref]](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io%2fv1alpha2)
+    routePerReplica : ValuesPrometheusRoutePerReplica, optional
+        # Configuration for creating a Gateway API route that will map to each Prometheus replica service
+        # prometheus.servicePerReplica must be enabled
+        #
     scrapeconfig : ValuesPrometheusScrapeconfig, optional
         # Create a scrapeConfig resource for scraping the kube-state-metrics service. Use this instead of serviceMonitor
         # to have more instances of kube-state-metrics safety.
@@ -6804,6 +7078,7 @@ schema ValuesPrometheus:
     podMonitor?: ValuesPrometheusPodMonitor
     prometheusSpec?: ValuesPrometheusPrometheusSpec
     route?: ValuesPrometheusRoute
+    routePerReplica?: ValuesPrometheusRoutePerReplica
     scrapeconfig?: ValuesPrometheusScrapeconfig
     service?: ValuesPrometheusService
     serviceAccount?: ValuesPrometheusServiceAccount
@@ -7470,6 +7745,13 @@ schema ValuesPrometheusOperator:
     extraVolumes : [any], optional
         # Additional volumes
         #
+    featureGates : ValuesPrometheusOperatorFeatureGates, optional
+        # Feature gates to enable/disable operator features, rendered as --feature-gates=<key>=<value>.
+        # See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/feature-gates.md
+        # Example:
+        #   featureGates:
+        #     PrometheusAgentDaemonSet: true
+        #     StatusForConfigurationResources: true
     fullnameOverride : str, optional, default is ""
         # Use '{{ template "kube-prometheus-stack.fullname" . }}-operator' by default
     hostNetwork : bool, optional, default is False
@@ -7596,6 +7878,7 @@ schema ValuesPrometheusOperator:
     extraArgs?: [any]
     extraVolumeMounts?: [any]
     extraVolumes?: [any]
+    featureGates?: ValuesPrometheusOperatorFeatureGates
     fullnameOverride?: str
     hostNetwork?: bool
     hostUsers?: any
@@ -8347,7 +8630,7 @@ schema ValuesPrometheusOperatorAdmissionWebhooksPatchImage:
     registry : str, optional, default is "ghcr.io"
     repository : str, optional, default is "jkroepke/kube-webhook-certgen"
     sha : str, optional, default is ""
-    tag : str, optional, default is "1.8.3"
+    tag : str, optional, default is "1.8.5"
     """
     [...str]: any
     pullPolicy?: str
@@ -8552,6 +8835,17 @@ schema ValuesPrometheusOperatorEnv:
     """
     [...str]: any
     GOGC?: str
+
+schema ValuesPrometheusOperatorFeatureGates:
+    r"""
+    # Feature gates to enable/disable operator features, rendered as --feature-gates=<key>=<value>.
+    # See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/feature-gates.md
+    # Example:
+    #   featureGates:
+    #     PrometheusAgentDaemonSet: true
+    #     StatusForConfigurationResources: true
+    """
+    [...str]: any
 
 schema ValuesPrometheusOperatorImage:
     r"""
@@ -8985,7 +9279,7 @@ schema ValuesPrometheusOperatorThanosImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "thanos/thanos"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v0.41.0"
+    tag : str, optional, default is "v0.42.2"
     """
     [...str]: any
     registry?: str
@@ -9361,6 +9655,8 @@ schema ValuesPrometheusPrometheusSpec:
         # If the field isn't set, the operator mounts the service account token by default.
         # Warning: be aware that by default, Prometheus requires the service account token for Kubernetes service discovery,
         # It is possible to use strategic merge patch to project the service account token into the 'prometheus' container.
+    bodySizeLimit : str, optional, default is ""
+        # BodySizeLimit defines a global limit on the size of uncompressed response body that will be accepted. Example: 100MB.
     configMaps : [any], optional
         # ConfigMaps is a list of ConfigMaps in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
         # The ConfigMaps are mounted into /etc/prometheus/configmaps/.
@@ -9397,6 +9693,12 @@ schema ValuesPrometheusPrometheusSpec:
     enableRemoteWriteReceiver : bool, optional, default is False
         # enable --web.enable-remote-write-receiver flag on prometheus-server
         #
+    enableServiceLinks : any, optional, default is "~"
+        # EnableServiceLinks indicates whether information about services should be injected into the pod's environment
+        # variables. Uses the operator/Kubernetes default when left unset (~).
+    enforcedBodySizeLimit : str, optional, default is ""
+        # EnforcedBodySizeLimit defines the maximum size of uncompressed response body that will be accepted, overriding any
+        # value set per ServiceMonitor/PodMonitor. Example: 100MB. Empty means no limit.
     enforcedKeepDroppedTargets : int, optional, default is 0
         EnforcedKeepDroppedTargetsLimit defines on the number of targets dropped by relabeling that will be kept in memory.
         The value overrides any spec.keepDroppedTargets set by ServiceMonitor, PodMonitor, Probe objects unless spec.keepDroppedTargets
@@ -9465,6 +9767,14 @@ schema ValuesPrometheusPrometheusSpec:
     initContainers : [any], optional
         # InitContainers allows injecting additional initContainers. This is meant to allow doing some changes
         # (permissions, dir tree) on mounted volumes before starting prometheus
+    keepDroppedTargets : int, optional, default is 0
+        # Per-scrape limit on the number of targets dropped by relabeling that will be kept in memory. 0 means no limit.
+    labelLimit : int, optional, default is 0
+        # Per-scrape limit on number of labels that will be accepted for a sample. 0 means no limit.
+    labelNameLengthLimit : int, optional, default is 0
+        # Per-scrape limit on length of labels name that will be accepted for a sample. 0 means no limit.
+    labelValueLengthLimit : int, optional, default is 0
+        # Per-scrape limit on length of labels value that will be accepted for a sample. 0 means no limit.
     listenLocal : bool, optional, default is False
         # ListenLocal makes the Prometheus server listen on loopback, so that it does not bind against the Pod IP.
         #
@@ -9483,6 +9793,9 @@ schema ValuesPrometheusPrometheusSpec:
     minReadySeconds : int, optional, default is 0
         # Minimum number of seconds for which a newly created pod should be ready without any of its container crashing for it to
         # be considered available. Defaults to 0 (pod will be considered available as soon as it is ready).
+    nameEscapingScheme : str, optional, default is ""
+        # Specifies the character escaping scheme applied to metric and label names.
+        # Supported values are: AllowUTF8, Underscores, Dots, Values
     nameValidationScheme : str, optional, default is ""
         # Specifies the validation scheme for metric and label names.
         # Supported values are: Legacy, UTF8
@@ -9574,6 +9887,9 @@ schema ValuesPrometheusPrometheusSpec:
         # and can be persisted using an attached volume. Alternatively, the location can be set to a stdout location such
         # as /dev/stdout to log querie information to the default Prometheus log stream. This is only available in versions
         # of Prometheus >= 2.16.0. For more details, see the Prometheus docs (https://prometheus.io/docs/guides/query-log/)
+    reloadStrategy : str, optional, default is ""
+        # Defines the strategy used to reload the Prometheus configuration.
+        # Supported values are: HTTP, ProcessSignal
     remoteRead : [any], optional
         # The remote_read spec configuration for Prometheus.
         # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#remotereadspec
@@ -9582,6 +9898,8 @@ schema ValuesPrometheusPrometheusSpec:
         # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#remotewritespec
     remoteWriteDashboards : bool, optional, default is False
         # Enable/Disable Grafana dashboards provisioning for prometheus remote write feature
+    remoteWriteReceiverMessageVersions : [any], optional
+        # List of the protobuf message versions to accept when receiving the remote writes. Example: [V1.0, V2.0].
     replicaExternalLabelName : str, optional, default is ""
         # Name of the external label used to denote replica name
         #
@@ -9607,6 +9925,9 @@ schema ValuesPrometheusPrometheusSpec:
         #
     ruleNamespaceSelector : ValuesPrometheusPrometheusSpecRuleNamespaceSelector, optional
         # If nil, select own namespace. Namespaces to be selected for PrometheusRules discovery.
+    ruleQueryOffset : str, optional, default is ""
+        # Defines the offset the rule evaluation timestamp of the rule evaluation queries is shifted backwards.
+        # ref: https://github.com/prometheus-community/helm-charts/issues/5843
     ruleSelector : ValuesPrometheusPrometheusSpecRuleSelector, optional
         # PrometheusRules to be selected for target discovery.
         # If {}, select all PrometheusRules
@@ -9616,9 +9937,13 @@ schema ValuesPrometheusPrometheusSpec:
         # prometheus resource to be created with selectors based on values in the helm deployment,
         # which will also match the PrometheusRule resources created
         #
+    runtime : ValuesPrometheusPrometheusSpecRuntime, optional
+        # RuntimeConfig configures the values for the Prometheus process behavior.
     sampleLimit : bool, optional, default is False
         Use to set global sample_limit for Prometheus. This act as default SampleLimit for ServiceMonitor or/and PodMonitor.
         Set to 'false' to disable global sample_limit. or set to a number to override the default value.
+    schedulerName : str, optional, default is ""
+        # Set the scheduler name to use for the Prometheus pods.
     scrapeClasses : [any], optional
         # List of scrape classes to expose to scraping objects such as
         # PodMonitors, ServiceMonitors, Probes and ScrapeConfigs.
@@ -9691,6 +10016,12 @@ schema ValuesPrometheusPrometheusSpec:
         #
     serviceName : any, optional, default is ""
         #
+    shardRetentionPolicy : ValuesPrometheusPrometheusSpecShardRetentionPolicy, optional
+        # Defines the retention policy for the resources of stale shards after a scale-down.
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ShardRetentionPolicy
+    shardingStrategy : ValuesPrometheusPrometheusSpecShardingStrategy, optional
+        # Defines the sharding strategy applied by the operator.
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ShardingStrategy
     shards : int, optional, default is 1
         # EXPERIMENTAL: Number of shards to distribute targets onto.
         # Number of replicas multiplied by shards is the total number of Pods created.
@@ -9698,11 +10029,16 @@ schema ValuesPrometheusPrometheusSpec:
         # Increasing shards will not reshard data either but it will continue to be available from the same instances.
         # To query globally use Thanos sidecar and Thanos querier or remote write data to a central location.
         # Sharding is done on the content of the `__address__` target meta-label.
+        # Set shards to null to omit spec.shards from the Prometheus custom resource (the operator then
+        # defaults to 1 shard). Omitting the field lets an external autoscaler such as an HPA or a KEDA
+        # ScaledObject own spec.shards through the /scale subresource without Helm reverting it.
         #
     storageSpec : ValuesPrometheusPrometheusSpecStorageSpec, optional
         # Prometheus StorageSpec for persistent data
         # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md
         #
+    targetLimit : int, optional, default is 0
+        # TargetLimit defines a global limit on the number of scraped targets. 0 means no limit.
     terminationGracePeriodSeconds : any, optional, default is "~"
         # Duration in seconds the pod needs to terminate gracefully.
         # ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination
@@ -9762,6 +10098,7 @@ schema ValuesPrometheusPrometheusSpec:
     apiserverConfig?: ValuesPrometheusPrometheusSpecApiserverConfig
     arbitraryFSAccessThroughSMs?: bool
     automountServiceAccountToken?: bool
+    bodySizeLimit?: str
     configMaps?: [any]
     containers?: [any]
     convertClassicHistogramsToNHCB?: bool
@@ -9773,6 +10110,8 @@ schema ValuesPrometheusPrometheusSpec:
     enableFeatures?: [any]
     enableOTLPReceiver?: bool
     enableRemoteWriteReceiver?: bool
+    enableServiceLinks?: any
+    enforcedBodySizeLimit?: str
     enforcedKeepDroppedTargets?: int
     enforcedLabelLimit?: bool
     enforcedLabelNameLengthLimit?: bool
@@ -9791,11 +10130,16 @@ schema ValuesPrometheusPrometheusSpec:
     ignoreNamespaceSelectors?: bool
     image?: ValuesPrometheusPrometheusSpecImage
     initContainers?: [any]
+    keepDroppedTargets?: int
+    labelLimit?: int
+    labelNameLengthLimit?: int
+    labelValueLengthLimit?: int
     listenLocal?: bool
     logFormat?: str
     logLevel?: str
     maximumStartupDurationSeconds?: int
     minReadySeconds?: int
+    nameEscapingScheme?: str
     nameValidationScheme?: str
     nodeSelector?: ValuesPrometheusPrometheusSpecNodeSelector
     otlp?: ValuesPrometheusPrometheusSpecOtlp
@@ -9821,9 +10165,11 @@ schema ValuesPrometheusPrometheusSpec:
     prometheusRulesExcludedFromEnforce?: [any]
     query?: ValuesPrometheusPrometheusSpecQuery
     queryLogFile?: bool
+    reloadStrategy?: str
     remoteRead?: [any]
     remoteWrite?: [any]
     remoteWriteDashboards?: bool
+    remoteWriteReceiverMessageVersions?: [any]
     replicaExternalLabelName?: str
     replicaExternalLabelNameClear?: bool
     replicas?: int
@@ -9832,9 +10178,12 @@ schema ValuesPrometheusPrometheusSpec:
     retentionSize?: str
     routePrefix?: str
     ruleNamespaceSelector?: ValuesPrometheusPrometheusSpecRuleNamespaceSelector
+    ruleQueryOffset?: str
     ruleSelector?: ValuesPrometheusPrometheusSpecRuleSelector
     ruleSelectorNilUsesHelmValues?: bool
+    runtime?: ValuesPrometheusPrometheusSpecRuntime
     sampleLimit?: bool
+    schedulerName?: str
     scrapeClasses?: [any]
     scrapeClassicHistograms?: bool
     scrapeConfigNamespaceSelector?: ValuesPrometheusPrometheusSpecScrapeConfigNamespaceSelector
@@ -9852,8 +10201,11 @@ schema ValuesPrometheusPrometheusSpec:
     serviceMonitorSelector?: ValuesPrometheusPrometheusSpecServiceMonitorSelector
     serviceMonitorSelectorNilUsesHelmValues?: bool
     serviceName?: any
+    shardRetentionPolicy?: ValuesPrometheusPrometheusSpecShardRetentionPolicy
+    shardingStrategy?: ValuesPrometheusPrometheusSpecShardingStrategy
     shards?: int
     storageSpec?: ValuesPrometheusPrometheusSpecStorageSpec
+    targetLimit?: int
     terminationGracePeriodSeconds?: any
     thanos?: ValuesPrometheusPrometheusSpecThanos
     tolerations?: [any]
@@ -9954,7 +10306,7 @@ schema ValuesPrometheusPrometheusSpecImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "prometheus/prometheus"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v3.12.0-distroless"
+    tag : str, optional, default is "v3.13.1-distroless"
     """
     [...str]: any
     pullPolicy?: str
@@ -10054,6 +10406,12 @@ schema ValuesPrometheusPrometheusSpecRuleSelector:
     """
     [...str]: any
 
+schema ValuesPrometheusPrometheusSpecRuntime:
+    r"""
+    # RuntimeConfig configures the values for the Prometheus process behavior.
+    """
+    [...str]: any
+
 schema ValuesPrometheusPrometheusSpecScrapeConfigNamespaceSelector:
     r"""
     # If nil, select own namespace. Namespaces to be selected for scrapeConfig discovery.
@@ -10114,6 +10472,20 @@ schema ValuesPrometheusPrometheusSpecServiceMonitorSelector:
     # ServiceMonitors to be selected for target discovery.
     # If {}, select all ServiceMonitors
     #
+    """
+    [...str]: any
+
+schema ValuesPrometheusPrometheusSpecShardRetentionPolicy:
+    r"""
+    # Defines the retention policy for the resources of stale shards after a scale-down.
+    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ShardRetentionPolicy
+    """
+    [...str]: any
+
+schema ValuesPrometheusPrometheusSpecShardingStrategy:
+    r"""
+    # Defines the sharding strategy applied by the operator.
+    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.ShardingStrategy
     """
     [...str]: any
 
@@ -10265,6 +10637,111 @@ schema ValuesPrometheusRouteMainMatchesItems0Path:
     value?: str
 
 schema ValuesPrometheusRouteMainSessionPersistence:
+    r"""
+    # Session persistence configuration for the route rule.
+    """
+    [...str]: any
+
+schema ValuesPrometheusRoutePerReplica:
+    r"""
+    # Configuration for creating a Gateway API route that will map to each Prometheus replica service
+    # prometheus.servicePerReplica must be enabled
+    #
+
+    Attributes
+    ----------
+    main : ValuesPrometheusRoutePerReplicaMain, optional
+    """
+    [...str]: any
+    main?: ValuesPrometheusRoutePerReplicaMain
+
+schema ValuesPrometheusRoutePerReplicaMain:
+    r"""
+    ValuesPrometheusRoutePerReplicaMain
+
+    Attributes
+    ----------
+    additionalRules : [any], optional
+        # Additional custom rules that can be added to the route
+    annotations : ValuesPrometheusRoutePerReplicaMainAnnotations, optional
+    apiVersion : str, optional, default is "gateway.networking.k8s.io/v1"
+        Set the route apiVersion, e.g. gateway.networking.k8s.io/v1 or gateway.networking.k8s.io/v1alpha2
+    enabled : bool, optional, default is False
+        Enables or disables the routePerReplica
+    filters : [any], optional
+        # Filters define the filters that are applied to requests that match this rule.
+    hostDomain : str, optional, default is ""
+        # Domain that will be used for the per replica route
+    hostPrefix : str, optional, default is ""
+        # Final form of the hostname for each per replica route is
+        # {{ routePerReplica.hostPrefix }}-{{ $replicaNumber }}.{{ routePerReplica.hostDomain }}
+        #
+        # Prefix for the per replica route that will have `-$replicaNumber` appended to the end
+    httpsRedirect : bool, optional, default is False
+        create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)
+        # Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.
+        # matches, filters and additionalRules will be ignored if this is set to true.
+    kind : str, optional, default is "HTTPRoute"
+        Set the route kind
+        Valid options are GRPCRoute, HTTPRoute, TCPRoute, TLSRoute, UDPRoute
+    labels : ValuesPrometheusRoutePerReplicaMainLabels, optional
+    matches : [ValuesPrometheusRoutePerReplicaMainMatchesItems0], optional
+    parentRefs : [any], optional
+    sessionPersistence : ValuesPrometheusRoutePerReplicaMainSessionPersistence, optional
+        # Session persistence configuration for the route rule.
+    """
+    [...str]: any
+    additionalRules?: [any]
+    annotations?: ValuesPrometheusRoutePerReplicaMainAnnotations
+    apiVersion?: str
+    enabled?: bool
+    filters?: [any]
+    hostDomain?: str
+    hostPrefix?: str
+    httpsRedirect?: bool
+    kind?: str
+    labels?: ValuesPrometheusRoutePerReplicaMainLabels
+    matches?: [ValuesPrometheusRoutePerReplicaMainMatchesItems0]
+    parentRefs?: [any]
+    sessionPersistence?: ValuesPrometheusRoutePerReplicaMainSessionPersistence
+
+schema ValuesPrometheusRoutePerReplicaMainAnnotations:
+    r"""
+    ValuesPrometheusRoutePerReplicaMainAnnotations
+    """
+    [...str]: any
+
+schema ValuesPrometheusRoutePerReplicaMainLabels:
+    r"""
+    ValuesPrometheusRoutePerReplicaMainLabels
+    """
+    [...str]: any
+
+schema ValuesPrometheusRoutePerReplicaMainMatchesItems0:
+    r"""
+    ValuesPrometheusRoutePerReplicaMainMatchesItems0
+
+    Attributes
+    ----------
+    path : ValuesPrometheusRoutePerReplicaMainMatchesItems0Path, optional
+    """
+    [...str]: any
+    path?: ValuesPrometheusRoutePerReplicaMainMatchesItems0Path
+
+schema ValuesPrometheusRoutePerReplicaMainMatchesItems0Path:
+    r"""
+    ValuesPrometheusRoutePerReplicaMainMatchesItems0Path
+
+    Attributes
+    ----------
+    $type : str, optional, default is "PathPrefix"
+    value : str, optional, default is "/"
+    """
+    [...str]: any
+    $type?: str
+    value?: str
+
+schema ValuesPrometheusRoutePerReplicaMainSessionPersistence:
     r"""
     # Session persistence configuration for the route rule.
     """
@@ -12007,7 +12484,7 @@ schema ValuesSidecarImage:
         The Docker registry
     repository : str, optional, default is "kiwigrid/k8s-sidecar"
     sha : str, optional, default is ""
-    tag : str, optional, default is "2.7.3"
+    tag : str, optional, default is "2.10.0"
     """
     [...str]: any
     registry?: str
@@ -12398,7 +12875,7 @@ schema ValuesTestFrameworkImage:
     registry : str, optional, default is "docker.io"
         The Docker registry
     repository : str, optional, default is "bats/bats"
-    tag : str, optional, default is "1.13.0"
+    tag : str, optional, default is "1.14.0"
     """
     [...str]: any
     registry?: str
@@ -12878,15 +13355,33 @@ schema ValuesThanosRulerThanosRulerSpec:
     alertDropLabels : [any], optional
         # Labels by name to drop before sending to alertmanager
         # Maps to the --alert.label-drop flag of thanos ruler.
+    alertRelabelConfigFile : str, optional, default is ""
+        # Path to an alert relabel configuration file on disk. Takes precedence over alertRelabelConfigs.
+    alertRelabelConfigs : ValuesThanosRulerThanosRulerSpecAlertRelabelConfigs, optional
+        # Configures alert relabeling for Thanos Ruler. Maps to the alert.relabel-config CLI argument.
     alertmanagersConfig : ValuesThanosRulerThanosRulerSpecAlertmanagersConfig, optional
         # AlertmanagerConfig define configuration for connecting to alertmanager.
         # Only available with Thanos v0.10.0 and higher. Maps to the alertmanagers.config Thanos Ruler arg.
     containers : [any], optional
         # Containers allows injecting additional containers. This is meant to allow adding an authentication proxy to an ThanosRuler pod.
         #
+    dnsConfig : ValuesThanosRulerThanosRulerSpecDnsConfig, optional
+        # Defines the DNS configuration for the pods.
+    dnsPolicy : str, optional, default is ""
+        # Defines the DNS policy for the pods.
+    enableFeatures : [any], optional
+        # EnableFeatures API enables access to Thanos Ruler disabled features.
+    enableServiceLinks : any, optional, default is "~"
+        # EnableServiceLinks indicates whether information about services should be injected into the
+        # pod's environment variables. Uses the operator/Kubernetes default when left unset (~).
+    enforcedNamespaceLabel : str, optional, default is ""
+        # EnforcedNamespaceLabel enforces adding a namespace label of origin for each alert and metric.
     evaluationInterval : str, optional, default is ""
         # Interval between consecutive evaluations.
         #
+    excludedFromEnforcement : [any], optional
+        # List of references to PrometheusRule objects to be excluded from enforcement (requires enforcedNamespaceLabel).
+        # Can be a list of objects, or a string that is passed through tpl.
     externalPrefix : any, optional, default is ""
         # The external URL the Thanos Ruler instances will be available under. This is necessary to generate correct URLs. This is necessary if Thanos Ruler is not served from root of a DNS name. string false
         #
@@ -12897,12 +13392,20 @@ schema ValuesThanosRulerThanosRulerSpec:
         # Additional environment variables to set on the ThanosRuler container.
         # This is rendered through the Prometheus Operator strategic merge patch.
         #
+    grpcServerTlsConfig : ValuesThanosRulerThanosRulerSpecGrpcServerTlsConfig, optional
+        # Configures the gRPC server TLS for Thanos Ruler.
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.TLSConfig
+    hostAliases : [any], optional
+        # Pods' hostAliases configuration
+        # ref: https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
     hostUsers : any, optional, default is "~"
         # Use the host's user namespace for ThanosRuler pods.
         # ref: https://kubernetes.io/docs/tasks/configure-pod-container/user-namespaces/
     image : ValuesThanosRulerThanosRulerSpecImage, optional
         # Image of ThanosRuler
         #
+    imagePullPolicy : str, optional, default is ""
+        # Image pull policy for the Thanos Ruler container.
     initContainers : [any], optional
         # InitContainers allows injecting additional initContainers. This is meant to allow doing some changes
         # (permissions, dir tree) on mounted volumes before starting prometheus
@@ -12920,12 +13423,17 @@ schema ValuesThanosRulerThanosRulerSpec:
     logLevel : str, optional, default is "info"
         # Log level for ThanosRuler to be configured with.
         #
+    minReadySeconds : any, optional, default is "~"
+        # Minimum number of seconds for which a newly created pod should be ready without any of its
+        # containers crashing/restarting for it to be considered available.
     nodeSelector : ValuesThanosRulerThanosRulerSpecNodeSelector, optional
         # Define which Nodes the Pods are scheduled on.
         # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
         #
     objectStorageConfig : ValuesThanosRulerThanosRulerSpecObjectStorageConfig, optional
         # ObjectStorageConfig configures object storage in Thanos
+    objectStorageConfigFile : str, optional, default is ""
+        # Path to an object storage configuration file on disk. Takes precedence over objectStorageConfig.
     paused : bool, optional, default is False
         # If set to true all actions on the underlying managed objects are not going to be performed, except for delete actions.
         #
@@ -12958,9 +13466,14 @@ schema ValuesThanosRulerThanosRulerSpec:
     queryEndpoints : [any], optional
         # QueryEndpoints defines Thanos querier endpoints from which to query metrics.
         # Maps to the --query flag of thanos ruler.
+    remoteWrite : [any], optional
+        # Defines the list of remote write configurations. When not empty, the Thanos Ruler operates in stateless mode.
+        # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.RemoteWriteSpec
     replicas : int, optional, default is 1
         # Size is the expected size of the thanosRuler cluster. The controller will eventually make the size of the
         # running cluster equal to the expected size.
+    resendDelay : str, optional, default is ""
+        # Minimum amount of time to wait before resending an alert to Alertmanager.
     resources : ValuesThanosRulerThanosRulerSpecResources, optional
         # Define resources requests and limits for single Pods.
         # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
@@ -12973,11 +13486,21 @@ schema ValuesThanosRulerThanosRulerSpec:
         # The route prefix ThanosRuler registers HTTP handlers for. This is useful, if using ExternalURL and a proxy is rewriting HTTP routes of a request, and the actual ExternalURL is still true,
         # but the server serves requests under a different route prefix. For example for use with kubectl proxy.
         #
+    ruleConcurrentEval : any, optional, default is "~"
+        # Number of concurrent rule evaluations.
+    ruleGracePeriod : str, optional, default is ""
+        # Minimum duration between alert and restored "for" state. Maintained only for alerts with a configured "for"
+        # time greater than the grace period.
     ruleNamespaceSelector : ValuesThanosRulerThanosRulerSpecRuleNamespaceSelector, optional
         # Namespaces to be selected for PrometheusRules discovery.
         # If nil, select own namespace. Namespaces to be selected for ServiceMonitor discovery.
         # See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#namespaceselector for usage
         #
+    ruleOutageTolerance : str, optional, default is ""
+        # Maximum time to tolerate outage for restoring "for" state of alert.
+    ruleQueryOffset : str, optional, default is ""
+        # The default rule group's query offset duration to shift the evaluation time of rules backwards.
+        # ref: https://github.com/prometheus-community/helm-charts/issues/5843
     ruleSelector : ValuesThanosRulerThanosRulerSpecRuleSelector, optional
         # PrometheusRules to be selected for target discovery.
         # If {}, select all PrometheusRules
@@ -13009,9 +13532,15 @@ schema ValuesThanosRulerThanosRulerSpec:
         # If specified, the pod's topology spread constraints.
         # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
         #
+    tracingConfig : ValuesThanosRulerThanosRulerSpecTracingConfig, optional
+        # Configures tracing for Thanos Ruler. Maps to the tracing.config CLI argument.
+    tracingConfigFile : str, optional, default is ""
+        # Path to a tracing configuration file on disk (e.g. mounted through a volume). Takes precedence over tracingConfig.
     updateStrategy : ValuesThanosRulerThanosRulerSpecUpdateStrategy, optional
         # Update strategy for the StatefulSet.
         # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+    version : str, optional, default is ""
+        # Version of Thanos Ruler to deploy. Overrides the version derived from the image tag when set.
     volumeMounts : [any], optional
         Additional VolumeMounts on the output StatefulSet definition.
     volumes : [any], optional
@@ -13026,21 +13555,34 @@ schema ValuesThanosRulerThanosRulerSpec:
     additionalConfigString?: str
     affinity?: ValuesThanosRulerThanosRulerSpecAffinity
     alertDropLabels?: [any]
+    alertRelabelConfigFile?: str
+    alertRelabelConfigs?: ValuesThanosRulerThanosRulerSpecAlertRelabelConfigs
     alertmanagersConfig?: ValuesThanosRulerThanosRulerSpecAlertmanagersConfig
     containers?: [any]
+    dnsConfig?: ValuesThanosRulerThanosRulerSpecDnsConfig
+    dnsPolicy?: str
+    enableFeatures?: [any]
+    enableServiceLinks?: any
+    enforcedNamespaceLabel?: str
     evaluationInterval?: str
+    excludedFromEnforcement?: [any]
     externalPrefix?: any
     externalPrefixNilUsesHelmValues?: bool
     extraEnv?: [any]
+    grpcServerTlsConfig?: ValuesThanosRulerThanosRulerSpecGrpcServerTlsConfig
+    hostAliases?: [any]
     hostUsers?: any
     image?: ValuesThanosRulerThanosRulerSpecImage
+    imagePullPolicy?: str
     initContainers?: [any]
     labels?: ValuesThanosRulerThanosRulerSpecLabels
     listenLocal?: bool
     logFormat?: str
     logLevel?: str
+    minReadySeconds?: any
     nodeSelector?: ValuesThanosRulerThanosRulerSpecNodeSelector
     objectStorageConfig?: ValuesThanosRulerThanosRulerSpecObjectStorageConfig
+    objectStorageConfigFile?: str
     paused?: bool
     podAntiAffinity?: str
     podAntiAffinityTopologyKey?: str
@@ -13050,11 +13592,17 @@ schema ValuesThanosRulerThanosRulerSpec:
     priorityClassName?: str
     queryConfig?: ValuesThanosRulerThanosRulerSpecQueryConfig
     queryEndpoints?: [any]
+    remoteWrite?: [any]
     replicas?: int
+    resendDelay?: str
     resources?: ValuesThanosRulerThanosRulerSpecResources
     retention?: str
     routePrefix?: str
+    ruleConcurrentEval?: any
+    ruleGracePeriod?: str
     ruleNamespaceSelector?: ValuesThanosRulerThanosRulerSpecRuleNamespaceSelector
+    ruleOutageTolerance?: str
+    ruleQueryOffset?: str
     ruleSelector?: ValuesThanosRulerThanosRulerSpecRuleSelector
     ruleSelectorNilUsesHelmValues?: bool
     securityContext?: ValuesThanosRulerThanosRulerSpecSecurityContext
@@ -13063,7 +13611,10 @@ schema ValuesThanosRulerThanosRulerSpec:
     terminationGracePeriodSeconds?: any
     tolerations?: [any]
     topologySpreadConstraints?: [any]
+    tracingConfig?: ValuesThanosRulerThanosRulerSpecTracingConfig
+    tracingConfigFile?: str
     updateStrategy?: ValuesThanosRulerThanosRulerSpecUpdateStrategy
+    version?: str
     volumeMounts?: [any]
     volumes?: [any]
     web?: ValuesThanosRulerThanosRulerSpecWeb
@@ -13079,6 +13630,37 @@ schema ValuesThanosRulerThanosRulerSpecAffinity:
     # Assign custom affinity rules to the thanosRuler instance
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
     #
+    """
+    [...str]: any
+
+schema ValuesThanosRulerThanosRulerSpecAlertRelabelConfigs:
+    r"""
+    # Configures alert relabeling for Thanos Ruler. Maps to the alert.relabel-config CLI argument.
+
+    Attributes
+    ----------
+    existingSecret : ValuesThanosRulerThanosRulerSpecAlertRelabelConfigsExistingSecret, optional
+        use existing secret, if configured, alertRelabelConfigs.secret will not be used
+    secret : ValuesThanosRulerThanosRulerSpecAlertRelabelConfigsSecret, optional
+        name: ""
+        key: ""
+        render alertRelabelConfigs secret data and configure it to be used by Thanos Ruler custom resource, ignored when alertRelabelConfigs.existingSecret is set
+    """
+    [...str]: any
+    existingSecret?: ValuesThanosRulerThanosRulerSpecAlertRelabelConfigsExistingSecret
+    secret?: ValuesThanosRulerThanosRulerSpecAlertRelabelConfigsSecret
+
+schema ValuesThanosRulerThanosRulerSpecAlertRelabelConfigsExistingSecret:
+    r"""
+    use existing secret, if configured, alertRelabelConfigs.secret will not be used
+    """
+    [...str]: any
+
+schema ValuesThanosRulerThanosRulerSpecAlertRelabelConfigsSecret:
+    r"""
+    name: ""
+    key: ""
+    render alertRelabelConfigs secret data and configure it to be used by Thanos Ruler custom resource, ignored when alertRelabelConfigs.existingSecret is set
     """
     [...str]: any
 
@@ -13116,6 +13698,19 @@ schema ValuesThanosRulerThanosRulerSpecAlertmanagersConfigSecret:
     """
     [...str]: any
 
+schema ValuesThanosRulerThanosRulerSpecDnsConfig:
+    r"""
+    # Defines the DNS configuration for the pods.
+    """
+    [...str]: any
+
+schema ValuesThanosRulerThanosRulerSpecGrpcServerTlsConfig:
+    r"""
+    # Configures the gRPC server TLS for Thanos Ruler.
+    # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md#monitoring.coreos.com/v1.TLSConfig
+    """
+    [...str]: any
+
 schema ValuesThanosRulerThanosRulerSpecImage:
     r"""
     # Image of ThanosRuler
@@ -13126,7 +13721,7 @@ schema ValuesThanosRulerThanosRulerSpecImage:
     registry : str, optional, default is "quay.io"
     repository : str, optional, default is "thanos/thanos"
     sha : str, optional, default is ""
-    tag : str, optional, default is "v0.41.0"
+    tag : str, optional, default is "v0.42.2"
     """
     [...str]: any
     registry?: str
@@ -13288,6 +13883,37 @@ schema ValuesThanosRulerThanosRulerSpecStorage:
     # Storage is the definition of how storage will be used by the ThanosRuler instances.
     # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/storage.md
     #
+    """
+    [...str]: any
+
+schema ValuesThanosRulerThanosRulerSpecTracingConfig:
+    r"""
+    # Configures tracing for Thanos Ruler. Maps to the tracing.config CLI argument.
+
+    Attributes
+    ----------
+    existingSecret : ValuesThanosRulerThanosRulerSpecTracingConfigExistingSecret, optional
+        use existing secret, if configured, tracingConfig.secret will not be used
+    secret : ValuesThanosRulerThanosRulerSpecTracingConfigSecret, optional
+        name: ""
+        key: ""
+        render tracingConfig secret data and configure it to be used by Thanos Ruler custom resource, ignored when tracingConfig.existingSecret is set
+    """
+    [...str]: any
+    existingSecret?: ValuesThanosRulerThanosRulerSpecTracingConfigExistingSecret
+    secret?: ValuesThanosRulerThanosRulerSpecTracingConfigSecret
+
+schema ValuesThanosRulerThanosRulerSpecTracingConfigExistingSecret:
+    r"""
+    use existing secret, if configured, tracingConfig.secret will not be used
+    """
+    [...str]: any
+
+schema ValuesThanosRulerThanosRulerSpecTracingConfigSecret:
+    r"""
+    name: ""
+    key: ""
+    render tracingConfig secret data and configure it to be used by Thanos Ruler custom resource, ignored when tracingConfig.existingSecret is set
     """
     [...str]: any
 
