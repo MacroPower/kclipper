@@ -7,7 +7,7 @@ require (
 	charm.land/bubbletea/v2 v2.0.7
 	charm.land/fang/v2 v2.0.1
 	charm.land/lipgloss/v2 v2.0.4
-	github.com/charmbracelet/x/ansi v0.11.7
+	github.com/charmbracelet/x/ansi v0.11.8
 	github.com/charmbracelet/x/exp/golden v0.0.0-20260608090822-c3ad58c6c9e5
 	github.com/getkin/kin-openapi v0.140.0
 	github.com/iancoleman/strcase v0.3.0
@@ -184,7 +184,7 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-runewidth v0.0.23 // indirect
+	github.com/mattn/go-runewidth v0.0.24 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
