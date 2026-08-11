@@ -7,7 +7,7 @@
     "golangci-lint": "2.12.2",
     "prettier": "3.8.3",
     "gcc": {
-      "version": "16.1.0",
+      "version": "16.2.0",
       "platforms": ["aarch64-linux", "x86_64-linux"]
     },
     "github:dagger/nix/89dee52f7839a290326eb1f929a4ac99d4a1aae1#packages.aarch64-darwin.dagger": {
