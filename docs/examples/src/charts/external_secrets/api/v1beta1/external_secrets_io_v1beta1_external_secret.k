@@ -253,8 +253,8 @@ schema ExternalSecretsIoV1beta1ExternalSecretSpecDataFromItems0SourceRefStoreRef
     name?: str
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1beta1ExternalSecretSpecDataItems0:
@@ -366,8 +366,8 @@ schema ExternalSecretsIoV1beta1ExternalSecretSpecDataItems0SourceRefStoreRef:
     name?: str
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1beta1ExternalSecretSpecSecretStoreRef:
@@ -386,8 +386,8 @@ schema ExternalSecretsIoV1beta1ExternalSecretSpecSecretStoreRef:
     name?: str
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1beta1ExternalSecretSpecTarget:
@@ -418,8 +418,8 @@ schema ExternalSecretsIoV1beta1ExternalSecretSpecTarget:
     template?: ExternalSecretsIoV1beta1ExternalSecretSpecTargetTemplate
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1beta1ExternalSecretSpecTargetTemplate:
