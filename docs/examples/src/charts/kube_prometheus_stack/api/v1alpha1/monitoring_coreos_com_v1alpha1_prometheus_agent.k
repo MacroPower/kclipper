@@ -531,7 +531,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
     shardingStrategy : MonitoringCoreosComV1alpha1PrometheusAgentSpecShardingStrategy, default is Undefined, optional
         sharding strategy
-    shards : int, default is Undefined, optional
+    shards : int, default is 1, optional
         shards defines the number of shards to distribute the scraped targets onto.
 
         `spec.replicas` multiplied by `spec.shards` is the total number of Pods
@@ -558,6 +558,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         You can also disable sharding on a specific target by setting the
         `__tmp_disable_sharding` label with relabeling configuration. When
         the label value isn't empty, all Prometheus shards will scrape the target.
+
+        Default: 1
     storage : MonitoringCoreosComV1alpha1PrometheusAgentSpecStorage, default is Undefined, optional
         storage
     targetLimit : int, default is Undefined, optional
@@ -697,7 +699,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
     serviceMonitorSelector?: MonitoringCoreosComV1alpha1PrometheusAgentSpecServiceMonitorSelector
     serviceName?: str
     shardingStrategy?: MonitoringCoreosComV1alpha1PrometheusAgentSpecShardingStrategy
-    shards?: int
+    shards?: int = 1
     storage?: MonitoringCoreosComV1alpha1PrometheusAgentSpecStorage
     targetLimit?: int
     terminationGracePeriodSeconds?: int
@@ -716,14 +718,26 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpec:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
         all enableFeatures in enableFeatures {len(enableFeatures) >= 1 if enableFeatures not in [None, Undefined]} if enableFeatures
         _regex_match(str(enforcedBodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if enforcedBodySizeLimit
+        enforcedKeepDroppedTargets >= 0 if enforcedKeepDroppedTargets not in [None, Undefined]
+        enforcedLabelLimit >= 0 if enforcedLabelLimit not in [None, Undefined]
+        enforcedLabelNameLengthLimit >= 0 if enforcedLabelNameLengthLimit not in [None, Undefined]
+        enforcedLabelValueLengthLimit >= 0 if enforcedLabelValueLengthLimit not in [None, Undefined]
+        enforcedSampleLimit >= 0 if enforcedSampleLimit not in [None, Undefined]
+        enforcedTargetLimit >= 0 if enforcedTargetLimit not in [None, Undefined]
+        keepDroppedTargets >= 0 if keepDroppedTargets not in [None, Undefined]
+        labelLimit >= 0 if labelLimit not in [None, Undefined]
+        labelNameLengthLimit >= 0 if labelNameLengthLimit not in [None, Undefined]
+        labelValueLengthLimit >= 0 if labelValueLengthLimit not in [None, Undefined]
         maximumStartupDurationSeconds >= 60 if maximumStartupDurationSeconds not in [None, Undefined]
         minReadySeconds >= 0 if minReadySeconds not in [None, Undefined]
         len(remoteWriteReceiverMessageVersions) >= 1 if remoteWriteReceiverMessageVersions
+        sampleLimit >= 0 if sampleLimit not in [None, Undefined]
         len(schedulerName) >= 1 if schedulerName
         len(scrapeFailureLogFile) >= 1 if scrapeFailureLogFile
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
         len(serviceName) >= 1 if serviceName
+        targetLimit >= 0 if targetLimit not in [None, Undefined]
         terminationGracePeriodSeconds >= 0 if terminationGracePeriodSeconds not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecAdditionalArgsItems0:
@@ -3095,7 +3109,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecContainersItems0SecurityCon
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -4681,7 +4694,6 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecInitContainersItems0Securit
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -5089,6 +5101,22 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecOtlp:
         resource attributes to the `target_info` metric, on top of converting them into the `instance` and `job` labels.
 
         It requires Prometheus >= v3.1.0.
+    labelNamePreserveMultipleUnderscores : bool, default is Undefined, optional
+        labelNamePreserveMultipleUnderscores enables preserving of multiple consecutive underscores in label names when translation_strategy uses
+        underscore escaping.
+        When true (default), multiple consecutive underscores are preserved during label name sanitization.
+
+        Notice: This one has no impact if `nameEscapingScheme` is `AllowUTF8`.
+
+        It requires Prometheus >= v3.8.0.
+    labelNameUnderscoreSanitization : bool, default is Undefined, optional
+        labelNameUnderscoreSanitization controls whether to enable prepending of 'key_' to labels starting with '_'.
+        Reserved labels starting with '__' are not modified.
+        This is only relevant when translation_strategy uses underscore escaping (e.g., "UnderscoreEscapingWithSuffixes" or "UnderscoreEscapingWithoutSuffixes").
+
+        Notice: This one has no impact if `nameEscapingScheme` is `AllowUTF8`.
+
+        It requires Prometheus >= v3.8.0.
     promoteAllResourceAttributes : bool, default is Undefined, optional
         promoteAllResourceAttributes promotes all resource attributes to metric labels except the ones defined in `ignoreResourceAttributes`.
 
@@ -5109,6 +5137,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecOtlp:
     convertHistogramsToNHCB?: bool
     ignoreResourceAttributes?: [str]
     keepIdentifyingResourceAttributes?: bool
+    labelNamePreserveMultipleUnderscores?: bool
+    labelNameUnderscoreSanitization?: bool
     promoteAllResourceAttributes?: bool
     promoteResourceAttributes?: [str]
     promoteScopeMetadata?: bool
@@ -5774,6 +5804,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0MetadataCo
         It requires Prometheus >= v2.29.0.
     send : bool, default is Undefined, optional
         send defines whether metric metadata is sent to the remote storage or not.
+
+        The setting is ignored when Remote Write message's version 2.0 is used.
     sendInterval : str, default is Undefined, optional
         sendInterval defines how frequently metric metadata is sent to the remote storage.
     """
@@ -5841,7 +5873,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0Oauth2ClientID:
     r"""
@@ -6503,6 +6535,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecRemoteWriteItems0WriteRelab
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecResources:
     r"""
     resources defines the resources requests and limits of the 'prometheus' container.
@@ -6637,6 +6672,10 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0AttachMe
 
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
+
+        Node metadata labels are not automatically added to scraped metrics. They are
+        exposed as `__meta_kubernetes_node_*` labels and can be copied to timeseries
+        with relabeling configuration.
     """
     node?: bool
 
@@ -6733,6 +6772,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0MetricRe
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0RelabelingsItems0:
     r"""
     RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
@@ -6781,6 +6823,9 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0Relabeli
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecScrapeClassesItems0TLSConfig:
     r"""
@@ -8536,6 +8581,8 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTsdb:
 
     Attributes
     ----------
+    chunkEncoding : MonitoringCoreosComV1alpha1PrometheusAgentSpecTsdbChunkEncoding, default is Undefined, optional
+        chunk encoding
     outOfOrderTimeWindow : str, default is Undefined, optional
         outOfOrderTimeWindow defines how old an out-of-order/out-of-bounds sample can be with
         respect to the TSDB max time.
@@ -8547,11 +8594,52 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTsdb:
         in a breaking way.
 
         It requires Prometheus >= v2.39.0 or PrometheusAgent >= v2.54.0.
+    staleSeriesCompactionThreshold : int | str, default is Undefined, optional
+        staleSeriesCompactionThreshold configures the trigger point for compacting
+        stale series from memory into persistent blocks and removing those stale
+        series from memory.
+
+        The threshold is a number between 0.0 and 1.0. It represents the ratio of
+        stale series in memory to the total series in memory. The stale series
+        compaction is triggered when this ratio crosses the configured threshold.
+        It may not trigger the stale series compaction if the usual head compaction
+        is about to happen soon.
+
+        If set to 0, stale series compaction is disabled.
+
+        It requires Prometheus >= v3.10.0.
     """
+    chunkEncoding?: MonitoringCoreosComV1alpha1PrometheusAgentSpecTsdbChunkEncoding
     outOfOrderTimeWindow?: str
+    staleSeriesCompactionThreshold?: int | str
 
     check:
         _regex_match(str(outOfOrderTimeWindow), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if outOfOrderTimeWindow
+        _regex_match(str(staleSeriesCompactionThreshold), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if staleSeriesCompactionThreshold
+
+schema MonitoringCoreosComV1alpha1PrometheusAgentSpecTsdbChunkEncoding:
+    r"""
+    chunkEncoding configures per-chunk-type encoding overrides.
+
+    It requires Prometheus >= v3.13.0.
+
+    Notice: Setting "Xor" is incompatible with --enable-feature=st-storage
+    (XOR chunks do not store start timestamps).
+
+    Attributes
+    ----------
+    floats : str, default is Undefined, optional
+        floats selects the encoding used for float chunks.
+        Valid values are "Xor" and "Xor2".
+
+        Notice:
+         * Setting "Xor" is incompatible with --enable-feature=st-storage
+        (XOR chunks do not store start timestamps).
+         * Setting "Xor2" automatically adds the `xor2-encoding` feature flag.
+
+        It requires Prometheus >= v3.13.0.
+    """
+    floats?: "Xor" | "Xor2"
 
 schema MonitoringCoreosComV1alpha1PrometheusAgentSpecUpdateStrategy:
     r"""
@@ -9620,7 +9708,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0Image:
     A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
     The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
     The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-    The volume will be mounted read-only (ro) and non-executable files (noexec).
+    The volume will be mounted read-only (ro).
     Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
     The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 
@@ -9775,8 +9863,7 @@ schema MonitoringCoreosComV1alpha1PrometheusAgentSpecVolumesItems0PortworxVolume
     r"""
     portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
     Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-    are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-    is on.
+    are redirected to the pxd.portworx.com CSI driver.
 
     Attributes
     ----------
