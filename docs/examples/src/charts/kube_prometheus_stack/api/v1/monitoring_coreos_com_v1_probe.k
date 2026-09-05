@@ -167,10 +167,17 @@ schema MonitoringCoreosComV1ProbeSpec:
 
     check:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
+        keepDroppedTargets >= 0 if keepDroppedTargets not in [None, Undefined]
+        labelLimit >= 0 if labelLimit not in [None, Undefined]
+        labelNameLengthLimit >= 0 if labelNameLengthLimit not in [None, Undefined]
+        labelValueLengthLimit >= 0 if labelValueLengthLimit not in [None, Undefined]
+        nativeHistogramBucketLimit >= 0 if nativeHistogramBucketLimit not in [None, Undefined]
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
         len(params) >= 1 if params
+        sampleLimit >= 0 if sampleLimit not in [None, Undefined]
         len(scrapeClass) >= 1 if scrapeClass
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
+        targetLimit >= 0 if targetLimit not in [None, Undefined]
 
 schema MonitoringCoreosComV1ProbeSpecAuthorization:
     r"""
@@ -356,6 +363,9 @@ schema MonitoringCoreosComV1ProbeSpecMetricRelabelingsItems0:
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1ProbeSpecOauth2:
     r"""
     oauth2 defines the OAuth2 settings used by the client.
@@ -412,7 +422,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientID:
     r"""
@@ -1054,6 +1064,9 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngressRelabelingConfigsItems0:
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1ProbeSpecTargetsIngressSelector:
     r"""
     selector to select the Ingress objects.
@@ -1164,6 +1177,9 @@ schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0:
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1ProbeStatus:
     r"""
