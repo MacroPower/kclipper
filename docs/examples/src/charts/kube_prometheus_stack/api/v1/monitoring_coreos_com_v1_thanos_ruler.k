@@ -2390,7 +2390,6 @@ schema MonitoringCoreosComV1ThanosRulerSpecContainersItems0SecurityContext:
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -4185,7 +4184,6 @@ schema MonitoringCoreosComV1ThanosRulerSpecInitContainersItems0SecurityContext:
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -5089,6 +5087,8 @@ schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0MetadataConfig:
         It requires Prometheus >= v2.29.0.
     send : bool, default is Undefined, optional
         send defines whether metric metadata is sent to the remote storage or not.
+
+        The setting is ignored when Remote Write message's version 2.0 is used.
     sendInterval : str, default is Undefined, optional
         sendInterval defines how frequently metric metadata is sent to the remote storage.
     """
@@ -5156,7 +5156,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0Oauth2ClientID:
     r"""
@@ -5817,6 +5817,9 @@ schema MonitoringCoreosComV1ThanosRulerSpecRemoteWriteItems0WriteRelabelConfigsI
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1ThanosRulerSpecResources:
     r"""
@@ -8154,7 +8157,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0Image:
     A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
     The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
     The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-    The volume will be mounted read-only (ro) and non-executable files (noexec).
+    The volume will be mounted read-only (ro).
     Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
     The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 
@@ -8309,8 +8312,7 @@ schema MonitoringCoreosComV1ThanosRulerSpecVolumesItems0PortworxVolume:
     r"""
     portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
     Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-    are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-    is on.
+    are redirected to the pxd.portworx.com CSI driver.
 
     Attributes
     ----------

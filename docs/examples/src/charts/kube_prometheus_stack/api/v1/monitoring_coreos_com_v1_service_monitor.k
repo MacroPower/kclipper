@@ -178,8 +178,15 @@ schema MonitoringCoreosComV1ServiceMonitorSpec:
 
     check:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
+        keepDroppedTargets >= 0 if keepDroppedTargets not in [None, Undefined]
+        labelLimit >= 0 if labelLimit not in [None, Undefined]
+        labelNameLengthLimit >= 0 if labelNameLengthLimit not in [None, Undefined]
+        labelValueLengthLimit >= 0 if labelValueLengthLimit not in [None, Undefined]
+        nativeHistogramBucketLimit >= 0 if nativeHistogramBucketLimit not in [None, Undefined]
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
+        sampleLimit >= 0 if sampleLimit not in [None, Undefined]
         len(scrapeClass) >= 1 if scrapeClass
+        targetLimit >= 0 if targetLimit not in [None, Undefined]
 
 schema MonitoringCoreosComV1ServiceMonitorSpecAttachMetadata:
     r"""
@@ -196,6 +203,10 @@ schema MonitoringCoreosComV1ServiceMonitorSpecAttachMetadata:
 
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
+
+        Node metadata labels are not automatically added to scraped metrics. They are
+        exposed as `__meta_kubernetes_node_*` labels and can be copied to timeseries
+        with relabeling configuration.
     """
     node?: bool
 
@@ -256,7 +267,8 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
 
         If empty, Prometheus uses the default value (e.g. `/metrics`).
     port : str, default is Undefined, optional
-        port defines the name of the Service port which this endpoint refers to.
+        port defines the name of the Service port which this endpoint refers to
+        (e.g. `.spec.ports[].name`).
 
         It takes precedence over `targetPort`.
     proxyConnectHeader : {str:[MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
@@ -288,8 +300,10 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
         than the target's scrape interval value in which the latter is used.
         The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
     targetPort : int | str, default is Undefined, optional
-        targetPort defines the name or number of the target port of the `Pod` object behind the
-        Service. The port must be specified with the container's port property.
+        targetPort defines the name or number of a container port on Pods selected
+        by the Service.
+        If a name, it matches against `.spec.containers[].ports[].name` of the Pods.
+        If a number, it matches against `.spec.containers[].ports[].containerPort` of the Pods.
     tlsConfig : MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0TLSConfig, default is Undefined, optional
         tls config
     trackTimestampsStaleness : bool, default is Undefined, optional
@@ -514,6 +528,9 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0MetricRelabelingsIt
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2:
     r"""
     oauth2 defines the OAuth2 settings used by the client.
@@ -570,7 +587,7 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2ClientID:
     r"""
@@ -918,6 +935,9 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0RelabelingsItems0:
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0TLSConfig:
     r"""
