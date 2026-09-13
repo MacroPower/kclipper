@@ -163,8 +163,15 @@ schema MonitoringCoreosComV1PodMonitorSpec:
 
     check:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
+        keepDroppedTargets >= 0 if keepDroppedTargets not in [None, Undefined]
+        labelLimit >= 0 if labelLimit not in [None, Undefined]
+        labelNameLengthLimit >= 0 if labelNameLengthLimit not in [None, Undefined]
+        labelValueLengthLimit >= 0 if labelValueLengthLimit not in [None, Undefined]
+        nativeHistogramBucketLimit >= 0 if nativeHistogramBucketLimit not in [None, Undefined]
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
+        sampleLimit >= 0 if sampleLimit not in [None, Undefined]
         len(scrapeClass) >= 1 if scrapeClass
+        targetLimit >= 0 if targetLimit not in [None, Undefined]
 
 schema MonitoringCoreosComV1PodMonitorSpecAttachMetadata:
     r"""
@@ -181,6 +188,10 @@ schema MonitoringCoreosComV1PodMonitorSpecAttachMetadata:
 
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
+
+        Node metadata labels are not automatically added to scraped metrics. They are
+        exposed as `__meta_kubernetes_node_*` labels and can be copied to timeseries
+        with relabeling configuration.
     """
     node?: bool
 
@@ -535,6 +546,9 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0MetricRelabel
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
     r"""
     oauth2 defines the OAuth2 settings used by the client.
@@ -591,7 +605,7 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0Oauth2ClientID:
     r"""
@@ -939,6 +953,9 @@ schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0RelabelingsIt
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1PodMonitorSpecPodMetricsEndpointsItems0TLSConfig:
     r"""
