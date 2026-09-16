@@ -285,15 +285,22 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpec:
     check:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
         len(jobName) >= 1 if jobName
+        keepDroppedTargets >= 0 if keepDroppedTargets not in [None, Undefined]
+        labelLimit >= 0 if labelLimit not in [None, Undefined]
+        labelNameLengthLimit >= 0 if labelNameLengthLimit not in [None, Undefined]
+        labelValueLengthLimit >= 0 if labelValueLengthLimit not in [None, Undefined]
         len(metricRelabelings) >= 1 if metricRelabelings
         len(metricsPath) >= 1 if metricsPath
+        nativeHistogramBucketLimit >= 0 if nativeHistogramBucketLimit not in [None, Undefined]
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         len(relabelings) >= 1 if relabelings
+        sampleLimit >= 0 if sampleLimit not in [None, Undefined]
         len(scrapeClass) >= 1 if scrapeClass
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
         len(scrapeProtocols) >= 1 if scrapeProtocols
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
+        targetLimit >= 0 if targetLimit not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAuthorization:
     r"""
@@ -605,7 +612,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2ClientID:
     r"""
@@ -629,7 +636,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2Clie
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -766,7 +774,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -824,7 +833,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0Oauth2TLSC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -959,7 +969,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1017,7 +1028,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecAzureSDConfigsItems0TLSConfigC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1253,7 +1265,9 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(refreshInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if refreshInterval
         len(server) >= 1
+        all services in services {len(services) >= 1 if services not in [None, Undefined]} if services
         len(tagSeparator) >= 1 if tagSeparator
+        all tags in tags {len(tags) >= 1 if tags not in [None, Undefined]} if tags
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Authorization:
     r"""
@@ -1411,7 +1425,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2ClientID:
     r"""
@@ -1435,7 +1449,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2Cli
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1572,7 +1587,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1630,7 +1646,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0Oauth2TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1765,7 +1782,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1823,7 +1841,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecConsulSDConfigsItems0TLSConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2092,7 +2111,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oauth2ClientID:
     r"""
@@ -2116,7 +2135,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2253,7 +2273,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2311,7 +2332,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0Oau
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2446,7 +2468,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2504,7 +2527,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDigitalOceanSDConfigsItems0TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2636,7 +2660,6 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0:
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
 
     check:
-        len(host) >= 1
         _regex_match(str(host), r"^[a-zA-Z][a-zA-Z0-9+.-]*://.+$")
         len(hostNetworkingHost) >= 1 if hostNetworkingHost
         port <= 65535 if port not in [None, Undefined]
@@ -2817,7 +2840,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2ClientID:
     r"""
@@ -2841,7 +2864,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2Cli
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2978,7 +3002,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3036,7 +3061,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0Oauth2TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3171,7 +3197,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3229,7 +3256,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSDConfigsItems0TLSConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3541,7 +3569,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oauth2ClientID:
     r"""
@@ -3565,7 +3593,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3702,7 +3731,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3760,7 +3790,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0Oaut
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3895,7 +3926,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3953,7 +3985,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecDockerSwarmSDConfigsItems0TLSC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4234,7 +4267,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCaC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4292,7 +4326,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEc2SDConfigsItems0TLSConfigCer
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4566,7 +4601,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2ClientID:
     r"""
@@ -4590,7 +4625,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2Cli
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4727,7 +4763,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4785,7 +4822,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0Oauth2TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4920,7 +4958,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4978,7 +5017,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecEurekaSDConfigsItems0TLSConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5330,7 +5370,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2ClientID:
     r"""
@@ -5354,7 +5394,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2Clien
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5491,7 +5532,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5549,7 +5591,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0Oauth2TLSCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5684,7 +5727,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCa
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5742,7 +5786,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHTTPSDConfigsItems0TLSConfigCe
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5861,7 +5906,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0:
     proxyFromEnvironment?: bool
     proxyUrl?: str
     refreshInterval?: str
-    role: "hcloud" | "Hcloud" | "robot" | "Robot"
+    role: "Hcloud" | "Robot"
 
     tlsConfig?: MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfig
 
@@ -6025,7 +6070,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2ClientID:
     r"""
@@ -6049,7 +6094,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2Cl
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6186,7 +6232,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6244,7 +6291,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0Oauth2TL
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6379,7 +6427,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6437,7 +6486,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecHetznerSDConfigsItems0TLSConfi
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6653,7 +6703,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2ClientID:
     r"""
@@ -6677,7 +6727,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2Clie
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6814,7 +6865,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6872,7 +6924,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0Oauth2TLSC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7007,7 +7060,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7065,7 +7119,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecIonosSDConfigsItems0TLSConfigC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7331,6 +7386,9 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Names
     names?: [str]
     ownNamespace?: bool
 
+    check:
+        all names in names {len(names) >= 1 if names not in [None, Undefined]} if names
+
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2:
     r"""
     oauth2 defines the optional OAuth 2.0 configuration to authenticate against the target HTTP endpoint.
@@ -7384,7 +7442,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth2ClientID:
     r"""
@@ -7408,7 +7466,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7545,7 +7604,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7603,7 +7663,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0Oauth
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7762,7 +7823,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7820,7 +7882,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKubernetesSDConfigsItems0TLSCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8102,7 +8165,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2ClientID:
     r"""
@@ -8126,7 +8189,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2Clien
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8263,7 +8327,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8321,7 +8386,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0Oauth2TLSCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8456,7 +8522,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCa
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8514,7 +8581,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecKumaSDConfigsItems0TLSConfigCe
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8829,7 +8897,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2ClientID:
     r"""
@@ -8853,7 +8921,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8990,7 +9059,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9048,7 +9118,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0Oauth2
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9205,7 +9276,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9263,7 +9335,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLightSailSDConfigsItems0TLSCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9482,7 +9555,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2ClientID:
     r"""
@@ -9506,7 +9579,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2Cli
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9643,7 +9717,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9701,7 +9776,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0Oauth2TLS
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9836,7 +9912,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9894,7 +9971,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecLinodeSDConfigsItems0TLSConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10001,6 +10079,9 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecMetricRelabelingsItems0:
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0:
     r"""
@@ -10236,7 +10317,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2ClientID:
     r"""
@@ -10260,7 +10341,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2Clie
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10397,7 +10479,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10455,7 +10538,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0Oauth2TLSC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10590,7 +10674,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10648,7 +10733,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecNomadSDConfigsItems0TLSConfigC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10759,7 +10845,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientID:
     r"""
@@ -10783,7 +10869,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2ClientIDConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10920,7 +11007,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10978,7 +11066,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOauth2TLSConfigCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11101,7 +11190,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0:
     applicationCredentialId?: str
     applicationCredentialName?: str
     applicationCredentialSecret?: MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0ApplicationCredentialSecret
-    availability?: "Public" | "public" | "Admin" | "admin" | "Internal" | "internal"
+    availability?: "Public" | "Admin" | "Internal"
     domainID?: str
     domainName?: str
     identityEndpoint?: str
@@ -11233,7 +11322,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11291,7 +11381,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecOpenstackSDConfigsItems0TLSCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11688,7 +11779,7 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2ClientID:
     r"""
@@ -11712,7 +11803,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2C
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11849,7 +11941,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11907,7 +12000,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0Oauth2T
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -12042,7 +12136,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -12100,7 +12195,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecPuppetDBSDConfigsItems0TLSConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -12207,6 +12303,9 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecRelabelingsItems0:
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0:
     r"""
@@ -12396,7 +12495,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -12454,7 +12554,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecScalewaySDConfigsItems0TLSConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -12586,7 +12687,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -12644,7 +12746,8 @@ schema MonitoringCoreosComV1alpha1ScrapeConfigSpecTLSConfigCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
