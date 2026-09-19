@@ -1,34 +1,37 @@
 module github.com/macropower/kclipper
 
-go 1.26.0
+go 1.27.0
 
 require (
 	charm.land/bubbles/v2 v2.1.0
 	charm.land/bubbletea/v2 v2.0.7
 	charm.land/fang/v2 v2.0.1
-	charm.land/lipgloss/v2 v2.0.4
-	github.com/charmbracelet/x/ansi v0.11.7
-	github.com/charmbracelet/x/exp/golden v0.0.0-20260608090822-c3ad58c6c9e5
+	charm.land/lipgloss/v2 v2.0.6
+	github.com/charmbracelet/x/ansi v0.11.8
+	github.com/charmbracelet/x/exp/golden v0.0.0-20260913004009-c615ff2f7805
 	github.com/getkin/kin-openapi v0.140.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/klauspost/compress v1.18.6
 	github.com/mattn/go-isatty v0.0.22
 	github.com/spf13/cobra v1.10.2
-	github.com/stretchr/testify v1.11.1
-	go.jacobcolvin.com/niceyaml v0.0.0-20260606121633-058e1e37234b
+	github.com/stretchr/testify v1.12.1
+	go.jacobcolvin.com/niceyaml v0.0.0-20260919151044-bb6623dfba89
+	go.jacobcolvin.com/niceyaml/fangs v0.0.0-20260919151044-bb6623dfba89
 	go.jacobcolvin.com/x/cobras v0.1.0
-	go.jacobcolvin.com/x/jsonschema v0.0.0-20260613001826-8660ae3bdb29
+	go.jacobcolvin.com/x/jsonschema v0.3.0
+	go.jacobcolvin.com/x/magicschema v0.1.1-0.20260609183842-9a3c6cce2cea
 	go.jacobcolvin.com/x/stringtest v0.2.0
 	go.jacobcolvin.com/x/version v0.2.0
-	golang.org/x/net v0.56.0
-	golang.org/x/sync v0.21.0
-	golang.org/x/text v0.38.0
+	golang.org/x/net v0.59.0
+	golang.org/x/sync v0.23.0
+	golang.org/x/text v0.42.0
 	helm.sh/helm/v4 v4.2.1
 	k8s.io/apimachinery v0.36.2
 	kcl-lang.io/cli v0.12.4
 	kcl-lang.io/kcl-go v0.12.3
 	kcl-lang.io/kcl-openapi v0.10.2
 	kcl-lang.io/kpm v0.12.4
+	sigs.k8s.io/yaml v1.6.0
 )
 
 require (
@@ -83,8 +86,8 @@ require (
 	github.com/chainguard-dev/git-urls v1.0.2 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
 	github.com/charmbracelet/harmonica v0.2.0 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20260525132238-948f4557a654 // indirect
-	github.com/charmbracelet/x/exp/charmtone v0.0.0-20260602025833-85a30b5e440a // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20260910203606-6c9e17dc7a16 // indirect
+	github.com/charmbracelet/x/exp/charmtone v0.0.0-20260913004009-c615ff2f7805 // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
@@ -181,10 +184,10 @@ require (
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.12.3 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
-	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-runewidth v0.0.23 // indirect
+	github.com/mattn/go-runewidth v0.0.30 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
@@ -199,9 +202,9 @@ require (
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
-	github.com/muesli/mango v0.1.0 // indirect
-	github.com/muesli/mango-cobra v1.2.0 // indirect
-	github.com/muesli/mango-pflag v0.1.0 // indirect
+	github.com/muesli/mango v0.2.0 // indirect
+	github.com/muesli/mango-cobra v1.3.0 // indirect
+	github.com/muesli/mango-pflag v0.2.0 // indirect
 	github.com/muesli/roff v0.1.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oasdiff/yaml v0.1.0 // indirect
@@ -242,9 +245,8 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
-	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
+	github.com/xo/terminfo v1.0.0 // indirect
 	github.com/yuin/goldmark v1.7.13 // indirect
-	go.jacobcolvin.com/x/magicschema v0.1.1-0.20260609183842-9a3c6cce2cea
 	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
@@ -262,15 +264,15 @@ require (
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.53.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
-	golang.org/x/mod v0.36.0 // indirect
+	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/term v0.44.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/term v0.46.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.45.0 // indirect
+	golang.org/x/tools v0.50.0 // indirect
 	google.golang.org/api v0.171.0 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9 // indirect
@@ -301,5 +303,4 @@ require (
 	sigs.k8s.io/kustomize/kyaml v0.21.1 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.2 // indirect
-	sigs.k8s.io/yaml v1.6.0
 )
