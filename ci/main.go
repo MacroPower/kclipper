@@ -26,7 +26,7 @@ import (
 const (
 	goreleaserVersion = "v2.16.0" // renovate: datasource=github-releases depName=goreleaser/goreleaser
 	zigVersion        = "0.15.2"  // renovate: datasource=github-releases depName=ziglang/zig
-	kclLSPVersion     = "v0.11.2" // renovate: datasource=github-releases depName=kcl-lang/kcl
+	kclLSPVersion     = "v0.13.0" // renovate: datasource=github-releases depName=kcl-lang/kcl
 	// Base images are pulled from GHCR and ECR Public rather than Docker Hub
 	// to avoid anonymous pull rate limits.
 	nixImage    = "ghcr.io/nixos/nix:2.34.7"                      // renovate: datasource=docker depName=ghcr.io/nixos/nix
