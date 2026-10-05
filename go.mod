@@ -21,7 +21,7 @@ require (
 	go.jacobcolvin.com/x/stringtest v0.2.0
 	go.jacobcolvin.com/x/version v0.2.0
 	golang.org/x/net v0.56.0
-	golang.org/x/sync v0.21.0
+	golang.org/x/sync v0.22.0
 	golang.org/x/text v0.38.0
 	helm.sh/helm/v4 v4.2.1
 	k8s.io/apimachinery v0.36.2
@@ -294,7 +294,7 @@ require (
 	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 // indirect
 	kcl-lang.io/lib v0.12.3 // indirect
 	oras.land/oras-go v1.2.6 // indirect
-	oras.land/oras-go/v2 v2.6.1 // indirect
+	oras.land/oras-go/v2 v2.6.2 // indirect
 	sigs.k8s.io/controller-runtime v0.24.1 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 	sigs.k8s.io/kustomize/api v0.21.1 // indirect
