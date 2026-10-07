@@ -60,8 +60,8 @@ schema GeneratorsExternalSecretsIoV1alpha1CloudsmithAccessTokenSpecServiceAccoun
     ----------
     audiences : [str], default is Undefined, optional
         Audience specifies the `aud` claim for the service account token
-        If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-        then this audiences will be appended to the list
+        Some providers automatically extend the audience field based on well-known annotations for workload
+        identity (e.g. IRSA or GCP Workload Identity)
     name : str, default is Undefined, required
         The name of the ServiceAccount resource being referred to.
     namespace : str, default is Undefined, optional
@@ -77,7 +77,7 @@ schema GeneratorsExternalSecretsIoV1alpha1CloudsmithAccessTokenSpecServiceAccoun
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
