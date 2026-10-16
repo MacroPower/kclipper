@@ -88,8 +88,8 @@ schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecAuthJwtServiceAccou
     ----------
     audiences : [str], default is Undefined, optional
         Audience specifies the `aud` claim for the service account token
-        If the service account uses a well-known annotation for e.g. IRSA or GCP Workload Identity
-        then this audiences will be appended to the list
+        Some providers automatically extend the audience field based on well-known annotations for workload
+        identity (e.g. IRSA or GCP Workload Identity)
     name : str, default is Undefined, required
         The name of the ServiceAccount resource being referred to.
     namespace : str, default is Undefined, optional
@@ -105,8 +105,8 @@ schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecAuthJwtServiceAccou
         len(name) <= 253
         len(name) >= 1
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecAuthSecretRef:
@@ -147,14 +147,14 @@ schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecAuthSecretRefAccess
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecAuthSecretRefSecretAccessKeySecretRef:
@@ -177,14 +177,14 @@ schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecAuthSecretRefSecret
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecAuthSecretRefSessionTokenSecretRef:
@@ -209,14 +209,14 @@ schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecAuthSecretRefSessio
     namespace?: str
 
     check:
-        len(key) <= 253 if key not in [None, Undefined]
-        len(key) >= 1 if key not in [None, Undefined]
+        len(key) <= 253 if key
+        len(key) >= 1 if key
         _regex_match(str(key), r"^[-._a-zA-Z0-9]+$") if key
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
-        len(namespace) <= 63 if namespace not in [None, Undefined]
-        len(namespace) >= 1 if namespace not in [None, Undefined]
+        len(namespace) <= 63 if namespace
+        len(namespace) >= 1 if namespace
         _regex_match(str(namespace), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$") if namespace
 
 schema GeneratorsExternalSecretsIoV1alpha1STSSessionTokenSpecRequestParameters:
