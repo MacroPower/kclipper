@@ -583,7 +583,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -607,7 +607,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -744,7 +745,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -802,7 +804,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -938,7 +941,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -996,7 +1000,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0DiscordCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1258,7 +1263,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1316,7 +1322,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0EmailConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1657,7 +1664,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -1681,7 +1688,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1818,7 +1826,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1876,7 +1885,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2012,7 +2022,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2070,7 +2081,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0MsteamsCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2421,7 +2433,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2ConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -2445,7 +2457,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2582,7 +2595,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2640,7 +2654,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2776,7 +2791,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2834,7 +2850,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Msteamsv2
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3275,7 +3292,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -3299,7 +3316,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3436,7 +3454,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3494,7 +3513,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3630,7 +3650,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3688,7 +3709,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0OpsgenieC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4110,7 +4132,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PagerdutyConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -4134,7 +4156,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4271,7 +4294,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4329,7 +4353,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4465,7 +4490,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4523,7 +4549,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Pagerduty
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5003,7 +5030,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -5027,7 +5054,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5164,7 +5192,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5222,7 +5251,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5358,7 +5388,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5416,7 +5447,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0PushoverC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5901,7 +5933,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0RocketchatConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -5925,7 +5957,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6062,7 +6095,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6120,7 +6154,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6256,7 +6291,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6314,7 +6350,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Rocketcha
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6485,6 +6522,10 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
         title defines the title text displayed in the Slack message attachment.
     titleLink : str, default is Undefined, optional
         titleLink defines the URL that the title will link to when clicked.
+    updateMessage : bool, default is Undefined, optional
+        updateMessage enables updating existing Slack messages instead of creating new ones
+        when alert state changes. Please note that Webhook URLs do not support updates.
+        It requires Alertmanager >= v0.32.0.
     username : str, default is Undefined, optional
         username defines the slack bot user name.
     """
@@ -6511,6 +6552,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     timeout?: str
     title?: str
     titleLink?: str
+    updateMessage?: bool
     username?: str
 
     check:
@@ -6901,7 +6943,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -6925,7 +6967,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7062,7 +7105,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7120,7 +7164,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7256,7 +7301,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7314,7 +7360,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SlackConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7407,6 +7454,12 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     topicARN : str, default is Undefined, optional
         topicARN defines the SNS topic ARN, e.g. arn:aws:sns:us-east-2:698519295917:My-Topic.
         If you don't specify this value, you must specify a value for the PhoneNumber or TargetARN.
+    useAWSHTTPClient : bool, default is Undefined, optional
+        useAWSHTTPClient forces the AWS SDK's BuildableClient instead of
+        alertmanager's tracing-wrapped HTTP client. Auto-enabled when AWS_CA_BUNDLE
+        is set; set explicitly when configuring ca_bundle via shared AWS config.
+
+        It requires Alertmanager >= 0.33.0.
     """
     apiURL?: str
     attributes?: {str:str}
@@ -7418,6 +7471,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     subject?: str
     targetARN?: str
     topicARN?: str
+    useAWSHTTPClient?: bool
 
     check:
         len(message) >= 1 if message
@@ -7664,7 +7718,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -7688,7 +7742,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7825,7 +7880,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7883,7 +7939,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8019,7 +8076,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8077,7 +8135,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8147,7 +8206,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0SnsConfig
         access key
     externalId : str, default is Undefined, optional
         externalId defines the external ID used when assuming an AWS role. Can only be used with roleArn.
-        It requires Prometheus >= v3.11.0 or Alertmanager >= v0.33.0. Currently not supported by Thanos.
+        It requires Prometheus >= v3.11.0 or Alertmanager >= v0.34.0. Currently not supported by Thanos.
     profile : str, default is Undefined, optional
         profile defines the named AWS profile used to authenticate.
     region : str, default is Undefined, optional
@@ -8534,7 +8593,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -8558,7 +8617,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8695,7 +8755,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8753,7 +8814,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8889,7 +8951,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8947,7 +9010,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0TelegramC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9343,7 +9407,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0VictoropsConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -9367,7 +9431,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9504,7 +9569,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9562,7 +9628,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9698,7 +9765,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9756,7 +9824,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0Victorops
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10082,7 +10151,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -10106,7 +10175,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10243,7 +10313,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10301,7 +10372,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10437,7 +10509,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10495,7 +10568,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebexConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10566,6 +10640,11 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     maxAlerts : int, default is Undefined, optional
         maxAlerts defines the maximum number of alerts to be sent per webhook message.
         When 0, all alerts are included in the webhook payload.
+    payload : str, default is Undefined, optional
+        payload define custom payload to be sent to the webhook endpoint.
+        This is an advanced configuration option that allows you
+        to define a custom payload using Go templates.
+        It requires Alertmanager >= v0.32.0.
     sendResolved : bool, default is Undefined, optional
         sendResolved defines whether or not to notify about resolved alerts.
     timeout : str, default is Undefined, optional
@@ -10580,6 +10659,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     """
     httpConfig?: MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig
     maxAlerts?: int
+    payload?: str
     sendResolved?: bool
     timeout?: str
     url?: str
@@ -10587,6 +10667,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
     check:
         maxAlerts >= 0 if maxAlerts not in [None, Undefined]
+        len(payload) >= 1 if payload
         _regex_match(str(timeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if timeout
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfig:
@@ -10827,7 +10908,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -10851,7 +10932,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10988,7 +11070,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11046,7 +11129,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11182,7 +11266,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11240,7 +11325,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WebhookCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11646,7 +11732,7 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatConfigsItems0HTTPConfigOauth2ClientID:
     r"""
@@ -11670,7 +11756,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11807,7 +11894,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -11865,7 +11953,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -12001,7 +12090,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -12059,7 +12149,8 @@ schema MonitoringCoreosComV1alpha1AlertmanagerConfigSpecReceiversItems0WechatCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
