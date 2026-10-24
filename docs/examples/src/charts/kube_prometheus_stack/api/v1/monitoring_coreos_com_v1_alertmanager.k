@@ -78,6 +78,18 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     clusterLabel : str, default is Undefined, optional
         clusterLabel defines the identifier that uniquely identifies the Alertmanager cluster.
         You should only set it when the Alertmanager cluster includes Alertmanager instances which are external to this Alertmanager resource. In practice, the addresses of the external instances are provided via the `.spec.additionalPeers` field.
+    clusterPeerName : str, default is Undefined, optional
+        clusterPeerName defines the name that this Alertmanager instance uses to
+        advertise itself to other cluster peers (the `--cluster.peer-name` flag,
+        available since Alertmanager v0.30.0).
+
+        If not set, the operator defaults to the pod's name (`$(POD_NAME)`),
+        which is injected via the Kubernetes downward API. Setting this field
+        lets you override that default with either a literal value or a string
+        referencing environment variables that are already available in the
+        Alertmanager container (for example `$(POD_NAME).$(NAMESPACE)`).
+
+        / It requires Alertmanager >= 0.30.0.
     clusterPeerTimeout : str, default is Undefined, optional
         clusterPeerTimeout defines the timeout for cluster peering.
     clusterPushpullInterval : str, default is Undefined, optional
@@ -310,6 +322,7 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
     clusterAdvertiseAddress?: str
     clusterGossipInterval?: str
     clusterLabel?: str
+    clusterPeerName?: str
     clusterPeerTimeout?: str
     clusterPushpullInterval?: str
     clusterTLS?: MonitoringCoreosComV1AlertmanagerSpecClusterTLS
@@ -364,6 +377,7 @@ schema MonitoringCoreosComV1AlertmanagerSpec:
 
     check:
         _regex_match(str(clusterGossipInterval), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterGossipInterval
+        len(clusterPeerName) >= 1 if clusterPeerName
         _regex_match(str(clusterPeerTimeout), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterPeerTimeout
         _regex_match(str(clusterPushpullInterval), r"^(0|(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if clusterPushpullInterval
         minReadySeconds >= 0 if minReadySeconds not in [None, Undefined]
@@ -1641,7 +1655,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPConfigOauth2ClientID:
     r"""
@@ -1665,7 +1679,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1802,7 +1817,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1860,7 +1876,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1995,7 +2012,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2053,7 +2071,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalHTTPC
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2437,7 +2456,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPT
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2495,7 +2515,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationGlobalSMTPT
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2712,7 +2733,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecAlertmanagerConfigurationTemplatesIt
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2820,7 +2842,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2878,7 +2901,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSClientCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3032,7 +3056,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3093,7 +3118,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecClusterTLSServerClientCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3436,7 +3462,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0EnvItems0ValueFromCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3616,6 +3643,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHT
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -3625,6 +3655,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHT
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
@@ -3732,6 +3763,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTP
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -3741,6 +3775,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTP
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
@@ -3865,6 +3900,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeGrpc:
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -3873,6 +3913,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -3894,6 +3935,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGet
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -3903,6 +3947,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGet
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
@@ -4045,6 +4090,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeGrpc:
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -4053,6 +4103,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -4074,6 +4125,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGe
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -4083,6 +4137,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGe
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
@@ -4253,7 +4308,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0SecurityContext:
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -4497,6 +4551,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeGrpc:
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -4505,6 +4564,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -4526,6 +4586,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGet:
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -4535,6 +4598,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGet:
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
@@ -4590,9 +4654,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0VolumeMountsItems0:
 
     Attributes
     ----------
+    bindMountOptions : [str], default is Undefined, optional
+        bindMountOptions is the list of additional bind mount options to apply when
+        mounting this volume into the container. Allowed values are noexec,
+        nodev, and nosuid. These are Linux mount options and have no effect on
+        Windows nodes.
+        This field is not supported with image volumes.
+        This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
     mountPath : str, default is Undefined, required
-        Path within the container at which the volume should be mounted.  Must
-        not contain ':'.
+        Path within the container at which the volume should be mounted.
     mountPropagation : str, default is Undefined, optional
         mountPropagation determines how mounts are propagated from the host
         to container and the other way around.
@@ -4631,6 +4701,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecContainersItems0VolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
+    bindMountOptions?: [str]
     mountPath: str
 
     mountPropagation?: str
@@ -4997,7 +5068,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0EnvItems0ValueFr
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -5177,6 +5249,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostSta
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -5186,6 +5261,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostSta
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
@@ -5293,6 +5369,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -5302,6 +5381,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStop
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
@@ -5426,6 +5506,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeGrp
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -5434,6 +5519,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeGrp
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -5455,6 +5541,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTT
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -5464,6 +5553,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTT
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
@@ -5606,6 +5696,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeGr
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -5614,6 +5709,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeGr
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -5635,6 +5731,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHT
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -5644,6 +5743,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHT
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
@@ -5814,7 +5914,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0SecurityContext:
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -6058,6 +6157,11 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeGrpc
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -6066,6 +6170,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeGrpc
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -6087,6 +6192,9 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTP
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -6096,6 +6204,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTP
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
@@ -6151,9 +6260,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeMountsItem
 
     Attributes
     ----------
+    bindMountOptions : [str], default is Undefined, optional
+        bindMountOptions is the list of additional bind mount options to apply when
+        mounting this volume into the container. Allowed values are noexec,
+        nodev, and nosuid. These are Linux mount options and have no effect on
+        Windows nodes.
+        This field is not supported with image volumes.
+        This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
     mountPath : str, default is Undefined, required
-        Path within the container at which the volume should be mounted.  Must
-        not contain ':'.
+        Path within the container at which the volume should be mounted.
     mountPropagation : str, default is Undefined, optional
         mountPropagation determines how mounts are propagated from the host
         to container and the other way around.
@@ -6192,6 +6307,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecInitContainersItems0VolumeMountsItem
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
+    bindMountOptions?: [str]
     mountPath: str
 
     mountPropagation?: str
@@ -6397,11 +6513,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecSecurityContext:
         Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
         whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
         CSIDriver instance. Other volumes are always re-labelled recursively.
-        "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-        If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-        If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-        and "Recursive" for all other volumes.
+        If not specified, "MountOption" is used.
 
         This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -6598,6 +6711,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEmptyDir:
         The default is "" which means to use the node's default medium.
         Must be an empty string (default) or Memory.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+    mode : int, default is Undefined, optional
+        mode specifies the permission bits for the emptyDir directory, in numeric
+        notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+        If not specified, defaults to 0777.
+        This might be in conflict with other options that affect the file
+        mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+        will override the mode specified here.
+        This field has no effect on Windows.
+        This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
     sizeLimit : int | str, default is Undefined, optional
         sizeLimit is the total amount of local storage required for this EmptyDir volume.
         The size limit is also applicable for memory medium.
@@ -6607,6 +6729,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEmptyDir:
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
     medium?: str
+    mode?: int
     sizeLimit?: int | str
 
     check:
@@ -6719,8 +6842,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
     * An existing PVC (PersistentVolumeClaim)
     If the provisioner or an external controller can support the specified data source,
     it will create a new volume based on the contents of the specified data source.
-    When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-    and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+    dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+    copied to dataSource when dataSourceRef.namespace is not specified.
     If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 
     Attributes
@@ -6762,7 +6885,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageEphemeralVolumeClaimTemplateS
       specified.
     * While dataSource only allows local objects, dataSourceRef allows objects
       in any namespaces.
-    (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
     (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 
     Attributes
@@ -6968,8 +7090,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecDataSo
     * An existing PVC (PersistentVolumeClaim)
     If the provisioner or an external controller can support the specified data source,
     it will create a new volume based on the contents of the specified data source.
-    When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-    and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+    dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+    copied to dataSource when dataSourceRef.namespace is not specified.
     If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 
     Attributes
@@ -7011,7 +7133,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateSpecDataSo
       specified.
     * While dataSource only allows local objects, dataSourceRef allows objects
       in any namespaces.
-    (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
     (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 
     Attributes
@@ -7174,6 +7295,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatus:
     currentVolumeAttributesClassName : str, default is Undefined, optional
         currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using.
         When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim
+    healthStatus : MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusHealthStatus, default is Undefined, optional
+        health status
     modifyVolumeStatus : MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus, default is Undefined, optional
         modify volume status
     phase : str, default is Undefined, optional
@@ -7185,6 +7308,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatus:
     capacity?: {str:int | str}
     conditions?: [MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusConditionsItems0]
     currentVolumeAttributesClassName?: str
+    healthStatus?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusHealthStatus
     modifyVolumeStatus?: MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus
     phase?: str
 
@@ -7223,6 +7347,48 @@ schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusCond
     status: str
 
     $type: str
+
+schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusHealthStatus:
+    r"""
+    healthStatus contains the latest controller-reported health information
+    for the volume bound to this claim.
+
+    Attributes
+    ----------
+    healthConditions : [MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusHealthStatusHealthConditionsItems0], default is Undefined, optional
+        conditions is the set of adverse conditions reported by
+        the CSI controller plugin. An empty list means no adverse condition.
+        At most 16 conditions may be reported.
+    lastTransitionTime : str, default is Undefined, optional
+        lastTransitionTime is when the current set of conditions first appeared.
+    """
+    healthConditions?: [MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusHealthStatusHealthConditionsItems0]
+    lastTransitionTime?: str
+
+schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusHealthStatusHealthConditionsItems0:
+    r"""
+    VolumeHealthCondition represents an adverse health condition reported for a volume.
+
+    Attributes
+    ----------
+    message : str, default is Undefined, optional
+        message is a human-readable description.
+        Maximum permitted length of a message is 1024 bytes.
+    reason : str, default is Undefined, required
+        reason is a brief CamelCase machine-parseable reason.
+        Together with status it forms the unique identity of a condition entry.
+        Maximum permitted length of a reason is 256 bytes.
+    status : str, default is Undefined, required
+        status is the machine-parseable health category.
+        Possible values:
+        - "Inaccessible": the volume cannot be accessed.
+        - "DataLoss": data loss has been detected on the volume.
+        - "Degraded": the volume is functioning with reduced capability.
+    """
+    message?: str
+    reason: str
+
+    status: "DataLoss" | "Degraded" | "Inaccessible"
 
 schema MonitoringCoreosComV1AlertmanagerSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus:
     r"""
@@ -7483,9 +7649,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumeMountsItems0:
 
     Attributes
     ----------
+    bindMountOptions : [str], default is Undefined, optional
+        bindMountOptions is the list of additional bind mount options to apply when
+        mounting this volume into the container. Allowed values are noexec,
+        nodev, and nosuid. These are Linux mount options and have no effect on
+        Windows nodes.
+        This field is not supported with image volumes.
+        This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
     mountPath : str, default is Undefined, required
-        Path within the container at which the volume should be mounted.  Must
-        not contain ':'.
+        Path within the container at which the volume should be mounted.
     mountPropagation : str, default is Undefined, optional
         mountPropagation determines how mounts are propagated from the host
         to container and the other way around.
@@ -7524,6 +7696,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
+    bindMountOptions?: [str]
     mountPath: str
 
     mountPropagation?: str
@@ -7832,6 +8005,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMap:
         Directories within the path are not affected by this setting.
         This might be in conflict with other options that affect the file
         mode, like fsGroup, and the result can be other mode bits set.
+    defaultUser : int, default is Undefined, optional
+        defaultUser is Optional: The owner UID of the created files by default.
+        The defaultUser field is only used as a fallback when the item-level user field is unset.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     items : [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMapItemsItems0], default is Undefined, optional
         items if unspecified, each key-value pair in the Data field of the referenced
         ConfigMap will be projected into the volume as a file whose name is the
@@ -7850,6 +8027,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMap:
         optional specify whether the ConfigMap or its keys must be defined
     """
     defaultMode?: int
+    defaultUser?: int
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMapItemsItems0]
     name?: str = ""
     optional?: bool
@@ -7874,11 +8052,17 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ConfigMapItemsItems0:
         May not be an absolute path.
         May not contain the path element '..'.
         May not start with the string '..'.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     key: str
 
     mode?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Csi:
     r"""
@@ -7943,10 +8127,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPI:
         Directories within the path are not affected by this setting.
         This might be in conflict with other options that affect the file
         mode, like fsGroup, and the result can be other mode bits set.
+    defaultUser : int, default is Undefined, optional
+        defaultUser is Optional: The owner UID of the created files by default.
+        The defaultUser field is only used as a fallback when the item-level user field is unset.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     items : [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0], default is Undefined, optional
         Items is a list of downward API volume file
     """
     defaultMode?: int
+    defaultUser?: int
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0]
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0:
@@ -7968,12 +8157,17 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0:
         Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
     resourceFieldRef : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     fieldRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0FieldRef
     mode?: int
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef
+    user?: int
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -8022,6 +8216,15 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EmptyDir:
         The default is "" which means to use the node's default medium.
         Must be an empty string (default) or Memory.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+    mode : int, default is Undefined, optional
+        mode specifies the permission bits for the emptyDir directory, in numeric
+        notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+        If not specified, defaults to 0777.
+        This might be in conflict with other options that affect the file
+        mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+        will override the mode specified here.
+        This field has no effect on Windows.
+        This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
     sizeLimit : int | str, default is Undefined, optional
         sizeLimit is the total amount of local storage required for this EmptyDir volume.
         The size limit is also applicable for memory medium.
@@ -8031,6 +8234,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EmptyDir:
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
     medium?: str
+    mode?: int
     sizeLimit?: int | str
 
     check:
@@ -8163,8 +8367,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
     * An existing PVC (PersistentVolumeClaim)
     If the provisioner or an external controller can support the specified data source,
     it will create a new volume based on the contents of the specified data source.
-    When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-    and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+    dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+    copied to dataSource when dataSourceRef.namespace is not specified.
     If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 
     Attributes
@@ -8206,7 +8410,6 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0EphemeralVolumeClaimTem
       specified.
     * While dataSource only allows local objects, dataSourceRef allows objects
       in any namespaces.
-    (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
     (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 
     Attributes
@@ -8506,7 +8709,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Image:
     A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
     The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
     The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-    The volume will be mounted read-only (ro) and non-executable files (noexec).
+    The volume will be mounted read-only (ro).
     Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
     The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 
@@ -8661,8 +8864,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0PortworxVolume:
     r"""
     portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
     Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-    are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-    is on.
+    are redirected to the pxd.portworx.com CSI driver.
 
     Attributes
     ----------
@@ -8693,11 +8895,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Projected:
         Directories within the path are not affected by this setting.
         This might be in conflict with other options that affect the file
         mode, like fsGroup, and the result can be other mode bits set.
+    defaultUser : int, default is Undefined, optional
+        defaultUser is Optional: The owner UID of the created files by default.
+        The defaultUser field is only used as a fallback when the item-level user field is unset.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     sources : [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0], default is Undefined, optional
         sources is the list of volume projections. Each entry in this list
         handles one source.
     """
     defaultMode?: int
+    defaultUser?: int
     sources?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0]
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0:
@@ -8762,6 +8969,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0C
         Select all ClusterTrustBundles that match this signer name.
         Mutually-exclusive with name.  The contents of all selected
         ClusterTrustBundles will be unified and deduplicated.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     labelSelector?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector
     name?: str
@@ -8769,6 +8980,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0C
     path: str
 
     signerName?: str
+    user?: int
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector:
     r"""
@@ -8860,11 +9072,17 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0C
         May not be an absolute path.
         May not contain the path element '..'.
         May not start with the string '..'.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     key: str
 
     mode?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPI:
     r"""
@@ -8896,12 +9114,17 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0D
         Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
     resourceFieldRef : MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     fieldRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef
     mode?: int
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef
+    user?: int
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -9028,6 +9251,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0P
         longer than 24 hours.
     signerName : str, default is Undefined, required
         Kubelet's generated CSRs will be addressed to this signer.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     userAnnotations : {str:str}, default is Undefined, optional
         userAnnotations allow pod authors to pass additional information to
         the signer implementation.  Kubernetes does not restrict or validate this
@@ -9051,6 +9278,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0P
     maxExpirationSeconds?: int
     signerName: str
 
+    user?: int
     userAnnotations?: {str:str}
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0Secret:
@@ -9100,11 +9328,17 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0S
         May not be an absolute path.
         May not contain the path element '..'.
         May not start with the string '..'.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     key: str
 
     mode?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken:
     r"""
@@ -9127,10 +9361,16 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0ProjectedSourcesItems0S
     path : str, default is Undefined, required
         path is the path relative to the mount point of the file to project the
         token into.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     audience?: str
     expirationSeconds?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Quobyte:
     r"""
@@ -9311,6 +9551,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Secret:
         Directories within the path are not affected by this setting.
         This might be in conflict with other options that affect the file
         mode, like fsGroup, and the result can be other mode bits set.
+    defaultUser : int, default is Undefined, optional
+        defaultUser is Optional: The owner UID of the created files by default.
+        The defaultUser field is only used as a fallback when the item-level user field is unset.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     items : [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0SecretItemsItems0], default is Undefined, optional
         items If unspecified, each key-value pair in the Data field of the referenced
         Secret will be projected into the volume as a file whose name is the
@@ -9326,6 +9570,7 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Secret:
         More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
     """
     defaultMode?: int
+    defaultUser?: int
     items?: [MonitoringCoreosComV1AlertmanagerSpecVolumesItems0SecretItemsItems0]
     optional?: bool
     secretName?: str
@@ -9350,11 +9595,17 @@ schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0SecretItemsItems0:
         May not be an absolute path.
         May not contain the path element '..'.
         May not start with the string '..'.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     key: str
 
     mode?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1AlertmanagerSpecVolumesItems0Storageos:
     r"""
@@ -9450,6 +9701,10 @@ schema MonitoringCoreosComV1AlertmanagerSpecWeb:
     httpConfig?: MonitoringCoreosComV1AlertmanagerSpecWebHTTPConfig
     timeout?: int
     tlsConfig?: MonitoringCoreosComV1AlertmanagerSpecWebTLSConfig
+
+    check:
+        getConcurrency >= 0 if getConcurrency not in [None, Undefined]
+        timeout >= 0 if timeout not in [None, Undefined]
 
 schema MonitoringCoreosComV1AlertmanagerSpecWebHTTPConfig:
     r"""
@@ -9597,7 +9852,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -9658,7 +9914,8 @@ schema MonitoringCoreosComV1AlertmanagerSpecWebTLSConfigClientCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
