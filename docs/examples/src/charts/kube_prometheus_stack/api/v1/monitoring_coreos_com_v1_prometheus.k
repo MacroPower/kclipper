@@ -118,8 +118,15 @@ schema MonitoringCoreosComV1PrometheusSpec:
         It requires Prometheus >= v3.4.0.
     disableCompaction : bool, default is Undefined, optional
         disableCompaction when true, the Prometheus compaction is disabled.
-        When `spec.thanos.objectStorageConfig` or `spec.objectStorageConfigFile` are defined, the operator automatically
-        disables block compaction to avoid race conditions during block uploads (as the Thanos documentation recommends).
+
+        When `spec.thanos.objectStorageConfig` or `spec.thanos.objectStorageConfigFile` are defined, the operator's
+        default handling depends on the Prometheus and Thanos sidecar versions:
+          - With Prometheus < v3.9.0 or a Thanos sidecar < v0.42.0, block compaction is disabled to avoid race
+            conditions during block uploads (as the Thanos documentation recommends).
+          - With Prometheus >= v3.9.0 and a Thanos sidecar >= v0.42.0, local compaction is kept enabled and coordinated
+            with the sidecar through the shipper meta file (`--storage.tsdb.delay-compact-file.path`), so blocks are only
+            compacted after they have been uploaded.
+        Setting this field to true always disables local compaction regardless of the versions.
     dnsConfig : MonitoringCoreosComV1PrometheusSpecDNSConfig, default is Undefined, optional
         dns config
     dnsPolicy : str, default is Undefined, optional
@@ -497,7 +504,16 @@ schema MonitoringCoreosComV1PrometheusSpec:
     retention : str, default is Undefined, optional
         retention defines how long to retain the Prometheus data.
 
-        Default: "24h" if `spec.retention` and `spec.retentionSize` are empty.
+        Default: "24h" if `spec.retention`, `spec.retentionSize` and
+        `spec.retentionPercentage` are empty.
+    retentionPercentage : int | str, default is Undefined, optional
+        retentionPercentage defines the maximum percentage of the data volume's
+        capacity used by the Prometheus data.
+
+        The value is a number between 0 and 100. If set to 0, percentage-based
+        retention is disabled.
+
+        It requires Prometheus >= v3.11.0 and is ignored by older versions.
     retentionSize : str, default is Undefined, optional
         retentionSize defines the maximum number of bytes used by the Prometheus data.
     routePrefix : str, default is Undefined, optional
@@ -603,7 +619,7 @@ schema MonitoringCoreosComV1PrometheusSpec:
         shard retention policy
     shardingStrategy : MonitoringCoreosComV1PrometheusSpecShardingStrategy, default is Undefined, optional
         sharding strategy
-    shards : int, default is Undefined, optional
+    shards : int, default is 1, optional
         shards defines the number of shards to distribute the scraped targets onto.
 
         `spec.replicas` multiplied by `spec.shards` is the total number of Pods
@@ -630,6 +646,8 @@ schema MonitoringCoreosComV1PrometheusSpec:
         You can also disable sharding on a specific target by setting the
         `__tmp_disable_sharding` label with relabeling configuration. When
         the label value isn't empty, all Prometheus shards will scrape the target.
+
+        Default: 1
     storage : MonitoringCoreosComV1PrometheusSpecStorage, default is Undefined, optional
         storage
     tag : str, default is Undefined, optional
@@ -765,6 +783,7 @@ schema MonitoringCoreosComV1PrometheusSpec:
     replicas?: int
     resources?: MonitoringCoreosComV1PrometheusSpecResources
     retention?: str
+    retentionPercentage?: int | str
     retentionSize?: str
     routePrefix?: str
     ruleNamespaceSelector?: MonitoringCoreosComV1PrometheusSpecRuleNamespaceSelector
@@ -793,7 +812,7 @@ schema MonitoringCoreosComV1PrometheusSpec:
     sha?: str
     shardRetentionPolicy?: MonitoringCoreosComV1PrometheusSpecShardRetentionPolicy
     shardingStrategy?: MonitoringCoreosComV1PrometheusSpecShardingStrategy
-    shards?: int
+    shards?: int = 1
     storage?: MonitoringCoreosComV1PrometheusSpecStorage
     tag?: str
     targetLimit?: int
@@ -814,18 +833,31 @@ schema MonitoringCoreosComV1PrometheusSpec:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
         all enableFeatures in enableFeatures {len(enableFeatures) >= 1 if enableFeatures not in [None, Undefined]} if enableFeatures
         _regex_match(str(enforcedBodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if enforcedBodySizeLimit
+        enforcedKeepDroppedTargets >= 0 if enforcedKeepDroppedTargets not in [None, Undefined]
+        enforcedLabelLimit >= 0 if enforcedLabelLimit not in [None, Undefined]
+        enforcedLabelNameLengthLimit >= 0 if enforcedLabelNameLengthLimit not in [None, Undefined]
+        enforcedLabelValueLengthLimit >= 0 if enforcedLabelValueLengthLimit not in [None, Undefined]
+        enforcedSampleLimit >= 0 if enforcedSampleLimit not in [None, Undefined]
+        enforcedTargetLimit >= 0 if enforcedTargetLimit not in [None, Undefined]
         _regex_match(str(evaluationInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if evaluationInterval
+        keepDroppedTargets >= 0 if keepDroppedTargets not in [None, Undefined]
+        labelLimit >= 0 if labelLimit not in [None, Undefined]
+        labelNameLengthLimit >= 0 if labelNameLengthLimit not in [None, Undefined]
+        labelValueLengthLimit >= 0 if labelValueLengthLimit not in [None, Undefined]
         maximumStartupDurationSeconds >= 60 if maximumStartupDurationSeconds not in [None, Undefined]
         minReadySeconds >= 0 if minReadySeconds not in [None, Undefined]
         len(remoteWriteReceiverMessageVersions) >= 1 if remoteWriteReceiverMessageVersions
         _regex_match(str(retention), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if retention
+        _regex_match(str(retentionPercentage), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if retentionPercentage
         _regex_match(str(retentionSize), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if retentionSize
         _regex_match(str(ruleQueryOffset), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if ruleQueryOffset
+        sampleLimit >= 0 if sampleLimit not in [None, Undefined]
         len(schedulerName) >= 1 if schedulerName
         len(scrapeFailureLogFile) >= 1 if scrapeFailureLogFile
         _regex_match(str(scrapeInterval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeInterval
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
         len(serviceName) >= 1 if serviceName
+        targetLimit >= 0 if targetLimit not in [None, Undefined]
         terminationGracePeriodSeconds >= 0 if terminationGracePeriodSeconds not in [None, Undefined]
 
 schema MonitoringCoreosComV1PrometheusSpecAdditionalAlertManagerConfigs:
@@ -1928,6 +1960,9 @@ schema MonitoringCoreosComV1PrometheusSpecAlertingAlertmanagersItems0AlertRelabe
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1PrometheusSpecAlertingAlertmanagersItems0Authorization:
     r"""
     authorization section for Alertmanager.
@@ -2103,6 +2138,9 @@ schema MonitoringCoreosComV1PrometheusSpecAlertingAlertmanagersItems0Relabelings
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1PrometheusSpecAlertingAlertmanagersItems0Sigv4:
     r"""
     sigv4 defines AWS's Signature Verification 4 for the URL.
@@ -2117,7 +2155,7 @@ schema MonitoringCoreosComV1PrometheusSpecAlertingAlertmanagersItems0Sigv4:
         access key
     externalId : str, default is Undefined, optional
         externalId defines the external ID used when assuming an AWS role. Can only be used with roleArn.
-        It requires Prometheus >= v3.11.0 or Alertmanager >= v0.33.0. Currently not supported by Thanos.
+        It requires Prometheus >= v3.11.0 or Alertmanager >= v0.34.0. Currently not supported by Thanos.
     profile : str, default is Undefined, optional
         profile defines the named AWS profile used to authenticate.
     region : str, default is Undefined, optional
@@ -2250,7 +2288,8 @@ schema MonitoringCoreosComV1PrometheusSpecAlertingAlertmanagersItems0TLSConfigCa
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2308,7 +2347,8 @@ schema MonitoringCoreosComV1PrometheusSpecAlertingAlertmanagersItems0TLSConfigCe
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2623,7 +2663,8 @@ schema MonitoringCoreosComV1PrometheusSpecApiserverConfigTLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -2681,7 +2722,8 @@ schema MonitoringCoreosComV1PrometheusSpecApiserverConfigTLSConfigCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3043,7 +3085,8 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0EnvItems0ValueFromConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -3223,6 +3266,9 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0LifecyclePostStartHTTP
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -3232,6 +3278,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0LifecyclePostStartHTTP
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
@@ -3339,6 +3386,9 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0LifecyclePreStopHTTPGe
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -3348,6 +3398,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0LifecyclePreStopHTTPGe
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
@@ -3472,6 +3523,11 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0LivenessProbeGrpc:
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -3480,6 +3536,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0LivenessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -3501,6 +3558,9 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0LivenessProbeHTTPGet:
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -3510,6 +3570,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0LivenessProbeHTTPGet:
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
@@ -3652,6 +3713,11 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0ReadinessProbeGrpc:
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -3660,6 +3726,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0ReadinessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -3681,6 +3748,9 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0ReadinessProbeHTTPGet:
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -3690,6 +3760,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0ReadinessProbeHTTPGet:
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
@@ -3860,7 +3931,6 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0SecurityContext:
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -4104,6 +4174,11 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0StartupProbeGrpc:
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -4112,6 +4187,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0StartupProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -4133,6 +4209,9 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0StartupProbeHTTPGet:
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -4142,6 +4221,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0StartupProbeHTTPGet:
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
@@ -4197,9 +4277,15 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0VolumeMountsItems0:
 
     Attributes
     ----------
+    bindMountOptions : [str], default is Undefined, optional
+        bindMountOptions is the list of additional bind mount options to apply when
+        mounting this volume into the container. Allowed values are noexec,
+        nodev, and nosuid. These are Linux mount options and have no effect on
+        Windows nodes.
+        This field is not supported with image volumes.
+        This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
     mountPath : str, default is Undefined, required
-        Path within the container at which the volume should be mounted.  Must
-        not contain ':'.
+        Path within the container at which the volume should be mounted.
     mountPropagation : str, default is Undefined, optional
         mountPropagation determines how mounts are propagated from the host
         to container and the other way around.
@@ -4238,6 +4324,7 @@ schema MonitoringCoreosComV1PrometheusSpecContainersItems0VolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
+    bindMountOptions?: [str]
     mountPath: str
 
     mountPropagation?: str
@@ -4647,7 +4734,8 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0EnvItems0ValueFrom
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -4827,6 +4915,9 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LifecyclePostStart
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -4836,6 +4927,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LifecyclePostStart
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LifecyclePostStartHTTPGetHTTPHeadersItems0:
@@ -4943,6 +5035,9 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LifecyclePreStopHT
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -4952,6 +5047,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LifecyclePreStopHT
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LifecyclePreStopHTTPGetHTTPHeadersItems0:
@@ -5076,6 +5172,11 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LivenessProbeGrpc:
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -5084,6 +5185,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LivenessProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -5105,6 +5207,9 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LivenessProbeHTTPG
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -5114,6 +5219,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LivenessProbeHTTPG
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0LivenessProbeHTTPGetHTTPHeadersItems0:
@@ -5256,6 +5362,11 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0ReadinessProbeGrpc
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -5264,6 +5375,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0ReadinessProbeGrpc
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -5285,6 +5397,9 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0ReadinessProbeHTTP
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -5294,6 +5409,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0ReadinessProbeHTTP
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0ReadinessProbeHTTPGetHTTPHeadersItems0:
@@ -5464,7 +5580,6 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0SecurityContext:
         procMount denotes the type of proc mount to use for the containers.
         The default value is Default which uses the container runtime defaults for
         readonly paths and masked paths.
-        This requires the ProcMountType feature flag to be enabled.
         Note that this field cannot be set when spec.os.name is windows.
     readOnlyRootFilesystem : bool, default is Undefined, optional
         Whether this container has a read-only root filesystem.
@@ -5708,6 +5823,11 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0StartupProbeGrpc:
 
     Attributes
     ----------
+    mode : str, default is Undefined, optional
+        mode specifies the connection mode for the gRPC health probe.
+        Set to "TLS" to use TLS without certificate verification.
+        Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+        If not specified, the probe uses a plaintext (insecure) connection.
     port : int, default is Undefined, required
         Port number of the gRPC service. Number must be in the range 1 to 65535.
     service : str, default is Undefined, optional
@@ -5716,6 +5836,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0StartupProbeGrpc:
 
         If this is not specified, the default behavior is defined by gRPC.
     """
+    mode?: str
     port: int
 
     service?: str = ""
@@ -5737,6 +5858,9 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0StartupProbeHTTPGe
         Name or number of the port to access on the container.
         Number must be in the range 1 to 65535.
         Name must be an IANA_SVC_NAME.
+    $protocol : str, default is Undefined, optional
+        Protocol selects the wire protocol for the probe connection.
+        Nil defaults to HTTP/1.1.
     scheme : str, default is Undefined, optional
         Scheme to use for connecting to the host.
         Defaults to HTTP.
@@ -5746,6 +5870,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0StartupProbeHTTPGe
     path?: str
     port: int | str
 
+    $protocol?: str
     scheme?: str
 
 schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0StartupProbeHTTPGetHTTPHeadersItems0:
@@ -5801,9 +5926,15 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0VolumeMountsItems0
 
     Attributes
     ----------
+    bindMountOptions : [str], default is Undefined, optional
+        bindMountOptions is the list of additional bind mount options to apply when
+        mounting this volume into the container. Allowed values are noexec,
+        nodev, and nosuid. These are Linux mount options and have no effect on
+        Windows nodes.
+        This field is not supported with image volumes.
+        This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
     mountPath : str, default is Undefined, required
-        Path within the container at which the volume should be mounted.  Must
-        not contain ':'.
+        Path within the container at which the volume should be mounted.
     mountPropagation : str, default is Undefined, optional
         mountPropagation determines how mounts are propagated from the host
         to container and the other way around.
@@ -5842,6 +5973,7 @@ schema MonitoringCoreosComV1PrometheusSpecInitContainersItems0VolumeMountsItems0
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
+    bindMountOptions?: [str]
     mountPath: str
 
     mountPropagation?: str
@@ -5872,6 +6004,22 @@ schema MonitoringCoreosComV1PrometheusSpecOtlp:
         resource attributes to the `target_info` metric, on top of converting them into the `instance` and `job` labels.
 
         It requires Prometheus >= v3.1.0.
+    labelNamePreserveMultipleUnderscores : bool, default is Undefined, optional
+        labelNamePreserveMultipleUnderscores enables preserving of multiple consecutive underscores in label names when translation_strategy uses
+        underscore escaping.
+        When true (default), multiple consecutive underscores are preserved during label name sanitization.
+
+        Notice: This one has no impact if `nameEscapingScheme` is `AllowUTF8`.
+
+        It requires Prometheus >= v3.8.0.
+    labelNameUnderscoreSanitization : bool, default is Undefined, optional
+        labelNameUnderscoreSanitization controls whether to enable prepending of 'key_' to labels starting with '_'.
+        Reserved labels starting with '__' are not modified.
+        This is only relevant when translation_strategy uses underscore escaping (e.g., "UnderscoreEscapingWithSuffixes" or "UnderscoreEscapingWithoutSuffixes").
+
+        Notice: This one has no impact if `nameEscapingScheme` is `AllowUTF8`.
+
+        It requires Prometheus >= v3.8.0.
     promoteAllResourceAttributes : bool, default is Undefined, optional
         promoteAllResourceAttributes promotes all resource attributes to metric labels except the ones defined in `ignoreResourceAttributes`.
 
@@ -5892,6 +6040,8 @@ schema MonitoringCoreosComV1PrometheusSpecOtlp:
     convertHistogramsToNHCB?: bool
     ignoreResourceAttributes?: [str]
     keepIdentifyingResourceAttributes?: bool
+    labelNamePreserveMultipleUnderscores?: bool
+    labelNameUnderscoreSanitization?: bool
     promoteAllResourceAttributes?: bool
     promoteResourceAttributes?: [str]
     promoteScopeMetadata?: bool
@@ -6260,6 +6410,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0:
         tls config
     url : str, default is Undefined, required
         url defines the URL of the endpoint to query from.
+
+        It must use the HTTP or HTTPS scheme.
     """
     authorization?: MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Authorization
     basicAuth?: MonitoringCoreosComV1PrometheusSpecRemoteReadItems0BasicAuth
@@ -6283,6 +6435,7 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0:
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
         _regex_match(str(remoteTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if remoteTimeout
+        _regex_match(str(url), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Authorization:
     r"""
@@ -6449,7 +6602,7 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Oauth2ClientID:
     r"""
@@ -6473,7 +6626,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Oauth2ClientIDConfigMa
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6610,7 +6764,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Oauth2TLSConfigCaConfi
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6668,7 +6823,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0Oauth2TLSConfigCertCon
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6812,7 +6968,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0TLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -6870,7 +7027,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteReadItems0TLSConfigCertConfigMap
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7337,6 +7495,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0MetadataConfig:
         It requires Prometheus >= v2.29.0.
     send : bool, default is Undefined, optional
         send defines whether metric metadata is sent to the remote storage or not.
+
+        The setting is ignored when Remote Write message's version 2.0 is used.
     sendInterval : str, default is Undefined, optional
         sendInterval defines how frequently metric metadata is sent to the remote storage.
     """
@@ -7404,7 +7564,7 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Oauth2ClientID:
     r"""
@@ -7428,7 +7588,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Oauth2ClientIDConfigM
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7565,7 +7726,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Oauth2TLSConfigCaConf
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7623,7 +7785,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Oauth2TLSConfigCertCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7767,7 +7930,7 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0Sigv4:
         access key
     externalId : str, default is Undefined, optional
         externalId defines the external ID used when assuming an AWS role. Can only be used with roleArn.
-        It requires Prometheus >= v3.11.0 or Alertmanager >= v0.33.0. Currently not supported by Thanos.
+        It requires Prometheus >= v3.11.0 or Alertmanager >= v0.34.0. Currently not supported by Thanos.
     profile : str, default is Undefined, optional
         profile defines the named AWS profile used to authenticate.
     region : str, default is Undefined, optional
@@ -7900,7 +8063,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0TLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -7958,7 +8122,8 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0TLSConfigCertConfigMa
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8065,6 +8230,9 @@ schema MonitoringCoreosComV1PrometheusSpecRemoteWriteItems0WriteRelabelConfigsIt
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1PrometheusSpecResources:
     r"""
@@ -8319,6 +8487,10 @@ schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0AttachMetadata:
 
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
+
+        Node metadata labels are not automatically added to scraped metrics. They are
+        exposed as `__meta_kubernetes_node_*` labels and can be copied to timeseries
+        with relabeling configuration.
     """
     node?: bool
 
@@ -8415,6 +8587,9 @@ schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0MetricRelabelingsIt
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0RelabelingsItems0:
     r"""
     RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
@@ -8463,6 +8638,9 @@ schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0RelabelingsItems0:
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0TLSConfig:
     r"""
@@ -8531,7 +8709,8 @@ schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0TLSConfigCaConfigMa
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8589,7 +8768,8 @@ schema MonitoringCoreosComV1PrometheusSpecScrapeClassesItems0TLSConfigCertConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -8809,11 +8989,8 @@ schema MonitoringCoreosComV1PrometheusSpecSecurityContext:
         Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
         whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
         CSIDriver instance. Other volumes are always re-labelled recursively.
-        "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-        If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-        If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-        and "Recursive" for all other volumes.
+        If not specified, "MountOption" is used.
 
         This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -9071,11 +9248,8 @@ schema MonitoringCoreosComV1PrometheusSpecServiceMonitorSelectorMatchExpressions
 schema MonitoringCoreosComV1PrometheusSpecShardRetentionPolicy:
     r"""
     shardRetentionPolicy defines the retention policy for the Prometheus shards.
-    (Alpha) Using this field requires the 'PrometheusShardRetentionPolicy' feature gate to be enabled.
 
-    The final goals for this feature can be seen at https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/proposals/202310-shard-autoscaling.md#graceful-scale-down-of-prometheus-servers,
-    however, the feature is not yet fully implemented in this PR. The limitation being:
-    * Retention duration is not settable, for now, shards are retained forever.
+    (Beta) Using this mode requires the `PrometheusShardRetentionPolicy` feature gate (enabled by default).
 
     Attributes
     ----------
@@ -9189,6 +9363,15 @@ schema MonitoringCoreosComV1PrometheusSpecStorageEmptyDir:
         The default is "" which means to use the node's default medium.
         Must be an empty string (default) or Memory.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+    mode : int, default is Undefined, optional
+        mode specifies the permission bits for the emptyDir directory, in numeric
+        notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+        If not specified, defaults to 0777.
+        This might be in conflict with other options that affect the file
+        mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+        will override the mode specified here.
+        This field has no effect on Windows.
+        This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
     sizeLimit : int | str, default is Undefined, optional
         sizeLimit is the total amount of local storage required for this EmptyDir volume.
         The size limit is also applicable for memory medium.
@@ -9198,6 +9381,7 @@ schema MonitoringCoreosComV1PrometheusSpecStorageEmptyDir:
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
     medium?: str
+    mode?: int
     sizeLimit?: int | str
 
     check:
@@ -9310,8 +9494,8 @@ schema MonitoringCoreosComV1PrometheusSpecStorageEphemeralVolumeClaimTemplateSpe
     * An existing PVC (PersistentVolumeClaim)
     If the provisioner or an external controller can support the specified data source,
     it will create a new volume based on the contents of the specified data source.
-    When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-    and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+    dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+    copied to dataSource when dataSourceRef.namespace is not specified.
     If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 
     Attributes
@@ -9353,7 +9537,6 @@ schema MonitoringCoreosComV1PrometheusSpecStorageEphemeralVolumeClaimTemplateSpe
       specified.
     * While dataSource only allows local objects, dataSourceRef allows objects
       in any namespaces.
-    (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
     (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 
     Attributes
@@ -9559,8 +9742,8 @@ schema MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateSpecDataSour
     * An existing PVC (PersistentVolumeClaim)
     If the provisioner or an external controller can support the specified data source,
     it will create a new volume based on the contents of the specified data source.
-    When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-    and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+    dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+    copied to dataSource when dataSourceRef.namespace is not specified.
     If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 
     Attributes
@@ -9602,7 +9785,6 @@ schema MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateSpecDataSour
       specified.
     * While dataSource only allows local objects, dataSourceRef allows objects
       in any namespaces.
-    (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
     (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 
     Attributes
@@ -9765,6 +9947,8 @@ schema MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatus:
     currentVolumeAttributesClassName : str, default is Undefined, optional
         currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using.
         When unset, there is no VolumeAttributeClass applied to this PersistentVolumeClaim
+    healthStatus : MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusHealthStatus, default is Undefined, optional
+        health status
     modifyVolumeStatus : MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus, default is Undefined, optional
         modify volume status
     phase : str, default is Undefined, optional
@@ -9776,6 +9960,7 @@ schema MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatus:
     capacity?: {str:int | str}
     conditions?: [MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusConditionsItems0]
     currentVolumeAttributesClassName?: str
+    healthStatus?: MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusHealthStatus
     modifyVolumeStatus?: MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus
     phase?: str
 
@@ -9814,6 +9999,48 @@ schema MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusCondit
     status: str
 
     $type: str
+
+schema MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusHealthStatus:
+    r"""
+    healthStatus contains the latest controller-reported health information
+    for the volume bound to this claim.
+
+    Attributes
+    ----------
+    healthConditions : [MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusHealthStatusHealthConditionsItems0], default is Undefined, optional
+        conditions is the set of adverse conditions reported by
+        the CSI controller plugin. An empty list means no adverse condition.
+        At most 16 conditions may be reported.
+    lastTransitionTime : str, default is Undefined, optional
+        lastTransitionTime is when the current set of conditions first appeared.
+    """
+    healthConditions?: [MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusHealthStatusHealthConditionsItems0]
+    lastTransitionTime?: str
+
+schema MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusHealthStatusHealthConditionsItems0:
+    r"""
+    VolumeHealthCondition represents an adverse health condition reported for a volume.
+
+    Attributes
+    ----------
+    message : str, default is Undefined, optional
+        message is a human-readable description.
+        Maximum permitted length of a message is 1024 bytes.
+    reason : str, default is Undefined, required
+        reason is a brief CamelCase machine-parseable reason.
+        Together with status it forms the unique identity of a condition entry.
+        Maximum permitted length of a reason is 256 bytes.
+    status : str, default is Undefined, required
+        status is the machine-parseable health category.
+        Possible values:
+        - "Inaccessible": the volume cannot be accessed.
+        - "DataLoss": data loss has been detected on the volume.
+        - "Degraded": the volume is functioning with reduced capability.
+    """
+    message?: str
+    reason: str
+
+    status: "DataLoss" | "Degraded" | "Inaccessible"
 
 schema MonitoringCoreosComV1PrometheusSpecStorageVolumeClaimTemplateStatusModifyVolumeStatus:
     r"""
@@ -10081,7 +10308,8 @@ schema MonitoringCoreosComV1PrometheusSpecThanosGrpcServerTLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10139,7 +10367,8 @@ schema MonitoringCoreosComV1PrometheusSpecThanosGrpcServerTLSConfigCertConfigMap
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10309,9 +10538,15 @@ schema MonitoringCoreosComV1PrometheusSpecThanosVolumeMountsItems0:
 
     Attributes
     ----------
+    bindMountOptions : [str], default is Undefined, optional
+        bindMountOptions is the list of additional bind mount options to apply when
+        mounting this volume into the container. Allowed values are noexec,
+        nodev, and nosuid. These are Linux mount options and have no effect on
+        Windows nodes.
+        This field is not supported with image volumes.
+        This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
     mountPath : str, default is Undefined, required
-        Path within the container at which the volume should be mounted.  Must
-        not contain ':'.
+        Path within the container at which the volume should be mounted.
     mountPropagation : str, default is Undefined, optional
         mountPropagation determines how mounts are propagated from the host
         to container and the other way around.
@@ -10350,6 +10585,7 @@ schema MonitoringCoreosComV1PrometheusSpecThanosVolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
+    bindMountOptions?: [str]
     mountPath: str
 
     mountPropagation?: str
@@ -10657,7 +10893,8 @@ schema MonitoringCoreosComV1PrometheusSpecTracingConfigTLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10715,7 +10952,8 @@ schema MonitoringCoreosComV1PrometheusSpecTracingConfigTLSConfigCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -10781,6 +11019,8 @@ schema MonitoringCoreosComV1PrometheusSpecTsdb:
 
     Attributes
     ----------
+    chunkEncoding : MonitoringCoreosComV1PrometheusSpecTsdbChunkEncoding, default is Undefined, optional
+        chunk encoding
     outOfOrderTimeWindow : str, default is Undefined, optional
         outOfOrderTimeWindow defines how old an out-of-order/out-of-bounds sample can be with
         respect to the TSDB max time.
@@ -10792,11 +11032,52 @@ schema MonitoringCoreosComV1PrometheusSpecTsdb:
         in a breaking way.
 
         It requires Prometheus >= v2.39.0 or PrometheusAgent >= v2.54.0.
+    staleSeriesCompactionThreshold : int | str, default is Undefined, optional
+        staleSeriesCompactionThreshold configures the trigger point for compacting
+        stale series from memory into persistent blocks and removing those stale
+        series from memory.
+
+        The threshold is a number between 0.0 and 1.0. It represents the ratio of
+        stale series in memory to the total series in memory. The stale series
+        compaction is triggered when this ratio crosses the configured threshold.
+        It may not trigger the stale series compaction if the usual head compaction
+        is about to happen soon.
+
+        If set to 0, stale series compaction is disabled.
+
+        It requires Prometheus >= v3.10.0.
     """
+    chunkEncoding?: MonitoringCoreosComV1PrometheusSpecTsdbChunkEncoding
     outOfOrderTimeWindow?: str
+    staleSeriesCompactionThreshold?: int | str
 
     check:
         _regex_match(str(outOfOrderTimeWindow), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if outOfOrderTimeWindow
+        _regex_match(str(staleSeriesCompactionThreshold), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if staleSeriesCompactionThreshold
+
+schema MonitoringCoreosComV1PrometheusSpecTsdbChunkEncoding:
+    r"""
+    chunkEncoding configures per-chunk-type encoding overrides.
+
+    It requires Prometheus >= v3.13.0.
+
+    Notice: Setting "Xor" is incompatible with --enable-feature=st-storage
+    (XOR chunks do not store start timestamps).
+
+    Attributes
+    ----------
+    floats : str, default is Undefined, optional
+        floats selects the encoding used for float chunks.
+        Valid values are "Xor" and "Xor2".
+
+        Notice:
+         * Setting "Xor" is incompatible with --enable-feature=st-storage
+        (XOR chunks do not store start timestamps).
+         * Setting "Xor2" automatically adds the `xor2-encoding` feature flag.
+
+        It requires Prometheus >= v3.13.0.
+    """
+    floats?: "Xor" | "Xor2"
 
 schema MonitoringCoreosComV1PrometheusSpecUpdateStrategy:
     r"""
@@ -10842,9 +11123,15 @@ schema MonitoringCoreosComV1PrometheusSpecVolumeMountsItems0:
 
     Attributes
     ----------
+    bindMountOptions : [str], default is Undefined, optional
+        bindMountOptions is the list of additional bind mount options to apply when
+        mounting this volume into the container. Allowed values are noexec,
+        nodev, and nosuid. These are Linux mount options and have no effect on
+        Windows nodes.
+        This field is not supported with image volumes.
+        This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
     mountPath : str, default is Undefined, required
-        Path within the container at which the volume should be mounted.  Must
-        not contain ':'.
+        Path within the container at which the volume should be mounted.
     mountPropagation : str, default is Undefined, optional
         mountPropagation determines how mounts are propagated from the host
         to container and the other way around.
@@ -10883,6 +11170,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumeMountsItems0:
         Defaults to "" (volume's root).
         SubPathExpr and SubPath are mutually exclusive.
     """
+    bindMountOptions?: [str]
     mountPath: str
 
     mountPropagation?: str
@@ -11191,6 +11479,10 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ConfigMap:
         Directories within the path are not affected by this setting.
         This might be in conflict with other options that affect the file
         mode, like fsGroup, and the result can be other mode bits set.
+    defaultUser : int, default is Undefined, optional
+        defaultUser is Optional: The owner UID of the created files by default.
+        The defaultUser field is only used as a fallback when the item-level user field is unset.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     items : [MonitoringCoreosComV1PrometheusSpecVolumesItems0ConfigMapItemsItems0], default is Undefined, optional
         items if unspecified, each key-value pair in the Data field of the referenced
         ConfigMap will be projected into the volume as a file whose name is the
@@ -11209,6 +11501,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ConfigMap:
         optional specify whether the ConfigMap or its keys must be defined
     """
     defaultMode?: int
+    defaultUser?: int
     items?: [MonitoringCoreosComV1PrometheusSpecVolumesItems0ConfigMapItemsItems0]
     name?: str = ""
     optional?: bool
@@ -11233,11 +11526,17 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ConfigMapItemsItems0:
         May not be an absolute path.
         May not contain the path element '..'.
         May not start with the string '..'.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     key: str
 
     mode?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0Csi:
     r"""
@@ -11302,10 +11601,15 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPI:
         Directories within the path are not affected by this setting.
         This might be in conflict with other options that affect the file
         mode, like fsGroup, and the result can be other mode bits set.
+    defaultUser : int, default is Undefined, optional
+        defaultUser is Optional: The owner UID of the created files by default.
+        The defaultUser field is only used as a fallback when the item-level user field is unset.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     items : [MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPIItemsItems0], default is Undefined, optional
         Items is a list of downward API volume file
     """
     defaultMode?: int
+    defaultUser?: int
     items?: [MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPIItemsItems0]
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPIItemsItems0:
@@ -11327,12 +11631,17 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPIItemsItems0:
         Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
     resourceFieldRef : MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     fieldRef?: MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPIItemsItems0FieldRef
     mode?: int
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPIItemsItems0ResourceFieldRef
+    user?: int
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -11381,6 +11690,15 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0EmptyDir:
         The default is "" which means to use the node's default medium.
         Must be an empty string (default) or Memory.
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+    mode : int, default is Undefined, optional
+        mode specifies the permission bits for the emptyDir directory, in numeric
+        notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+        If not specified, defaults to 0777.
+        This might be in conflict with other options that affect the file
+        mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+        will override the mode specified here.
+        This field has no effect on Windows.
+        This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
     sizeLimit : int | str, default is Undefined, optional
         sizeLimit is the total amount of local storage required for this EmptyDir volume.
         The size limit is also applicable for memory medium.
@@ -11390,6 +11708,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0EmptyDir:
         More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
     """
     medium?: str
+    mode?: int
     sizeLimit?: int | str
 
     check:
@@ -11522,8 +11841,8 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0EphemeralVolumeClaimTempl
     * An existing PVC (PersistentVolumeClaim)
     If the provisioner or an external controller can support the specified data source,
     it will create a new volume based on the contents of the specified data source.
-    When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-    and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+    dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+    copied to dataSource when dataSourceRef.namespace is not specified.
     If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 
     Attributes
@@ -11565,7 +11884,6 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0EphemeralVolumeClaimTempl
       specified.
     * While dataSource only allows local objects, dataSourceRef allows objects
       in any namespaces.
-    (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
     (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 
     Attributes
@@ -11865,7 +12183,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0Image:
     A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
     The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
     The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-    The volume will be mounted read-only (ro) and non-executable files (noexec).
+    The volume will be mounted read-only (ro).
     Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
     The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 
@@ -12020,8 +12338,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0PortworxVolume:
     r"""
     portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
     Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-    are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-    is on.
+    are redirected to the pxd.portworx.com CSI driver.
 
     Attributes
     ----------
@@ -12052,11 +12369,16 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0Projected:
         Directories within the path are not affected by this setting.
         This might be in conflict with other options that affect the file
         mode, like fsGroup, and the result can be other mode bits set.
+    defaultUser : int, default is Undefined, optional
+        defaultUser is Optional: The owner UID of the created files by default.
+        The defaultUser field is only used as a fallback when the item-level user field is unset.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     sources : [MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0], default is Undefined, optional
         sources is the list of volume projections. Each entry in this list
         handles one source.
     """
     defaultMode?: int
+    defaultUser?: int
     sources?: [MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0]
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0:
@@ -12121,6 +12443,10 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Clu
         Select all ClusterTrustBundles that match this signer name.
         Mutually-exclusive with name.  The contents of all selected
         ClusterTrustBundles will be unified and deduplicated.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     labelSelector?: MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector
     name?: str
@@ -12128,6 +12454,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Clu
     path: str
 
     signerName?: str
+    user?: int
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0ClusterTrustBundleLabelSelector:
     r"""
@@ -12219,11 +12546,17 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Con
         May not be an absolute path.
         May not contain the path element '..'.
         May not start with the string '..'.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     key: str
 
     mode?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0DownwardAPI:
     r"""
@@ -12255,12 +12588,17 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Dow
         Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
     resourceFieldRef : MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef, default is Undefined, optional
         resource field ref
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     fieldRef?: MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef
     mode?: int
     path: str
 
     resourceFieldRef?: MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0ResourceFieldRef
+    user?: int
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0DownwardAPIItemsItems0FieldRef:
     r"""
@@ -12387,6 +12725,10 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Pod
         longer than 24 hours.
     signerName : str, default is Undefined, required
         Kubelet's generated CSRs will be addressed to this signer.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     userAnnotations : {str:str}, default is Undefined, optional
         userAnnotations allow pod authors to pass additional information to
         the signer implementation.  Kubernetes does not restrict or validate this
@@ -12410,6 +12752,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Pod
     maxExpirationSeconds?: int
     signerName: str
 
+    user?: int
     userAnnotations?: {str:str}
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Secret:
@@ -12459,11 +12802,17 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Sec
         May not be an absolute path.
         May not contain the path element '..'.
         May not start with the string '..'.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     key: str
 
     mode?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0ServiceAccountToken:
     r"""
@@ -12486,10 +12835,16 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0ProjectedSourcesItems0Ser
     path : str, default is Undefined, required
         path is the path relative to the mount point of the file to project the
         token into.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     audience?: str
     expirationSeconds?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0Quobyte:
     r"""
@@ -12670,6 +13025,10 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0Secret:
         Directories within the path are not affected by this setting.
         This might be in conflict with other options that affect the file
         mode, like fsGroup, and the result can be other mode bits set.
+    defaultUser : int, default is Undefined, optional
+        defaultUser is Optional: The owner UID of the created files by default.
+        The defaultUser field is only used as a fallback when the item-level user field is unset.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     items : [MonitoringCoreosComV1PrometheusSpecVolumesItems0SecretItemsItems0], default is Undefined, optional
         items If unspecified, each key-value pair in the Data field of the referenced
         Secret will be projected into the volume as a file whose name is the
@@ -12685,6 +13044,7 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0Secret:
         More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
     """
     defaultMode?: int
+    defaultUser?: int
     items?: [MonitoringCoreosComV1PrometheusSpecVolumesItems0SecretItemsItems0]
     optional?: bool
     secretName?: str
@@ -12709,11 +13069,17 @@ schema MonitoringCoreosComV1PrometheusSpecVolumesItems0SecretItemsItems0:
         May not be an absolute path.
         May not contain the path element '..'.
         May not start with the string '..'.
+    user : int, default is Undefined, optional
+        user is Optional: The owner UID of the created file.
+        If specified, the item-level user field takes precedence over defaultUser.
+        (Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
     """
     key: str
 
     mode?: int
     path: str
+
+    user?: int
 
 schema MonitoringCoreosComV1PrometheusSpecVolumesItems0Storageos:
     r"""
@@ -12958,7 +13324,8 @@ schema MonitoringCoreosComV1PrometheusSpecWebTLSConfigCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -13019,7 +13386,8 @@ schema MonitoringCoreosComV1PrometheusSpecWebTLSConfigClientCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
