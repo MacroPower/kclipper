@@ -219,8 +219,8 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecDataToItems0StoreRef:
     name?: str
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1PushSecretSpecDataToItems0StoreRefLabelSelector:
@@ -281,8 +281,8 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecSecretStoreRefsItems0:
     name?: str
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1PushSecretSpecSecretStoreRefsItems0LabelSelector:
@@ -353,7 +353,7 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecSelectorGeneratorRef:
         Specify the name of the generator resource
     """
     apiVersion?: str = "generators.external-secrets.io/v1alpha1"
-    kind: "ACRAccessToken" | "ClusterGenerator" | "CloudsmithAccessToken" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
+    kind: "ACRAccessToken" | "BeyondtrustWorkloadCredentialsDynamicSecret" | "ClusterGenerator" | "CloudsmithAccessToken" | "ECRAuthorizationToken" | "Fake" | "GCRAccessToken" | "GithubAccessToken" | "GitlabDeployToken" | "QuayAccessToken" | "Password" | "SSHKey" | "STSSessionToken" | "UUID" | "VaultDynamicSecret" | "Webhook" | "Grafana" | "MFA"
 
     name: str
 
@@ -378,8 +378,8 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecSelectorSecret:
     selector?: ExternalSecretsIoV1alpha1PushSecretSpecSelectorSecretSelector
 
     check:
-        len(name) <= 253 if name not in [None, Undefined]
-        len(name) >= 1 if name not in [None, Undefined]
+        len(name) <= 253 if name
+        len(name) >= 1 if name
         _regex_match(str(name), r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$") if name
 
 schema ExternalSecretsIoV1alpha1PushSecretSpecSelectorSecretSelector:
@@ -482,14 +482,19 @@ schema ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0:
         secret
     target : str, default is "Data", optional
         Target specifies where to place the template result.
-        For Secret resources, common values are: "Data", "Annotations", "Labels".
+        For Secret resources the accepted values are empty, "Data", "Annotations" and "Labels";
+        any other value is rejected because it would allow writes to privileged Secret fields.
         For custom resources (when spec.target.manifest is set), this supports
         nested paths like "spec.database.config" or "data".
+    valuesDecodingStrategy : str, default is Undefined, optional
+        Used to define a decoding Strategy for the rendered template values.
+        Defaults to None when omitted.
     """
     configMap?: ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0ConfigMap
     literal?: str
     secret?: ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0Secret
     target?: str = "Data"
+    valuesDecodingStrategy?: "Auto" | "Base64" | "Base64URL" | "None"
 
 schema ExternalSecretsIoV1alpha1PushSecretSpecTemplateTemplateFromItems0ConfigMap:
     r"""
