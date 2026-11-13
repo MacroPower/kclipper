@@ -57,6 +57,12 @@ schema MonitoringCoreosComV1ProbeSpec:
         It requires Prometheus >= v3.0.0.
     enableHttp2 : bool, default is Undefined, optional
         enableHttp2 can be used to disable HTTP2.
+    extraScrapeMetrics : bool, default is Undefined, optional
+        extraScrapeMetrics defines whether to store additional time series for each scrape:
+        `scrape_timeout_seconds`, `scrape_sample_limit` and `scrape_body_size_bytes`.
+        These metrics help monitor how close targets are to their configured limits.
+
+        It requires Prometheus >= v3.10.0.
     fallbackScrapeProtocol : str, default is Undefined, optional
         fallbackScrapeProtocol defines the protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
 
@@ -140,6 +146,7 @@ schema MonitoringCoreosComV1ProbeSpec:
     bearerTokenSecret?: MonitoringCoreosComV1ProbeSpecBearerTokenSecret
     convertClassicHistogramsToNHCB?: bool
     enableHttp2?: bool
+    extraScrapeMetrics?: bool
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
     followRedirects?: bool
     interval?: str
@@ -167,10 +174,17 @@ schema MonitoringCoreosComV1ProbeSpec:
 
     check:
         _regex_match(str(interval), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if interval
+        keepDroppedTargets >= 0 if keepDroppedTargets not in [None, Undefined]
+        labelLimit >= 0 if labelLimit not in [None, Undefined]
+        labelNameLengthLimit >= 0 if labelNameLengthLimit not in [None, Undefined]
+        labelValueLengthLimit >= 0 if labelValueLengthLimit not in [None, Undefined]
+        nativeHistogramBucketLimit >= 0 if nativeHistogramBucketLimit not in [None, Undefined]
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
         len(params) >= 1 if params
+        sampleLimit >= 0 if sampleLimit not in [None, Undefined]
         len(scrapeClass) >= 1 if scrapeClass
         _regex_match(str(scrapeTimeout), r"^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$") if scrapeTimeout
+        targetLimit >= 0 if targetLimit not in [None, Undefined]
 
 schema MonitoringCoreosComV1ProbeSpecAuthorization:
     r"""
@@ -356,6 +370,9 @@ schema MonitoringCoreosComV1ProbeSpecMetricRelabelingsItems0:
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1ProbeSpecOauth2:
     r"""
     oauth2 defines the OAuth2 settings used by the client.
@@ -412,7 +429,7 @@ schema MonitoringCoreosComV1ProbeSpecOauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1ProbeSpecOauth2ClientID:
     r"""
@@ -436,7 +453,8 @@ schema MonitoringCoreosComV1ProbeSpecOauth2ClientIDConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -573,7 +591,8 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -631,7 +650,8 @@ schema MonitoringCoreosComV1ProbeSpecOauth2TLSConfigCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -834,7 +854,8 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCaConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -892,7 +913,8 @@ schema MonitoringCoreosComV1ProbeSpecTLSConfigCertConfigMap:
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1054,6 +1076,9 @@ schema MonitoringCoreosComV1ProbeSpecTargetsIngressRelabelingConfigsItems0:
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1ProbeSpecTargetsIngressSelector:
     r"""
     selector to select the Ingress objects.
@@ -1164,6 +1189,9 @@ schema MonitoringCoreosComV1ProbeSpecTargetsStaticConfigRelabelingConfigsItems0:
     separator?: str
     sourceLabels?: [str]
     targetLabel?: str
+
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
 
 schema MonitoringCoreosComV1ProbeStatus:
     r"""
