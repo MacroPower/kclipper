@@ -19,6 +19,14 @@ schema ServiceMonitor:
 
     `Prometheus` and `PrometheusAgent` objects select `ServiceMonitor` objects using label and namespace selectors.
 
+    Service targets that aren't backed by Pods (for instance manually managed
+    Endpoints or EndpointSlices) can only be scraped when the endpoint selects
+    the service port with `port` instead of `targetPort` and `filterRunning` is
+    set to `false`. Manually created Pods have no such restriction.
+
+    For targets that aren't backed by Pods, you can also consider using the
+    `ScrapeConfig` CRD.
+
     Attributes
     ----------
     apiVersion : str, default is "monitoring.coreos.com/v1", required
@@ -62,6 +70,12 @@ schema MonitoringCoreosComV1ServiceMonitorSpec:
         endpoints defines the list of endpoints part of this ServiceMonitor.
         Defines how to scrape metrics from Kubernetes [Endpoints](https://kubernetes.io/docs/concepts/services-networking/service/#endpoints) objects.
         In most cases, an Endpoints object is backed by a Kubernetes [Service](https://kubernetes.io/docs/concepts/services-networking/service/) object with the same name and labels.
+    extraScrapeMetrics : bool, default is Undefined, optional
+        extraScrapeMetrics defines whether to store additional time series for each scrape:
+        `scrape_timeout_seconds`, `scrape_sample_limit` and `scrape_body_size_bytes`.
+        These metrics help monitor how close targets are to their configured limits.
+
+        It requires Prometheus >= v3.10.0.
     fallbackScrapeProtocol : str, default is Undefined, optional
         fallbackScrapeProtocol defines the protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
 
@@ -154,6 +168,7 @@ schema MonitoringCoreosComV1ServiceMonitorSpec:
     convertClassicHistogramsToNHCB?: bool
     endpoints: [MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0]
 
+    extraScrapeMetrics?: bool
     fallbackScrapeProtocol?: "PrometheusProto" | "OpenMetricsText0.0.1" | "OpenMetricsText1.0.0" | "PrometheusText0.0.4" | "PrometheusText1.0.0"
     jobLabel?: str
     keepDroppedTargets?: int
@@ -178,8 +193,15 @@ schema MonitoringCoreosComV1ServiceMonitorSpec:
 
     check:
         _regex_match(str(bodySizeLimit), r"(^0|([0-9]*[.])?[0-9]+((K|M|G|T|E|P)i?)?B)$") if bodySizeLimit
+        keepDroppedTargets >= 0 if keepDroppedTargets not in [None, Undefined]
+        labelLimit >= 0 if labelLimit not in [None, Undefined]
+        labelNameLengthLimit >= 0 if labelNameLengthLimit not in [None, Undefined]
+        labelValueLengthLimit >= 0 if labelValueLengthLimit not in [None, Undefined]
+        nativeHistogramBucketLimit >= 0 if nativeHistogramBucketLimit not in [None, Undefined]
         _regex_match(str(nativeHistogramMinBucketFactor), r"^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$") if nativeHistogramMinBucketFactor
+        sampleLimit >= 0 if sampleLimit not in [None, Undefined]
         len(scrapeClass) >= 1 if scrapeClass
+        targetLimit >= 0 if targetLimit not in [None, Undefined]
 
 schema MonitoringCoreosComV1ServiceMonitorSpecAttachMetadata:
     r"""
@@ -196,6 +218,10 @@ schema MonitoringCoreosComV1ServiceMonitorSpecAttachMetadata:
 
         The Prometheus service account must have the `list` and `watch`
         permissions on the `Nodes` objects.
+
+        Node metadata labels are not automatically added to scraped metrics. They are
+        exposed as `__meta_kubernetes_node_*` labels and can be copied to timeseries
+        with relabeling configuration.
     """
     node?: bool
 
@@ -256,7 +282,8 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
 
         If empty, Prometheus uses the default value (e.g. `/metrics`).
     port : str, default is Undefined, optional
-        port defines the name of the Service port which this endpoint refers to.
+        port defines the name of the Service port which this endpoint refers to
+        (e.g. `.spec.ports[].name`).
 
         It takes precedence over `targetPort`.
     proxyConnectHeader : {str:[MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0ProxyConnectHeaderItems0]}, default is Undefined, optional
@@ -288,8 +315,13 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0:
         than the target's scrape interval value in which the latter is used.
         The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
     targetPort : int | str, default is Undefined, optional
-        targetPort defines the name or number of the target port of the `Pod` object behind the
-        Service. The port must be specified with the container's port property.
+        targetPort defines the name or number of a container port on Pods selected
+        by the Service.
+        If a name, it matches against `.spec.containers[].ports[].name` of the Pods.
+        If a number, it matches against `.spec.containers[].ports[].containerPort` of the Pods.
+
+        Because it relies on Pod metadata, endpoints which aren't backed by Pods
+        are never scraped when `targetPort` is used.
     tlsConfig : MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0TLSConfig, default is Undefined, optional
         tls config
     trackTimestampsStaleness : bool, default is Undefined, optional
@@ -514,6 +546,9 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0MetricRelabelingsIt
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2:
     r"""
     oauth2 defines the OAuth2 settings used by the client.
@@ -570,7 +605,7 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2:
 
     check:
         _regex_match(str(proxyUrl), r"^(http|https|socks5)://.+$") if proxyUrl
-        len(tokenUrl) >= 1
+        _regex_match(str(tokenUrl), r"^(http|https)://.+$")
 
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2ClientID:
     r"""
@@ -594,7 +629,8 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2ClientIDConfi
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -731,7 +767,8 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2TLSConfigCaCo
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -789,7 +826,8 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0Oauth2TLSConfigCert
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -919,6 +957,9 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0RelabelingsItems0:
     sourceLabels?: [str]
     targetLabel?: str
 
+    check:
+        modulus >= 0 if modulus not in [None, Undefined]
+
 schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0TLSConfig:
     r"""
     tlsConfig defines TLS configuration used by the client.
@@ -982,7 +1023,8 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0TLSConfigCaConfigMa
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
@@ -1040,7 +1082,8 @@ schema MonitoringCoreosComV1ServiceMonitorSpecEndpointsItems0TLSConfigCertConfig
     Attributes
     ----------
     key : str, default is Undefined, required
-        The key to select.
+        The key to select from the ConfigMap's Data field.
+        Keys in the BinaryData field are not currently propagated to container env vars.
     name : str, default is Undefined, optional
         Name of the referent.
         This field is effectively required, but due to backwards compatibility is
